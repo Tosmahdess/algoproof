@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+// next.config.ts
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  pageExtensions: ['ts', 'tsx', 'mdx'],
+}
 
-export default nextConfig;
+export default nextConfig
