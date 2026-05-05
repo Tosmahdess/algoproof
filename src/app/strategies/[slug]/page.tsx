@@ -5,7 +5,9 @@ import StatusBadge from '@/components/StatusBadge'
 import MetricsRow from '@/components/MetricsRow'
 import EquityCurve from '@/components/EquityCurve'
 import TradesTable from '@/components/TradesTable'
+import BotParamsSection from '@/components/BotParams'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
+import { getBotParams } from '@/lib/bot-params'
 
 export const revalidate = 3600
 export const dynamicParams = false
@@ -31,6 +33,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   if (!bot) notFound()
 
   const pnlPct = ((bot.stats.latest_capital - 1000) / 1000) * 100
+  const botParams = getBotParams(slug)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -76,6 +79,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           <p className="text-muted text-sm leading-relaxed">{bot.description}</p>
         </div>
       )}
+
+      {/* Parameters */}
+      {botParams && <BotParamsSection params={botParams} />}
 
       {/* Recent trades */}
       <div className="bg-card border border-border rounded-xl p-6 mb-8">

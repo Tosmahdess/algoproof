@@ -42,9 +42,16 @@ BOTS = [
         "assets": ["BTC/USDT", "SOL/USDT", "LINK/USDT", "DOGE/USDT", "ADA/USDT"],
         "timeframe": "H4",
         "description": (
-            "EMA crossover strategy on 4H timeframe. Enters on EMA 21/55 cross confirmed by EMA 200 "
-            "trend filter. Exit on reverse cross or ATR-based stop loss. Defense mesh with 4 risk "
-            "layers including Market Intelligence gate."
+            "V1 Spot runs a three-EMA trend-following system on the 4-hour timeframe. "
+            "A trade opens when the fast EMA (21) crosses the intermediate EMA (55) in the direction "
+            "confirmed by the long-term trend filter (EMA 200) — eliminating counter-trend noise from the start. "
+            "Each position risks exactly 1% of capital with an ATR ×2.0 initial stop loss. "
+            "On BTC, SOL, and ADA the stop trails into profit as the move extends; "
+            "LINK and DOGE use a fixed three-tranche exit (50% at TP1, 30% at TP2, 20% runner). "
+            "A four-layer defense mesh surrounds every signal: a per-asset ADX strength filter, "
+            "the Market Intelligence macro gate (checks VIX, Fear & Greed, funding rates, and the economic calendar), "
+            "a circuit breaker that pauses trading for 4 hours after 3 consecutive losses, "
+            "and a -5%/day kill switch that halts the bot entirely until manual review."
         ),
         "db_path": os.path.expanduser("~/apex_emacross_binancespot_3/db/apex_trades.db"),
         "paper_state_name": "apex-v1-spot",
@@ -59,8 +66,15 @@ BOTS = [
         "assets": ["BTC-USDC", "SOL-USDC", "LINK-USDC", "DOGE-USDC", "ETH-USDC", "XRP-USDC"],
         "timeframe": "H4",
         "description": (
-            "Same EMA H4 strategy as V1 Spot but on Hyperliquid perpetuals. Lower fees (0.065% taker) "
-            "and access to indices. Integrated Market Intelligence gate for macro/sentiment filtering."
+            "V1-HL runs the same proven EMA 21/55/200 crossover on 4-hour candles, but on Hyperliquid perpetuals — "
+            "enabling both long and short positions across 6 major assets. "
+            "Lower taker fees (0.065%) compared to centralized spot exchanges reduce the cost of each round trip, "
+            "meaningfully improving the net edge on medium-frequency H4 signals. "
+            "The Market Intelligence gate actively blocks entries when macro conditions are unfavorable: "
+            "VIX spikes, extreme Fear & Greed readings, elevated funding rates, or scheduled high-impact macro events. "
+            "ADA is restricted to long-only after perps shorts backtested at 0% win rate on this asset. "
+            "Risk management is identical to V1 Spot: 1% per trade, ATR ×2.0 stop that trails on BTC/SOL/ETH/XRP/ADA, "
+            "minimum 1:2 R:R, circuit breaker after 3 consecutive losses, and -5%/day kill switch."
         ),
         "db_path": os.path.expanduser("~/apex_emacross_hlperps_7/db/apex_hl_trades.db"),
         "paper_state_name": "apex-v1-hl",
