@@ -69,7 +69,7 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
       profit_factor,
       max_drawdown,
       total_trades: allTrades.length,
-      latest_capital: capitals[capitals.length - 1] ?? 0,
+      latest_capital: capitals[capitals.length - 1] ?? 1000,
     },
     perf_daily: allPerf,
     recent_trades: allTrades.slice(0, 20),

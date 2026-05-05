@@ -5,6 +5,8 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: 'Blog',
   description: 'Strategy updates, algo trading insights, and honest performance reviews.',
