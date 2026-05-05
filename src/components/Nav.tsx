@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { DISCORD_URL } from '@/lib/constants'
 
 const links = [
   { href: '/strategies', label: 'Strategies' },
@@ -24,7 +25,7 @@ export default function Nav() {
             </Link>
           ))}
           <a
-            href="https://discord.gg/placeholder"
+            href={DISCORD_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm px-3 py-1.5 rounded-md bg-accent/10 text-accent border border-accent/20 hover:bg-accent/20 transition-colors"
