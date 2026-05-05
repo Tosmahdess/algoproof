@@ -1,0 +1,80 @@
+// src/lib/queries.ts
+import { supabase } from './supabase'
+import { Bot, BotWithStats, PerfDaily, Trade } from './types'
+
+export async function getBots(): Promise<Bot[]> {
+  const { data, error } = await supabase
+    .from('bots')
+    .select('*')
+    .neq('status', 'frozen')
+    .order('name')
+  if (error) throw new Error(error.message)
+  return data ?? []
+}
+
+export async function getBotSlugs(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('bots')
+    .select('slug')
+    .neq('status', 'frozen')
+  if (error) throw new Error(error.message)
+  return (data ?? []).map(r => r.slug)
+}
+
+export async function getBotWithStats(slug: string): Promise<BotWithStats | null> {
+  const { data: bot, error: botErr } = await supabase
+    .from('bots')
+    .select('*')
+    .eq('slug', slug)
+    .single()
+  if (botErr || !bot) return null
+
+  const { data: trades } = await supabase
+    .from('trades')
+    .select('*')
+    .eq('bot_id', bot.id)
+    .order('closed_at', { ascending: false })
+
+  const { data: perf } = await supabase
+    .from('perf_daily')
+    .select('*')
+    .eq('bot_id', bot.id)
+    .order('date', { ascending: true })
+
+  const allTrades: Trade[] = trades ?? []
+  const allPerf: PerfDaily[] = perf ?? []
+
+  const wins = allTrades.filter(t => t.pnl > 0).length
+  const win_rate = allTrades.length > 0 ? wins / allTrades.length : 0
+
+  const grossProfit = allTrades.filter(t => t.pnl > 0).reduce((s, t) => s + t.pnl, 0)
+  const grossLoss   = Math.abs(allTrades.filter(t => t.pnl < 0).reduce((s, t) => s + t.pnl, 0))
+  const profit_factor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? 999 : 0
+
+  const capitals = allPerf.map(p => p.capital)
+  let peak = capitals[0] ?? 0
+  let max_drawdown = 0
+  for (const c of capitals) {
+    if (c > peak) peak = c
+    const dd = peak > 0 ? (peak - c) / peak : 0
+    if (dd > max_drawdown) max_drawdown = dd
+  }
+
+  return {
+    ...bot,
+    stats: {
+      win_rate,
+      profit_factor,
+      max_drawdown,
+      total_trades: allTrades.length,
+      latest_capital: capitals[capitals.length - 1] ?? 0,
+    },
+    perf_daily: allPerf,
+    recent_trades: allTrades.slice(0, 20),
+  }
+}
+
+export async function getAllBotsWithStats(): Promise<BotWithStats[]> {
+  const bots = await getBots()
+  return Promise.all(bots.map(b => getBotWithStats(b.slug).then(v => v!)))
+}
