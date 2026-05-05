@@ -62,4 +62,9 @@ describe('getBotSlugs', () => {
     const result = await getBotSlugs()
     expect(result).toEqual([])
   })
+
+  it('throws on Supabase error', async () => {
+    vi.mocked(supabase.from).mockReturnValue(mockChain(null, { message: 'slugs error' }))
+    await expect(getBotSlugs()).rejects.toThrow('slugs error')
+  })
 })

@@ -29,17 +29,19 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
     .single()
   if (botErr || !bot) return null
 
-  const { data: trades } = await supabase
+  const { data: trades, error: tradesErr } = await supabase
     .from('trades')
     .select('*')
     .eq('bot_id', bot.id)
     .order('closed_at', { ascending: false })
+  if (tradesErr) throw new Error(`trades fetch failed for bot ${bot.id}: ${tradesErr.message}`)
 
-  const { data: perf } = await supabase
+  const { data: perf, error: perfErr } = await supabase
     .from('perf_daily')
     .select('*')
     .eq('bot_id', bot.id)
     .order('date', { ascending: true })
+  if (perfErr) throw new Error(`perf_daily fetch failed for bot ${bot.id}: ${perfErr.message}`)
 
   const allTrades: Trade[] = trades ?? []
   const allPerf: PerfDaily[] = perf ?? []
@@ -76,5 +78,9 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
 
 export async function getAllBotsWithStats(): Promise<BotWithStats[]> {
   const bots = await getBots()
-  return Promise.all(bots.map(b => getBotWithStats(b.slug).then(v => v!)))
+  return Promise.all(bots.map(async b => {
+    const result = await getBotWithStats(b.slug)
+    if (!result) throw new Error(`getBotWithStats returned null for slug: ${b.slug}`)
+    return result
+  }))
 }
