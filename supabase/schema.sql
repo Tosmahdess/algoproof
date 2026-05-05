@@ -16,7 +16,7 @@ create table if not exists bots (
 
 create table if not exists trades (
   id          uuid primary key default gen_random_uuid(),
-  bot_id      uuid references bots(id) on delete cascade,
+  bot_id      uuid not null references bots(id) on delete cascade,
   opened_at   timestamptz not null,
   closed_at   timestamptz not null,
   asset       text not null,
@@ -29,7 +29,7 @@ create table if not exists trades (
 
 create table if not exists perf_daily (
   id             uuid primary key default gen_random_uuid(),
-  bot_id         uuid references bots(id) on delete cascade,
+  bot_id         uuid not null references bots(id) on delete cascade,
   date           date not null,
   capital        numeric(12, 2) not null,
   pnl_day        numeric(10, 4) not null,
@@ -46,3 +46,5 @@ alter table perf_daily enable row level security;
 create policy "public read bots"       on bots       for select using (true);
 create policy "public read trades"     on trades     for select using (true);
 create policy "public read perf_daily" on perf_daily for select using (true);
+
+create index if not exists trades_bot_id_idx on trades(bot_id);
