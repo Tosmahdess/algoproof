@@ -8,6 +8,7 @@ import TradesTable from '@/components/TradesTable'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 
 export const revalidate = 3600
+export const dynamicParams = false
 
 export async function generateStaticParams() {
   const slugs = await getBotSlugs()

@@ -6,6 +6,8 @@ import path from 'path'
 import matter from 'gray-matter'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 
+export const dynamicParams = false
+
 function getArticle(slug: string) {
   const filePath = path.join(process.cwd(), 'content/blog', `${slug}.mdx`)
   if (!fs.existsSync(filePath)) return null
