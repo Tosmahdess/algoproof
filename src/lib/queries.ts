@@ -5,7 +5,7 @@ import { Bot, BotWithStats, PerfDaily, Trade } from './types'
 export async function getBots(): Promise<Bot[]> {
   const { data, error } = await supabase
     .from('bots')
-    .select('*')
+    .select('id,slug,name,strategy,status,family,exchange,assets,timeframe,description,created_at')
     .neq('status', 'frozen')
     .order('name')
   if (error) throw new Error(error.message)
