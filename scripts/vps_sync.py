@@ -84,6 +84,9 @@ BOTS = [
     },
 ]
 
+WEALTH_CALLS_DB   = os.path.expanduser("~/apex_wealth/db/wealth_calls.db")
+MI_HEARTBEAT_PATH = os.path.expanduser("~/market_intel/db/heartbeat.json")
+
 
 def supabase_get(table: str, params: dict) -> list:
     r = requests.get(f"{SUPABASE_URL}/rest/v1/{table}", headers=BASE_HEADERS, params=params)
@@ -298,6 +301,97 @@ def sync_bot(bot_cfg: dict) -> None:
     print(f"[{slug}] {len(perf)} perf_daily rows pushed (paper balance: {paper_balance})")
 
 
+def sync_wealth_calls() -> None:
+    """Sync DCA call history from local SQLite to Supabase wealth_calls."""
+    if not os.path.exists(WEALTH_CALLS_DB):
+        print("  [wealth] DB not found — skipping")
+        return
+
+    conn = sqlite3.connect(WEALTH_CALLS_DB)
+    rows = conn.execute(
+        "SELECT executed_at, asset, portfolio, amount_eur, multiplier, "
+        "signal_level, venue, price_eur, quantity FROM wealth_calls ORDER BY executed_at ASC"
+    ).fetchall()
+    conn.close()
+
+    if not rows:
+        print("  [wealth] No rows — skipping")
+        return
+
+    records = [
+        {
+            "executed_at": r[0], "asset": r[1], "portfolio": r[2],
+            "amount_eur":  r[3], "multiplier": r[4], "signal_level": r[5],
+            "venue": r[6], "price_eur": r[7], "quantity": r[8],
+        }
+        for r in rows
+    ]
+    supabase_upsert("wealth_calls", records, "executed_at,asset")
+    print(f"  [wealth] {len(records)} wealth_calls synced")
+
+
+def sync_asset_prices() -> None:
+    """Fetch live asset prices and push to Supabase asset_prices."""
+    COINGECKO_ASSETS = {
+        "BTC": "bitcoin",
+        "ETH": "ethereum",
+        "SOL": "solana",
+    }
+    prices: dict = {}
+    now = datetime.utcnow().isoformat() + "Z"
+
+    # CoinGecko — direct EUR prices
+    try:
+        r = requests.get(
+            "https://api.coingecko.com/api/v3/simple/price",
+            params={"ids": ",".join(COINGECKO_ASSETS.values()), "vs_currencies": "eur"},
+            timeout=10,
+        )
+        r.raise_for_status()
+        cg = r.json()
+        for asset, cg_id in COINGECKO_ASSETS.items():
+            if cg_id in cg and "eur" in cg[cg_id]:
+                prices[asset] = {"price_eur": cg[cg_id]["eur"], "source": "coingecko"}
+    except Exception as e:
+        print(f"  [prices] CoinGecko error: {e}")
+
+    # Yahoo Finance — Gold (USD→EUR) + CW8.PA (EUR)
+    def _yahoo_close(ticker: str) -> float | None:
+        try:
+            resp = requests.get(
+                f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}",
+                params={"range": "1d", "interval": "1d"},
+                headers={"User-Agent": "AlgoProof/1.0"},
+                timeout=10,
+            )
+            resp.raise_for_status()
+            closes = resp.json()["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+            return next(c for c in reversed(closes) if c is not None)
+        except Exception:
+            return None
+
+    eurusd = _yahoo_close("EURUSD=X") or 1.0
+
+    gold_usd = _yahoo_close("GC=F")
+    if gold_usd:
+        prices["XAUUSDT"] = {"price_eur": round(gold_usd / eurusd, 2), "source": "yahoo"}
+
+    cw8 = _yahoo_close("CW8.PA")
+    if cw8:
+        prices["CW8"] = {"price_eur": round(cw8, 4), "source": "yahoo"}
+
+    if not prices:
+        print("  [prices] No prices fetched — skipping")
+        return
+
+    records = [
+        {"asset": a, "price_eur": v["price_eur"], "source": v["source"], "updated_at": now}
+        for a, v in prices.items()
+    ]
+    supabase_upsert("asset_prices", records, "asset")
+    print(f"  [prices] {len(records)} prices updated: {list(prices.keys())}")
+
+
 def main() -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     print(f"=== AlgoProof VPS Sync — {ts} ===")
@@ -306,6 +400,19 @@ def main() -> None:
             sync_bot(bot)
         except Exception as e:
             print(f"[{bot['slug']}] ERROR: {e}")
+
+    print("\n[wealth] Syncing wealth_calls...")
+    try:
+        sync_wealth_calls()
+    except Exception as e:
+        print(f"[wealth] ERROR: {e}")
+
+    print("\n[prices] Syncing asset prices...")
+    try:
+        sync_asset_prices()
+    except Exception as e:
+        print(f"[prices] ERROR: {e}")
+
     print("\n=== Done ===")
 
 
