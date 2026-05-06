@@ -10,7 +10,6 @@ const STRATEGIES_SUB = [
   { href: '/strategies#multi-signal', label: 'Multi-signaux' },
   { href: '/strategies#multi-asset',  label: 'Multi-actifs' },
   { href: '/strategies#leveraged',    label: 'Avec levier' },
-  { href: '/dashboard',               label: 'Tableau comparatif' },
 ]
 
 export default function Nav() {

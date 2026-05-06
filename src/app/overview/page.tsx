@@ -10,11 +10,26 @@ import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Vue d\'ensemble — AlgoProof',
-  description: 'Tableau de bord complet : régime MI, performance de tous les bots, courbe globale et trades récents.',
+  title: "Vue d'ensemble — AlgoProof",
+  description: "Tableau de bord complet : régime MI, tous les bots classés par performance, courbe globale et trades récents.",
 }
 
-// Bot color palette for equity curve
+const FAMILY_LABEL: Record<string, string> = {
+  'trend':        'Suivi de tendance',
+  'breakout':     'Cassure de niveaux',
+  'multi-signal': 'Multi-signaux',
+  'multi-asset':  'Multi-actifs',
+  'leveraged':    'Avec levier',
+}
+
+const FAMILY_COLOR: Record<string, string> = {
+  'trend':        '#ff6b35',
+  'breakout':     '#3fb950',
+  'multi-signal': '#d29922',
+  'multi-asset':  '#40c4ff',
+  'leveraged':    '#ff4444',
+}
+
 const BOT_COLORS = [
   '#3fb950','#58a6ff','#ff6b35','#d2a8ff','#f6c90e',
   '#40c4ff','#ff4444','#4ade80','#fb923c','#a78bfa',
@@ -46,25 +61,22 @@ export default async function OverviewPage() {
     getRecentTrades(20),
   ])
 
-  const today = new Date().toISOString().slice(0, 10)
-
-  // Bots with trades (active), sorted by P&L desc
-  const activeBots = bots
-    .filter(b => b.stats.total_trades > 0)
-    .sort((a, b) => b.stats.latest_capital - a.stats.latest_capital)
-
-  // Summary stats
+  const today       = new Date().toISOString().slice(0, 10)
+  const sorted      = [...bots].sort((a, b) => b.stats.latest_capital - a.stats.latest_capital)
+  const botsWithData = bots.filter(b => b.stats.total_trades > 0)
   const totalTrades = bots.reduce((s, b) => s + b.stats.total_trades, 0)
-  const inProfit    = activeBots.filter(b => b.stats.latest_capital > 1000).length
+  const winners     = botsWithData.filter(b => b.stats.latest_capital > 1000).length
+  const avgPnl      = botsWithData.length > 0
+    ? botsWithData.reduce((s, b) => s + pnlEur(b.stats.latest_capital), 0) / botsWithData.length
+    : 0
 
-  // Today's global P&L
   const todayPnl = bots.reduce((s, b) => {
     const row = b.perf_daily.find(p => p.date === today)
     return s + (row?.pnl_day ?? 0)
   }, 0)
 
-  // Top bots for equity curve (max 12, those with most trades)
-  const curveBots = [...activeBots]
+  // Top bots for equity curve (max 12, most trades)
+  const curveBots = [...botsWithData]
     .sort((a, b) => b.stats.total_trades - a.stats.total_trades)
     .slice(0, 12)
     .map((b, i) => ({
@@ -82,7 +94,7 @@ export default async function OverviewPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Vue d&apos;ensemble</h1>
           <p className="text-sm text-muted mt-1">
-            Réplique du dashboard interne APEX — données synchronisées depuis le VPS toutes les heures.
+            Dashboard complet — données synchronisées depuis le VPS toutes les heures.
           </p>
         </div>
         <div className="text-right text-xs text-muted font-mono">
@@ -100,10 +112,10 @@ export default async function OverviewPage() {
       {/* Summary counters */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Bots actifs',      value: `${activeBots.length} / ${bots.length}` },
-          { label: 'Trades totaux',    value: String(totalTrades) },
-          { label: 'En positif',       value: `${inProfit} / ${activeBots.length}`, color: '#3fb950' },
-          { label: 'P&L aujourd\'hui', value: fmtEur(todayPnl), color: todayPnl >= 0 ? '#3fb950' : '#ff4444' },
+          { label: 'Bots actifs',    value: `${bots.length}` },
+          { label: 'Trades fermés',  value: `${totalTrades}` },
+          { label: 'En positif',     value: `${winners} / ${botsWithData.length}`, color: '#3fb950' },
+          { label: "P&L aujourd'hui", value: fmtEur(todayPnl), color: todayPnl >= 0 ? '#3fb950' : '#ff4444' },
         ].map(s => (
           <div key={s.label} className="rounded border border-border p-4 text-center">
             <p className="text-[10px] text-muted uppercase tracking-widest mb-1">{s.label}</p>
@@ -114,80 +126,90 @@ export default async function OverviewPage() {
         ))}
       </div>
 
-      {/* Bot cards grid — like VPS dashboard */}
+      {/* Tableau comparatif — tous les bots */}
       <section>
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-4">Bots paper trading</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {activeBots.map(bot => {
-            const todayRow = bot.perf_daily.find(p => p.date === today)
-            const pnlJour  = todayRow?.pnl_day ?? 0
-            const total    = pnlEur(bot.stats.latest_capital)
-            const pct      = pnlPct(bot.stats.latest_capital)
-
-            return (
-              <Link key={bot.id} href={`/strategies/${bot.slug}`} className="block group">
-                <div className="rounded border border-border p-4 hover:border-muted/50 transition-colors bg-card">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold truncate group-hover:text-positive transition-colors">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-4">
+          Tous les bots — classés par performance
+        </h2>
+        <div className="rounded border border-border overflow-hidden">
+          <table className="w-full text-xs">
+            <thead className="bg-card">
+              <tr className="text-muted text-[10px] uppercase tracking-widest border-b border-border">
+                <th className="px-4 py-3 text-left">Stratégie</th>
+                <th className="px-4 py-3 text-left">Famille</th>
+                <th className="px-4 py-3 text-left">Exchange</th>
+                <th className="px-4 py-3 text-right">Trades</th>
+                <th className="px-4 py-3 text-right">T. gain</th>
+                <th className="px-4 py-3 text-right">F. profit</th>
+                <th className="px-4 py-3 text-right">Drawdown</th>
+                <th className="px-4 py-3 text-right font-bold">P&amp;L (€)</th>
+                <th className="px-4 py-3 text-center">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map(bot => {
+                const hasData = bot.stats.total_trades > 0
+                return (
+                  <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
+                    <td className="px-4 py-3">
+                      <Link href={`/strategies/${bot.slug}`} className="font-medium hover:text-positive transition-colors">
                         {bot.name}
-                      </p>
-                      <p className="text-[10px] text-muted">{bot.exchange} · {bot.timeframe}</p>
-                    </div>
-                    <StatusBadge status={bot.status} />
-                  </div>
-
-                  {/* Capital + P&L total */}
-                  <div className="flex items-baseline justify-between mb-2">
-                    <span className="font-mono font-bold text-lg">€{bot.stats.latest_capital.toFixed(2)}</span>
-                    <span className={`text-xs font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
-                      {fmtPct(pct)}
-                    </span>
-                  </div>
-
-                  {/* Metrics row */}
-                  <div className="grid grid-cols-4 gap-1 text-center">
-                    <div>
-                      <p className="text-[9px] text-muted uppercase">Auj.</p>
-                      <p className={`text-xs font-mono font-semibold ${pnlJour >= 0 ? 'text-positive' : 'text-negative'}`}>
-                        {fmtEur(pnlJour, 2)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] text-muted uppercase">WR</p>
-                      <p className="text-xs font-mono">{(bot.stats.win_rate * 100).toFixed(0)}%</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] text-muted uppercase">PF</p>
-                      <p className={`text-xs font-mono ${bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative'}`}>
-                        {bot.stats.profit_factor.toFixed(2)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] text-muted uppercase">Trades</p>
-                      <p className="text-xs font-mono">{bot.stats.total_trades}</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            )
-          })}
+                      </Link>
+                      <p className="text-muted text-[10px] mt-0.5">{bot.timeframe}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide"
+                        style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
+                        {FAMILY_LABEL[bot.family ?? ''] ?? bot.family ?? '—'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-muted">{bot.exchange}</td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {hasData ? bot.stats.total_trades : <span className="text-muted">—</span>}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {hasData ? `${(bot.stats.win_rate * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
+                    </td>
+                    <td className={`px-4 py-3 text-right font-mono ${hasData ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}>
+                      {hasData ? bot.stats.profit_factor.toFixed(2) : <span className="text-muted">—</span>}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono text-negative">
+                      {hasData ? `${(bot.stats.max_drawdown * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {hasData ? (
+                        <div>
+                          <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
+                            {fmtEur(pnlEur(bot.stats.latest_capital))}
+                          </span>
+                          <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
+                            {fmtPct(pnlPct(bot.stats.latest_capital))}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <StatusBadge status={bot.status} />
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
-
-        {/* Bots sans trades */}
-        {bots.length > activeBots.length && (
-          <p className="text-xs text-muted mt-3 text-center">
-            + {bots.length - activeBots.length} bots en attente de leur premier trade
-          </p>
-        )}
+        <p className="text-center text-xs text-muted mt-3">
+          P&amp;L calculé sur les trades fermés depuis le démarrage · Capital initial 1&nbsp;000€ par bot
+        </p>
       </section>
 
-      {/* Global equity curve */}
+      {/* Courbes d'équité globale */}
       {curveBots.length > 0 && (
         <section>
           <div className="flex items-baseline gap-3 mb-4">
             <h2 className="text-xs font-semibold tracking-widest uppercase text-muted">Courbes d&apos;équité — 30 jours</h2>
-            <span className="text-[10px] text-muted">{curveBots.length} bots affichés</span>
+            <span className="text-[10px] text-muted">{curveBots.length} bots les plus actifs</span>
           </div>
           <div className="rounded border border-border p-4 bg-card">
             <GlobalEquityCurve bots={curveBots} days={30} />
@@ -195,7 +217,7 @@ export default async function OverviewPage() {
         </section>
       )}
 
-      {/* Recent trades — all bots */}
+      {/* 20 derniers trades — tous bots */}
       <section>
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-4">
           20 derniers trades — tous bots
