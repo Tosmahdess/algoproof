@@ -131,19 +131,60 @@ export default async function OverviewPage() {
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-4">
           Tous les bots — classés par performance
         </h2>
-        <div className="rounded border border-border overflow-x-auto">
-          <table className="w-full text-xs min-w-[600px]">
+
+        {/* Mobile : liste classement */}
+        <div className="md:hidden rounded border border-border overflow-hidden divide-y divide-border">
+          {sorted.map((bot, i) => {
+            const hasData = bot.stats.total_trades > 0
+            const eur     = pnlEur(bot.stats.latest_capital)
+            const pct     = pnlPct(bot.stats.latest_capital)
+            return (
+              <Link key={bot.id} href={`/strategies/${bot.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
+                <span className="text-xs text-muted font-mono w-6 flex-shrink-0">#{i + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium truncate">{bot.name}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] font-semibold uppercase"
+                      style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
+                      {FAMILY_LABEL[bot.family ?? ''] ?? '—'}
+                    </span>
+                    {hasData && <span className="text-[10px] text-muted">{bot.stats.total_trades} trades</span>}
+                    {!hasData && <span className="text-[10px] text-muted italic">pas encore de trades</span>}
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  {hasData ? (
+                    <>
+                      <p className={`text-sm font-bold font-mono ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>
+                        {fmtEur(eur)}
+                      </p>
+                      <p className={`text-[10px] font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+                        {fmtPct(pct)}
+                      </p>
+                    </>
+                  ) : (
+                    <span className="text-xs text-muted">—</span>
+                  )}
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Desktop : table complète */}
+        <div className="hidden md:block rounded border border-border overflow-hidden">
+          <table className="w-full text-xs">
             <thead className="bg-card">
               <tr className="text-muted text-[10px] uppercase tracking-widest border-b border-border">
                 <th className="px-4 py-3 text-left">Stratégie</th>
-                <th className="px-4 py-3 text-left hidden sm:table-cell">Famille</th>
+                <th className="px-4 py-3 text-left">Famille</th>
                 <th className="px-4 py-3 text-left hidden lg:table-cell">Exchange</th>
                 <th className="px-4 py-3 text-right">Trades</th>
-                <th className="px-4 py-3 text-right hidden sm:table-cell">T. gain</th>
-                <th className="px-4 py-3 text-right hidden sm:table-cell">F. profit</th>
-                <th className="px-4 py-3 text-right hidden md:table-cell">Drawdown</th>
+                <th className="px-4 py-3 text-right">T. gain</th>
+                <th className="px-4 py-3 text-right">F. profit</th>
+                <th className="px-4 py-3 text-right hidden lg:table-cell">Drawdown</th>
                 <th className="px-4 py-3 text-right font-bold">P&amp;L (€)</th>
-                <th className="px-4 py-3 text-center hidden sm:table-cell">Statut</th>
+                <th className="px-4 py-3 text-center">Statut</th>
               </tr>
             </thead>
             <tbody>
@@ -157,7 +198,7 @@ export default async function OverviewPage() {
                       </Link>
                       <p className="text-muted text-[10px] mt-0.5">{bot.timeframe}</p>
                     </td>
-                    <td className="px-4 py-3 hidden sm:table-cell">
+                    <td className="px-4 py-3">
                       <span className="text-[10px] font-semibold uppercase tracking-wide"
                         style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
                         {FAMILY_LABEL[bot.family ?? ''] ?? bot.family ?? '—'}
@@ -167,13 +208,13 @@ export default async function OverviewPage() {
                     <td className="px-4 py-3 text-right font-mono">
                       {hasData ? bot.stats.total_trades : <span className="text-muted">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono hidden sm:table-cell">
+                    <td className="px-4 py-3 text-right font-mono">
                       {hasData ? `${(bot.stats.win_rate * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
                     </td>
-                    <td className={`px-4 py-3 text-right font-mono hidden sm:table-cell ${hasData ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}>
+                    <td className={`px-4 py-3 text-right font-mono ${hasData ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}>
                       {hasData ? bot.stats.profit_factor.toFixed(2) : <span className="text-muted">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-negative hidden md:table-cell">
+                    <td className="px-4 py-3 text-right font-mono text-negative hidden lg:table-cell">
                       {hasData ? `${(bot.stats.max_drawdown * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -186,11 +227,9 @@ export default async function OverviewPage() {
                             {fmtPct(pnlPct(bot.stats.latest_capital))}
                           </span>
                         </div>
-                      ) : (
-                        <span className="text-muted">—</span>
-                      )}
+                      ) : <span className="text-muted">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-center hidden sm:table-cell">
+                    <td className="px-4 py-3 text-center">
                       <StatusBadge status={bot.status} />
                     </td>
                   </tr>
@@ -199,6 +238,7 @@ export default async function OverviewPage() {
             </tbody>
           </table>
         </div>
+
         <p className="text-center text-xs text-muted mt-3">
           P&amp;L calculé sur les trades fermés depuis le démarrage · Capital initial 1&nbsp;000€ par bot
         </p>
