@@ -13,7 +13,15 @@ export async function GET() {
 
   if (error) return NextResponse.json([], { status: 200 })
 
-  return NextResponse.json(data ?? [], {
+  // Deduplicate: keep only the most recent alert per ticker (query is ordered DESC)
+  const seen = new Set<string>()
+  const deduped = (data ?? []).filter(a => {
+    if (seen.has(a.ticker)) return false
+    seen.add(a.ticker)
+    return true
+  })
+
+  return NextResponse.json(deduped, {
     headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' },
   })
 }
