@@ -1,4 +1,5 @@
 import ExplainerBox from '@/components/ExplainerBox'
+import MiRegimeBadge from '@/components/MiRegimeBadge'
 
 export const metadata = {
   title: 'Market Intelligence — AlgoProof',
@@ -67,16 +68,8 @@ export default function IntelligencePage() {
         </p>
       </div>
 
-      {/* Live regime placeholder */}
-      <div className="rounded border border-border p-6 flex items-center gap-4">
-        <div className="h-3 w-3 rounded-full bg-positive animate-pulse flex-shrink-0" />
-        <div>
-          <p className="text-xs font-semibold">Current Regime</p>
-          <p className="text-xs text-muted mt-0.5">
-            Live data feed coming soon — synced from VPS every hour.
-          </p>
-        </div>
-      </div>
+      {/* Live regime */}
+      <MiRegimeBadge />
 
       {/* Defense Mesh */}
       <section>
