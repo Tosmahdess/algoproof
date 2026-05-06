@@ -4,26 +4,20 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const STRATEGIES_SUB = [
-  { href: '/overview',             label: '🔭 Vue d\'ensemble' },
-  { href: '/strategies',           label: 'Toutes les stratégies' },
-  { href: '/strategies#trend',     label: 'Suivi de tendance' },
-  { href: '/strategies#breakout',  label: 'Cassure de niveaux' },
+  { href: '/strategies',              label: 'Toutes les stratégies' },
+  { href: '/strategies#trend',        label: 'Suivi de tendance' },
+  { href: '/strategies#breakout',     label: 'Cassure de niveaux' },
   { href: '/strategies#multi-signal', label: 'Multi-signaux' },
   { href: '/strategies#multi-asset',  label: 'Multi-actifs' },
-  { href: '/strategies#leveraged', label: 'Avec levier' },
-  { href: '/dashboard',            label: 'Tableau comparatif' },
-]
-
-const TOP_LINKS = [
-  { href: '/wealth',       label: 'PATRIMOINE' },
-  { href: '/intelligence', label: 'INTELLIGENCE' },
-  { href: '/blog',         label: 'BLOG' },
+  { href: '/strategies#leveraged',    label: 'Avec levier' },
+  { href: '/dashboard',               label: 'Tableau comparatif' },
 ]
 
 export default function Nav() {
   const path = usePathname()
 
-  const strategiesActive = path === '/strategies' || path.startsWith('/strategies/') || path === '/dashboard' || path === '/overview'
+  const strategiesActive = path === '/strategies' || path.startsWith('/strategies/') || path === '/dashboard'
+  const overviewActive   = path === '/overview'
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-bg/90 backdrop-blur">
@@ -33,6 +27,17 @@ export default function Nav() {
         </Link>
 
         <div className="flex items-center gap-6">
+
+          {/* VUE D'ENSEMBLE — top level */}
+          <Link
+            href="/overview"
+            className={`text-xs font-semibold tracking-widest transition-colors ${
+              overviewActive ? 'text-text' : 'text-muted hover:text-text'
+            }`}
+          >
+            VUE D&apos;ENSEMBLE
+          </Link>
+
           {/* STRATÉGIES avec sous-menu */}
           <div className="relative group">
             <button
@@ -46,7 +51,6 @@ export default function Nav() {
               </svg>
             </button>
 
-            {/* Dropdown */}
             <div className="absolute left-0 top-full mt-1 w-52 rounded border border-border bg-bg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
               {STRATEGIES_SUB.map(({ href, label }) => (
                 <Link
@@ -63,7 +67,11 @@ export default function Nav() {
           </div>
 
           {/* Autres liens */}
-          {TOP_LINKS.map(({ href, label }) => {
+          {[
+            { href: '/wealth',       label: 'PATRIMOINE' },
+            { href: '/intelligence', label: 'INTELLIGENCE' },
+            { href: '/blog',         label: 'BLOG' },
+          ].map(({ href, label }) => {
             const active = path === href || path.startsWith(href + '/')
             return (
               <Link
@@ -77,6 +85,7 @@ export default function Nav() {
               </Link>
             )
           })}
+
         </div>
       </div>
     </nav>
