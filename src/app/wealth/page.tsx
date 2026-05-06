@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ChartTooltip, Legend } from 'recharts'
 import ExplainerBox from '@/components/ExplainerBox'
-import type { WealthCall, AssetPrice } from '@/lib/types'
+import type { WealthCall, AssetPrice, GrowthAlert } from '@/lib/types'
 
 // Source: apex-wealth/portfolios.py WEALTH_ALLOCATION + BUDGET_CONFIG
 // Total budget: 250€/month (WEALTH 70% = 175€, GROWTH 30% = 75€)
@@ -35,19 +35,34 @@ const AMPLIFICATION = [
   { label: 'ETF (PEA)',            multiplier: 'never', amount: '174€', condition: 'Toujours stable', color: '#4299e1' },
 ]
 
+const SIGNAL_COLOR: Record<string, string> = {
+  minor: '#f6c90e',
+  major: '#ff6b35',
+  crash: '#ff4444',
+}
+
+const SIGNAL_LABEL: Record<string, string> = {
+  minor: 'MINEUR',
+  major: 'MAJEUR',
+  crash: 'KRACH',
+}
+
 export default function WealthPage() {
-  const [calls, setCalls]     = useState<WealthCall[]>([])
-  const [prices, setPrices]   = useState<AssetPrice[]>([])
-  const [loading, setLoading] = useState(true)
+  const [calls, setCalls]           = useState<WealthCall[]>([])
+  const [prices, setPrices]         = useState<AssetPrice[]>([])
+  const [growthAlerts, setAlerts]   = useState<GrowthAlert[]>([])
+  const [loading, setLoading]       = useState(true)
 
   useEffect(() => {
-    fetch('/api/wealth')
-      .then(r => r.json())
-      .then(({ calls: c, prices: p }) => {
-        setCalls(c)
-        setPrices(p)
-        setLoading(false)
-      })
+    Promise.all([
+      fetch('/api/wealth').then(r => r.json()),
+      fetch('/api/growth-alerts').then(r => r.json()),
+    ]).then(([wealth, alerts]) => {
+      setCalls(wealth.calls ?? [])
+      setPrices(wealth.prices ?? [])
+      setAlerts(Array.isArray(alerts) ? alerts : [])
+      setLoading(false)
+    })
   }, [])
 
   function getPriceEur(asset: string): number | null {
@@ -213,6 +228,73 @@ export default function WealthPage() {
             </div>
           }
         />
+      </section>
+
+      {/* GROWTH — Alertes dips reçues */}
+      <section>
+        <h2 className="text-base font-bold tracking-tight mb-4">GROWTH — Historique des alertes dips</h2>
+
+        {loading ? (
+          <div className="rounded border border-border px-4 py-6 text-center text-xs text-muted">Chargement...</div>
+        ) : growthAlerts.length === 0 ? (
+          <div className="rounded border border-dashed border-border px-4 py-8 text-center space-y-1">
+            <p className="text-sm font-medium">Aucune alerte envoyée pour l&apos;instant.</p>
+            <p className="text-xs text-muted">Le moniteur tourne toutes les 4h. Les alertes dips apparaîtront ici dès déclenchement.</p>
+          </div>
+        ) : (
+          <div className="rounded border border-border overflow-hidden">
+            <table className="w-full text-xs">
+              <thead className="bg-card border-b border-border">
+                <tr className="text-muted text-[10px] uppercase tracking-widest">
+                  <th className="px-4 py-2 text-left">Date</th>
+                  <th className="px-4 py-2 text-left">Actif</th>
+                  <th className="px-4 py-2 text-right">Drawdown</th>
+                  <th className="px-4 py-2 text-right hidden sm:table-cell">RSI</th>
+                  <th className="px-4 py-2 text-center">Signal</th>
+                  <th className="px-4 py-2 text-right">Taille suggérée</th>
+                  <th className="px-4 py-2 text-left hidden md:table-cell">Régime MI</th>
+                </tr>
+              </thead>
+              <tbody>
+                {growthAlerts.map(a => {
+                  const color = SIGNAL_COLOR[a.signal_level] ?? '#888'
+                  return (
+                    <tr key={a.id} className="border-t border-border/50 hover:bg-card/40 transition-colors">
+                      <td className="px-4 py-2 text-muted font-mono">
+                        {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })}
+                      </td>
+                      <td className="px-4 py-2">
+                        <p className="font-semibold">{a.ticker}</p>
+                        <p className="text-[10px] text-muted">{a.asset_name}</p>
+                      </td>
+                      <td className="px-4 py-2 text-right font-mono text-negative font-semibold">
+                        {a.drawdown_pct.toFixed(1)}%
+                      </td>
+                      <td className="px-4 py-2 text-right font-mono hidden sm:table-cell">
+                        {a.rsi14 != null ? a.rsi14.toFixed(0) : '—'}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+                          style={{ color, background: color + '18' }}>
+                          {SIGNAL_LABEL[a.signal_level] ?? a.signal_level}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-right font-mono">
+                        {a.suggested_min != null && a.suggested_max != null
+                          ? `${a.suggested_min}–${a.suggested_max}€`
+                          : '—'}
+                      </td>
+                      <td className="px-4 py-2 text-muted text-[10px] hidden md:table-cell">
+                        {a.mi_regime ?? '—'}
+                        {a.mi_score != null && ` (${a.mi_score > 0 ? '+' : ''}${a.mi_score.toFixed(1)})`}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       {/* Portfolio — Live Tracking */}

@@ -755,6 +755,43 @@ def sync_asset_prices() -> None:
     print(f"  [prices] {len(records)} prices updated: {list(prices.keys())}")
 
 
+GROWTH_ALERTS_DB = os.path.expanduser("~/apex_wealth/db/growth_alerts.db")
+
+
+def sync_growth_alerts() -> None:
+    """Sync GROWTH watchlist dip alert history from SQLite to Supabase growth_alerts."""
+    if not os.path.exists(GROWTH_ALERTS_DB):
+        print("  [growth] DB not found — skipping")
+        return
+
+    conn = sqlite3.connect(GROWTH_ALERTS_DB)
+    rows = conn.execute("""
+        SELECT alerted_at, ticker, asset_name, drawdown_pct, ma50_gap_pct, rsi14,
+               signal_level, confidence, market_regime, mi_score, mi_regime,
+               current_price, high_90d, suggested_min, suggested_max, indicators
+        FROM growth_alerts ORDER BY alerted_at ASC
+    """).fetchall()
+    conn.close()
+
+    if not rows:
+        print("  [growth] No alerts to sync — skipping")
+        return
+
+    records = [
+        {
+            "alerted_at":   r[0], "ticker":      r[1], "asset_name":    r[2],
+            "drawdown_pct": r[3], "ma50_gap_pct": r[4], "rsi14":        r[5],
+            "signal_level": r[6], "confidence":  r[7], "market_regime": r[8],
+            "mi_score":     r[9], "mi_regime":   r[10], "current_price": r[11],
+            "high_90d":     r[12], "suggested_min": r[13], "suggested_max": r[14],
+            "indicators":   r[15],
+        }
+        for r in rows
+    ]
+    supabase_upsert("growth_alerts", records, "alerted_at,ticker")
+    print(f"  [growth] {len(records)} growth_alerts synced")
+
+
 def sync_mi_snapshot() -> None:
     """Read MI heartbeat and push latest snapshot to Supabase mi_snapshots."""
     import json
@@ -811,6 +848,12 @@ def main() -> None:
         sync_asset_prices()
     except Exception as e:
         print(f"[prices] ERROR: {e}")
+
+    print("\n[growth] Syncing growth alerts...")
+    try:
+        sync_growth_alerts()
+    except Exception as e:
+        print(f"[growth] ERROR: {e}")
 
     print("\n[MI] Syncing MI snapshot...")
     try:

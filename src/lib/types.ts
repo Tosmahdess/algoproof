@@ -73,6 +73,27 @@ export interface AssetPrice {
   updated_at: string
 }
 
+export interface GrowthAlert {
+  id: string
+  alerted_at: string
+  ticker: string
+  asset_name: string
+  drawdown_pct: number
+  ma50_gap_pct: number | null
+  rsi14: number | null
+  signal_level: 'minor' | 'major' | 'crash'
+  confidence: string | null
+  market_regime: string | null
+  mi_score: number | null
+  mi_regime: string | null
+  current_price: number | null
+  high_90d: number | null
+  suggested_min: number | null
+  suggested_max: number | null
+  indicators: string | null  // JSON array ["minor","none","major"]
+  created_at: string
+}
+
 export interface MiSnapshot {
   id: string
   snapshot_at: string
