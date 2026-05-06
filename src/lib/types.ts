@@ -13,6 +13,7 @@ export interface Bot {
   assets: string[]
   timeframe: string
   description: string | null
+  created_at: string
 }
 
 export interface Trade {
