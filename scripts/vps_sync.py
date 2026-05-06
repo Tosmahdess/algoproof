@@ -30,12 +30,12 @@ BASE_HEADERS = {
 }
 
 # Exit reasons to skip (duplicates / cleanup artefacts)
-SKIP_REASON_FRAGMENTS = ["manual_dedup", "manual_cleanup"]
+SKIP_REASON_FRAGMENTS = ["manual_dedup", "manual_cleanup", "archived"]
 
 BOTS = [
     {
         "slug": "v1-spot",
-        "name": "Bot V1 Spot",
+        "name": "EMA Cross H4 Binance Spot",
         "family": "trend",
         "strategy": "EMA Cross H4 (21/55/200)",
         "status": "paper",
@@ -43,16 +43,16 @@ BOTS = [
         "assets": ["BTC/USDT", "SOL/USDT", "LINK/USDT", "DOGE/USDT", "ADA/USDT"],
         "timeframe": "H4",
         "description": (
-            "V1 Spot runs a three-EMA trend-following system on the 4-hour timeframe. "
-            "A trade opens when the fast EMA (21) crosses the intermediate EMA (55) in the direction "
-            "confirmed by the long-term trend filter (EMA 200) — eliminating counter-trend noise from the start. "
-            "Each position risks exactly 1% of capital with an ATR ×2.0 initial stop loss. "
-            "On BTC, SOL, and ADA the stop trails into profit as the move extends; "
-            "LINK and DOGE use a fixed three-tranche exit (50% at TP1, 30% at TP2, 20% runner). "
-            "A four-layer defense mesh surrounds every signal: a per-asset ADX strength filter, "
-            "the Market Intelligence macro gate (checks VIX, Fear & Greed, funding rates, and the economic calendar), "
-            "a circuit breaker that pauses trading for 4 hours after 3 consecutive losses, "
-            "and a -5%/day kill switch that halts the bot entirely until manual review."
+            "Ce bot applique un système de suivi de tendance à trois EMA sur l'unité de temps H4. "
+            "Un trade s'ouvre quand l'EMA rapide (21) croise l'EMA intermédiaire (55) dans la direction "
+            "confirmée par le filtre de tendance long terme (EMA 200) — éliminant d'emblée les signaux à contre-tendance. "
+            "Chaque position risque exactement 1% du capital avec un stop loss initial ATR ×2,0. "
+            "Sur BTC, SOL et ADA le stop remonte dans les profits à mesure que le mouvement se développe ; "
+            "LINK et DOGE utilisent une sortie fixe en trois tranches (50% à TP1, 30% à TP2, 20% en runner). "
+            "Un bouclier défensif à quatre couches entoure chaque signal : un filtre ADX par actif, "
+            "la gate macro du service d'Intelligence de Marché (vérifie VIX, Fear & Greed, taux de financement et calendrier économique), "
+            "un circuit breaker qui suspend le trading 4h après 3 pertes consécutives, "
+            "et un kill switch à -5%/jour qui arrête le bot jusqu'à revue manuelle."
         ),
         "db_path": os.path.expanduser("~/apex_emacross_binancespot_3/db/apex_trades.db"),
         "paper_state_name": "apex-v1-spot",
@@ -60,7 +60,7 @@ BOTS = [
     },
     {
         "slug": "v1-hl",
-        "name": "Bot V1-HL Perps",
+        "name": "EMA Cross H4 Hyperliquid Perps",
         "family": "trend",
         "strategy": "EMA Cross H4 (21/55/200) — Hyperliquid Perps",
         "status": "paper",
@@ -68,15 +68,15 @@ BOTS = [
         "assets": ["BTC-USDC", "SOL-USDC", "LINK-USDC", "DOGE-USDC", "ETH-USDC", "XRP-USDC"],
         "timeframe": "H4",
         "description": (
-            "V1-HL runs the same proven EMA 21/55/200 crossover on 4-hour candles, but on Hyperliquid perpetuals — "
-            "enabling both long and short positions across 6 major assets. "
-            "Lower taker fees (0.065%) compared to centralized spot exchanges reduce the cost of each round trip, "
-            "meaningfully improving the net edge on medium-frequency H4 signals. "
-            "The Market Intelligence gate actively blocks entries when macro conditions are unfavorable: "
-            "VIX spikes, extreme Fear & Greed readings, elevated funding rates, or scheduled high-impact macro events. "
-            "ADA is restricted to long-only after perps shorts backtested at 0% win rate on this asset. "
-            "Risk management is identical to V1 Spot: 1% per trade, ATR ×2.0 stop that trails on BTC/SOL/ETH/XRP/ADA, "
-            "minimum 1:2 R:R, circuit breaker after 3 consecutive losses, and -5%/day kill switch."
+            "Ce bot applique le même croisement EMA 21/55/200 éprouvé sur les bougies H4, mais sur les perpetuals Hyperliquid — "
+            "permettant les positions longues et courtes sur 6 actifs majeurs. "
+            "Des frais taker plus bas (0,065%) par rapport aux exchanges centralisés spot réduisent le coût de chaque aller-retour, "
+            "améliorant sensiblement l'edge net sur les signaux H4 de fréquence moyenne. "
+            "La gate d'Intelligence de Marché bloque activement les entrées quand les conditions macro sont défavorables : "
+            "pics VIX, lectures extrêmes de Fear & Greed, taux de financement élevés ou événements macro à fort impact. "
+            "ADA est limité aux positions longues uniquement après backtests shorts à 0% de réussite sur cet actif. "
+            "La gestion du risque est identique à EMA Cross Binance Spot : 1% par trade, stop ATR ×2,0 qui remonte sur BTC/SOL/ETH/XRP/ADA, "
+            "R:R minimum 1:2, circuit breaker après 3 pertes consécutives, et kill switch à -5%/jour."
         ),
         "db_path": os.path.expanduser("~/apex_emacross_hlperps_7/db/apex_hl_trades.db"),
         "paper_state_name": "apex-v1-hl",
@@ -202,9 +202,11 @@ def build_perf_daily(trades: list[dict], start_capital: float, paper_balance: fl
     first_day = date.fromisoformat(sorted(daily_pnl.keys())[0])
     today = date.today()
 
-    # Anchor: compute implied start so the curve ends at paper_balance
+    # Anchor: start at start_capital and show realized P&L from closed trades only.
+    # We intentionally ignore paper_balance here because it reflects free cash only
+    # (open positions reduce it without being actual losses).
     total_pnl = sum(daily_pnl.values())
-    implied_start = (paper_balance - total_pnl) if paper_balance is not None else start_capital
+    implied_start = start_capital
 
     rows = []
     capital = implied_start
