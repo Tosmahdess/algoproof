@@ -6,6 +6,7 @@ import MetricsRow from '@/components/MetricsRow'
 import EquityCurve from '@/components/EquityCurve'
 import TradesTable from '@/components/TradesTable'
 import BotParamsSection from '@/components/BotParams'
+import ExplainerBox from '@/components/ExplainerBox'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 
@@ -33,7 +34,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   if (!bot) notFound()
 
   const pnlPct = ((bot.stats.latest_capital - 1000) / 1000) * 100
-  const botParams = getBotParams(slug)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -72,16 +72,26 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         )}
       </div>
 
-      {/* Strategy explanation */}
-      {bot.description && (
-        <div className="bg-card border border-border rounded-xl p-6 mb-8">
-          <h2 className="font-semibold mb-3">How it works</h2>
-          <p className="text-muted text-sm leading-relaxed">{bot.description}</p>
-        </div>
-      )}
-
-      {/* Parameters */}
-      {botParams && <BotParamsSection params={botParams} />}
+      {/* Explanation: plain overview → technical params */}
+      <section className="mb-8">
+        <ExplainerBox
+          functional={
+            bot.description ? (
+              <p>{bot.description}</p>
+            ) : (
+              <p className="text-muted italic">Strategy description coming soon.</p>
+            )
+          }
+          technical={(() => {
+            const params = getBotParams(slug)
+            return params ? (
+              <BotParamsSection params={params} />
+            ) : (
+              <p className="text-muted italic text-xs">Technical parameters not yet documented.</p>
+            )
+          })()}
+        />
+      </section>
 
       {/* Recent trades */}
       <div className="bg-card border border-border rounded-xl p-6 mb-8">
