@@ -32,6 +32,18 @@ BASE_HEADERS = {
 # Exit reasons to skip (duplicates / cleanup artefacts)
 SKIP_REASON_FRAGMENTS = ["manual_dedup", "manual_cleanup", "archived"]
 
+# Standard Binance Futures asset pool — sliced per bot
+_BF28 = [
+    "BTC/USDT","ETH/USDT","SOL/USDT","BNB/USDT","XRP/USDT","DOGE/USDT",
+    "ADA/USDT","AVAX/USDT","LINK/USDT","DOT/USDT","MATIC/USDT","UNI/USDT",
+    "ATOM/USDT","LTC/USDT","FIL/USDT","OP/USDT","ARB/USDT","INJ/USDT",
+    "TIA/USDT","SUI/USDT","APT/USDT","SEI/USDT","NEAR/USDT","FTM/USDT",
+    "SAND/USDT","MANA/USDT","1000SHIB/USDT","1000PEPE/USDT",
+]
+
+def _bf(n: int) -> list: return _BF28[:n]
+def _bf_n(n: int) -> list: return [f"{n} actifs Binance Futures"]
+
 BOTS = [
     {
         "slug": "v1-spot",
@@ -81,6 +93,264 @@ BOTS = [
         "db_path": os.path.expanduser("~/apex_emacross_hlperps_7/db/apex_hl_trades.db"),
         "paper_state_name": "apex-v1-hl",
         "start_capital": 1000.0,
+    },
+
+    # ── Trend Following — New Schema (BF Perps) ──────────────────────────────
+    {
+        "slug": "hatrend-bf28", "name": "HeikinAshi Tendance H4 BF", "family": "trend",
+        "schema": "new", "strategy": "HeikinAshi H4 — 28 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(28), "timeframe": "H4",
+        "description": "Utilise les bougies HeikinAshi pour filtrer le bruit et identifier les tendances claires. L'entrée se fait sur signal HA confirmé en H4 sur 28 actifs Binance Futures. Les bougies HA lissent le prix et rendent les tendances visuellement et algorithmiquement plus nettes que les bougies classiques.",
+        "db_path": os.path.expanduser("~/apex_hatrend_bfperps_28/db/paper_state.db"),
+        "paper_state_name": "apex_hatrend_bfperps_28", "start_capital": 1000.0,
+    },
+    {
+        "slug": "kamacross-bf26", "name": "KAMA Cross H4 BF", "family": "trend",
+        "schema": "new", "strategy": "KAMA H4 — 26 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(26), "timeframe": "H4",
+        "description": "KAMA (Kaufman Adaptive Moving Average) adapte sa sensibilité à la volatilité du marché — rapide en tendance forte, lent en range. Ce comportement adaptatif filtre naturellement les faux signaux sans paramètre manuel à ajuster.",
+        "db_path": os.path.expanduser("~/apex_kamacross_bfperps_26/db/paper_state.db"),
+        "paper_state_name": "apex_kamacross_bfperps_26", "start_capital": 1000.0,
+    },
+    {
+        "slug": "hmacross-bf22", "name": "HMA Cross H4 BF", "family": "trend",
+        "schema": "new", "strategy": "HMA H4 — 22 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(22), "timeframe": "H4",
+        "description": "HMA (Hull Moving Average) réduit le lag des moyennes mobiles classiques tout en restant lisse. Le croisement rapide/lent capte les retournements de tendance plus tôt que l'EMA standard, avec moins de whipsaws.",
+        "db_path": os.path.expanduser("~/apex_hmacross_bfperps_22/db/paper_state.db"),
+        "paper_state_name": "apex_hmacross_bfperps_22", "start_capital": 1000.0,
+    },
+    {
+        "slug": "ichimoku-bf25", "name": "Ichimoku H4 BF", "family": "trend",
+        "schema": "new", "strategy": "Ichimoku H4 — 25 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(25), "timeframe": "H4",
+        "description": "Système Ichimoku complet sur H4 : entrée au-dessus du kumo haussier, confirmation du croisement tenkan/kijun. Vision holistique de la tendance, du momentum et des niveaux de support/résistance en une seule lecture.",
+        "db_path": os.path.expanduser("~/apex_ichimoku_bfperps_25/db/paper_state.db"),
+        "paper_state_name": "apex_ichimoku_bfperps_25", "start_capital": 1000.0,
+    },
+    {
+        "slug": "emacross-9-bf9", "name": "EMA Cross 9/50 H4 BF", "family": "trend",
+        "schema": "new", "strategy": "EMA 9/50 H4 — 9 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(9), "timeframe": "H4",
+        "description": "Croisement EMA 9/50 sur H4 — plus réactif que la version 21/100, génère davantage de signaux avec des R:R potentiellement plus courts. Optimisé sur 9 actifs à forte liquidité Binance Futures.",
+        "db_path": os.path.expanduser("~/apex_emacross_bfperps_9/db/paper_state.db"),
+        "paper_state_name": "apex_emacross_bfperps_9", "start_capital": 1000.0,
+    },
+    {
+        "slug": "emaribbon-bf17", "name": "EMA Ribbon H4 BF", "family": "trend",
+        "schema": "new", "strategy": "EMA Ribbon H4 — 17 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(17), "timeframe": "H4",
+        "description": "Ruban de 4 EMAs (5/13/34/89). L'alignement progressif du ruban indique une tendance forte et durable ; le désalignement signale l'essoufflement avant le retournement. Donne une lecture de la solidité de la tendance impossible avec une seule MA.",
+        "db_path": os.path.expanduser("~/apex_emaribbon_bfperps_17/db/paper_state.db"),
+        "paper_state_name": "apex_emaribbon_bfperps_17", "start_capital": 1000.0,
+    },
+    {
+        "slug": "macdvolume-bf11", "name": "MACD Volume H4 BF", "family": "trend",
+        "schema": "new", "strategy": "MACD + Volume H4 — 11 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(11), "timeframe": "H4",
+        "description": "MACD classique filtré par le volume : un signal MACD sans volume élevé est ignoré. Ce filtre élimine les signaux en range faible volume et concentre les entrées sur les mouvements confirmés par la participation du marché.",
+        "db_path": os.path.expanduser("~/apex_macdvolume_bfperps_11/db/paper_state.db"),
+        "paper_state_name": "apex_macdvolume_bfperps_11", "start_capital": 1000.0,
+    },
+    {
+        "slug": "combobbrsi-bf9", "name": "Combo BB+RSI H4 BF", "family": "trend",
+        "schema": "new", "strategy": "BB + RSI H4 — 9 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(9), "timeframe": "H4",
+        "description": "Combo Bollinger Bands + RSI : entrée quand le prix teste la bande et que le RSI confirme l'excès de momentum. Deux outils de nature différente — volatilité et momentum — qui se renforcent mutuellement.",
+        "db_path": os.path.expanduser("~/apex_combobbrsi_bfperps_9/db/paper_state.db"),
+        "paper_state_name": "apex_combobbrsi_bfperps_9", "start_capital": 1000.0,
+    },
+    {
+        "slug": "comboichirsi-bf12", "name": "Combo Ichi+RSI H4 BF", "family": "trend",
+        "schema": "new", "strategy": "Ichimoku + RSI H4 — 12 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(12), "timeframe": "H4",
+        "description": "Ichimoku définit la structure de marché, RSI confirme le momentum. Position validée uniquement quand les deux systèmes sont alignés dans la même direction — double confirmation qui réduit les entrées mais améliore leur qualité.",
+        "db_path": os.path.expanduser("~/apex_comboichirsi_bfperps_12/db/paper_state.db"),
+        "paper_state_name": "apex_comboichirsi_bfperps_12", "start_capital": 1000.0,
+    },
+    {
+        "slug": "rsidivergence-bf6", "name": "RSI Divergence H4 BF", "family": "trend",
+        "schema": "new", "strategy": "RSI Divergence H4 — 6 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(6), "timeframe": "H4",
+        "description": "Détecte les divergences entre le RSI et le prix : un nouveau plus bas de prix non confirmé par le RSI signale un retournement haussier imminent. Signal de retournement puissant mais rare — qualité plutôt que quantité.",
+        "db_path": os.path.expanduser("~/apex_rsidivergence_bfperps_6/db/paper_state.db"),
+        "paper_state_name": "apex_rsidivergence_bfperps_6", "start_capital": 1000.0,
+    },
+    {
+        "slug": "adxregime-bf10", "name": "ADX Régime H4 BF", "family": "trend",
+        "schema": "new", "strategy": "ADX Régime H4 — 10 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(10), "timeframe": "H4",
+        "description": "ADX (Average Directional Index) mesure la force de la tendance. Ce bot refuse d'entrer quand l'ADX < 25 — il ne trade pas les marchés en range où les tendances ne durent pas. Patience payante : moins de trades, plus efficaces.",
+        "db_path": os.path.expanduser("~/apex_adxregime_bfperps_10/db/paper_state.db"),
+        "paper_state_name": "apex_adxregime_bfperps_10", "start_capital": 1000.0,
+    },
+    {
+        "slug": "macsimple-bf10", "name": "MAC Simple H4 BF", "family": "trend",
+        "schema": "new", "strategy": "MAC Simple H4 — 10 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(10), "timeframe": "H4",
+        "description": "MAC (Moving Average Channel) simple : canal formé par deux MAs. Entrée sur cassure du canal dans la direction de la tendance. Logique épurée et transparente — facile à auditer, robuste sur l'historique.",
+        "db_path": os.path.expanduser("~/apex_macsimple_bfperps_10/db/paper_state.db"),
+        "paper_state_name": "apex_macsimple_bfperps_10", "start_capital": 1000.0,
+    },
+    {
+        "slug": "chandelier-bf14", "name": "Chandelier Exit H4 BF", "family": "trend",
+        "schema": "new", "strategy": "Chandelier Exit H4 — 14 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(14), "timeframe": "H4",
+        "description": "Chandelier Exit : stop dynamique ATR ancré au plus haut récent. Reste en position tant que la tendance tient, sort proprement quand la volatilité franchit le seuil. Gestion de position automatique et rationnelle.",
+        "db_path": os.path.expanduser("~/apex_chandelier_bfperps_14/db/paper_state.db"),
+        "paper_state_name": "apex_chandelier_bfperps_14", "start_capital": 1000.0,
+    },
+    {
+        "slug": "comboemarsimacd-bf11", "name": "Combo EMA+RSI+MACD H4 BF", "family": "trend",
+        "schema": "new", "strategy": "EMA+RSI+MACD H4 — 11 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(11), "timeframe": "H4",
+        "description": "Triple confirmation : EMA signale la direction, RSI valide le momentum, MACD confirme la divergence. Trois filtres indépendants doivent s'aligner — moins de trades, chacun avec une conviction maximale.",
+        "db_path": os.path.expanduser("~/apex_comboemarsimacd_bfperps_11/db/paper_state.db"),
+        "paper_state_name": "apex_comboemarsimacd_bfperps_11", "start_capital": 1000.0,
+    },
+    {
+        "slug": "temacross-bf10", "name": "TEMA Cross H4 BF", "family": "trend",
+        "schema": "new", "strategy": "TEMA 20/100 H4 — 10 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(10), "timeframe": "H4",
+        "description": "TEMA (Triple Exponential Moving Average) réduit encore plus le lag que l'HMA. Croisement 20/100 plus réactif que l'EMA classique, idéal sur des actifs à forte dynamique directionnelle.",
+        "db_path": os.path.expanduser("~/apex_temacross_bfperps_10/db/paper_state.db"),
+        "paper_state_name": "apex_temacross_bfperps_10", "start_capital": 1000.0,
+    },
+    {
+        "slug": "tsi-bf8", "name": "TSI H4 BF", "family": "trend",
+        "schema": "new", "strategy": "True Strength Index H4 — 8 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(8), "timeframe": "H4",
+        "description": "TSI (True Strength Index) : oscillateur de momentum basé sur un double lissage exponentiel du prix brut. Plus propre que le RSI en tendance forte, moins sensible au bruit de court terme.",
+        "db_path": os.path.expanduser("~/apex_tsi_bfperps_8/db/paper_state.db"),
+        "paper_state_name": "apex_tsi_bfperps_8", "start_capital": 1000.0,
+    },
+    {
+        "slug": "combosupermacd-bf11", "name": "Combo SuperTrend+MACD H4 BF", "family": "trend",
+        "schema": "new", "strategy": "SuperTrend+MACD H4 — 11 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(11), "timeframe": "H4",
+        "description": "SuperTrend définit la direction de la tendance, MACD confirme le momentum. Deux systèmes de nature différente — l'un basé sur la volatilité ATR, l'autre sur les MAs — qui ne génèrent des faux positifs que rarement en même temps.",
+        "db_path": os.path.expanduser("~/apex_combosupermacd_bfperps_11/db/paper_state.db"),
+        "paper_state_name": "apex_combosupermacd_bfperps_11", "start_capital": 1000.0,
+    },
+    {
+        "slug": "roc-bf12", "name": "ROC H4 BF", "family": "trend",
+        "schema": "new", "strategy": "Rate of Change H4 — 12 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(12), "timeframe": "H4",
+        "description": "ROC (Rate of Change) : mesure le pourcentage de variation du prix sur une période fixe. Momentum pur, sans la distorsion des moyennes mobiles lissées. Signal précoce sur les accélérations de tendance.",
+        "db_path": os.path.expanduser("~/apex_roc_bfperps_12/db/paper_state.db"),
+        "paper_state_name": "apex_roc_bfperps_12", "start_capital": 1000.0,
+    },
+
+    # ── Breakout / Volatility — New Schema (BF Perps) ─────────────────────────
+    {
+        "slug": "wvolbreak-bf28", "name": "Williams Vol Break D1 BF", "family": "breakout",
+        "schema": "new", "strategy": "Williams Vol Break D1 — 28 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(28), "timeframe": "D1",
+        "description": "Williams %R sur D1 combiné à un filtre de volatilité. Détecte les conditions de surachat/survente sur le timeframe journalier, puis attend la cassure de volume pour entrer dans la direction de la pression dominante.",
+        "db_path": os.path.expanduser("~/apex_wvolbreak_bfperps_28/db/paper_state.db"),
+        "paper_state_name": "apex_wvolbreak_bfperps_28", "start_capital": 1000.0,
+    },
+    {
+        "slug": "keltnerbreak-bf26", "name": "Keltner Break H4 BF", "family": "breakout",
+        "schema": "new", "strategy": "Keltner H4 — 26 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(26), "timeframe": "H4",
+        "description": "Cassure des canaux de Keltner (enveloppe ATR) sur H4. Quand le prix sort du canal, la volatilité s'est libérée et un nouveau mouvement directionnel démarre. Signal d'expansion — entrée au début, pas au milieu.",
+        "db_path": os.path.expanduser("~/apex_keltnerbreak_bfperps_26/db/paper_state.db"),
+        "paper_state_name": "apex_keltnerbreak_bfperps_26", "start_capital": 1000.0,
+    },
+    {
+        "slug": "atrchannel-bf26", "name": "ATR Channel H4 BF", "family": "breakout",
+        "schema": "new", "strategy": "ATR Channel H4 — 26 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(26), "timeframe": "H4",
+        "description": "Canal ATR : le prix sort de son enveloppe de volatilité normale → début d'un mouvement directionnel fort. Simple, robuste, basé sur la volatilité pure sans indicateur supplémentaire.",
+        "db_path": os.path.expanduser("~/apex_atrchannel_bfperps_26/db/paper_state.db"),
+        "paper_state_name": "apex_atrchannel_bfperps_26", "start_capital": 1000.0,
+    },
+    {
+        "slug": "orb-bf25", "name": "ORB H1 BF", "family": "breakout",
+        "schema": "new", "strategy": "Opening Range H1 — 25 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(25), "timeframe": "H1",
+        "description": "Opening Range Breakout : le range de la première heure définit les niveaux clés de la journée. Cassure au-dessus ou en dessous → entrée dans le sens de la cassure. Stratégie institutionnelle classique adaptée aux futures crypto.",
+        "db_path": os.path.expanduser("~/apex_orb_bfperps_25/db/paper_state.db"),
+        "paper_state_name": "apex_orb_bfperps_25", "start_capital": 1000.0,
+    },
+    {
+        "slug": "donchian-bf17", "name": "Donchian Break H4 BF", "family": "breakout",
+        "schema": "new", "strategy": "Donchian H4 — 17 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(17), "timeframe": "H4",
+        "description": "Cassure des niveaux Donchian (plus haut/plus bas sur N périodes). Entrée sur nouveau plus haut ou nouveau plus bas historique — stratégie de suivi de tendance par la breakout, popularisée par les Turtle Traders.",
+        "db_path": os.path.expanduser("~/apex_donchian_bfperps_17/db/paper_state.db"),
+        "paper_state_name": "apex_donchian_bfperps_17", "start_capital": 1000.0,
+    },
+    {
+        "slug": "bbsqueeze-bf10", "name": "BB Squeeze H4 BF", "family": "breakout",
+        "schema": "new", "strategy": "BB Squeeze H4 — 10 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(10), "timeframe": "H4",
+        "description": "BB Squeeze : quand les Bandes de Bollinger se resserrent à l'intérieur du canal Keltner, la volatilité est comprimée et une explosion directionnelle se prépare. Entrée à la libération du squeeze avec confirmation de direction.",
+        "db_path": os.path.expanduser("~/apex_bbsqueeze_bfperps_10/db/paper_state.db"),
+        "paper_state_name": "apex_bbsqueeze_bfperps_10", "start_capital": 1000.0,
+    },
+    {
+        "slug": "ttmsqueeze-bf7", "name": "TTM Squeeze H4 BF", "family": "breakout",
+        "schema": "new", "strategy": "TTM Squeeze H4 — 7 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(7), "timeframe": "H4",
+        "description": "TTM Squeeze : détecte les phases de compression (BB dans Keltner) et mesure le momentum via un histogramme. Entrée quand le squeeze se libère ET que le momentum histogramme confirme la direction.",
+        "db_path": os.path.expanduser("~/apex_ttmsqueeze_bfperps_7/db/paper_state.db"),
+        "paper_state_name": "apex_ttmsqueeze_bfperps_7", "start_capital": 1000.0,
+    },
+    {
+        "slug": "breakout-hl-sol", "name": "Session Breakout SOL HL", "family": "breakout",
+        "schema": "breakout", "strategy": "Asia Session Breakout M5 — SOL", "status": "paper",
+        "exchange": "Hyperliquid", "assets": ["SOL-USDC"], "timeframe": "M5",
+        "description": "Breakout de la session asiatique sur SOL en perpetuals Hyperliquid. Le range formé pendant la nuit asiatique (volume réduit) définit les niveaux clés. La cassure lors de l'ouverture européenne ou américaine génère l'entrée directionnelle.",
+        "db_path": os.path.expanduser("~/apex_breakout_hlperps_1/db/hl_bot.db"),
+        "paper_state_name": None, "start_capital": 1000.0,
+    },
+
+    # ── Multi-Signal — New Schema ──────────────────────────────────────────────
+    {
+        "slug": "x3-emakeltner-bf22", "name": "X3 EmaKeltner H4 BF", "family": "multi-signal",
+        "schema": "new", "strategy": "EMA D1 + Keltner H4 — 22 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(22), "timeframe": "H4",
+        "description": "Cross-timeframe : EMA 21/100 sur D1 définit la tendance macro, canal Keltner sur H4 identifie l'entrée tactique précise. Les deux timeframes doivent être alignés — convergence obligatoire pour entrer.",
+        "db_path": os.path.expanduser("~/apex_x3_emakeltner_bfperps_22/db/paper_state.db"),
+        "paper_state_name": "apex_x3_emakeltner_bfperps_22", "start_capital": 1000.0,
+    },
+    {
+        "slug": "x1-wvborb-bf7", "name": "X1 WvbOrb H1 BF", "family": "multi-signal",
+        "schema": "new", "strategy": "WR14 D1 + ORB H1 — 7 actifs", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(7), "timeframe": "H1",
+        "description": "Williams Vol Break sur D1 donne la direction macro, ORB sur H1 fournit le timing d'entrée précis. Deux logiques orthogonales — momentum journalier + breakout horaire — qui filtrent mutuellement les faux signaux.",
+        "db_path": os.path.expanduser("~/apex_x1_wvborb_bfperps_7/db/paper_state.db"),
+        "paper_state_name": "apex_x1_wvborb_bfperps_7", "start_capital": 1000.0,
+    },
+
+    # ── Leveraged — New Schema ─────────────────────────────────────────────────
+    {
+        "slug": "emacross-bf7-x10", "name": "EMA Cross ×10 BF (Avec levier)", "family": "leveraged",
+        "schema": "new", "strategy": "EMA 21/100 H4 — 7 actifs — Levier ×10", "status": "paper",
+        "exchange": "Binance Futures", "assets": _bf(7), "timeframe": "H4",
+        "description": "Version levée ×10 dynamique de la stratégie EMA Cross. Même logique de signal et même gestion du risque — mais l'amplitude des P&L est multipliée par 10. Réservé aux capitaux adaptés et à l'appétit au risque élevé.",
+        "db_path": os.path.expanduser("~/apex_emacross_bfperps_7/db/paper_state.db"),
+        "paper_state_name": "apex_emacross_bfperps_7", "start_capital": 1000.0,
+    },
+
+    # ── Multi-Asset ────────────────────────────────────────────────────────────
+    {
+        "slug": "emacross-eur-usd", "name": "EMA Cross EUR/USD OANDA", "family": "multi-asset",
+        "schema": "new", "strategy": "EMA 9/50 H4 — EUR/USD", "status": "paper",
+        "exchange": "OANDA", "assets": ["EUR/USD"], "timeframe": "H4",
+        "description": "Croisement EMA 9/50 sur H4 appliqué à la paire EUR/USD sur OANDA. Décorrélé du marché crypto — pure exposition Forex pour diversifier le portefeuille. Les bots crypto et Forex réagissent rarement aux mêmes catalyseurs.",
+        "db_path": os.path.expanduser("~/apex_emacross_oanda_eurusd/db/paper_state.db"),
+        "paper_state_name": "apex_emacross_oanda_eurusd", "start_capital": 1000.0,
+    },
+    {
+        "slug": "keltner-xau-hl", "name": "Keltner Gold HL Perps", "family": "multi-asset",
+        "schema": "new", "strategy": "Keltner H4 — XAU-USDC", "status": "paper",
+        "exchange": "Hyperliquid", "assets": ["XAU-USDC"], "timeframe": "H4",
+        "description": "Canal Keltner H4 sur l'or (XAU-USDC) via perpetuals Hyperliquid. L'or comme actif de diversification non-crypto avec un système de cassure de volatilité. Corrélé négativement au dollar, réagit différemment des cryptos.",
+        "db_path": os.path.expanduser("~/apex_keltner_hlperps_xau/db/paper_state.db"),
+        "paper_state_name": "apex_keltner_hlperps_xau", "start_capital": 1000.0,
     },
 ]
 
@@ -163,13 +433,86 @@ def load_trades_from_db(db_path: str) -> list[dict]:
 
 
 def get_paper_balance(db_path: str, bot_name: str) -> float:
-    """Read current paper balance from paper_state table."""
+    """Read current paper balance from paper_state table (V1 schema: balance column)."""
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     cur.execute("SELECT balance FROM paper_state WHERE bot_name = ? ORDER BY id DESC LIMIT 1", (bot_name,))
     row = cur.fetchone()
     conn.close()
     return row[0] if row else None
+
+
+def get_paper_equity(db_path: str, bot_name: str) -> float | None:
+    """Read current paper equity from paper_state table (New schema: equity column)."""
+    try:
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+        cur.execute("SELECT equity FROM paper_state WHERE bot_name = ? ORDER BY id DESC LIMIT 1", (bot_name,))
+        row = cur.fetchone()
+        conn.close()
+        return row[0] if row else None
+    except Exception:
+        return None
+
+
+def load_trades_new_schema(db_path: str) -> list[dict]:
+    """Load closed trades from New Schema bots (pnl_usdt, closed_at IS NOT NULL)."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT opened_at   AS timestamp,
+               closed_at,
+               symbol,
+               direction,
+               pnl_usdt    AS pnl,
+               exit_reason
+        FROM trades
+        WHERE closed_at IS NOT NULL
+          AND paper = 1
+        ORDER BY closed_at ASC
+    """)
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+
+    valid = []
+    for r in rows:
+        if should_skip(r.get("exit_reason") or ""):
+            continue
+        r["exit_reason"] = clean_exit_reason(r.get("exit_reason") or "")
+        r["symbol"]      = clean_asset(r["symbol"])
+        r["direction"]   = (r["direction"] or "long").lower()
+        valid.append(r)
+    return valid
+
+
+def load_trades_breakout_schema(db_path: str) -> list[dict]:
+    """Load closed trades from Breakout Schema bots (net_usdc, entry_time/exit_time)."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT entry_time  AS timestamp,
+               exit_time   AS closed_at,
+               symbol,
+               direction,
+               net_usdc    AS pnl,
+               exit_reason
+        FROM trades
+        WHERE status = 'closed'
+          AND exit_time IS NOT NULL
+        ORDER BY exit_time ASC
+    """)
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+
+    valid = []
+    for r in rows:
+        r["exit_reason"] = clean_exit_reason(r.get("exit_reason") or "")
+        r["symbol"]      = clean_asset(r["symbol"])
+        r["direction"]   = (r["direction"] or "long").lower()
+        valid.append(r)
+    return valid
 
 
 def build_perf_daily(trades: list[dict], start_capital: float, paper_balance: float) -> list[dict]:
@@ -269,23 +612,29 @@ def sync_bot(bot_cfg: dict) -> None:
     supabase_upsert("bots", [bot_row], "slug")
     bot_id = get_bot_id(slug)
 
-    # 2. Load trades from SQLite
-    trades = load_trades_from_db(db_path)
-    print(f"[{slug}] {len(trades)} valid closed trades loaded")
+    # 2. Load trades — dispatch by schema
+    schema = bot_cfg.get("schema", "v1")
+    if schema == "new":
+        trades = load_trades_new_schema(db_path)
+    elif schema == "breakout":
+        trades = load_trades_breakout_schema(db_path)
+    else:
+        trades = load_trades_from_db(db_path)
+    print(f"[{slug}] {len(trades)} valid closed trades loaded (schema={schema})")
 
     # 3. Sync trades (delete + insert)
     supabase_delete("trades", bot_id)
     if trades:
         trade_rows = [
             {
-                "bot_id": bot_id,
-                "opened_at": t["timestamp"],
-                "closed_at": t["closed_at"],
-                "asset": t["symbol"],
-                "side": t["direction"],
-                "pnl": round(float(t["pnl"]), 4),
-                "reason": t["exit_reason"],
-                "is_paper": True,
+                "bot_id":     bot_id,
+                "opened_at":  t["timestamp"],
+                "closed_at":  t["closed_at"],
+                "asset":      t["symbol"],
+                "side":       t["direction"],
+                "pnl":        round(float(t["pnl"]), 4),
+                "reason":     t["exit_reason"],
+                "is_paper":   True,
             }
             for t in trades
         ]
@@ -293,7 +642,12 @@ def sync_bot(bot_cfg: dict) -> None:
     print(f"[{slug}] {len(trades)} trades pushed")
 
     # 4. Build and sync perf_daily
-    paper_balance = get_paper_balance(db_path, paper_name)
+    if schema == "new":
+        paper_balance = get_paper_equity(db_path, paper_name) if paper_name else None
+    elif schema == "breakout":
+        paper_balance = None  # no paper_state table in breakout schema
+    else:
+        paper_balance = get_paper_balance(db_path, paper_name)
     perf = build_perf_daily(trades, start_capital, paper_balance)
 
     supabase_delete("perf_daily", bot_id)
