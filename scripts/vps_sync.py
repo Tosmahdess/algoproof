@@ -392,6 +392,40 @@ def sync_asset_prices() -> None:
     print(f"  [prices] {len(records)} prices updated: {list(prices.keys())}")
 
 
+def sync_mi_snapshot() -> None:
+    """Read MI heartbeat and push latest snapshot to Supabase mi_snapshots."""
+    import json
+
+    if not os.path.exists(MI_HEARTBEAT_PATH):
+        print("  [MI] Heartbeat not found — skipping")
+        return
+
+    try:
+        with open(MI_HEARTBEAT_PATH) as f:
+            hb = json.load(f)
+    except Exception as e:
+        print(f"  [MI] Read error: {e}")
+        return
+
+    scores = hb.get("scores", {})
+    record = {
+        "snapshot_at":       hb.get("timestamp") or datetime.utcnow().isoformat() + "Z",
+        "composite_score":   hb.get("composite_score") or hb.get("global_score"),
+        "regime":            hb.get("regime") or hb.get("risk_level"),
+        "is_safe":           hb.get("is_safe"),
+        "is_macro_safe":     hb.get("is_macro_safe"),
+        "sentiment_score":   hb.get("sentiment_score") or scores.get("sentiment"),
+        "derivatives_score": hb.get("derivatives_score") or scores.get("derivatives"),
+        "news_score":        hb.get("news_score") or scores.get("news"),
+        "macro_score":       hb.get("macro_score") or scores.get("macro"),
+    }
+
+    supabase_upsert("mi_snapshots", [record], "snapshot_at")
+    regime = record.get("regime", "?")
+    score = record.get("composite_score", "?")
+    print(f"  [MI] Snapshot synced — regime={regime}, score={score}")
+
+
 def main() -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     print(f"=== AlgoProof VPS Sync — {ts} ===")
@@ -412,6 +446,12 @@ def main() -> None:
         sync_asset_prices()
     except Exception as e:
         print(f"[prices] ERROR: {e}")
+
+    print("\n[MI] Syncing MI snapshot...")
+    try:
+        sync_mi_snapshot()
+    except Exception as e:
+        print(f"[MI] ERROR: {e}")
 
     print("\n=== Done ===")
 
