@@ -380,6 +380,13 @@ def sync_asset_prices() -> None:
     if cw8:
         prices["CW8"] = {"price_eur": round(cw8, 4), "source": "yahoo"}
 
+    # PUST.L — Nasdaq-100 UCITS PEA (London, quoted in GBX = pence sterling)
+    # Conversion: price_GBX / 100 → GBP → EUR via GBPEUR=X
+    gbpeur = _yahoo_close("GBPEUR=X")
+    pust_gbx = _yahoo_close("PUST.L")
+    if pust_gbx and gbpeur:
+        prices["CL2_PUST"] = {"price_eur": round(pust_gbx / 100 * gbpeur, 4), "source": "yahoo"}
+
     if not prices:
         print("  [prices] No prices fetched — skipping")
         return
