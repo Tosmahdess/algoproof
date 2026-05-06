@@ -72,7 +72,7 @@ export default function MiBanner() {
       </div>
 
       {/* Pillar scores */}
-      <div className="grid grid-cols-4 divide-x divide-border">
+      <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-border">
         {PILLARS.map(p => {
           const val = snap[p.key] as number | null
           return (

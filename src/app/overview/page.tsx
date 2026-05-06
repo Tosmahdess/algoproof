@@ -131,19 +131,19 @@ export default async function OverviewPage() {
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-4">
           Tous les bots — classés par performance
         </h2>
-        <div className="rounded border border-border overflow-hidden">
-          <table className="w-full text-xs">
+        <div className="rounded border border-border overflow-x-auto">
+          <table className="w-full text-xs min-w-[600px]">
             <thead className="bg-card">
               <tr className="text-muted text-[10px] uppercase tracking-widest border-b border-border">
                 <th className="px-4 py-3 text-left">Stratégie</th>
-                <th className="px-4 py-3 text-left">Famille</th>
-                <th className="px-4 py-3 text-left">Exchange</th>
+                <th className="px-4 py-3 text-left hidden sm:table-cell">Famille</th>
+                <th className="px-4 py-3 text-left hidden lg:table-cell">Exchange</th>
                 <th className="px-4 py-3 text-right">Trades</th>
-                <th className="px-4 py-3 text-right">T. gain</th>
-                <th className="px-4 py-3 text-right">F. profit</th>
-                <th className="px-4 py-3 text-right">Drawdown</th>
+                <th className="px-4 py-3 text-right hidden sm:table-cell">T. gain</th>
+                <th className="px-4 py-3 text-right hidden sm:table-cell">F. profit</th>
+                <th className="px-4 py-3 text-right hidden md:table-cell">Drawdown</th>
                 <th className="px-4 py-3 text-right font-bold">P&amp;L (€)</th>
-                <th className="px-4 py-3 text-center">Statut</th>
+                <th className="px-4 py-3 text-center hidden sm:table-cell">Statut</th>
               </tr>
             </thead>
             <tbody>
@@ -157,23 +157,23 @@ export default async function OverviewPage() {
                       </Link>
                       <p className="text-muted text-[10px] mt-0.5">{bot.timeframe}</p>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden sm:table-cell">
                       <span className="text-[10px] font-semibold uppercase tracking-wide"
                         style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
                         {FAMILY_LABEL[bot.family ?? ''] ?? bot.family ?? '—'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-muted">{bot.exchange}</td>
+                    <td className="px-4 py-3 text-muted hidden lg:table-cell">{bot.exchange}</td>
                     <td className="px-4 py-3 text-right font-mono">
                       {hasData ? bot.stats.total_trades : <span className="text-muted">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono">
+                    <td className="px-4 py-3 text-right font-mono hidden sm:table-cell">
                       {hasData ? `${(bot.stats.win_rate * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
                     </td>
-                    <td className={`px-4 py-3 text-right font-mono ${hasData ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}>
+                    <td className={`px-4 py-3 text-right font-mono hidden sm:table-cell ${hasData ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}>
                       {hasData ? bot.stats.profit_factor.toFixed(2) : <span className="text-muted">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-negative">
+                    <td className="px-4 py-3 text-right font-mono text-negative hidden md:table-cell">
                       {hasData ? `${(bot.stats.max_drawdown * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -190,7 +190,7 @@ export default async function OverviewPage() {
                         <span className="text-muted">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-4 py-3 text-center hidden sm:table-cell">
                       <StatusBadge status={bot.status} />
                     </td>
                   </tr>
@@ -222,16 +222,16 @@ export default async function OverviewPage() {
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-4">
           20 derniers trades — tous bots
         </h2>
-        <div className="rounded border border-border overflow-hidden">
-          <table className="w-full text-xs">
+        <div className="rounded border border-border overflow-x-auto">
+          <table className="w-full text-xs min-w-[480px]">
             <thead className="bg-card border-b border-border">
               <tr className="text-muted text-[10px] uppercase tracking-widest">
                 <th className="px-4 py-2 text-left">Date</th>
                 <th className="px-4 py-2 text-left">Bot</th>
-                <th className="px-4 py-2 text-left">Actif</th>
+                <th className="px-4 py-2 text-left hidden sm:table-cell">Actif</th>
                 <th className="px-4 py-2 text-center">Dir.</th>
                 <th className="px-4 py-2 text-right">P&amp;L</th>
-                <th className="px-4 py-2 text-left">Raison</th>
+                <th className="px-4 py-2 text-left hidden md:table-cell">Raison</th>
               </tr>
             </thead>
             <tbody>
@@ -247,7 +247,7 @@ export default async function OverviewPage() {
                       </Link>
                     ) : '—'}
                   </td>
-                  <td className="px-4 py-2 font-mono">{t.asset}</td>
+                  <td className="px-4 py-2 font-mono hidden sm:table-cell">{t.asset}</td>
                   <td className="px-4 py-2 text-center">
                     <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
                       t.side === 'long' ? 'bg-positive/10 text-positive' : 'bg-negative/10 text-negative'
@@ -258,7 +258,7 @@ export default async function OverviewPage() {
                   <td className={`px-4 py-2 text-right font-mono font-semibold ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
                     {t.pnl >= 0 ? '+' : ''}{t.pnl.toFixed(2)}€
                   </td>
-                  <td className="px-4 py-2 text-muted">{t.reason ?? '—'}</td>
+                  <td className="px-4 py-2 text-muted hidden md:table-cell">{t.reason ?? '—'}</td>
                 </tr>
               ))}
             </tbody>

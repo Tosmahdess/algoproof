@@ -72,7 +72,7 @@ export default async function HomePage() {
       </div>
 
       {/* Trust signals */}
-      <div className="grid grid-cols-3 gap-6 mb-20 border-y border-border py-10">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-20 border-y border-border py-10">
         {[
           { label: 'Zéro faux screenshots', desc: 'Dashboard live mis à jour toutes les heures depuis les données réelles des bots' },
           { label: 'Chaque perte affichée', desc: 'Drawdowns, mauvaises semaines, périodes plates — tout est visible' },
