@@ -1,8 +1,6 @@
-// src/app/strategies/page.tsx
 import type { Metadata } from 'next'
-import BotCard from '@/components/BotCard'
-import StatusBadge from '@/components/StatusBadge'
 import { getAllBotsWithStats } from '@/lib/queries'
+import BotCard from '@/components/BotCard'
 
 export const revalidate = 3600
 
@@ -11,40 +9,88 @@ export const metadata: Metadata = {
   description: 'All AlgoProof trading strategies — real performance data, paper and live.',
 }
 
+const FAMILIES: {
+  slug: string
+  label: string
+  color: string
+  description: string
+}[] = [
+  {
+    slug:        'trend',
+    label:       'Trend Following',
+    color:       '#ff6b35',
+    description: 'Bots that ride sustained price trends using moving averages. They enter when a trend is confirmed and exit when it weakens. Few trades, but high reward-to-risk when they hit.',
+  },
+  {
+    slug:        'breakout',
+    label:       'Breakout',
+    color:       '#3fb950',
+    description: 'Bots that detect when price breaks out of a consolidation range or key level. They capture the momentum burst at the start of a new move.',
+  },
+  {
+    slug:        'multi-signal',
+    label:       'Multi-Signal',
+    color:       '#d29922',
+    description: 'Bots that combine signals from multiple timeframes or indicators. Entry only when all signals align — lower frequency, higher conviction.',
+  },
+  {
+    slug:        'multi-asset',
+    label:       'Multi-Asset',
+    color:       '#40c4ff',
+    description: 'Non-crypto strategies trading Forex and Gold. True diversification — these bots are uncorrelated with the crypto market.',
+  },
+  {
+    slug:        'leveraged',
+    label:       'Leveraged',
+    color:       '#ff4444',
+    description: 'Amplified versions of core strategies using dynamic leverage. Higher potential returns, higher drawdown risk. Not suitable for all capital sizes.',
+  },
+]
+
 export default async function StrategiesPage() {
   const bots = await getAllBotsWithStats()
-  const paper = bots.filter(b => b.status === 'paper')
-  const live  = bots.filter(b => b.status === 'live')
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-16">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold mb-3">Strategies</h1>
-        <p className="text-muted">
-          All bots, all trades. Paper trading data is clearly labeled.
-          Live data activates when a strategy completes 2+ months of real trading.
+    <main className="mx-auto max-w-6xl px-4 py-12 space-y-16">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Trading Strategies</h1>
+        <p className="mt-2 text-sm text-muted">
+          All bots run in paper mode. Every trade is public. Strategies marked{' '}
+          <span className="text-positive font-medium">live</span> use real capital.
         </p>
       </div>
 
-      {live.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <StatusBadge status="live" /> Live strategies
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {live.map(b => <BotCard key={b.id} bot={b} />)}
-          </div>
-        </section>
-      )}
+      {FAMILIES.map(fam => {
+        const famBots = bots.filter(b => b.family === fam.slug)
+        return (
+          <section key={fam.slug}>
+            <div className="flex items-baseline gap-3 mb-2">
+              <h2
+                className="text-base font-bold tracking-widest uppercase"
+                style={{ color: fam.color }}
+              >
+                {fam.label}
+              </h2>
+              <span className="text-xs text-muted">
+                {famBots.length} {famBots.length === 1 ? 'bot' : 'bots'}
+              </span>
+            </div>
+            <p className="text-xs text-muted mb-6 max-w-2xl">{fam.description}</p>
 
-      <section>
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <StatusBadge status="paper" /> Paper trading
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {paper.map(b => <BotCard key={b.id} bot={b} />)}
-        </div>
-      </section>
-    </div>
+            {famBots.length === 0 ? (
+              <div className="rounded border border-border px-6 py-8 text-center text-xs text-muted">
+                Coming soon — bots in this family are in development or backtest phase.
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {famBots.map(bot => (
+                  <BotCard key={bot.slug} bot={bot} />
+                ))}
+              </div>
+            )}
+          </section>
+        )
+      })}
+    </main>
   )
 }
