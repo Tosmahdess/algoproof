@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import { getAllBotsWithStats } from '@/lib/queries'
-import { latentPnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
 
 export const revalidate = 3600
 
@@ -37,7 +37,7 @@ export default async function DashboardPage() {
   const botsWithData = bots.filter(b => b.stats.total_trades > 0)
   const winners      = botsWithData.filter(b => b.stats.latest_capital > 1000).length
   const avgPnl       = botsWithData.length > 0
-    ? botsWithData.reduce((s, b) => s + latentPnlEur(b.stats.latest_capital), 0) / botsWithData.length
+    ? botsWithData.reduce((s, b) => s + pnlEur(b.stats.latest_capital), 0) / botsWithData.length
     : 0
 
   return (
@@ -80,7 +80,7 @@ export default async function DashboardPage() {
               <th className="px-4 py-3 text-right">T. gain</th>
               <th className="px-4 py-3 text-right">F. profit</th>
               <th className="px-4 py-3 text-right">Drawdown</th>
-              <th className="px-4 py-3 text-right font-bold">Profit latent ({DISPLAY_CAPITAL}€)</th>
+              <th className="px-4 py-3 text-right font-bold">P&amp;L (€)</th>
               <th className="px-4 py-3 text-center">Statut</th>
             </tr>
           </thead>
@@ -133,8 +133,8 @@ export default async function DashboardPage() {
                   <td className="px-4 py-3 text-right">
                     {hasData ? (
                       <div>
-                        <span className={`font-mono font-bold ${latentPnlEur(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
-                          {fmtEur(latentPnlEur(bot.stats.latest_capital))}
+                        <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
+                          {fmtEur(pnlEur(bot.stats.latest_capital))}
                         </span>
                         <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
                           {fmtPct(pnlPct(bot.stats.latest_capital))}

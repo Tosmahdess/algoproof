@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { BotWithStats } from '@/lib/types'
 import StatusBadge from './StatusBadge'
-import { latentPnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
 export default function BotCard({ bot }: { bot: BotWithStats }) {
   const { stats } = bot
   const pct     = pnlPct(stats.latest_capital)
-  const pnlEur  = latentPnlEur(stats.latest_capital)
+  const eur     = pnlEur(stats.latest_capital)
   const hasData = stats.total_trades > 0
 
   return (
@@ -20,14 +20,15 @@ export default function BotCard({ bot }: { bot: BotWithStats }) {
           <StatusBadge status={bot.status} />
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="grid grid-cols-4 gap-2 mb-3">
           {[
             { label: 'T. gain',   value: hasData ? `${(stats.win_rate * 100).toFixed(1)}%` : '—' },
             { label: 'F. profit', value: hasData ? stats.profit_factor.toFixed(2) : '—' },
             { label: 'Drawdown',  value: hasData ? `${(stats.max_drawdown * 100).toFixed(1)}%` : '—' },
+            { label: 'Trades',    value: hasData ? String(stats.total_trades) : '—' },
           ].map(m => (
             <div key={m.label} className="bg-bg rounded-lg p-2 text-center">
-              <div className="text-xs text-muted">{m.label}</div>
+              <div className="text-[10px] text-muted">{m.label}</div>
               <div className="font-mono font-semibold text-sm mt-0.5">{m.value}</div>
             </div>
           ))}
@@ -37,11 +38,11 @@ export default function BotCard({ bot }: { bot: BotWithStats }) {
           <span className="text-muted">{bot.exchange} · {bot.timeframe}</span>
           {hasData ? (
             <div className="text-right">
-              <span className={`font-mono font-bold block ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
-                {fmtEur(pnlEur)}
+              <span className={`font-mono font-bold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+                {fmtEur(eur)}
               </span>
-              <span className={`font-mono text-[10px] ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
-                {fmtPct(pct)} sur {DISPLAY_CAPITAL}€
+              <span className={`font-mono text-[10px] ml-1 ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+                ({fmtPct(pct)})
               </span>
             </div>
           ) : (

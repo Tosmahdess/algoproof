@@ -1,19 +1,11 @@
-// Display constants — bots run internally with 1000€ paper capital,
-// but we display as if users invest 100€ (scaling factor 0.1).
-export const PAPER_CAPITAL  = 1000   // internal paper capital per bot
-export const DISPLAY_CAPITAL = 100   // shown to users
+// Display constants — bots run with 1000€ paper capital, shown as-is.
+export const PAPER_CAPITAL   = 1000
+export const DISPLAY_CAPITAL = 1000
 
-// Convert internal capital (1000-based) to display capital (100-based)
-export function toDisplayCapital(capital: number): number {
-  return (capital - PAPER_CAPITAL) * (DISPLAY_CAPITAL / PAPER_CAPITAL) + DISPLAY_CAPITAL
+export function pnlEur(latestCapital: number): number {
+  return latestCapital - PAPER_CAPITAL
 }
 
-// Latent profit in euros on 100€ base
-export function latentPnlEur(latestCapital: number): number {
-  return (latestCapital - PAPER_CAPITAL) * (DISPLAY_CAPITAL / PAPER_CAPITAL)
-}
-
-// P&L percentage (same regardless of display capital)
 export function pnlPct(latestCapital: number): number {
   return ((latestCapital - PAPER_CAPITAL) / PAPER_CAPITAL) * 100
 }
