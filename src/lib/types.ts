@@ -51,3 +51,38 @@ export interface BotWithStats extends Bot {
   perf_daily: PerfDaily[]
   recent_trades: Trade[]
 }
+
+export interface WealthCall {
+  id: string
+  executed_at: string
+  asset: string
+  portfolio: 'wealth' | 'growth'
+  amount_eur: number
+  multiplier: number
+  signal_level: 'none' | 'minor_dip' | 'major_dip' | 'crash'
+  venue: string
+  price_eur: number | null
+  quantity: number | null
+  created_at: string
+}
+
+export interface AssetPrice {
+  asset: string
+  price_eur: number
+  source: string
+  updated_at: string
+}
+
+export interface MiSnapshot {
+  id: string
+  snapshot_at: string
+  composite_score: number | null
+  regime: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED' | null
+  is_safe: boolean | null
+  is_macro_safe: boolean | null
+  sentiment_score: number | null
+  derivatives_score: number | null
+  news_score: number | null
+  macro_score: number | null
+  created_at: string
+}

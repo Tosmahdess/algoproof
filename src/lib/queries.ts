@@ -1,6 +1,6 @@
 // src/lib/queries.ts
 import { supabase } from './supabase'
-import { Bot, BotWithStats, PerfDaily, Trade } from './types'
+import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot } from './types'
 
 export async function getBots(): Promise<Bot[]> {
   const { data, error } = await supabase
@@ -83,4 +83,32 @@ export async function getAllBotsWithStats(): Promise<BotWithStats[]> {
     if (!result) throw new Error(`getBotWithStats returned null for slug: ${b.slug}`)
     return result
   }))
+}
+
+export async function getWealthCalls(): Promise<WealthCall[]> {
+  const { data, error } = await supabase
+    .from('wealth_calls')
+    .select('*')
+    .order('executed_at', { ascending: true })
+  if (error) throw new Error(error.message)
+  return data ?? []
+}
+
+export async function getAssetPrices(): Promise<AssetPrice[]> {
+  const { data, error } = await supabase
+    .from('asset_prices')
+    .select('*')
+  if (error) throw new Error(error.message)
+  return data ?? []
+}
+
+export async function getLatestMiSnapshot(): Promise<MiSnapshot | null> {
+  const { data, error } = await supabase
+    .from('mi_snapshots')
+    .select('*')
+    .order('snapshot_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error) return null
+  return data
 }
