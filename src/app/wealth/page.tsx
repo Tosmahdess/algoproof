@@ -1,7 +1,10 @@
 'use client'
 
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
+import { useState, useEffect } from 'react'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ChartTooltip, Legend } from 'recharts'
 import ExplainerBox from '@/components/ExplainerBox'
+import { getWealthCalls, getAssetPrices } from '@/lib/queries'
+import type { WealthCall, AssetPrice } from '@/lib/types'
 
 // Source: apex-wealth/portfolios.py WEALTH_ALLOCATION + BUDGET_CONFIG
 // Total budget: 250€/month (WEALTH 70% = 175€, GROWTH 30% = 75€)
@@ -34,6 +37,46 @@ const AMPLIFICATION = [
 ]
 
 export default function WealthPage() {
+  const [calls, setCalls]     = useState<WealthCall[]>([])
+  const [prices, setPrices]   = useState<AssetPrice[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([getWealthCalls(), getAssetPrices()]).then(([c, p]) => {
+      setCalls(c)
+      setPrices(p)
+      setLoading(false)
+    })
+  }, [])
+
+  function getPriceEur(asset: string): number | null {
+    return prices.find(p => p.asset === asset)?.price_eur ?? null
+  }
+
+  function computePnl(call: WealthCall): number | null {
+    if (!call.quantity || !call.price_eur) return null
+    const current = getPriceEur(call.asset)
+    if (!current) return null
+    return (current - call.price_eur) * call.quantity
+  }
+
+  const totalInvested = calls.reduce((s, c) => s + c.amount_eur, 0)
+  const totalPnl      = calls.reduce((s, c) => s + (computePnl(c) ?? 0), 0)
+  const totalCurrent  = totalInvested + totalPnl
+
+  const equityCurve = calls.reduce<{ date: string; invested: number; current: number }[]>(
+    (acc, call) => {
+      const prev = acc[acc.length - 1] ?? { invested: 0, current: 0 }
+      const pnl  = computePnl(call) ?? 0
+      return [...acc, {
+        date:     call.executed_at.slice(0, 10),
+        invested: Math.round((prev.invested + call.amount_eur) * 100) / 100,
+        current:  Math.round((prev.current  + call.amount_eur + pnl) * 100) / 100,
+      }]
+    },
+    []
+  )
+
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
 
@@ -171,16 +214,105 @@ export default function WealthPage() {
         />
       </section>
 
-      {/* Portfolio live — placeholder */}
+      {/* Portfolio — Live Tracking */}
       <section>
         <h2 className="text-base font-bold tracking-tight mb-4">Portfolio — Live Tracking</h2>
-        <div className="rounded border border-dashed border-border px-6 py-10 text-center space-y-2">
-          <p className="text-sm font-medium">Real purchase history coming soon.</p>
-          <p className="text-xs text-muted">
-            Every DCA buy will appear here with date, asset, amount, price at purchase,
-            and live P&amp;L. Synced from VPS within 1 hour of execution.
-          </p>
-        </div>
+
+        {loading ? (
+          <div className="rounded border border-border px-6 py-8 text-center text-xs text-muted">
+            Loading...
+          </div>
+        ) : calls.length === 0 ? (
+          <div className="rounded border border-dashed border-border px-6 py-10 text-center space-y-2">
+            <p className="text-sm font-medium">No purchases yet.</p>
+            <p className="text-xs text-muted">
+              First DCA executes on the 1st of next month. Every purchase will appear here
+              with live P&amp;L synced from VPS within 1 hour.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Summary stats */}
+            <div className="grid grid-cols-3 gap-4 text-center">
+              {([
+                { label: 'Total Invested', value: `${totalInvested.toFixed(2)}€`,  color: undefined },
+                { label: 'Current Value',  value: `${totalCurrent.toFixed(2)}€`,   color: undefined },
+                { label: 'Total P&L',      value: `${totalPnl >= 0 ? '+' : ''}${totalPnl.toFixed(2)}€`, color: totalPnl >= 0 ? '#3fb950' : '#ff4444' },
+              ] as const).map(s => (
+                <div key={s.label} className="rounded border border-border px-4 py-4">
+                  <p className="text-[10px] text-muted uppercase tracking-widest">{s.label}</p>
+                  <p className="text-lg font-bold mt-1 font-mono" style={s.color ? { color: s.color } : {}}>
+                    {s.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Equity curve */}
+            {equityCurve.length > 1 && (
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={equityCurve}>
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <ChartTooltip
+                      contentStyle={{ background: '#111111', border: '1px solid #1e1e1e', fontSize: 12 }}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      formatter={(v: any) => [typeof v === 'number' ? `${v.toFixed(2)}€` : String(v ?? '')]}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Line type="monotone" dataKey="invested" stroke="#888" strokeDasharray="4 2" dot={false} name="Invested" />
+                    <Line type="monotone" dataKey="current" stroke="#3fb950" dot={false} name="Current Value" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {/* Purchase history */}
+            <div className="rounded border border-border overflow-hidden">
+              <table className="w-full text-xs font-mono">
+                <thead className="bg-card">
+                  <tr className="text-muted text-[10px] uppercase tracking-widest">
+                    <th className="px-4 py-2 text-left">Date</th>
+                    <th className="px-4 py-2 text-left">Asset</th>
+                    <th className="px-4 py-2 text-right">Amount</th>
+                    <th className="px-4 py-2 text-right">Price</th>
+                    <th className="px-4 py-2 text-right">Qty</th>
+                    <th className="px-4 py-2 text-right">P&L</th>
+                    <th className="px-4 py-2 text-center">Mult</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {calls.map(c => {
+                    const pnl = computePnl(c)
+                    return (
+                      <tr key={c.id} className="border-t border-border">
+                        <td className="px-4 py-2 text-muted">{c.executed_at.slice(0, 10)}</td>
+                        <td className="px-4 py-2 text-positive font-bold">{c.asset}</td>
+                        <td className="px-4 py-2 text-right">{c.amount_eur.toFixed(2)}€</td>
+                        <td className="px-4 py-2 text-right text-muted">
+                          {c.price_eur ? `${c.price_eur.toFixed(2)}€` : '—'}
+                        </td>
+                        <td className="px-4 py-2 text-right text-muted">
+                          {c.quantity ? c.quantity.toFixed(6) : '—'}
+                        </td>
+                        <td
+                          className="px-4 py-2 text-right font-semibold"
+                          style={{ color: pnl == null ? '#888' : pnl >= 0 ? '#3fb950' : '#ff4444' }}
+                        >
+                          {pnl == null ? '—' : `${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}€`}
+                        </td>
+                        <td className="px-4 py-2 text-center text-muted">
+                          {c.multiplier > 1 ? `×${c.multiplier.toFixed(1)} ⚡` : '×1'}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </section>
 
     </main>
