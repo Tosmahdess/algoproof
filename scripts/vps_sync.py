@@ -36,6 +36,7 @@ BOTS = [
     {
         "slug": "v1-spot",
         "name": "Bot V1 Spot",
+        "family": "trend",
         "strategy": "EMA Cross H4 (21/55/200)",
         "status": "paper",
         "exchange": "Binance Spot",
@@ -60,6 +61,7 @@ BOTS = [
     {
         "slug": "v1-hl",
         "name": "Bot V1-HL Perps",
+        "family": "trend",
         "strategy": "EMA Cross H4 (21/55/200) — Hyperliquid Perps",
         "status": "paper",
         "exchange": "Hyperliquid",
@@ -251,6 +253,7 @@ def sync_bot(bot_cfg: dict) -> None:
     bot_row = {
         "slug": slug,
         "name": bot_cfg["name"],
+        "family": bot_cfg["family"],
         "strategy": bot_cfg["strategy"],
         "status": bot_cfg["status"],
         "exchange": bot_cfg["exchange"],
