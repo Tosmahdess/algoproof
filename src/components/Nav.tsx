@@ -4,13 +4,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const STRATEGIES_SUB = [
+  { href: '/overview',             label: '🔭 Vue d\'ensemble' },
   { href: '/strategies',           label: 'Toutes les stratégies' },
   { href: '/strategies#trend',     label: 'Suivi de tendance' },
   { href: '/strategies#breakout',  label: 'Cassure de niveaux' },
   { href: '/strategies#multi-signal', label: 'Multi-signaux' },
   { href: '/strategies#multi-asset',  label: 'Multi-actifs' },
   { href: '/strategies#leveraged', label: 'Avec levier' },
-  { href: '/dashboard',            label: 'Vue globale' },
+  { href: '/dashboard',            label: 'Tableau comparatif' },
 ]
 
 const TOP_LINKS = [
@@ -22,7 +23,7 @@ const TOP_LINKS = [
 export default function Nav() {
   const path = usePathname()
 
-  const strategiesActive = path === '/strategies' || path.startsWith('/strategies/') || path === '/dashboard'
+  const strategiesActive = path === '/strategies' || path.startsWith('/strategies/') || path === '/dashboard' || path === '/overview'
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-bg/90 backdrop-blur">
