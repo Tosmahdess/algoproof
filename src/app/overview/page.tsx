@@ -112,10 +112,10 @@ export default async function OverviewPage() {
       {/* Summary counters */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Bots actifs',    value: `${bots.length}` },
-          { label: 'Trades fermés',  value: `${totalTrades}` },
-          { label: 'En positif',     value: `${winners} / ${botsWithData.length}`, color: '#3fb950' },
-          { label: "P&L aujourd'hui", value: fmtEur(todayPnl), color: todayPnl >= 0 ? '#3fb950' : '#ff4444' },
+          { label: 'Bots paper trading',  value: `${bots.length}` },
+          { label: 'Avec trades',         value: `${botsWithData.length} / ${bots.length}` },
+          { label: 'En positif',          value: `${winners} / ${botsWithData.length}`, color: '#3fb950' },
+          { label: "P&L aujourd'hui",     value: fmtEur(todayPnl), color: todayPnl >= 0 ? '#3fb950' : '#ff4444' },
         ].map(s => (
           <div key={s.label} className="rounded border border-border p-4 text-center">
             <p className="text-[10px] text-muted uppercase tracking-widest mb-1">{s.label}</p>

@@ -8,8 +8,8 @@ import matter from 'gray-matter'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Blog',
-  description: 'Strategy updates, algo trading insights, and honest performance reviews.',
+  title: 'Blog — AlgoProof',
+  description: 'Analyses de stratégies, insights en trading algo et bilans de performance honnêtes.',
 }
 
 interface ArticleMeta {
@@ -36,12 +36,12 @@ export default function BlogPage() {
   const articles = getArticles()
   return (
     <div className="max-w-3xl mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold mb-10">Blog</h1>
+      <h1 className="text-3xl font-bold mb-10">Articles</h1>
       <div className="space-y-8">
         {articles.map(a => (
           <article key={a.slug} className="border-b border-border pb-8">
             <div className="flex items-center gap-2 text-xs text-muted mb-2">
-              <time>{new Date(a.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
+              <time>{new Date(a.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
               {a.tags.map(t => (
                 <span key={t} className="px-1.5 py-0.5 rounded bg-card border border-border">{t}</span>
               ))}
@@ -50,7 +50,7 @@ export default function BlogPage() {
               <Link href={`/blog/${a.slug}`} className="hover:text-positive transition-colors">{a.title}</Link>
             </h2>
             <p className="text-muted text-sm">{a.summary}</p>
-            <Link href={`/blog/${a.slug}`} className="text-sm text-positive mt-3 inline-block hover:underline">Read more →</Link>
+            <Link href={`/blog/${a.slug}`} className="text-sm text-positive mt-3 inline-block hover:underline">Lire la suite →</Link>
           </article>
         ))}
       </div>

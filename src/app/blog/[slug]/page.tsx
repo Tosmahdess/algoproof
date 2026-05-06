@@ -39,7 +39,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   return (
     <div className="max-w-3xl mx-auto px-4 py-16">
       <div className="text-xs text-muted mb-6">
-        <time>{new Date(article.meta.date as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
+        <time>{new Date(article.meta.date as string).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
         {(article.meta.tags as string[]).map((t: string) => (
           <span key={t} className="ml-2 px-1.5 py-0.5 rounded bg-card border border-border">{t}</span>
         ))}
