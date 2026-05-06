@@ -56,7 +56,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Equity curve */}
       <div className="bg-card border border-border rounded-xl p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">Equity Curve</h2>
+          <h2 className="font-semibold">Courbe d&apos;équité</h2>
           <div className="flex items-center gap-3 text-sm">
             <span className="text-muted">Start: €1,000</span>
             <span className={`font-mono font-semibold ${pnlPct >= 0 ? 'text-positive' : 'text-negative'}`}>
@@ -67,7 +67,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         <EquityCurve data={bot.perf_daily} startCapital={1000} />
         {bot.status === 'paper' && (
           <p className="text-xs text-muted/60 mt-3 text-center">
-            ⚠ Paper trading — simulated execution, no real funds at risk
+            ⚠ Paper trading — exécution simulée, aucun capital réel exposé
           </p>
         )}
       </div>
@@ -79,12 +79,12 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             bot.description ? (
               <p>{bot.description}</p>
             ) : (
-              <p className="text-muted italic">Strategy description coming soon.</p>
+              <p className="text-muted italic">Description disponible prochainement.</p>
             )
           }
           technical={(() => {
             const params = getBotParams(slug)
-            if (!params) return <p className="text-muted italic text-xs">Technical parameters not yet documented.</p>
+            if (!params) return <p className="text-muted italic text-xs">Paramètres techniques en cours de documentation.</p>
             return (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {params.groups.map(group => (
@@ -116,16 +116,16 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Recent trades */}
       <div className="bg-card border border-border rounded-xl p-6 mb-8">
         <h2 className="font-semibold mb-4">
-          Recent trades
-          <span className="text-muted text-sm font-normal ml-2">({bot.recent_trades.length} shown)</span>
+          Trades récents
+          <span className="text-muted text-sm font-normal ml-2">({bot.recent_trades.length} affichés)</span>
         </h2>
         <TradesTable trades={bot.recent_trades} />
       </div>
 
       {/* Phase 2 teaser */}
       <div className="bg-card border border-border rounded-xl p-6 text-center opacity-60">
-        <p className="text-sm text-muted mb-1">Forum Q&A and code access coming in Phase 2</p>
-        <p className="text-xs text-muted/60">When V1 has 2+ months of live data</p>
+        <p className="text-sm text-muted mb-1">Forum Q&amp;R et accès au code disponibles en Phase 2</p>
+        <p className="text-xs text-muted/60">Quand V1 aura 2+ mois de données en direct</p>
       </div>
 
     </div>

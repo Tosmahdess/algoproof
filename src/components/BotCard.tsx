@@ -19,9 +19,9 @@ export default function BotCard({ bot }: { bot: BotWithStats }) {
 
         <div className="grid grid-cols-3 gap-3 mb-3">
           {[
-            { label: 'WR',  value: `${(stats.win_rate * 100).toFixed(1)}%` },
-            { label: 'PF',  value: stats.profit_factor.toFixed(2) },
-            { label: 'DD',  value: `${(stats.max_drawdown * 100).toFixed(1)}%` },
+            { label: 'T. gain',   value: `${(stats.win_rate * 100).toFixed(1)}%` },
+            { label: 'F. profit', value: stats.profit_factor.toFixed(2) },
+            { label: 'Drawdown',  value: `${(stats.max_drawdown * 100).toFixed(1)}%` },
           ].map(m => (
             <div key={m.label} className="bg-bg rounded-lg p-2 text-center">
               <div className="text-xs text-muted">{m.label}</div>
