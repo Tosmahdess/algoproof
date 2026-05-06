@@ -2,7 +2,7 @@ import { Trade } from '@/lib/types'
 
 export default function TradesTable({ trades }: { trades: Trade[] }) {
   if (trades.length === 0) {
-    return <p className="text-muted text-sm py-6 text-center">No trades yet.</p>
+    return <p className="text-muted text-sm py-6 text-center">Aucun trade pour le moment.</p>
   }
   return (
     <div className="overflow-x-auto">
@@ -10,17 +10,17 @@ export default function TradesTable({ trades }: { trades: Trade[] }) {
         <thead>
           <tr className="border-b border-border text-muted text-xs uppercase tracking-wide">
             <th className="text-left py-2 pr-4">Date</th>
-            <th className="text-left py-2 pr-4">Asset</th>
-            <th className="text-left py-2 pr-4">Side</th>
-            <th className="text-right py-2 pr-4">PnL</th>
-            <th className="text-left py-2">Reason</th>
+            <th className="text-left py-2 pr-4">Actif</th>
+            <th className="text-left py-2 pr-4">Direction</th>
+            <th className="text-right py-2 pr-4">P&amp;L</th>
+            <th className="text-left py-2">Raison</th>
           </tr>
         </thead>
         <tbody>
           {trades.map(t => (
             <tr key={t.id} className="border-b border-border/50 hover:bg-card/50 transition-colors">
               <td className="py-2 pr-4 text-muted font-mono text-xs">
-                {new Date(t.closed_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                {new Date(t.closed_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
               </td>
               <td className="py-2 pr-4 font-mono">{t.asset}</td>
               <td className="py-2 pr-4">

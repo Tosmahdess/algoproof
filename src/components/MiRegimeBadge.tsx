@@ -30,8 +30,8 @@ export default function MiRegimeBadge() {
       <div className="rounded border border-border p-6 flex items-center gap-4">
         <div className="h-3 w-3 rounded-full bg-positive animate-pulse flex-shrink-0" />
         <div>
-          <p className="text-xs font-semibold">Current Regime</p>
-          <p className="text-xs text-muted mt-0.5">Loading...</p>
+          <p className="text-xs font-semibold">Régime actuel</p>
+          <p className="text-xs text-muted mt-0.5">Chargement...</p>
         </div>
       </div>
     )
@@ -40,7 +40,7 @@ export default function MiRegimeBadge() {
   if (snap === null) {
     return (
       <div className="rounded border border-border p-6 text-center">
-        <p className="text-xs text-muted">No data yet — synced from VPS every hour.</p>
+        <p className="text-xs text-muted">Pas encore de données — synchronisation VPS toutes les heures.</p>
       </div>
     )
   }
@@ -58,12 +58,12 @@ export default function MiRegimeBadge() {
         <span className="text-xs text-muted font-mono">
           score {snap.composite_score?.toFixed(1) ?? '—'}
         </span>
-        <span className="ml-auto text-[10px] text-muted">{ageMin}min ago</span>
+        <span className="ml-auto text-[10px] text-muted">il y a {ageMin} min</span>
       </div>
 
       <p className="text-xs text-muted">
-        {snap.is_safe ? '✅ Trading ENABLED' : '🔴 Trading BLOCKED'}
-        {snap.is_macro_safe === false && ' — Macro gate active'}
+        {snap.is_safe ? '✅ Trading autorisé' : '🔴 Trading bloqué'}
+        {snap.is_macro_safe === false && ' — Filtre macro actif'}
       </p>
 
       <div className="grid grid-cols-4 gap-3 text-xs font-mono">
