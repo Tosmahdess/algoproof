@@ -61,9 +61,11 @@ export default async function StrategiesPage() {
       </div>
 
       {FAMILIES.map(fam => {
-        const famBots = bots.filter(b => b.family === fam.slug)
+        const famBots = bots
+          .filter(b => b.family === fam.slug)
+          .sort((a, b) => b.stats.latest_capital - a.stats.latest_capital)
         return (
-          <section key={fam.slug}>
+          <section key={fam.slug} id={fam.slug}>
             <div className="flex items-baseline gap-3 mb-2">
               <h2
                 className="text-base font-bold tracking-widest uppercase"
