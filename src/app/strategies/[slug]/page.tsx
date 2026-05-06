@@ -9,6 +9,7 @@ import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
+import { latentPnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
 
 export const revalidate = 3600
 export const dynamicParams = false
@@ -33,7 +34,8 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
 
-  const pnlPct = ((bot.stats.latest_capital - 1000) / 1000) * 100
+  const pct    = pnlPct(bot.stats.latest_capital)
+  const pnlEur = latentPnlEur(bot.stats.latest_capital)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -58,9 +60,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold">Courbe d&apos;équité</h2>
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-muted">Start: €1,000</span>
-            <span className={`font-mono font-semibold ${pnlPct >= 0 ? 'text-positive' : 'text-negative'}`}>
-              {pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
+            <span className="text-muted">Départ : {DISPLAY_CAPITAL}€</span>
+            <span className={`font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+              {fmtEur(pnlEur)} ({fmtPct(pct)})
             </span>
           </div>
         </div>

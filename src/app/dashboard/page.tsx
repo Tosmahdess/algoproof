@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import { getAllBotsWithStats } from '@/lib/queries'
+import { latentPnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
 
 export const revalidate = 3600
 
@@ -36,7 +37,7 @@ export default async function DashboardPage() {
   const botsWithData = bots.filter(b => b.stats.total_trades > 0)
   const winners      = botsWithData.filter(b => b.stats.latest_capital > 1000).length
   const avgPnl       = botsWithData.length > 0
-    ? botsWithData.reduce((s, b) => s + (b.stats.latest_capital - 1000), 0) / botsWithData.length
+    ? botsWithData.reduce((s, b) => s + latentPnlEur(b.stats.latest_capital), 0) / botsWithData.length
     : 0
 
   return (
@@ -56,7 +57,7 @@ export default async function DashboardPage() {
           { label: 'Bots actifs',    value: `${bots.length}` },
           { label: 'Trades fermés',  value: `${totalTrades}` },
           { label: 'En positif',     value: `${winners} / ${botsWithData.length}`, color: '#3fb950' },
-          { label: 'P&L moyen',      value: `${avgPnl >= 0 ? '+' : ''}${avgPnl.toFixed(2)}€`, color: avgPnl >= 0 ? '#3fb950' : '#ff4444' },
+          { label: `P&L moyen (${DISPLAY_CAPITAL}€)`, value: fmtEur(avgPnl), color: avgPnl >= 0 ? '#3fb950' : '#ff4444' },
         ].map(s => (
           <div key={s.label} className="rounded border border-border p-4 text-center">
             <p className="text-[10px] text-muted uppercase tracking-widest mb-1">{s.label}</p>
@@ -79,14 +80,12 @@ export default async function DashboardPage() {
               <th className="px-4 py-3 text-right">T. gain</th>
               <th className="px-4 py-3 text-right">F. profit</th>
               <th className="px-4 py-3 text-right">Drawdown</th>
-              <th className="px-4 py-3 text-right font-bold">P&amp;L</th>
+              <th className="px-4 py-3 text-right font-bold">Profit latent ({DISPLAY_CAPITAL}€)</th>
               <th className="px-4 py-3 text-center">Statut</th>
             </tr>
           </thead>
           <tbody>
             {sorted.map(bot => {
-              const pnlPct  = ((bot.stats.latest_capital - 1000) / 1000) * 100
-              const pnlEur  = bot.stats.latest_capital - 1000
               const hasData = bot.stats.total_trades > 0
 
               return (
@@ -134,11 +133,11 @@ export default async function DashboardPage() {
                   <td className="px-4 py-3 text-right">
                     {hasData ? (
                       <div>
-                        <span className={`font-mono font-bold ${pnlEur >= 0 ? 'text-positive' : 'text-negative'}`}>
-                          {pnlEur >= 0 ? '+' : ''}{pnlEur.toFixed(2)}€
+                        <span className={`font-mono font-bold ${latentPnlEur(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
+                          {fmtEur(latentPnlEur(bot.stats.latest_capital))}
                         </span>
-                        <span className={`block text-[10px] font-mono ${pnlPct >= 0 ? 'text-positive' : 'text-negative'}`}>
-                          {pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
+                        <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
+                          {fmtPct(pnlPct(bot.stats.latest_capital))}
                         </span>
                       </div>
                     ) : (
