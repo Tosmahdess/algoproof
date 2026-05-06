@@ -414,17 +414,19 @@ def sync_mi_snapshot() -> None:
         print(f"  [MI] Read error: {e}")
         return
 
-    scores = hb.get("scores", {})
+    # Heartbeat uses: global_score, risk_level (GREEN/YELLOW/ORANGE/RED),
+    # allow_new_entries, last_cycle_utc, temporal.{pillar}_score_ema_24h
+    temporal = hb.get("temporal", {})
     record = {
-        "snapshot_at":       hb.get("timestamp") or datetime.utcnow().isoformat() + "Z",
-        "composite_score":   hb.get("composite_score") or hb.get("global_score"),
-        "regime":            hb.get("regime") or hb.get("risk_level"),
-        "is_safe":           hb.get("is_safe"),
-        "is_macro_safe":     hb.get("is_macro_safe"),
-        "sentiment_score":   hb.get("sentiment_score") or scores.get("sentiment"),
-        "derivatives_score": hb.get("derivatives_score") or scores.get("derivatives"),
-        "news_score":        hb.get("news_score") or scores.get("news"),
-        "macro_score":       hb.get("macro_score") or scores.get("macro"),
+        "snapshot_at":       hb.get("last_cycle_utc") or datetime.utcnow().isoformat() + "Z",
+        "composite_score":   hb.get("global_score"),
+        "regime":            hb.get("risk_level"),          # GREEN/YELLOW/ORANGE/RED
+        "is_safe":           hb.get("allow_new_entries"),
+        "is_macro_safe":     hb.get("risk_level") not in ("ORANGE", "RED") if hb.get("risk_level") else None,
+        "sentiment_score":   temporal.get("sentiment_score_ema_24h"),
+        "derivatives_score": temporal.get("derivatives_score_ema_24h"),
+        "news_score":        temporal.get("news_score_ema_24h"),
+        "macro_score":       temporal.get("macro_score_ema_24h"),
     }
 
     supabase_upsert("mi_snapshots", [record], "snapshot_at")
