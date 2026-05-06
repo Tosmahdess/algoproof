@@ -30,10 +30,10 @@ const GROWTH_ASSETS = [
 ]
 
 const AMPLIFICATION = [
-  { label: 'Normal market',     multiplier: '1.0×', amount: '250€', condition: 'MI score > −30',  color: '#3fb950' },
-  { label: 'Minor dip',         multiplier: '1.5×', amount: '375€', condition: 'MI score < −30',  color: '#f6c90e' },
-  { label: 'Major dip / crash', multiplier: '2.5×', amount: '625€', condition: 'MI score < −50',  color: '#ff6b35' },
-  { label: 'ETFs (PEA)',         multiplier: 'never', amount: '174€', condition: 'Always stable', color: '#4299e1' },
+  { label: 'Marché normal',        multiplier: '1.0×', amount: '250€', condition: 'Score MI > −30',  color: '#3fb950' },
+  { label: 'Baisse mineure',       multiplier: '1.5×', amount: '375€', condition: 'Score MI < −30',  color: '#f6c90e' },
+  { label: 'Baisse majeure / krach', multiplier: '2.5×', amount: '625€', condition: 'Score MI < −50',  color: '#ff6b35' },
+  { label: 'ETF (PEA)',            multiplier: 'never', amount: '174€', condition: 'Toujours stable', color: '#4299e1' },
 ]
 
 export default function WealthPage() {
@@ -86,30 +86,30 @@ export default function WealthPage() {
           APEX Wealth
         </p>
         <h1 className="text-2xl font-bold tracking-tight">
-          We invest every month. We show every purchase.
+          On investit chaque mois. On montre chaque achat.
         </h1>
         <p className="mt-3 text-sm text-muted max-w-2xl leading-relaxed">
-          APEX Wealth is a systematic accumulation system — not a trading bot. Every month,
-          a fixed budget is deployed across crypto, world ETFs, and gold. When the market dips,
-          we deploy more. All purchases are logged publicly.
+          APEX Wealth est un système d&apos;accumulation systématique — pas un bot de trading. Chaque mois,
+          un budget fixe est déployé sur la crypto, les ETF monde et l&apos;or. Quand le marché baisse,
+          on investit davantage. Chaque achat est enregistré publiquement.
         </p>
       </div>
 
       {/* Allocation */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-6">Portfolio Allocation</h2>
+        <h2 className="text-base font-bold tracking-tight mb-6">Allocation du portefeuille</h2>
         <ExplainerBox
           functional={
             <p>
-              250€ per month, split between a stable WEALTH core (70%) and a tactical GROWTH
-              pocket (30%). The WEALTH core holds forever — crypto, world stocks, gold.
-              The GROWTH pocket buys on dips and takes profits at predefined levels.
+              250€ par mois, répartis entre un socle WEALTH stable (70%) et une poche GROWTH
+              tactique (30%). Le socle WEALTH est conservé indéfiniment — crypto, actions monde, or.
+              La poche GROWTH achète sur les baisses et prend des bénéfices à des niveaux prédéfinis.
             </p>
           }
           technical={
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-mono">
               <div>
-                <p className="text-muted mb-2 font-semibold">WEALTH CORE — 175€/month</p>
+                <p className="text-muted mb-2 font-semibold">SOCLE WEALTH — 175€/mois</p>
                 {WEALTH_ASSETS.filter(a => a.assetClass !== 'Tactical').map(a => (
                   <div key={a.name} className="flex items-center gap-2 py-0.5">
                     <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: a.color }} />
@@ -120,11 +120,11 @@ export default function WealthPage() {
                 ))}
               </div>
               <div>
-                <p className="text-muted mb-2 font-semibold">GROWTH — 75€/month</p>
+                <p className="text-muted mb-2 font-semibold">GROWTH — 75€/mois</p>
                 <p className="text-muted text-[10px] leading-relaxed">
-                  Event-driven dip buying. Deploys on −20% to −30% corrections per asset.
-                  Take-profit at +40% (30%) and +80% (30%). Max 6 open positions.
-                  Venue: Trade Republic CTO.
+                  Achats opportunistes sur baisses. Déploiement sur corrections −20% à −30% par actif.
+                  Prise de bénéfices à +40% (30%) et +80% (30%). Max 6 positions ouvertes.
+                  Venue : Trade Republic CTO.
                 </p>
               </div>
             </div>
@@ -164,13 +164,13 @@ export default function WealthPage() {
 
       {/* Amplification */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-6">Smart Amplification</h2>
+        <h2 className="text-base font-bold tracking-tight mb-6">Amplification intelligente</h2>
         <ExplainerBox
           functional={
             <p>
-              We invest more when prices drop. When the Market Intelligence service detects a
-              significant market dip, the monthly budget is automatically multiplied — up to 2.5×.
-              ETFs in the PEA are never amplified: their pace stays fixed for tax optimization.
+              On investit davantage quand les prix baissent. Quand le service d&apos;Intelligence de Marché détecte une
+              baisse significative, le budget mensuel est automatiquement multiplié — jusqu&apos;à 2,5×.
+              Les ETF en PEA ne sont jamais amplifiés : leur cadence reste fixe pour l&apos;optimisation fiscale.
             </p>
           }
           technical={
@@ -191,13 +191,13 @@ export default function WealthPage() {
 
       {/* GROWTH Watchlist */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-6">GROWTH Watchlist</h2>
+        <h2 className="text-base font-bold tracking-tight mb-6">Watchlist GROWTH</h2>
         <ExplainerBox
           functional={
             <p>
-              A curated list of high-conviction assets we buy on meaningful corrections.
-              We don&apos;t chase pumps — we wait for −20% to −30% drops and deploy capital
-              in tranches. Profits are taken at predefined levels (+40% and +80%).
+              Une liste d&apos;actifs à forte conviction que l&apos;on achète sur des corrections significatives.
+              On ne court pas après les hausses — on attend des baisses de −20% à −30% et on déploie le capital
+              par tranches. Les bénéfices sont pris à des niveaux prédéfinis (+40% et +80%).
             </p>
           }
           technical={
@@ -216,18 +216,18 @@ export default function WealthPage() {
 
       {/* Portfolio — Live Tracking */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-4">Portfolio — Live Tracking</h2>
+        <h2 className="text-base font-bold tracking-tight mb-4">Portefeuille — Suivi en temps réel</h2>
 
         {loading ? (
           <div className="rounded border border-border px-6 py-8 text-center text-xs text-muted">
-            Loading...
+            Chargement...
           </div>
         ) : calls.length === 0 ? (
           <div className="rounded border border-dashed border-border px-6 py-10 text-center space-y-2">
-            <p className="text-sm font-medium">No purchases yet.</p>
+            <p className="text-sm font-medium">Pas encore d&apos;achats.</p>
             <p className="text-xs text-muted">
-              First DCA executes on the 1st of next month. Every purchase will appear here
-              with live P&amp;L synced from VPS within 1 hour.
+              Le premier DCA s&apos;exécute le 1er du mois prochain. Chaque achat apparaîtra ici
+              avec son P&amp;L en temps réel, synchronisé depuis le VPS en moins d&apos;une heure.
             </p>
           </div>
         ) : (
@@ -235,9 +235,9 @@ export default function WealthPage() {
             {/* Summary stats */}
             <div className="grid grid-cols-3 gap-4 text-center">
               {([
-                { label: 'Total Invested', value: `${totalInvested.toFixed(2)}€`,  color: undefined },
-                { label: 'Current Value',  value: `${totalCurrent.toFixed(2)}€`,   color: undefined },
-                { label: 'Total P&L',      value: `${totalPnl >= 0 ? '+' : ''}${totalPnl.toFixed(2)}€`, color: totalPnl >= 0 ? '#3fb950' : '#ff4444' },
+                { label: 'Total investi',  value: `${totalInvested.toFixed(2)}€`,  color: undefined },
+                { label: 'Valeur actuelle', value: `${totalCurrent.toFixed(2)}€`,   color: undefined },
+                { label: 'P&L total',      value: `${totalPnl >= 0 ? '+' : ''}${totalPnl.toFixed(2)}€`, color: totalPnl >= 0 ? '#3fb950' : '#ff4444' },
               ] as const).map(s => (
                 <div key={s.label} className="rounded border border-border px-4 py-4">
                   <p className="text-[10px] text-muted uppercase tracking-widest">{s.label}</p>
@@ -261,8 +261,8 @@ export default function WealthPage() {
                       formatter={(v: any) => [typeof v === 'number' ? `${v.toFixed(2)}€` : String(v ?? '')]}
                     />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Line type="monotone" dataKey="invested" stroke="#888" strokeDasharray="4 2" dot={false} name="Invested" />
-                    <Line type="monotone" dataKey="current" stroke="#3fb950" dot={false} name="Current Value" strokeWidth={2} />
+                    <Line type="monotone" dataKey="invested" stroke="#888" strokeDasharray="4 2" dot={false} name="Investi" />
+                    <Line type="monotone" dataKey="current" stroke="#3fb950" dot={false} name="Valeur actuelle" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -274,12 +274,12 @@ export default function WealthPage() {
                 <thead className="bg-card">
                   <tr className="text-muted text-[10px] uppercase tracking-widest">
                     <th className="px-4 py-2 text-left">Date</th>
-                    <th className="px-4 py-2 text-left">Asset</th>
-                    <th className="px-4 py-2 text-right">Amount</th>
-                    <th className="px-4 py-2 text-right">Price</th>
-                    <th className="px-4 py-2 text-right">Qty</th>
+                    <th className="px-4 py-2 text-left">Actif</th>
+                    <th className="px-4 py-2 text-right">Montant</th>
+                    <th className="px-4 py-2 text-right">Prix</th>
+                    <th className="px-4 py-2 text-right">Qté</th>
                     <th className="px-4 py-2 text-right">P&L</th>
-                    <th className="px-4 py-2 text-center">Mult</th>
+                    <th className="px-4 py-2 text-center">Mult.</th>
                   </tr>
                 </thead>
                 <tbody>
