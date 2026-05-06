@@ -7,6 +7,7 @@ create table if not exists bots (
   name        text not null,
   strategy    text not null,
   status      text not null check (status in ('paper', 'live', 'backtest', 'frozen')),
+  family      text        check (family in ('trend','breakout','multi-signal','multi-asset','leveraged')),
   exchange    text not null,
   assets      text[] not null default '{}',
   timeframe   text not null,
