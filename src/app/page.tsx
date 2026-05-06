@@ -32,9 +32,15 @@ export default async function HomePage() {
           We publish every trade — wins, losses, drawdowns. Real data, no cherry-picked backtests.
           When we go live, you&apos;ll see it here first.
         </p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex flex-wrap gap-3 justify-center">
           <Link href="/strategies" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
-            See the strategies →
+            TRADE — View Strategies →
+          </Link>
+          <Link href="/wealth" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
+            GROW — Wealth System
+          </Link>
+          <Link href="/intelligence" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
+            INTELLIGENCE — Market Feed
           </Link>
           <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer"
              className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
