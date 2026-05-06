@@ -17,33 +17,33 @@ const FAMILIES: {
 }[] = [
   {
     slug:        'trend',
-    label:       'Trend Following',
+    label:       'Suivi de tendance',
     color:       '#ff6b35',
-    description: 'Bots that ride sustained price trends using moving averages. They enter when a trend is confirmed and exit when it weakens. Few trades, but high reward-to-risk when they hit.',
+    description: 'Les stratégies de suivi de tendance exploitent les mouvements directionnels du marché. Le bot entre quand la tendance est confirmée et sort quand elle s\'affaiblit. Peu de trades, mais un excellent ratio gain/risque quand ils se déclenchent.',
   },
   {
     slug:        'breakout',
-    label:       'Breakout',
+    label:       'Cassure de niveaux',
     color:       '#3fb950',
-    description: 'Bots that detect when price breaks out of a consolidation range or key level. They capture the momentum burst at the start of a new move.',
+    description: 'Détecte quand le prix franchit un niveau clé ou sort d\'une zone de consolidation. Ces bots capturent l\'élan naissant au début d\'un nouveau mouvement.',
   },
   {
     slug:        'multi-signal',
-    label:       'Multi-Signal',
+    label:       'Multi-signaux',
     color:       '#d29922',
-    description: 'Bots that combine signals from multiple timeframes or indicators. Entry only when all signals align — lower frequency, higher conviction.',
+    description: 'Combine des signaux issus de plusieurs unités de temps ou indicateurs. L\'entrée n\'est validée que lorsque tous les signaux s\'alignent — moins de trades, plus de conviction.',
   },
   {
     slug:        'multi-asset',
-    label:       'Multi-Asset',
+    label:       'Multi-actifs',
     color:       '#40c4ff',
-    description: 'Non-crypto strategies trading Forex and Gold. True diversification — these bots are uncorrelated with the crypto market.',
+    description: 'Stratégies non-crypto tradant sur le Forex et l\'or. Décorrélation réelle par rapport au marché crypto.',
   },
   {
     slug:        'leveraged',
-    label:       'Leveraged',
+    label:       'Avec levier',
     color:       '#ff4444',
-    description: 'Amplified versions of core strategies using dynamic leverage. Higher potential returns, higher drawdown risk. Not suitable for all capital sizes.',
+    description: 'Versions amplifiées de stratégies existantes utilisant un levier dynamique. Rendements potentiels plus élevés, risque de drawdown accru. Réservé aux capitaux adaptés.',
   },
 ]
 
@@ -53,10 +53,10 @@ export default async function StrategiesPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 space-y-16">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Trading Strategies</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Stratégies de trading</h1>
         <p className="mt-2 text-sm text-muted">
-          All bots run in paper mode. Every trade is public. Strategies marked{' '}
-          <span className="text-positive font-medium">live</span> use real capital.
+          Tous les bots tournent en paper trading. Chaque trade est public. Les stratégies marquées{' '}
+          <span className="text-positive font-medium">en direct</span> utilisent du capital réel.
         </p>
       </div>
 
@@ -79,7 +79,7 @@ export default async function StrategiesPage() {
 
             {famBots.length === 0 ? (
               <div className="rounded border border-border px-6 py-8 text-center text-xs text-muted">
-                Coming soon — bots in this family are in development or backtest phase.
+                Bientôt disponible — bots en développement ou en phase de backtest.
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
