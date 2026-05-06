@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ChartTooltip, Legend } from 'recharts'
 import ExplainerBox from '@/components/ExplainerBox'
-import { getWealthCalls, getAssetPrices } from '@/lib/queries'
 import type { WealthCall, AssetPrice } from '@/lib/types'
 
 // Source: apex-wealth/portfolios.py WEALTH_ALLOCATION + BUDGET_CONFIG
@@ -42,11 +41,13 @@ export default function WealthPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([getWealthCalls(), getAssetPrices()]).then(([c, p]) => {
-      setCalls(c)
-      setPrices(p)
-      setLoading(false)
-    })
+    fetch('/api/wealth')
+      .then(r => r.json())
+      .then(({ calls: c, prices: p }) => {
+        setCalls(c)
+        setPrices(p)
+        setLoading(false)
+      })
   }, [])
 
   function getPriceEur(asset: string): number | null {
