@@ -1,37 +1,38 @@
 import Link from 'next/link'
-import { DISCORD_URL } from '@/lib/constants'
+import { usePathname } from 'next/navigation'
 
-const links = [
-  { href: '/strategies', label: 'Strategies' },
-  { href: '/dashboard',  label: 'Dashboard' },
-  { href: '/blog',       label: 'Blog' },
+const LINKS = [
+  { href: '/strategies',   label: 'TRADE' },
+  { href: '/wealth',       label: 'GROW' },
+  { href: '/intelligence', label: 'INTELLIGENCE' },
+  { href: '/blog',         label: 'BLOG' },
 ]
 
 export default function Nav() {
+  const path = usePathname()
+
   return (
-    <nav className="border-b border-border bg-bg sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 border-b border-border bg-bg">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link href="/" className="font-bold text-lg tracking-tight">
-          Algo<span className="text-positive">Proof</span>
+          ALGO<span className="text-positive">PROOF</span>
         </Link>
+
         <div className="flex items-center gap-6">
-          {links.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-sm text-muted hover:text-white transition-colors"
-            >
-              {l.label}
-            </Link>
-          ))}
-          <a
-            href={DISCORD_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm px-3 py-1.5 rounded-md bg-accent/10 text-accent border border-accent/20 hover:bg-accent/20 transition-colors"
-          >
-            Discord
-          </a>
+          {LINKS.map(({ href, label }) => {
+            const active = path === href || path.startsWith(href + '/')
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`text-sm transition-colors ${
+                  active ? 'text-white font-semibold' : 'text-muted hover:text-white'
+                }`}
+              >
+                {label}
+              </Link>
+            )
+          })}
         </div>
       </div>
     </nav>
