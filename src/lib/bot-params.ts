@@ -9,6 +9,7 @@ export interface ParamGroup {
 
 export interface BotParams {
   groups: ParamGroup[]
+  codeSnippet?: string
 }
 
 const BOT_PARAMS: Record<string, BotParams> = {
@@ -53,6 +54,20 @@ const BOT_PARAMS: Record<string, BotParams> = {
         ],
       },
     ],
+    codeSnippet: `# Signal — EMA Cross H4 (Binance Spot)
+ema_fast = df['close'].ewm(span=EMA_FAST).mean()
+ema_slow  = df['close'].ewm(span=EMA_SLOW).mean()
+
+cross_up = (
+    ema_fast.iloc[-1] > ema_slow.iloc[-1] and
+    ema_fast.iloc[-2] <= ema_slow.iloc[-2]
+)
+
+# Market Intelligence gate
+# risk_level: GREEN / ORANGE / RED — computed by MI service
+if cross_up and risk_level != 'RED':
+    return 'BUY'   # long only — spot venue
+return 'HOLD'`,
   },
 
   'v1-hl': {
@@ -96,6 +111,22 @@ const BOT_PARAMS: Record<string, BotParams> = {
         ],
       },
     ],
+    codeSnippet: `# Signal — EMA Cross H4 (Hyperliquid Perps)
+ema_fast = df['close'].ewm(span=EMA_FAST).mean()
+ema_slow  = df['close'].ewm(span=EMA_SLOW).mean()
+
+cross_up = ema_fast.iloc[-1] > ema_slow.iloc[-1] and ema_fast.iloc[-2] <= ema_slow.iloc[-2]
+cross_dn = ema_fast.iloc[-1] < ema_slow.iloc[-1] and ema_fast.iloc[-2] >= ema_slow.iloc[-2]
+
+# Market Intelligence gate
+# risk_level: GREEN / ORANGE / RED — computed by MI service
+if risk_level == 'RED':
+    return 'HOLD'   # MI veto — no new entries
+if cross_up:
+    return 'BUY'
+if cross_dn:
+    return 'SELL'   # perps — longs and shorts
+return 'HOLD'`,
   },
 }
 
