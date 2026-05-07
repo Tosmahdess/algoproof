@@ -114,7 +114,7 @@ export default function WealthPage() {
       {/* Allocation */}
       <section>
         <h2 className="text-base font-bold tracking-tight mb-6">Allocation du portefeuille</h2>
-        <ExplainerBox
+        <ExplainerBox stacked
           functional={
             <p>
               250€ par mois, répartis entre un socle WEALTH stable (70%) et une poche GROWTH
@@ -181,7 +181,7 @@ export default function WealthPage() {
       {/* Amplification */}
       <section>
         <h2 className="text-base font-bold tracking-tight mb-6">Amplification intelligente</h2>
-        <ExplainerBox
+        <ExplainerBox stacked
           functional={
             <p>
               On investit davantage quand les prix baissent. Quand le service d&apos;Intelligence de Marché détecte une
@@ -208,7 +208,7 @@ export default function WealthPage() {
       {/* GROWTH Watchlist */}
       <section>
         <h2 className="text-base font-bold tracking-tight mb-6">Watchlist GROWTH</h2>
-        <ExplainerBox
+        <ExplainerBox stacked
           functional={
             <p>
               Une liste d&apos;actifs à forte conviction que l&apos;on achète sur des corrections significatives.
@@ -434,3 +434,4 @@ export default function WealthPage() {
     </main>
   )
 }
+

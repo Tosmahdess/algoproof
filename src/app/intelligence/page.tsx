@@ -73,7 +73,7 @@ export default function IntelligencePage() {
       {/* Defense Mesh */}
       <section>
         <h2 className="text-base font-bold tracking-tight mb-4">Bouclier défensif</h2>
-        <ExplainerBox
+        <ExplainerBox stacked
           functional={
             <p>
               Le bouclier défensif est un filet de protection à cinq couches autour de chaque bot. Chaque couche peut arrêter le trading indépendamment en cas de danger — une couche défaillante ne fait pas tomber le système. Même si le service MI est hors ligne, les bots basculent sur des valeurs prudentes par défaut.
@@ -118,7 +118,7 @@ export default function IntelligencePage() {
                 <span className="ml-auto text-xs text-muted font-mono">Poids {p.weight}</span>
               </div>
               <div className="border-t-0">
-                <ExplainerBox functional={p.functional} technical={p.technical} />
+                <ExplainerBox stacked functional={p.functional} technical={p.technical} />
               </div>
             </div>
           ))}
@@ -134,3 +134,4 @@ export default function IntelligencePage() {
     </main>
   )
 }
+
