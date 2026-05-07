@@ -11,7 +11,7 @@ export default function BotParams({ params }: { params: BotParams }) {
               {group.title}
             </h3>
             <div className="space-y-2">
-              {params.groups && group.items.map(item => (
+              {group.items.map(item => (
                 <div key={item.label} className="flex items-start justify-between gap-4 text-sm">
                   <span className="text-muted shrink-0">{item.label}</span>
                   <div className="text-right">
