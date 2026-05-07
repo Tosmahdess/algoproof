@@ -26,6 +26,6 @@ describe('TradesTable', () => {
   })
   it('shows empty state when no trades', () => {
     render(<TradesTable trades={[]} />)
-    expect(screen.getByText(/no trades/i)).toBeInTheDocument()
+    expect(screen.getByText(/aucun trade/i)).toBeInTheDocument()
   })
 })

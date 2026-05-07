@@ -9,7 +9,7 @@ describe('StatusBadge', () => {
   })
   it('renders live status', () => {
     render(<StatusBadge status="live" />)
-    expect(screen.getByText(/live/i)).toBeInTheDocument()
+    expect(screen.getByText(/en direct/i)).toBeInTheDocument()
   })
   it('renders backtest status', () => {
     render(<StatusBadge status="backtest" />)

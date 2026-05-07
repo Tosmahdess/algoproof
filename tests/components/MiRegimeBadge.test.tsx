@@ -26,7 +26,7 @@ describe('MiRegimeBadge', () => {
   it('shows Current Regime label initially', () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    expect(screen.getByText('Current Regime')).toBeDefined()
+    expect(screen.getByText('Régime actuel')).toBeDefined()
   })
 
   it('shows regime name after data loads', async () => {
@@ -44,12 +44,12 @@ describe('MiRegimeBadge', () => {
   it('shows trading enabled when is_safe is true', async () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    await waitFor(() => expect(screen.getByText(/Trading ENABLED/)).toBeDefined())
+    await waitFor(() => expect(screen.getByText(/Trading autorisé/)).toBeDefined())
   })
 
   it('shows no data message when snapshot is null', async () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(null)
     render(<MiRegimeBadge />)
-    await waitFor(() => expect(screen.getByText(/No data/)).toBeDefined())
+    await waitFor(() => expect(screen.getByText(/Pas encore de données/)).toBeDefined())
   })
 })

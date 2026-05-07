@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { getLatestMiSnapshot } from '@/lib/queries'
 import type { MiSnapshot } from '@/lib/types'
 
 const REGIME_COLOR: Record<string, string> = {
@@ -21,7 +22,7 @@ export default function MiRegimeBadge() {
   const [snap, setSnap] = useState<MiSnapshot | null | undefined>(undefined)
 
   useEffect(() => {
-    fetch('/api/mi').then(r => r.json()).then(setSnap)
+    getLatestMiSnapshot().then(setSnap)
   }, [])
 
   if (snap === undefined) {
