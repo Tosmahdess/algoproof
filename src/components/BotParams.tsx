@@ -1,9 +1,9 @@
 import type { BotParams } from '@/lib/bot-params'
+import CodeSnippet from '@/components/CodeSnippet'
 
 export default function BotParams({ params }: { params: BotParams }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-6 mb-8">
-      <h2 className="font-semibold mb-5">Parameters</h2>
+    <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {params.groups.map(group => (
           <div key={group.title}>
@@ -11,7 +11,7 @@ export default function BotParams({ params }: { params: BotParams }) {
               {group.title}
             </h3>
             <div className="space-y-2">
-              {group.items.map(item => (
+              {params.groups && group.items.map(item => (
                 <div key={item.label} className="flex items-start justify-between gap-4 text-sm">
                   <span className="text-muted shrink-0">{item.label}</span>
                   <div className="text-right">
@@ -26,6 +26,7 @@ export default function BotParams({ params }: { params: BotParams }) {
           </div>
         ))}
       </div>
+      {params.codeSnippet && <CodeSnippet code={params.codeSnippet} />}
     </div>
   )
 }
