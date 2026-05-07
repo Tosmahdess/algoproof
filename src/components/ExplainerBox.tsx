@@ -5,12 +5,26 @@ import { useState, ReactNode } from 'react'
 interface ExplainerBoxProps {
   functional: ReactNode
   technical:  ReactNode
+  stacked?:   boolean   // disables tabs, shows both sections in sequence
 }
 
 type Tab = 'functional' | 'technical'
 
-export default function ExplainerBox({ functional, technical }: ExplainerBoxProps) {
+export default function ExplainerBox({ functional, technical, stacked = false }: ExplainerBoxProps) {
   const [active, setActive] = useState<Tab>('functional')
+
+  if (stacked) {
+    return (
+      <div className="rounded border border-border overflow-hidden">
+        <div data-section="functional" className="px-6 py-5">
+          <div className="text-sm leading-relaxed">{functional}</div>
+        </div>
+        <div data-section="technical" className="border-t border-border bg-card px-6 py-5">
+          <div className="text-sm">{technical}</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="rounded border border-border overflow-hidden">
