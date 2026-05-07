@@ -1,10 +1,11 @@
+import type { Metadata } from 'next'
 import ExplainerBox from '@/components/ExplainerBox'
 import MiRegimeBadge from '@/components/MiRegimeBadge'
 
-export const metadata = {
-  title: 'Intelligence de marché — AlgoProof',
-  description:
-    'Le gardien des bots AlgoProof. Surveillance en temps réel du sentiment, des produits dérivés, des actualités et des événements macro.',
+export const metadata: Metadata = {
+  title: 'Intelligence de marché',
+  description: 'Le gardien des bots AlgoProof. Surveillance en temps réel du sentiment, des produits dérivés, des actualités et des événements macro.',
+  openGraph: { url: 'https://algoproof.fr/intelligence' },
 }
 
 const PILLARS = [

@@ -28,7 +28,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const article = getArticle(slug)
   if (!article) return {}
-  return { title: article.meta.title as string, description: article.meta.summary as string }
+  return {
+    title: article.meta.title as string,
+    description: (article.meta.summary ?? article.meta.title) as string,
+    openGraph: {
+      type: 'article',
+      url: `https://algoproof.fr/blog/${slug}`,
+      publishedTime: article.meta.date as string,
+    },
+  }
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {

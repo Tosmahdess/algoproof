@@ -5,8 +5,9 @@ import BotCard from '@/components/BotCard'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Strategies',
-  description: 'All AlgoProof trading strategies — real performance data, paper and live.',
+  title: 'Stratégies',
+  description: '33 bots de trading algo en paper trading — résultats en temps réel, chaque trade publié. Tendance, cassure, multi-signaux, multi-actifs.',
+  openGraph: { url: 'https://algoproof.fr/strategies' },
 }
 
 const FAMILIES: {
