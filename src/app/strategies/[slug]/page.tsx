@@ -25,7 +25,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!bot) return {}
   return {
     title: bot.name,
-    description: `${bot.name} — ${bot.strategy}. Real performance data: WR ${(bot.stats.win_rate * 100).toFixed(1)}%, PF ${bot.stats.profit_factor.toFixed(2)}.`,
+    description: `${bot.name} — performance live : WR ${(bot.stats.win_rate * 100).toFixed(1)}%, PF ${bot.stats.profit_factor.toFixed(2)}. ${bot.exchange} · ${bot.timeframe}. Chaque trade vérifié sur AlgoProof.`,
+    openGraph: {
+      type: 'website',
+      url: `https://algoproof.fr/strategies/${slug}`,
+    },
   }
 }
 
