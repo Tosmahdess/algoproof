@@ -1,44 +1,47 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
 import ExplainerBox from '@/components/ExplainerBox'
 
 describe('ExplainerBox', () => {
-  it('renders Overview label', () => {
-    render(<ExplainerBox functional="Simple explanation." technical="Technical detail." />)
-    expect(screen.getByText('Overview')).toBeDefined()
+  it('renders the Fonctionnel tab button', () => {
+    render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
+    expect(screen.getByRole('button', { name: /fonctionnel/i })).toBeDefined()
   })
 
-  it('renders Technical Details label', () => {
-    render(<ExplainerBox functional="Simple explanation." technical="Technical detail." />)
-    expect(screen.getByText('Technical Details')).toBeDefined()
+  it('renders the Technique tab button', () => {
+    render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
+    expect(screen.getByRole('button', { name: /technique/i })).toBeDefined()
   })
 
-  it('renders functional content', () => {
-    render(<ExplainerBox functional="Simple explanation." technical="Technical detail." />)
-    expect(screen.getByText('Simple explanation.')).toBeDefined()
+  it('shows functional content by default', () => {
+    render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
+    expect(screen.getByText('Plain text.')).toBeDefined()
+    expect(screen.queryByText('Tech detail.')).toBeNull()
   })
 
-  it('renders technical content', () => {
-    render(<ExplainerBox functional="Simple explanation." technical="Technical detail." />)
-    expect(screen.getByText('Technical detail.')).toBeDefined()
+  it('shows technical content after clicking Technique tab', () => {
+    render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
+    fireEvent.click(screen.getByRole('button', { name: /technique/i }))
+    expect(screen.getByText('Tech detail.')).toBeDefined()
+    expect(screen.queryByText('Plain text.')).toBeNull()
   })
 
-  it('functional section appears before technical in DOM', () => {
-    const { container } = render(
-      <ExplainerBox functional="First" technical="Second" />
-    )
-    const sections = container.querySelectorAll('[data-section]')
-    expect(sections[0].getAttribute('data-section')).toBe('functional')
-    expect(sections[1].getAttribute('data-section')).toBe('technical')
+  it('clicking Fonctionnel tab after Technique shows functional again', () => {
+    render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
+    fireEvent.click(screen.getByRole('button', { name: /technique/i }))
+    fireEvent.click(screen.getByRole('button', { name: /fonctionnel/i }))
+    expect(screen.getByText('Plain text.')).toBeDefined()
+    expect(screen.queryByText('Tech detail.')).toBeNull()
   })
 
-  it('accepts ReactNode in technical prop', () => {
+  it('accepts ReactNode in technical prop and renders after tab click', () => {
     render(
       <ExplainerBox
-        functional="Overview text"
-        technical={<span data-testid="custom">Custom node</span>}
+        functional="Overview"
+        technical={<span data-testid="custom-node">Custom</span>}
       />
     )
-    expect(screen.getByTestId('custom')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: /technique/i }))
+    expect(screen.getByTestId('custom-node')).toBeDefined()
   })
 })

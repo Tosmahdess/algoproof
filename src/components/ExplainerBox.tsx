@@ -1,28 +1,56 @@
-import { ReactNode } from 'react'
+'use client'
+
+import { useState, ReactNode } from 'react'
 
 interface ExplainerBoxProps {
-  functional: ReactNode  // Plain-language explanation, shown first
-  technical:  ReactNode  // Technical detail for devs, shown second
+  functional: ReactNode
+  technical:  ReactNode
 }
 
+type Tab = 'functional' | 'technical'
+
 export default function ExplainerBox({ functional, technical }: ExplainerBoxProps) {
+  const [active, setActive] = useState<Tab>('functional')
+
   return (
     <div className="rounded border border-border overflow-hidden">
-      <div data-section="functional" className="px-6 py-5">
-        <p className="mb-2 text-[10px] font-semibold tracking-widest uppercase text-muted">
-          En bref
-        </p>
-        <div className="text-sm leading-relaxed">{functional}</div>
+      {/* Tab header */}
+      <div className="flex border-b border-border bg-card">
+        <button
+          data-tab="functional"
+          onClick={() => setActive('functional')}
+          className={`px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
+            active === 'functional'
+              ? 'text-[#ff6b35] border-[#ff6b35]'
+              : 'text-muted border-transparent hover:text-foreground'
+          }`}
+        >
+          📖 Fonctionnel
+        </button>
+        <button
+          data-tab="technical"
+          onClick={() => setActive('technical')}
+          className={`px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
+            active === 'technical'
+              ? 'text-[#ff6b35] border-[#ff6b35]'
+              : 'text-muted border-transparent hover:text-foreground'
+          }`}
+        >
+          ⚙️ Technique
+        </button>
       </div>
 
-      <div
-        data-section="technical"
-        className="border-t border-border bg-card px-6 py-5"
-      >
-        <p className="mb-3 text-[10px] font-semibold tracking-widest uppercase text-muted">
-          Détails techniques
-        </p>
-        <div className="text-sm">{technical}</div>
+      {/* Active tab content */}
+      <div className="px-6 py-5">
+        {active === 'functional' ? (
+          <div data-section="functional" className="text-sm leading-relaxed">
+            {functional}
+          </div>
+        ) : (
+          <div data-section="technical" className="text-sm">
+            {technical}
+          </div>
+        )}
       </div>
     </div>
   )
