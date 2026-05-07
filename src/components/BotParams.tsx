@@ -1,5 +1,5 @@
 import type { BotParams } from '@/lib/bot-params'
-import CodeSnippet from '@/components/CodeSnippet'
+import TechnicalArticle from '@/components/TechnicalArticle'
 
 export default function BotParams({ params }: { params: BotParams }) {
   return (
@@ -26,7 +26,11 @@ export default function BotParams({ params }: { params: BotParams }) {
           </div>
         ))}
       </div>
-      {params.codeSnippet && <CodeSnippet code={params.codeSnippet} />}
+      {params.technicalArticle && (
+        <div className="mt-8 pt-6 border-t border-border">
+          <TechnicalArticle sections={params.technicalArticle} />
+        </div>
+      )}
     </div>
   )
 }
