@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import ExplainerBox from '@/components/ExplainerBox'
 
 describe('ExplainerBox', () => {
@@ -43,5 +43,20 @@ describe('ExplainerBox', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: /technique/i }))
     expect(screen.getByTestId('custom-node')).toBeDefined()
+  })
+})
+
+// Tests for the optional Discussion tab
+describe('ExplainerBox — Discussion tab', () => {
+  it('does not render Discussion tab when discussionSlug is absent', () => {
+    render(<ExplainerBox functional="F" technical="T" />)
+    expect(screen.queryByRole('button', { name: /discussion/i })).toBeNull()
+  })
+
+  it('renders Discussion tab button when discussionSlug is provided', () => {
+    // DiscussionTab calls fetch on mount — mock it
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => [] }))
+    render(<ExplainerBox functional="F" technical="T" discussionSlug="v1-spot" />)
+    expect(screen.getByRole('button', { name: /discussion/i })).toBeDefined()
   })
 })

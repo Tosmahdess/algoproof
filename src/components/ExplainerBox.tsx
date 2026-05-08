@@ -1,16 +1,30 @@
 'use client'
 
 import { useState, ReactNode } from 'react'
+import DiscussionTab from './DiscussionTab'
 
 interface ExplainerBoxProps {
-  functional: ReactNode
-  technical:  ReactNode
-  stacked?:   boolean   // disables tabs, shows both sections in sequence
+  functional:      ReactNode
+  technical:       ReactNode
+  stacked?:        boolean
+  discussionSlug?: string
 }
 
-type Tab = 'functional' | 'technical'
+type Tab = 'functional' | 'technical' | 'discussion'
 
-export default function ExplainerBox({ functional, technical, stacked = false }: ExplainerBoxProps) {
+const TAB_STYLE = (active: boolean) =>
+  `px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
+    active
+      ? 'text-[#ff6b35] border-[#ff6b35]'
+      : 'text-muted border-transparent hover:text-foreground'
+  }`
+
+export default function ExplainerBox({
+  functional,
+  technical,
+  stacked = false,
+  discussionSlug,
+}: ExplainerBoxProps) {
   const [active, setActive] = useState<Tab>('functional')
 
   if (stacked) {
@@ -28,41 +42,30 @@ export default function ExplainerBox({ functional, technical, stacked = false }:
 
   return (
     <div className="rounded border border-border overflow-hidden">
-      {/* Tab header */}
       <div className="flex border-b border-border bg-card">
-        <button
-          data-tab="functional"
-          onClick={() => setActive('functional')}
-          className={`px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
-            active === 'functional'
-              ? 'text-[#ff6b35] border-[#ff6b35]'
-              : 'text-muted border-transparent hover:text-foreground'
-          }`}
-        >
+        <button data-tab="functional" onClick={() => setActive('functional')} className={TAB_STYLE(active === 'functional')}>
           📖 Fonctionnel
         </button>
-        <button
-          data-tab="technical"
-          onClick={() => setActive('technical')}
-          className={`px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
-            active === 'technical'
-              ? 'text-[#ff6b35] border-[#ff6b35]'
-              : 'text-muted border-transparent hover:text-foreground'
-          }`}
-        >
+        <button data-tab="technical" onClick={() => setActive('technical')} className={TAB_STYLE(active === 'technical')}>
           ⚙️ Technique
         </button>
+        {discussionSlug && (
+          <button data-tab="discussion" onClick={() => setActive('discussion')} className={TAB_STYLE(active === 'discussion')}>
+            💬 Discussion
+          </button>
+        )}
       </div>
 
-      {/* Active tab content */}
       <div className="px-6 py-5">
-        {active === 'functional' ? (
-          <div data-section="functional" className="text-sm leading-relaxed">
-            {functional}
-          </div>
-        ) : (
-          <div data-section="technical" className="text-sm">
-            {technical}
+        {active === 'functional' && (
+          <div data-section="functional" className="text-sm leading-relaxed">{functional}</div>
+        )}
+        {active === 'technical' && (
+          <div data-section="technical" className="text-sm">{technical}</div>
+        )}
+        {active === 'discussion' && discussionSlug && (
+          <div data-section="discussion" className="text-sm">
+            <DiscussionTab slug={discussionSlug} />
           </div>
         )}
       </div>
