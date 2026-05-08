@@ -2,8 +2,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
-import { getAllBotsWithStats, getTriggerData } from '@/lib/queries'
-import TriggerCounter from '@/components/TriggerCounter'
+import { getAllBotsWithStats } from '@/lib/queries'
 import { DISCORD_URL } from '@/lib/constants'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
@@ -31,10 +30,7 @@ const FAMILY_LABEL: Record<string, string> = {
 }
 
 export default async function HomePage() {
-  const [bots, triggerData] = await Promise.all([
-    getAllBotsWithStats(),
-    getTriggerData('v1-spot'),
-  ])
+  const bots = await getAllBotsWithStats()
   const sorted = [...bots].sort((a, b) => b.stats.latest_capital - a.stats.latest_capital)
   const preview = sorted.slice(0, 10)
 
@@ -203,16 +199,6 @@ export default async function HomePage() {
           Rejoindre Discord
         </a>
       </div>
-
-      {/* Trigger counter — code sale progress */}
-      {triggerData && (
-        <div className="mt-12 max-w-md mx-auto">
-          <p className="text-xs text-muted uppercase tracking-widest text-center mb-3">
-            Critères avant live
-          </p>
-          <TriggerCounter data={triggerData} />
-        </div>
-      )}
 
     </div>
   )
