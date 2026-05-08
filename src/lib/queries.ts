@@ -102,6 +102,23 @@ export async function getAssetPrices(): Promise<AssetPrice[]> {
   return data ?? []
 }
 
+export async function getLatestMacroReport(): Promise<{
+  date: string
+  content: string
+  score: number | null
+  regime: string | null
+  generated_at: string
+} | null> {
+  const { data, error } = await supabase
+    .from('macro_reports')
+    .select('date, content, score, regime, generated_at')
+    .order('date', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error) return null
+  return data
+}
+
 export async function getLatestMiSnapshot(): Promise<MiSnapshot | null> {
   const { data, error } = await supabase
     .from('mi_snapshots')

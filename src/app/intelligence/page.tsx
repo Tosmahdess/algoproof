@@ -1,11 +1,19 @@
 import type { Metadata } from 'next'
+import { compileMDX } from 'next-mdx-remote/rsc'
 import ExplainerBox from '@/components/ExplainerBox'
 import MiRegimeBadge from '@/components/MiRegimeBadge'
+import { getLatestMacroReport } from '@/lib/queries'
 
 export const metadata: Metadata = {
   title: 'Intelligence de marché',
   description: 'Le gardien des bots AlgoProof. Surveillance en temps réel du sentiment, des produits dérivés, des actualités et des événements macro.',
   openGraph: { url: 'https://algoproof.fr/intelligence' },
+}
+
+const REGIME_COLORS: Record<string, string> = {
+  NEUTRAL: '#d2a8ff',
+  BULL:    '#3fb950',
+  BEAR:    '#ff4444',
 }
 
 const PILLARS = [
@@ -51,13 +59,27 @@ const PILLARS = [
   },
 ]
 
-export default function IntelligencePage() {
+export default async function IntelligencePage() {
+  const report = await getLatestMacroReport()
+
+  let reportContent: React.ReactElement | null = null
+  if (report?.content) {
+    try {
+      const { content } = await compileMDX({ source: report.content })
+      reportContent = content
+    } catch {
+      reportContent = null
+    }
+  }
+
+  const regimeColor = report?.regime ? (REGIME_COLORS[report.regime] ?? '#888') : '#888'
+
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
       {/* Hero */}
       <div>
         <p className="text-xs font-semibold tracking-widest uppercase text-positive mb-2">
-          Service d'Intelligence de Marché
+          Service d&apos;Intelligence de Marché
         </p>
         <h1 className="text-2xl font-bold tracking-tight">
           Le gardien qui ne dort jamais.
@@ -69,6 +91,38 @@ export default function IntelligencePage() {
 
       {/* Live regime */}
       <MiRegimeBadge />
+
+      {/* Daily macro report */}
+      <section>
+        <div className="flex items-baseline gap-3 mb-4">
+          <h2 className="text-base font-bold tracking-tight">Analyse macro du jour</h2>
+          {report && (
+            <span className="text-xs text-muted font-mono">
+              {report.date}
+              {report.score != null && (
+                <> · score <span className={report.score >= 0 ? 'text-positive' : 'text-negative'}>{report.score.toFixed(1)}</span></>
+              )}
+              {report.regime && (
+                <> · <span style={{ color: regimeColor }}>{report.regime}</span></>
+              )}
+            </span>
+          )}
+        </div>
+
+        {reportContent ? (
+          <div className="rounded border border-border bg-card px-6 py-5 prose prose-sm prose-invert max-w-none
+            prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
+            prose-h1:text-lg prose-h2:text-sm prose-h2:uppercase prose-h2:tracking-widest prose-h2:text-muted prose-h2:mt-6
+            prose-p:text-sm prose-p:text-foreground prose-p:leading-relaxed
+            prose-strong:text-foreground prose-blockquote:border-border prose-blockquote:text-muted prose-blockquote:text-xs">
+            {reportContent}
+          </div>
+        ) : (
+          <div className="rounded border border-dashed border-border px-6 py-8 text-center">
+            <p className="text-xs text-muted">Rapport non disponible — généré chaque jour à 9h UTC.</p>
+          </div>
+        )}
+      </section>
 
       {/* Defense Mesh */}
       <section>
@@ -124,14 +178,6 @@ export default function IntelligencePage() {
           ))}
         </div>
       </section>
-
-      {/* Stats placeholder */}
-      <div className="rounded border border-dashed border-border px-6 py-8 text-center">
-        <p className="text-xs text-muted">
-          Historique de précision des signaux MI et suivi du régime — bientôt disponible.
-        </p>
-      </div>
     </main>
   )
 }
-

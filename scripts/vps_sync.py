@@ -355,7 +355,8 @@ BOTS = [
 ]
 
 WEALTH_CALLS_DB   = os.path.expanduser("~/apex_wealth/db/wealth_calls.db")
-MI_HEARTBEAT_PATH = os.path.expanduser("~/market_intel/db/heartbeat.json")
+MI_HEARTBEAT_PATH    = os.path.expanduser("~/market_intel/db/heartbeat.json")
+MACRO_REPORTS_PATH   = os.path.expanduser("~/market_intel/db/macro_reports/")
 
 
 def supabase_get(table: str, params: dict) -> list:
@@ -828,6 +829,41 @@ def sync_mi_snapshot() -> None:
     print(f"  [MI] Snapshot synced — regime={regime}, score={score}")
 
 
+def sync_macro_report() -> None:
+    """Sync latest daily macro report from market_intel to Supabase macro_reports."""
+    import glob
+    import re
+
+    files = sorted(glob.glob(os.path.join(MACRO_REPORTS_PATH, "*.md")))
+    if not files:
+        print("  [macro] No reports found — skipping")
+        return
+
+    latest = files[-1]
+    date_str = os.path.basename(latest).replace(".md", "")
+
+    with open(latest, encoding="utf-8") as f:
+        content = f.read()
+
+    score, regime = None, None
+    for line in content.split("\n")[:5]:
+        m = re.search(r"Score global\s*:\s*([-\d.]+)", line)
+        if m:
+            score = float(m.group(1))
+        m = re.search(r"Régime\s*:\s*(\w+)", line)
+        if m:
+            regime = m.group(1)
+
+    supabase_upsert("macro_reports", [{
+        "date":         date_str,
+        "content":      content,
+        "score":        score,
+        "regime":       regime,
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+    }], "date")
+    print(f"  [macro] Report {date_str} synced (score={score}, regime={regime})")
+
+
 def main() -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     print(f"=== AlgoProof VPS Sync — {ts} ===")
@@ -860,6 +896,12 @@ def main() -> None:
         sync_mi_snapshot()
     except Exception as e:
         print(f"[MI] ERROR: {e}")
+
+    print("\n[macro] Syncing macro report...")
+    try:
+        sync_macro_report()
+    except Exception as e:
+        print(f"[macro] ERROR: {e}")
 
     print("\n=== Done ===")
 
