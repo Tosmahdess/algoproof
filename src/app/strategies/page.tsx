@@ -3,7 +3,7 @@ import { getAllBotsWithStats, getTriggerData } from '@/lib/queries'
 import StrategiesClient from '@/components/StrategiesClient'
 import TriggerCounter from '@/components/TriggerCounter'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 export const metadata: Metadata = {
   title: 'Stratégies',
