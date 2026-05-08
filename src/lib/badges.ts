@@ -1,4 +1,5 @@
 import type { BotStats, Badge } from './types'
+import { PAPER_CAPITAL } from './display'
 
 export function computeBadges(stats: BotStats): Badge[] {
   const badges: Badge[] = []
@@ -21,7 +22,7 @@ export function computeBadges(stats: BotStats): Badge[] {
     badges.push({ emoji: '🛡️', label: 'DD ≤ 5%', color: '#d2a8ff' })
   }
 
-  if (stats.latest_capital > 1000) {
+  if (stats.latest_capital > PAPER_CAPITAL) {
     badges.push({ emoji: '🔥', label: 'En positif', color: '#ff6b35' })
   }
 

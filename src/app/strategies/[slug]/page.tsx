@@ -129,7 +129,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           <div>
             <p className="text-xs text-muted mb-1.5">Intégrer (iframe)</p>
             <code className="block text-xs bg-background border border-border rounded px-3 py-2 font-mono text-muted/80 break-all select-all">
-              {`<iframe src="https://algoproof.fr/embed/${slug}" width="480" height="150" frameborder="0"></iframe>`}
+              {`<iframe src="https://algoproof.fr/embed/${slug}" width="480" height="200" frameborder="0"></iframe>`}
             </code>
           </div>
           <div>

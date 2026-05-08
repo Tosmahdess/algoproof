@@ -3,6 +3,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import OverviewClient from '@/components/OverviewClient'
 import type { BotWithStats } from '@/lib/types'
 
+vi.mock('@/components/MiBanner', () => ({ default: () => null }))
+
 const mkBot = (slug: string, trades: number, wr: number, pf: number, dd: number, cap: number): BotWithStats => ({
   id: slug, slug, name: slug, strategy: '', status: 'paper', family: 'trend',
   exchange: 'Binance', assets: [], timeframe: 'H4', description: null, created_at: '',
