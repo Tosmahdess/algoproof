@@ -22,7 +22,7 @@ export default function TriggerCounter({ data }: Props) {
         <div>
           <p className="font-semibold text-sm">Code V1 Spot</p>
           <p className="text-xs text-muted">
-            {allMet ? 'Vente ouverte — critères atteints' : 'Vente fermée — critères en cours'}
+            {allMet ? 'Critères avant live — atteints' : 'Critères avant live — en cours'}
           </p>
         </div>
       </div>

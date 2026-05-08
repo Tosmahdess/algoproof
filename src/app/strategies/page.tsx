@@ -21,7 +21,7 @@ export default async function StrategiesPage() {
       {triggerData && (
         <div className="max-w-md mb-10">
           <p className="text-xs text-muted uppercase tracking-widest mb-3">
-            Ouverture des ventes — critères en cours
+            Critères avant live
           </p>
           <TriggerCounter data={triggerData} />
         </div>

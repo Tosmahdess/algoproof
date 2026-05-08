@@ -208,7 +208,7 @@ export default async function HomePage() {
       {triggerData && (
         <div className="mt-12 max-w-md mx-auto">
           <p className="text-xs text-muted uppercase tracking-widest text-center mb-3">
-            Ouverture des ventes
+            Critères avant live
           </p>
           <TriggerCounter data={triggerData} />
         </div>
