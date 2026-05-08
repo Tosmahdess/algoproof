@@ -1,6 +1,6 @@
 // src/lib/queries.ts
 import { supabase } from './supabase'
-import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot } from './types'
+import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot, TriggerData } from './types'
 
 export async function getBots(): Promise<Bot[]> {
   const { data, error } = await supabase
@@ -128,4 +128,30 @@ export async function getLatestMiSnapshot(): Promise<MiSnapshot | null> {
     .maybeSingle()
   if (error) return null
   return data
+}
+
+export async function getTriggerData(slug: string): Promise<TriggerData | null> {
+  const { data: bot, error: botErr } = await supabase
+    .from('bots')
+    .select('id, status')
+    .eq('slug', slug)
+    .single()
+  if (botErr || !bot) return null
+
+  const { data: trades, error: tradesErr } = await supabase
+    .from('trades')
+    .select('pnl')
+    .eq('bot_id', bot.id)
+    .eq('is_paper', false)
+    .order('closed_at', { ascending: false })
+  if (tradesErr) return null
+
+  const all = trades ?? []
+  if (all.length === 0) return { profitFactor: 0, totalTrades: 0, isLive: bot.status === 'live' }
+
+  const grossProfit = all.filter((t: { pnl: number }) => t.pnl > 0).reduce((s: number, t: { pnl: number }) => s + t.pnl, 0)
+  const grossLoss   = Math.abs(all.filter((t: { pnl: number }) => t.pnl < 0).reduce((s: number, t: { pnl: number }) => s + t.pnl, 0))
+  const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? 999 : 0
+
+  return { profitFactor, totalTrades: all.length, isLive: bot.status === 'live' }
 }

@@ -107,3 +107,9 @@ export interface MiSnapshot {
   macro_score: number | null
   created_at: string
 }
+
+export type TriggerData = {
+  profitFactor: number
+  totalTrades: number
+  isLive: boolean
+}

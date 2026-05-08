@@ -8,7 +8,7 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 import { supabase } from '@/lib/supabase'
-import { getBots, getBotSlugs } from '@/lib/queries'
+import { getBots, getBotSlugs, getTriggerData } from '@/lib/queries'
 
 const mockChain = (data: unknown, error: unknown = null) => {
   const terminal = { data, error }
@@ -66,5 +66,49 @@ describe('getBotSlugs', () => {
   it('throws on Supabase error', async () => {
     vi.mocked(supabase.from).mockReturnValue(mockChain(null, { message: 'slugs error' }))
     await expect(getBotSlugs()).rejects.toThrow('slugs error')
+  })
+})
+
+describe('getTriggerData', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns null when bot not found', async () => {
+    vi.mocked(supabase.from).mockReturnValue(mockChain(null, { message: 'not found' }))
+    const result = await getTriggerData('unknown-slug')
+    expect(result).toBeNull()
+  })
+
+  it('returns zeros when no live trades', async () => {
+    const botChain = mockChain({ id: 'bot-1', status: 'live' })
+    const tradesChain = mockChain([])
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(botChain)
+      .mockReturnValueOnce(tradesChain)
+    const result = await getTriggerData('v1-spot')
+    expect(result).toEqual({ profitFactor: 0, totalTrades: 0, isLive: true })
+  })
+
+  it('calculates profitFactor and totalTrades from live trades', async () => {
+    const botChain = mockChain({ id: 'bot-1', status: 'live' })
+    const tradesChain = mockChain([
+      { pnl: 10 }, { pnl: 5 }, { pnl: -3 },
+    ])
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(botChain)
+      .mockReturnValueOnce(tradesChain)
+    const result = await getTriggerData('v1-spot')
+    expect(result?.totalTrades).toBe(3)
+    expect(result?.profitFactor).toBeCloseTo(5.0, 1) // (10+5) / 3
+    expect(result?.isLive).toBe(true)
+  })
+
+  it('returns isLive false when bot status is paper', async () => {
+    const botChain = mockChain({ id: 'bot-1', status: 'paper' })
+    const tradesChain = mockChain([])
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(botChain)
+      .mockReturnValueOnce(tradesChain)
+    const result = await getTriggerData('v1-spot')
+    expect(result?.isLive).toBe(false)
   })
 })
