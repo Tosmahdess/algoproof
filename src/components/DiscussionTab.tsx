@@ -17,19 +17,22 @@ export default function DiscussionTab({ slug }: Props) {
   const [submitted,  setSubmitted]  = useState(false)
   const [error,      setError]      = useState<string | null>(null)
 
-  const fetchComments = async () => {
+  const loadComments = async () => {
     try {
-      const res  = await fetch(`/api/comments?slug=${slug}`)
+      const res = await fetch(`/api/comments?slug=${slug}`)
+      if (!res.ok) return
       const data = await res.json()
       setComments(data)
     } catch {
-      // silently fail — display stale state
+      // silently fail
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { fetchComments() }, [slug]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    loadComments()
+  }, [slug]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,7 +49,7 @@ export default function DiscussionTab({ slug }: Props) {
       setSubmitted(true)
       setPseudo('')
       setMessage('')
-      await fetchComments()
+      await loadComments()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue')
     } finally {
