@@ -81,6 +81,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Explanation: plain overview → technical params */}
       <section className="mb-8">
         <ExplainerBox
+          discussionSlug={slug}
           functional={
             bot.description ? (
               <p>{bot.description}</p>
@@ -107,12 +108,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           <span className="text-muted text-sm font-normal ml-2">({bot.recent_trades.length} affichés)</span>
         </h2>
         <TradesTable trades={bot.recent_trades} />
-      </div>
-
-      {/* Phase 2 teaser */}
-      <div className="bg-card border border-border rounded-xl p-6 text-center opacity-60">
-        <p className="text-sm text-muted mb-1">Forum Q&amp;R et accès au code disponibles en Phase 2</p>
-        <p className="text-xs text-muted/60">Quand V1 aura 2+ mois de données en direct</p>
       </div>
 
     </div>
