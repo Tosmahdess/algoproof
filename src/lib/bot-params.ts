@@ -78,6 +78,61 @@ const BOT_PARAMS: Record<string, BotParams> = {
     ],
   },
 
+  "v1-spot-shadow": {
+    groups: [
+      {
+        title: "Signal",
+        items: [
+          { label: "Entry", value: "EMA 21 × EMA 55", note: "direction confirmed by EMA 200" },
+          { label: "Timeframe", value: "H4", note: "4-hour candles" },
+          { label: "ADX filter", value: "per-asset", note: "BTC ≥20 · SOL ≥12 · LINK/DOGE ≥15 · ADA ≥18" },
+          { label: "Direction", value: "Long only", note: "Binance Spot — no shorting" },
+        ],
+      },
+      {
+        title: "Risk management",
+        items: [
+          { label: "Risk per trade", value: "1%", note: "0.5% when in drawdown" },
+          { label: "Min R:R", value: "1 : 2" },
+          { label: "Stop loss", value: "ATR × 2.0", note: "initial — trails into profit on BTC / SOL / ADA" },
+          { label: "Take profit", value: "50% / 30% / 20%", note: "TP1 → breakeven → TP2 → runner" },
+          { label: "Max positions", value: "3 concurrent" },
+          { label: "Max daily risk", value: "3%" },
+        ],
+      },
+      {
+        title: "Defense mesh (relâchée)",
+        items: [
+          { label: "MI gate", value: "Active", note: "blocks entry when macro unsafe" },
+          { label: "early_be", value: "1.0R", note: "vs 0.75R en standard — breakeven déclenché plus tard" },
+          { label: "trail_mult", value: "2.0", note: "vs standard — trailing plus large en ORANGE" },
+          { label: "Kill switch", value: "−5% / day", note: "auto-halt, Telegram alert" },
+          { label: "Circuit breaker", value: "3 losses → 4h pause" },
+        ],
+      },
+      {
+        title: "Costs",
+        items: [
+          { label: "Exchange", value: "Binance Spot" },
+          { label: "Taker fee", value: "0.10%" },
+          { label: "Round-trip cost", value: "~0.40%" },
+        ],
+      },
+    ],
+    technicalArticle: [
+      {
+        title: "Objectif de la variante",
+        body: "Ce bot est une copie expérimentale d'EMA Cross H4 Spot avec des paramètres de défense relâchés. L'early_be (breakeven anticipé) est déclenché à 1.0R au lieu de 0.75R en régime ORANGE. Le trailing multiplier est fixé à 2.0. L'objectif est de comparer la courbe d'équité avec la version standard sur 30 trades pour valider si le resserrement de la défense en ORANGE aide ou nuit à la performance nette.",
+        code: "# early_be = 1.0  # déclenchement BE à 1R (vs 0.75R standard)\n# trail_mult = 2.0  # trailing plus ample en régime ORANGE",
+      },
+      {
+        title: "Defense Mesh — filtre Market Intelligence",
+        body: "Identique à la version standard : avant chaque entrée, le service MI évalue le régime macro via 4 piliers (sentiment, dérivés, news, macro). La seule différence est le comportement en régime ORANGE — le bot laisse les positions courir plus longtemps avant de remonter le stop au breakeven.",
+        code: "if risk_level == 'RED':\n    return 'HOLD'   # MI veto — aucune entrée\nif cross_up:\n    return 'BUY'    # long only sur Binance Spot\nreturn 'HOLD'",
+      },
+    ],
+  },
+
   "v1-hl": {
     groups: [
       {
