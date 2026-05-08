@@ -117,9 +117,28 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Discussion */}
-      <div className="bg-card border border-border rounded-xl p-6">
+      <div className="bg-card border border-border rounded-xl p-6 mb-8">
         <h2 className="font-semibold mb-4">💬 Discussion</h2>
         <DiscussionTab slug={slug} />
+      </div>
+
+      {/* Partager */}
+      <div className="bg-card border border-border rounded-xl p-6">
+        <h2 className="font-semibold text-sm mb-4">🔗 Partager ce bot</h2>
+        <div className="space-y-3">
+          <div>
+            <p className="text-xs text-muted mb-1.5">Intégrer (iframe)</p>
+            <code className="block text-xs bg-background border border-border rounded px-3 py-2 font-mono text-muted/80 break-all select-all">
+              {`<iframe src="https://algoproof.fr/embed/${slug}" width="480" height="150" frameborder="0"></iframe>`}
+            </code>
+          </div>
+          <div>
+            <p className="text-xs text-muted mb-1.5">Image directe (Twitter / Discord)</p>
+            <code className="block text-xs bg-background border border-border rounded px-3 py-2 font-mono text-muted/80 break-all select-all">
+              {`https://algoproof.fr/api/card/${slug}`}
+            </code>
+          </div>
+        </div>
       </div>
 
     </div>
