@@ -116,7 +116,6 @@ export type TriggerData = {
 
 export interface Comment {
   id: string
-  bot_slug: string
   pseudo: string
   message: string
   created_at: string
