@@ -98,7 +98,7 @@ describe('getTriggerData', () => {
       .mockReturnValueOnce(tradesChain)
     const result = await getTriggerData('v1-spot')
     expect(result?.totalTrades).toBe(3)
-    expect(result?.profitFactor).toBeCloseTo(5.0, 1) // (10+5) / 3
+    expect(result?.profitFactor).toBeCloseTo(5.0, 1) // grossProfit(15) / grossLoss(3) = 5.0
     expect(result?.isLive).toBe(true)
   })
 
