@@ -6,7 +6,7 @@ import { getLatestMacroReport } from '@/lib/queries'
 
 export const metadata: Metadata = {
   title: 'Intelligence de marché',
-  description: 'Le gardien des bots AlgoProof. Surveillance en temps réel du sentiment, des produits dérivés, des actualités et des événements macro.',
+  description: 'La boussole du labo — ce qui guide nos décisions d\'entrée. Sentiment, dérivés, actualités, macro : 4 piliers de décision en temps réel.',
   openGraph: { url: 'https://algoproof.fr/intelligence' },
 }
 

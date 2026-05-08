@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Wealth — Portefeuille DCA',
-  description: "Suivi en temps réel du portefeuille DCA APEX Wealth. Allocations ETFs, crypto et or. Transparence totale — chaque appel d'investissement publié.",
+  description: 'Notre portefeuille long terme exposé en temps réel — DCA sur ETFs et crypto, alertes dips GROWTH, suivi des calls d\'investissement.',
   openGraph: { url: 'https://algoproof.fr/wealth' },
 }
 

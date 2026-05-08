@@ -45,15 +45,15 @@ export default async function HomePage() {
       <div className="text-center mb-20">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-positive/10 border border-positive/20 text-positive text-xs mb-6">
           <span className="w-1.5 h-1.5 rounded-full bg-positive animate-pulse" />
-          Paper trading actif — chaque trade enregistré
+          Open Lab FR — recherche live, résultats en clair
         </div>
         <h1 className="text-5xl font-bold tracking-tight mb-6">
           La preuve par les chiffres.<br />
           <span className="text-positive">Chaque trade. Chaque perte.</span>
         </h1>
         <p className="text-lg text-muted max-w-2xl mx-auto mb-8">
-          On publie chaque trade — gains, pertes, drawdowns. Données réelles, pas de backtests triés sur le volet.
-          Quand on passe en live, vous le verrez ici en premier.
+          Le premier labo de trading algo 100% transparent, en français. On expose notre recherche en temps réel —
+          gains, pertes, drawdowns — et la communauté suit, challenge, contribue.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
           <Link href="/overview" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
@@ -79,8 +79,8 @@ export default async function HomePage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-20 border-y border-border py-10">
         {[
           { label: 'Zéro faux screenshots', desc: 'Dashboard live mis à jour toutes les heures depuis les données réelles des bots' },
-          { label: 'Chaque perte affichée', desc: 'Drawdowns, mauvaises semaines, périodes plates — tout est visible' },
-          { label: 'Vérifié par la communauté', desc: 'Les membres Discord recoupent les résultats en temps réel' },
+          { label: 'Chaque perte affichée', desc: 'Drawdowns, mauvaises semaines, périodes plates — rien n\'est caché' },
+          { label: 'Communauté active', desc: 'Posez vos questions directement sur chaque stratégie. La commu challenge les résultats.' },
         ].map(s => (
           <div key={s.label} className="text-center">
             <div className="font-semibold mb-1">{s.label}</div>
@@ -93,7 +93,7 @@ export default async function HomePage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Stratégies actives</h2>
-          <p className="text-sm text-muted mt-0.5">{bots.length} bots en paper trading — {bots.filter(b => b.stats.total_trades > 0).length} avec des trades</p>
+          <p className="text-sm text-muted mt-0.5">{bots.length} expériences actives — {bots.filter(b => b.stats.total_trades > 0).length} avec des trades</p>
         </div>
         <Link href="/overview" className="text-sm text-muted hover:text-white transition-colors">Voir tout →</Link>
       </div>
@@ -196,8 +196,8 @@ export default async function HomePage() {
 
       {/* CTA Discord */}
       <div className="bg-card border border-border rounded-xl p-8 text-center">
-        <h2 className="text-xl font-bold mb-2">Suivre l&apos;aventure</h2>
-        <p className="text-muted mb-6">Rejoignez le Discord pour être notifié des nouveaux trades, mises à jour de stratégies et discussions sur les paramètres.</p>
+        <h2 className="text-xl font-bold mb-2">Rejoindre le labo</h2>
+        <p className="text-muted mb-6">Discussions sur les stratégies, nouveaux trades en temps réel, analyses hebdo. Gratuit, sans paywall.</p>
         <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer"
            className="inline-flex px-6 py-2.5 bg-accent/10 text-accent border border-accent/30 rounded-lg hover:bg-accent/20 transition-colors font-medium">
           Rejoindre Discord
