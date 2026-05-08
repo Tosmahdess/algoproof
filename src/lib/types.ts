@@ -120,3 +120,9 @@ export interface Comment {
   message: string
   created_at: string
 }
+
+export interface Badge {
+  emoji: string
+  label: string
+  color: string
+}
