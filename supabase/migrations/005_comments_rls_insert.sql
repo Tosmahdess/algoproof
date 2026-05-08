@@ -18,7 +18,8 @@ CREATE INDEX IF NOT EXISTS comments_bot_slug_idx ON comments(bot_slug);
 
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "public_read_comments" ON comments
+DROP POLICY IF EXISTS "public_read_comments" ON comments;
+CREATE POLICY "public_read_comments" ON comments
   FOR SELECT USING (NOT hidden);
 
 DROP POLICY IF EXISTS "anon_insert_comments" ON comments;
