@@ -30,11 +30,11 @@ describe('TriggerCounter', () => {
 
   it('renders profit factor with 2 decimal places', () => {
     render(<TriggerCounter data={livePending} />)
-    expect(screen.getByText('1.31')).toBeDefined()
+    expect(screen.getByText(/1\.31/)).toBeDefined()
   })
 
   it('renders trades count against target', () => {
     render(<TriggerCounter data={livePending} />)
-    expect(screen.getByText('24 / 30')).toBeDefined()
+    expect(screen.getByText(/24 \/ 30/)).toBeDefined()
   })
 })

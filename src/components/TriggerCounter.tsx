@@ -32,7 +32,7 @@ export default function TriggerCounter({ data }: Props) {
           <div className="flex justify-between text-xs mb-1.5">
             <span className="text-muted">Profit Factor ≥ {PF_TARGET}</span>
             <span className={`font-mono font-semibold ${pfMet ? 'text-positive' : ''}`}>
-              <span>{data.profitFactor.toFixed(2)}</span>{pfMet && <span> ✓</span>}
+              {data.profitFactor.toFixed(2)}{pfMet ? ' ✓' : ''}
             </span>
           </div>
           <div className="h-1.5 bg-border rounded-full overflow-hidden">
@@ -48,7 +48,7 @@ export default function TriggerCounter({ data }: Props) {
           <div className="flex justify-between text-xs mb-1.5">
             <span className="text-muted">Trades live ≥ {TRADES_TARGET}</span>
             <span className={`font-mono font-semibold ${tradesMet ? 'text-positive' : ''}`}>
-              {data.totalTrades} / {TRADES_TARGET}{tradesMet && <span> ✓</span>}
+              {data.totalTrades} / {TRADES_TARGET}{tradesMet ? ' ✓' : ''}
             </span>
           </div>
           <div className="h-1.5 bg-border rounded-full overflow-hidden">
