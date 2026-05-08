@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import StatusBadge from '@/components/StatusBadge'
 import MetricsRow from '@/components/MetricsRow'
-import BadgeRow from '@/components/BadgeRow'
 import EquityCurve from '@/components/EquityCurve'
 import TradesTable from '@/components/TradesTable'
 import BotParamsSection from '@/components/BotParams'
@@ -11,7 +10,6 @@ import ExplainerBox from '@/components/ExplainerBox'
 import DiscussionTab from '@/components/DiscussionTab'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
-import { computeBadges } from '@/lib/badges'
 import { pnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
 
 export const revalidate = 3600
@@ -41,7 +39,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
 
-  const badges = computeBadges(bot.stats)
   const pct = pnlPct(bot.stats.latest_capital)
   const eur = pnlEur(bot.stats.latest_capital)
 
@@ -62,9 +59,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       <div className="mb-8">
         <MetricsRow stats={bot.stats} />
       </div>
-
-      {/* Performance badges */}
-      <BadgeRow badges={badges} />
 
       {/* Equity curve */}
       <div className="bg-card border border-border rounded-xl p-6 mb-8">
