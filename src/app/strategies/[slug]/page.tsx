@@ -7,6 +7,7 @@ import EquityCurve from '@/components/EquityCurve'
 import TradesTable from '@/components/TradesTable'
 import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
+import DiscussionTab from '@/components/DiscussionTab'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { pnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
@@ -81,7 +82,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Explanation: plain overview → technical params */}
       <section className="mb-8">
         <ExplainerBox
-          discussionSlug={slug}
           functional={
             bot.description ? (
               <p>{bot.description}</p>
@@ -108,6 +108,12 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           <span className="text-muted text-sm font-normal ml-2">({bot.recent_trades.length} affichés)</span>
         </h2>
         <TradesTable trades={bot.recent_trades} />
+      </div>
+
+      {/* Discussion */}
+      <div className="bg-card border border-border rounded-xl p-6">
+        <h2 className="font-semibold mb-4">💬 Discussion</h2>
+        <DiscussionTab slug={slug} />
       </div>
 
     </div>
