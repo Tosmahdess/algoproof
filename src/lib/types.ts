@@ -126,3 +126,14 @@ export interface Badge {
   label: string
   color: string
 }
+
+export interface TradeWithBot {
+  id: string
+  opened_at: string
+  closed_at: string
+  asset: string
+  side: string
+  pnl: number
+  reason: string | null
+  bots: { name: string; slug: string; family: string | null } | null
+}
