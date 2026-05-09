@@ -8,7 +8,7 @@ import TradesTable from '@/components/TradesTable'
 import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
 import DiscussionTab from '@/components/DiscussionTab'
-import { getBotSlugs, getBotWithStats } from '@/lib/queries'
+import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { pnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
 
@@ -38,6 +38,8 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const { slug } = await params
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
+
+  const changelogs = await getChangelogForBot(slug)
 
   const pct = pnlPct(bot.stats.latest_capital)
   const eur = pnlEur(bot.stats.latest_capital)
@@ -98,6 +100,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             )
             return <BotParamsSection params={params} />
           })()}
+          changelogs={changelogs}
         />
       </section>
 
