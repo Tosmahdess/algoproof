@@ -164,6 +164,9 @@ export async function getChangelogForBot(slug: string): Promise<BotChangelog[]> 
     .order('entry_date', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(100)
-  if (error) return []
+  if (error) {
+    console.error('[getChangelogForBot]', error.message)
+    return []
+  }
   return (data ?? []) as BotChangelog[]
 }
