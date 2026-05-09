@@ -31,7 +31,7 @@ export default function ChangelogTab({ changelogs }: ChangelogTabProps) {
 
   return (
     <div className="space-y-6">
-      {Object.entries(byDate).map(([date, entries]) => (
+      {Object.entries(byDate).sort(([a], [b]) => b.localeCompare(a)).map(([date, entries]) => (
         <div key={date}>
           <p className="text-xs text-muted font-mono mb-2">
             {new Date(date + 'T12:00:00Z').toLocaleDateString('fr-FR', {
