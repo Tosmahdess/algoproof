@@ -47,6 +47,35 @@ const SIGNAL_LABEL: Record<string, string> = {
   crash: 'KRACH',
 }
 
+// Trigger % per ticker (source: portfolios.py dip_trigger_pct, absolute values)
+const TRIGGER_PCT: Record<string, number> = {
+  SOL: 30, NVDA: 25, META: 20, TSLA: 25, NVO: 30,
+  'MC.PA': 25, 'RMS.PA': 25, PLTR: 25,
+  ASML: 30, TSM: 30, KLAC: 25, AVGO: 25,
+  'RHM.DE': 25, 'HO.PA': 25, 'BA.L': 25,
+  XOM: 20, CVX: 20, LNG: 25, GEV: 25,
+  LLY: 30, 'SAN.PA': 25, MRK: 25,
+  GOOGL: 25, FCX: 30, MP: 35, MSTR: 45, COIN: 35,
+}
+
+function nextLevelInfo(a: { signal_level: string; drawdown_pct: number; high_90d: number | null }, ticker: string) {
+  if (a.signal_level === 'crash' || !a.high_90d) return null
+  const trigger = TRIGGER_PCT[ticker]
+  if (!trigger) return null
+  const multiplier = a.signal_level === 'minor' ? 1.5 : 2.0
+  const nextThresholdPct = -(trigger * multiplier)          // e.g. -37.5
+  const additionalDrop   = nextThresholdPct - a.drawdown_pct // still need to fall this much
+  const nextPrice        = a.high_90d * (1 + nextThresholdPct / 100)
+  const nextLabel        = a.signal_level === 'minor' ? 'MAJEUR' : 'KRACH'
+  return { price: nextPrice, additionalDrop, nextLabel }
+}
+
+const ACTION: Record<string, { text: string; sub: string }> = {
+  crash: { text: 'Déploiement max',   sub: 'entrer maintenant' },
+  major: { text: '2e tranche',        sub: 'si 1ère déjà faite' },
+  minor: { text: '1ère tranche',      sub: 'position initiale' },
+}
+
 export default function WealthPage() {
   const [calls, setCalls]           = useState<WealthCall[]>([])
   const [prices, setPrices]         = useState<AssetPrice[]>([])
@@ -230,106 +259,138 @@ export default function WealthPage() {
         />
       </section>
 
-      {/* GROWTH — Signaux dips par conviction */}
+      {/* GROWTH — Radar de conviction */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-1">GROWTH — Signaux dips</h2>
+        <h2 className="text-base font-bold tracking-tight mb-1">GROWTH — Radar de conviction</h2>
         <p className="text-xs text-muted mb-6">
-          Alertes générées par le moniteur 180j + ATH, classées par niveau de conviction. Signal envoyé sur Telegram dès déclenchement.
+          État actuel par actif · 1 ligne = 1 actif · trié par conviction décroissante
         </p>
 
         {loading ? (
           <div className="rounded border border-border px-4 py-6 text-center text-xs text-muted">Chargement...</div>
         ) : growthAlerts.length === 0 ? (
           <div className="rounded border border-dashed border-border px-4 py-8 text-center space-y-1">
-            <p className="text-sm font-medium">Aucune alerte envoyée pour l&apos;instant.</p>
-            <p className="text-xs text-muted">Le moniteur tourne toutes les 4h. Les alertes dips apparaîtront ici dès déclenchement.</p>
+            <p className="text-sm font-medium">Aucune alerte active.</p>
+            <p className="text-xs text-muted">Le moniteur tourne toutes les 4h.</p>
           </div>
         ) : (
-          <div className="space-y-8">
-            {([
-              { key: 'crash', icon: '💀', label: 'KRACH',  color: '#ff4444' },
-              { key: 'major', icon: '🔴', label: 'MAJEUR', color: '#ff6b35' },
-              { key: 'minor', icon: '🟡', label: 'MINEUR', color: '#f6c90e' },
-            ] as const).map(({ key, icon, label, color }) => {
-              const alerts = growthAlerts.filter(a => a.signal_level === key)
-              if (alerts.length === 0) return null
-              const latestDate = new Date(alerts[0].alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
-              return (
-                <div key={key}>
-                  {/* Header */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-sm">{icon}</span>
-                    <h3 className="text-sm font-bold tracking-tight" style={{ color }}>{label}</h3>
-                    <span className="text-[10px] text-muted">— {alerts.length} signal{alerts.length > 1 ? 's' : ''} · dernier le {latestDate}</span>
-                  </div>
-
-                  {/* Mobile */}
-                  <div className="sm:hidden rounded border overflow-hidden divide-y divide-border" style={{ borderColor: color + '40' }}>
-                    {alerts.map(a => (
-                      <div key={a.id} className="px-4 py-3 flex items-center gap-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-xs">{a.ticker}</p>
-                          <p className="text-[10px] text-muted">{a.asset_name}</p>
+          <>
+            {/* Mobile */}
+            <div className="sm:hidden space-y-2">
+              {growthAlerts.map(a => {
+                const color  = SIGNAL_COLOR[a.signal_level] ?? '#888'
+                const action = ACTION[a.signal_level]
+                const next   = nextLevelInfo(a, a.ticker)
+                return (
+                  <div key={a.id} className="rounded border px-4 py-3" style={{ borderColor: color + '50' }}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-bold text-xs">{a.ticker}</span>
+                          <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+                            style={{ color, background: color + '18' }}>
+                            {SIGNAL_LABEL[a.signal_level]}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-muted">{a.asset_name}</p>
+                        <p className="text-[10px] text-muted mt-1">
+                          Alerté le {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })}
+                        </p>
+                        {next && (
                           <p className="text-[10px] text-muted mt-0.5">
-                            {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })}
+                            encore {next.additionalDrop.toFixed(1)}% → {next.nextLabel}
                           </p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="text-sm font-bold font-mono text-negative">{a.drawdown_pct.toFixed(1)}%</p>
-                          <p className="text-[10px] text-muted font-mono">
-                            {a.suggested_min != null ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
-                          </p>
-                        </div>
+                        )}
                       </div>
-                    ))}
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm font-bold font-mono text-negative">{a.drawdown_pct.toFixed(1)}%</p>
+                        {action && <p className="text-[10px] font-semibold mt-0.5" style={{ color }}>{action.text}</p>}
+                        <p className="text-[10px] text-muted font-mono">
+                          {a.suggested_min != null ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
+                )
+              })}
+            </div>
 
-                  {/* Desktop */}
-                  <div className="hidden sm:block rounded border overflow-hidden" style={{ borderColor: color + '40' }}>
-                    <table className="w-full text-xs">
-                      <thead style={{ background: color + '0d' }}>
-                        <tr className="text-[10px] uppercase tracking-widest" style={{ color: color + 'cc' }}>
-                          <th className="px-4 py-2 text-left">Date</th>
-                          <th className="px-4 py-2 text-left">Actif</th>
-                          <th className="px-4 py-2 text-right">DD 180j</th>
-                          <th className="px-4 py-2 text-right">Prix actuel</th>
-                          <th className="px-4 py-2 text-right">Déploiement</th>
-                          <th className="px-4 py-2 text-left hidden md:table-cell">Régime MI</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {alerts.map(a => (
-                          <tr key={a.id} className="border-t hover:bg-card/40 transition-colors" style={{ borderColor: color + '20' }}>
-                            <td className="px-4 py-2 text-muted font-mono text-[10px] whitespace-nowrap">
-                              {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                            </td>
-                            <td className="px-4 py-2">
-                              <p className="font-semibold">{a.ticker}</p>
-                              <p className="text-[10px] text-muted">{a.asset_name}</p>
-                            </td>
-                            <td className="px-4 py-2 text-right font-mono font-semibold text-negative">
-                              {a.drawdown_pct.toFixed(1)}%
-                            </td>
-                            <td className="px-4 py-2 text-right font-mono text-muted">
-                              {a.current_price != null ? a.current_price.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) : '—'}
-                            </td>
-                            <td className="px-4 py-2 text-right font-mono">
-                              {a.suggested_min != null && a.suggested_max != null
-                                ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
-                            </td>
-                            <td className="px-4 py-2 text-muted text-[10px] hidden md:table-cell">
-                              {a.mi_regime ?? '—'}
-                              {a.mi_score != null && ` (${a.mi_score > 0 ? '+' : ''}${a.mi_score.toFixed(1)})`}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+            {/* Desktop */}
+            <div className="hidden sm:block rounded border border-border overflow-hidden">
+              <table className="w-full text-xs">
+                <thead className="bg-card border-b border-border">
+                  <tr className="text-muted text-[10px] uppercase tracking-widest">
+                    <th className="px-4 py-2.5 text-left">Actif</th>
+                    <th className="px-4 py-2.5 text-center">Niveau</th>
+                    <th className="px-4 py-2.5 text-right">DD 180j</th>
+                    <th className="px-4 py-2.5 text-right">Prix</th>
+                    <th className="px-4 py-2.5 text-left">Prochain seuil</th>
+                    <th className="px-4 py-2.5 text-left">Action</th>
+                    <th className="px-4 py-2.5 text-right">Déploiement</th>
+                    <th className="px-4 py-2.5 text-left hidden lg:table-cell">Alerté le</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {growthAlerts.map(a => {
+                    const color  = SIGNAL_COLOR[a.signal_level] ?? '#888'
+                    const action = ACTION[a.signal_level]
+                    const next   = nextLevelInfo(a, a.ticker)
+                    return (
+                      <tr key={a.id} className="border-t border-border/50 hover:bg-card/40 transition-colors">
+                        <td className="px-4 py-2.5">
+                          <p className="font-semibold">{a.ticker}</p>
+                          <p className="text-[10px] text-muted leading-tight">{a.asset_name}</p>
+                        </td>
+                        <td className="px-4 py-2.5 text-center">
+                          <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded"
+                            style={{ color, background: color + '18' }}>
+                            {SIGNAL_LABEL[a.signal_level]}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-mono font-bold text-negative">
+                          {a.drawdown_pct.toFixed(1)}%
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-mono text-muted text-[11px]">
+                          {a.current_price != null
+                            ? a.current_price.toLocaleString('fr-FR', { maximumFractionDigits: 2 })
+                            : '—'}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          {next ? (
+                            <div>
+                              <p className="font-mono text-[11px]">
+                                {next.price.toLocaleString('fr-FR', { maximumFractionDigits: 2 })}
+                              </p>
+                              <p className="text-[10px] text-muted">
+                                encore {next.additionalDrop.toFixed(1)}% → {next.nextLabel}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-muted">seuil max atteint</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          {action && (
+                            <div>
+                              <p className="font-semibold text-[11px]" style={{ color }}>{action.text}</p>
+                              <p className="text-[10px] text-muted">{action.sub}</p>
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-mono text-[11px]">
+                          {a.suggested_min != null && a.suggested_max != null
+                            ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
+                        </td>
+                        <td className="px-4 py-2.5 text-muted text-[10px] hidden lg:table-cell whitespace-nowrap">
+                          {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </section>
 
