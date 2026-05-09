@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ChartTooltip, Legend } from 'recharts'
 import ExplainerBox from '@/components/ExplainerBox'
 import type { WealthCall, AssetPrice, GrowthAlert } from '@/lib/types'
@@ -232,7 +232,10 @@ export default function WealthPage() {
 
       {/* GROWTH — Alertes dips reçues */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-4">GROWTH — Historique des alertes dips</h2>
+        <h2 className="text-base font-bold tracking-tight mb-1">GROWTH — Signaux dips</h2>
+        <p className="text-xs text-muted mb-4">
+          Toutes les alertes générées par le moniteur 180j + ATH, triées par date. Signal envoyé sur Telegram dès déclenchement.
+        </p>
 
         {loading ? (
           <div className="rounded border border-border px-4 py-6 text-center text-xs text-muted">Chargement...</div>
@@ -243,86 +246,111 @@ export default function WealthPage() {
           </div>
         ) : (
           <>
-            {/* Mobile : cartes */}
-            <div className="sm:hidden rounded border border-border divide-y divide-border overflow-hidden">
-              {growthAlerts.map(a => {
-                const color = SIGNAL_COLOR[a.signal_level] ?? '#888'
-                return (
-                  <div key={a.id} className="px-4 py-3 flex items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-bold text-xs">{a.ticker}</span>
-                        <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
-                          style={{ color, background: color + '18' }}>
-                          {SIGNAL_LABEL[a.signal_level]}
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-muted">{a.asset_name}</p>
-                      <p className="text-[10px] text-muted mt-0.5">
-                        {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })}
-                        {a.rsi14 != null && ` · RSI ${a.rsi14.toFixed(0)}`}
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-bold font-mono text-negative">{a.drawdown_pct.toFixed(1)}%</p>
-                      <p className="text-[10px] text-muted font-mono">
-                        {a.suggested_min != null ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
-                      </p>
-                    </div>
+            {/* Mobile : cartes groupées par date */}
+            <div className="sm:hidden space-y-4">
+              {Object.entries(
+                growthAlerts.reduce<Record<string, GrowthAlert[]>>((acc, a) => {
+                  const day = new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+                  ;(acc[day] ??= []).push(a)
+                  return acc
+                }, {})
+              ).map(([day, alerts]) => (
+                <div key={day}>
+                  <p className="text-[10px] font-semibold text-muted uppercase tracking-widest mb-1 px-1">{day}</p>
+                  <div className="rounded border border-border divide-y divide-border overflow-hidden">
+                    {alerts.map(a => {
+                      const color = SIGNAL_COLOR[a.signal_level] ?? '#888'
+                      return (
+                        <div key={a.id} className="px-4 py-3 flex items-center gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span className="font-bold text-xs">{a.ticker}</span>
+                              <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+                                style={{ color, background: color + '18' }}>
+                                {SIGNAL_LABEL[a.signal_level] ?? a.signal_level}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-muted">{a.asset_name}</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-sm font-bold font-mono text-negative">{a.drawdown_pct.toFixed(1)}%</p>
+                            <p className="text-[10px] text-muted font-mono">
+                              {a.suggested_min != null ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                )
-              })}
+                </div>
+              ))}
             </div>
 
-            {/* Desktop : table */}
+            {/* Desktop : table groupée par date */}
             <div className="hidden sm:block rounded border border-border overflow-hidden">
               <table className="w-full text-xs">
                 <thead className="bg-card border-b border-border">
                   <tr className="text-muted text-[10px] uppercase tracking-widest">
                     <th className="px-4 py-2 text-left">Date</th>
                     <th className="px-4 py-2 text-left">Actif</th>
-                    <th className="px-4 py-2 text-right">Drawdown</th>
-                    <th className="px-4 py-2 text-right">RSI</th>
+                    <th className="px-4 py-2 text-right">DD 180j</th>
+                    <th className="px-4 py-2 text-right">Prix</th>
                     <th className="px-4 py-2 text-center">Signal</th>
-                    <th className="px-4 py-2 text-right">Taille suggérée</th>
+                    <th className="px-4 py-2 text-right">Déploiement</th>
                     <th className="px-4 py-2 text-left hidden md:table-cell">Régime MI</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {growthAlerts.map(a => {
-                    const color = SIGNAL_COLOR[a.signal_level] ?? '#888'
-                    return (
-                      <tr key={a.id} className="border-t border-border/50 hover:bg-card/40 transition-colors">
-                        <td className="px-4 py-2 text-muted font-mono">
-                          {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })}
-                        </td>
-                        <td className="px-4 py-2">
-                          <p className="font-semibold">{a.ticker}</p>
-                          <p className="text-[10px] text-muted">{a.asset_name}</p>
-                        </td>
-                        <td className="px-4 py-2 text-right font-mono text-negative font-semibold">
-                          {a.drawdown_pct.toFixed(1)}%
-                        </td>
-                        <td className="px-4 py-2 text-right font-mono">
-                          {a.rsi14 != null ? a.rsi14.toFixed(0) : '—'}
-                        </td>
-                        <td className="px-4 py-2 text-center">
-                          <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
-                            style={{ color, background: color + '18' }}>
-                            {SIGNAL_LABEL[a.signal_level] ?? a.signal_level}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2 text-right font-mono">
-                          {a.suggested_min != null && a.suggested_max != null
-                            ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
-                        </td>
-                        <td className="px-4 py-2 text-muted text-[10px] hidden md:table-cell">
-                          {a.mi_regime ?? '—'}
-                          {a.mi_score != null && ` (${a.mi_score > 0 ? '+' : ''}${a.mi_score.toFixed(1)})`}
-                        </td>
-                      </tr>
-                    )
-                  })}
+                  {(() => {
+                    const rows: React.ReactNode[] = []
+                    let lastDay = ''
+                    growthAlerts.forEach(a => {
+                      const day = new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+                      if (day !== lastDay) {
+                        lastDay = day
+                        rows.push(
+                          <tr key={`sep-${day}`} className="bg-card/60 border-t border-border">
+                            <td colSpan={7} className="px-4 py-1.5 text-[10px] font-semibold text-muted uppercase tracking-widest">
+                              {day}
+                            </td>
+                          </tr>
+                        )
+                      }
+                      const color = SIGNAL_COLOR[a.signal_level] ?? '#888'
+                      rows.push(
+                        <tr key={a.id} className="border-t border-border/30 hover:bg-card/40 transition-colors">
+                          <td className="px-4 py-2 text-muted font-mono text-[10px]">
+                            {new Date(a.alerted_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                          </td>
+                          <td className="px-4 py-2">
+                            <p className="font-semibold">{a.ticker}</p>
+                            <p className="text-[10px] text-muted">{a.asset_name}</p>
+                          </td>
+                          <td className="px-4 py-2 text-right font-mono text-negative font-semibold">
+                            {a.drawdown_pct.toFixed(1)}%
+                          </td>
+                          <td className="px-4 py-2 text-right font-mono text-muted">
+                            {a.current_price != null ? a.current_price.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) : '—'}
+                          </td>
+                          <td className="px-4 py-2 text-center">
+                            <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+                              style={{ color, background: color + '18' }}>
+                              {SIGNAL_LABEL[a.signal_level] ?? a.signal_level}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-right font-mono">
+                            {a.suggested_min != null && a.suggested_max != null
+                              ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
+                          </td>
+                          <td className="px-4 py-2 text-muted text-[10px] hidden md:table-cell">
+                            {a.mi_regime ?? '—'}
+                            {a.mi_score != null && ` (${a.mi_score > 0 ? '+' : ''}${a.mi_score.toFixed(1)})`}
+                          </td>
+                        </tr>
+                      )
+                    })
+                    return rows
+                  })()}
                 </tbody>
               </table>
             </div>

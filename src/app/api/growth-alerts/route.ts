@@ -3,25 +3,17 @@ import { supabaseServer } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 
-// Returns last 50 growth alerts, most recent first — cache 5 min
+// Returns last 100 growth alerts, most recent first — cache 5 min
 export async function GET() {
   const { data, error } = await supabaseServer
     .from('growth_alerts')
-    .select('id,alerted_at,ticker,asset_name,drawdown_pct,ma50_gap_pct,rsi14,signal_level,confidence,market_regime,mi_score,mi_regime,current_price,high_90d,suggested_min,suggested_max,indicators')
+    .select('id,alerted_at,ticker,asset_name,drawdown_pct,signal_level,mi_regime,mi_score,current_price,high_90d,suggested_min,suggested_max')
     .order('alerted_at', { ascending: false })
-    .limit(50)
+    .limit(100)
 
   if (error) return NextResponse.json([], { status: 200 })
 
-  // Deduplicate: keep only the most recent alert per ticker (query is ordered DESC)
-  const seen = new Set<string>()
-  const deduped = (data ?? []).filter(a => {
-    if (seen.has(a.ticker)) return false
-    seen.add(a.ticker)
-    return true
-  })
-
-  return NextResponse.json(deduped, {
+  return NextResponse.json(data ?? [], {
     headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' },
   })
 }
