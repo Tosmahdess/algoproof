@@ -1,6 +1,6 @@
 'use client'
 
-import { BotChangelog, ChangelogCategory } from '@/lib/types'
+import type { BotChangelog, ChangelogCategory } from '@/lib/types'
 
 const CATEGORY_CHIP: Record<ChangelogCategory, string> = {
   asset:    'bg-blue-900/40 text-blue-300 border border-blue-700/50',
