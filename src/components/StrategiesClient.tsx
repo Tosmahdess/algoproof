@@ -12,20 +12,12 @@ const FAMILIES = [
     description: "Les stratégies de suivi de tendance exploitent les mouvements directionnels du marché. Le bot entre quand la tendance est confirmée et sort quand elle s'affaiblit. Peu de trades, mais un excellent ratio gain/risque quand ils se déclenchent.",
   },
   {
-    slug: 'breakout', label: 'Cassure de niveaux', color: '#3fb950',
+    slug: 'breakout', label: 'Cassure', color: '#3fb950',
     description: "Détecte quand le prix franchit un niveau clé ou sort d'une zone de consolidation. Ces bots capturent l'élan naissant au début d'un nouveau mouvement.",
   },
   {
-    slug: 'multi-signal', label: 'Multi-signaux', color: '#d29922',
-    description: "Combine des signaux issus de plusieurs unités de temps ou indicateurs. L'entrée n'est validée que lorsque tous les signaux s'alignent — moins de trades, plus de conviction.",
-  },
-  {
-    slug: 'multi-asset', label: 'Multi-actifs', color: '#40c4ff',
-    description: "Stratégies non-crypto tradant sur le Forex et l'or. Décorrélation réelle par rapport au marché crypto.",
-  },
-  {
-    slug: 'leveraged', label: 'Avec levier', color: '#ff4444',
-    description: 'Versions amplifiées de stratégies existantes utilisant un levier dynamique. Rendements potentiels plus élevés, risque de drawdown accru. Réservé aux capitaux adaptés.',
+    slug: 'mean-reversion', label: 'Retour à la moyenne', color: '#7c3aed',
+    description: "Ces stratégies exploitent les excès de marché : le prix s'est écarté de sa valeur d'équilibre et tend à y revenir. Entrée en contre-tendance, sortie rapide dès la normalisation.",
   },
 ]
 

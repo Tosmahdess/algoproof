@@ -5,12 +5,10 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
 const STRATEGIES_SUB = [
-  { href: '/strategies',              label: 'Toutes les stratégies' },
-  { href: '/strategies#trend',        label: 'Suivi de tendance' },
-  { href: '/strategies#breakout',     label: 'Cassure de niveaux' },
-  { href: '/strategies#multi-signal', label: 'Multi-signaux' },
-  { href: '/strategies#multi-asset',  label: 'Multi-actifs' },
-  { href: '/strategies#leveraged',    label: 'Avec levier' },
+  { href: '/strategies',                label: 'Toutes les stratégies' },
+  { href: '/strategies#trend',          label: 'Suivi de tendance' },
+  { href: '/strategies#breakout',       label: 'Cassure' },
+  { href: '/strategies#mean-reversion', label: 'Retour à la moyenne' },
 ]
 
 const ALL_LINKS = [

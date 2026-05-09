@@ -14,19 +14,15 @@ export const metadata: Metadata = {
 }
 
 const FAMILY_COLOR: Record<string, string> = {
-  'trend':        '#ff6b35',
-  'breakout':     '#3fb950',
-  'multi-signal': '#d29922',
-  'multi-asset':  '#40c4ff',
-  'leveraged':    '#ff4444',
+  'trend':           '#ff6b35',
+  'breakout':        '#3fb950',
+  'mean-reversion':  '#7c3aed',
 }
 
 const FAMILY_LABEL: Record<string, string> = {
-  'trend':        'Suivi de tendance',
-  'breakout':     'Cassure de niveaux',
-  'multi-signal': 'Multi-signaux',
-  'multi-asset':  'Multi-actifs',
-  'leveraged':    'Avec levier',
+  'trend':           'Suivi de tendance',
+  'breakout':        'Cassure',
+  'mean-reversion':  'Retour à la moyenne',
 }
 
 export default async function HomePage() {

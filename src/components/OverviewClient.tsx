@@ -17,12 +17,12 @@ interface Props {
 }
 
 const FAMILY_LABEL: Record<string, string> = {
-  trend: 'Suivi de tendance', breakout: 'Cassure de niveaux',
-  'multi-signal': 'Multi-signaux', 'multi-asset': 'Multi-actifs', leveraged: 'Avec levier',
+  trend: 'Suivi de tendance', breakout: 'Cassure',
+  'mean-reversion': 'Retour à la moyenne',
 }
 const FAMILY_COLOR: Record<string, string> = {
-  trend: '#ff6b35', breakout: '#3fb950', 'multi-signal': '#d29922',
-  'multi-asset': '#40c4ff', leveraged: '#ff4444',
+  trend: '#ff6b35', breakout: '#3fb950',
+  'mean-reversion': '#7c3aed',
 }
 const BOT_COLORS = [
   '#3fb950','#58a6ff','#ff6b35','#d2a8ff','#f6c90e',
