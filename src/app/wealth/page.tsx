@@ -17,15 +17,116 @@ const WEALTH_ASSETS = [
   { name: 'GROWTH tactical',  pct: 30,   color: '#3fb950', venue: 'Trade Republic', assetClass: 'Tactical' },
 ]
 
-const GROWTH_ASSETS = [
-  { ticker: 'SOL',    name: 'Solana',       trigger: '−30%', venue: 'Binance' },
-  { ticker: 'NVDA',   name: 'NVIDIA',       trigger: '−20%', venue: 'TR CTO' },
-  { ticker: 'META',   name: 'Meta',         trigger: '−20%', venue: 'TR CTO' },
-  { ticker: 'TSLA',   name: 'Tesla',        trigger: '−20%', venue: 'TR CTO' },
-  { ticker: 'NVO',    name: 'Novo Nordisk', trigger: '−30%', venue: 'TR CTO' },
-  { ticker: 'MC.PA',  name: 'LVMH',         trigger: '−25%', venue: 'TR CTO' },
-  { ticker: 'RMS.PA', name: 'Hermès',       trigger: '−25%', venue: 'TR CTO' },
-  { ticker: 'PLTR',   name: 'Palantir',     trigger: '−25%', venue: 'TR CTO' },
+// Full universe — source: portfolios.py GROWTH_WATCHLIST + GROWTH_WATCHLIST_TIERS
+// tier: 1 = dip alert actif | 2 = observation universe | trigger = abs % from portfolios.py
+type Asset = { ticker: string; name: string; tier: 1 | 2; trigger?: number }
+type Sector = { label: string; color: string; assets: Asset[] }
+
+const SECTORS: Sector[] = [
+  { label: 'Crypto', color: '#f7931a', assets: [
+    { ticker: 'SOL',  name: 'Solana',         tier: 1, trigger: 30 },
+    { ticker: 'MSTR', name: 'MicroStrategy',  tier: 1, trigger: 45 },
+    { ticker: 'COIN', name: 'Coinbase',       tier: 1, trigger: 35 },
+  ]},
+  { label: 'Semiconducteurs', color: '#40c4ff', assets: [
+    { ticker: 'NVDA',  name: 'NVIDIA',    tier: 1, trigger: 25 },
+    { ticker: 'ASML',  name: 'ASML',     tier: 1, trigger: 30 },
+    { ticker: 'TSM',   name: 'TSMC',     tier: 1, trigger: 30 },
+    { ticker: 'KLAC',  name: 'KLA Corp', tier: 1, trigger: 25 },
+    { ticker: 'AVGO',  name: 'Broadcom', tier: 1, trigger: 25 },
+    { ticker: 'AMD',   name: 'AMD',      tier: 2 },
+    { ticker: 'MU',    name: 'Micron',   tier: 2 },
+    { ticker: 'ARM',   name: 'ARM',      tier: 2 },
+  ]},
+  { label: 'Tech Platform / Cloud', color: '#667eea', assets: [
+    { ticker: 'META',  name: 'Meta Platforms', tier: 1, trigger: 20 },
+    { ticker: 'PLTR',  name: 'Palantir',       tier: 1, trigger: 25 },
+    { ticker: 'GOOGL', name: 'Alphabet',       tier: 1, trigger: 25 },
+    { ticker: 'SNOW',  name: 'Snowflake',      tier: 2 },
+    { ticker: 'CRWD',  name: 'CrowdStrike',    tier: 2 },
+    { ticker: 'DDOG',  name: 'Datadog',        tier: 2 },
+    { ticker: 'MDB',   name: 'MongoDB',        tier: 2 },
+    { ticker: 'NET',   name: 'Cloudflare',     tier: 2 },
+  ]},
+  { label: 'Auto / EV', color: '#3fb950', assets: [
+    { ticker: 'TSLA',    name: 'Tesla',      tier: 1, trigger: 25 },
+    { ticker: '1810.HK', name: 'Xiaomi EV', tier: 2 },
+    { ticker: 'BYDDY',   name: 'BYD',       tier: 2 },
+    { ticker: 'STLA',    name: 'Stellantis', tier: 2 },
+    { ticker: 'RIVN',    name: 'Rivian',    tier: 2 },
+    { ticker: 'LCID',    name: 'Lucid',     tier: 2 },
+    { ticker: 'RACE',    name: 'Ferrari',   tier: 2 },
+  ]},
+  { label: 'Luxe EU', color: '#ff6b35', assets: [
+    { ticker: 'MC.PA',  name: 'LVMH',   tier: 1, trigger: 25 },
+    { ticker: 'RMS.PA', name: 'Hermès', tier: 1, trigger: 25 },
+    { ticker: 'KER.PA', name: 'Kering', tier: 2 },
+  ]},
+  { label: 'Pharma Growth', color: '#ff4444', assets: [
+    { ticker: 'LLY',  name: 'Eli Lilly',    tier: 1, trigger: 30 },
+    { ticker: 'NVO',  name: 'Novo Nordisk', tier: 1, trigger: 30 },
+    { ticker: 'VRTX', name: 'Vertex',       tier: 2 },
+    { ticker: 'REGN', name: 'Regeneron',    tier: 2 },
+    { ticker: 'MRNA', name: 'Moderna',      tier: 2 },
+    { ticker: 'BNTX', name: 'BioNTech',     tier: 2 },
+  ]},
+  { label: 'Pharma Défensif', color: '#4299e1', assets: [
+    { ticker: 'SAN.PA', name: 'Sanofi', tier: 1, trigger: 25 },
+    { ticker: 'MRK',    name: 'Merck',  tier: 1, trigger: 25 },
+  ]},
+  { label: 'Défense', color: '#8b5cf6', assets: [
+    { ticker: 'RHM.DE', name: 'Rheinmetall',    tier: 1, trigger: 25 },
+    { ticker: 'HO.PA',  name: 'Thales',         tier: 1, trigger: 25 },
+    { ticker: 'BA.L',   name: 'BAE Systems',    tier: 1, trigger: 25 },
+    { ticker: 'LMT',    name: 'Lockheed Martin', tier: 2 },
+    { ticker: 'RTX',    name: 'RTX',            tier: 2 },
+    { ticker: 'AM.PA',  name: 'Airbus',         tier: 2 },
+  ]},
+  { label: 'Énergie Oil & Gas', color: '#d29922', assets: [
+    { ticker: 'XOM', name: 'ExxonMobil',     tier: 1, trigger: 20 },
+    { ticker: 'CVX', name: 'Chevron',        tier: 1, trigger: 20 },
+    { ticker: 'LNG', name: 'Cheniere',       tier: 1, trigger: 25 },
+    { ticker: 'GEV', name: 'GE Vernova',     tier: 1, trigger: 25 },
+  ]},
+  { label: 'Énergie Transition', color: '#3fb950', assets: [
+    { ticker: 'FSLR',   name: 'First Solar', tier: 2 },
+    { ticker: 'ENPH',   name: 'Enphase',     tier: 2 },
+    { ticker: 'NEE',    name: 'NextEra',     tier: 2 },
+    { ticker: 'VWS.CO', name: 'Vestas',      tier: 2 },
+    { ticker: 'SU.PA',  name: 'Schneider',   tier: 2 },
+  ]},
+  { label: 'Métaux & Ressources', color: '#f7931a', assets: [
+    { ticker: 'FCX', name: 'Freeport-McMoRan', tier: 1, trigger: 30 },
+    { ticker: 'MP',  name: 'MP Materials',     tier: 1, trigger: 35 },
+  ]},
+  { label: 'Cybersécurité', color: '#ff4444', assets: [
+    { ticker: 'PANW', name: 'Palo Alto', tier: 2 },
+    { ticker: 'FTNT', name: 'Fortinet',  tier: 2 },
+    { ticker: 'ZS',   name: 'Zscaler',  tier: 2 },
+    { ticker: 'S',    name: 'SentinelOne', tier: 2 },
+    { ticker: 'OKTA', name: 'Okta',     tier: 2 },
+  ]},
+  { label: 'Fintech / Paiement', color: '#627eea', assets: [
+    { ticker: 'V',         name: 'Visa',       tier: 2 },
+    { ticker: 'MA',        name: 'Mastercard', tier: 2 },
+    { ticker: 'SQ',        name: 'Block',      tier: 2 },
+    { ticker: 'ADYEN.AS',  name: 'Adyen',      tier: 2 },
+    { ticker: 'HOOD',      name: 'Robinhood',  tier: 2 },
+  ]},
+  { label: 'Gaming', color: '#d29922', assets: [
+    { ticker: 'TTWO',   name: 'Take-Two',  tier: 2 },
+    { ticker: 'EA',     name: 'EA',        tier: 2 },
+    { ticker: 'UBI.PA', name: 'Ubisoft',   tier: 2 },
+    { ticker: 'CDR.WA', name: 'CD Projekt', tier: 2 },
+    { ticker: 'NTDOY',  name: 'Nintendo',  tier: 2 },
+  ]},
+  { label: 'Conso Premium', color: '#ff6b35', assets: [
+    { ticker: 'LULU',    name: 'Lululemon',      tier: 2 },
+    { ticker: 'EL',      name: 'Estée Lauder',   tier: 2 },
+    { ticker: 'MCD',     name: "McDonald's",     tier: 2 },
+    { ticker: 'PHIA.AS', name: 'Philips',        tier: 2 },
+    { ticker: 'RI.PA',   name: 'Rémy Cointreau', tier: 2 },
+  ]},
 ]
 
 const AMPLIFICATION = [
@@ -234,164 +335,159 @@ export default function WealthPage() {
         />
       </section>
 
-      {/* GROWTH Watchlist */}
+      {/* GROWTH — Univers complet par famille */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-6">Watchlist GROWTH</h2>
-        <ExplainerBox stacked
-          functional={
-            <p>
-              Une liste d&apos;actifs à forte conviction que l&apos;on achète sur des corrections significatives.
-              On ne court pas après les hausses — on attend des baisses de −20% à −30% et on déploie le capital
-              par tranches. Les bénéfices sont pris à des niveaux prédéfinis (+40% et +80%).
-            </p>
-          }
-          technical={
-            <div className="grid grid-cols-2 gap-1 text-xs font-mono">
-              {GROWTH_ASSETS.map(a => (
-                <div key={a.ticker} className="flex items-center gap-2 py-1 border-b border-border">
-                  <span className="text-positive w-16 font-bold">{a.ticker}</span>
-                  <span className="text-muted flex-1">{a.name}</span>
-                  <span className="text-[10px] text-muted">{a.trigger}</span>
-                </div>
-              ))}
-            </div>
-          }
-        />
-      </section>
-
-      {/* GROWTH — Radar de conviction */}
-      <section>
-        <h2 className="text-base font-bold tracking-tight mb-1">GROWTH — Radar de conviction</h2>
+        <h2 className="text-base font-bold tracking-tight mb-1">GROWTH — Univers complet</h2>
         <p className="text-xs text-muted mb-6">
-          État actuel par actif · 1 ligne = 1 actif · trié par conviction décroissante
+          {SECTORS.reduce((n, s) => n + s.assets.length, 0)} actifs · groupés par famille ·
+          <span className="text-positive"> Tier 1</span> = dip alert actif ·
+          <span className="text-muted"> Tier 2</span> = observation
         </p>
 
-        {loading ? (
-          <div className="rounded border border-border px-4 py-6 text-center text-xs text-muted">Chargement...</div>
-        ) : growthAlerts.length === 0 ? (
-          <div className="rounded border border-dashed border-border px-4 py-8 text-center space-y-1">
-            <p className="text-sm font-medium">Aucune alerte active.</p>
-            <p className="text-xs text-muted">Le moniteur tourne toutes les 4h.</p>
-          </div>
-        ) : (
-          <>
-            {/* Mobile */}
-            <div className="sm:hidden space-y-2">
-              {growthAlerts.map(a => {
-                const color  = SIGNAL_COLOR[a.signal_level] ?? '#888'
-                const action = ACTION[a.signal_level]
-                const next   = nextLevelInfo(a, a.ticker)
-                return (
-                  <div key={a.id} className="rounded border px-4 py-3" style={{ borderColor: color + '50' }}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-bold text-xs">{a.ticker}</span>
-                          <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
-                            style={{ color, background: color + '18' }}>
-                            {SIGNAL_LABEL[a.signal_level]}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-muted">{a.asset_name}</p>
-                        <p className="text-[10px] text-muted mt-1">
-                          Alerté le {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })}
-                        </p>
-                        {next && (
-                          <p className="text-[10px] text-muted mt-0.5">
-                            encore {next.additionalDrop.toFixed(1)}% → {next.nextLabel}
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-sm font-bold font-mono text-negative">{a.drawdown_pct.toFixed(1)}%</p>
-                        {action && <p className="text-[10px] font-semibold mt-0.5" style={{ color }}>{action.text}</p>}
-                        <p className="text-[10px] text-muted font-mono">
-                          {a.suggested_min != null ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+        <div className="space-y-6">
+          {SECTORS.map(sector => {
+            // Build alertMap for this sector
+            const alertMap = new Map(growthAlerts.map(a => [a.ticker, a]))
+            const t1 = sector.assets.filter(a => a.tier === 1)
+            const t2 = sector.assets.filter(a => a.tier === 2)
 
-            {/* Desktop */}
-            <div className="hidden sm:block rounded border border-border overflow-hidden">
-              <table className="w-full text-xs">
-                <thead className="bg-card border-b border-border">
-                  <tr className="text-muted text-[10px] uppercase tracking-widest">
-                    <th className="px-4 py-2.5 text-left">Actif</th>
-                    <th className="px-4 py-2.5 text-center">Niveau</th>
-                    <th className="px-4 py-2.5 text-right">DD 180j</th>
-                    <th className="px-4 py-2.5 text-right">Prix</th>
-                    <th className="px-4 py-2.5 text-left">Prochain seuil</th>
-                    <th className="px-4 py-2.5 text-left">Action</th>
-                    <th className="px-4 py-2.5 text-right">Déploiement</th>
-                    <th className="px-4 py-2.5 text-left hidden lg:table-cell">Alerté le</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {growthAlerts.map(a => {
-                    const color  = SIGNAL_COLOR[a.signal_level] ?? '#888'
-                    const action = ACTION[a.signal_level]
-                    const next   = nextLevelInfo(a, a.ticker)
+            return (
+              <div key={sector.label}>
+                {/* Sector header */}
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ background: sector.color }} />
+                  <h3 className="text-xs font-bold tracking-tight uppercase">{sector.label}</h3>
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-[10px] text-muted">{sector.assets.length} actifs</span>
+                </div>
+
+                {/* Desktop table */}
+                <div className="hidden sm:block rounded border border-border overflow-hidden">
+                  <table className="w-full text-xs">
+                    <tbody>
+                      {t1.map(asset => {
+                        const alert  = alertMap.get(asset.ticker)
+                        const color  = alert ? (SIGNAL_COLOR[alert.signal_level] ?? '#888') : null
+                        const action = alert ? ACTION[alert.signal_level] : null
+                        const next   = alert ? nextLevelInfo(alert, asset.ticker) : null
+                        return (
+                          <tr key={asset.ticker}
+                            className="border-b border-border/40 hover:bg-card/40 transition-colors"
+                            style={color ? { borderLeftColor: color, borderLeftWidth: 2 } : {}}>
+                            <td className="px-3 py-2 w-20">
+                              <span className="font-bold text-[11px] text-positive">{asset.ticker}</span>
+                            </td>
+                            <td className="px-3 py-2 w-40">
+                              <p className="text-[11px]">{asset.name}</p>
+                            </td>
+                            <td className="px-3 py-2 w-24">
+                              {alert && color ? (
+                                <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
+                                  style={{ color, background: color + '18' }}>
+                                  {SIGNAL_LABEL[alert.signal_level]}
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-muted">−{asset.trigger}% déclenche</span>
+                              )}
+                            </td>
+                            <td className="px-3 py-2 text-right font-mono text-[11px]">
+                              {alert ? (
+                                <span className="font-bold text-negative">{alert.drawdown_pct.toFixed(1)}%</span>
+                              ) : (
+                                <span className="text-muted">—</span>
+                              )}
+                            </td>
+                            <td className="px-3 py-2 hidden md:table-cell">
+                              {next ? (
+                                <span className="text-[10px] text-muted">
+                                  encore {next.additionalDrop.toFixed(1)}% → {next.nextLabel}
+                                </span>
+                              ) : alert ? (
+                                <span className="text-[10px] text-muted">seuil max atteint</span>
+                              ) : null}
+                            </td>
+                            <td className="px-3 py-2">
+                              {action && color ? (
+                                <span className="text-[10px] font-semibold" style={{ color }}>{action.text}</span>
+                              ) : null}
+                            </td>
+                            <td className="px-3 py-2 text-right font-mono text-[10px] text-muted">
+                              {alert?.suggested_min != null
+                                ? `${alert.suggested_min}–${alert.suggested_max}€`
+                                : alert ? '—' : ''}
+                            </td>
+                            <td className="px-3 py-2 text-right text-[10px] text-muted hidden lg:table-cell whitespace-nowrap">
+                              {alert
+                                ? new Date(alert.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+                                : 'En surveillance'}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                      {t2.length > 0 && (
+                        <tr className="border-b border-border/20 bg-card/20">
+                          <td colSpan={8} className="px-3 py-1.5">
+                            <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                              {t2.map(a => (
+                                <span key={a.ticker} className="text-[10px] text-muted">
+                                  <span className="font-mono">{a.ticker}</span>
+                                  <span className="ml-1 opacity-60">{a.name}</span>
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile */}
+                <div className="sm:hidden space-y-1">
+                  {t1.map(asset => {
+                    const alert = alertMap.get(asset.ticker)
+                    const color = alert ? (SIGNAL_COLOR[alert.signal_level] ?? '#888') : null
                     return (
-                      <tr key={a.id} className="border-t border-border/50 hover:bg-card/40 transition-colors">
-                        <td className="px-4 py-2.5">
-                          <p className="font-semibold">{a.ticker}</p>
-                          <p className="text-[10px] text-muted leading-tight">{a.asset_name}</p>
-                        </td>
-                        <td className="px-4 py-2.5 text-center">
-                          <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded"
-                            style={{ color, background: color + '18' }}>
-                            {SIGNAL_LABEL[a.signal_level]}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-mono font-bold text-negative">
-                          {a.drawdown_pct.toFixed(1)}%
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-mono text-muted text-[11px]">
-                          {a.current_price != null
-                            ? a.current_price.toLocaleString('fr-FR', { maximumFractionDigits: 2 })
-                            : '—'}
-                        </td>
-                        <td className="px-4 py-2.5">
-                          {next ? (
-                            <div>
-                              <p className="font-mono text-[11px]">
-                                {next.price.toLocaleString('fr-FR', { maximumFractionDigits: 2 })}
-                              </p>
-                              <p className="text-[10px] text-muted">
-                                encore {next.additionalDrop.toFixed(1)}% → {next.nextLabel}
-                              </p>
-                            </div>
+                      <div key={asset.ticker}
+                        className="rounded border px-3 py-2 flex items-center gap-3"
+                        style={{ borderColor: color ? color + '60' : undefined }}>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-[11px] text-positive">{asset.ticker}</span>
+                            {alert && color && (
+                              <span className="text-[9px] font-bold uppercase tracking-widest px-1 py-0.5 rounded"
+                                style={{ color, background: color + '18' }}>
+                                {SIGNAL_LABEL[alert.signal_level]}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-muted">{asset.name}</p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          {alert ? (
+                            <>
+                              <p className="font-bold font-mono text-negative text-xs">{alert.drawdown_pct.toFixed(1)}%</p>
+                              <p className="text-[9px] text-muted">{alert.suggested_min}–{alert.suggested_max}€</p>
+                            </>
                           ) : (
-                            <span className="text-[10px] text-muted">seuil max atteint</span>
+                            <p className="text-[10px] text-muted">−{asset.trigger}%</p>
                           )}
-                        </td>
-                        <td className="px-4 py-2.5">
-                          {action && (
-                            <div>
-                              <p className="font-semibold text-[11px]" style={{ color }}>{action.text}</p>
-                              <p className="text-[10px] text-muted">{action.sub}</p>
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-4 py-2.5 text-right font-mono text-[11px]">
-                          {a.suggested_min != null && a.suggested_max != null
-                            ? `${a.suggested_min}–${a.suggested_max}€` : '—'}
-                        </td>
-                        <td className="px-4 py-2.5 text-muted text-[10px] hidden lg:table-cell whitespace-nowrap">
-                          {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     )
                   })}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+                  {t2.length > 0 && (
+                    <div className="flex flex-wrap gap-2 px-1 pt-1">
+                      {t2.map(a => (
+                        <span key={a.ticker} className="text-[10px] text-muted font-mono">{a.ticker}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </section>
 
       {/* Portfolio — Live Tracking */}
