@@ -1,6 +1,6 @@
 // src/lib/queries.ts
 import { supabase } from './supabase'
-import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot, TriggerData } from './types'
+import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog } from './types'
 
 export async function getBots(): Promise<Bot[]> {
   const { data, error } = await supabase
@@ -154,4 +154,16 @@ export async function getTriggerData(slug: string): Promise<TriggerData | null> 
   const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? 999 : 0
 
   return { profitFactor, totalTrades: all.length, isLive: bot.status === 'live' }
+}
+
+export async function getChangelogForBot(slug: string): Promise<BotChangelog[]> {
+  const { data, error } = await supabase
+    .from('bot_changelogs')
+    .select('id,created_at,bot_slug,entry_date,category,summary,detail,session_ref')
+    .eq('bot_slug', slug)
+    .order('entry_date', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(100)
+  if (error) return []
+  return (data ?? []) as BotChangelog[]
 }

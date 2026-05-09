@@ -137,3 +137,16 @@ export interface TradeWithBot {
   reason: string | null
   bots: { name: string; slug: string; family: string | null } | null
 }
+
+export type ChangelogCategory = 'asset' | 'fix' | 'strategy' | 'perf' | 'risk'
+
+export interface BotChangelog {
+  id: string
+  created_at: string
+  bot_slug: string
+  entry_date: string        // 'YYYY-MM-DD'
+  category: ChangelogCategory
+  summary: string
+  detail: string | null
+  session_ref: string | null
+}
