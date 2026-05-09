@@ -2,15 +2,18 @@
 
 import { useState, ReactNode } from 'react'
 import DiscussionTab from './DiscussionTab'
+import ChangelogTab from './ChangelogTab'
+import type { BotChangelog } from '@/lib/types'
 
 interface ExplainerBoxProps {
   functional:      ReactNode
   technical:       ReactNode
   stacked?:        boolean
   discussionSlug?: string
+  changelogs?:     BotChangelog[]
 }
 
-type Tab = 'functional' | 'technical' | 'discussion'
+type Tab = 'functional' | 'technical' | 'discussion' | 'changelog'
 
 const TAB_STYLE = (active: boolean) =>
   `px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
@@ -24,6 +27,7 @@ export default function ExplainerBox({
   technical,
   stacked = false,
   discussionSlug,
+  changelogs,
 }: ExplainerBoxProps) {
   const [active, setActive] = useState<Tab>('functional')
 
@@ -40,6 +44,9 @@ export default function ExplainerBox({
     )
   }
 
+  const showChangelog = changelogs !== undefined
+  const showDiscussion = !!discussionSlug
+
   return (
     <div className="rounded border border-border overflow-hidden">
       <div className="flex border-b border-border bg-card">
@@ -49,7 +56,12 @@ export default function ExplainerBox({
         <button data-tab="technical" onClick={() => setActive('technical')} className={TAB_STYLE(active === 'technical')}>
           ⚙️ Technique
         </button>
-        {discussionSlug && (
+        {showChangelog && (
+          <button data-tab="changelog" onClick={() => setActive('changelog')} className={TAB_STYLE(active === 'changelog')}>
+            📋 Historique
+          </button>
+        )}
+        {showDiscussion && (
           <button data-tab="discussion" onClick={() => setActive('discussion')} className={TAB_STYLE(active === 'discussion')}>
             💬 Discussion
           </button>
@@ -63,9 +75,14 @@ export default function ExplainerBox({
         {active === 'technical' && (
           <div data-section="technical" className="text-sm">{technical}</div>
         )}
-        {active === 'discussion' && discussionSlug && (
+        {active === 'changelog' && showChangelog && (
+          <div data-section="changelog" className="text-sm">
+            <ChangelogTab changelogs={changelogs!} />
+          </div>
+        )}
+        {active === 'discussion' && showDiscussion && (
           <div data-section="discussion" className="text-sm">
-            <DiscussionTab slug={discussionSlug} />
+            <DiscussionTab slug={discussionSlug!} />
           </div>
         )}
       </div>
