@@ -14,10 +14,11 @@ CREATE TABLE IF NOT EXISTS bot_changelogs (
   session_ref  TEXT
 );
 
-CREATE INDEX IF NOT EXISTS idx_bot_changelogs_slug ON bot_changelogs(bot_slug);
-CREATE INDEX IF NOT EXISTS idx_bot_changelogs_date ON bot_changelogs(entry_date DESC);
+CREATE INDEX IF NOT EXISTS idx_bot_changelogs_slug_date
+  ON bot_changelogs(bot_slug, entry_date DESC, created_at DESC);
 
 ALTER TABLE bot_changelogs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public read changelog" ON bot_changelogs;
 CREATE POLICY "Public read changelog"
   ON bot_changelogs FOR SELECT USING (true);
