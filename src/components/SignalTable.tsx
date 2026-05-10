@@ -72,25 +72,25 @@ function AssetRow({ asset, lastAlerts }: { asset: GrowthAsset; lastAlerts: Recor
       className="border-b border-zinc-900 hover:bg-zinc-900/40 transition-colors"
       style={{ borderLeft: sigColor ? `2px solid ${sigColor}` : '2px solid transparent' }}
     >
-      <td className="py-2 px-3 min-w-[130px]">
+      <td className="py-2.5 px-3 min-w-[150px]">
         <div className="flex items-center gap-1.5">
           <span
-            className="text-[11px] font-mono font-bold"
+            className="text-xs font-mono font-bold"
             style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
           >
             {asset.ticker}
           </span>
           {asset.tier === 2 && (
-            <span className="text-[8px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
+            <span className="text-[10px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
           )}
         </div>
-        <div className="text-[11px] text-zinc-400 leading-tight">{asset.asset_name}</div>
+        <div className="text-xs text-zinc-400 leading-tight mt-0.5">{asset.asset_name}</div>
       </td>
 
-      <td className="py-2 px-3">
+      <td className="py-2.5 px-3">
         {asset.signal_level ? (
           <span
-            className="font-bold px-1.5 py-0.5 rounded text-[10px]"
+            className="font-bold px-2 py-0.5 rounded text-xs"
             style={{ color: sigColor, background: (sigColor ?? '') + '22' }}
           >
             {SIGNAL_LABEL[asset.signal_level]}
@@ -100,16 +100,16 @@ function AssetRow({ asset, lastAlerts }: { asset: GrowthAsset; lastAlerts: Recor
         )}
       </td>
 
-      <td className="py-2 px-3">{distanceEl}</td>
+      <td className="py-2.5 px-3">{distanceEl}</td>
 
-      <td className="py-2 px-3 min-w-[140px]">
+      <td className="py-2.5 px-3 min-w-[150px]">
         <SignalProgressBar
           triggerPct={asset.dip_trigger_pct}
           drawdownPct={asset.drawdown_pct}
         />
       </td>
 
-      <td className="py-2 px-3 text-[11px]">
+      <td className="py-2.5 px-3 text-xs">
         {asset.signal_level && asset.suggested_min && asset.suggested_max ? (
           <span className="text-zinc-300 font-mono">
             {asset.suggested_min}–{asset.suggested_max}€
@@ -119,27 +119,27 @@ function AssetRow({ asset, lastAlerts }: { asset: GrowthAsset; lastAlerts: Recor
         )}
       </td>
 
-      <td className="py-2 px-3">
+      <td className="py-2.5 px-3">
         <div className="flex gap-1 flex-wrap">
           {asset.tp1_pct && (
-            <span className="text-[9px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-400">
+            <span className="text-[11px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
               TP1 +{asset.tp1_pct}%
             </span>
           )}
           {asset.tp2_pct && (
-            <span className="text-[9px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-400">
+            <span className="text-[11px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
               TP2 +{asset.tp2_pct}%
             </span>
           )}
           {asset.residual_pct !== null && asset.residual_pct !== undefined && (
-            <span className="text-[9px] text-zinc-600">
+            <span className="text-[11px] text-zinc-600">
               {asset.residual_pct > 0 ? `hold ${asset.residual_pct}%` : 'exit'}
             </span>
           )}
         </div>
       </td>
 
-      <td className="py-2 px-3 text-[10px] text-zinc-600 whitespace-nowrap">
+      <td className="py-2.5 px-3 text-xs text-zinc-500 whitespace-nowrap">
         {formatDate(lastAlerts[asset.ticker])}
       </td>
     </tr>
@@ -153,21 +153,21 @@ function SignalView({ assets, lastAlerts }: Props) {
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b border-zinc-800 text-zinc-500 text-[10px] uppercase tracking-wider">
-          <th className="py-2 px-3 text-left font-medium">Actif</th>
-          <th className="py-2 px-3 text-left font-medium">Signal</th>
-          <th className="py-2 px-3 text-left font-medium">Recul 180j</th>
-          <th className="py-2 px-3 text-left font-medium">Distance seuils</th>
-          <th className="py-2 px-3 text-left font-medium">Sizing</th>
-          <th className="py-2 px-3 text-left font-medium">Plan sortie</th>
-          <th className="py-2 px-3 text-left font-medium">Dernière alerte</th>
+        <tr className="border-b border-zinc-800 text-zinc-500 text-[11px] uppercase tracking-wider">
+          <th className="py-2.5 px-3 text-left font-medium">Actif</th>
+          <th className="py-2.5 px-3 text-left font-medium">Signal</th>
+          <th className="py-2.5 px-3 text-left font-medium">Recul 180j</th>
+          <th className="py-2.5 px-3 text-left font-medium">Distance seuils</th>
+          <th className="py-2.5 px-3 text-left font-medium">Sizing</th>
+          <th className="py-2.5 px-3 text-left font-medium">Plan sortie</th>
+          <th className="py-2.5 px-3 text-left font-medium">Dernière alerte</th>
         </tr>
       </thead>
       <tbody>
         {alerted.length > 0 && (
           <>
             <tr className="bg-zinc-900/60">
-              <td colSpan={7} className="py-1.5 px-3 text-[10px] text-zinc-400">
+              <td colSpan={7} className="py-1.5 px-3 text-xs text-zinc-400">
                 🔴 En alerte — {alerted.length} actif{alerted.length > 1 ? 's' : ''}
               </td>
             </tr>
@@ -177,7 +177,7 @@ function SignalView({ assets, lastAlerts }: Props) {
           </>
         )}
         <tr className="bg-zinc-900/30">
-          <td colSpan={7} className="py-1.5 px-3 text-[10px] text-zinc-600">
+          <td colSpan={7} className="py-1.5 px-3 text-xs text-zinc-600">
             — En surveillance — {surveillance.length} actifs
           </td>
         </tr>
