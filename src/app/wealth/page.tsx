@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ChartTooltip, Legend } from 'recharts'
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ChartTooltip, Legend } from 'recharts'
 import ExplainerBox from '@/components/ExplainerBox'
 import { ExplainerSignal } from '@/components/ExplainerSignal'
 import { SignalTable } from '@/components/SignalTable'
@@ -263,48 +263,6 @@ export default function WealthPage() {
             </div>
           }
         />
-        <div className="mt-8 flex flex-col sm:flex-row items-center gap-8">
-          <div className="h-56 w-56 flex-shrink-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={WEALTH_ASSETS}
-                  dataKey="pct"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={2}
-                >
-                  {WEALTH_ASSETS.map(a => (
-                    <Cell key={a.name} fill={a.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  formatter={(value: any, name: any) => [`${value}%`, name]}
-                  contentStyle={{
-                    background: '#111111',
-                    border: '1px solid #1e1e1e',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex-1 space-y-1.5 text-xs font-mono min-w-0">
-            {WEALTH_ASSETS.map(a => (
-              <div key={a.name} className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-sm flex-shrink-0" style={{ background: a.color }} />
-                <span className="flex-1 text-zinc-300 truncate">{a.name}</span>
-                <span className="font-bold w-10 text-right tabular-nums">{a.pct}%</span>
-                <span className="text-zinc-600 text-[10px] w-28 text-right hidden sm:block">{a.venue}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* Amplification */}
