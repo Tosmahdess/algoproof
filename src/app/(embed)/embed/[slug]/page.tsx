@@ -6,8 +6,12 @@ export const revalidate = 3600
 export const dynamicParams = true
 
 export async function generateStaticParams() {
-  const slugs = await getBotSlugs()
-  return slugs.map(slug => ({ slug }))
+  try {
+    const slugs = await getBotSlugs()
+    return slugs.map(slug => ({ slug }))
+  } catch {
+    return []
+  }
 }
 
 export default async function EmbedPage({ params }: { params: Promise<{ slug: string }> }) {

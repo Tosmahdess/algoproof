@@ -16,8 +16,12 @@ export const revalidate = 3600
 export const dynamicParams = false
 
 export async function generateStaticParams() {
-  const slugs = await getBotSlugs()
-  return slugs.map(slug => ({ slug }))
+  try {
+    const slugs = await getBotSlugs()
+    return slugs.map(slug => ({ slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
