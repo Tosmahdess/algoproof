@@ -85,6 +85,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
     const row = b.perf_daily.find(p => p.date === today)
     return s + (row?.pnl_day ?? 0)
   }, 0)
+  const allTimePnl   = bots.reduce((s, b) => s + (b.stats.latest_capital - 1000), 0)
 
   const curveBots = [...botsWithData]
     .sort((a, b) => b.stats.total_trades - a.stats.total_trades)
@@ -104,12 +105,13 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
       </section>
 
       {/* Summary counters */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {[
           { label: 'Bots paper trading', value: `${bots.length}` },
           { label: 'Avec trades',        value: `${botsWithData.length} / ${bots.length}` },
           { label: 'En positif',         value: `${winners} / ${botsWithData.length}`, color: '#3fb950' },
-          { label: "P&L aujourd'hui",    value: fmtEur(todayPnl), color: todayPnl >= 0 ? '#3fb950' : '#ff4444' },
+          { label: "P&L aujourd'hui",    value: fmtEur(todayPnl),    color: todayPnl    >= 0 ? '#3fb950' : '#ff4444' },
+          { label: 'P&L all-time',       value: fmtEur(allTimePnl),  color: allTimePnl  >= 0 ? '#3fb950' : '#ff4444' },
         ].map(s => (
           <div key={s.label} className="rounded border border-border p-4 text-center">
             <p className="text-[10px] text-muted uppercase tracking-widest mb-1">{s.label}</p>
