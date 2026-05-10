@@ -138,6 +138,26 @@ export interface TradeWithBot {
   bots: { name: string; slug: string; family: string | null } | null
 }
 
+export interface GrowthAsset {
+  ticker: string
+  asset_name: string
+  category: string | null
+  tier: 1 | 2
+  tracking_mode: string | null
+  hold_forever: boolean | null
+  dip_trigger_pct: number | null
+  tp1_pct: number | null
+  tp2_pct: number | null
+  residual_pct: number | null
+  current_price: number | null
+  ref_price_180j: number | null
+  drawdown_pct: number | null       // fraction: -0.25 = -25%
+  signal_level: 'minor' | 'major' | 'crash' | null
+  suggested_min: number | null
+  suggested_max: number | null
+  last_updated: string
+}
+
 export type ChangelogCategory = 'asset' | 'fix' | 'strategy' | 'perf' | 'risk'
 
 export interface BotChangelog {

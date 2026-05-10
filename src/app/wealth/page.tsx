@@ -3,7 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ChartTooltip, Legend } from 'recharts'
 import ExplainerBox from '@/components/ExplainerBox'
-import type { WealthCall, AssetPrice, GrowthAlert } from '@/lib/types'
+import { ExplainerSignal } from '@/components/ExplainerSignal'
+import { SignalTable } from '@/components/SignalTable'
+import { PositionCard, EmptySlotCard } from '@/components/PositionCard'
+import type { WealthCall, AssetPrice, GrowthAlert, GrowthAsset } from '@/lib/types'
 
 // Source: apex-wealth/portfolios.py WEALTH_ALLOCATION + BUDGET_CONFIG
 // Total budget: 250€/month (WEALTH 70% = 175€, GROWTH 30% = 75€)
@@ -17,12 +20,8 @@ const WEALTH_ASSETS = [
   { name: 'GROWTH tactical',  pct: 30,   color: '#3fb950', venue: 'Trade Republic', assetClass: 'Tactical' },
 ]
 
-// Full universe — source: portfolios.py GROWTH_WATCHLIST + GROWTH_WATCHLIST_TIERS
-// tier: 1 = dip alert actif | 2 = observation universe | trigger = abs % from portfolios.py
-type Asset = { ticker: string; name: string; tier: 1 | 2; trigger?: number }
-type Sector = { label: string; color: string; assets: Asset[] }
-
-const SECTORS: Sector[] = [
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for reference only
+const _SECTORS_REF = [
   { label: 'Crypto', color: '#f7931a', assets: [
     { ticker: 'SOL',  name: 'Solana',         tier: 1, trigger: 30 },
     { ticker: 'MSTR', name: 'MicroStrategy',  tier: 1, trigger: 45 },
@@ -136,64 +135,52 @@ const AMPLIFICATION = [
   { label: 'ETF (PEA)',            multiplier: 'never', amount: '174€', condition: 'Toujours stable', color: '#4299e1' },
 ]
 
-const SIGNAL_COLOR: Record<string, string> = {
+// Signal colors — used in legacy portfolio tracking section only
+const SIGNAL_COLOR_LEGACY: Record<string, string> = {
   minor: '#f6c90e',
   major: '#ff6b35',
   crash: '#ff4444',
 }
 
-const SIGNAL_LABEL: Record<string, string> = {
-  minor: 'MINEUR',
-  major: 'MAJEUR',
-  crash: 'KRACH',
-}
-
-// Trigger % per ticker (source: portfolios.py dip_trigger_pct, absolute values)
-const TRIGGER_PCT: Record<string, number> = {
-  SOL: 30, NVDA: 25, META: 20, TSLA: 25, NVO: 30,
-  'MC.PA': 25, 'RMS.PA': 25, PLTR: 25,
-  ASML: 30, TSM: 30, KLAC: 25, AVGO: 25,
-  'RHM.DE': 25, 'HO.PA': 25, 'BA.L': 25,
-  XOM: 20, CVX: 20, LNG: 25, GEV: 25,
-  LLY: 30, 'SAN.PA': 25, MRK: 25,
-  GOOGL: 25, FCX: 30, MP: 35, MSTR: 45, COIN: 35,
-}
-
-function nextLevelInfo(a: { signal_level: string; drawdown_pct: number; high_90d: number | null }, ticker: string) {
-  if (a.signal_level === 'crash' || !a.high_90d) return null
-  const trigger = TRIGGER_PCT[ticker]
-  if (!trigger) return null
-  const multiplier = a.signal_level === 'minor' ? 1.5 : 2.0
-  const nextThresholdPct = -(trigger * multiplier)          // e.g. -37.5
-  const additionalDrop   = nextThresholdPct - a.drawdown_pct // still need to fall this much
-  const nextPrice        = a.high_90d * (1 + nextThresholdPct / 100)
-  const nextLabel        = a.signal_level === 'minor' ? 'MAJEUR' : 'KRACH'
-  return { price: nextPrice, additionalDrop, nextLabel }
-}
-
-const ACTION: Record<string, { text: string; sub: string }> = {
-  crash: { text: 'Déploiement max',   sub: 'entrer maintenant' },
-  major: { text: '2e tranche',        sub: 'si 1ère déjà faite' },
-  minor: { text: '1ère tranche',      sub: 'position initiale' },
-}
-
 export default function WealthPage() {
-  const [calls, setCalls]           = useState<WealthCall[]>([])
-  const [prices, setPrices]         = useState<AssetPrice[]>([])
-  const [growthAlerts, setAlerts]   = useState<GrowthAlert[]>([])
-  const [loading, setLoading]       = useState(true)
+  const [calls, setCalls]               = useState<WealthCall[]>([])
+  const [prices, setPrices]             = useState<AssetPrice[]>([])
+  const [growthAlerts, setAlerts]       = useState<GrowthAlert[]>([])
+  const [growthUniverse, setUniverse]   = useState<GrowthAsset[]>([])
+  const [loading, setLoading]           = useState(true)
 
   useEffect(() => {
     Promise.all([
       fetch('/api/wealth').then(r => r.json()),
       fetch('/api/growth-alerts').then(r => r.json()),
-    ]).then(([wealth, alerts]) => {
+      fetch('/api/growth-universe').then(r => r.json()),
+    ]).then(([wealth, alerts, universe]) => {
       setCalls(wealth.calls ?? [])
       setPrices(wealth.prices ?? [])
       setAlerts(Array.isArray(alerts) ? alerts : [])
+      setUniverse(Array.isArray(universe) ? universe : [])
       setLoading(false)
     })
   }, [])
+
+  // Derived: last alert date per ticker (for SignalTable "Dernière alerte" column)
+  const lastAlertByTicker = growthAlerts.reduce((acc, alert) => {
+    if (!acc[alert.ticker] || alert.alerted_at > acc[alert.ticker]) {
+      acc[alert.ticker] = alert.alerted_at
+    }
+    return acc
+  }, {} as Record<string, string>)
+
+  // Derived: growth calls sorted by date (for 20-slot positions grid)
+  const growthCalls = calls
+    .filter(c => c.portfolio === 'growth')
+    .sort((a, b) => b.executed_at.localeCompare(a.executed_at))
+    .slice(0, 20)
+
+  // Derived: universe by ticker for PositionCard lookup
+  const universeByTicker = growthUniverse.reduce((acc, a) => {
+    acc[a.ticker] = a; return acc
+  }, {} as Record<string, GrowthAsset>)
 
   function getPriceEur(asset: string): number | null {
     return prices.find(p => p.asset === asset)?.price_eur ?? null
@@ -335,156 +322,49 @@ export default function WealthPage() {
         />
       </section>
 
-      {/* GROWTH — Univers complet par famille */}
+      {/* GROWTH — Univers complet */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-1">GROWTH — Univers complet</h2>
-        <p className="text-xs text-muted mb-6">
-          {SECTORS.reduce((n, s) => n + s.assets.length, 0)} actifs · groupés par famille ·
-          <span className="text-positive"> Tier 1</span> = dip alert actif ·
-          <span className="text-muted"> Tier 2</span> = observation
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-bold tracking-tight">GROWTH — Univers complet</h2>
+          <span className="text-xs text-muted">
+            {growthUniverse.length} actifs · surveillance 4h
+          </span>
+        </div>
 
-        <div className="space-y-6">
-          {SECTORS.map(sector => {
-            // Build alertMap for this sector
-            const alertMap = new Map(growthAlerts.map(a => [a.ticker, a]))
-            const t1 = sector.assets.filter(a => a.tier === 1)
-            const t2 = sector.assets.filter(a => a.tier === 2)
+        <ExplainerSignal />
 
+        {loading ? (
+          <div className="rounded border border-border px-6 py-8 text-center text-xs text-muted">
+            Chargement...
+          </div>
+        ) : growthUniverse.length === 0 ? (
+          <div className="rounded border border-dashed border-border px-6 py-8 text-center text-xs text-muted">
+            Données en cours de synchronisation (cron toutes les 4h)
+          </div>
+        ) : (
+          <SignalTable assets={growthUniverse} lastAlerts={lastAlertByTicker} />
+        )}
+      </section>
+
+      {/* Positions GROWTH ouvertes */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-bold tracking-tight">Positions GROWTH ouvertes</h2>
+          <span className="text-xs text-muted">
+            {growthCalls.length} / 20 slots
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {Array.from({ length: 20 }).map((_, i) => {
+            const call = growthCalls[i]
+            if (!call) return <EmptySlotCard key={i} />
             return (
-              <div key={sector.label}>
-                {/* Sector header */}
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ background: sector.color }} />
-                  <h3 className="text-xs font-bold tracking-tight uppercase">{sector.label}</h3>
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="text-[10px] text-muted">{sector.assets.length} actifs</span>
-                </div>
-
-                {/* Desktop table */}
-                <div className="hidden sm:block rounded border border-border overflow-hidden">
-                  <table className="w-full text-xs">
-                    <tbody>
-                      {t1.map(asset => {
-                        const alert  = alertMap.get(asset.ticker)
-                        const color  = alert ? (SIGNAL_COLOR[alert.signal_level] ?? '#888') : null
-                        const action = alert ? ACTION[alert.signal_level] : null
-                        const next   = alert ? nextLevelInfo(alert, asset.ticker) : null
-                        return (
-                          <tr key={asset.ticker}
-                            className="border-b border-border/40 hover:bg-card/40 transition-colors"
-                            style={color ? { borderLeftColor: color, borderLeftWidth: 2 } : {}}>
-                            <td className="px-3 py-2 w-20">
-                              <span className="font-bold text-[11px] text-positive">{asset.ticker}</span>
-                            </td>
-                            <td className="px-3 py-2 w-40">
-                              <p className="text-[11px]">{asset.name}</p>
-                            </td>
-                            <td className="px-3 py-2 w-24">
-                              {alert && color ? (
-                                <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded"
-                                  style={{ color, background: color + '18' }}>
-                                  {SIGNAL_LABEL[alert.signal_level]}
-                                </span>
-                              ) : (
-                                <span className="text-[10px] text-muted">−{asset.trigger}% déclenche</span>
-                              )}
-                            </td>
-                            <td className="px-3 py-2 text-right font-mono text-[11px]">
-                              {alert ? (
-                                <span className="font-bold text-negative">{alert.drawdown_pct.toFixed(1)}%</span>
-                              ) : (
-                                <span className="text-muted">—</span>
-                              )}
-                            </td>
-                            <td className="px-3 py-2 hidden md:table-cell">
-                              {next ? (
-                                <span className="text-[10px] text-muted">
-                                  encore {next.additionalDrop.toFixed(1)}% → {next.nextLabel}
-                                </span>
-                              ) : alert ? (
-                                <span className="text-[10px] text-muted">seuil max atteint</span>
-                              ) : null}
-                            </td>
-                            <td className="px-3 py-2">
-                              {action && color ? (
-                                <span className="text-[10px] font-semibold" style={{ color }}>{action.text}</span>
-                              ) : null}
-                            </td>
-                            <td className="px-3 py-2 text-right font-mono text-[10px] text-muted">
-                              {alert?.suggested_min != null
-                                ? `${alert.suggested_min}–${alert.suggested_max}€`
-                                : alert ? '—' : ''}
-                            </td>
-                            <td className="px-3 py-2 text-right text-[10px] text-muted hidden lg:table-cell whitespace-nowrap">
-                              {alert
-                                ? new Date(alert.alerted_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
-                                : 'En surveillance'}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                      {t2.length > 0 && (
-                        <tr className="border-b border-border/20 bg-card/20">
-                          <td colSpan={8} className="px-3 py-1.5">
-                            <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-                              {t2.map(a => (
-                                <span key={a.ticker} className="text-[10px] text-muted">
-                                  <span className="font-mono">{a.ticker}</span>
-                                  <span className="ml-1 opacity-60">{a.name}</span>
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Mobile */}
-                <div className="sm:hidden space-y-1">
-                  {t1.map(asset => {
-                    const alert = alertMap.get(asset.ticker)
-                    const color = alert ? (SIGNAL_COLOR[alert.signal_level] ?? '#888') : null
-                    return (
-                      <div key={asset.ticker}
-                        className="rounded border px-3 py-2 flex items-center gap-3"
-                        style={{ borderColor: color ? color + '60' : undefined }}>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-[11px] text-positive">{asset.ticker}</span>
-                            {alert && color && (
-                              <span className="text-[9px] font-bold uppercase tracking-widest px-1 py-0.5 rounded"
-                                style={{ color, background: color + '18' }}>
-                                {SIGNAL_LABEL[alert.signal_level]}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[10px] text-muted">{asset.name}</p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          {alert ? (
-                            <>
-                              <p className="font-bold font-mono text-negative text-xs">{alert.drawdown_pct.toFixed(1)}%</p>
-                              <p className="text-[9px] text-muted">{alert.suggested_min}–{alert.suggested_max}€</p>
-                            </>
-                          ) : (
-                            <p className="text-[10px] text-muted">−{asset.trigger}%</p>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                  {t2.length > 0 && (
-                    <div className="flex flex-wrap gap-2 px-1 pt-1">
-                      {t2.map(a => (
-                        <span key={a.ticker} className="text-[10px] text-muted font-mono">{a.ticker}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <PositionCard
+                key={call.id}
+                call={call}
+                asset={universeByTicker[call.asset] ?? null}
+              />
             )
           })}
         </div>
