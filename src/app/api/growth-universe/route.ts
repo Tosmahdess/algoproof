@@ -1,10 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { supabaseServer } from '@/lib/supabase-server'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export const runtime = 'nodejs'
 
 const SIGNAL_RANK: Record<string, number> = {
   crash: 3,
@@ -13,7 +10,7 @@ const SIGNAL_RANK: Record<string, number> = {
 }
 
 export async function GET() {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServer
     .from('growth_universe')
     .select('*')
 

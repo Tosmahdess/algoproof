@@ -1,7 +1,8 @@
 import { getBotSlugs } from '@/lib/queries'
 
 export default async function sitemap() {
-  const slugs = await getBotSlugs()
+  let slugs: string[] = []
+  try { slugs = await getBotSlugs() } catch { /* build-time network error — continue with empty slugs */ }
 
   const strategyUrls = slugs.map(slug => ({
     url: `https://algoproof.fr/strategies/${slug}`,
