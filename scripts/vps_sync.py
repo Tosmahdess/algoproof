@@ -50,7 +50,7 @@ BOTS = [
         "name": "EMA Cross H4 Binance Spot",
         "family": "trend",
         "strategy": "EMA Cross H4 (21/55/200)",
-        "status": "paper",
+        "status": "live",
         "exchange": "Binance Spot",
         "assets": ["BTC/USDT", "SOL/USDT", "LINK/USDT", "DOGE/USDT", "ADA/USDT"],
         "timeframe": "H4",
