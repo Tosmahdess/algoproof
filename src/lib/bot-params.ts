@@ -360,6 +360,97 @@ const BOT_PARAMS: Record<string, BotParams> = {
     ],
   },
 
+  "emacross-slope-bf6": {
+    groups: [
+      {
+        title: "Signal",
+        items: [
+          { label: "Entry", value: "EMA 21 × EMA 55", note: "direction confirmed by EMA 200" },
+          { label: "Slope filter", value: "EMA55 slope > 0", note: "lookback=5 bars — rejects flat/declining trends" },
+          { label: "Timeframe", value: "H4" },
+          { label: "Assets", value: "6 (BF futures)" },
+          { label: "Direction", value: "Long only" },
+        ],
+      },
+      {
+        title: "Risk management",
+        items: [
+          { label: "Risk per trade", value: "1%" },
+          { label: "Stop loss", value: "ATR × 2.0" },
+          { label: "Max positions", value: "3 concurrent" },
+        ],
+      },
+      {
+        title: "Defense mesh",
+        items: [
+          { label: "MI gate", value: "Active" },
+          { label: "Kill switch", value: "−5% / day" },
+          { label: "Circuit breaker", value: "3 losses → 4h pause" },
+        ],
+      },
+      {
+        title: "Costs",
+        items: [
+          { label: "Exchange", value: "Binance Futures" },
+          { label: "Taker fee", value: "0.05%" },
+          { label: "Round-trip cost", value: "~0.10%" },
+        ],
+      },
+    ],
+    technicalArticle: [
+      {
+        title: "Signal — EMA Cross + Filtre Slope",
+        body: "Variant expérimental de V1 Spot. La logique EMA 21/55/200 H4 est identique, avec un filtre additionnel : la pente de l'EMA55 sur les 5 dernières bougies doit être positive au moment du signal. Ce filtre rejette les croisements qui se produisent dans des tendances plates ou en train de s'inverser — moments historiquement à plus faible edge. Backtest Phase A : CONDITIONAL GO sur 4/6 actifs (BTC, SOL, LINK, ADA). DOGE et XRP montrent une légère dégradation du trade count en dessous du seuil -30% toléré.",
+        code: "slope = (ema55.iloc[-1] - ema55.iloc[-6]) / ema55.iloc[-6]\nif slope > 0 and ema21 > ema55 > ema200:\n    signal = 'long'",
+      },
+    ],
+  },
+
+  "bspot-ema-h4-slh1": {
+    groups: [
+      {
+        title: "Signal",
+        items: [
+          { label: "Entry", value: "EMA 21 × EMA 55", note: "direction confirmed by EMA 200" },
+          { label: "Timeframe", value: "H4" },
+          { label: "Assets", value: "SOL / LINK / DOGE", note: "Binance Spot" },
+          { label: "Direction", value: "Long only" },
+        ],
+      },
+      {
+        title: "Risk management",
+        items: [
+          { label: "Risk per trade", value: "1%" },
+          { label: "Stop loss", value: "H1 ATR × mult", note: "tighter SL than H4 ATR on volatile assets" },
+          { label: "Max positions", value: "3 concurrent" },
+        ],
+      },
+      {
+        title: "Defense mesh",
+        items: [
+          { label: "MI gate", value: "Active" },
+          { label: "Kill switch", value: "−5% / day" },
+          { label: "Circuit breaker", value: "3 losses → 4h pause" },
+        ],
+      },
+      {
+        title: "Costs",
+        items: [
+          { label: "Exchange", value: "Binance Spot" },
+          { label: "Taker fee", value: "0.10%" },
+          { label: "Round-trip cost", value: "~0.20%" },
+        ],
+      },
+    ],
+    technicalArticle: [
+      {
+        title: "Signal — EMA Cross H4 + SL H1 ATR",
+        body: "Variant expérimental qui conserve le signal EMA cross H4 de V1 Spot mais remplace le stop loss initial ATR×2,0 calculé sur H4 par un ATR calculé sur H1. Sur SOL, LINK et DOGE — actifs où l'ATR H4 produit un stop initial supérieur à 4% du capital — le H1 ATR permet un stop plus serré, améliorant le ratio risque/récompense sans augmenter le risque d'être stoppé prématurément par du bruit H4. Backtest CONDITIONAL GO sur ces 3 actifs spécifiquement. Non testé sur BTC/ADA/XRP (H4 SL < 4% sur ces actifs).",
+        code: "atr_h1 = compute_atr(df_h1, period=14)\nsl_distance = atr_h1.iloc[-1] * sl_mult_h1\nsl_price = entry_price - sl_distance",
+      },
+    ],
+  },
+
   "breakout-hl-sol": {
     groups: [
       {

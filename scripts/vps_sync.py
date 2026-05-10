@@ -95,6 +95,28 @@ BOTS = [
         "start_capital": 1000.0,
     },
 
+    # ── Experiment Variants — V1 Spot ────────────────────────────────────────
+    {
+        "slug": "emacross-slope-bf6", "name": "EMA Cross H4 — Filtre Slope BF", "family": "trend",
+        "schema": "new", "strategy": "EMA Cross H4 + Slope EMA55 — 6 actifs BF", "status": "paper",
+        "exchange": "Binance Futures",
+        "assets": ["BTC/USDT", "SOL/USDT", "LINK/USDT", "DOGE/USDT", "ADA/USDT", "XRP/USDT"],
+        "timeframe": "H4",
+        "description": "Variant expérimental de V1 Spot qui ajoute un filtre de pente sur l'EMA55 : le signal EMA cross n'est validé que si la pente de l'EMA55 est positive (lookback=5 bougies). Rejette les croisements dans les tendances plates ou déclinantes. Backtest CONDITIONAL GO sur 4/6 actifs — en observation sur BF Futures.",
+        "db_path": os.path.expanduser("~/apex_emacross_slope_bf_6/db/paper_state.db"),
+        "paper_state_name": "apex_emacross_slope_bf_6", "start_capital": 1000.0,
+    },
+    {
+        "slug": "bspot-ema-h4-slh1", "name": "EMA Cross H4 Spot — SL H1 ATR", "family": "trend",
+        "schema": "new", "strategy": "EMA Cross H4 + SL H1 ATR — SOL/LINK/DOGE", "status": "paper",
+        "exchange": "Binance Spot",
+        "assets": ["SOL/USDT", "LINK/USDT", "DOGE/USDT"],
+        "timeframe": "H4",
+        "description": "Variant expérimental de V1 Spot avec stop loss calculé sur l'ATR H1 plutôt que H4. Sur SOL, LINK et DOGE — actifs où l'ATR H4 donne un SL initial supérieur à 4% — l'ATR H1 permet un stop plus serré sans augmenter le risque d'être stoppé prématurément. Backtest CONDITIONAL GO sur ces 3 actifs spécifiquement.",
+        "db_path": os.path.expanduser("~/apex_bspot_ema_h4_slh1/db/paper_state.db"),
+        "paper_state_name": "apex_bspot_ema_h4_slh1", "start_capital": 1000.0,
+    },
+
     # ── Trend Following — New Schema (BF Perps) ──────────────────────────────
     {
         "slug": "hatrend-bf28", "name": "HeikinAshi Tendance H4 BF", "family": "trend",
