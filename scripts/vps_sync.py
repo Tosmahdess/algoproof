@@ -815,6 +815,40 @@ def sync_growth_alerts() -> None:
     print(f"  [growth] {len(records)} growth_alerts synced")
 
 
+def sync_growth_universe() -> None:
+    """Sync growth_universe snapshot from apex_wealth SQLite to Supabase."""
+    db_path = os.path.expanduser("~/apex_wealth/db/growth_universe.db")
+    if not os.path.exists(db_path):
+        print(f"  [growth_universe] DB not found at {db_path} — skipping")
+        return
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("SELECT * FROM growth_universe").fetchall()
+    conn.close()
+
+    if not rows:
+        print("  [growth_universe] No rows — skipping")
+        return
+
+    records = []
+    for row in rows:
+        r = dict(row)
+        if r.get("hold_forever") is not None:
+            r["hold_forever"] = bool(r["hold_forever"])
+        records.append(r)
+
+    resp = requests.post(
+        f"{SUPABASE_URL}/rest/v1/growth_universe",
+        headers={**BASE_HEADERS, "Prefer": "resolution=merge-duplicates"},
+        json=records,
+    )
+    if resp.status_code in (200, 201):
+        print(f"  [growth_universe] Synced {len(records)} assets OK")
+    else:
+        print(f"  [growth_universe] ERROR {resp.status_code}: {resp.text[:300]}")
+
+
 def sync_mi_snapshot() -> None:
     """Read MI heartbeat and push latest snapshot to Supabase mi_snapshots."""
     import json
@@ -924,6 +958,12 @@ def main() -> None:
         sync_macro_report()
     except Exception as e:
         print(f"[macro] ERROR: {e}")
+
+    print("\n[growth_universe] Syncing growth universe...")
+    try:
+        sync_growth_universe()
+    except Exception as e:
+        print(f"[growth_universe] ERROR: {e}")
 
     print("\n=== Done ===")
 
