@@ -227,6 +227,17 @@ function SecteurView({ assets, lastAlerts }: Props) {
             )}
           </div>
           <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-zinc-900 text-zinc-600 text-[9px] uppercase tracking-wider">
+                <th className="py-1.5 px-3 text-left font-medium">Actif</th>
+                <th className="py-1.5 px-3 text-left font-medium">Signal</th>
+                <th className="py-1.5 px-3 text-left font-medium">Recul 180j</th>
+                <th className="py-1.5 px-3 text-left font-medium">Distance seuils</th>
+                <th className="py-1.5 px-3 text-left font-medium">Sizing</th>
+                <th className="py-1.5 px-3 text-left font-medium">Sortie</th>
+                <th className="py-1.5 px-3 text-left font-medium">Dernière alerte</th>
+              </tr>
+            </thead>
             <tbody>
               {catAssets.map(a => (
                 <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} />
