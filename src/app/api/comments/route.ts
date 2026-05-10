@@ -3,6 +3,19 @@ import { supabaseServer } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 
+const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_COMMENTS_CHAT_ID
+
+async function notifyTelegram(bot_slug: string, pseudo: string, message: string) {
+  if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return
+  const text = `💬 *Nouveau message AlgoProof*\n\n*Bot :* ${bot_slug}\n*Pseudo :* ${pseudo}\n\n${message}`
+  await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: 'Markdown' }),
+  }).catch(() => {})
+}
+
 export async function GET(request: NextRequest) {
   const slug = request.nextUrl.searchParams.get('slug')
   if (!slug) return NextResponse.json([])
@@ -39,5 +52,8 @@ export async function POST(request: NextRequest) {
     .insert({ bot_slug, pseudo: pseudo.trim(), message: message.trim() })
 
   if (error) return NextResponse.json({ error: 'Insert failed' }, { status: 500 })
+
+  notifyTelegram(bot_slug, pseudo.trim(), message.trim())
+
   return NextResponse.json({ ok: true }, { status: 201 })
 }

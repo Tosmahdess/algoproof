@@ -153,7 +153,7 @@ BOTS = [
         "paper_state_name": "apex_macdvolume_bfperps_11", "start_capital": 1000.0,
     },
     {
-        "slug": "combobbrsi-bf9", "name": "Combo BB+RSI H4 BF", "family": "trend",
+        "slug": "combobbrsi-bf9", "name": "Combo BB+RSI H4 BF", "family": "mean-reversion",
         "schema": "new", "strategy": "BB + RSI H4 — 9 actifs", "status": "paper",
         "exchange": "Binance Futures", "assets": _bf(9), "timeframe": "H4",
         "description": "Combo Bollinger Bands + RSI : entrée quand le prix teste la bande et que le RSI confirme l'excès de momentum. Deux outils de nature différente — volatilité et momentum — qui se renforcent mutuellement.",
@@ -169,7 +169,7 @@ BOTS = [
         "paper_state_name": "apex_comboichirsi_bfperps_12", "start_capital": 1000.0,
     },
     {
-        "slug": "rsidivergence-bf6", "name": "RSI Divergence H4 BF", "family": "trend",
+        "slug": "rsidivergence-bf6", "name": "RSI Divergence H4 BF", "family": "mean-reversion",
         "schema": "new", "strategy": "RSI Divergence H4 — 6 actifs", "status": "paper",
         "exchange": "Binance Futures", "assets": _bf(6), "timeframe": "H4",
         "description": "Détecte les divergences entre le RSI et le prix : un nouveau plus bas de prix non confirmé par le RSI signale un retournement haussier imminent. Signal de retournement puissant mais rare — qualité plutôt que quantité.",
@@ -307,9 +307,9 @@ BOTS = [
         "paper_state_name": None, "start_capital": 1000.0,
     },
 
-    # ── Multi-Signal — New Schema ──────────────────────────────────────────────
+    # ── Trend / Cross-Timeframe — New Schema ──────────────────────────────────
     {
-        "slug": "x3-emakeltner-bf22", "name": "X3 EmaKeltner H4 BF", "family": "multi-signal",
+        "slug": "x3-emakeltner-bf22", "name": "X3 EmaKeltner H4 BF", "family": "trend",
         "schema": "new", "strategy": "EMA D1 + Keltner H4 — 22 actifs", "status": "paper",
         "exchange": "Binance Futures", "assets": _bf(22), "timeframe": "H4",
         "description": "Cross-timeframe : EMA 21/100 sur D1 définit la tendance macro, canal Keltner sur H4 identifie l'entrée tactique précise. Les deux timeframes doivent être alignés — convergence obligatoire pour entrer.",
@@ -317,7 +317,7 @@ BOTS = [
         "paper_state_name": "apex_x3_emakeltner_bfperps_22", "start_capital": 1000.0,
     },
     {
-        "slug": "x1-wvborb-bf7", "name": "X1 WvbOrb H1 BF", "family": "multi-signal",
+        "slug": "x1-wvborb-bf7", "name": "X1 WvbOrb H1 BF", "family": "breakout",
         "schema": "new", "strategy": "WR14 D1 + ORB H1 — 7 actifs", "status": "paper",
         "exchange": "Binance Futures", "assets": _bf(7), "timeframe": "H1",
         "description": "Williams Vol Break sur D1 donne la direction macro, ORB sur H1 fournit le timing d'entrée précis. Deux logiques orthogonales — momentum journalier + breakout horaire — qui filtrent mutuellement les faux signaux.",
@@ -325,9 +325,9 @@ BOTS = [
         "paper_state_name": "apex_x1_wvborb_bfperps_7", "start_capital": 1000.0,
     },
 
-    # ── Leveraged — New Schema ─────────────────────────────────────────────────
+    # ── Trend / Leveraged — New Schema ────────────────────────────────────────
     {
-        "slug": "emacross-bf7-x10", "name": "EMA Cross ×10 BF (Avec levier)", "family": "leveraged",
+        "slug": "emacross-bf7-x10", "name": "EMA Cross ×10 BF (Avec levier)", "family": "trend",
         "schema": "new", "strategy": "EMA 21/100 H4 — 7 actifs — Levier ×10", "status": "paper",
         "exchange": "Binance Futures", "assets": _bf(7), "timeframe": "H4",
         "description": "Version levée ×10 dynamique de la stratégie EMA Cross. Même logique de signal et même gestion du risque — mais l'amplitude des P&L est multipliée par 10. Réservé aux capitaux adaptés et à l'appétit au risque élevé.",
@@ -335,9 +335,9 @@ BOTS = [
         "paper_state_name": "apex_emacross_bfperps_7", "start_capital": 1000.0,
     },
 
-    # ── Multi-Asset ────────────────────────────────────────────────────────────
+    # ── Trend / Multi-Asset ────────────────────────────────────────────────────
     {
-        "slug": "emacross-eur-usd", "name": "EMA Cross EUR/USD OANDA", "family": "multi-asset",
+        "slug": "emacross-eur-usd", "name": "EMA Cross EUR/USD OANDA", "family": "trend",
         "schema": "new", "strategy": "EMA 9/50 H4 — EUR/USD", "status": "paper",
         "exchange": "OANDA", "assets": ["EUR/USD"], "timeframe": "H4",
         "description": "Croisement EMA 9/50 sur H4 appliqué à la paire EUR/USD sur OANDA. Décorrélé du marché crypto — pure exposition Forex pour diversifier le portefeuille. Les bots crypto et Forex réagissent rarement aux mêmes catalyseurs.",
@@ -345,7 +345,7 @@ BOTS = [
         "paper_state_name": "apex_emacross_oanda_eurusd", "start_capital": 1000.0,
     },
     {
-        "slug": "keltner-xau-hl", "name": "Keltner Gold HL Perps", "family": "multi-asset",
+        "slug": "keltner-xau-hl", "name": "Keltner Gold HL Perps", "family": "trend",
         "schema": "new", "strategy": "Keltner H4 — XAU-USDC", "status": "paper",
         "exchange": "Hyperliquid", "assets": ["XAU-USDC"], "timeframe": "H4",
         "description": "Canal Keltner H4 sur l'or (XAU-USDC) via perpetuals Hyperliquid. L'or comme actif de diversification non-crypto avec un système de cassure de volatilité. Corrélé négativement au dollar, réagit différemment des cryptos.",
