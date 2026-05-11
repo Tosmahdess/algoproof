@@ -95,6 +95,21 @@ BOTS = [
         "start_capital": 1000.0,
     },
 
+    {
+        "slug": "v1-spot-shadow",
+        "name": "EMA Cross H4 Spot — Défense Relâchée",
+        "family": "trend",
+        "strategy": "EMA Cross H4 (21/55/200) — Spot Binance, défense relâchée",
+        "status": "paper",
+        "exchange": "Binance Spot",
+        "assets": ["BTC/USDC", "SOL/USDC", "LINK/USDC", "DOGE/USDC", "ADA/USDC", "XRP/USDC"],
+        "timeframe": "H4",
+        "description": "Variant shadow du bot V1 Spot avec une défense relâchée : même signal EMA Cross H4 (21/55/200) mais sans trailing stop actif. Permet de comparer l'impact de la défense dynamique vs défense fixe sur les mêmes actifs et signaux.",
+        "db_path": os.path.expanduser("~/apex_emacross_spot_shadow/db/apex_shadow_trades.db"),
+        "paper_state_name": "apex-v1-spot",
+        "start_capital": 1000.0,
+    },
+
     # ── Experiment Variants — V1 Spot ────────────────────────────────────────
     {
         "slug": "emacross-slope-bf6", "name": "EMA Cross H4 — Filtre Slope BF", "family": "trend",
