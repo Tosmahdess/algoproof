@@ -470,7 +470,7 @@ def get_paper_equity(db_path: str, bot_name: str) -> float | None:
     try:
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
-        cur.execute("SELECT equity FROM paper_state WHERE bot_name = ? ORDER BY id DESC LIMIT 1", (bot_name,))
+        cur.execute("SELECT balance FROM paper_state WHERE bot_name = ? ORDER BY id DESC LIMIT 1", (bot_name,))
         row = cur.fetchone()
         conn.close()
         return row[0] if row else None
