@@ -466,11 +466,11 @@ def get_paper_balance(db_path: str, bot_name: str) -> float:
 
 
 def get_paper_equity(db_path: str, bot_name: str) -> float | None:
-    """Read current paper equity from paper_state table (New schema: equity column)."""
+    """Read current paper balance from paper_state table (New schema: balance column)."""
     try:
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
-        cur.execute("SELECT equity FROM paper_state WHERE bot_name = ? ORDER BY id DESC LIMIT 1", (bot_name,))
+        cur.execute("SELECT balance FROM paper_state WHERE bot_name = ? ORDER BY id DESC LIMIT 1", (bot_name,))
         row = cur.fetchone()
         conn.close()
         return row[0] if row else None
