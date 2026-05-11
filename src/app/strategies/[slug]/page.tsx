@@ -12,7 +12,7 @@ import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { pnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
 
-export const revalidate = 3600
+export const revalidate = 1800
 export const dynamicParams = false
 
 export async function generateStaticParams() {

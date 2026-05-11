@@ -4,7 +4,7 @@ import { supabaseServer } from '@/lib/supabase-server'
 import OverviewClient from '@/components/OverviewClient'
 import type { TradeWithBot } from '@/lib/types'
 
-export const revalidate = 3600
+export const revalidate = 1800
 
 export const metadata: Metadata = {
   title: "Vue d'ensemble — AlgoProof",

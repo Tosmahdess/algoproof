@@ -6,7 +6,7 @@ import { getAllBotsWithStats } from '@/lib/queries'
 import { DISCORD_URL } from '@/lib/constants'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
-export const revalidate = 3600
+export const revalidate = 1800
 
 export const metadata: Metadata = {
   title: 'AlgoProof — Trading algo vérifié',
