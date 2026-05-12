@@ -2028,45 +2028,65 @@ const BOT_PARAMS: Record<string, BotParams> = {
   },
 
   'grid-btc-spot': {
-    sections: [
+    groups: [
       {
-        title: "Stratégie — Grille de prix",
-        body: "Un bot de grille place des ordres d'achat et de vente à intervalles fixes autour du prix actuel. Il ne prédit pas la direction. Il profite de l'oscillation du prix dans une plage définie : chaque fois que le prix monte d'un niveau, une vente s'exécute ; chaque fois qu'il descend, un achat s'exécute. Chaque aller-retour génère un petit profit.",
-      },
-      {
-        title: "Paramètres",
-        body: "Range : ±8% du prix actuel à l'initialisation (ex : BTC à 80 000 → grille de 73 600 à 86 400 USDT). 10 niveaux de grille = 11 prix = espacement d'environ 1 280 USDT par niveau. Taille par niveau : capital total ÷ (prix × 10). 500 USDT de capital → 0,000625 BTC par ordre.",
-        code: "# Exemple à BTC=80 000\nlower = 80000 * 0.92  = 73 600\nupper = 80000 * 1.08  = 86 400\nspacing = (86400-73600) / 10 = 1 280 USDT\nsize = 500 / (80000 × 10) = 0.000625 BTC\nprofit_par_aller_retour = 1280 × 0.000625 = 0.80 USDT",
+        title: "Grille",
+        items: [
+          { label: "Symbole",    value: "BTC/USDT",       note: "Binance Spot" },
+          { label: "Range",      value: "±8% du prix",    note: "ex : 73 600 – 86 400 à BTC=80 000" },
+          { label: "Niveaux",    value: "10 grilles",     note: "11 prix, espacement ~1 280 USDT" },
+          { label: "Capital",    value: "500 USDT",       note: "0,000625 BTC par ordre" },
+          { label: "Profit/AR",  value: "~0,80 USDT",     note: "spacing × size = 1 280 × 0,000625" },
+        ],
       },
       {
         title: "Gestion du risque",
-        body: "Si le prix sort de la grille (chute ou envolée brutale), tous les ordres sont annulés. La grille est reconstruite si le prix dérive de plus de 50% depuis le centre initial. Pas d'exposition directionnelle sur les ordres actifs — uniquement le stock de BTC accumulé côté buy représente un risque de prix.",
+        items: [
+          { label: "Sortie range",  value: "Annulation auto",  note: "si prix hors [lower, upper]" },
+          { label: "Rebuild",       value: "Drift > 50%",      note: "nouvelle grille centrée sur prix courant" },
+          { label: "Poll",          value: "60s",              note: "vérification fills toutes les minutes" },
+        ],
       },
+    ],
+    technicalArticle: [
       {
-        title: "Rendement attendu",
-        body: "Rendement théorique = (espacement/prix) × (nombre d'allers-retours/an). Sur BTC avec ±8% de range et volatilité normale (~5%/semaine), on peut espérer 2 à 5 allers-retours par jour par niveau → 0,80 USDT × 2-5 = 1,6 à 4 USDT/jour → 580 à 1 460 USDT/an sur 500 USDT de capital (116 à 292%/an théorique). En pratique, le range ne capture qu'une partie des mouvements.",
+        title: "Stratégie — Grille de prix",
+        body: "Un bot de grille place des ordres d'achat et de vente à intervalles fixes autour du prix actuel. Il ne prédit pas la direction — il profite de l'oscillation dans une plage. Chaque buy fill génère un sell un niveau au-dessus. Chaque sell fill génère un buy un niveau en dessous. Chaque aller-retour = spacing × size de profit.",
+        code: "lower = 80000 * 0.92  # 73 600\nupper = 80000 * 1.08  # 86 400\nspacing = (upper - lower) / 10  # 1 280 USDT\nsize = 500 / (80000 * 10)       # 0.000625 BTC\nprofit_par_AR = 1280 * 0.000625  # 0.80 USDT",
       },
     ],
   },
 
   'funding-rate-harvest': {
-    sections: [
+    groups: [
       {
-        title: "Stratégie — Portage delta-neutre",
-        body: "Long spot sur Binance + Short perp équivalent sur Hyperliquid. L'exposition directionnelle au prix est annulée : si BTC monte de 5%, le gain sur le spot est compensé par la perte sur le perp. Le bot ne spécule pas sur la direction du marché. Il encaisse uniquement les paiements de taux de financement toutes les 8h — versés par les positions longues vers les positions courtes quand le marché est haussier.",
+        title: "Stratégie delta-neutre",
+        items: [
+          { label: "Jambe spot",  value: "Long Binance",    note: "BTC/USDT ou SOL/USDT" },
+          { label: "Jambe perp",  value: "Short HL",        note: "perp équivalent, 1× levier" },
+          { label: "Delta net",   value: "≈ 0",             note: "les deux jambes s'annulent" },
+          { label: "Capital",     value: "400 USDT",        note: "200 USDT par jambe" },
+        ],
       },
       {
-        title: "Signal d'entrée / sortie",
-        body: "Entrée : taux de financement moyen des 6 derniers cycles (48h) > 0,003%/8h (~3,3%/an minimum). Le bot sélectionne automatiquement le symbole avec le taux le plus élevé parmi SOL, BTC, ETH. Sortie : taux moyen passe négatif OU 3 paiements consécutifs négatifs. Le bot reste en dehors du marché plutôt que de payer pour maintenir une position déficitaire.",
-        code: "# Entrée quand avg(derniers 6 taux) > seuil\nif avg(rates[-6:]) > 0.003:\n    open_long_spot(symbol, capital/2)\n    open_short_perp(symbol, capital/2)\n\n# Sortie si funding négatif\nif avg(rates[-6:]) < 0 or consecutive_negative >= 3:\n    close_both_legs()",
+        title: "Signal entrée / sortie",
+        items: [
+          { label: "Entrée",             value: "> 0,003%/8h",   note: "avg 6 derniers cycles (48h)" },
+          { label: "Cible primaire",     value: "SOL",           note: "positif 64% du temps sur 30j" },
+          { label: "Sortie",             value: "avg < 0",       note: "ou 3 paiements négatifs consécutifs" },
+          { label: "Rebalancement",      value: "|delta| > 20 USDT", note: "ajustement jambe spot" },
+        ],
+      },
+    ],
+    technicalArticle: [
+      {
+        title: "Logique d'entrée / sortie",
+        body: "Entrée uniquement si le taux de financement moyen des 48h dépasse 0,003%/8h. Le bot choisit le symbole le plus rémunérateur (SOL > BTC > ETH). Sortie automatique dès que la moyenne passe négative ou après 3 paiements consécutifs négatifs.",
+        code: "if avg(rates[-6:]) > 0.003:\n    open_long_spot(symbol, capital/2)\n    open_short_perp(symbol, capital/2)\n\nif avg(rates[-6:]) < 0 or consecutive_negative >= 3:\n    close_both_legs()",
       },
       {
-        title: "Rebalancement",
-        body: "Si le prix se déplace significativement, les deux jambes dérivent et un delta net apparaît. Le bot recalcule en continu : delta = (spot_size - perp_size) × prix. Si |delta| > 20 USDT, il ajuste la jambe spot pour restaurer la neutralité. Cycle de vérification : toutes les 30 minutes.",
-      },
-      {
-        title: "Rendement attendu",
-        body: "Données 30 jours (2026-04-12 → 2026-05-12) : SOL positif 64% du temps (+2,7%/an annualisé), BTC positif 34% du temps (−2,0%/an), ETH 37% (+1,2%/an). Taux actuels (2026-05-12) : SOL +6,1%/an, BTC +5,4%/an, ETH +4,2%/an. Rendement réaliste sur cycle complet : 2–5%/an en conditions normales, jusqu'à 10–40%/an en pic de bull.",
+        title: "Rendement observé (30j)",
+        body: "Données du 12 avril au 12 mai 2026 : SOL positif 64% du temps (+2,7%/an annualisé), BTC positif 34% (−2,0%/an), ETH 37% (−1,2%/an). Taux au 12 mai : SOL +6,1%/an, BTC +5,4%/an. Rendement réaliste sur cycle complet : 2–5%/an en conditions normales.",
       },
     ],
   },
