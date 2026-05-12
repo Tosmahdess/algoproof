@@ -35,7 +35,7 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
     <div className="rounded border border-border overflow-hidden">
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1 overflow-x-auto bg-card px-3 py-2 border-b border-border">
+      <div className="flex flex-wrap items-center gap-1 bg-card px-3 py-2 border-b border-border">
         {pillars.map(p => (
           <button
             key={p.id}

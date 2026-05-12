@@ -124,8 +124,8 @@ export default function MiRegimeBadge() {
             )}
           </div>
           <div className="ml-auto flex items-center gap-2 font-mono text-[10px]">
-            <span className={snap.allow_long ? 'text-positive' : 'text-muted line-through'}>Long</span>
-            <span className={snap.allow_short ? 'text-positive' : 'text-muted line-through'}>Short</span>
+            <span className={snap.allow_long ? 'text-positive' : 'text-muted line-through'}>Longs</span>
+            <span className={snap.allow_short ? 'text-positive' : 'text-muted line-through'}>Shorts</span>
           </div>
         </div>
       )}

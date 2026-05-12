@@ -2,12 +2,12 @@
 
 import type { BotChangelog, ChangelogCategory } from '@/lib/types'
 
-const CATEGORY_CHIP: Record<ChangelogCategory, string> = {
-  asset:    'bg-blue-900/40 text-blue-300 border border-blue-700/50',
-  fix:      'bg-red-900/40 text-red-300 border border-red-700/50',
-  strategy: 'bg-purple-900/40 text-purple-300 border border-purple-700/50',
-  perf:     'bg-green-900/40 text-green-300 border border-green-700/50',
-  risk:     'bg-orange-900/40 text-orange-300 border border-orange-700/50',
+const CATEGORY_CHIP: Record<ChangelogCategory, { style: string; label: string }> = {
+  asset:    { style: 'bg-blue-900/40 text-blue-300 border border-blue-700/50',     label: 'actif' },
+  fix:      { style: 'bg-red-900/40 text-red-300 border border-red-700/50',       label: 'correctif' },
+  strategy: { style: 'bg-purple-900/40 text-purple-300 border border-purple-700/50', label: 'stratégie' },
+  perf:     { style: 'bg-green-900/40 text-green-300 border border-green-700/50', label: 'perf' },
+  risk:     { style: 'bg-orange-900/40 text-orange-300 border border-orange-700/50', label: 'risque' },
 }
 
 interface ChangelogTabProps {
@@ -43,8 +43,8 @@ export default function ChangelogTab({ changelogs }: ChangelogTabProps) {
           <div className="space-y-2">
             {entries.map(entry => (
               <div key={entry.id} className="flex gap-3 items-start">
-                <span className={`text-xs px-2 py-0.5 rounded font-mono flex-shrink-0 ${CATEGORY_CHIP[entry.category]}`}>
-                  {entry.category}
+                <span className={`text-xs px-2 py-0.5 rounded font-mono flex-shrink-0 ${CATEGORY_CHIP[entry.category]?.style}`}>
+                  {CATEGORY_CHIP[entry.category]?.label ?? entry.category}
                 </span>
                 <div>
                   <p className="text-sm text-foreground">{entry.summary}</p>
