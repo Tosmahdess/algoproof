@@ -3,7 +3,8 @@ import { compileMDX } from 'next-mdx-remote/rsc'
 import ExplainerBox from '@/components/ExplainerBox'
 import MiRegimeBadge from '@/components/MiRegimeBadge'
 import MiHistoryChart from '@/components/MiHistoryChart'
-import { getLatestMacroReport, getMiHistory } from '@/lib/queries'
+import MiPillarsSection from '@/components/MiPillarsSection'
+import { getLatestMacroReport, getMiHistory, getChangelogForBot } from '@/lib/queries'
 
 export const metadata: Metadata = {
   title: 'Intelligence de marché',
@@ -73,9 +74,10 @@ const PILLARS = [
 export const revalidate = 1800
 
 export default async function IntelligencePage() {
-  const [report, miHistory] = await Promise.all([
+  const [report, miHistory, miChangelogs] = await Promise.all([
     getLatestMacroReport(),
     getMiHistory(7),
+    getChangelogForBot('mi'),
   ])
 
   let reportContent: React.ReactElement | null = null
@@ -187,27 +189,10 @@ export default async function IntelligencePage() {
         />
       </section>
 
-      {/* 4 Pillars */}
+      {/* Pillars + changelog — tabbed */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-6">Les 4 piliers</h2>
-        <div className="space-y-6">
-          {PILLARS.map((p) => (
-            <div key={p.id} className="rounded border border-border overflow-hidden">
-              <div className="flex items-center gap-3 px-6 py-3 border-b border-border bg-card">
-                <span
-                  className="text-xs font-bold tracking-widest uppercase"
-                  style={{ color: p.color }}
-                >
-                  {p.label}
-                </span>
-                <span className="ml-auto text-xs text-muted font-mono">Poids {p.weight}</span>
-              </div>
-              <div className="border-t-0">
-                <ExplainerBox stacked functional={p.functional} technical={p.technical} />
-              </div>
-            </div>
-          ))}
-        </div>
+        <h2 className="text-base font-bold tracking-tight mb-4">Les piliers</h2>
+        <MiPillarsSection pillars={PILLARS} changelogs={miChangelogs} />
       </section>
     </main>
   )
