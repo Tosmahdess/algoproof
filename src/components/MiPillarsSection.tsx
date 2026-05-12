@@ -18,11 +18,11 @@ interface Props {
   changelogs: BotChangelog[]
 }
 
-const TAB_STYLE = (active: boolean, color?: string) =>
-  `px-4 py-2.5 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors whitespace-nowrap ${
+const TAB_STYLE = (active: boolean) =>
+  `px-4 py-2 text-xs font-semibold tracking-widest uppercase rounded transition-colors whitespace-nowrap ${
     active
-      ? 'border-current'
-      : 'text-muted border-transparent hover:text-foreground'
+      ? 'bg-card text-foreground'
+      : 'text-muted hover:text-foreground'
   }`
 
 export default function MiPillarsSection({ pillars, changelogs }: Props) {
@@ -35,13 +35,13 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
     <div className="rounded border border-border overflow-hidden">
 
       {/* Tab bar */}
-      <div className="flex items-center gap-0 border-b border-border overflow-x-auto bg-card px-2">
+      <div className="flex items-center gap-1 overflow-x-auto bg-card px-3 py-2 border-b border-border">
         {pillars.map(p => (
           <button
             key={p.id}
             onClick={() => setActive(p.id)}
             className={TAB_STYLE(active === p.id)}
-            style={{ color: active === p.id ? p.color : undefined }}
+            style={active === p.id ? { color: p.color } : undefined}
           >
             <span>{p.label}</span>
             <span className="ml-1.5 text-[9px] opacity-60 font-mono">{p.weight}</span>
@@ -50,7 +50,7 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
         <button
           onClick={() => setActive('changelog')}
           className={TAB_STYLE(active === 'changelog')}
-          style={{ color: active === 'changelog' ? '#ff6b35' : undefined }}
+          style={active === 'changelog' ? { color: '#ff6b35' } : undefined}
         >
           Historique
           {changelogs.length > 0 && (
