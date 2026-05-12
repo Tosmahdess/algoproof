@@ -130,6 +130,17 @@ export async function getLatestMiSnapshot(): Promise<MiSnapshot | null> {
   return data
 }
 
+export async function getMiHistory(days = 7): Promise<MiSnapshot[]> {
+  const since = new Date(Date.now() - days * 86400 * 1000).toISOString()
+  const { data, error } = await supabase
+    .from('mi_snapshots')
+    .select('snapshot_at,composite_score,regime,sentiment_regime,sentiment_score,derivatives_score,news_score,macro_score,institutional_score,market_bias,trend_regime,btc_vs_ema200_pct')
+    .gte('snapshot_at', since)
+    .order('snapshot_at', { ascending: true })
+  if (error) return []
+  return (data ?? []) as unknown as MiSnapshot[]
+}
+
 export async function getTriggerData(slug: string): Promise<TriggerData | null> {
   const { data: bot, error: botErr } = await supabase
     .from('bots')

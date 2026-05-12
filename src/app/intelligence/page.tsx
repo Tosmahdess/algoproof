@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import ExplainerBox from '@/components/ExplainerBox'
 import MiRegimeBadge from '@/components/MiRegimeBadge'
-import { getLatestMacroReport } from '@/lib/queries'
+import MiHistoryChart from '@/components/MiHistoryChart'
+import { getLatestMacroReport, getMiHistory } from '@/lib/queries'
 
 export const metadata: Metadata = {
   title: 'Intelligence de marché',
@@ -69,8 +70,13 @@ const PILLARS = [
   },
 ]
 
+export const revalidate = 1800
+
 export default async function IntelligencePage() {
-  const report = await getLatestMacroReport()
+  const [report, miHistory] = await Promise.all([
+    getLatestMacroReport(),
+    getMiHistory(7),
+  ])
 
   let reportContent: React.ReactElement | null = null
   if (report?.content) {
@@ -101,6 +107,21 @@ export default async function IntelligencePage() {
 
       {/* Live regime */}
       <MiRegimeBadge />
+
+      {/* Historical scores — 7 days */}
+      <section>
+        <div className="flex items-baseline gap-3 mb-4">
+          <h2 className="text-base font-bold tracking-tight">Historique des scores</h2>
+          <span className="text-xs text-muted">7 derniers jours · synchronisation toutes les 30 min</span>
+        </div>
+        <div className="rounded border border-border bg-card px-6 py-5">
+          <MiHistoryChart data={miHistory} />
+        </div>
+        <p className="text-[10px] text-muted mt-2">
+          Lignes fines = piliers individuels. Ligne blanche = score global composite.
+          Zones pointillées à ±30 = frontières NEUTRAL / GREED / FEAR.
+        </p>
+      </section>
 
       {/* Daily macro report */}
       <section>
