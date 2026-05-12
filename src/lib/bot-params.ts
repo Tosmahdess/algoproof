@@ -2027,6 +2027,28 @@ const BOT_PARAMS: Record<string, BotParams> = {
     ],
   },
 
+  'grid-btc-spot': {
+    sections: [
+      {
+        title: "Stratégie — Grille de prix",
+        body: "Un bot de grille place des ordres d'achat et de vente à intervalles fixes autour du prix actuel. Il ne prédit pas la direction. Il profite de l'oscillation du prix dans une plage définie : chaque fois que le prix monte d'un niveau, une vente s'exécute ; chaque fois qu'il descend, un achat s'exécute. Chaque aller-retour génère un petit profit.",
+      },
+      {
+        title: "Paramètres",
+        body: "Range : ±8% du prix actuel à l'initialisation (ex : BTC à 80 000 → grille de 73 600 à 86 400 USDT). 10 niveaux de grille = 11 prix = espacement d'environ 1 280 USDT par niveau. Taille par niveau : capital total ÷ (prix × 10). 500 USDT de capital → 0,000625 BTC par ordre.",
+        code: "# Exemple à BTC=80 000\nlower = 80000 * 0.92  = 73 600\nupper = 80000 * 1.08  = 86 400\nspacing = (86400-73600) / 10 = 1 280 USDT\nsize = 500 / (80000 × 10) = 0.000625 BTC\nprofit_par_aller_retour = 1280 × 0.000625 = 0.80 USDT",
+      },
+      {
+        title: "Gestion du risque",
+        body: "Si le prix sort de la grille (chute ou envolée brutale), tous les ordres sont annulés. La grille est reconstruite si le prix dérive de plus de 50% depuis le centre initial. Pas d'exposition directionnelle sur les ordres actifs — uniquement le stock de BTC accumulé côté buy représente un risque de prix.",
+      },
+      {
+        title: "Rendement attendu",
+        body: "Rendement théorique = (espacement/prix) × (nombre d'allers-retours/an). Sur BTC avec ±8% de range et volatilité normale (~5%/semaine), on peut espérer 2 à 5 allers-retours par jour par niveau → 0,80 USDT × 2-5 = 1,6 à 4 USDT/jour → 580 à 1 460 USDT/an sur 500 USDT de capital (116 à 292%/an théorique). En pratique, le range ne capture qu'une partie des mouvements.",
+      },
+    ],
+  },
+
   'funding-rate-harvest': {
     sections: [
       {

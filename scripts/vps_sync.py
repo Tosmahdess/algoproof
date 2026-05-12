@@ -413,6 +413,28 @@ BOTS = [
         "paper_state_name": "apex-funding-rate",
         "start_capital": 400.0,
     },
+    {
+        "slug": "grid-btc-spot",
+        "name": "Grid BTC Spot",
+        "family": "carry",
+        "strategy": "Grille arithmétique ±8% — BTC/USDT Binance Spot",
+        "status": "paper",
+        "exchange": "Binance Spot",
+        "assets": ["BTC/USDT"],
+        "timeframe": "—",
+        "description": (
+            "Bot de grille arithmétique sur BTC/USDT spot Binance. "
+            "La grille divise une plage de prix en 10 niveaux équidistants (±8% du prix actuel). "
+            "À chaque niveau : un ordre d'achat attend en dessous du prix, un ordre de vente au-dessus. "
+            "Quand un achat est exécuté, un ordre de vente est immédiatement placé un niveau au-dessus. "
+            "Chaque aller-retour génère un profit égal à l'écart entre deux niveaux multiplié par la taille. "
+            "Le bot ne parie pas sur la direction — il profite de la volatilité dans un range. "
+            "Rebuild automatique si le prix dérive de plus de 50% depuis le centre de la grille."
+        ),
+        "db_path": os.path.expanduser("~/apex_grid_bot/db/grid_state.db"),
+        "paper_state_name": "apex-grid-btc",
+        "start_capital": 500.0,
+    },
 ]
 
 WEALTH_CALLS_DB   = os.path.expanduser("~/apex_wealth/db/wealth_calls.db")
