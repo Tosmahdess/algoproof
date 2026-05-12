@@ -25,7 +25,7 @@ const PILLARS = [
     functional:
       "Suit la peur et la cupidité du marché en temps réel. Quand les traders sont dans la peur extrême, c'est souvent un signal d'alarme. Quand ils sont euphoriques, le risque augmente. Ce pilier mesure l'état émotionnel de la foule.",
     technical:
-      'Indice Fear & Greed (0–100), normalisé sur [−50, +50]. Contribution au score = (valeur − 50) / 50 × pondération. Actualisé toutes les 60 secondes. Cache 15 minutes en cas d\'échec API.',
+      'Indice Fear & Greed (0–100), normalisé sur [−100, +100]. Actualisé toutes les 30 min. Produit le régime : EXTREME_FEAR / FEAR / NEUTRAL / GREED / EXTREME_GREED.',
   },
   {
     id: 'derivatives',
@@ -35,7 +35,7 @@ const PILLARS = [
     functional:
       'Surveille le marché des futures crypto en temps réel. Les taux de financement, l\'open interest et les liquidations révèlent quand l\'effet de levier est dangereusement élevé — précurseur classique des corrections violentes.',
     technical:
-      'Binance Futures : taux de financement (8h), variation OI, ratio Long/Short. Flux WebSocket de liquidations (fenêtre glissante 60s). Composite : funding × 0,4 + delta_OI × 0,3 + ratio_LS × 0,3.',
+      'Binance Futures : taux de financement (8h) × 40% + ratio Long/Short contrariant × 35% + delta OI × 25%. Flux WebSocket liquidations (60s) : ajustements ±20 pts si >10M$/h. Symboles : BTC/ETH/SOL.',
   },
   {
     id: 'news',
@@ -45,7 +45,7 @@ const PILLARS = [
     functional:
       "Analyse les titres financiers en continu. Un événement négatif majeur (hack d'exchange, répression réglementaire, choc macro) peut bouger les marchés plus vite que n'importe quel indicateur. On surveille les news pour que les bots n'entrent pas dans la tempête.",
     technical:
-      'Flux RSS de 3 sources (CoinDesk, CoinTelegraph, Reuters via proxy Google News). Score d\'impact TF-IDF par titre. Blackout T2 : 30 min. Blackout T1 : 2h.',
+      'Flux RSS : 3 sources crypto (CoinDesk, Decrypt, Cointelegraph) + 4 géopolitiques (Reuters, BBC, NYT, Al Jazeera). Scoring mots-clés ±15 pts/titre, décroissance exponentielle τ=2h. >20 000 titres archivés.',
   },
   {
     id: 'macro',
@@ -55,7 +55,17 @@ const PILLARS = [
     functional:
       "Surveille les conditions macroéconomiques : volatilité des marchés actions (VIX), force du dollar américain (DXY), et événements à venir comme les décisions de la Fed ou le CPI. La crypto n'existe pas en vase clos.",
     technical:
-      'VIX > 30 → verrou inconditionnel indépendamment du score composite. Scoring momentum DXY. Calendrier économique : 134 événements sur 2 niveaux. T1 (Fed/CPI/NFP) : pause 2h. T2 (données secondaires) : pause 30min.',
+      'Base : VIX + DXY 5j. Ajustements MI-8→MI-11 : VIX term structure · credit spreads HYG/IEI · Put/Call SPY · insider buying SEC Form 4 · earnings beat · analyst revisions · short interest · options flow SPY+QQQ. Calendrier : FOMC/CPI/NFP blackout 2h, T2 blackout 30min.',
+  },
+  {
+    id: 'institutional',
+    label: 'Institutionnel',
+    weight: 'obs.',
+    color: '#f6c90e',
+    functional:
+      "Mesure le comportement des acteurs institutionnels : vol d'options crypto (DVOL), flux ETF Bitcoin (IBIT + FBTC), et structure du marché (dominance BTC, stablecoin dry powder). Ces signaux reflètent ce que font les grands capitaux, pas les traders retail.",
+    technical:
+      'BTC DVOL Deribit × 40% (vol implicite crypto VIX) + flux IBIT/FBTC var. j/j × 40% + USDT.D niveau + BTC.D tendance × 20%. Score observationnel [-100, +100], non intégré au score global avant validation 90 jours.',
   },
 ]
 

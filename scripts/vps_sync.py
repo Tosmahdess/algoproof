@@ -879,22 +879,41 @@ def sync_mi_snapshot() -> None:
         print(f"  [MI] Read error: {e}")
         return
 
-    # Heartbeat uses: global_score, risk_level (GREEN/YELLOW/ORANGE/RED),
-    # allow_new_entries, last_cycle_utc, temporal.{pillar}_score_ema_24h
     temporal = hb.get("temporal", {})
     record = {
-        "snapshot_at":       hb.get("last_cycle_utc") or datetime.utcnow().isoformat() + "Z",
-        "composite_score":   hb.get("global_score"),
-        "regime":            hb.get("risk_level"),          # GREEN/YELLOW/ORANGE/RED
-        "is_safe":           hb.get("allow_new_entries"),
-        "is_macro_safe":     hb.get("risk_level") not in ("ORANGE", "RED") if hb.get("risk_level") else None,
-        "sentiment_score":   temporal.get("sentiment_score_ema_24h"),
-        "derivatives_score": temporal.get("derivatives_score_ema_24h"),
-        "news_score":        temporal.get("news_score_ema_24h"),
-        "macro_score":       temporal.get("macro_score_ema_24h"),
+        "snapshot_at":         hb.get("last_cycle_utc") or datetime.utcnow().isoformat() + "Z",
+        "composite_score":     hb.get("global_score"),
+        "regime":              hb.get("risk_level"),       # GREEN/YELLOW/ORANGE/RED (risk level)
+        "sentiment_regime":    hb.get("regime"),           # NEUTRAL/GREED/FEAR (MI sentiment regime)
+        "is_safe":             hb.get("allow_new_entries"),
+        "is_macro_safe":       hb.get("risk_level") not in ("ORANGE", "RED") if hb.get("risk_level") else None,
+        "sentiment_score":     temporal.get("sentiment_score_ema_24h"),
+        "derivatives_score":   temporal.get("derivatives_score_ema_24h"),
+        "news_score":          temporal.get("news_score_ema_24h"),
+        "macro_score":         temporal.get("macro_score_ema_24h"),
+        # Directional filter (added 2026-05-12)
+        "market_bias":         hb.get("market_bias"),
+        "trend_regime":        hb.get("trend_regime"),
+        "btc_vs_ema200_pct":   hb.get("btc_vs_ema200_pct"),
+        "allow_long":          hb.get("allow_long"),
+        "allow_short":         hb.get("allow_short"),
+        # Institutional signal (added 2026-05-12)
+        "institutional_score": hb.get("institutional_score"),
     }
 
-    supabase_upsert("mi_snapshots", [record], "snapshot_at")
+    # Try with all new columns; fall back to original 9 if schema not yet migrated
+    try:
+        supabase_upsert("mi_snapshots", [record], "snapshot_at")
+    except Exception as e:
+        if "column" in str(e).lower() or "42703" in str(e):
+            fallback = {k: record[k] for k in [
+                "snapshot_at", "composite_score", "regime", "is_safe", "is_macro_safe",
+                "sentiment_score", "derivatives_score", "news_score", "macro_score",
+            ] if k in record}
+            supabase_upsert("mi_snapshots", [fallback], "snapshot_at")
+            print("  [MI] WARN: new columns not in Supabase yet — run migration SQL")
+        else:
+            raise
     regime = record.get("regime", "?")
     score = record.get("composite_score", "?")
     print(f"  [MI] Snapshot synced — regime={regime}, score={score}")

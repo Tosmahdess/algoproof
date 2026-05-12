@@ -99,12 +99,20 @@ export interface MiSnapshot {
   snapshot_at: string
   composite_score: number | null
   regime: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED' | null
+  sentiment_regime: 'EXTREME_FEAR' | 'FEAR' | 'NEUTRAL' | 'GREED' | 'EXTREME_GREED' | null
   is_safe: boolean | null
   is_macro_safe: boolean | null
   sentiment_score: number | null
   derivatives_score: number | null
   news_score: number | null
   macro_score: number | null
+  institutional_score: number | null
+  // Directional filter (added 2026-05-12)
+  market_bias: 'LONG_ONLY' | 'SHORT_ONLY' | 'BOTH' | 'BLOCKED' | null
+  trend_regime: 'BULL' | 'TRANSITION' | 'BEAR' | null
+  btc_vs_ema200_pct: number | null
+  allow_long: boolean | null
+  allow_short: boolean | null
   created_at: string
 }
 
