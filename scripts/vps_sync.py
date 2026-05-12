@@ -389,6 +389,30 @@ BOTS = [
         "db_path": os.path.expanduser("~/apex_keltner_hlperps_xau/db/paper_state.db"),
         "paper_state_name": "apex_keltner_hlperps_xau", "start_capital": 1000.0,
     },
+
+    # ── Carry strategies ─────────────────────────────────────────────────────
+    {
+        "slug": "funding-rate-harvest",
+        "name": "Funding Rate Harvesting",
+        "family": "carry",
+        "strategy": "Delta-neutral carry — Long spot + Short perp HL",
+        "status": "paper",
+        "exchange": "HL Perps + Binance Spot",
+        "assets": ["SOL", "BTC", "ETH"],
+        "timeframe": "H8",
+        "description": (
+            "Stratégie de portage delta-neutre : position longue sur le spot (Binance) et courte "
+            "équivalente sur les perpetuals Hyperliquid. L'exposition directionnelle est annulée — "
+            "le bot ne spécule pas sur le prix. Il encaisse uniquement les paiements de taux de "
+            "financement toutes les 8h quand les longs paient les shorts (marché haussier). "
+            "Entrée uniquement si le taux moyen des 6 derniers cycles dépasse 0,003%/8h (~3,3%/an). "
+            "Sortie automatique dès que le taux passe négatif ou après 3 paiements consécutifs négatifs. "
+            "Rendement théorique : 2–10%/an selon le régime de marché, avec risque directionnel quasi nul."
+        ),
+        "db_path": os.path.expanduser("~/apex_funding_rate/db/funding_state.db"),
+        "paper_state_name": "apex-funding-rate",
+        "start_capital": 400.0,
+    },
 ]
 
 WEALTH_CALLS_DB   = os.path.expanduser("~/apex_wealth/db/wealth_calls.db")

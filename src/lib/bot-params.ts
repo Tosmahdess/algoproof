@@ -2026,6 +2026,28 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
     ],
   },
+
+  'funding-rate-harvest': {
+    sections: [
+      {
+        title: "Stratégie — Portage delta-neutre",
+        body: "Long spot sur Binance + Short perp équivalent sur Hyperliquid. L'exposition directionnelle au prix est annulée : si BTC monte de 5%, le gain sur le spot est compensé par la perte sur le perp. Le bot ne spécule pas sur la direction du marché. Il encaisse uniquement les paiements de taux de financement toutes les 8h — versés par les positions longues vers les positions courtes quand le marché est haussier.",
+      },
+      {
+        title: "Signal d'entrée / sortie",
+        body: "Entrée : taux de financement moyen des 6 derniers cycles (48h) > 0,003%/8h (~3,3%/an minimum). Le bot sélectionne automatiquement le symbole avec le taux le plus élevé parmi SOL, BTC, ETH. Sortie : taux moyen passe négatif OU 3 paiements consécutifs négatifs. Le bot reste en dehors du marché plutôt que de payer pour maintenir une position déficitaire.",
+        code: "# Entrée quand avg(derniers 6 taux) > seuil\nif avg(rates[-6:]) > 0.003:\n    open_long_spot(symbol, capital/2)\n    open_short_perp(symbol, capital/2)\n\n# Sortie si funding négatif\nif avg(rates[-6:]) < 0 or consecutive_negative >= 3:\n    close_both_legs()",
+      },
+      {
+        title: "Rebalancement",
+        body: "Si le prix se déplace significativement, les deux jambes dérivent et un delta net apparaît. Le bot recalcule en continu : delta = (spot_size - perp_size) × prix. Si |delta| > 20 USDT, il ajuste la jambe spot pour restaurer la neutralité. Cycle de vérification : toutes les 30 minutes.",
+      },
+      {
+        title: "Rendement attendu",
+        body: "Données 30 jours (2026-04-12 → 2026-05-12) : SOL positif 64% du temps (+2,7%/an annualisé), BTC positif 34% du temps (−2,0%/an), ETH 37% (+1,2%/an). Taux actuels (2026-05-12) : SOL +6,1%/an, BTC +5,4%/an, ETH +4,2%/an. Rendement réaliste sur cycle complet : 2–5%/an en conditions normales, jusqu'à 10–40%/an en pic de bull.",
+      },
+    ],
+  },
 }
 
 export function getBotParams(slug: string): BotParams | null {

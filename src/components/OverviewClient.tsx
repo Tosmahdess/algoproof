@@ -18,11 +18,11 @@ interface Props {
 
 const FAMILY_LABEL: Record<string, string> = {
   trend: 'Suivi de tendance', breakout: 'Cassure',
-  'mean-reversion': 'Retour à la moyenne',
+  'mean-reversion': 'Retour à la moyenne', carry: 'Portage',
 }
 const FAMILY_COLOR: Record<string, string> = {
   trend: '#ff6b35', breakout: '#3fb950',
-  'mean-reversion': '#7c3aed',
+  'mean-reversion': '#7c3aed', carry: '#f6c90e',
 }
 const BOT_COLORS = [
   '#3fb950','#58a6ff','#ff6b35','#d2a8ff','#f6c90e',

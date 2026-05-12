@@ -17,12 +17,14 @@ const FAMILY_COLOR: Record<string, string> = {
   'trend':           '#ff6b35',
   'breakout':        '#3fb950',
   'mean-reversion':  '#7c3aed',
+  'carry':           '#f6c90e',
 }
 
 const FAMILY_LABEL: Record<string, string> = {
   'trend':           'Suivi de tendance',
   'breakout':        'Cassure',
   'mean-reversion':  'Retour à la moyenne',
+  'carry':           'Portage',
 }
 
 export default async function HomePage() {
