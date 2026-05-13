@@ -9,6 +9,7 @@ const STRATEGIES_SUB = [
   { href: '/strategies#trend',          label: 'Suivi de tendance' },
   { href: '/strategies#breakout',       label: 'Cassure' },
   { href: '/strategies#mean-reversion', label: 'Retour à la moyenne' },
+  { href: '/strategies#carry',          label: 'Portage' },
 ]
 
 const ALL_LINKS = [
