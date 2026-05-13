@@ -8,6 +8,7 @@ import TradesTable from '@/components/TradesTable'
 import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
 import DiscussionTab from '@/components/DiscussionTab'
+import ExchangeAlert from '@/components/ExchangeAlert'
 import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { pnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
@@ -65,6 +66,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       <div className="mb-8">
         <MetricsRow stats={bot.stats} />
       </div>
+
+      {/* Exchange alert — Binance Futures bloqué FR */}
+      <ExchangeAlert exchange={bot.exchange} />
 
       {/* Equity curve */}
       <div className="bg-card border border-border rounded-xl p-6 mb-8">
