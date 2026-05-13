@@ -1,4 +1,5 @@
-const BYBIT_URL = process.env.NEXT_PUBLIC_BYBIT_AFFILIATE_URL ?? 'https://www.bybit.com/register'
+import { BYBIT_AFFILIATE_URL } from '@/lib/affiliates'
+
 const HL_URL    = 'https://app.hyperliquid.xyz'
 
 export default function ExchangeAlert({ exchange }: { exchange: string }) {
@@ -11,7 +12,7 @@ export default function ExchangeAlert({ exchange }: { exchange: string }) {
       </span>
       <div className="flex flex-wrap gap-2">
         <a
-          href={BYBIT_URL}
+          href={BYBIT_AFFILIATE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="rounded border border-yellow-700/50 bg-yellow-900/40 px-3 py-1 text-xs font-medium text-yellow-200 transition-colors hover:bg-yellow-800/50"

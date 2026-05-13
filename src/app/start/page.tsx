@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { BYBIT_AFFILIATE_URL } from '@/lib/affiliates'
 
 export const metadata: Metadata = {
   title: 'Démarrer — Trader les bots depuis la France',
   description: 'Binance Futures est bloqué en France depuis 2023 (AMF). Découvrez Bybit et Hyperliquid, les deux exchanges compatibles pour trader les bots AlgoProof.',
   openGraph: { url: 'https://algoproof.fr/start' },
 }
-
-const BYBIT_URL = process.env.NEXT_PUBLIC_BYBIT_AFFILIATE_URL ?? 'https://www.bybit.com/register'
 
 export default function StartPage() {
   return (
@@ -51,7 +50,7 @@ export default function StartPage() {
             </ol>
           </div>
           <a
-            href={BYBIT_URL}
+            href={BYBIT_AFFILIATE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full rounded-lg bg-positive py-2.5 text-center text-sm font-semibold text-black transition-opacity hover:opacity-90"
