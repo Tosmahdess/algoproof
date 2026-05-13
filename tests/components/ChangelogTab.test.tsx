@@ -24,7 +24,7 @@ describe('ChangelogTab', () => {
   it('renders a changelog entry with category chip and summary', () => {
     render(<ChangelogTab changelogs={[makeEntry()]} />)
     expect(screen.getByText('Fixed M5 filter')).toBeTruthy()
-    expect(screen.getByText('fix')).toBeTruthy()
+    expect(screen.getByText('correctif')).toBeTruthy()
   })
 
   it('renders optional detail text', () => {

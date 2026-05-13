@@ -20,12 +20,12 @@ describe('TriggerCounter', () => {
 
   it('shows locked label when criteria not met', () => {
     render(<TriggerCounter data={livePending} />)
-    expect(screen.getByText(/vente fermée/i)).toBeDefined()
+    expect(screen.getByText(/critères avant live — en cours/i)).toBeDefined()
   })
 
   it('shows unlocked label when all criteria met', () => {
     render(<TriggerCounter data={liveMet} />)
-    expect(screen.getByText(/vente ouverte/i)).toBeDefined()
+    expect(screen.getByText(/critères avant live — atteints/i)).toBeDefined()
   })
 
   it('renders profit factor with 2 decimal places', () => {
