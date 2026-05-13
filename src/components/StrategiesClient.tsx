@@ -19,6 +19,10 @@ const FAMILIES = [
     slug: 'mean-reversion', label: 'Retour à la moyenne', color: '#7c3aed',
     description: "Ces stratégies exploitent les excès de marché : le prix s'est écarté de sa valeur d'équilibre et tend à y revenir. Entrée en contre-tendance, sortie rapide dès la normalisation.",
   },
+  {
+    slug: 'carry', label: 'Portage', color: '#f6c90e',
+    description: "Les stratégies de portage capturent un rendement récurrent sans pari directionnel. Elles encaissent des taux de financement (delta-neutre) ou exploitent la volatilité dans un range fixe (grille). Le rendement est indépendant de la hausse ou baisse du marché.",
+  },
 ]
 
 export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
