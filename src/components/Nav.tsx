@@ -17,6 +17,7 @@ const ALL_LINKS = [
   { href: '/wealth',       label: 'Patrimoine' },
   { href: '/intelligence', label: 'Intelligence' },
   { href: '/blog',         label: 'Blog' },
+  { href: '/start',        label: 'Démarrer' },
 ]
 
 export default function Nav() {
@@ -73,6 +74,18 @@ export default function Nav() {
               </Link>
             )
           })}
+
+          {/* Démarrer CTA */}
+          <Link
+            href="/start"
+            className={`text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors ${
+              path === '/start'
+                ? 'border-positive text-positive'
+                : 'border-border text-muted hover:border-positive hover:text-positive'
+            }`}
+          >
+            DÉMARRER
+          </Link>
         </div>
 
         {/* Mobile hamburger */}
