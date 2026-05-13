@@ -409,6 +409,7 @@ BOTS = [
             "Sortie automatique dès que le taux passe négatif ou après 3 paiements consécutifs négatifs. "
             "Rendement théorique : 2–10%/an selon le régime de marché, avec risque directionnel quasi nul."
         ),
+        "schema": "funding",
         "db_path": os.path.expanduser("~/apex_funding_rate/db/funding_state.db"),
         "paper_state_name": "apex-funding-rate",
         "start_capital": 400.0,
@@ -431,6 +432,7 @@ BOTS = [
             "Le bot ne parie pas sur la direction — il profite de la volatilité dans un range. "
             "Rebuild automatique si le prix dérive de plus de 50% depuis le centre de la grille."
         ),
+        "schema": "grid",
         "db_path": os.path.expanduser("~/apex_grid_bot/db/grid_state.db"),
         "paper_state_name": "apex-grid-btc",
         "start_capital": 500.0,
@@ -599,6 +601,86 @@ def load_trades_breakout_schema(db_path: str) -> list[dict]:
     return valid
 
 
+def load_trades_funding_schema(db_path: str) -> list[dict]:
+    """Load funding payments as trade events (each 8h payment = one row)."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        pos = conn.execute("SELECT symbol FROM position LIMIT 1").fetchone()
+        symbol = clean_asset(dict(pos)["symbol"]) if pos else "SOL-USDT"
+        rows = conn.execute(
+            "SELECT timestamp, rate_pct, income_usd, cumulative FROM funding_log ORDER BY timestamp ASC"
+        ).fetchall()
+    except Exception:
+        conn.close()
+        return []
+    conn.close()
+    trades = []
+    for r in rows:
+        r = dict(r)
+        if float(r["income_usd"]) == 0:
+            continue
+        trades.append({
+            "timestamp":   r["timestamp"],
+            "closed_at":   r["timestamp"],
+            "symbol":      symbol,
+            "direction":   "long",
+            "pnl":         float(r["income_usd"]),
+            "exit_reason": "funding_payment",
+        })
+    return trades
+
+
+def get_funding_balance(db_path: str, start_capital: float) -> float:
+    """Current equity = start_capital + total cumulative funding income."""
+    try:
+        conn = sqlite3.connect(db_path)
+        row = conn.execute("SELECT COALESCE(SUM(income_usd), 0) FROM funding_log").fetchone()
+        conn.close()
+        return start_capital + float(row[0])
+    except Exception:
+        return start_capital
+
+
+def load_trades_grid_schema(db_path: str) -> list[dict]:
+    """Load grid round trips as trade events (each completed buy→sell = one row)."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        cfg = conn.execute("SELECT symbol FROM grid_config LIMIT 1").fetchone()
+        symbol = clean_asset(dict(cfg)["symbol"]) if cfg else "BTC-USDT"
+        rows = conn.execute(
+            "SELECT completed_at, buy_price, sell_price, profit FROM round_trips ORDER BY completed_at ASC"
+        ).fetchall()
+    except Exception:
+        conn.close()
+        return []
+    conn.close()
+    trades = []
+    for r in rows:
+        r = dict(r)
+        trades.append({
+            "timestamp":   r["completed_at"],
+            "closed_at":   r["completed_at"],
+            "symbol":      symbol,
+            "direction":   "long",
+            "pnl":         round(float(r["profit"]), 6),
+            "exit_reason": "round_trip",
+        })
+    return trades
+
+
+def get_grid_balance(db_path: str, start_capital: float) -> float:
+    """Current equity = start_capital + total round trip profit."""
+    try:
+        conn = sqlite3.connect(db_path)
+        row = conn.execute("SELECT COALESCE(SUM(profit), 0) FROM round_trips").fetchone()
+        conn.close()
+        return start_capital + float(row[0])
+    except Exception:
+        return start_capital
+
+
 def build_perf_daily(trades: list[dict], start_capital: float, paper_balance: float) -> list[dict]:
     """
     Build daily equity rows from closed trades.
@@ -674,14 +756,11 @@ def sync_bot(bot_cfg: dict) -> None:
     db_path = bot_cfg["db_path"]
     start_capital = bot_cfg["start_capital"]
     paper_name = bot_cfg["paper_state_name"]
+    schema = bot_cfg.get("schema", "v1")
 
     print(f"\n[{slug}] Starting sync...")
 
-    if not os.path.exists(db_path):
-        print(f"[{slug}] DB not found: {db_path} — skipping")
-        return
-
-    # 1. Upsert bot metadata
+    # 1. Upsert bot metadata (always, even if DB not yet deployed)
     bot_row = {
         "slug": slug,
         "name": bot_cfg["name"],
@@ -696,12 +775,19 @@ def sync_bot(bot_cfg: dict) -> None:
     supabase_upsert("bots", [bot_row], "slug")
     bot_id = get_bot_id(slug)
 
+    if not os.path.exists(db_path):
+        print(f"[{slug}] DB not found — metadata synced, skipping trades")
+        return
+
     # 2. Load trades — dispatch by schema
-    schema = bot_cfg.get("schema", "v1")
     if schema == "new":
         trades = load_trades_new_schema(db_path)
     elif schema == "breakout":
         trades = load_trades_breakout_schema(db_path)
+    elif schema == "funding":
+        trades = load_trades_funding_schema(db_path)
+    elif schema == "grid":
+        trades = load_trades_grid_schema(db_path)
     else:
         trades = load_trades_from_db(db_path)
     print(f"[{slug}] {len(trades)} valid closed trades loaded (schema={schema})")
@@ -729,7 +815,11 @@ def sync_bot(bot_cfg: dict) -> None:
     if schema == "new":
         paper_balance = get_paper_equity(db_path, paper_name) if paper_name else None
     elif schema == "breakout":
-        paper_balance = None  # no paper_state table in breakout schema
+        paper_balance = None
+    elif schema == "funding":
+        paper_balance = get_funding_balance(db_path, start_capital)
+    elif schema == "grid":
+        paper_balance = get_grid_balance(db_path, start_capital)
     else:
         paper_balance = get_paper_balance(db_path, paper_name)
     perf = build_perf_daily(trades, start_capital, paper_balance)
