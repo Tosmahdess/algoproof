@@ -1,6 +1,4 @@
-import { BYBIT_AFFILIATE_URL } from '@/lib/affiliates'
-
-const HL_URL    = 'https://app.hyperliquid.xyz'
+import { BYBIT_AFFILIATE_URL, HL_AFFILIATE_URL } from '@/lib/affiliates'
 
 export default function ExchangeAlert({ exchange }: { exchange: string }) {
   if (!exchange.includes('Binance Futures')) return null
@@ -20,7 +18,7 @@ export default function ExchangeAlert({ exchange }: { exchange: string }) {
           Bybit ↗
         </a>
         <a
-          href={HL_URL}
+          href={HL_AFFILIATE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="rounded border border-yellow-700/30 px-3 py-1 text-xs font-medium text-yellow-200/70 transition-colors hover:text-yellow-200"

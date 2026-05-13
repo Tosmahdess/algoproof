@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BYBIT_AFFILIATE_URL } from '@/lib/affiliates'
+import { BYBIT_AFFILIATE_URL, BINANCE_AFFILIATE_URL, HL_AFFILIATE_URL } from '@/lib/affiliates'
 
 export const metadata: Metadata = {
   title: 'Démarrer — Trader les bots depuis la France',
@@ -83,12 +83,45 @@ export default function StartPage() {
             </ol>
           </div>
           <a
-            href="https://app.hyperliquid.xyz"
+            href={HL_AFFILIATE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-text transition-colors hover:border-muted"
           >
             Découvrir Hyperliquid →
+          </a>
+        </div>
+
+        {/* Binance Spot */}
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Binance Spot</h2>
+            <span className="rounded-full bg-muted/10 border border-border px-2.5 py-0.5 text-xs font-medium text-muted">
+              Spot uniquement
+            </span>
+          </div>
+          <ul className="space-y-1.5 text-sm text-muted">
+            <li>✓ Exchange numéro 1 mondial — liquidité maximale</li>
+            <li>✓ Disponible en France pour le spot</li>
+            <li>✓ Frais taker 0.10% (réduits avec BNB)</li>
+            <li>✓ Large choix d&apos;actifs spot</li>
+            <li>⚠ Binance <strong className="text-text">Futures bloqué</strong> — spot uniquement depuis FR</li>
+          </ul>
+          <div className="space-y-2 text-xs text-muted">
+            <p className="font-medium text-text">3 étapes pour démarrer :</p>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>Créer un compte et passer le KYC</li>
+              <li>Déposer des USDT (virement SEPA)</li>
+              <li>Générer une clé API Spot et la configurer dans le bot</li>
+            </ol>
+          </div>
+          <a
+            href={BINANCE_AFFILIATE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-text transition-colors hover:border-positive hover:text-positive"
+          >
+            Créer un compte Binance →
           </a>
         </div>
       </div>
@@ -103,22 +136,24 @@ export default function StartPage() {
                 <th className="px-4 py-3 text-left font-medium text-muted">Critère</th>
                 <th className="px-4 py-3 text-left font-medium text-muted">Bybit</th>
                 <th className="px-4 py-3 text-left font-medium text-muted">Hyperliquid</th>
+                <th className="px-4 py-3 text-left font-medium text-muted">Binance Spot</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {[
-                ['Type', 'CEX (centralisé)', 'DEX (décentralisé)'],
-                ['Dépôt', 'Fiat + crypto', 'USDC via Arbitrum'],
-                ['Frais taker', '~0.055%', '0.065%'],
-                ['Paires disponibles', '300+', '150+'],
-                ['Complexité setup', 'Facile', 'Avancée'],
-                ['Custodial', 'Oui', 'Non'],
-                ['Accessible France', '✓ Oui', '✓ Oui'],
-              ].map(([label, bybit, hl]) => (
+                ['Type',               'CEX',             'DEX',              'CEX'],
+                ['Dépôt',              'Fiat + crypto',   'USDC Arbitrum',    'Fiat + crypto'],
+                ['Frais taker',        '~0.055%',         '0.065%',           '0.10%'],
+                ['Futures FR',         '✓ Oui',           '✓ Oui',            '✗ Bloqué'],
+                ['Spot FR',            '✓ Oui',           '—',                '✓ Oui'],
+                ['Complexité setup',   'Facile',          'Avancée',          'Facile'],
+                ['Custodial',          'Oui',             'Non',              'Oui'],
+              ].map(([label, bybit, hl, binance]) => (
                 <tr key={label} className="hover:bg-card/30 transition-colors">
                   <td className="px-4 py-3 font-medium text-muted">{label}</td>
                   <td className="px-4 py-3 text-text">{bybit}</td>
                   <td className="px-4 py-3 text-text">{hl}</td>
+                  <td className="px-4 py-3 text-text">{binance}</td>
                 </tr>
               ))}
             </tbody>
