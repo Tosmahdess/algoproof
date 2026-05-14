@@ -5,7 +5,7 @@ import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot
 export async function getBots(): Promise<Bot[]> {
   const { data, error } = await supabase
     .from('bots')
-    .select('id,slug,name,strategy,status,family,exchange,assets,timeframe,description,created_at')
+    .select('id,slug,name,strategy,status,family,exchange,assets,timeframe,description,created_at,last_sync_at')
     .neq('status', 'frozen')
     .order('name')
   if (error) throw new Error(error.message)
