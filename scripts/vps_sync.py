@@ -771,6 +771,7 @@ def sync_bot(bot_cfg: dict) -> None:
         "assets": bot_cfg["assets"],
         "timeframe": bot_cfg["timeframe"],
         "description": bot_cfg["description"],
+        "last_sync_at": datetime.now(timezone.utc).isoformat(),
     }
     supabase_upsert("bots", [bot_row], "slug")
     bot_id = get_bot_id(slug)

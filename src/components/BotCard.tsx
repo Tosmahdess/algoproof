@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { BotWithStats } from '@/lib/types'
 import StatusBadge from './StatusBadge'
+import SyncBadge from './SyncBadge'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
 export default function BotCard({ bot }: { bot: BotWithStats }) {
@@ -48,6 +49,9 @@ export default function BotCard({ bot }: { bot: BotWithStats }) {
           ) : (
             <span className="text-muted text-[10px]">Pas encore de trades</span>
           )}
+        </div>
+        <div className="mt-2 pt-2 border-t border-border/40">
+          <SyncBadge lastSyncAt={bot.last_sync_at} />
         </div>
       </div>
     </Link>

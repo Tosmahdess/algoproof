@@ -14,6 +14,7 @@ export interface Bot {
   timeframe: string
   description: string | null
   created_at: string
+  last_sync_at: string | null
 }
 
 export interface Trade {
