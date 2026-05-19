@@ -73,6 +73,7 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
     },
     perf_daily: allPerf,
     recent_trades: allTrades.slice(0, 20),
+    all_trades: allTrades,
   }
 }
 

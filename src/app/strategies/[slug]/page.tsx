@@ -2,16 +2,13 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import StatusBadge from '@/components/StatusBadge'
-import MetricsRow from '@/components/MetricsRow'
-import EquityCurve from '@/components/EquityCurve'
-import TradesTable from '@/components/TradesTable'
+import StrategyDetail from '@/components/StrategyDetail'
 import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
 import DiscussionTab from '@/components/DiscussionTab'
 import ExchangeAlert from '@/components/ExchangeAlert'
 import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
-import { pnlEur, pnlPct, fmtEur, fmtPct, DISPLAY_CAPITAL } from '@/lib/display'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -46,9 +43,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
   const changelogs = await getChangelogForBot(slug)
 
-  const pct = pnlPct(bot.stats.latest_capital)
-  const eur = pnlEur(bot.stats.latest_capital)
-
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
 
@@ -62,32 +56,11 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         <p className="text-muted">{bot.strategy}</p>
       </div>
 
-      {/* Key metrics */}
-      <div className="mb-8">
-        <MetricsRow stats={bot.stats} />
-      </div>
-
       {/* Exchange alert — Binance Futures bloqué FR */}
       <ExchangeAlert exchange={bot.exchange} />
 
-      {/* Equity curve */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">Courbe d&apos;équité</h2>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="text-muted">Départ : {DISPLAY_CAPITAL}€</span>
-            <span className={`font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
-              {fmtEur(eur)} ({fmtPct(pct)})
-            </span>
-          </div>
-        </div>
-        <EquityCurve data={bot.perf_daily} startCapital={1000} />
-        {bot.status === 'paper' && (
-          <p className="text-xs text-muted/60 mt-3 text-center">
-            ⚠ Paper trading — exécution simulée, aucun capital réel exposé
-          </p>
-        )}
-      </div>
+      {/* Filter + metrics + equity curve + trades — interactive client island */}
+      <StrategyDetail bot={bot} />
 
       {/* Explanation: plain overview → technical params */}
       <section className="mb-8">
@@ -111,15 +84,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           changelogs={changelogs}
         />
       </section>
-
-      {/* Recent trades */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-8">
-        <h2 className="font-semibold mb-4">
-          Trades récents
-          <span className="text-muted text-sm font-normal ml-2">({bot.recent_trades.length} affichés)</span>
-        </h2>
-        <TradesTable trades={bot.recent_trades} />
-      </div>
 
       {/* Discussion */}
       <div className="bg-card border border-border rounded-xl p-6 mb-8">

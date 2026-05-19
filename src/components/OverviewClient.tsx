@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { BotWithStats, TradeWithBot } from '@/lib/types'
+import type { BotWithStats, BotStats, TradeWithBot } from '@/lib/types'
 import StatusBadge from '@/components/StatusBadge'
 import MiBanner from '@/components/MiBanner'
 import GlobalEquityCurve from '@/components/GlobalEquityCurve'
+import DirectionFilterPills from '@/components/DirectionFilterPills'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
+import { computeBotStats, countByDirection, type DirectionFilter } from '@/lib/stats'
 
 type SortCol = 'trades' | 'win_rate' | 'profit_factor' | 'max_drawdown' | 'pnl'
 type SortDir = 'asc' | 'desc'
@@ -14,6 +16,11 @@ type SortDir = 'asc' | 'desc'
 interface Props {
   bots: BotWithStats[]
   recentTrades: TradeWithBot[]
+}
+
+interface BotView extends BotWithStats {
+  stats: BotStats
+  breakdown: { total: number; long: number; short: number }
 }
 
 const FAMILY_LABEL: Record<string, string> = {
@@ -29,7 +36,7 @@ const BOT_COLORS = [
   '#40c4ff','#ff4444','#4ade80','#fb923c','#a78bfa',
 ]
 
-function getValue(bot: BotWithStats, col: SortCol): number {
+function getValue(bot: BotView, col: SortCol): number {
   switch (col) {
     case 'trades':        return bot.stats.total_trades
     case 'win_rate':      return bot.stats.win_rate
@@ -62,6 +69,7 @@ function SortBtn({
 export default function OverviewClient({ bots, recentTrades }: Props) {
   const [sortCol, setSortCol] = useState<SortCol>('pnl')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [direction, setDirection] = useState<DirectionFilter>('all')
 
   const handleSort = (col: SortCol) => {
     if (col === sortCol) {
@@ -72,20 +80,50 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
     }
   }
 
-  const sorted = [...bots].sort((a, b) => {
+  // Recompute each bot's stats according to the active direction filter.
+  // Breakdown (long/short counts) is always derived from the full trade list.
+  const views: BotView[] = useMemo(() => bots.map(b => ({
+    ...b,
+    stats: direction === 'all'
+      ? b.stats
+      : computeBotStats(b.all_trades, b.perf_daily, direction),
+    breakdown: countByDirection(b.all_trades),
+  })), [bots, direction])
+
+  // Global pill counts: total long/short trades across the fleet.
+  const fleetCounts = useMemo(() => {
+    let long = 0, short = 0
+    for (const b of bots) {
+      for (const t of b.all_trades) {
+        if (t.side === 'long') long++; else short++
+      }
+    }
+    return { long, short }
+  }, [bots])
+
+  const sorted = [...views].sort((a, b) => {
     const va = getValue(a, sortCol)
     const vb = getValue(b, sortCol)
     return sortDir === 'asc' ? va - vb : vb - va
   })
 
   const today        = new Date().toISOString().slice(0, 10)
-  const botsWithData = bots.filter(b => b.stats.total_trades > 0)
+  const botsWithData = views.filter(b => b.stats.total_trades > 0)
   const winners      = botsWithData.filter(b => b.stats.latest_capital > 1000).length
-  const todayPnl     = bots.reduce((s, b) => {
-    const row = b.perf_daily.find(p => p.date === today)
-    return s + (row?.pnl_day ?? 0)
-  }, 0)
-  const allTimePnl   = bots.reduce((s, b) => s + (b.stats.latest_capital - 1000), 0)
+  const todayPnl     = direction === 'all'
+    ? bots.reduce((s, b) => {
+        const row = b.perf_daily.find(p => p.date === today)
+        return s + (row?.pnl_day ?? 0)
+      }, 0)
+    : bots.reduce((s, b) =>
+        s + b.all_trades
+              .filter(t => t.side === direction && t.closed_at.slice(0, 10) === today)
+              .reduce((acc, t) => acc + t.pnl, 0),
+      0)
+  const allTimePnl   = views.reduce((s, b) => s + (b.stats.latest_capital - 1000), 0)
+  const filteredRecentTrades = direction === 'all'
+    ? recentTrades
+    : recentTrades.filter(t => t.side === direction)
 
   const curveBots = [...botsWithData]
     .sort((a, b) => b.stats.total_trades - a.stats.total_trades)
@@ -103,6 +141,17 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">Intelligence de marché</h2>
         <MiBanner />
       </section>
+
+      {/* Direction filter */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted">Filtrer par direction</h2>
+        <DirectionFilterPills
+          value={direction}
+          onChange={setDirection}
+          longCount={fleetCounts.long}
+          shortCount={fleetCounts.short}
+        />
+      </div>
 
       {/* Summary counters */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
@@ -145,7 +194,16 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                       style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
                       {FAMILY_LABEL[bot.family ?? ''] ?? '—'}
                     </span>
-                    {hasData && <span className="text-[10px] text-muted">{bot.stats.total_trades} trades</span>}
+                    {hasData && (
+                      <span className="text-[10px] text-muted">
+                        {bot.stats.total_trades} trades
+                        {direction === 'all' && bot.breakdown.total > 0 && (
+                          <span className="ml-1 opacity-70">
+                            ({bot.breakdown.long}L · {bot.breakdown.short}S)
+                          </span>
+                        )}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0">
@@ -206,7 +264,16 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                     </td>
                     <td className="px-4 py-3 text-muted hidden lg:table-cell">{bot.exchange}</td>
                     <td className="px-4 py-3 text-right font-mono">
-                      {hasData ? bot.stats.total_trades : <span className="text-muted">—</span>}
+                      {hasData ? (
+                        <>
+                          {bot.stats.total_trades}
+                          {direction === 'all' && bot.breakdown.total > 0 && (
+                            <span className="block text-[10px] text-muted">
+                              {bot.breakdown.long}L · {bot.breakdown.short}S
+                            </span>
+                          )}
+                        </>
+                      ) : <span className="text-muted">—</span>}
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
                       {hasData ? `${(bot.stats.win_rate * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
@@ -260,7 +327,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
       {/* 20 derniers trades */}
       <section>
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-4">
-          20 derniers trades — tous bots
+          {direction === 'all' ? '20 derniers trades — tous bots' : `Derniers trades ${direction === 'long' ? 'long' : 'short'} — tous bots`}
         </h2>
         <div className="rounded border border-border overflow-x-auto">
           <table className="w-full text-xs min-w-[480px]">
@@ -275,7 +342,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
               </tr>
             </thead>
             <tbody>
-              {recentTrades.map(t => (
+              {filteredRecentTrades.map(t => (
                 <tr key={t.id} className="border-t border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-2 font-mono text-muted">
                     {new Date(t.closed_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}

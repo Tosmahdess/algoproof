@@ -51,6 +51,7 @@ export interface BotWithStats extends Bot {
   stats: BotStats
   perf_daily: PerfDaily[]
   recent_trades: Trade[]
+  all_trades: Trade[]   // complete trade list, used for client-side long/short filtering
 }
 
 export interface WealthCall {

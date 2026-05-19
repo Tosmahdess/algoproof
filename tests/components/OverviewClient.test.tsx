@@ -9,7 +9,7 @@ const mkBot = (slug: string, trades: number, wr: number, pf: number, dd: number,
   id: slug, slug, name: slug, strategy: '', status: 'paper', family: 'trend',
   exchange: 'Binance', assets: [], timeframe: 'H4', description: null, created_at: '', last_sync_at: null,
   stats: { total_trades: trades, win_rate: wr, profit_factor: pf, max_drawdown: dd, latest_capital: cap },
-  perf_daily: [], recent_trades: [],
+  perf_daily: [], recent_trades: [], all_trades: [],
 })
 
 const BOTS: BotWithStats[] = [
