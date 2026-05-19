@@ -47,8 +47,8 @@ export default async function Image({ params }: { params: { slug: string } }) {
     )
   }
 
-  const DISPLAY_CAPITAL = 1000
-  const pnlPct = ((bot.stats.latest_capital - DISPLAY_CAPITAL) / DISPLAY_CAPITAL) * 100
+  const startCapital = bot.start_capital
+  const pnlPct = ((bot.stats.latest_capital - startCapital) / startCapital) * 100
   const pnlColor = pnlPct >= 0 ? '#3fb950' : '#ff4444'
   const sparklineD = buildSparklinePath(bot.perf_daily, 1104, 140)
 

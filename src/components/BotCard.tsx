@@ -6,8 +6,8 @@ import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
 export default function BotCard({ bot }: { bot: BotWithStats }) {
   const { stats } = bot
-  const pct     = pnlPct(stats.latest_capital)
-  const eur     = pnlEur(stats.latest_capital)
+  const pct     = pnlPct(stats.latest_capital, bot.start_capital)
+  const eur     = pnlEur(stats.latest_capital, bot.start_capital)
   const hasData = stats.total_trades > 0
 
   return (

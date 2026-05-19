@@ -1,13 +1,15 @@
-// Display constants — bots run with 1000€ paper capital, shown as-is.
-export const PAPER_CAPITAL   = 1000
-export const DISPLAY_CAPITAL = 1000
+// Display helpers — bots may run with different paper start capitals (see start-capitals.ts).
+// Pass the bot's start_capital explicitly so funding/grid bots don't get measured against 1000€.
 
-export function pnlEur(latestCapital: number): number {
-  return latestCapital - PAPER_CAPITAL
+export const DEFAULT_PAPER_CAPITAL = 1000
+
+export function pnlEur(latestCapital: number, startCapital: number = DEFAULT_PAPER_CAPITAL): number {
+  return latestCapital - startCapital
 }
 
-export function pnlPct(latestCapital: number): number {
-  return ((latestCapital - PAPER_CAPITAL) / PAPER_CAPITAL) * 100
+export function pnlPct(latestCapital: number, startCapital: number = DEFAULT_PAPER_CAPITAL): number {
+  if (startCapital === 0) return 0
+  return ((latestCapital - startCapital) / startCapital) * 100
 }
 
 export function fmtEur(n: number, decimals = 2): string {

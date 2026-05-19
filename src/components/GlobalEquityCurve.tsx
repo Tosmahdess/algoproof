@@ -2,7 +2,7 @@
 
 import {
   LineChart, Line, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, Legend, ReferenceLine,
+  ResponsiveContainer, Legend,
 } from 'recharts'
 
 interface BotCurve {
@@ -69,7 +69,6 @@ export default function GlobalEquityCurve({ bots, days = 30 }: Props) {
               return [`€${Number(v).toFixed(2)}`, bot?.name ?? String(name)]
             }}
           />
-          <ReferenceLine y={1000} stroke="#333" strokeDasharray="4 2" />
           <Legend
             formatter={(slug) => bots.find(b => b.slug === slug)?.name ?? slug}
             wrapperStyle={{ fontSize: 10 }}

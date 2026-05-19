@@ -29,7 +29,10 @@ const FAMILY_LABEL: Record<string, string> = {
 
 export default async function HomePage() {
   const bots = await getAllBotsWithStats()
-  const sorted = [...bots].sort((a, b) => b.stats.latest_capital - a.stats.latest_capital)
+  // Sort by realized P&L (€), not absolute capital — bots have different start capitals.
+  const sorted = [...bots].sort((a, b) =>
+    (b.stats.latest_capital - b.start_capital) - (a.stats.latest_capital - a.start_capital)
+  )
   const preview = sorted.slice(0, 10)
 
   return (
@@ -96,8 +99,8 @@ export default async function HomePage() {
       <div className="md:hidden rounded border border-border overflow-hidden divide-y divide-border mb-6">
         {preview.map((bot, i) => {
           const hasData = bot.stats.total_trades > 0
-          const eur     = pnlEur(bot.stats.latest_capital)
-          const pct     = pnlPct(bot.stats.latest_capital)
+          const eur     = pnlEur(bot.stats.latest_capital, bot.start_capital)
+          const pct     = pnlPct(bot.stats.latest_capital, bot.start_capital)
           return (
             <Link key={bot.id} href={`/strategies/${bot.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
               <span className="text-xs text-muted font-mono w-6 flex-shrink-0">#{i + 1}</span>
@@ -167,8 +170,8 @@ export default async function HomePage() {
                   <td className="px-4 py-3 text-right">
                     {hasData ? (
                       <div>
-                        <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(pnlEur(bot.stats.latest_capital))}</span>
-                        <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital))}</span>
+                        <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(pnlEur(bot.stats.latest_capital, bot.start_capital))}</span>
+                        <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
                       </div>
                     ) : <span className="text-muted">—</span>}
                   </td>

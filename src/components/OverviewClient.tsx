@@ -42,7 +42,7 @@ function getValue(bot: BotView, col: SortCol): number {
     case 'win_rate':      return bot.stats.win_rate
     case 'profit_factor': return bot.stats.profit_factor
     case 'max_drawdown':  return bot.stats.max_drawdown
-    case 'pnl':           return bot.stats.latest_capital
+    case 'pnl':           return bot.stats.latest_capital - bot.start_capital
   }
 }
 
@@ -86,7 +86,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
     ...b,
     stats: direction === 'all'
       ? b.stats
-      : computeBotStats(b.all_trades, b.perf_daily, direction),
+      : computeBotStats(b.all_trades, b.perf_daily, direction, b.start_capital),
     breakdown: countByDirection(b.all_trades),
   })), [bots, direction])
 
@@ -109,7 +109,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
 
   const today        = new Date().toISOString().slice(0, 10)
   const botsWithData = views.filter(b => b.stats.total_trades > 0)
-  const winners      = botsWithData.filter(b => b.stats.latest_capital > 1000).length
+  const winners      = botsWithData.filter(b => b.stats.latest_capital > b.start_capital).length
   const todayPnl     = direction === 'all'
     ? bots.reduce((s, b) => {
         const row = b.perf_daily.find(p => p.date === today)
@@ -120,7 +120,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
               .filter(t => t.side === direction && t.closed_at.slice(0, 10) === today)
               .reduce((acc, t) => acc + t.pnl, 0),
       0)
-  const allTimePnl   = views.reduce((s, b) => s + (b.stats.latest_capital - 1000), 0)
+  const allTimePnl   = views.reduce((s, b) => s + (b.stats.latest_capital - b.start_capital), 0)
   const filteredRecentTrades = direction === 'all'
     ? recentTrades
     : recentTrades.filter(t => t.side === direction)
@@ -181,8 +181,8 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
         <div className="md:hidden rounded border border-border overflow-hidden divide-y divide-border">
           {sorted.map((bot, i) => {
             const hasData = bot.stats.total_trades > 0
-            const eur = pnlEur(bot.stats.latest_capital)
-            const pct = pnlPct(bot.stats.latest_capital)
+            const eur = pnlEur(bot.stats.latest_capital, bot.start_capital)
+            const pct = pnlPct(bot.stats.latest_capital, bot.start_capital)
             return (
               <Link key={bot.id} href={`/strategies/${bot.slug}`}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
@@ -287,11 +287,11 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                     <td className="px-4 py-3 text-right">
                       {hasData ? (
                         <div>
-                          <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
-                            {fmtEur(pnlEur(bot.stats.latest_capital))}
+                          <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
+                            {fmtEur(pnlEur(bot.stats.latest_capital, bot.start_capital))}
                           </span>
-                          <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
-                            {fmtPct(pnlPct(bot.stats.latest_capital))}
+                          <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
+                            {fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}
                           </span>
                         </div>
                       ) : <span className="text-muted">—</span>}
@@ -307,7 +307,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
         </div>
 
         <p className="text-center text-xs text-muted mt-3">
-          Cliquer sur un en-tête de colonne pour trier · P&amp;L sur trades fermés · Capital initial 1&nbsp;000€ par bot
+          Cliquer sur un en-tête de colonne pour trier · P&amp;L sur trades fermés · Capital initial par bot (1&nbsp;000€ par défaut)
         </p>
       </section>
 

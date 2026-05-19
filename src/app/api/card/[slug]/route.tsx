@@ -13,7 +13,7 @@ export async function GET(
   const bot = await getBotWithStats(slug)
   if (!bot) return new Response('Not found', { status: 404 })
 
-  const eur = pnlEur(bot.stats.latest_capital)
+  const eur = pnlEur(bot.stats.latest_capital, bot.start_capital)
   const isLive = bot.status === 'live'
 
   const metrics = [

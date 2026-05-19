@@ -19,7 +19,7 @@ export default async function EmbedPage({ params }: { params: Promise<{ slug: st
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
 
-  const eur = pnlEur(bot.stats.latest_capital)
+  const eur = pnlEur(bot.stats.latest_capital, bot.start_capital)
   const isLive = bot.status === 'live'
 
   const metrics: Array<{ label: string; value: string; neutral?: boolean; pos?: boolean }> = [

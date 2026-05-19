@@ -1,6 +1,11 @@
 // src/lib/queries.ts
 import { supabase } from './supabase'
 import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog } from './types'
+import { getStartCapital } from './start-capitals'
+
+function withStartCapital<T extends { slug: string }>(row: T): T & { start_capital: number } {
+  return { ...row, start_capital: getStartCapital(row.slug) }
+}
 
 export async function getBots(): Promise<Bot[]> {
   const { data, error } = await supabase
@@ -9,7 +14,7 @@ export async function getBots(): Promise<Bot[]> {
     .neq('status', 'frozen')
     .order('name')
   if (error) throw new Error(error.message)
-  return data ?? []
+  return (data ?? []).map(withStartCapital) as Bot[]
 }
 
 export async function getBotSlugs(): Promise<string[]> {
@@ -45,6 +50,7 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
 
   const allTrades: Trade[] = trades ?? []
   const allPerf: PerfDaily[] = perf ?? []
+  const startCapital = getStartCapital(bot.slug)
 
   const wins = allTrades.filter(t => t.pnl > 0).length
   const win_rate = allTrades.length > 0 ? wins / allTrades.length : 0
@@ -64,12 +70,13 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
 
   return {
     ...bot,
+    start_capital: startCapital,
     stats: {
       win_rate,
       profit_factor,
       max_drawdown,
       total_trades: allTrades.length,
-      latest_capital: capitals[capitals.length - 1] ?? 1000,
+      latest_capital: capitals[capitals.length - 1] ?? startCapital,
     },
     perf_daily: allPerf,
     recent_trades: allTrades.slice(0, 20),

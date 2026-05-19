@@ -153,7 +153,9 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
       {familiesToShow.map(fam => {
         const famBots = filteredPaper
           .filter(b => b.family === fam.slug)
-          .sort((a, b) => b.stats.latest_capital - a.stats.latest_capital)
+          .sort((a, b) =>
+            (b.stats.latest_capital - b.start_capital) - (a.stats.latest_capital - a.start_capital)
+          )
 
         if (familyFilter !== null && famBots.length === 0) return null
 

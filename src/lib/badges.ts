@@ -1,7 +1,7 @@
 import type { BotStats, Badge } from './types'
-import { PAPER_CAPITAL } from './display'
+import { DEFAULT_PAPER_CAPITAL } from './display'
 
-export function computeBadges(stats: BotStats): Badge[] {
+export function computeBadges(stats: BotStats, startCapital: number = DEFAULT_PAPER_CAPITAL): Badge[] {
   const badges: Badge[] = []
 
   if (stats.total_trades >= 100) {
@@ -22,7 +22,7 @@ export function computeBadges(stats: BotStats): Badge[] {
     badges.push({ emoji: '🛡️', label: 'DD ≤ 5%', color: '#d2a8ff' })
   }
 
-  if (stats.latest_capital > PAPER_CAPITAL) {
+  if (stats.latest_capital > startCapital) {
     badges.push({ emoji: '🔥', label: 'En positif', color: '#ff6b35' })
   }
 
