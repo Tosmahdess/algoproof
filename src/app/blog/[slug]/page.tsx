@@ -5,6 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import { mdxComponents } from '@/components/mdx/MDXComponents'
 
 export const dynamicParams = false
 
@@ -53,8 +54,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         ))}
       </div>
       <h1 className="text-3xl font-bold mb-8">{article.meta.title as string}</h1>
-      <div className="prose prose-invert prose-sm max-w-none">
-        <MDXRemote source={article.content} />
+      <div className="prose prose-invert prose-base max-w-none prose-headings:font-semibold prose-p:text-foreground/85 prose-p:leading-relaxed prose-li:text-foreground/85 prose-li:my-1 prose-a:text-accent prose-a:no-underline hover:prose-a:underline">
+        <MDXRemote source={article.content} components={mdxComponents} />
       </div>
     </div>
   )
