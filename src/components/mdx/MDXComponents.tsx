@@ -9,6 +9,9 @@
 // Used by src/app/blog/[slug]/page.tsx via <MDXRemote components={...} />.
 
 import type { ReactNode, HTMLAttributes } from 'react'
+import { Callout } from './Callout'
+import { Verdict } from './Verdict'
+import { Stat, StatRow } from './Stat'
 
 // ---------- helpers ----------
 
@@ -160,6 +163,7 @@ function MDXStrong(props: HTMLAttributes<HTMLElement>) {
 // ---------- exported map ----------
 
 export const mdxComponents = {
+  // Markdown primitives (auto-mapped)
   table: MDXTable,
   thead: MDXThead,
   tbody: MDXTbody,
@@ -171,4 +175,9 @@ export const mdxComponents = {
   h3: MDXH3,
   blockquote: MDXBlockquote,
   strong: MDXStrong,
+  // Custom components (used explicitly in .mdx)
+  Callout,
+  Verdict,
+  Stat,
+  StatRow,
 }

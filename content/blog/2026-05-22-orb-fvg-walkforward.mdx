@@ -5,6 +5,10 @@ tags: ["backtest", "méthode", "transparence"]
 summary: "On a testé 216 configurations d'une stratégie ORB+FVG sur l'or et l'euro/dollar. Les meilleures sortaient PF 1.40 sur 2 ans de données. Une seule étape supplémentaire — la walk-forward — a montré qu'il n'y avait probablement aucun edge. Voici comment et pourquoi."
 ---
 
+<Callout type="note" title="Scope">
+Ce backtest porte sur **XAU/USD** (or comptant) et **EUR/USD** (forex). C'est un setup qu'on voulait valider avant d'envisager un éventuel élargissement de notre univers. **Notre flotte live reste 100 % crypto** (BTC/ETH/SOL et autres altcoins) — aucun bot live n'a tradé ces résultats. Tout ce qui suit est de la recherche méthodo, pas une perte sur la flotte.
+</Callout>
+
 Il y a quelques jours, on a lancé un backtest sur une stratégie qu'on voulait évaluer : un setup type **ORB + FVG retest** (Opening Range Breakout + Fair Value Gap) sur l'or (XAU/USD) et l'euro/dollar (EUR/USD). C'est un setup populaire dans les communautés ICT/SMC.
 
 Le résultat brut était excellent. Trop excellent, en fait. Voilà comment on en est venu à le rejeter, en deux étapes.
@@ -31,7 +35,9 @@ Le moteur de backtest utilisait par défaut `total_per_trade = 0.19 %` round-tri
 
 En réalité, sur un broker CFD or correct (spread 0.3-0.5 pips + slippage 0.5 pip), le coût round-trip est plutôt **0.02 %** — environ dix fois moins. Une fois la correction faite, les résultats sont devenus interprétables.
 
-**À retenir** : sur une stratégie à SL serré (≈ 0.05 % du prix), un facteur 10× sur les coûts fait passer d'un PF 0 à un PF 1.40. Le coût n'est pas un détail technique, c'est *un paramètre central de la stratégie*.
+<Callout type="insight" title="À retenir">
+Sur une stratégie à SL serré (≈ 0.05 % du prix), un facteur 10× sur les coûts fait passer d'un PF 0 à un PF 1.40. **Le coût n'est pas un détail technique, c'est un paramètre central de la stratégie.** Si tu lis quelque part qu'une stratégie a un PF magique sans voir explicitement quel coût a été utilisé, méfiance immédiate.
+</Callout>
 
 ### Les 5 configs gagnantes
 
@@ -49,7 +55,9 @@ Après correction des coûts, 5 configurations sortaient avec PF ≥ 1.20 sur le
 
 Côté EUR/USD : zéro configuration au-dessus de PF 1.0, le meilleur sortait à PF 0.46. NO_GO clair.
 
-À ce stade, le verdict provisoire était : **GO_COND sur XAU**, candidat sérieux pour passer en paper trading après une dernière validation.
+<Verdict status="go-cond" label="Verdict provisoire Phase 1 — XAU">
+5 configurations PF ≥ 1.20, toutes convergentes sur la session Asie 00:00 UTC avec SL `orb_opposite`. Insensibilité paramétrique encourageante. Candidat sérieux pour une dernière validation walk-forward avant tout paper trading.
+</Verdict>
 
 ## Phase 2 — la walk-forward
 
@@ -90,7 +98,16 @@ Premier signal d'alarme : la sélection change radicalement selon la fenêtre ob
 
 **Zéro configuration sur cinq ne tient le seuil PF ≥ 1.10 sur l'OOS.** Le PF moyen chute de 1.18 à 0.79. Le WR chute de 5 à 10 points. C'est un effondrement systématique.
 
-Verdict du script : `OVERFIT — IS edge does not hold OOS`.
+<StatRow>
+  <Stat label="Configs IS PF ≥ 1.10" value="5 / 5" subtext="seuil GO franchi" />
+  <Stat label="Configs OOS PF ≥ 1.10" value="0 / 5" change="−100 %" subtext="effondrement total" />
+  <Stat label="PF moyen IS → OOS" value="1.18 → 0.79" change="−0.39" subtext="chute systématique" />
+  <Stat label="WR drop OOS" value="−5 à −10 pts" change="−" subtext="cohérent inter-config" />
+</StatRow>
+
+<Verdict status="overfit" label="Verdict walk-forward">
+**0/5 configurations** ne tiennent le seuil OOS. L'edge identifié sur l'IS ne tient pas hors échantillon. Verdict du script de validation : `OVERFIT — IS edge does not hold OOS`.
+</Verdict>
 
 ## Le diagnostic n'est pas du simple data-mining — c'est un régime shift
 
@@ -127,6 +144,10 @@ Ensuite, parce que **la discipline de méthode est rare** même chez les pros. T
 Enfin, parce qu'**un résultat honnête est une donnée utile**. Si quelqu'un d'autre essaie de trader cette même configuration, sachant que le backtest était excellent mais la walk-forward négative, ça change la décision. Et si quelqu'un nous lit et pense "tiens, je devrais regarder *pourquoi* l'edge a changé de session à mi-2025" — peut-être que cette personne trouvera quelque chose qu'on n'a pas vu.
 
 ## Et maintenant ?
+
+<Verdict status="no-go" label="Décision finale">
+Stratégie ORB+FVG XAU **archivée NO_GO**. Pas de paper trading, pas de live. Notre flotte reste 100 % crypto. Le pattern `orb_opposite` SL est gardé pour de futurs designs breakout, hors du framework ORB+FVG.
+</Verdict>
 
 - **Pas de paper trading** sur cette stratégie. Archivée NO_GO.
 - **Pattern `orb_opposite` SL** gardé en tête pour des designs futurs.
