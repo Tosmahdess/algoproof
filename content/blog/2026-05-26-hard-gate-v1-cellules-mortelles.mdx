@@ -1,25 +1,25 @@
 ---
-title: "On a perdu 368 USDT en 5 jours. Voici comment on a trouvé les 4 cellules mortelles de notre matrice MI"
+title: "J'ai perdu 368 USDT en 5 jours. Voici comment j'ai trouvé les 4 cellules mortelles de ma matrice MI"
 date: "2026-05-26"
 tags: ["méthode", "transparence", "MI", "walk-forward"]
-summary: "Mi-mai, nos shorts saignaient. Nos longs aussi. La matrice MI les voyait passer sans rien bloquer. On a passé une session à analyser 1 002 trades pour trouver les vraies fuites — et à designer un nouveau filtre binaire qui aurait économisé 427 USDT sur les 5 derniers jours OOS. Voici comment, étape par étape, avec ce qu'on a accepté et ce qu'on a rejeté."
+summary: "Mi-mai, mes shorts saignaient. Mes longs aussi. Ma matrice MI les voyait passer sans rien bloquer. J'ai passé une session à analyser 1 002 trades pour trouver les vraies fuites — et à designer un nouveau filtre binaire qui aurait économisé 427 USDT sur les 5 derniers jours OOS. Voici comment, étape par étape, avec ce que j'ai accepté et ce que j'ai rejeté."
 ---
 
-Entre le 6 avril et le 17 mai, notre flotte de bots APEX faisait **+945 USDT** net sur 466 trades. Bons mois, edge mesurable, courbe d'équité qui montait.
+Entre le 6 avril et le 17 mai, ma flotte de bots APEX faisait **+945 USDT** net sur 466 trades. Bons mois, edge mesurable, courbe d'équité qui montait.
 
 Puis le 17 mai, quelque chose a basculé.
 
-Sur les 9 jours suivants (17 → 26 mai), 200 nouveaux trades fermés. **P&L net : −368 USDT.** Pas un crash, pas un bug — un retournement de régime que notre filtre n'avait pas anticipé. Les shorts continuaient de saigner, les longs prenaient des SL gros et des TP serrés. La matrice MI v1 voyait bien le régime BEAR mais ne bloquait rien — elle réduisait le sizing, c'est tout.
+Sur les 9 jours suivants (17 → 26 mai), 200 nouveaux trades fermés. **P&L net : −368 USDT.** Pas un crash, pas un bug — un retournement de régime que mon filtre n'avait pas anticipé. Les shorts continuaient de saigner, les longs prenaient des SL gros et des TP serrés. La matrice MI v1 voyait bien le régime BEAR mais ne bloquait rien — elle réduisait le sizing, c'est tout.
 
-Cette session, on a passé une journée à comprendre exactement **où** se trouvaient les fuites, et à construire un filtre qui les ferme dur. Le résultat : un module qu'on a déployé en mode shadow sur le VPS, baptisé **Hard-Gate v1**. Si on l'avait eu en place le 17 mai, le backtest dit qu'on aurait fait **+59 USDT** sur la fenêtre au lieu de **−368** — un delta de **+427 USDT** en 5 jours, qu'on n'a pas mesuré sur du live mais sur un re-jeu walk-forward de chaque trade existant.
+Cette session, j'ai passé une journée à comprendre exactement **où** se trouvaient les fuites, et à construire un filtre qui les ferme dur. Le résultat : un module que j'ai déployé en mode shadow sur le VPS, baptisé **Hard-Gate v1**. Si je l'avais eu en place le 17 mai, le backtest dit que j'aurais fait **+59 USDT** sur la fenêtre au lieu de **−368** — un delta de **+427 USDT** en 5 jours, que je n'ai pas mesuré sur du live mais sur un re-jeu walk-forward de chaque trade existant.
 
-Voici comment on en est arrivés là.
+Voici comment j'en suis arrivé là.
 
 ## Phase 1 — Comprendre où ça saigne
 
-Avant de coder quoi que ce soit, on a sorti la totalité des trades fermés depuis le lancement (1 002 trades, dont 666 signal trades hors carry/funding) et on les a croisés avec les snapshots du service Market Intelligence (464 snapshots horaires, matchés à chaque trade dans une fenêtre ±2h, couverture 75 %).
+Avant de coder quoi que ce soit, j'ai sorti la totalité des trades fermés depuis le lancement (1 002 trades, dont 666 signal trades hors carry/funding) et je les ai croisés avec les snapshots du service Market Intelligence (464 snapshots horaires, matchés à chaque trade dans une fenêtre ±2h, couverture 75 %).
 
-On a cherché des **cellules mortelles** : des conditions sous lesquelles un certain type de trade perdait systématiquement.
+J'ai cherché des **cellules mortelles** : des conditions sous lesquelles un certain type de trade perdait systématiquement.
 
 ### Le pivot du 15 mai
 
@@ -34,11 +34,11 @@ Premier découpage : long vs short, semaine par semaine.
 
 Le retournement saute aux yeux. Première moitié de mai : longs en mode parfait, shorts massacrés (WR 7-8 %, du quasi pile-ou-face mais payé en pertes). Semaine du 15-21 : **inversion complète** — shorts gagnent, longs commencent à perdre. Puis semaine du 22-26 : les deux saignent. Régime sideways/choppy, ni vrai bear ni vrai bull.
 
-On a tout l'historique de la fleet à 1 ligne par trade. Donc on peut faire mieux que "le régime a changé".
+J'ai tout l'historique de la flotte à 1 ligne par trade. Donc je peux faire mieux que "le régime a changé".
 
 ### Cross-tab des features MI
 
-On a découpé chaque trade par buckets de features MI. Quelques résultats parlants (filtre à au moins 10 trades par cellule, all-time) :
+J'ai découpé chaque trade par buckets de features MI. Quelques résultats parlants (filtre à au moins 10 trades par cellule, all-time) :
 
 | Cellule | n | WR | PF | P&L |
 |---|---|---|---|---|
@@ -50,7 +50,7 @@ On a découpé chaque trade par buckets de features MI. Quelques résultats parl
 | LONG en `composite_score [-10,-3)` (pullback léger) | 203 | **87 %** | **2.59** | **+182 USDT** |
 | LONG en `btc_vs_ema <-5%` (BTC très oversold, mean-rev) | 223 | **86 %** | 1.11 | +14 USDT |
 
-C'est là qu'on voit la **vraie structure du marché vu par nos bots** :
+C'est là que je vois la **vraie structure du marché vue par mes bots** :
 
 - Quand BTC teste EMA200 par le dessous (-5 à -2 % en dessous), les **longs perdent presque toutes leurs SL** alors que le WR reste à 65 %. C'est-à-dire qu'ils prennent des TP serrés mais 35 % de SL qui sont gros — PF 0.08 c'est-à-dire les pertes valent 12× les gains. Single biggest leak de la flotte.
 - Quand BTC est très oversold (`<-5 %`), c'est exactement l'inverse : les **shorts** se font piéger (zone mean-rev statistique) et les **longs** commencent à gagner.
@@ -69,15 +69,15 @@ Découpage différent : pour chaque trade, qu'est-ce qui s'est passé sur le tra
 
 Surprise. Indépendamment du régime de marché, **un bot qui vient de prendre 3 SL d'affilée a 26 % de chances de gagner le 4ème**, contre 50 % pour un bot "frais". C'est massif : sur les 147 occurrences observées, ce 4ème trade a coûté en moyenne −3.24 €. Cumul : **−476 USDT**, soit autant que la cellule TRANSITION du bucket MI.
 
-C'est cohérent avec ce qu'on trouve dans la littérature quant (papiers Mulvey sur les CTAs) : un bot qui a perdu plusieurs fois indique probablement que ses paramètres ne matchent plus le régime courant — mieux vaut le mettre en pause que de lui donner une 4ème chance.
+C'est cohérent avec ce que je retrouve dans la littérature quant (papiers Mulvey sur les CTAs) : un bot qui a perdu plusieurs fois indique probablement que ses paramètres ne matchent plus le régime courant — mieux vaut le mettre en pause que de lui donner une 4ème chance.
 
 ## Phase 2 — Walk-forward, ou comment ne pas se mentir
 
 Trouver des corrélations dans 1 002 trades, c'est facile. **Trouver des corrélations qui tiennent hors échantillon, c'est ce qui sépare un edge d'un artefact.**
 
-On vient d'ailleurs d'apprendre cette leçon à nos dépens : il y a 4 jours, on a publié une [autopsie d'une stratégie ORB+FVG sur l'or](/blog/2026-05-22-orb-fvg-walkforward) qui semblait avoir PF 1.40 sur 2 ans de backtest — et qui n'a tenu **aucune** de ses 5 meilleures configs en walk-forward (0/5 OOS). Plus jamais ça.
+Je viens d'ailleurs d'apprendre cette leçon à mes dépens : il y a 4 jours, j'ai publié une [autopsie d'une stratégie ORB+FVG sur l'or](/blog/2026-05-22-orb-fvg-walkforward) qui semblait avoir PF 1.40 sur 2 ans de backtest — et qui n'a tenu **aucune** de ses 5 meilleures configs en walk-forward (0/5 OOS). Plus jamais ça.
 
-Donc on a découpé nos 666 trades signal en 5 folds chronologiques (~133 trades chacun) et on a testé chaque cellule mortelle sur chaque fold, séparément.
+Donc j'ai découpé mes 666 trades signal en 5 folds chronologiques (~133 trades chacun) et j'ai testé chaque cellule mortelle sur chaque fold, séparément.
 
 ### Ce qui a tenu — 4 cellules
 
@@ -88,56 +88,56 @@ Donc on a découpé nos 666 trades signal en 5 folds chronologiques (~133 trades
 | LONG en `trend_regime=TRANSITION` | 3, 4 → 2/2 négatifs (dormant ailleurs) | ✅ sentinelle dormante |
 | Streak per-bot ≥ 3 pertes | 1-5 → **5/5 négatifs** | ✅ stable |
 
-Trois cellules sur quatre tiennent 100 % en walk-forward. La quatrième (SHORT en zone très oversold) tient en moyenne mais avec une distribution bimodale (un fold break-even, un fold catastrophe). On l'a gardée mais flaguée "monitor" pour surveiller son comportement live.
+Trois cellules sur quatre tiennent 100 % en walk-forward. La quatrième (SHORT en zone très oversold) tient en moyenne mais avec une distribution bimodale (un fold break-even, un fold catastrophe). Je l'ai gardée mais flaguée "monitor" pour surveiller son comportement live.
 
-### Ce qu'on a rejeté
+### Ce que j'ai rejeté
 
-Plus intéressant encore : ce qu'on a testé **et qui n'a PAS tenu** en walk-forward.
+Plus intéressant encore : ce que j'ai testé **et qui n'a PAS tenu** en walk-forward.
 
-- **Per-bot blacklist** sur les 3 bots qui concentrent 50 % du leak SHORT (`x1-wvborb-bf7`, `comboemarsimacd-bf11`, `x3-emakeltner-bf22`). En IS leurs shorts perdent 316 €. En OOS, sur les 5 derniers jours, leurs mêmes shorts gagnent +15 €. **Overfit pur.** Si on avait blacklisté ces bots, on aurait sacrifié un edge légitime.
-- **Day-of-week guard** SHORT Mercredi+Samedi (n=44 Saturday WR 20 %, n=25 Wednesday WR 16 % en IS). En OOS, 0 trade Wed/Sat dans la fenêtre. **Non-testable** sur notre dataset actuel. On garde l'idée en backlog pour ré-évaluer dans 60 jours.
+- **Per-bot blacklist** sur les 3 bots qui concentrent 50 % du leak SHORT (`x1-wvborb-bf7`, `comboemarsimacd-bf11`, `x3-emakeltner-bf22`). En IS leurs shorts perdent 316 €. En OOS, sur les 5 derniers jours, leurs mêmes shorts gagnent +15 €. **Overfit pur.** Si j'avais blacklisté ces bots, j'aurais sacrifié un edge légitime.
+- **Day-of-week guard** SHORT Mercredi+Samedi (n=44 Saturday WR 20 %, n=25 Wednesday WR 16 % en IS). En OOS, 0 trade Wed/Sat dans la fenêtre. **Non-testable** sur le dataset actuel. Je garde l'idée en backlog pour ré-évaluer dans 60 jours.
 - **US session 12-18 UTC SHORT** : −292 € sur la période, mais n=15 en OOS, puissance statistique trop faible.
 - **`derivatives_score < -2 → LONG`** : IS WR 72 %, OOS WR 33 %. **Retournement complet OOS.** Classique : la feature derivatives capte un signal IS mais pas robuste sur la suite.
-- **Scoring composite multi-feature** (5 features, threshold tunable) : équivalent net OOS aux règles simples (+23 vs +50), avec plus de complexité, plus opacité. Cas typique où ajouter des paramètres ne fait que sur-fitter.
+- **Scoring composite multi-feature** (5 features, threshold tunable) : équivalent net OOS aux règles simples (+23 vs +50), avec plus de complexité, plus d'opacité. Cas typique où ajouter des paramètres ne fait que sur-fitter.
 
 Toutes ces pistes sont documentées dans le backlog du spec pour ré-évaluation après 60 jours de data live supplémentaires.
 
 ## Phase 3 — Pourquoi un gate binaire et pas un sizing
 
-À ce stade on avait identifié les fuites. Mais il fallait choisir comment les fermer.
+À ce stade j'avais identifié les fuites. Mais il fallait choisir comment les fermer.
 
-On avait déjà déployé une matrice MI qui module le sizing (`long_mult` × `short_mult`, 0.3× à 1.0× selon la cellule régime). Cette matrice tourne en prod depuis le 12 mai. Elle est même en train d'être complétée par un **Direction Edge Detector v2** (en shadow depuis le 18 mai), qui ajoute une couche de sizing dynamique basée sur l'auto-corrélation de notre P&L sur 3 jours.
+J'avais déjà déployé une matrice MI qui module le sizing (`long_mult` × `short_mult`, 0.3× à 1.0× selon la cellule régime). Cette matrice tourne en prod depuis le 12 mai. Elle est même en train d'être complétée par un **Direction Edge Detector v2** (en shadow depuis le 18 mai), qui ajoute une couche de sizing dynamique basée sur l'auto-corrélation de mon P&L sur 3 jours.
 
 Question : est-ce que ces leaks pouvaient se fermer simplement en réduisant encore plus le sizing ?
 
 Réponse : **non**.
 
-Le sizing est continu et a un floor à 0.3×. Quand BTC est en `[-5,-2)%` et qu'un bot ouvre un LONG, même à 0.3× il prend quand même un SL — juste avec une perte 3× plus petite. Sur la cellule TRANSITION (35 trades, 0 winner sur 35), même à 0.3× sizing, on perd toujours sur 35 trades.
+Le sizing est continu et a un floor à 0.3×. Quand BTC est en `[-5,-2)%` et qu'un bot ouvre un LONG, même à 0.3× il prend quand même un SL — juste avec une perte 3× plus petite. Sur la cellule TRANSITION (35 trades, 0 winner sur 35), même à 0.3× sizing, le bot perd toujours sur 35 trades.
 
-**La bonne couche manquante, c'est un gate binaire** : *si on est dans la death cell, on ne trade pas du tout, point.*
+**La bonne couche manquante, c'est un gate binaire** : *si le bot est dans la death cell, il ne trade pas du tout, point.*
 
 C'est la distinction classique en gestion d'actifs quantitative :
 
-| Couche | Question | Notre layer |
+| Couche | Question | Mon layer |
 |---|---|---|
 | Hard gate (binaire) | "Est-ce qu'on trade ?" | **Hard-Gate v1** (nouveau) |
 | Sizing modulator (continu) | "Combien ?" | DED v2 (en shadow) + matrice v1 (en prod) |
 
-Les deux couches sont complémentaires. Le gate dit *si*, le sizing dit *combien*. Pattern qu'on retrouve chez Man AHL, Mulvey, et la plupart des fonds CTA — pas notre invention, on suit juste la littérature.
+Les deux couches sont complémentaires. Le gate dit *si*, le sizing dit *combien*. Pattern bien établi chez Man AHL, Mulvey, et la plupart des fonds CTA — pas mon invention, je suis juste la littérature.
 
 ## Phase 4 — Calibration du cooldown du streak guard
 
 Pour les 3 cellules MI (L1 + L2), aucune calibration de paramètre — elles sont définies par les buckets observés.
 
-Pour le streak guard (L3), il fallait choisir une condition de reset. Si on bloque un bot après 3 SL d'affilée, comment il sort de cette pause ?
+Pour le streak guard (L3), il fallait choisir une condition de reset. Si je bloque un bot après 3 SL d'affilée, comment il sort de cette pause ?
 
 Deux options :
-1. **Win-based** : il faut qu'il gagne 1 trade pour briser la série. Problème : si on bloque tous ses trades, il ne peut **jamais** gagner. Pause permanente.
-2. **Time-based** : après X heures, on laisse passer un "trial trade". S'il gagne, série brisée ; s'il perd, nouvelle pause.
+1. **Win-based** : il faut qu'il gagne 1 trade pour briser la série. Problème : si je bloque tous ses trades, il ne peut **jamais** gagner. Pause permanente.
+2. **Time-based** : après X heures, je laisse passer un "trial trade". S'il gagne, série brisée ; s'il perd, nouvelle pause.
 
 Donc reset = win **OU** cooldown temporel. Reste à choisir le cooldown.
 
-On a simulé 4 valeurs (12h / 24h / 48h / 72h) plus "no time limit", avec une discipline real-time stricte : pour chaque trade candidat, on regarde seulement les trades **déjà fermés** au moment de son ouverture (pas un look-ahead bias possible).
+J'ai simulé 4 valeurs (12h / 24h / 48h / 72h) plus "no time limit", avec une discipline real-time stricte : pour chaque trade candidat, je regarde seulement les trades **déjà fermés** au moment de son ouverture (pas un look-ahead bias possible).
 
 | Cooldown | Trades bloqués | FP rate | Δ baseline |
 |---|---|---|---|
@@ -149,7 +149,7 @@ On a simulé 4 valeurs (12h / 24h / 48h / 72h) plus "no time limit", avec une di
 
 12h est l'arbitrage optimal : à peu près le meilleur Δ, et la distribution d'âge des "fires" montre que **78 % des cascades se produisent dans les 12h après la 3ème perte**. Au-delà, le bot reprend statistiquement en zone neutre (WR ~44 %, pnl légèrement positif), et un cooldown plus long ferait sacrifier ces winners.
 
-48h+ est même contre-productif : on bloque trop de trades dans la zone 24-48h où la moyenne est positive.
+48h+ est même contre-productif : ça bloque trop de trades dans la zone 24-48h où la moyenne est positive.
 
 ## Phase 5 — Simulation finale et déploiement shadow
 
@@ -170,31 +170,31 @@ Décomposé par layer (cumul) :
 - L2 LONG TRANSITION : 8 trades bloqués, −58 € évités
 - L3 streak ≥ 3 : 66 trades bloqués, −53 € évités (plus marginal mais préventif)
 
-Le gate sauve l'écosystème surtout sur la fenêtre la plus récente. Sur les 5 derniers jours (notre **OOS true** dans le walk-forward 70/30) : baseline −368 USDT → gate **+59 USDT**. Sans cherry-picking ni look-ahead.
+Le gate sauve l'écosystème surtout sur la fenêtre la plus récente. Sur les 5 derniers jours (mon **OOS true** dans le walk-forward 70/30) : baseline −368 USDT → gate **+59 USDT**. Sans cherry-picking ni look-ahead.
 
 ### Déploiement shadow
 
-On a déployé Hard-Gate v1 sur le VPS le 26 mai à 13:30 UTC, mais **en mode shadow** : le service MI calcule à chaque cycle ce que le gate aurait décidé, l'écrit dans un nouveau champ `hard_gate` du heartbeat JSON, **mais les bots continuent d'utiliser la matrice v1 actuelle**. Aucun changement de comportement live.
+J'ai déployé Hard-Gate v1 sur le VPS le 26 mai à 13:30 UTC, mais **en mode shadow** : le service MI calcule à chaque cycle ce que le gate aurait décidé, l'écrit dans un nouveau champ `hard_gate` du heartbeat JSON, **mais les bots continuent d'utiliser la matrice v1 actuelle**. Aucun changement de comportement live.
 
 Le premier heartbeat post-déploiement a déjà fired la layer L1 : BTC vient justement de passer en zone test EMA200 par le bas (-3.x %). Le système observe ce qu'il fallait observer.
 
-Pendant les 7 prochains jours, on va comparer ce que le gate aurait bloqué vs ce qui s'est réellement passé sur la flotte. Si tout colle, on promeut en live début juin — les bots commenceront à lire le gate et à AND-combiner avec leur sizing actuel.
+Pendant les 7 prochains jours, je vais comparer ce que le gate aurait bloqué vs ce qui s'est réellement passé sur la flotte. Si tout colle, je promeus en live début juin — les bots commenceront à lire le gate et à AND-combiner avec leur sizing actuel.
 
-## Ce qu'on ne sait pas encore
+## Ce que je ne sais pas encore
 
-On a 1 002 trades, 50 jours, **1 seule** transition de régime observée. Le walk-forward 5-fold + 70/30 nous donne 2 vues OOS distinctes, mais 5 jours de OOS pure ce n'est pas une saison de marché complète.
+J'ai 1 002 trades, 50 jours, **1 seule** transition de régime observée. Le walk-forward 5-fold + 70/30 me donne 2 vues OOS distinctes, mais 5 jours de OOS pure ce n'est pas une saison de marché complète.
 
-Le vrai test, c'est forward live. Le mode shadow est conçu pour ça : observer 7 jours, voir si le gate continue de capter ce qu'on a calibré sans faux positifs systématiques, puis décider.
+Le vrai test, c'est forward live. Le mode shadow est conçu pour ça : observer 7 jours, voir si le gate continue de capter ce que j'ai calibré sans faux positifs systématiques, puis décider.
 
-Si à la review du 2 juin le gate s'avère trop strict (sacrifie trop de winners en pratique), on a des feature flags par layer pour le désactiver granulairement. Si trop laxiste, on resserre.
+Si à la review du 2 juin le gate s'avère trop strict (sacrifie trop de winners en pratique), j'ai des feature flags par layer pour le désactiver granulairement. Si trop laxiste, je resserre.
 
-On documentera la promotion ou le rollback ici dans 7 jours.
+Je documenterai la promotion ou le rollback ici dans 7 jours.
 
 ## Pour creuser
 
 - [Le commit qui a déployé le gate sur VPS](https://github.com/Tosmahdess/brain) — `e988508`
-- Specification complète : 469 lignes de design doc dans le vault, qui détaille chaque décision et sa justification data
+- Spécification complète : 469 lignes de design doc dans le vault, qui détaille chaque décision et sa justification data
 - 51 tests unitaires TDD en Python, suite MI complète à 281/281 ✓
-- Pourquoi on garde DED v2 en parallèle plutôt que de le remplacer : architecture à 2 couches (gate binaire au-dessus, sizing continu en dessous), validée chacune indépendamment
+- Pourquoi je garde DED v2 en parallèle plutôt que de le remplacer : architecture à 2 couches (gate binaire au-dessus, sizing continu en dessous), validée chacune indépendamment
 
-Comme toujours : on montrera la suite, qu'elle valide la méthode ou qu'elle l'invalide. C'est la seule façon que ça vaille quelque chose.
+Comme toujours : je montrerai la suite, qu'elle valide la méthode ou qu'elle l'invalide. C'est la seule façon que ça vaille quelque chose.

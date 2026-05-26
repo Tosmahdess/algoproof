@@ -2,32 +2,32 @@
 title: "PF 1.40 sur backtest, 0/5 en walk-forward — autopsie d'une stratégie qui semblait gagnante"
 date: "2026-05-22"
 tags: ["backtest", "méthode", "transparence"]
-summary: "On a testé 216 configurations d'une stratégie ORB+FVG sur l'or et l'euro/dollar. Les meilleures sortaient PF 1.40 sur 2 ans de données. Une seule étape supplémentaire — la walk-forward — a montré qu'il n'y avait probablement aucun edge. Voici comment et pourquoi."
+summary: "J'ai testé 216 configurations d'une stratégie ORB+FVG sur l'or et l'euro/dollar. Les meilleures sortaient PF 1.40 sur 2 ans de données. Une seule étape supplémentaire — la walk-forward — a montré qu'il n'y avait probablement aucun edge. Voici comment et pourquoi."
 ---
 
 <Callout type="note" title="Scope">
-Ce backtest porte sur **XAU/USD** (or comptant) et **EUR/USD** (forex). C'est un setup qu'on voulait valider avant d'envisager un éventuel élargissement de notre univers. **Notre flotte live reste 100 % crypto** (BTC/ETH/SOL et autres altcoins) — aucun bot live n'a tradé ces résultats. Tout ce qui suit est de la recherche méthodo, pas une perte sur la flotte.
+Ce backtest porte sur **XAU/USD** (or comptant) et **EUR/USD** (forex). C'est un setup que je voulais valider avant d'envisager un éventuel élargissement de mon univers. **Ma flotte live reste 100 % crypto** (BTC/ETH/SOL et autres altcoins) — aucun bot live n'a tradé ces résultats. Tout ce qui suit est de la recherche méthodo, pas une perte sur la flotte.
 </Callout>
 
-Il y a quelques jours, on a lancé un backtest sur une stratégie qu'on voulait évaluer : un setup type **ORB + FVG retest** (Opening Range Breakout + Fair Value Gap) sur l'or (XAU/USD) et l'euro/dollar (EUR/USD). C'est un setup populaire dans les communautés ICT/SMC.
+Il y a quelques jours, j'ai lancé un backtest sur une stratégie que je voulais évaluer : un setup type **ORB + FVG retest** (Opening Range Breakout + Fair Value Gap) sur l'or (XAU/USD) et l'euro/dollar (EUR/USD). C'est un setup populaire dans les communautés ICT/SMC.
 
-Le résultat brut était excellent. Trop excellent, en fait. Voilà comment on en est venu à le rejeter, en deux étapes.
+Le résultat brut était excellent. Trop excellent, en fait. Voilà comment j'en suis venu à le rejeter, en deux étapes.
 
 ## La stratégie en une minute
 
 Pour chaque session de marché (Asie, Londres, Comex, NY) :
 
-1. **Opening Range** — on note le plus haut et le plus bas pendant les 30 premières minutes de la session.
-2. **Breakout** — on attend la première bougie M1 qui clôture au-dessus du range (long) ou en dessous (short).
-3. **FVG** — on cherche un Fair Value Gap dans le sens du breakout : un gap entre le plus haut de la bougie N-1 et le plus bas de la bougie N+1.
-4. **Retest** — on entre quand le prix revient toucher cette FVG.
+1. **Opening Range** — je note le plus haut et le plus bas pendant les 30 premières minutes de la session.
+2. **Breakout** — j'attends la première bougie M1 qui clôture au-dessus du range (long) ou en dessous (short).
+3. **FVG** — je cherche un Fair Value Gap dans le sens du breakout : un gap entre le plus haut de la bougie N-1 et le plus bas de la bougie N+1.
+4. **Retest** — j'entre quand le prix revient toucher cette FVG.
 5. **Risque** — stop-loss au-delà d'une référence structurelle, take-profit à 1× la distance du SL (R:R = 1).
 
 Trois grandes décisions à tester : comment définir la FVG, où placer le SL, comment caractériser le retest. Avec 5 sessions et 3 variantes par décision, ça fait **5 × 3 × 3 × 3 = 135 configurations** sur l'or, plus **81** sur l'euro/dollar (3 sessions × 27).
 
 ## Phase 1 — le backtest "full data"
 
-On a tourné les 216 configs sur ~2 ans de données M1 (2024-01 → 2026-03). Première leçon **pendant** le run : les coûts comptent énormément.
+J'ai tourné les 216 configs sur ~2 ans de données M1 (2024-01 → 2026-03). Première leçon **pendant** le run : les coûts comptent énormément.
 
 ### Le piège des coûts
 
@@ -51,7 +51,7 @@ Après correction des coûts, 5 configurations sortaient avec PF ≥ 1.20 sur le
 | asia_00 | strict_3bar | orb_opposite | touch_proximal | 332 | **1.22** | 53.0 % | 1.24 |
 | asia_00 | nbar_window_5 | orb_opposite | touch_50pct | 234 | **1.21** | 53.4 % | 1.03 |
 
-**Tous sur la session Asie 00:00 UTC. Tous avec un SL placé à l'opposé du range d'ouverture (`orb_opposite`).** Le pattern semblait robuste : 3 définitions différentes de FVG (strict, avec filtre ATR, fenêtre 5 bougies) × 3 mécaniques de retest, et le résultat convergeait. C'est exactement le genre d'insensibilité paramétrique qu'on cherche : ça suggère un edge structurel, pas un overfit aux paramètres.
+**Toutes sur la session Asie 00:00 UTC. Toutes avec un SL placé à l'opposé du range d'ouverture (`orb_opposite`).** Le pattern semblait robuste : 3 définitions différentes de FVG (strict, avec filtre ATR, fenêtre 5 bougies) × 3 mécaniques de retest, et le résultat convergeait. C'est exactement le genre d'insensibilité paramétrique que je cherchais : ça suggère un edge structurel, pas un overfit aux paramètres.
 
 Côté EUR/USD : zéro configuration au-dessus de PF 1.0, le meilleur sortait à PF 0.46. NO_GO clair.
 
@@ -65,12 +65,12 @@ C'est la dernière étape avant tout paper. Le principe est simple et il sauve l
 
 > Identifie les meilleurs paramètres sur une portion **passée** des données (in-sample). Mesure-les sur une portion **future** qu'ils n'ont jamais vue (out-of-sample). Si l'edge tient sur l'OOS, c'est probablement réel. Sinon, c'est du data-mining.
 
-On a coupé les données 70/30 :
+J'ai coupé les données 70/30 :
 
 - **IS** (in-sample) : 2024-01-01 → 2025-07-16 — 545 673 bougies M1, ~18 mois
 - **OOS** (out-of-sample) : 2025-07-16 → 2026-03-13 — 233 861 bougies M1, ~8 mois
 
-On a relancé les 135 configurations sur l'IS uniquement, sélectionné le top 5 par PF, puis évalué ces 5 sur l'OOS **sans toucher aux paramètres**.
+J'ai relancé les 135 configurations sur l'IS uniquement, sélectionné le top 5 par PF, puis évalué ces 5 sur l'OOS **sans toucher aux paramètres**.
 
 ### Surprise #1 : l'IS donne un top 5 complètement différent
 
@@ -82,7 +82,7 @@ On a relancé les 135 configurations sur l'IS uniquement, sélectionné le top 5
 | **ny_1430** | strict_3bar_atr | swing_structure | touch_50pct | 148 | 1.11 | 53.4 % | 0.57 |
 | **fix_10** | nbar_window_5 | orb_opposite | touch_50pct | 175 | 1.10 | 54.3 % | 0.53 |
 
-4 sur 5 sont des configurations **NY 14:30 UTC** — plus aucune trace de l'Asie. Et quand on regarde les PF des fameuses configs Asie sur cette portion IS seulement, elles étaient sous l'eau : **PF 0.80 à 0.87**. Si on n'avait *que* vu l'IS, on n'aurait jamais sélectionné les configs Asie.
+4 sur 5 sont des configurations **NY 14:30 UTC** — plus aucune trace de l'Asie. Et quand je regarde les PF des fameuses configs Asie sur cette portion IS seulement, elles étaient sous l'eau : **PF 0.80 à 0.87**. Si je n'avais *que* vu l'IS, je n'aurais jamais sélectionné les configs Asie.
 
 Premier signal d'alarme : la sélection change radicalement selon la fenêtre observée.
 
@@ -117,13 +117,13 @@ On peut le retraduire numériquement : les configs Asie avaient un IS PF d'envir
 
 En d'autres termes : **un edge ORB+FVG existe peut-être réellement sur la session Asie depuis juillet 2025, mais il n'existait pas avant.** Pendant ce temps, un autre edge (NY + ATR filter) qui était présent en 2024-2025 a disparu.
 
-Le problème pour une décision de trading : **on ne peut pas savoir quel edge tiendra le prochain mois**. Le winner d'une période est remplacé par le winner d'une autre, sans signal prédictif identifiable.
+Le problème pour une décision de trading : **je ne peux pas savoir quel edge tiendra le prochain mois**. Le winner d'une période est remplacé par le winner d'une autre, sans signal prédictif identifiable.
 
 ## Limite statistique
 
-On reste honnêtes : 75 trades par configuration sur l'OOS, c'est peu. L'intervalle de confiance autour de PF 0.78 est large (environ ±0.15). Donc "**PF < 1.0 OOS**" ne veut pas dire "edge strictement négatif", ça veut dire "**pas d'edge mesurable sur 75 trades**". C'est suffisant pour rejeter un GO, ça ne prouve pas qu'on est dans le négatif définitif.
+Je reste honnête : 75 trades par configuration sur l'OOS, c'est peu. L'intervalle de confiance autour de PF 0.78 est large (environ ±0.15). Donc "**PF < 1.0 OOS**" ne veut pas dire "edge strictement négatif", ça veut dire "**pas d'edge mesurable sur 75 trades**". C'est suffisant pour rejeter un GO, ça ne prouve pas que la stratégie est dans le négatif définitif.
 
-## Ce qu'on garde quand même
+## Ce que je garde quand même
 
 Même avec un NO_GO sur la stratégie globale, le travail produit trois insights structurels :
 
@@ -131,9 +131,9 @@ Même avec un NO_GO sur la stratégie globale, le travail produit trois insights
 
 2. **Le coût domine quand le SL est serré.** Une stratégie à SL ≈ 0.05 % du prix est massivement exposée à un coût mal modélisé. Si tu lis quelque part qu'une stratégie a un PF magique sans voir explicitement quel coût a été utilisé, méfiance.
 
-3. **Le WR autour de 50-55 % à R:R 1 est le bon ordre de grandeur** pour ce type de setup ICT/SMC. Quand des configs reportent un WR < 20 % à R:R 1, c'est qu'il y a un bug mécanique (entry à l'intérieur du SL, stop-out instantané, etc.). Quand elles oscillent autour de 45-55 %, on est dans le domaine du vrai bruit stratégique. Ça donne un repère de sanity check pour les prochains backtests sur des setups similaires.
+3. **Le WR autour de 50-55 % à R:R 1 est le bon ordre de grandeur** pour ce type de setup ICT/SMC. Quand des configs reportent un WR < 20 % à R:R 1, c'est qu'il y a un bug mécanique (entry à l'intérieur du SL, stop-out instantané, etc.). Quand elles oscillent autour de 45-55 %, c'est qu'on est dans le domaine du vrai bruit stratégique. Ça donne un repère de sanity check pour les prochains backtests sur des setups similaires.
 
-## Pourquoi on publie ça
+## Pourquoi je publie ça
 
 Trois raisons.
 
@@ -141,18 +141,18 @@ D'abord, parce que **la majorité du contenu trading ne publie que les wins**. O
 
 Ensuite, parce que **la discipline de méthode est rare** même chez les pros. Tester sur full data, lister des "stratégies gagnantes" basées sur ce résultat, puis passer à la production — c'est le piège classique. La walk-forward 70/30 est l'outil le plus simple qui existe pour s'en prémunir, et il est sous-utilisé.
 
-Enfin, parce qu'**un résultat honnête est une donnée utile**. Si quelqu'un d'autre essaie de trader cette même configuration, sachant que le backtest était excellent mais la walk-forward négative, ça change la décision. Et si quelqu'un nous lit et pense "tiens, je devrais regarder *pourquoi* l'edge a changé de session à mi-2025" — peut-être que cette personne trouvera quelque chose qu'on n'a pas vu.
+Enfin, parce qu'**un résultat honnête est une donnée utile**. Si quelqu'un d'autre essaie de trader cette même configuration, sachant que le backtest était excellent mais la walk-forward négative, ça change la décision. Et si quelqu'un me lit et pense "tiens, je devrais regarder *pourquoi* l'edge a changé de session à mi-2025" — peut-être que cette personne trouvera quelque chose que je n'ai pas vu.
 
 ## Et maintenant ?
 
 <Verdict status="no-go" label="Décision finale">
-Stratégie ORB+FVG XAU **archivée NO_GO**. Pas de paper trading, pas de live. Notre flotte reste 100 % crypto. Le pattern `orb_opposite` SL est gardé pour de futurs designs breakout, hors du framework ORB+FVG.
+Stratégie ORB+FVG XAU **archivée NO_GO**. Pas de paper trading, pas de live. Ma flotte reste 100 % crypto. Le pattern `orb_opposite` SL est gardé pour de futurs designs breakout, hors du framework ORB+FVG.
 </Verdict>
 
 - **Pas de paper trading** sur cette stratégie. Archivée NO_GO.
 - **Pattern `orb_opposite` SL** gardé en tête pour des designs futurs.
-- **Décision pending** : faire une walk-forward roulante sur 4-5 fenêtres pour quantifier l'instabilité régime-par-régime. Ça ne changera pas la décision actuelle (toujours NO_GO), mais ça nous dirait si l'instabilité est universelle sur ce setup ou seulement présente sur cette fenêtre 2024-2026. Pas urgent.
+- **Décision pending** : faire une walk-forward roulante sur 4-5 fenêtres pour quantifier l'instabilité régime-par-régime. Ça ne changera pas la décision actuelle (toujours NO_GO), mais ça me dirait si l'instabilité est universelle sur ce setup ou seulement présente sur cette fenêtre 2024-2026. Pas urgent.
 
-Les artefacts bruts (JSON par configuration, scripts, logs) sont disponibles dans le vault de recherche apex-trading. Si quelqu'un veut reproduire le backtest avec un autre cost model, un autre split, ou ajouter des sessions, le code est conçu pour ça.
+Les artefacts bruts (JSON par configuration, scripts, logs) sont disponibles dans mon vault de recherche apex-trading. Si quelqu'un veut reproduire le backtest avec un autre cost model, un autre split, ou ajouter des sessions, le code est conçu pour ça.
 
 *Une stratégie morte avant le live, c'est de l'argent qui n'est pas perdu. Le job du backtest, c'est de tuer ce qui peut l'être avant que ça ne coûte cher.*
