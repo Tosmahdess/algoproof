@@ -69,10 +69,12 @@ export default function Nav() {
             { href: '/wealth',       label: 'PATRIMOINE' },
             { href: '/intelligence', label: 'INTELLIGENCE' },
             { href: '/blog',         label: 'BLOG' },
+            { href: 'https://lab.algoproof.fr', label: 'LAB' },
           ].map(({ href, label }) => {
-            const active = path === href || path.startsWith(href + '/')
+            const ext = href.startsWith('http')
+            const active = !ext && (path === href || path.startsWith(href + '/'))
             return (
-              <Link key={href} href={href}
+              <Link key={href} href={href} target={ext ? '_blank' : undefined}
                 className={`text-xs font-semibold tracking-widest transition-colors ${active ? 'text-text' : 'text-muted hover:text-text'}`}>
                 {label}
               </Link>
