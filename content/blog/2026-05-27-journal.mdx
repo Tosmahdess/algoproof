@@ -1,0 +1,32 @@
+---
+title: "27 mai — BTC teste l'EMA200, Hard-Gate L1 en alerte"
+date: "2026-05-27"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "V1 spot toujours en positif (+52 USDC), Hard-Gate v1 fire L1 en shadow sur le BTC en zone test EMA200. 40+ bots actifs, aucun incident."
+---
+
+## Régime du jour
+
+Le BTC oscille autour de -3 % sous l'EMA200 — zone que j'ai identifiée comme **cellule mortelle pour les longs** dans mon [analyse Hard-Gate](/blog/2026-05-26-hard-gate-v1-cellules-mortelles). Le service Market Intelligence est en régime **NEUTRAL**, funding rates positifs (marché légèrement long-crowded).
+
+Le Hard-Gate v1, déployé en shadow depuis hier, **fire activement la couche L1** : il bloquerait les longs dans cette zone s'il était en production. Pour l'instant il observe — promotion prévue le 2 juin après 7 jours de données.
+
+## Flotte
+
+<CompactTable cols="Composant | Statut | Détail" widths="1.5fr 0.5fr 2fr" aligns="left | left | left">
+  <Row values="V1 Spot (live) | ✅ | 10 trades fermés, PF 3.71, +52.52 USDC" />
+  <Row values="V1-HL (paper) | ✅ | 22 trades, PF 2.05, +89.35 USDC" />
+  <Row values="Breakout SOL (paper) | ✅ | 11 trades, +2.91 USDT" />
+  <Row values="Funding rate carry | ✅ | 335 paiements loggés" />
+  <Row values="Grid BTC spot | ✅ | 2 round-trips complétés" />
+  <Row values="Fleet 30+ paper BF | ✅ | Tous running" />
+</CompactTable>
+
+Aucune intervention manuelle aujourd'hui. La flotte tourne en autonomie complète depuis 24h.
+
+## Ce que je surveille
+
+- **Hard-Gate shadow** : le L1 continue de fire sur chaque heartbeat. Si le BTC reste sous l'EMA200 demain, j'aurai 48h de données shadow à analyser.
+- **DED v2** : score à 0.42, mode BOTH_RED. L'auto-corrélation 90j n'est pas encore activable (pas assez d'historique MI).
+- **V1 spot live** : 0 position ouverte, le bot attend un signal EMA cross. Prochaine fenêtre de scan dans ~3h.

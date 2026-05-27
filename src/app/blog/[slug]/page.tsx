@@ -6,6 +6,7 @@ import path from 'path'
 import matter from 'gray-matter'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { mdxComponents } from '@/components/mdx/MDXComponents'
+import { BLOG_CATEGORIES, type BlogCategory } from '@/lib/blog-categories'
 
 export const dynamicParams = false
 
@@ -47,10 +48,18 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-16">
-      <div className="text-xs text-muted mb-6">
+      <div className="flex items-center gap-2 text-xs text-muted mb-6">
+        {article.meta.category && (() => {
+          const cat = BLOG_CATEGORIES[article.meta.category as BlogCategory]
+          return cat ? (
+            <span className={`px-2 py-0.5 rounded border text-[10px] font-semibold uppercase tracking-wider ${cat.color}`}>
+              {cat.label}
+            </span>
+          ) : null
+        })()}
         <time>{new Date(article.meta.date as string).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
-        {(article.meta.tags as string[]).map((t: string) => (
-          <span key={t} className="ml-2 px-1.5 py-0.5 rounded bg-card border border-border">{t}</span>
+        {(article.meta.tags as string[])?.map((t: string) => (
+          <span key={t} className="px-1.5 py-0.5 rounded bg-card border border-border">{t}</span>
         ))}
       </div>
       <h1 className="text-3xl font-bold mb-8">{article.meta.title as string}</h1>

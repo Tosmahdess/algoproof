@@ -1,0 +1,42 @@
+---
+title: "Semaine du 19-25 mai — inversion de régime et déploiement du Hard-Gate"
+date: "2026-05-26"
+category: "weekly"
+tags: ["weekly", "performance", "MI"]
+summary: "Semaine marquée par un retournement bear → choppy. La flotte encaisse −368 USDT sur la fenêtre 17-26 mai, mais le nouveau Hard-Gate v1 aurait sauvé +427 USDT. Déploiement shadow dimanche soir."
+---
+
+## La semaine en chiffres
+
+<StatRow>
+  <Stat label="P&L fleet (net)" value="−142 USDT" subtext="semaine 19-25 mai" />
+  <Stat label="Trades fermés" value="127" subtext="longs + shorts" />
+  <Stat label="Meilleur bot" value="V1 Spot" change="+52 USDC" subtext="10 trades, PF 3.71" />
+  <Stat label="Régime MI" value="NEUTRAL" subtext="bear → choppy transition" />
+</StatRow>
+
+## Ce qui s'est passé
+
+Le BTC a continué sa glissade sous l'EMA200, passant de ~79k lundi à ~77k vendredi. La matrice MI a basculé de BEAR à NEUTRAL mi-semaine (le DXY a baissé, allégement du stress macro), mais le marché est resté choppy — ni vrai bear, ni recovery.
+
+**Côté longs** : WR correct (70 %) mais des SL trop gros quand le prix teste l'EMA200 par le bas. C'est exactement la cellule mortelle L1 que j'ai documentée dimanche.
+
+**Côté shorts** : WR en hausse (43 % → 62 % la semaine précédente), mais retour à 43 % cette semaine. Le signal directionnel oscille trop vite pour que le DED v2 capte — il reste en mode BOTH_RED.
+
+## L'événement de la semaine : Hard-Gate v1
+
+Dimanche 25 mai au soir, j'ai déployé en **shadow mode** le Hard-Gate v1 — un filtre binaire à 3 couches qui bloque les trades dans les zones prouvées perdantes. C'est le résultat de l'analyse de 1 002 trades + walk-forward 5-fold documentée [ici](/blog/2026-05-26-hard-gate-v1-cellules-mortelles).
+
+Le gate n'affecte pas encore les bots — il observe et log ce qu'il **aurait** fait. Première observation : il fire immédiatement la couche L1, puisque le BTC est justement en zone test EMA200.
+
+Promotion prévue le 2 juin si les 7 jours de shadow confirment.
+
+## Leçon de la semaine
+
+> Le sizing continu (réduire la taille) ne suffit pas quand l'edge est structurellement absent. Un gate binaire (ne pas trader du tout) est parfois la seule réponse. C'est la différence entre "combien ?" et "est-ce qu'on trade ?"
+
+## Prochaines étapes
+
+- **2 juin** : review shadow Hard-Gate, décision promotion ou extension
+- **15 juin** : mesure définitive Piste A + Option D (news tilt + BTC momentum)
+- **17 juin** : premier bilan DED v2 (30 jours de heartbeats)
