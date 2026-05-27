@@ -135,7 +135,7 @@ function MDXH2(props: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
       {...props}
-      className="mt-14 mb-5 text-xl sm:text-2xl font-semibold tracking-tight border-l-2 border-accent/70 pl-3"
+      className="mt-14 mb-5 text-xl sm:text-2xl font-semibold tracking-tight text-accent border-l-2 border-accent/70 pl-3"
     />
   )
 }
@@ -144,7 +144,7 @@ function MDXH3(props: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
       {...props}
-      className="mt-10 mb-3 text-base sm:text-lg font-semibold tracking-tight text-foreground/95"
+      className="mt-10 mb-3 text-base sm:text-lg font-semibold tracking-tight text-foreground/90"
     />
   )
 }

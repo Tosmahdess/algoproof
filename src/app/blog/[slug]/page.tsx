@@ -54,7 +54,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         ))}
       </div>
       <h1 className="text-3xl font-bold mb-8">{article.meta.title as string}</h1>
-      <div className="prose prose-invert prose-base max-w-none prose-headings:font-semibold prose-p:text-foreground/85 prose-p:leading-relaxed prose-li:text-foreground/85 prose-li:my-1 prose-a:text-accent prose-a:no-underline hover:prose-a:underline">
+      <div className="prose prose-invert prose-base max-w-none prose-headings:font-semibold prose-p:text-foreground/70 prose-p:leading-relaxed prose-li:text-foreground/70 prose-li:my-1 prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground/90">
         <MDXRemote source={article.content} components={mdxComponents} />
       </div>
     </div>
