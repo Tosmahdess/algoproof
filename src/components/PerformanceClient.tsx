@@ -11,7 +11,6 @@ interface TradeRow {
 
 type Direction = 'all' | 'long' | 'short'
 type Family = 'all' | 'trend' | 'breakout' | 'mean-reversion' | 'carry'
-type Period = '7d' | '30d' | '90d' | 'all'
 
 interface DayRow {
   date: string
@@ -38,13 +37,6 @@ const FAMILY_OPTIONS: { value: Family; label: string }[] = [
   { value: 'carry', label: 'Portage' },
 ]
 
-const PERIOD_OPTIONS: { value: Period; label: string }[] = [
-  { value: '7d', label: '7 j' },
-  { value: '30d', label: '30 j' },
-  { value: '90d', label: '90 j' },
-  { value: 'all', label: 'Tout' },
-]
-
 function signColor(v: number): string {
   if (v > 0) return 'text-positive'
   if (v < 0) return 'text-negative'
@@ -61,16 +53,55 @@ function fmtPf(wins: number, losses: number): number {
   return Math.round((wins / Math.abs(losses)) * 100) / 100
 }
 
+function daysAgo(n: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() - n)
+  return d.toISOString().slice(0, 10)
+}
+
 export function PerformanceClient({
   trades,
   botFamilyMap,
+  botNameMap,
 }: {
   trades: TradeRow[]
   botFamilyMap: Record<string, string>
+  botNameMap: Record<string, string>
 }) {
   const [direction, setDirection] = useState<Direction>('all')
   const [family, setFamily] = useState<Family>('all')
-  const [period, setPeriod] = useState<Period>('all')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [selectedBots, setSelectedBots] = useState<Set<string>>(new Set())
+  const [botsExpanded, setBotsExpanded] = useState(false)
+
+  const allBotIds = useMemo(() => {
+    const ids = [...new Set(trades.map(t => t.bot_id))]
+    ids.sort((a, b) => (botNameMap[a] ?? '').localeCompare(botNameMap[b] ?? ''))
+    return ids
+  }, [trades, botNameMap])
+
+  const toggleBot = (id: string) => {
+    setSelectedBots(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const selectAllBots = () => setSelectedBots(new Set(allBotIds))
+  const clearAllBots = () => setSelectedBots(new Set())
+
+  const setPreset = (days: number | null) => {
+    if (days === null) {
+      setDateFrom('')
+      setDateTo('')
+    } else {
+      setDateFrom(daysAgo(days))
+      setDateTo(new Date().toISOString().slice(0, 10))
+    }
+  }
 
   const { rows, totalTrades, totalPnl, totalWr, totalPf } = useMemo(() => {
     let filtered = trades
@@ -81,12 +112,14 @@ export function PerformanceClient({
     if (family !== 'all') {
       filtered = filtered.filter(t => botFamilyMap[t.bot_id] === family)
     }
-    if (period !== 'all') {
-      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
-      const cutoff = new Date()
-      cutoff.setDate(cutoff.getDate() - days)
-      const cutoffIso = cutoff.toISOString()
-      filtered = filtered.filter(t => t.closed_at >= cutoffIso)
+    if (selectedBots.size > 0) {
+      filtered = filtered.filter(t => selectedBots.has(t.bot_id))
+    }
+    if (dateFrom) {
+      filtered = filtered.filter(t => (t.closed_at || '').slice(0, 10) >= dateFrom)
+    }
+    if (dateTo) {
+      filtered = filtered.filter(t => (t.closed_at || '').slice(0, 10) <= dateTo)
     }
 
     const byDay: Record<string, { trades: number; winners: number; pnlWin: number; pnlLoss: number; pnl: number }> = {}
@@ -136,18 +169,89 @@ export function PerformanceClient({
       totalWr: tTrades > 0 ? Math.round((tWinners / tTrades) * 1000) / 10 : 0,
       totalPf: fmtPf(tPnlWin, tPnlLoss),
     }
-  }, [trades, botFamilyMap, direction, family, period])
+  }, [trades, botFamilyMap, direction, family, dateFrom, dateTo, selectedBots])
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
       <h1 className="text-3xl font-bold mb-2">Performance</h1>
       <p className="text-muted text-sm mb-8">P&L journalier de la flotte — données réelles, mises à jour toutes les heures.</p>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-6 mb-8">
+      {/* Filters row 1: direction + family */}
+      <div className="flex flex-wrap gap-6 mb-4">
         <FilterGroup label="Direction" options={DIRECTION_OPTIONS} value={direction} onChange={v => setDirection(v as Direction)} />
         <FilterGroup label="Famille" options={FAMILY_OPTIONS} value={family} onChange={v => setFamily(v as Family)} />
-        <FilterGroup label="Période" options={PERIOD_OPTIONS} value={period} onChange={v => setPeriod(v as Period)} />
+      </div>
+
+      {/* Filters row 2: date range */}
+      <div className="flex flex-wrap items-end gap-4 mb-4">
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold mb-1.5">Période</div>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={e => setDateFrom(e.target.value)}
+              className="bg-card border border-border rounded-md px-2.5 py-1 text-xs text-foreground focus:border-accent focus:outline-none"
+            />
+            <span className="text-muted text-xs">→</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={e => setDateTo(e.target.value)}
+              className="bg-card border border-border rounded-md px-2.5 py-1 text-xs text-foreground focus:border-accent focus:outline-none"
+            />
+          </div>
+        </div>
+        <div className="flex gap-1.5 pb-0.5">
+          {[
+            { label: '7j', days: 7 },
+            { label: '30j', days: 30 },
+            { label: '90j', days: 90 },
+            { label: 'Tout', days: null },
+          ].map(p => (
+            <button
+              key={p.label}
+              onClick={() => setPreset(p.days)}
+              className="px-2.5 py-1 text-xs rounded-md border border-border text-muted hover:text-foreground hover:border-foreground/30 transition-colors"
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Filters row 3: bots */}
+      <div className="mb-8">
+        <button
+          onClick={() => setBotsExpanded(o => !o)}
+          className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-muted font-semibold hover:text-foreground transition-colors"
+        >
+          Bots {selectedBots.size > 0 && `(${selectedBots.size} sélectionnés)`}
+          <svg className={`w-2.5 h-2.5 transition-transform ${botsExpanded ? 'rotate-180' : ''}`} viewBox="0 0 10 6" fill="currentColor">
+            <path d="M0 0l5 6 5-6H0z"/>
+          </svg>
+        </button>
+        {botsExpanded && (
+          <div className="mt-2 p-3 border border-border rounded-md bg-card/40 max-h-48 overflow-y-auto">
+            <div className="flex gap-3 mb-2 border-b border-border/60 pb-2">
+              <button onClick={selectAllBots} className="text-[10px] text-accent hover:underline">Tout cocher</button>
+              <button onClick={clearAllBots} className="text-[10px] text-accent hover:underline">Tout décocher</button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
+              {allBotIds.map(id => (
+                <label key={id} className="flex items-center gap-2 py-0.5 cursor-pointer hover:bg-card/70 rounded px-1">
+                  <input
+                    type="checkbox"
+                    checked={selectedBots.has(id)}
+                    onChange={() => toggleBot(id)}
+                    className="rounded border-border accent-accent"
+                  />
+                  <span className="text-xs text-foreground/80 truncate">{botNameMap[id] ?? id.slice(0, 8)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Summary */}
@@ -162,7 +266,6 @@ export function PerformanceClient({
       <div className="-mx-4 sm:mx-0 overflow-x-auto">
         <div className="inline-block min-w-full align-middle">
           <div className="border border-border rounded-md overflow-hidden bg-card/40">
-            {/* Header */}
             <div className="grid bg-card border-b border-border" style={{ gridTemplateColumns: '1.2fr 0.7fr 0.7fr 0.7fr 1fr 1fr' }}>
               {['Date', 'Trades', 'WR', 'PF', 'P&L', 'Cumul'].map((h, i) => (
                 <div key={h} className={`px-3 sm:px-4 py-2.5 text-[9px] sm:text-[10px] uppercase tracking-[0.15em] text-muted font-semibold whitespace-nowrap ${i === 0 ? 'text-left' : 'text-right'}`}>
@@ -171,14 +274,11 @@ export function PerformanceClient({
               ))}
             </div>
 
-            {/* Rows */}
             <div className="divide-y divide-border/60">
               {rows.length === 0 && (
-                <div className="px-4 py-8 text-center text-muted text-sm">
-                  Aucun trade sur cette période.
-                </div>
+                <div className="px-4 py-8 text-center text-muted text-sm">Aucun trade sur cette période.</div>
               )}
-              {rows.map((r) => (
+              {rows.map(r => (
                 <div key={r.date} className="grid hover:bg-card/70 transition-colors" style={{ gridTemplateColumns: '1.2fr 0.7fr 0.7fr 0.7fr 1fr 1fr' }}>
                   <div className="px-3 sm:px-4 py-2.5 text-xs sm:text-sm text-foreground/90">{r.dateFr}</div>
                   <div className="px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-mono tabular-nums text-right text-foreground/90">{r.trades}</div>
@@ -190,7 +290,6 @@ export function PerformanceClient({
               ))}
             </div>
 
-            {/* Summary row */}
             {rows.length > 0 && (
               <div className="grid bg-card border-t border-border" style={{ gridTemplateColumns: '1.2fr 0.7fr 0.7fr 0.7fr 1fr 1fr' }}>
                 <div className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-semibold text-foreground/90">Total</div>
@@ -211,10 +310,7 @@ export function PerformanceClient({
 }
 
 function FilterGroup<T extends string>({
-  label,
-  options,
-  value,
-  onChange,
+  label, options, value, onChange,
 }: {
   label: string
   options: { value: T; label: string }[]

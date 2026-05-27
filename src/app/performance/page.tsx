@@ -46,9 +46,11 @@ export default async function PerformancePage() {
   const { trades, bots } = await getData()
 
   const botFamilyMap: Record<string, string> = {}
+  const botNameMap: Record<string, string> = {}
   for (const b of bots) {
     botFamilyMap[b.id] = b.family ?? 'trend'
+    botNameMap[b.id] = b.name ?? b.slug
   }
 
-  return <PerformanceClient trades={trades} botFamilyMap={botFamilyMap} />
+  return <PerformanceClient trades={trades} botFamilyMap={botFamilyMap} botNameMap={botNameMap} />
 }
