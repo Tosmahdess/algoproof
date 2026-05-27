@@ -1,0 +1,37 @@
+---
+title: "14 mai — Trade 3 ouvert en live, tilts news + momentum déployés"
+date: "2026-05-14"
+category: "journal"
+tags: ["daily", "fleet", "live", "MI"]
+summary: "Le bot live ouvre un LONG BTC/USDC à 80 484. En parallèle, deux nouveaux tilts MI sont déployés sur le filtre directionnel : news score et BTC momentum 24h."
+---
+
+## Régime du jour
+
+BTC à ~80 500 USDC, MI en régime NEUTRAL, trend TRANSITION. Score global −6.22. Le marché est indécis — ni vrai bull, ni bear confirmé. Funding rates légèrement positifs.
+
+Le bot live a ouvert son **Trade 3** cet après-midi : LONG BTC/USDC à 80 484 USDC, SL à 78 794, TP1 à 83 863. C'est le premier trade BTC en live — les deux premiers étaient sur XRP.
+
+## Déploiement MI : Piste A + Option D
+
+J'ai déployé deux améliorations sur le filtre directionnel du service Market Intelligence :
+
+<DataCardGroup>
+  <DataCard label="Piste A — News score tilt" sub="si |news_score| > 15 → côté faible × 0.5" metrics="Type:Tilt conditionnel | Activation:±15 pts | Floor:0.30" intent="neutral" />
+  <DataCard label="Option D — BTC momentum 24h" sub="si |momentum| > 3 % → côté faible × 0.5" metrics="Type:Tilt conditionnel | Activation:±3 % | Floor:0.30" intent="neutral" />
+</DataCardGroup>
+
+Actuellement aucun tilt ne s'active (news +0.49, momentum +1.35 % — sous les seuils). Date de mesure : **15 juin** — je comparerai WR/PF/SL-rate des trades NEUTRAL avant et après.
+
+## Flotte
+
+<CompactTable cols="Composant | Statut | Détail" widths="1.5fr 0.5fr 2fr" aligns="left | left | left">
+  <Row values="EMA Cross H4 live | ✅ | Trade 3 BTC/USDC LONG ouvert @ 80 484" />
+  <Row values="Fleet 38 paper | ✅ | 38 sessions tmux actives" />
+  <Row values="MI service | ✅ | Piste A + Option D actifs, aucun tilt déclenché" />
+</CompactTable>
+
+## Ce que je surveille
+
+- **Trade 3** : BTC à 80 505, SL à 78 794 (marge 2.1 %) — prochain cycle H4 à 20:00 UTC pour éventuel trailing
+- **Piste A + D** : première activation attendue lors d'un mouvement BTC > 3 % ou news score > 15

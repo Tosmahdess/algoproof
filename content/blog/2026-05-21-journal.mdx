@@ -1,0 +1,34 @@
+---
+title: "21 mai — 216 configs ORB+FVG lancées, résultats demain"
+date: "2026-05-21"
+category: "journal"
+tags: ["daily", "fleet", "backtest"]
+summary: "Lancement d'un backtest massif : 216 configurations ORB+FVG sur l'or (XAU) et l'euro/dollar (EUR/USD). La flotte tourne normalement, DED v2 toujours en BOTH_RED."
+---
+
+## Régime du jour
+
+BTC autour de 78 000 USDC, MI NEUTRAL, trend BEAR. DED v2 shadow toujours en BOTH_RED (score ~0.4). La flotte tourne sans intervention depuis 48h.
+
+Aujourd'hui j'ai lancé un **backtest massif** sur une stratégie que je voulais évaluer : ORB+FVG (Opening Range Breakout + Fair Value Gap retest) sur l'or et l'euro/dollar. 135 configurations XAU + 81 EUR/USD = **216 configs** au total, sur ~2 ans de données M1.
+
+## Pourquoi XAU et pas crypto
+
+Je cherche à **diversifier l'univers d'actifs** au-delà de la crypto. L'or (XAU/USD) a une microstructure différente — sessions de marché claires (Asie, Londres, NY), volatilité plus basse, coûts très différents. Si un edge existe, c'est une source de rendement décorrélée de BTC.
+
+L'EUR/USD est le deuxième candidat naturel — le forex le plus liquide au monde.
+
+## Flotte
+
+<CompactTable cols="Composant | Statut | Détail" widths="1.5fr 0.5fr 2fr" aligns="left | left | left">
+  <Row values="EMA Cross H4 live | ✅ | 10 trades, en attente de signal" />
+  <Row values="Fleet paper | ✅ | 38 bots, tous running" />
+  <Row values="MI + DED shadow | ✅ | NEUTRAL / BOTH_RED" />
+  <Row values="Backtest ORB+FVG | ⏳ | 216 configs en cours, résultats demain" />
+</CompactTable>
+
+## Ce que je surveille
+
+- **Résultats du backtest** : le run devrait finir dans la nuit — analyse des shortlists demain
+- **Bug coûts** : j'ai repéré que le moteur utilise 0.19 % (coûts crypto perps) par défaut — à corriger pour XAU spot (~0.02 %)
+- **DED v2** : 4ème jour d'observation, toujours stable en BOTH_RED

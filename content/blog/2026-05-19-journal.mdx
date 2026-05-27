@@ -1,0 +1,40 @@
+---
+title: "19 mai — health-check flotte, 4 bugs trouvés et fixés"
+date: "2026-05-19"
+category: "journal"
+tags: ["daily", "fleet", "fix"]
+summary: "Audit complet de la flotte : funding rate en crash silencieux depuis 6 jours, grid bot 0 fill depuis 6 jours, V1-HL erreur DOT récurrente, log 1.4 GB orphelin. Tout corrigé en une session."
+---
+
+## Régime du jour
+
+BTC stable autour de 77 000 USDC. MI en NEUTRAL, trend BEAR. DED v2 shadow à 0.42, toujours en BOTH_RED. Journée de maintenance plutôt que de trading.
+
+J'ai fait un **health-check complet** de la flotte. Résultat : 4 bugs silencieux découverts, 4 fixés dans la journée.
+
+## Les 4 bugs
+
+<DataCardGroup>
+  <DataCard label="Funding rate carry" sub="crash silencieux depuis le 13/05 (6 jours)" metrics="Cause:PAYMENTS_PER_DAY manquant | Impact:0 income 6j | Fix:+1 ligne config" intent="negative" />
+  <DataCard label="Grid BTC spot" sub="0 fill détecté depuis le 13/05" metrics="Cause:ex_sync.close() crash avalé | Impact:3 buys manqués | Fix:drop close + warning" intent="negative" />
+  <DataCard label="V1-HL erreur DOT" sub="erreur récurrente à chaque cycle" metrics="Cause:DOT pas dispo proxy BinanceFutures | Impact:bruit logs | Fix:retrait 2 lignes" intent="neutral" />
+  <DataCard label="Log 1.4 GB orphelin" sub="apex_2026-04-01.log non rotaté" metrics="Avant:1.4 GB | Après:31 MB gzippé | Disque:40 % → 38 %" intent="neutral" />
+</DataCardGroup>
+
+Le grid bot a immédiatement détecté **3 buy fills** (77 211 / 78 509 / 79 806 USDC) dans les 4 secondes après le fix et a placé 3 sells en réponse.
+
+## Flotte
+
+<CompactTable cols="Composant | Statut | Détail" widths="1.5fr 0.5fr 2fr" aligns="left | left | left">
+  <Row values="EMA Cross H4 live | ✅ | 10 trades, PF 3.71, +52 USDC" />
+  <Row values="V1-HL paper | ✅ | Restart 06:47, plus d'erreur DOT" />
+  <Row values="Funding rate | ✅ | Restart, 1er paiement +0.011 USDT" />
+  <Row values="Grid BTC | ✅ | 3 fills détectés post-fix, 3 sells placés" />
+  <Row values="Fleet 30+ paper | ✅ | Tous running" />
+</CompactTable>
+
+## Ce que je surveille
+
+- **Grid bot** : attend la remontée BTC pour compléter les round-trips sur les 3 buys
+- **Funding rate** : vérifier que les paiements s'accumulent normalement sur les prochaines 24h
+- **Logrotate** : à automatiser pour éviter les 1.4 GB orphelins à l'avenir

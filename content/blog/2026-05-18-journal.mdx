@@ -1,0 +1,44 @@
+---
+title: "18 mai — Trade 3 débloqué, DED v2 en shadow, 2 bugs critiques fixés"
+date: "2026-05-18"
+category: "journal"
+tags: ["daily", "fleet", "incident", "MI"]
+summary: "Le bug fees Binance est fixé (Trade 3 vendu à −1.03 USDC), le Direction Edge Detector v2 tourne en shadow sur le VPS. Journée à 2 incidents résolus et 1 nouveau système déployé."
+---
+
+## Régime du jour
+
+BTC à ~76 600 USDC, en baisse de −2.6 % sur 3 jours. MI en régime NEUTRAL, trend BEAR. Le DED v2 fraîchement déployé calcule un score de 0.42 en mode BOTH_RED — il tempère les deux côtés.
+
+Grosse journée. Deux bugs critiques résolus et un nouveau système en observation.
+
+## Bug #1 — Trade 3 coincé depuis 48h
+
+Le LONG BTC ouvert le 14 mai n'arrivait pas à se fermer : Binance rejetait le sell ("insufficient balance"). Cause : **les fees sont prises en BTC sur les achats spot**. Le bot stockait la quantité ordonnée, pas la quantité reçue.
+
+Fix : `safe_close_amount()` utilise `min(stored, available)`. Le bot a vendu automatiquement **2 secondes** après le restart.
+
+<DataCardGroup>
+  <DataCard label="Trade 3 — BTC/USDC LONG" sub="ouvert le 14/05, fermé le 18/05" metrics="Entry:80 484 | Exit:76 606 | PnL:−1.03 USDC | Durée:4 jours" intent="negative" />
+</DataCardGroup>
+
+## Bug #2 — Direction Edge Detector v2 déployé en shadow
+
+En parallèle, j'ai conçu et codé le DED v2 — un détecteur qui mesure si le biais long/short de la flotte fonctionne **en ce moment**. 49 tests TDD, validé offline sur 446 trades (auto-corrélation P&L 3j = 68 % de fiabilité).
+
+Il tourne en shadow : il calcule ce qu'il ferait, le log dans le heartbeat, mais **ne touche pas aux bots**. Premier score live : 0.42, mode BOTH_RED.
+
+## Flotte
+
+<CompactTable cols="Composant | Statut | Détail" widths="1.5fr 0.5fr 2fr" aligns="left | left | left">
+  <Row values="EMA Cross H4 live | ✅ | Trade 3 fermé, 0 position, cycles OK" />
+  <Row values="V1-HL paper | ✅ | 3 positions ouvertes, balance 1026 USDC" />
+  <Row values="MI + DED v2 shadow | ✅ | Score 0.42, BOTH_RED, heartbeat enrichi" />
+  <Row values="Fleet 30+ paper | ✅ | Tous running" />
+</CompactTable>
+
+## Ce que je surveille
+
+- **DED v2** : première semaine d'observation shadow — les modes vont-ils basculer hors BOTH_RED ?
+- **V1 spot** : 0 position, en attente du prochain signal EMA cross
+- **15 juin** : rendez-vous mesure Piste A + Option D
