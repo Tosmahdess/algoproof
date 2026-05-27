@@ -1,0 +1,63 @@
+---
+title: "Semaine du 12-18 mai — crash OOM, bug critique live, et naissance du DED v2"
+date: "2026-05-18"
+category: "weekly"
+tags: ["weekly", "performance", "incident", "MI"]
+summary: "Semaine intense : un OOM killer efface 60 positions, le V1 spot live perd une position pendant 48h à cause d'un bug de fees, et je déploie un nouveau détecteur directionnel en shadow. Transparence totale sur les incidents et les fixes."
+---
+
+## La semaine en chiffres
+
+<StatRow>
+  <Stat label="P&L fleet (all-time)" value="+733 USDT" subtext="393 trades fermés" />
+  <Stat label="Positions archivées" value="60" subtext="crash OOM du 13/05" />
+  <Stat label="V1 Spot live" value="−1.03 USDC" subtext="Trade 3 BTC — bug fees 48h" />
+  <Stat label="Bots actifs" value="40" subtext="+2 carry (funding + grid)" />
+</StatRow>
+
+## Incident #1 — OOM Killer (13 mai)
+
+Mardi 13 mai à 08:53 UTC, le processus Docker (containerd, résidu d'un autre projet) a déclenché le **Out-of-Memory killer** du VPS. Le noyau Linux a tué le daemon systemd utilisateur → cascade kill de toutes les sessions tmux → **toute la flotte paper s'effondre d'un coup**.
+
+67 positions étaient ouvertes au moment du crash. Les bots H4 dormaient entre 08:00 et 12:00, donc les SL/TP n'ont pas été surveillés pendant 4h+. Certaines positions auraient dû toucher leur SL dans l'intervalle.
+
+**Ma décision** : archiver les 60 positions orphelines plutôt que de laisser les bots les récupérer avec un trou dans la surveillance. C'est une perte sèche sur le paper trading, mais c'est honnête — je ne veux pas de positions zombie dans les stats.
+
+**Fix structurel** : ajout de 4 GB de swap + swappiness à 10. Le VPS peut maintenant absorber des pics mémoire sans tuer les bots.
+
+## Incident #2 — Trade 3 coincé 48h (V1 Spot live)
+
+Le V1 spot live a ouvert un LONG BTC/USDC le 14 mai à 80 483 USDT. Ce que je n'avais pas vu : **Binance prend les fees en BTC sur les achats spot**. Le bot stockait la quantité ordonnée (0.00027383 BTC), pas la quantité reçue après fees (0.00026974).
+
+Résultat : quand le bot a tenté de vendre, Binance a rejeté l'ordre ("insufficient balance"). Le bot est resté en boucle de retry pendant 48h, pendant que le BTC passait sous le SL.
+
+**Fix** : nouveau module `balance_helpers.py` (15 tests TDD) — `safe_close_amount()` utilise `min(stored, available)` et `parse_filled_amount()` stocke la quantité nette post-fees. Le bot a vendu automatiquement 2 secondes après le restart, à −1.03 USDC au lieu de −0.46 théorique au SL.
+
+<DataCardGroup>
+  <DataCard label="Trade 3 BTC/USDC LONG" sub="entry 80 484 → close 76 606" metrics="Durée:4 jours | PnL réel:−1.03 USDC | PnL théorique SL:−0.46 | Écart:0.57 USDC" intent="negative" />
+</DataCardGroup>
+
+## Événement majeur — DED v2 en shadow
+
+En parallèle des incidents, j'ai conçu et déployé le **Direction Edge Detector v2** — un système qui mesure si le biais long/short de la flotte fonctionne en ce moment.
+
+Le principe : l'auto-corrélation du P&L sur 3 jours prédit le P&L des 3 jours suivants à **68 % de fiabilité** (vérifié sur 446 trades). Si les longs gagnent depuis 3 jours, ils ont 68 % de chances de continuer. Même chose pour les shorts.
+
+Le DED v2 combine ce signal endogène avec 2 features MI exogènes (BTC vs EMA200, score dérivés) pour produire un score continu qui module le sizing :
+- **LONG_BIAS** : longs à 1.0×, shorts à 0.3×
+- **SHORT_BIAS** : inverse
+- **BOTH_RED** : les deux à 0.7×
+
+Déployé en shadow dimanche soir. Premier heartbeat : score 0.42, mode BOTH_RED (les deux côtés réduits). Il ne touche pas encore aux bots — il observe.
+
+## Nouveaux bots : carry
+
+Deux nouveaux bots carry déployés en paper :
+- **Funding Rate Harvest** : capture les funding rates positifs sur les perps Binance Futures (cible SOL, ~6 %/an actuellement)
+- **Grid BTC Spot** : grille de 10 ordres limites à ±8 % du prix, capture les oscillations
+
+Famille "Portage" ajoutée sur le site, visible dans `/strategies`.
+
+## Leçon de la semaine
+
+> Deux incidents, deux fixes, zéro perte de donnée. L'architecture a tenu : les DBs SQLite étaient intactes après l'OOM, les backups pre-deploy ont permis un rollback propre du Trade 3. Ce qui a manqué : le swap (maintenant ajouté) et la gestion des fees spot (maintenant corrigée). Tout est documenté, rien n'est caché.

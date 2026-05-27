@@ -1,0 +1,48 @@
+---
+title: "Semaine du 5-11 mai — lancement d'AlgoProof et premier filtre directionnel"
+date: "2026-05-11"
+category: "weekly"
+tags: ["weekly", "performance", "lancement"]
+summary: "Première semaine d'AlgoProof : 35 bots déployés, site live sur algoproof.fr, et un constat brutal — les shorts ne marchent pas en bull market. Déploiement du filtre directionnel MI en réponse."
+---
+
+## La semaine en chiffres
+
+<StatRow>
+  <Stat label="Bots déployés" value="35" subtext="trend + breakout + mean-reversion" />
+  <Stat label="Trades fermés" value="312" subtext="new-schema fleet" />
+  <Stat label="P&L fleet" value="+975 USDT" subtext="WR 50.6 %" />
+  <Stat label="V1 Spot paper" value="+60 USDC" subtext="9 trades, WR 66.7 %" />
+</StatRow>
+
+## Ce qui s'est passé
+
+**Lancement d'AlgoProof.** Le site est en production sur [algoproof.fr](https://algoproof.fr) depuis lundi. 35 bots en paper trading, données synchronisées toutes les heures depuis le VPS vers Supabase. Tout est public : chaque trade, chaque perte, chaque drawdown.
+
+**Le constat shorts.** En analysant les 306 premiers trades de la flotte, un déséquilibre massif saute aux yeux :
+
+<DataCardGroup>
+  <DataCard label="Trades LONG" metrics="n:292 | WR:57.6 % | P&L:+1 511 USDT" intent="positive" />
+  <DataCard label="Trades SHORT" metrics="n:101 | WR:14.1 % | P&L:−778 USDT" intent="negative" />
+</DataCardGroup>
+
+Les shorts ont un WR de 14 % — quasiment aléatoire. Cause : le BTC est en recovery structurelle depuis mars (de ~65k à 82k), et les bots ouvraient des shorts à plein sizing dans un marché qui montait. La matrice MI ne faisait aucune distinction directionnelle.
+
+**Le filtre directionnel.** J'ai construit et déployé un système de filtrage directionnel à 15 cellules :
+- **3 régimes de trend** (BULL / TRANSITION / BEAR) basés sur BTC vs EMA200 D1
+- **5 niveaux de sentiment** (EXTREME_GREED → EXTREME_FEAR) depuis le score MI
+- Chaque cellule donne un multiplicateur sizing par direction (0.3× à 1.0×)
+
+Déployé sur les 34 bots en fin de semaine. Au moment du déploiement, BTC est à -0.71 % de l'EMA200 → zone TRANSITION + NEUTRAL → sizing identique (BOTH/1.0). Le filtre s'activera au prochain mouvement significatif.
+
+## Leçon de la semaine
+
+> Sans filtre directionnel, un ensemble de bots trend-following perd systématiquement sur le côté opposé au trend dominant. Ce n'est pas un bug — c'est un biais structurel. Un WR de 14 % sur les shorts en bull market, c'est le marché qui fait son job.
+
+## Site algoproof.fr
+
+- **33 bots** visibles sur le site (2 non syncés encore)
+- 3 familles : Suivi de tendance (20), Cassure (7), Retour à la moyenne (2) + Multi-actifs (2) + Levier (1)
+- Page `/intelligence` avec le régime MI en temps réel
+- Page `/wealth` avec le radar de conviction DCA (82 actifs)
+- Blog lancé avec l'article manifeste ["Pourquoi je montre chaque trade perdant"](/blog/2026-05-05-welcome)
