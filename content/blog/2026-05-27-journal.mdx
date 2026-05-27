@@ -1,31 +1,37 @@
 ---
-title: "27 mai — Hard gate en action sur les shorts"
+title: "27 mai — Hard gate anti-shorts activé"
 date: "2026-05-27"
 category: "journal"
 tags: ["daily", "fleet", "MI"]
-summary: "Journée mitigée avec 36 trades à -0.6% PnL, hard gate bloque les shorts en régime bear"
+summary: "Activation du hard gate sur les shorts suite au régime très baissier, WR à 83% mais PnL négatif"
 ---
 
 ## Régime du jour
 
-BTC reste 6% sous son EMA200, confirmant le régime BEAR qui persiste. Le hard gate fait son travail en bloquant les positions short après le déclenchement de la couche L1_short_very_bear_oversold — exactement le type de protection que j'ai conçu pour éviter les pièges de volatilité en territoire oversold.
+Bitcoin reste 7% sous son EMA200, confirmant le régime baissier avec un global score à -8.4. Le hard gate a automatiquement désactivé les positions short suite au déclenchement de la couche L1_short_very_bear_oversold, avec un cooldown de 12h — exactement le type de situation pour laquelle j'ai conçu cette protection.
 
 ## Flotte
 
-<CompactTable cols="Composant,Statut,Détails" widths="30%,20%,50%">
-<Row values="Bots live,1,Production active" />
-<Row values="Bots paper,37,Simulation et tests" />
-<Row values="Hard gate,🔴 Partiel,Shorts bloqués 12h" />
-<Row values="DED Shadow,🟡 BOTH_RED,Score 0.06, pas d'endo" />
-<Row values="Global score,-10.2,Risque GREEN maintenu" />
+<CompactTable cols="Composant,Statut,Détails" widths="30,20,50">
+<Row values="Bots live,1,Production minimale" />
+<Row values="Bots paper,37,Développement actif" />
+<Row values="Risk level,GREEN,Situation stable" />
+<Row values="Hard gate,ACTIF,Shorts bloqués (cooldown 12h)" />
+<Row values="Market bias,BOTH,Longs autorisés" />
+<Row values="DED Shadow,BOTH_RED,Score 0.42" />
 </CompactTable>
 
-La journée affiche 36 trades pour -0.6% de PnL global, avec un win rate solide à 77.8%. Le meilleur trade sur SEI-USDT (+20.1%) compense partiellement le pire sur ICP-USDT (-23.1% en short). Ce dernier illustre parfaitement pourquoi le hard gate s'est activé — les shorts deviennent imprévisibles quand le marché rebondit depuis des niveaux oversold.
+<StatRow>
+<Stat label="Trades" value="60" />
+<Stat label="Win rate" value="83.3%" />
+<Stat label="PnL" value="-11.71" />
+<Stat label="PnL 3j" value="-83.53" />
+</StatRow>
 
-Le rolling PnL 3j affiche -72.21, ce qui explique le mode BOTH_RED du DED Shadow. Le système reste prudent mais n'active pas encore l'endogène, laissant de la marge de manœuvre pour naviguer cette période difficile.
+Journée paradoxale avec un excellent win rate de 83% mais un PnL négatif. Le meilleur trade sur SEI-USDT (+20.10) n'a pas suffi à compenser le pire sur ICP-USDT (-23.14). Cette asymétrie confirme que je suis dans une phase où les pertes sont plus importantes que les gains, malgré la précision des signaux.
 
 ## Ce que je surveille
 
-• **Cooldown du hard gate** — Les shorts se débloquent dans quelques heures, je vais observer si les conditions de marché justifient leur réactivation
-• **Évolution du DED score** — À 0.06, on reste proche du seuil critique où l'endogène pourrait s'activer
-• **Comportement BTC vs EMA200** — Une reconquête des 6% de gap changerait complètement la donne sur le régime général
+• **Expiration du cooldown hard gate** dans les prochaines heures — je verrai si les conditions permettent de réactiver les shorts ou si le système maintient la restriction
+• **Évolution du DED score** actuellement à 0.42 en mode BOTH_RED — un passage sous 0.3 pourrait déclencher des ajustements plus agressifs sur la gestion de position
+• **Performance des 37 bots en paper** qui continuent d'accumuler de la donnée pendant que je reste prudent sur le live trading
