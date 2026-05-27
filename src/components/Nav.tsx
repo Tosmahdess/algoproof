@@ -13,12 +13,13 @@ const STRATEGIES_SUB = [
 ]
 
 const ALL_LINKS = [
-  { href: '/overview',     label: 'Vue d\'ensemble' },
-  { href: '/strategies',   label: 'Stratégies' },
-  { href: '/wealth',       label: 'Patrimoine' },
-  { href: '/intelligence', label: 'Intelligence' },
-  { href: '/blog',         label: 'Blog' },
-  { href: '/start',        label: 'Démarrer' },
+  { href: '/overview',      label: 'Vue d\'ensemble' },
+  { href: '/strategies',    label: 'Stratégies' },
+  { href: '/performance',   label: 'Performance' },
+  { href: '/wealth',        label: 'Patrimoine' },
+  { href: '/intelligence',  label: 'Intelligence' },
+  { href: '/blog',          label: 'Blog' },
+  { href: '/start',         label: 'Démarrer' },
 ]
 
 export default function Nav() {
@@ -63,6 +64,7 @@ export default function Nav() {
           </div>
 
           {[
+            { href: '/performance',  label: 'PERFORMANCE' },
             { href: '/wealth',       label: 'PATRIMOINE' },
             { href: '/intelligence', label: 'INTELLIGENCE' },
             { href: '/blog',         label: 'BLOG' },
