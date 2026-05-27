@@ -25,12 +25,12 @@ J'ai cherché des **cellules mortelles** : des conditions sous lesquelles un cer
 
 Premier découpage : long vs short, semaine par semaine.
 
-| Période | LONG (n / WR / P&L) | SHORT (n / WR / P&L) |
-|---|---|---|
-| Mai S1 (01-07) | 132 / **72 %** / **+978** | 53 / **7.5 %** / **−430** |
-| Mai S2 (08-14) | 87 / 65 % / **+895** | 25 / **8 %** / **−285** |
-| **Mai S3 (15-21)** | 215 / 70 % / **−378** | 66 / **62 %** / **+230** |
-| Mai S4 (22-26) | 291 / 77 % / **−177** | 69 / 43 % / **−65** |
+<CompactTable cols="Période | LONG (n / WR / P&L) | SHORT (n / WR / P&L)" widths="1fr 2fr 2fr">
+  <Row values="Mai S1 (01-07) | 132 / 72 % / +978 | 53 / 7.5 % / −430" />
+  <Row values="Mai S2 (08-14) | 87 / 65 % / +895 | 25 / 8 % / −285" />
+  <Row values="Mai S3 (15-21) | 215 / 70 % / −378 | 66 / 62 % / +230" />
+  <Row values="Mai S4 (22-26) | 291 / 77 % / −177 | 69 / 43 % / −65" />
+</CompactTable>
 
 Le retournement saute aux yeux. Première moitié de mai : longs en mode parfait, shorts massacrés (WR 7-8 %, du quasi pile-ou-face mais payé en pertes). Semaine du 15-21 : **inversion complète** — shorts gagnent, longs commencent à perdre. Puis semaine du 22-26 : les deux saignent. Régime sideways/choppy, ni vrai bear ni vrai bull.
 
@@ -40,15 +40,15 @@ J'ai tout l'historique de la flotte à 1 ligne par trade. Donc je peux faire mie
 
 J'ai découpé chaque trade par buckets de features MI. Quelques résultats parlants (filtre à au moins 10 trades par cellule, all-time) :
 
-| Cellule | n | WR | PF | P&L |
-|---|---|---|---|---|
-| LONG en `btc_vs_ema [-5,-2)%` (test EMA200 par le bas) | 285 | 65 % | **0.08** | **−540 USDT** |
-| LONG en `trend_regime=TRANSITION` | 35 | **2.9 %** | 0.06 | **−347 USDT** |
-| SHORT en `btc_vs_ema <-5%` (zone très oversold) | 61 | 26 % | 0.35 | **−212 USDT** |
-| LONG en `composite_score [-20,-10)` | 281 | 75 % | 0.47 | −149 USDT |
-| SHORT en `btc_vs_ema [-5,-2)%` (zone test EMA depuis bas) | 78 | 64 % | **4.54 OOS** | **+218 USDT** |
-| LONG en `composite_score [-10,-3)` (pullback léger) | 203 | **87 %** | **2.59** | **+182 USDT** |
-| LONG en `btc_vs_ema <-5%` (BTC très oversold, mean-rev) | 223 | **86 %** | 1.11 | +14 USDT |
+<DataCardGroup>
+  <DataCard label="LONG en `btc_vs_ema [-5,-2)%`" sub="test EMA200 par le bas" metrics="n:285 | WR:65 % | PF:0.08 | P&L:−540 USDT" />
+  <DataCard label="LONG en `trend_regime=TRANSITION`" metrics="n:35 | WR:2.9 % | PF:0.06 | P&L:−347 USDT" />
+  <DataCard label="SHORT en `btc_vs_ema <-5%`" sub="zone très oversold" metrics="n:61 | WR:26 % | PF:0.35 | P&L:−212 USDT" />
+  <DataCard label="LONG en `composite_score [-20,-10)`" metrics="n:281 | WR:75 % | PF:0.47 | P&L:−149 USDT" />
+  <DataCard label="SHORT en `btc_vs_ema [-5,-2)%`" sub="zone test EMA depuis bas" metrics="n:78 | WR:64 % | PF:4.54 OOS | P&L:+218 USDT" />
+  <DataCard label="LONG en `composite_score [-10,-3)`" sub="pullback léger" metrics="n:203 | WR:87 % | PF:2.59 | P&L:+182 USDT" />
+  <DataCard label="LONG en `btc_vs_ema <-5%`" sub="BTC très oversold, mean-rev" metrics="n:223 | WR:86 % | PF:1.11 | P&L:+14 USDT" />
+</DataCardGroup>
 
 C'est là que je vois la **vraie structure du marché vue par mes bots** :
 
@@ -60,12 +60,12 @@ C'est là que je vois la **vraie structure du marché vue par mes bots** :
 
 Découpage différent : pour chaque trade, qu'est-ce qui s'est passé sur le trade précédent du **même bot** ?
 
-| État du bot | n | WR | P&L total | avg/trade |
-|---|---|---|---|---|
-| Après 1 victoire | 282 | **56 %** | **+1 067** | +3.78 |
-| Après 1 perte | 359 | 34 % | −457 | −1.27 |
-| **Après ≥ 3 pertes consécutives** | **147** | **26 %** | **−476** | **−3.24** |
-| Après ≥ 4 pertes consécutives | 102 | 23 % | −428 | −4.20 |
+<DataCardGroup>
+  <DataCard label="Après 1 victoire" metrics="n:282 | WR:56 % | P&L:+1 067 | avg:+3.78" intent="positive" />
+  <DataCard label="Après 1 perte" metrics="n:359 | WR:34 % | P&L:−457 | avg:−1.27" />
+  <DataCard label="Après ≥ 3 pertes consécutives" metrics="n:147 | WR:26 % | P&L:−476 | avg:−3.24" />
+  <DataCard label="Après ≥ 4 pertes consécutives" metrics="n:102 | WR:23 % | P&L:−428 | avg:−4.20" />
+</DataCardGroup>
 
 Surprise. Indépendamment du régime de marché, **un bot qui vient de prendre 3 SL d'affilée a 26 % de chances de gagner le 4ème**, contre 50 % pour un bot "frais". C'est massif : sur les 147 occurrences observées, ce 4ème trade a coûté en moyenne −3.24 €. Cumul : **−476 USDT**, soit autant que la cellule TRANSITION du bucket MI.
 
@@ -81,12 +81,12 @@ Donc j'ai découpé mes 666 trades signal en 5 folds chronologiques (~133 trades
 
 ### Ce qui a tenu — 4 cellules
 
-| Cellule | Folds actifs | Verdict |
-|---|---|---|
-| LONG en `btc_vs_ema [-5,-2)%` | 3, 4, 5 → **3/3 négatifs** | ✅ structurel |
-| SHORT en `btc_vs_ema <-5%` | 4, 5 → 1 break-even + 1 catastrophe | ⚠️ partial (à logger en monitor) |
-| LONG en `trend_regime=TRANSITION` | 3, 4 → 2/2 négatifs (dormant ailleurs) | ✅ sentinelle dormante |
-| Streak per-bot ≥ 3 pertes | 1-5 → **5/5 négatifs** | ✅ stable |
+<CompactTable cols="Cellule | Folds actifs | Verdict" widths="2fr 2fr 1.5fr" aligns="left | left | left">
+  <Row values="LONG btc_vs_ema [-5,-2)% | 3, 4, 5 → 3/3 négatifs | ✅ structurel" />
+  <Row values="SHORT btc_vs_ema <-5% | 4, 5 → 1 break-even + 1 catastrophe | ⚠️ partial" />
+  <Row values="LONG trend_regime=TRANSITION | 3, 4 → 2/2 négatifs (dormant) | ✅ sentinelle dormante" />
+  <Row values="Streak per-bot ≥ 3 pertes | 1-5 → 5/5 négatifs | ✅ stable" />
+</CompactTable>
 
 Trois cellules sur quatre tiennent 100 % en walk-forward. La quatrième (SHORT en zone très oversold) tient en moyenne mais avec une distribution bimodale (un fold break-even, un fold catastrophe). Je l'ai gardée mais flaguée "monitor" pour surveiller son comportement live.
 
@@ -118,10 +118,10 @@ Le sizing est continu et a un floor à 0.3×. Quand BTC est en `[-5,-2)%` et qu'
 
 C'est la distinction classique en gestion d'actifs quantitative :
 
-| Couche | Question | Mon layer |
-|---|---|---|
-| Hard gate (binaire) | "Est-ce qu'on trade ?" | **Hard-Gate v1** (nouveau) |
-| Sizing modulator (continu) | "Combien ?" | DED v2 (en shadow) + matrice v1 (en prod) |
+<CompactTable cols="Couche | Question | Mon layer" widths="1.5fr 1.5fr 2fr" aligns="left | left | left">
+  <Row values="Hard gate (binaire) | Est-ce qu'on trade ? | Hard-Gate v1 (nouveau)" />
+  <Row values="Sizing modulator (continu) | Combien ? | DED v2 (shadow) + matrice v1 (prod)" />
+</CompactTable>
 
 Les deux couches sont complémentaires. Le gate dit *si*, le sizing dit *combien*. Pattern bien établi chez Man AHL, Mulvey, et la plupart des fonds CTA — pas mon invention, je suis juste la littérature.
 
@@ -139,13 +139,13 @@ Donc reset = win **OU** cooldown temporel. Reste à choisir le cooldown.
 
 J'ai simulé 4 valeurs (12h / 24h / 48h / 72h) plus "no time limit", avec une discipline real-time stricte : pour chaque trade candidat, je regarde seulement les trades **déjà fermés** au moment de son ouverture (pas un look-ahead bias possible).
 
-| Cooldown | Trades bloqués | FP rate | Δ baseline |
-|---|---|---|---|
-| **12h** | 111 | 39 % | **+34 USDT** ✅ |
-| 24h | 123 | 38 % | +32 |
-| 48h | 148 | 39 % | +22 |
-| 72h | 150 | 39 % | +36 |
-| No limit | 154 | 40 % | +11 |
+<CompactTable cols="Cooldown | Trades bloqués | FP rate | Δ baseline" widths="1fr 1.2fr 1fr 1.2fr">
+  <Row values="12h ✅ | 111 | 39 % | +34 USDT" />
+  <Row values="24h | 123 | 38 % | +32" />
+  <Row values="48h | 148 | 39 % | +22" />
+  <Row values="72h | 150 | 39 % | +36" />
+  <Row values="No limit | 154 | 40 % | +11" />
+</CompactTable>
 
 12h est l'arbitrage optimal : à peu près le meilleur Δ, et la distribution d'âge des "fires" montre que **78 % des cascades se produisent dans les 12h après la 3ème perte**. Au-delà, le bot reprend statistiquement en zone neutre (WR ~44 %, pnl légèrement positif), et un cooldown plus long ferait sacrifier ces winners.
 
@@ -155,14 +155,14 @@ J'ai simulé 4 valeurs (12h / 24h / 48h / 72h) plus "no time limit", avec une di
 
 Combinaison des 3 layers (L1 btc_vs_ema + L2 TRANSITION + L3 streak guard) sur les 666 trades signal, walk-forward 5 folds anchored expanding :
 
-| Fold | Période | Baseline | Avec gate | Δ |
-|---|---|---|---|---|
-| 1 | 06/04 → 01/05 | −112 | −42 | +70 |
-| 2 | 01-06/05 | +975 | +1013 | +38 |
-| 3 | 06-14/05 | +30 | +235 | **+206** |
-| 4 | 14-20/05 | +64 | +195 | +130 |
-| 5 | 20-26/05 | **−380** | +40 | **+420** |
-| **Σ** | | **+577** | **+1 441** | **+864** |
+<CompactTable cols="Fold | Période | Baseline | Avec gate | Δ" widths="0.5fr 1.5fr 1fr 1fr 1fr" summary>
+  <Row values="1 | 06/04 → 01/05 | −112 | −42 | +70" />
+  <Row values="2 | 01-06/05 | +975 | +1013 | +38" />
+  <Row values="3 | 06-14/05 | +30 | +235 | +206" />
+  <Row values="4 | 14-20/05 | +64 | +195 | +130" />
+  <Row values="5 | 20-26/05 | −380 | +40 | +420" />
+  <Row values="Σ |  | +577 | +1 441 | +864" />
+</CompactTable>
 
 Décomposé par layer (cumul) :
 - L1 LONG test_ema : 114 trades bloqués, **−541 USDT évités** (le gros morceau)

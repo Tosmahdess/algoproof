@@ -43,13 +43,13 @@ Sur une stratégie à SL serré (≈ 0.05 % du prix), un facteur 10× sur les co
 
 Après correction des coûts, 5 configurations sortaient avec PF ≥ 1.20 sur les 135 testées :
 
-| Session | FVG | SL | Retest | Trades | PF | WR | Sharpe |
-|---|---|---|---|---|---|---|---|
-| asia_00 | strict_3bar | orb_opposite | close_in_fvg | 260 | **1.40** | 54.6 % | 1.74 |
-| asia_00 | strict_3bar_atr | orb_opposite | close_in_fvg | 205 | **1.30** | 56.1 % | 1.45 |
-| asia_00 | strict_3bar | orb_opposite | touch_50pct | 303 | **1.24** | 51.8 % | 1.25 |
-| asia_00 | strict_3bar | orb_opposite | touch_proximal | 332 | **1.22** | 53.0 % | 1.24 |
-| asia_00 | nbar_window_5 | orb_opposite | touch_50pct | 234 | **1.21** | 53.4 % | 1.03 |
+<CompactTable cols="Session | FVG | SL | Retest | Trades | PF | WR | Sharpe" widths="1fr 1.3fr 1.2fr 1.2fr 0.8fr 0.7fr 0.8fr 0.8fr">
+  <Row values="asia_00 | strict_3bar | orb_opposite | close_in_fvg | 260 | 1.40 | 54.6 % | 1.74" />
+  <Row values="asia_00 | strict_3bar_atr | orb_opposite | close_in_fvg | 205 | 1.30 | 56.1 % | 1.45" />
+  <Row values="asia_00 | strict_3bar | orb_opposite | touch_50pct | 303 | 1.24 | 51.8 % | 1.25" />
+  <Row values="asia_00 | strict_3bar | orb_opposite | touch_proximal | 332 | 1.22 | 53.0 % | 1.24" />
+  <Row values="asia_00 | nbar_window_5 | orb_opposite | touch_50pct | 234 | 1.21 | 53.4 % | 1.03" />
+</CompactTable>
 
 **Toutes sur la session Asie 00:00 UTC. Toutes avec un SL placé à l'opposé du range d'ouverture (`orb_opposite`).** Le pattern semblait robuste : 3 définitions différentes de FVG (strict, avec filtre ATR, fenêtre 5 bougies) × 3 mécaniques de retest, et le résultat convergeait. C'est exactement le genre d'insensibilité paramétrique que je cherchais : ça suggère un edge structurel, pas un overfit aux paramètres.
 
@@ -74,13 +74,13 @@ J'ai relancé les 135 configurations sur l'IS uniquement, sélectionné le top 5
 
 ### Surprise #1 : l'IS donne un top 5 complètement différent
 
-| Session | FVG | SL | Retest | IS Trades | IS PF | IS WR | Sharpe |
-|---|---|---|---|---|---|---|---|
-| **ny_1430** | strict_3bar_atr | orb_opposite | touch_50pct | 170 | **1.30** | 57.1 % | 1.47 |
-| **ny_1430** | strict_3bar_atr | orb_opposite | close_in_fvg | 164 | 1.23 | 55.5 % | 1.14 |
-| **ny_1430** | strict_3bar | orb_opposite | close_in_fvg | 210 | 1.14 | 54.8 % | 0.81 |
-| **ny_1430** | strict_3bar_atr | swing_structure | touch_50pct | 148 | 1.11 | 53.4 % | 0.57 |
-| **fix_10** | nbar_window_5 | orb_opposite | touch_50pct | 175 | 1.10 | 54.3 % | 0.53 |
+<CompactTable cols="Session | FVG | SL | Retest | IS Trades | IS PF | IS WR | Sharpe" widths="1fr 1.3fr 1.2fr 1.2fr 0.8fr 0.7fr 0.8fr 0.8fr">
+  <Row values="ny_1430 | strict_3bar_atr | orb_opposite | touch_50pct | 170 | 1.30 | 57.1 % | 1.47" />
+  <Row values="ny_1430 | strict_3bar_atr | orb_opposite | close_in_fvg | 164 | 1.23 | 55.5 % | 1.14" />
+  <Row values="ny_1430 | strict_3bar | orb_opposite | close_in_fvg | 210 | 1.14 | 54.8 % | 0.81" />
+  <Row values="ny_1430 | strict_3bar_atr | swing_structure | touch_50pct | 148 | 1.11 | 53.4 % | 0.57" />
+  <Row values="fix_10 | nbar_window_5 | orb_opposite | touch_50pct | 175 | 1.10 | 54.3 % | 0.53" />
+</CompactTable>
 
 4 sur 5 sont des configurations **NY 14:30 UTC** — plus aucune trace de l'Asie. Et quand je regarde les PF des fameuses configs Asie sur cette portion IS seulement, elles étaient sous l'eau : **PF 0.80 à 0.87**. Si je n'avais *que* vu l'IS, je n'aurais jamais sélectionné les configs Asie.
 
@@ -88,13 +88,13 @@ Premier signal d'alarme : la sélection change radicalement selon la fenêtre ob
 
 ### Surprise #2 : sur OOS, les configs IS s'effondrent
 
-| Config | IS PF | OOS PF | Δ | IS WR | OOS WR | OOS trades |
-|---|---|---|---|---|---|---|
-| ny_1430 / strict_3bar_atr / orb_opp / touch_50pct | 1.30 | **0.78** | -0.52 | 57.1 % | 46.7 % | 75 |
-| ny_1430 / strict_3bar_atr / orb_opp / close_in_fvg | 1.23 | 0.82 | -0.41 | 55.5 % | 47.9 % | 71 |
-| ny_1430 / strict_3bar / orb_opp / close_in_fvg | 1.14 | 0.77 | -0.37 | 54.8 % | 48.9 % | 90 |
-| ny_1430 / strict_3bar_atr / swing_structure / touch_50pct | 1.11 | 0.90 | -0.21 | 53.4 % | 42.2 % | 64 |
-| fix_10 / nbar_window_5 / orb_opp / touch_50pct | 1.10 | 0.68 | -0.42 | 54.3 % | 43.1 % | 72 |
+<CompactTable cols="Config | IS PF | OOS PF | Δ | IS WR | OOS WR | OOS n" widths="2.5fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.7fr">
+  <Row values="ny_1430 / strict_3bar_atr / orb_opp / touch_50pct | 1.30 | 0.78 | −0.52 | 57.1 % | 46.7 % | 75" />
+  <Row values="ny_1430 / strict_3bar_atr / orb_opp / close_in_fvg | 1.23 | 0.82 | −0.41 | 55.5 % | 47.9 % | 71" />
+  <Row values="ny_1430 / strict_3bar / orb_opp / close_in_fvg | 1.14 | 0.77 | −0.37 | 54.8 % | 48.9 % | 90" />
+  <Row values="ny_1430 / strict_3bar_atr / swing / touch_50pct | 1.11 | 0.90 | −0.21 | 53.4 % | 42.2 % | 64" />
+  <Row values="fix_10 / nbar_5 / orb_opp / touch_50pct | 1.10 | 0.68 | −0.42 | 54.3 % | 43.1 % | 72" />
+</CompactTable>
 
 **Zéro configuration sur cinq ne tient le seuil PF ≥ 1.10 sur l'OOS.** Le PF moyen chute de 1.18 à 0.79. Le WR chute de 5 à 10 points. C'est un effondrement systématique.
 

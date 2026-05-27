@@ -12,6 +12,8 @@ import type { ReactNode, HTMLAttributes } from 'react'
 import { Callout } from './Callout'
 import { Verdict } from './Verdict'
 import { Stat, StatRow } from './Stat'
+import { DataCard, DataCardGroup } from './DataCard'
+import { CompactTable, Row } from './CompactTable'
 
 // ---------- helpers ----------
 
@@ -180,4 +182,8 @@ export const mdxComponents = {
   Verdict,
   Stat,
   StatRow,
+  DataCard,
+  DataCardGroup,
+  CompactTable,
+  Row,
 }
