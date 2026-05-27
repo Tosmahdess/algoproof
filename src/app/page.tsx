@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import { getAllBotsWithStats } from '@/lib/queries'
-import { DISCORD_URL } from '@/lib/constants'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
 export const revalidate = 1800
@@ -49,7 +48,7 @@ export default async function HomePage() {
           <span className="text-positive">Chaque trade. Chaque perte.</span>
         </h1>
         <p className="text-lg text-muted max-w-2xl mx-auto mb-8">
-          Le premier labo de trading algo 100% transparent, en français. On expose notre recherche en temps réel —
+          Le premier labo de trading algo 100% transparent, en français. J&apos;expose ma recherche en temps réel —
           gains, pertes, drawdowns — et la communauté suit, challenge, contribue.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
@@ -65,10 +64,12 @@ export default async function HomePage() {
           <Link href="/intelligence" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
             INTELLIGENCE
           </Link>
-          <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer"
-             className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
-            Discord
-          </a>
+          <Link href="/performance" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
+            PERFORMANCE
+          </Link>
+          <Link href="/blog" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
+            BLOG
+          </Link>
         </div>
       </div>
 
@@ -191,14 +192,18 @@ export default async function HomePage() {
         </Link>
       </div>
 
-      {/* CTA Discord */}
-      <div className="bg-card border border-border rounded-xl p-8 text-center">
-        <h2 className="text-xl font-bold mb-2">Rejoindre le labo</h2>
-        <p className="text-muted mb-6">Discussions sur les stratégies, nouveaux trades en temps réel, analyses hebdo. Gratuit, sans paywall.</p>
-        <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer"
-           className="inline-flex px-6 py-2.5 bg-accent/10 text-accent border border-accent/30 rounded-lg hover:bg-accent/20 transition-colors font-medium">
-          Rejoindre Discord
-        </a>
+      {/* CTA Blog + Performance */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Link href="/performance" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
+          <h2 className="text-xl font-bold mb-2">Performance</h2>
+          <p className="text-muted text-sm">P&L journalier filtrable — direction, famille, période. Les chiffres bruts, sans filtre.</p>
+          <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir les résultats →</span>
+        </Link>
+        <Link href="/blog" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
+          <h2 className="text-xl font-bold mb-2">Blog</h2>
+          <p className="text-muted text-sm">Journal de bord quotidien, revues hebdo, autopsies de stratégies. Tout est documenté.</p>
+          <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Lire les articles →</span>
+        </Link>
       </div>
 
     </div>
