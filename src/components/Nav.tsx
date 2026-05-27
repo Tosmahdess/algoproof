@@ -19,6 +19,7 @@ const ALL_LINKS = [
   { href: '/wealth',        label: 'Patrimoine' },
   { href: '/intelligence',  label: 'Intelligence' },
   { href: '/blog',          label: 'Blog' },
+  { href: 'https://lab.algoproof.fr', label: 'Lab' },
   { href: '/start',         label: 'Démarrer' },
 ]
 
