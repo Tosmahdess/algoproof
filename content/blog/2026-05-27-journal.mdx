@@ -1,32 +1,31 @@
 ---
-title: "27 mai — BTC teste l'EMA200, Hard-Gate L1 en alerte"
+title: "27 mai — Hard gate en action sur les shorts"
 date: "2026-05-27"
 category: "journal"
 tags: ["daily", "fleet", "MI"]
-summary: "V1 spot toujours en positif (+52 USDC), Hard-Gate v1 fire L1 en shadow sur le BTC en zone test EMA200. 40+ bots actifs, aucun incident."
+summary: "Journée mitigée avec 36 trades à -0.6% PnL, hard gate bloque les shorts en régime bear"
 ---
 
 ## Régime du jour
 
-Le BTC oscille autour de -3 % sous l'EMA200 — zone que j'ai identifiée comme **cellule mortelle pour les longs** dans mon [analyse Hard-Gate](/blog/2026-05-26-hard-gate-v1-cellules-mortelles). Le service Market Intelligence est en régime **NEUTRAL**, funding rates positifs (marché légèrement long-crowded).
-
-Le Hard-Gate v1, déployé en shadow depuis hier, **fire activement la couche L1** : il bloquerait les longs dans cette zone s'il était en production. Pour l'instant il observe — promotion prévue le 2 juin après 7 jours de données.
+BTC reste 6% sous son EMA200, confirmant le régime BEAR qui persiste. Le hard gate fait son travail en bloquant les positions short après le déclenchement de la couche L1_short_very_bear_oversold — exactement le type de protection que j'ai conçu pour éviter les pièges de volatilité en territoire oversold.
 
 ## Flotte
 
-<CompactTable cols="Composant | Statut | Détail" widths="1.5fr 0.5fr 2fr" aligns="left | left | left">
-  <Row values="V1 Spot (live) | ✅ | 10 trades fermés, PF 3.71, +52.52 USDC" />
-  <Row values="V1-HL (paper) | ✅ | 22 trades, PF 2.05, +89.35 USDC" />
-  <Row values="Breakout SOL (paper) | ✅ | 11 trades, +2.91 USDT" />
-  <Row values="Funding rate carry | ✅ | 335 paiements loggés" />
-  <Row values="Grid BTC spot | ✅ | 2 round-trips complétés" />
-  <Row values="Fleet 30+ paper BF | ✅ | Tous running" />
+<CompactTable cols="Composant,Statut,Détails" widths="30%,20%,50%">
+<Row values="Bots live,1,Production active" />
+<Row values="Bots paper,37,Simulation et tests" />
+<Row values="Hard gate,🔴 Partiel,Shorts bloqués 12h" />
+<Row values="DED Shadow,🟡 BOTH_RED,Score 0.06, pas d'endo" />
+<Row values="Global score,-10.2,Risque GREEN maintenu" />
 </CompactTable>
 
-Aucune intervention manuelle aujourd'hui. La flotte tourne en autonomie complète depuis 24h.
+La journée affiche 36 trades pour -0.6% de PnL global, avec un win rate solide à 77.8%. Le meilleur trade sur SEI-USDT (+20.1%) compense partiellement le pire sur ICP-USDT (-23.1% en short). Ce dernier illustre parfaitement pourquoi le hard gate s'est activé — les shorts deviennent imprévisibles quand le marché rebondit depuis des niveaux oversold.
+
+Le rolling PnL 3j affiche -72.21, ce qui explique le mode BOTH_RED du DED Shadow. Le système reste prudent mais n'active pas encore l'endogène, laissant de la marge de manœuvre pour naviguer cette période difficile.
 
 ## Ce que je surveille
 
-- **Hard-Gate shadow** : le L1 continue de fire sur chaque heartbeat. Si le BTC reste sous l'EMA200 demain, j'aurai 48h de données shadow à analyser.
-- **DED v2** : score à 0.42, mode BOTH_RED. L'auto-corrélation 90j n'est pas encore activable (pas assez d'historique MI).
-- **V1 spot live** : 0 position ouverte, le bot attend un signal EMA cross. Prochaine fenêtre de scan dans ~3h.
+• **Cooldown du hard gate** — Les shorts se débloquent dans quelques heures, je vais observer si les conditions de marché justifient leur réactivation
+• **Évolution du DED score** — À 0.06, on reste proche du seuil critique où l'endogène pourrait s'activer
+• **Comportement BTC vs EMA200** — Une reconquête des 6% de gap changerait complètement la donne sur le régime général
