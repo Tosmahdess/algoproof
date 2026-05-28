@@ -1,0 +1,56 @@
+---
+title: "28 mai — le déploiement fantôme : mes prises de profit partielles ne tournaient sur aucun bot"
+date: "2026-05-28"
+category: "journal"
+tags: ["daily", "fleet", "SL/TP", "transparence"]
+summary: "J'ai voulu vérifier que mes prises de profit partielles tournaient. Elles ne tournaient sur aucun bot depuis une semaine — et un simple redémarrage aurait crashé toute la flotte. Comment je l'ai attrapé et réparé sur 32 bots."
+---
+
+## Le point de départ
+
+La semaine dernière (27 mai), j'ai « déployé » un système de prises de profit partielles sur toute ma flotte : au lieu de fermer une position d'un bloc à un objectif unique, je sécurise 50 % à 1R (puis je remonte le stop au point mort), 30 % à 2R, et je laisse courir 20 % jusqu'à 3R. Mon commit disait fièrement *« deployed to fleet »*.
+
+Aujourd'hui je voulais juste vérifier que les premiers TP partiels se déclenchaient correctement. La vérification a révélé tout autre chose : **le système n'était actif sur aucun bot.**
+
+## Trois pannes empilées
+
+<CompactTable cols="Défaut,Ce qui se passait,Conséquence" widths="28%,42%,30%">
+<Row values="Jamais redémarré,Code patché sur disque le 27/05 mais process lancés le 14/05,Python garde l'ancien code en mémoire — patch ignoré" />
+<Row values="Constante manquante,Le code importait une variable de config absente de ~6 bots,ImportError au démarrage" />
+<Row values="f-strings corrompues,Le script de déploiement avait cassé les messages Telegram sur 30 bots,SyntaxError au démarrage" />
+</CompactTable>
+
+Le détail qui fait froid dans le dos : à cause des défauts 2 et 3, **un simple redémarrage de la flotte pour activer le système aurait fait planter 30 bots d'un coup.** Le code « livré » était à la fois inactif *et* cassé.
+
+<Callout type="insight" title="Ce qui a sauvé la flotte">
+Plutôt que de tout redémarrer d'un coup, j'ai d'abord relancé **un seul bot** (un canary). Il a planté immédiatement — révélant le bug avant qu'il ne touche les 31 autres. Le reste de la flotte n'a jamais cessé de tourner sur son ancien code stable pendant que je réparais.
+</Callout>
+
+## La vraie correction
+
+Le bug d'import venait d'une mauvaise idée de départ : calculer les niveaux de prise de profit à partir d'une constante de configuration. Cette constante n'existe pas sur toutes les stratégies, et même quand elle existe, elle ne correspond pas forcément au risque réel pris sur chaque trade.
+
+J'ai donc changé l'approche : **les niveaux sont maintenant dérivés du risque réel stocké sur le trade** — la distance entre le prix d'entrée et le stop initial. C'est correct pour n'importe quelle stratégie, sans dépendre d'aucune constante externe. TP1 à 1× ce risque, TP2 à 2×, TP3 à 3×.
+
+Déploiement discipliné cette fois : un correcteur automatique qui vérifie que chaque fichier compile avant de l'écrire (et restaure la sauvegarde sinon), testé d'abord sur un bot sain, puis sur un bot corrompu avec des positions ouvertes, et seulement après déroulé sur les 30 restants. Un dernier piège attrapé au passage : mon correcteur supprimait par erreur une fonction d'un bot (son heartbeat) — borne corrigée, bot restauré.
+
+## État de la flotte ce soir
+
+<CompactTable cols="Vérification,Résultat" widths="60%,40%">
+<Row values="Bots avec prises de profit partielles actives,32" />
+<Row values="Bots avec le bug d'import restant,0" />
+<Row values="Bots avec corruption résiduelle,0" />
+<Row values="Erreurs au démarrage,0" />
+<Row values="Tests unitaires (apex_common),234 verts" />
+</CompactTable>
+
+Prises de profit partielles + breakeven tournent désormais **réellement** sur les 32 bots. Les premiers TP1 partiels se déclencheront dès que le marché reprendra des trades — pour l'instant la flotte ne fait rien : BTC reste sous son EMA200 et le filtre macro bloque les nouvelles entrées.
+
+## Ce qui arrive ensuite
+
+• **Observer les premiers TP partiels en réel** dès que les entrées rouvrent — c'est tout l'intérêt du système, voir les runners TP3 capturer les extensions de tendance.
+• **Trailing stop adaptatif par régime** — ma prochaine brique : faire en sorte que le stop suiveur se desserre quand l'actif est en tendance franche (laisser courir) et se resserre en marché haché (verrouiller). Je le validerai d'abord par un rejeu hors-ligne sur mes trades réels avant de l'activer.
+
+## La leçon
+
+« Le code est sur le serveur » ne veut pas dire « le code tourne ». Un fichier sur disque n'est pas un process en mémoire, et un commit qui dit *« deployed »* ne vaut rien sans vérification. Désormais je compare systématiquement l'âge du process à la date du fichier, et je passe par un canary avant tout redémarrage de flotte. Mieux vaut un bot qui plante en test que trente en production.
