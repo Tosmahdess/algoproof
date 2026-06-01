@@ -15,7 +15,7 @@ export async function getLatestFiche(ticker: string): Promise<EquityFiche | null
 export async function getGrowthRow(ticker: string): Promise<EquityMarketRow | null> {
   const { data, error } = await supabaseServer
     .from('growth_universe')
-    .select('signal_level,drawdown_pct,ref_price_180j,tp1_pct,tp2_pct,current_price')
+    .select('signal_level,drawdown_pct,ref_price_180j,tp1_pct,tp2_pct,tp1_sell_pct,tp2_sell_pct,current_price')
     .eq('ticker', ticker)
     .limit(1)
   if (error || !data || data.length === 0) return null
