@@ -1,0 +1,31 @@
+---
+title: "1 juin — Hard gate activé, shorts bloqués"
+date: "2026-06-01"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "Régime BEAR confirmé avec BTC à -9.61% sous EMA200, hard gate bloque les shorts sur oversold extrême"
+---
+
+## Régime du jour
+
+Le marché confirme son régime BEAR avec BTC qui stagne à -9.61% sous son EMA200. Mon hard gate v1 vient de se déclencher sur la couche L1_short_very_bear_oversold, bloquant tous les shorts pour les 12 prochaines heures — classique en situation d'oversold extrême où les rebonds techniques peuvent être violents.
+
+## Flotte
+
+<CompactTable cols="Composant,Statut,Détail" widths="30,20,50">
+<Row values="Bots live,1,Spot v1 exclu du hard gate" />
+<Row values="Bots paper,37,Flotte complète en simulation" />
+<Row values="Hard gate,🔴 ACTIF,Shorts bloqués 12h (oversold)" />
+<Row values="Global score,-10.53,Risque GREEN malgré BEAR" />
+<Row values="DED Shadow,0.42,Mode BOTH_RED actif" />
+</CompactTable>
+
+Journée mitigée avec 68 trades, 70.6% de winrate mais -19.63 USDT de PnL. Le meilleur trade sur BCH-USDT (+32.65 en short) a été largement compensé par plusieurs petites pertes, dont SEI-USDT à -11.91. Mon système DED Shadow affiche un score de 0.42 en mode BOTH_RED, confirmant la prudence nécessaire dans ce régime.
+
+Le rolling PnL 3 jours reste positif à +3.83 USDT, ce qui maintient le derivatives score à 8.36 — suffisant pour éviter un blocage total mais pas assez pour ignorer l'oversold actuel.
+
+## Ce que je surveille
+
+• **Expiration du hard gate** dans 12h — je vérifierai si les conditions d'oversold se normalisent pour réactiver les shorts
+• **Comportement du spot v1** qui continue de trader normalement, étant exclu du hard gate — ses performances m'indiqueront la pertinence du blocage
+• **Évolution du derivatives score** et du DED mode, un passage vers LONG_RED pourrait signaler un changement de régime imminent
