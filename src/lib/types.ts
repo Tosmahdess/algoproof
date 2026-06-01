@@ -159,6 +159,8 @@ export interface GrowthAsset {
   dip_trigger_pct: number | null
   tp1_pct: number | null
   tp2_pct: number | null
+  tp1_sell_pct: number | null
+  tp2_sell_pct: number | null
   residual_pct: number | null
   current_price: number | null
   ref_price_180j: number | null
@@ -194,6 +196,9 @@ export interface EquityMarketRow {
   ref_price_180j: number | null
   tp1_pct: number | null
   tp2_pct: number | null
+  tp1_sell_pct: number | null
+  tp2_sell_pct: number | null
+  residual_pct: number | null
   current_price: number | null
 }
 

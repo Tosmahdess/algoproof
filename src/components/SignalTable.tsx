@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import type { GrowthAsset } from '@/lib/types'
 import { SignalProgressBar } from './SignalProgressBar'
+import { sellPlanLines } from '@/lib/sell-plan'
 
 interface Props {
   assets: GrowthAsset[]
@@ -144,24 +145,19 @@ function AssetRow({ asset, lastAlerts, coveredTickers }: { asset: GrowthAsset; l
         )}
       </td>
 
-      <td className="py-2.5 px-3">
-        <div className="flex gap-1 flex-wrap">
-          {asset.tp1_pct && (
-            <span className="text-[11px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
-              TP1 +{asset.tp1_pct}%
-            </span>
-          )}
-          {asset.tp2_pct && (
-            <span className="text-[11px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
-              TP2 +{asset.tp2_pct}%
-            </span>
-          )}
-          {asset.residual_pct !== null && asset.residual_pct !== undefined && (
-            <span className="text-[11px] text-zinc-600">
-              {asset.residual_pct > 0 ? `hold ${asset.residual_pct}%` : 'exit'}
-            </span>
-          )}
-        </div>
+      <td
+        className="py-2.5 px-3"
+        title="+X% = X% de plus-value depuis ton prix d'achat, pas X% de la position"
+      >
+        {(() => {
+          const lines = sellPlanLines(asset)
+          if (lines.length === 0) return <span className="text-zinc-700 text-xs">—</span>
+          return (
+            <div className="flex flex-col gap-0.5 text-[11px] text-zinc-400">
+              {lines.map((l, i) => <span key={i}>{l}</span>)}
+            </div>
+          )
+        })()}
       </td>
 
       <td className="py-2.5 px-3 text-xs text-zinc-500 whitespace-nowrap">
@@ -183,8 +179,8 @@ function SignalView({ assets, lastAlerts, coveredTickers }: Props) {
           <th className="py-2.5 px-3 text-left font-medium">Signal</th>
           <th className="py-2.5 px-3 text-left font-medium">Recul 180j</th>
           <th className="py-2.5 px-3 text-left font-medium">Distance seuils</th>
-          <th className="py-2.5 px-3 text-left font-medium">Sizing</th>
-          <th className="py-2.5 px-3 text-left font-medium">Plan sortie</th>
+          <th className="py-2.5 px-3 text-left font-medium">À acheter (€)</th>
+          <th className="py-2.5 px-3 text-left font-medium">Plan de vente</th>
           <th className="py-2.5 px-3 text-left font-medium">Dernière alerte</th>
         </tr>
       </thead>
@@ -258,8 +254,8 @@ function SecteurView({ assets, lastAlerts, coveredTickers }: Props) {
                 <th className="py-1.5 px-3 text-left font-medium">Signal</th>
                 <th className="py-1.5 px-3 text-left font-medium">Recul 180j</th>
                 <th className="py-1.5 px-3 text-left font-medium">Distance seuils</th>
-                <th className="py-1.5 px-3 text-left font-medium">Sizing</th>
-                <th className="py-1.5 px-3 text-left font-medium">Sortie</th>
+                <th className="py-1.5 px-3 text-left font-medium">À acheter (€)</th>
+                <th className="py-1.5 px-3 text-left font-medium">Vente</th>
                 <th className="py-1.5 px-3 text-left font-medium">Dernière alerte</th>
               </tr>
             </thead>
@@ -280,6 +276,10 @@ export function SignalTable({ assets, lastAlerts, coveredTickers }: Props) {
 
   return (
     <div>
+      <p className="text-[11px] text-zinc-500 mb-3 leading-relaxed">
+        🟢 <span className="text-zinc-300">MINEUR / MAJEUR / KRACH</span> = quand &amp; combien <span className="font-bold text-zinc-300">acheter sur repli</span> ·{' '}
+        🎯 <span className="text-zinc-300">Plan de vente</span> = quand &amp; combien <span className="font-bold text-zinc-300">vendre en plus-value</span>
+      </p>
       <div className="flex gap-2 mb-4">
         {([['signal', '⚡ Par signal'], ['secteur', '📂 Par secteur']] as const).map(([key, label]) => (
           <button

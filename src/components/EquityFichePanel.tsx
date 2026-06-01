@@ -1,6 +1,7 @@
 import type { EquityFiche, EquityMarketRow } from '@/lib/types'
 import { VerdictBadge } from './VerdictBadge'
 import { LivePerf } from './LivePerf'
+import { sellPlanLines } from '@/lib/sell-plan'
 
 const SIGNAL_LABEL: Record<string, string> = { minor: 'MINEUR', major: 'MAJEUR', crash: 'KRACH' }
 
@@ -20,8 +21,13 @@ export function EquityFichePanel({ fiche, market }: { fiche: EquityFiche; market
       <div className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
         <div><div className="text-muted text-xs">Signal</div><div className="font-semibold">{signal}</div></div>
         <div><div className="text-muted text-xs">Recul 180j</div><div className="font-semibold">{dd}</div></div>
-        <div><div className="text-muted text-xs">TP1</div><div className="font-semibold text-positive">+{market?.tp1_pct ?? '—'}%</div></div>
-        <div><div className="text-muted text-xs">TP2</div><div className="font-semibold text-positive">+{market?.tp2_pct ?? '—'}%</div></div>
+        <div className="col-span-2 sm:col-span-2" title="+X% = X% de plus-value depuis le prix d'achat, pas X% de la position">
+          <div className="text-muted text-xs">Plan de vente</div>
+          <div className="mt-0.5 flex flex-wrap gap-x-3 text-sm font-medium text-positive">
+            {sellPlanLines({ tp1_pct: market?.tp1_pct ?? null, tp1_sell_pct: market?.tp1_sell_pct ?? null, tp2_pct: market?.tp2_pct ?? null, tp2_sell_pct: market?.tp2_sell_pct ?? null, residual_pct: market?.residual_pct ?? null })
+              .map((l, i) => <span key={i}>{l}</span>)}
+          </div>
+        </div>
       </div>
       <p className="mt-4 border-l-2 border-accent pl-3 text-foreground/80 italic">{fiche.verdict_reason}</p>
     </section>
