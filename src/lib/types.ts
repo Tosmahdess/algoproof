@@ -169,6 +169,34 @@ export interface GrowthAsset {
   last_updated: string
 }
 
+export type Verdict = 'renforcer' | 'maintenir' | 'skip'
+
+export interface EquityFiche {
+  ticker: string
+  ticker_yf: string
+  asset_name: string
+  category: string | null
+  generated_at: string
+  thesis_version: number
+  price_at_generation: number | null
+  fondamentaux: string
+  valorisation: string
+  momentum: string
+  risques: string
+  verdict: Verdict
+  verdict_reason: string
+  is_featured: boolean
+}
+
+export interface EquityMarketRow {
+  signal_level: 'minor' | 'major' | 'crash' | null
+  drawdown_pct: number | null
+  ref_price_180j: number | null
+  tp1_pct: number | null
+  tp2_pct: number | null
+  current_price: number | null
+}
+
 export type ChangelogCategory = 'asset' | 'fix' | 'strategy' | 'perf' | 'risk'
 
 export interface BotChangelog {
