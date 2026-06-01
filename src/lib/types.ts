@@ -198,6 +198,7 @@ export interface EquityMarketRow {
   tp2_pct: number | null
   tp1_sell_pct: number | null
   tp2_sell_pct: number | null
+  residual_pct: number | null
   current_price: number | null
 }
 
