@@ -75,28 +75,41 @@ function AssetRow({ asset, lastAlerts, coveredTickers }: { asset: GrowthAsset; l
       style={{ borderLeft: sigColor ? `2px solid ${sigColor}` : '2px solid transparent' }}
     >
       <td className="py-2.5 px-3 min-w-[150px]">
-        <div className="flex items-center gap-1.5">
-          {coveredTickers?.has(asset.ticker) ? (
-            <Link
-              href={`/wealth/${encodeURIComponent(asset.ticker)}`}
-              className="text-xs font-mono font-bold hover:underline"
-              style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
-            >
-              {asset.ticker} <span aria-hidden>↗</span>
-            </Link>
-          ) : (
-            <span
-              className="text-xs font-mono font-bold"
-              style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
-            >
-              {asset.ticker}
-            </span>
-          )}
-          {asset.tier === 2 && (
-            <span className="text-[10px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
-          )}
-        </div>
-        <div className="text-xs text-zinc-400 leading-tight mt-0.5">{asset.asset_name}</div>
+        {coveredTickers?.has(asset.ticker) ? (
+          <Link
+            href={`/wealth/${encodeURIComponent(asset.ticker)}`}
+            title={`Voir l'analyse de ${asset.asset_name}`}
+            className="group block -mx-1 px-1 rounded hover:bg-zinc-800/40 transition-colors"
+          >
+            <div className="flex items-center gap-1.5">
+              <span
+                className="text-xs font-mono font-bold group-hover:underline"
+                style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
+              >
+                {asset.ticker} <span aria-hidden>↗</span>
+              </span>
+              {asset.tier === 2 && (
+                <span className="text-[10px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
+              )}
+            </div>
+            <div className="text-xs text-zinc-200 leading-tight mt-0.5 group-hover:underline">{asset.asset_name}</div>
+          </Link>
+        ) : (
+          <>
+            <div className="flex items-center gap-1.5">
+              <span
+                className="text-xs font-mono font-bold"
+                style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
+              >
+                {asset.ticker}
+              </span>
+              {asset.tier === 2 && (
+                <span className="text-[10px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
+              )}
+            </div>
+            <div className="text-xs text-zinc-400 leading-tight mt-0.5">{asset.asset_name}</div>
+          </>
+        )}
       </td>
 
       <td className="py-2.5 px-3">
