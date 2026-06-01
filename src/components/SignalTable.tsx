@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import type { GrowthAsset } from '@/lib/types'
 import { SignalProgressBar } from './SignalProgressBar'
 
 interface Props {
   assets: GrowthAsset[]
   lastAlerts: Record<string, string>  // ticker → ISO date
+  coveredTickers?: Set<string>
 }
 
 const SIGNAL_COLOR: Record<string, string> = {
@@ -43,7 +45,7 @@ function formatDate(iso: string | undefined): string {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
 
-function AssetRow({ asset, lastAlerts }: { asset: GrowthAsset; lastAlerts: Record<string, string> }) {
+function AssetRow({ asset, lastAlerts, coveredTickers }: { asset: GrowthAsset; lastAlerts: Record<string, string>; coveredTickers?: Set<string> }) {
   const sigColor = asset.signal_level ? SIGNAL_COLOR[asset.signal_level] : undefined
   const ddPct = asset.drawdown_pct !== null ? asset.drawdown_pct * 100 : null
 
@@ -74,12 +76,22 @@ function AssetRow({ asset, lastAlerts }: { asset: GrowthAsset; lastAlerts: Recor
     >
       <td className="py-2.5 px-3 min-w-[150px]">
         <div className="flex items-center gap-1.5">
-          <span
-            className="text-xs font-mono font-bold"
-            style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
-          >
-            {asset.ticker}
-          </span>
+          {coveredTickers?.has(asset.ticker) ? (
+            <Link
+              href={`/wealth/${encodeURIComponent(asset.ticker)}`}
+              className="text-xs font-mono font-bold hover:underline"
+              style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
+            >
+              {asset.ticker} <span aria-hidden>↗</span>
+            </Link>
+          ) : (
+            <span
+              className="text-xs font-mono font-bold"
+              style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
+            >
+              {asset.ticker}
+            </span>
+          )}
           {asset.tier === 2 && (
             <span className="text-[10px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
           )}
@@ -146,7 +158,7 @@ function AssetRow({ asset, lastAlerts }: { asset: GrowthAsset; lastAlerts: Recor
   )
 }
 
-function SignalView({ assets, lastAlerts }: Props) {
+function SignalView({ assets, lastAlerts, coveredTickers }: Props) {
   const alerted      = assets.filter(a => a.signal_level !== null)
   const surveillance = assets.filter(a => a.signal_level === null)
 
@@ -172,7 +184,7 @@ function SignalView({ assets, lastAlerts }: Props) {
               </td>
             </tr>
             {alerted.map(a => (
-              <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} />
+              <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
             ))}
           </>
         )}
@@ -182,14 +194,14 @@ function SignalView({ assets, lastAlerts }: Props) {
           </td>
         </tr>
         {surveillance.map(a => (
-          <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} />
+          <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
         ))}
       </tbody>
     </table>
   )
 }
 
-function SecteurView({ assets, lastAlerts }: Props) {
+function SecteurView({ assets, lastAlerts, coveredTickers }: Props) {
   const byCategory = assets.reduce((acc, a) => {
     const cat = a.category ?? 'other'
     if (!acc[cat]) acc[cat] = []
@@ -240,7 +252,7 @@ function SecteurView({ assets, lastAlerts }: Props) {
             </thead>
             <tbody>
               {catAssets.map(a => (
-                <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} />
+                <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
               ))}
             </tbody>
           </table>
@@ -250,7 +262,7 @@ function SecteurView({ assets, lastAlerts }: Props) {
   )
 }
 
-export function SignalTable({ assets, lastAlerts }: Props) {
+export function SignalTable({ assets, lastAlerts, coveredTickers }: Props) {
   const [tab, setTab] = useState<'signal' | 'secteur'>('signal')
 
   return (
@@ -273,8 +285,8 @@ export function SignalTable({ assets, lastAlerts }: Props) {
 
       <div className="overflow-x-auto rounded-xl border border-zinc-900">
         {tab === 'signal'
-          ? <SignalView assets={assets} lastAlerts={lastAlerts} />
-          : <SecteurView assets={assets} lastAlerts={lastAlerts} />
+          ? <SignalView assets={assets} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
+          : <SecteurView assets={assets} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
         }
       </div>
     </div>

@@ -148,6 +148,7 @@ export default function WealthPage() {
   const [growthAlerts, setAlerts]       = useState<GrowthAlert[]>([])
   const [growthUniverse, setUniverse]   = useState<GrowthAsset[]>([])
   const [loading, setLoading]           = useState(true)
+  const [coveredTickers, setCoveredTickers] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     Promise.all([
@@ -161,6 +162,13 @@ export default function WealthPage() {
       setUniverse(Array.isArray(universe) ? universe : [])
       setLoading(false)
     })
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/equity-fiche')
+      .then((r) => r.json())
+      .then((list: Array<{ ticker: string }>) => setCoveredTickers(new Set(list.map((f) => f.ticker))))
+      .catch(() => {})
   }, [])
 
   // Derived: last alert date per ticker (for SignalTable "Dernière alerte" column)
@@ -312,7 +320,7 @@ export default function WealthPage() {
             Données en cours de synchronisation (cron toutes les 4h)
           </div>
         ) : (
-          <SignalTable assets={growthUniverse} lastAlerts={lastAlertByTicker} />
+          <SignalTable assets={growthUniverse} lastAlerts={lastAlertByTicker} coveredTickers={coveredTickers} />
         )}
       </section>
 
