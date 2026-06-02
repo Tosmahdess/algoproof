@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react'
 import ExplainerBox from '@/components/ExplainerBox'
 import { ExplainerSignal } from '@/components/ExplainerSignal'
 import { SignalTable } from '@/components/SignalTable'
-import { TopPicks } from '@/components/TopPicks'
+import { TopPicks, type FicheLite } from '@/components/TopPicks'
 import type { GrowthAlert, GrowthAsset, Verdict } from '@/lib/types'
 
 // Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
-type CoveredFiche = { ticker: string; verdict: Verdict; generated_at: string }
+type CoveredFiche = { ticker: string; verdict: Verdict; generated_at: string; price_at_generation: number | null; ticker_yf: string }
 
 // Source: apex-wealth/portfolios.py WEALTH_ALLOCATION + BUDGET_CONFIG
 // Total budget: 250€/month (WEALTH 70% = 175€, GROWTH 30% = 75€)
@@ -168,11 +168,14 @@ export default function WealthPage() {
       .catch(() => {})
   }, [])
 
-  // Derived: covered tickers + verdict lookup (for Top 5 selection + fiche links)
-  const coveredTickers = new Set(fiches.map(f => f.ticker))
+  // Derived: verdict lookup (universe table) + fiche-lite map (Top 5: verdict + live price)
   const verdictByTicker = fiches.reduce((acc, f) => {
     acc[f.ticker] = f.verdict; return acc
   }, {} as Record<string, Verdict>)
+  const ficheByTicker = fiches.reduce((acc, f) => {
+    acc[f.ticker] = { verdict: f.verdict, price_at_generation: f.price_at_generation, ticker_yf: f.ticker_yf }
+    return acc
+  }, {} as Record<string, FicheLite>)
 
   // Derived: last alert date per ticker (for SignalTable "Dernière alerte" column)
   const lastAlertByTicker = growthAlerts.reduce((acc, alert) => {
@@ -191,12 +194,12 @@ export default function WealthPage() {
           APEX Wealth
         </p>
         <h1 className="text-2xl font-bold tracking-tight">
-          On investit chaque mois. On montre chaque achat.
+          J&apos;investis chaque mois. Je montre chaque achat.
         </h1>
         <p className="mt-3 text-sm text-muted max-w-2xl leading-relaxed">
-          APEX Wealth est un système d&apos;accumulation systématique — pas un bot de trading. Chaque mois,
-          un budget fixe est déployé sur la crypto, les ETF monde et l&apos;or. Quand le marché baisse,
-          on investit davantage. Chaque achat est enregistré publiquement.
+          APEX Wealth est mon système d&apos;accumulation systématique, pas un bot de trading. Chaque mois,
+          je déploie un budget fixe sur la crypto, les ETF monde et l&apos;or. Quand le marché baisse,
+          j&apos;investis davantage. Chaque achat est enregistré publiquement.
         </p>
       </div>
 
@@ -207,14 +210,13 @@ export default function WealthPage() {
           <span className="text-xs text-muted">signal d&apos;achat · thèse intacte</span>
         </div>
         <p className="text-xs text-muted mb-5 max-w-2xl leading-relaxed">
-          Les 5 sociétés du moment : une thèse jugée « renforcer » <em>et</em> un creux d&apos;achat actif.
-          Classées par force du signal puis profondeur du recul. Sélection 100% dérivée des données —
-          aucun choix manuel. Clique pour ma thèse complète.
+          Les 5 sociétés du moment : une thèse que je garde en « renforcer » <em>et</em> un creux d&apos;achat actif.
+          Je les classe par force du signal puis profondeur du repli. Rien de choisi à la main, tout sort des données.
+          Clique pour mon analyse complète.
         </p>
         <TopPicks
           assets={growthUniverse}
-          verdictByTicker={verdictByTicker}
-          coveredTickers={coveredTickers}
+          fiches={ficheByTicker}
           loading={loading}
         />
       </section>
@@ -226,14 +228,14 @@ export default function WealthPage() {
           functional={
             <p>
               250€ par mois, répartis entre un socle WEALTH stable (70%) et une poche GROWTH
-              tactique (30%). Le socle WEALTH est conservé indéfiniment — crypto, actions monde, or.
+              tactique (30%). Je conserve le socle WEALTH indéfiniment : crypto, actions monde, or.
               La poche GROWTH achète sur les baisses et prend des bénéfices à des niveaux prédéfinis.
             </p>
           }
           technical={
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-mono">
               <div>
-                <p className="text-muted mb-2 font-semibold">SOCLE WEALTH — 175€/mois</p>
+                <p className="text-muted mb-2 font-semibold">SOCLE WEALTH · 175€/mois</p>
                 {WEALTH_ASSETS.filter(a => a.assetClass !== 'Tactical').map(a => (
                   <div key={a.name} className="flex items-center gap-2 py-0.5">
                     <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: a.color }} />
@@ -244,7 +246,7 @@ export default function WealthPage() {
                 ))}
               </div>
               <div>
-                <p className="text-muted mb-2 font-semibold">GROWTH — 75€/mois</p>
+                <p className="text-muted mb-2 font-semibold">GROWTH · 75€/mois</p>
                 <p className="text-muted text-[10px] leading-relaxed">
                   Achats opportunistes sur baisses. Déploiement sur corrections −20% à −30% par actif.
                   Prise de bénéfices à +40% (30%) et +80% (30%). Max 6 positions ouvertes.
@@ -262,8 +264,8 @@ export default function WealthPage() {
         <ExplainerBox stacked
           functional={
             <p>
-              On investit davantage quand les prix baissent. Quand le service d&apos;Intelligence de Marché détecte une
-              baisse significative, le budget mensuel est automatiquement multiplié — jusqu&apos;à 2,5×.
+              J&apos;investis davantage quand les prix baissent. Quand mon service d&apos;Intelligence de Marché détecte une
+              baisse significative, le budget mensuel est automatiquement multiplié, jusqu&apos;à 2,5×.
               Les ETF en PEA ne sont jamais amplifiés : leur cadence reste fixe pour l&apos;optimisation fiscale.
             </p>
           }
@@ -286,7 +288,7 @@ export default function WealthPage() {
       {/* GROWTH — Univers complet */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold tracking-tight">GROWTH — Univers complet</h2>
+          <h2 className="text-base font-bold tracking-tight">GROWTH · Univers complet</h2>
           <span className="text-xs text-muted">
             {growthUniverse.length} actifs · surveillance 4h
           </span>
@@ -303,7 +305,7 @@ export default function WealthPage() {
             Données en cours de synchronisation (cron toutes les 4h)
           </div>
         ) : (
-          <SignalTable assets={growthUniverse} lastAlerts={lastAlertByTicker} coveredTickers={coveredTickers} />
+          <SignalTable assets={growthUniverse} lastAlerts={lastAlertByTicker} verdictByTicker={verdictByTicker} />
         )}
       </section>
 

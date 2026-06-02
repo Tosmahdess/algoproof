@@ -2,14 +2,20 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import type { GrowthAsset } from '@/lib/types'
+import type { GrowthAsset, Verdict } from '@/lib/types'
 import { SignalProgressBar } from './SignalProgressBar'
 import { sellPlanLines } from '@/lib/sell-plan'
 
 interface Props {
   assets: GrowthAsset[]
   lastAlerts: Record<string, string>  // ticker → ISO date
-  coveredTickers?: Set<string>
+  verdictByTicker: Record<string, Verdict>  // ticker → verdict (covered names only)
+}
+
+const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
+  renforcer: { label: 'RENFORCER', color: '#3fb950' },
+  maintenir: { label: 'MAINTENIR', color: '#f6c90e' },
+  skip:      { label: 'PASSER',    color: '#ff4444' },
 }
 
 const SIGNAL_COLOR: Record<string, string> = {
@@ -46,9 +52,22 @@ function formatDate(iso: string | undefined): string {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
 
-function AssetRow({ asset, lastAlerts, coveredTickers }: { asset: GrowthAsset; lastAlerts: Record<string, string>; coveredTickers?: Set<string> }) {
+function VerdictChip({ verdict }: { verdict: Verdict }) {
+  const v = VERDICT_META[verdict]
+  return (
+    <span
+      className="text-[9px] font-bold px-1 py-0.5 rounded"
+      style={{ color: v.color, background: v.color + '1f' }}
+    >
+      {v.label}
+    </span>
+  )
+}
+
+function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAlerts: Record<string, string>; verdict?: Verdict }) {
   const sigColor = asset.signal_level ? SIGNAL_COLOR[asset.signal_level] : undefined
   const ddPct = asset.drawdown_pct !== null ? asset.drawdown_pct * 100 : null
+  const covered = verdict != null
 
   const distanceEl = (() => {
     if (!asset.dip_trigger_pct) return <span className="text-zinc-600 text-xs">N/D</span>
@@ -76,10 +95,10 @@ function AssetRow({ asset, lastAlerts, coveredTickers }: { asset: GrowthAsset; l
       style={{ borderLeft: sigColor ? `2px solid ${sigColor}` : '2px solid transparent' }}
     >
       <td className="py-2.5 px-3 min-w-[150px]">
-        {coveredTickers?.has(asset.ticker) ? (
+        {covered ? (
           <Link
             href={`/wealth/${encodeURIComponent(asset.ticker)}`}
-            title={`Voir l'analyse de ${asset.asset_name}`}
+            title={`Voir mon analyse de ${asset.asset_name}`}
             className="group block -mx-1 px-1 rounded hover:bg-zinc-800/40 transition-colors"
           >
             <div className="flex items-center gap-1.5">
@@ -92,6 +111,7 @@ function AssetRow({ asset, lastAlerts, coveredTickers }: { asset: GrowthAsset; l
               {asset.tier === 2 && (
                 <span className="text-[10px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
               )}
+              {verdict && <VerdictChip verdict={verdict} />}
             </div>
             <div className="text-xs text-zinc-200 leading-tight mt-0.5 group-hover:underline">{asset.asset_name}</div>
           </Link>
@@ -167,7 +187,7 @@ function AssetRow({ asset, lastAlerts, coveredTickers }: { asset: GrowthAsset; l
   )
 }
 
-function SignalView({ assets, lastAlerts, coveredTickers }: Props) {
+function SignalView({ assets, lastAlerts, verdictByTicker }: Props) {
   const alerted      = assets.filter(a => a.signal_level !== null)
   const surveillance = assets.filter(a => a.signal_level === null)
 
@@ -177,7 +197,7 @@ function SignalView({ assets, lastAlerts, coveredTickers }: Props) {
         <tr className="border-b border-zinc-800 text-zinc-500 text-[11px] uppercase tracking-wider">
           <th className="py-2.5 px-3 text-left font-medium">Actif</th>
           <th className="py-2.5 px-3 text-left font-medium">Signal</th>
-          <th className="py-2.5 px-3 text-left font-medium">Recul 180j</th>
+          <th className="py-2.5 px-3 text-left font-medium">vs pic 180j</th>
           <th className="py-2.5 px-3 text-left font-medium">Distance seuils</th>
           <th className="py-2.5 px-3 text-left font-medium">À acheter (€)</th>
           <th className="py-2.5 px-3 text-left font-medium">Plan de vente</th>
@@ -189,28 +209,28 @@ function SignalView({ assets, lastAlerts, coveredTickers }: Props) {
           <>
             <tr className="bg-zinc-900/60">
               <td colSpan={7} className="py-1.5 px-3 text-xs text-zinc-400">
-                🔴 En alerte — {alerted.length} actif{alerted.length > 1 ? 's' : ''}
+                🔴 En alerte · {alerted.length} actif{alerted.length > 1 ? 's' : ''}
               </td>
             </tr>
             {alerted.map(a => (
-              <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
+              <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} verdict={verdictByTicker[a.ticker]} />
             ))}
           </>
         )}
         <tr className="bg-zinc-900/30">
           <td colSpan={7} className="py-1.5 px-3 text-xs text-zinc-600">
-            — En surveillance — {surveillance.length} actifs
+            En surveillance · {surveillance.length} actifs
           </td>
         </tr>
         {surveillance.map(a => (
-          <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
+          <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} verdict={verdictByTicker[a.ticker]} />
         ))}
       </tbody>
     </table>
   )
 }
 
-function SecteurView({ assets, lastAlerts, coveredTickers }: Props) {
+function SecteurView({ assets, lastAlerts, verdictByTicker }: Props) {
   const byCategory = assets.reduce((acc, a) => {
     const cat = a.category ?? 'other'
     if (!acc[cat]) acc[cat] = []
@@ -252,7 +272,7 @@ function SecteurView({ assets, lastAlerts, coveredTickers }: Props) {
               <tr className="border-b border-zinc-900 text-zinc-600 text-[9px] uppercase tracking-wider">
                 <th className="py-1.5 px-3 text-left font-medium">Actif</th>
                 <th className="py-1.5 px-3 text-left font-medium">Signal</th>
-                <th className="py-1.5 px-3 text-left font-medium">Recul 180j</th>
+                <th className="py-1.5 px-3 text-left font-medium">vs pic 180j</th>
                 <th className="py-1.5 px-3 text-left font-medium">Distance seuils</th>
                 <th className="py-1.5 px-3 text-left font-medium">À acheter (€)</th>
                 <th className="py-1.5 px-3 text-left font-medium">Vente</th>
@@ -261,7 +281,7 @@ function SecteurView({ assets, lastAlerts, coveredTickers }: Props) {
             </thead>
             <tbody>
               {catAssets.map(a => (
-                <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
+                <AssetRow key={a.ticker} asset={a} lastAlerts={lastAlerts} verdict={verdictByTicker[a.ticker]} />
               ))}
             </tbody>
           </table>
@@ -271,7 +291,7 @@ function SecteurView({ assets, lastAlerts, coveredTickers }: Props) {
   )
 }
 
-export function SignalTable({ assets, lastAlerts, coveredTickers }: Props) {
+export function SignalTable({ assets, lastAlerts, verdictByTicker }: Props) {
   const [tab, setTab] = useState<'signal' | 'secteur'>('signal')
 
   return (
@@ -298,8 +318,8 @@ export function SignalTable({ assets, lastAlerts, coveredTickers }: Props) {
 
       <div className="overflow-x-auto rounded-xl border border-zinc-900">
         {tab === 'signal'
-          ? <SignalView assets={assets} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
-          : <SecteurView assets={assets} lastAlerts={lastAlerts} coveredTickers={coveredTickers} />
+          ? <SignalView assets={assets} lastAlerts={lastAlerts} verdictByTicker={verdictByTicker} />
+          : <SecteurView assets={assets} lastAlerts={lastAlerts} verdictByTicker={verdictByTicker} />
         }
       </div>
     </div>

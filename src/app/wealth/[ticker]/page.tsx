@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getLatestFiche, getGrowthRow } from '@/lib/equity'
 import { EquityFichePanel } from '@/components/EquityFichePanel'
+import { sanitizeProse } from '@/lib/prose'
 
 export const runtime = 'nodejs'
 export const revalidate = 3600
@@ -43,7 +44,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
             {cat}
           </span>
         )}
-        <time>Analyse du {date}</time>
+        <time>Mon analyse du {date}</time>
       </div>
 
       <h1 className="text-3xl font-bold mb-8">
@@ -57,13 +58,14 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
         {SECTIONS.map(({ title, key }) => (
           <section key={key}>
             <h2>{title}</h2>
-            <p>{fiche[key]}</p>
+            <p>{sanitizeProse(fiche[key])}</p>
           </section>
         ))}
       </div>
 
-      <p className="mt-12 text-xs text-muted">
-        Analyse générée automatiquement le {date}, à titre informatif — ce n&apos;est pas un conseil en investissement.
+      <p className="mt-12 text-xs text-muted leading-relaxed">
+        Mon analyse du {date}. Le prix de référence ci-dessus est celui du jour de l&apos;analyse (figé) ;
+        le cours et sa variation sont en direct. C&apos;est mon opinion, pas un conseil en investissement.
       </p>
     </div>
   )

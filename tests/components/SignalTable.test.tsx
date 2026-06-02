@@ -17,12 +17,12 @@ function asset(over: Partial<GrowthAsset> = {}): GrowthAsset {
 
 describe('SignalTable sell plan', () => {
   it('shows gain → sell amount and residual', () => {
-    render(<SignalTable assets={[asset()]} lastAlerts={{}} />)
+    render(<SignalTable assets={[asset()]} lastAlerts={{}} verdictByTicker={{}} />)
     expect(screen.getByText('+25% → vendre 25%')).toBeInTheDocument()
     expect(screen.getByText('garder 50% (long terme)')).toBeInTheDocument()
   })
   it('shows Achat/Vente legend and "À acheter" header', () => {
-    render(<SignalTable assets={[asset()]} lastAlerts={{}} />)
+    render(<SignalTable assets={[asset()]} lastAlerts={{}} verdictByTicker={{}} />)
     expect(screen.getByText(/acheter sur repli/i)).toBeInTheDocument()
     expect(screen.getAllByText(/À acheter/i).length).toBeGreaterThan(0)
   })

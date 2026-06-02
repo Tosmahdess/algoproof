@@ -9,7 +9,7 @@ const LEVELS = [
     border: '#f6c90e44',
     condition: 'Recul ≥ seuil × 1.0',
     formula: 'Ex. NVIDIA : −25% atteint',
-    action: '1ère tranche — position initiale',
+    action: '1ère tranche : position initiale',
   },
   {
     key: 'major',
@@ -19,7 +19,7 @@ const LEVELS = [
     border: '#ff6b3544',
     condition: 'Recul ≥ seuil × 1.5',
     formula: 'Ex. NVIDIA : −37.5% atteint',
-    action: '2e tranche — renforcement',
+    action: '2e tranche : renforcement',
   },
   {
     key: 'crash',
@@ -76,7 +76,7 @@ export function ExplainerSignal() {
         <p>
           🔼 <strong className="text-zinc-400">Upgrade ATH</strong> : les compounders long terme
           bénéficient d&apos;un upgrade de niveau si leur recul depuis l&apos;ATH 2 ans est aussi
-          significatif — garde-fou anti falling-knife intégré.
+          significatif, garde-fou anti falling-knife intégré.
         </p>
       </div>
     </div>

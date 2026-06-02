@@ -1,67 +1,96 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { GrowthAsset, Verdict } from '@/lib/types'
 
-const SIGNAL_COLOR: Record<string, string> = {
-  minor: '#f6c90e', major: '#ff6b35', crash: '#ff4444',
-}
-const SIGNAL_LABEL: Record<string, string> = {
-  minor: 'MINEUR', major: 'MAJEUR', crash: 'KRACH',
-}
 const SIGNAL_RANK: Record<string, number> = { crash: 3, major: 2, minor: 1 }
+
+const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
+  renforcer: { label: 'RENFORCER', color: '#3fb950' },
+  maintenir: { label: 'MAINTENIR', color: '#f6c90e' },
+  skip:      { label: 'PASSER',    color: '#ff4444' },
+}
+
+export type FicheLite = {
+  verdict: Verdict
+  price_at_generation: number | null
+  ticker_yf: string
+}
 
 interface Props {
   assets: GrowthAsset[]
-  verdictByTicker: Record<string, Verdict>
-  coveredTickers: Set<string>
+  fiches: Record<string, FicheLite>
   loading: boolean
 }
 
-// Selection "du moment" : un nom de qualité (verdict=renforcer) en solde maintenant
+// Sélection "du moment" : un nom de qualité (verdict=renforcer) en solde maintenant
 // (signal d'achat actif). Classé par force du signal puis profondeur du recul.
-// 100% dérivé des données publiques — aucun pick manuel.
-function selectTopPicks(assets: GrowthAsset[], verdictByTicker: Record<string, Verdict>): GrowthAsset[] {
-  const isRenforcer = (a: GrowthAsset) => verdictByTicker[a.ticker] === 'renforcer'
-
-  const rank = (a: GrowthAsset) => {
-    const sig = a.signal_level ? SIGNAL_RANK[a.signal_level] : 0
-    const dd = a.drawdown_pct ?? 0   // fraction négative : plus c'est bas, plus le recul est fort
-    return { sig, dd }
-  }
+// Le signal sert au tri en coulisse — il n'est plus affiché (cf prix figé trompeur).
+function selectTopPicks(assets: GrowthAsset[], fiches: Record<string, FicheLite>): GrowthAsset[] {
+  const isRenforcer = (a: GrowthAsset) => fiches[a.ticker]?.verdict === 'renforcer'
   const cmp = (a: GrowthAsset, b: GrowthAsset) => {
-    const ra = rank(a), rb = rank(b)
-    if (rb.sig !== ra.sig) return rb.sig - ra.sig
-    return ra.dd - rb.dd
+    const sa = a.signal_level ? SIGNAL_RANK[a.signal_level] : 0
+    const sb = b.signal_level ? SIGNAL_RANK[b.signal_level] : 0
+    if (sb !== sa) return sb - sa
+    return (a.drawdown_pct ?? 0) - (b.drawdown_pct ?? 0)
   }
 
-  // Coeur : verdict=renforcer ET signal d'achat actif.
   const active = assets.filter(a => isRenforcer(a) && a.signal_level).sort(cmp)
   if (active.length >= 5) return active.slice(0, 5)
 
-  // Fallback marché haut : compléter par les "renforcer" les plus proches d'un creux.
   const watching = assets
     .filter(a => isRenforcer(a) && !a.signal_level)
     .sort((a, b) => (a.drawdown_pct ?? 0) - (b.drawdown_pct ?? 0))
-
   return [...active, ...watching].slice(0, 5)
 }
 
-function PickCard({ asset, covered }: { asset: GrowthAsset; covered: boolean }) {
-  const sig = asset.signal_level
-  const sigColor = sig ? SIGNAL_COLOR[sig] : undefined
-  const ddPct = asset.drawdown_pct !== null ? asset.drawdown_pct * 100 : null
+// Cours live (Yahoo via /api/quote) + variation depuis le prix d'analyse (figé).
+function LivePriceLine({ tickerYf, priceAtGeneration, fallback }: { tickerYf: string; priceAtGeneration: number | null; fallback: number | null }) {
+  const [price, setPrice] = useState<number | null>(null)
 
-  const inner = (
-    <>
+  useEffect(() => {
+    let alive = true
+    fetch(`/api/quote/${encodeURIComponent(tickerYf)}`)
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(q => { if (alive) setPrice(q.price) })
+      .catch(() => { if (alive) setPrice(fallback) })
+    return () => { alive = false }
+  }, [tickerYf, fallback])
+
+  if (price == null) return <span className="text-[11px] text-zinc-600">cours…</span>
+
+  const pct = priceAtGeneration ? ((price - priceAtGeneration) / priceAtGeneration) * 100 : null
+  const color = pct == null ? '#71717a' : pct >= 0 ? '#3fb950' : '#ff4444'
+  return (
+    <span className="text-[11px] font-mono text-zinc-400">
+      {price.toFixed(2)}
+      {pct != null && (
+        <span style={{ color }} className="ml-1.5 font-semibold">
+          {pct >= 0 ? '+' : ''}{pct.toFixed(1)}%
+          <span className="text-zinc-600 font-normal"> depuis l&apos;analyse</span>
+        </span>
+      )}
+    </span>
+  )
+}
+
+function PickCard({ asset, fiche }: { asset: GrowthAsset; fiche: FicheLite | undefined }) {
+  const verdict = fiche?.verdict ?? 'maintenir'
+  const v = VERDICT_META[verdict]
+
+  return (
+    <Link
+      href={`/wealth/${encodeURIComponent(asset.ticker)}`}
+      title={`Voir mon analyse de ${asset.asset_name}`}
+      className="block rounded-lg border bg-card px-3 py-3 transition-colors hover:bg-zinc-900/60"
+      style={{ borderColor: v.color + '55' }}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <span
-              className="text-sm font-mono font-bold leading-none"
-              style={{ color: asset.tier === 1 ? '#3fb950' : '#e4e4e7' }}
-            >
-              {asset.ticker}{covered && <span aria-hidden> ↗</span>}
+            <span className="text-sm font-mono font-bold leading-none" style={{ color: asset.tier === 1 ? '#3fb950' : '#e4e4e7' }}>
+              {asset.ticker}<span aria-hidden> ↗</span>
             </span>
             {asset.tier === 2 && (
               <span className="text-[9px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
@@ -69,62 +98,33 @@ function PickCard({ asset, covered }: { asset: GrowthAsset; covered: boolean }) 
           </div>
           <div className="text-[11px] text-zinc-400 leading-tight mt-1 truncate">{asset.asset_name}</div>
         </div>
-        {sig && (
-          <span
-            className="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-            style={{ color: sigColor, background: (sigColor ?? '') + '22' }}
-          >
-            {SIGNAL_LABEL[sig]}
-          </span>
+        <span
+          className="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
+          style={{ color: v.color, background: v.color + '1f' }}
+        >
+          {v.label}
+        </span>
+      </div>
+
+      <div className="mt-3">
+        {fiche?.ticker_yf ? (
+          <LivePriceLine tickerYf={fiche.ticker_yf} priceAtGeneration={fiche.price_at_generation} fallback={asset.current_price} />
+        ) : (
+          <span className="text-[11px] text-zinc-600">—</span>
         )}
       </div>
 
-      <div className="mt-3 flex items-end justify-between gap-2">
-        <div>
-          <div className="text-[9px] text-zinc-500 uppercase tracking-widest">Recul 180j</div>
-          <div
-            className="text-base font-mono font-bold leading-none mt-0.5"
-            style={{ color: sigColor ?? '#a1a1aa' }}
-          >
-            {ddPct !== null ? `${ddPct.toFixed(1)}%` : '—'}
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-[9px] text-zinc-500 uppercase tracking-widest">À acheter</div>
-          <div className="text-xs font-mono text-zinc-300 mt-0.5">
-            {asset.suggested_min && asset.suggested_max
-              ? `${asset.suggested_min}–${asset.suggested_max}€`
-              : '—'}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-3 pt-2 border-t border-zinc-900">
-        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded text-positive bg-positive/10">
-          RENFORCER
+      <div className="mt-3 pt-2 border-t border-zinc-900 flex items-baseline justify-between">
+        <span className="text-[9px] text-zinc-500 uppercase tracking-widest">À acheter</span>
+        <span className="text-xs font-mono text-zinc-200">
+          {asset.suggested_min && asset.suggested_max ? `${asset.suggested_min}–${asset.suggested_max}€` : '—'}
         </span>
       </div>
-    </>
-  )
-
-  const base = 'block rounded-lg border bg-card px-3 py-3 transition-colors'
-  const style = { borderColor: sigColor ? (sigColor + '55') : '#1e1e1e' }
-
-  return covered ? (
-    <Link
-      href={`/wealth/${encodeURIComponent(asset.ticker)}`}
-      title={`Voir ma thèse sur ${asset.asset_name}`}
-      className={`${base} hover:bg-zinc-900/60`}
-      style={style}
-    >
-      {inner}
     </Link>
-  ) : (
-    <div className={base} style={style}>{inner}</div>
   )
 }
 
-export function TopPicks({ assets, verdictByTicker, coveredTickers, loading }: Props) {
+export function TopPicks({ assets, fiches, loading }: Props) {
   if (loading) {
     return (
       <div className="rounded-lg border border-border px-6 py-8 text-center text-xs text-muted">
@@ -133,15 +133,15 @@ export function TopPicks({ assets, verdictByTicker, coveredTickers, loading }: P
     )
   }
 
-  const picks = selectTopPicks(assets, verdictByTicker)
+  const picks = selectTopPicks(assets, fiches)
 
   if (picks.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-border px-6 py-8 text-center space-y-2">
-        <p className="text-sm font-medium">Aucun signal d&apos;achat marqué à renforcer aujourd&apos;hui.</p>
+        <p className="text-sm font-medium">Aucun nom à renforcer avec un creux d&apos;achat actif aujourd&apos;hui.</p>
         <p className="text-xs text-muted max-w-md mx-auto leading-relaxed">
-          Le marché ne propose pas de creux franc sur les noms dont la thèse est intacte.
-          Le DCA mensuel continue normalement — l&apos;amplification se déclenchera quand un signal apparaîtra.
+          Le marché ne propose pas de point d&apos;entrée franc sur les sociétés dont je garde la thèse.
+          Mon DCA mensuel continue, l&apos;amplification se déclenchera dès qu&apos;un signal apparaîtra.
         </p>
       </div>
     )
@@ -150,7 +150,7 @@ export function TopPicks({ assets, verdictByTicker, coveredTickers, loading }: P
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       {picks.map(a => (
-        <PickCard key={a.ticker} asset={a} covered={coveredTickers.has(a.ticker)} />
+        <PickCard key={a.ticker} asset={a} fiche={fiches[a.ticker]} />
       ))}
     </div>
   )
