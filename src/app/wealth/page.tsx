@@ -1,12 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as ChartTooltip, Legend } from 'recharts'
 import ExplainerBox from '@/components/ExplainerBox'
 import { ExplainerSignal } from '@/components/ExplainerSignal'
 import { SignalTable } from '@/components/SignalTable'
-import { PositionCard, EmptySlotCard } from '@/components/PositionCard'
-import type { WealthCall, AssetPrice, GrowthAlert, GrowthAsset } from '@/lib/types'
+import { TopPicks } from '@/components/TopPicks'
+import type { GrowthAlert, GrowthAsset, Verdict } from '@/lib/types'
+
+// Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
+type CoveredFiche = { ticker: string; verdict: Verdict; generated_at: string }
 
 // Source: apex-wealth/portfolios.py WEALTH_ALLOCATION + BUDGET_CONFIG
 // Total budget: 250€/month (WEALTH 70% = 175€, GROWTH 30% = 75€)
@@ -143,21 +145,16 @@ const SIGNAL_COLOR_LEGACY: Record<string, string> = {
 }
 
 export default function WealthPage() {
-  const [calls, setCalls]               = useState<WealthCall[]>([])
-  const [prices, setPrices]             = useState<AssetPrice[]>([])
   const [growthAlerts, setAlerts]       = useState<GrowthAlert[]>([])
   const [growthUniverse, setUniverse]   = useState<GrowthAsset[]>([])
+  const [fiches, setFiches]             = useState<CoveredFiche[]>([])
   const [loading, setLoading]           = useState(true)
-  const [coveredTickers, setCoveredTickers] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/wealth').then(r => r.json()),
       fetch('/api/growth-alerts').then(r => r.json()),
       fetch('/api/growth-universe').then(r => r.json()),
-    ]).then(([wealth, alerts, universe]) => {
-      setCalls(wealth.calls ?? [])
-      setPrices(wealth.prices ?? [])
+    ]).then(([alerts, universe]) => {
       setAlerts(Array.isArray(alerts) ? alerts : [])
       setUniverse(Array.isArray(universe) ? universe : [])
       setLoading(false)
@@ -167,9 +164,15 @@ export default function WealthPage() {
   useEffect(() => {
     fetch('/api/equity-fiche')
       .then((r) => r.json())
-      .then((list: Array<{ ticker: string }>) => setCoveredTickers(new Set(list.map((f) => f.ticker))))
+      .then((list: CoveredFiche[]) => setFiches(Array.isArray(list) ? list : []))
       .catch(() => {})
   }, [])
+
+  // Derived: covered tickers + verdict lookup (for Top 5 selection + fiche links)
+  const coveredTickers = new Set(fiches.map(f => f.ticker))
+  const verdictByTicker = fiches.reduce((acc, f) => {
+    acc[f.ticker] = f.verdict; return acc
+  }, {} as Record<string, Verdict>)
 
   // Derived: last alert date per ticker (for SignalTable "Dernière alerte" column)
   const lastAlertByTicker = growthAlerts.reduce((acc, alert) => {
@@ -178,45 +181,6 @@ export default function WealthPage() {
     }
     return acc
   }, {} as Record<string, string>)
-
-  // Derived: growth calls sorted by date (for 20-slot positions grid)
-  const growthCalls = calls
-    .filter(c => c.portfolio === 'growth')
-    .sort((a, b) => b.executed_at.localeCompare(a.executed_at))
-    .slice(0, 20)
-
-  // Derived: universe by ticker for PositionCard lookup
-  const universeByTicker = growthUniverse.reduce((acc, a) => {
-    acc[a.ticker] = a; return acc
-  }, {} as Record<string, GrowthAsset>)
-
-  function getPriceEur(asset: string): number | null {
-    return prices.find(p => p.asset === asset)?.price_eur ?? null
-  }
-
-  function computePnl(call: WealthCall): number | null {
-    if (!call.quantity || !call.price_eur) return null
-    const current = getPriceEur(call.asset)
-    if (!current) return null
-    return (current - call.price_eur) * call.quantity
-  }
-
-  const totalInvested = calls.reduce((s, c) => s + c.amount_eur, 0)
-  const totalPnl      = calls.reduce((s, c) => s + (computePnl(c) ?? 0), 0)
-  const totalCurrent  = totalInvested + totalPnl
-
-  const equityCurve = calls.reduce<{ date: string; invested: number; current: number }[]>(
-    (acc, call) => {
-      const prev = acc[acc.length - 1] ?? { invested: 0, current: 0 }
-      const pnl  = computePnl(call) ?? 0
-      return [...acc, {
-        date:     call.executed_at.slice(0, 10),
-        invested: Math.round((prev.invested + call.amount_eur) * 100) / 100,
-        current:  Math.round((prev.current  + call.amount_eur + pnl) * 100) / 100,
-      }]
-    },
-    []
-  )
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
@@ -235,6 +199,25 @@ export default function WealthPage() {
           on investit davantage. Chaque achat est enregistré publiquement.
         </p>
       </div>
+
+      {/* Top 5 du moment — qualité en solde maintenant */}
+      <section>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-base font-bold tracking-tight">5 à renforcer maintenant</h2>
+          <span className="text-xs text-muted">signal d&apos;achat · thèse intacte</span>
+        </div>
+        <p className="text-xs text-muted mb-5 max-w-2xl leading-relaxed">
+          Les 5 sociétés du moment : une thèse jugée « renforcer » <em>et</em> un creux d&apos;achat actif.
+          Classées par force du signal puis profondeur du recul. Sélection 100% dérivée des données —
+          aucun choix manuel. Clique pour ma thèse complète.
+        </p>
+        <TopPicks
+          assets={growthUniverse}
+          verdictByTicker={verdictByTicker}
+          coveredTickers={coveredTickers}
+          loading={loading}
+        />
+      </section>
 
       {/* Allocation */}
       <section>
@@ -321,131 +304,6 @@ export default function WealthPage() {
           </div>
         ) : (
           <SignalTable assets={growthUniverse} lastAlerts={lastAlertByTicker} coveredTickers={coveredTickers} />
-        )}
-      </section>
-
-      {/* Positions GROWTH ouvertes */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold tracking-tight">Positions GROWTH ouvertes</h2>
-          <span className="text-xs text-muted">
-            {growthCalls.length} / 20 slots
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {Array.from({ length: 20 }).map((_, i) => {
-            const call = growthCalls[i]
-            if (!call) return <EmptySlotCard key={i} />
-            return (
-              <PositionCard
-                key={call.id}
-                call={call}
-                asset={universeByTicker[call.asset] ?? null}
-              />
-            )
-          })}
-        </div>
-      </section>
-
-      {/* Portfolio — Live Tracking */}
-      <section>
-        <h2 className="text-base font-bold tracking-tight mb-4">Portefeuille — Suivi en temps réel</h2>
-
-        {loading ? (
-          <div className="rounded border border-border px-6 py-8 text-center text-xs text-muted">
-            Chargement...
-          </div>
-        ) : calls.length === 0 ? (
-          <div className="rounded border border-dashed border-border px-6 py-10 text-center space-y-2">
-            <p className="text-sm font-medium">Pas encore d&apos;achats.</p>
-            <p className="text-xs text-muted">
-              Le premier DCA s&apos;exécute le 1er du mois prochain. Chaque achat apparaîtra ici
-              avec son P&amp;L en temps réel, synchronisé depuis le VPS en moins d&apos;une heure.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {/* Summary stats */}
-            <div className="grid grid-cols-3 gap-4 text-center">
-              {([
-                { label: 'Total investi',  value: `${totalInvested.toFixed(2)}€`,  color: undefined },
-                { label: 'Valeur actuelle', value: `${totalCurrent.toFixed(2)}€`,   color: undefined },
-                { label: 'P&L total',      value: `${totalPnl >= 0 ? '+' : ''}${totalPnl.toFixed(2)}€`, color: totalPnl >= 0 ? '#3fb950' : '#ff4444' },
-              ] as const).map(s => (
-                <div key={s.label} className="rounded border border-border px-4 py-4">
-                  <p className="text-[10px] text-muted uppercase tracking-widest">{s.label}</p>
-                  <p className="text-lg font-bold mt-1 font-mono" style={s.color ? { color: s.color } : {}}>
-                    {s.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Equity curve */}
-            {equityCurve.length > 1 && (
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={equityCurve}>
-                    <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
-                    <ChartTooltip
-                      contentStyle={{ background: '#111111', border: '1px solid #1e1e1e', fontSize: 12 }}
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      formatter={(v: any) => [typeof v === 'number' ? `${v.toFixed(2)}€` : String(v ?? '')]}
-                    />
-                    <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Line type="monotone" dataKey="invested" stroke="#888" strokeDasharray="4 2" dot={false} name="Investi" />
-                    <Line type="monotone" dataKey="current" stroke="#3fb950" dot={false} name="Valeur actuelle" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-
-            {/* Purchase history */}
-            <div className="rounded border border-border overflow-hidden">
-              <table className="w-full text-xs font-mono">
-                <thead className="bg-card">
-                  <tr className="text-muted text-[10px] uppercase tracking-widest">
-                    <th className="px-4 py-2 text-left">Date</th>
-                    <th className="px-4 py-2 text-left">Actif</th>
-                    <th className="px-4 py-2 text-right">Montant</th>
-                    <th className="px-4 py-2 text-right">Prix</th>
-                    <th className="px-4 py-2 text-right">Qté</th>
-                    <th className="px-4 py-2 text-right">P&L</th>
-                    <th className="px-4 py-2 text-center">Mult.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {calls.map(c => {
-                    const pnl = computePnl(c)
-                    return (
-                      <tr key={c.id} className="border-t border-border">
-                        <td className="px-4 py-2 text-muted">{c.executed_at.slice(0, 10)}</td>
-                        <td className="px-4 py-2 text-positive font-bold">{c.asset}</td>
-                        <td className="px-4 py-2 text-right">{c.amount_eur.toFixed(2)}€</td>
-                        <td className="px-4 py-2 text-right text-muted">
-                          {c.price_eur ? `${c.price_eur.toFixed(2)}€` : '—'}
-                        </td>
-                        <td className="px-4 py-2 text-right text-muted">
-                          {c.quantity ? c.quantity.toFixed(6) : '—'}
-                        </td>
-                        <td
-                          className="px-4 py-2 text-right font-semibold"
-                          style={{ color: pnl == null ? '#888' : pnl >= 0 ? '#3fb950' : '#ff4444' }}
-                        >
-                          {pnl == null ? '—' : `${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}€`}
-                        </td>
-                        <td className="px-4 py-2 text-center text-muted">
-                          {c.multiplier > 1 ? `×${c.multiplier.toFixed(1)} ⚡` : '×1'}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
         )}
       </section>
 
