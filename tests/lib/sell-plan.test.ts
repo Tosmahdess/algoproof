@@ -18,4 +18,12 @@ describe('sellPlanLines', () => {
     const lines = sellPlanLines({ tp1_pct: null, tp1_sell_pct: null, tp2_pct: null, tp2_sell_pct: null, residual_pct: null })
     expect(lines).toEqual([])
   })
+  it('surfaces the unsold remainder for tactical names (residual 0, sells < 100)', () => {
+    const lines = sellPlanLines({ tp1_pct: 25, tp1_sell_pct: 25, tp2_pct: 45, tp2_sell_pct: 25, residual_pct: 0 })
+    expect(lines).toEqual([
+      '+25% → vendre 25%',
+      '+45% → vendre 25%',
+      'puis solder le reste (50%) à la sortie',
+    ])
+  })
 })
