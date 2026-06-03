@@ -6,7 +6,9 @@ import type { BotChangelog } from '@/lib/types'
 const makeEntry = (overrides: Partial<BotChangelog> = {}): BotChangelog => ({
   id: '1',
   created_at: '2026-05-09T10:00:00Z',
+  scope_type: 'bot',
   bot_slug: 'v1-spot',
+  applies_to: null,
   entry_date: '2026-05-09',
   category: 'fix',
   summary: 'Fixed M5 filter',
@@ -35,5 +37,14 @@ describe('ChangelogTab', () => {
   it('does not render detail element when detail is null', () => {
     render(<ChangelogTab changelogs={[makeEntry({ detail: null })]} />)
     expect(screen.queryByText('PF')).toBeNull()
+  })
+
+  it('tags a fleet entry with the Flotte scope badge', () => {
+    render(<ChangelogTab changelogs={[makeEntry({
+      scope_type: 'fleet', bot_slug: null, applies_to: 'all',
+      category: 'deploy', summary: 'Hard-Gate déployé',
+    })]} />)
+    expect(screen.getByText('Hard-Gate déployé')).toBeTruthy()
+    expect(screen.getByText('Flotte')).toBeTruthy()
   })
 })

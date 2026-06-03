@@ -1,13 +1,16 @@
 'use client'
 
 import type { BotChangelog, ChangelogCategory } from '@/lib/types'
+import ScopeBadge from './ScopeBadge'
 
 const CATEGORY_CHIP: Record<ChangelogCategory, { style: string; label: string }> = {
-  asset:    { style: 'bg-blue-900/40 text-blue-300 border border-blue-700/50',     label: 'actif' },
-  fix:      { style: 'bg-red-900/40 text-red-300 border border-red-700/50',       label: 'correctif' },
+  asset:    { style: 'bg-blue-900/40 text-blue-300 border border-blue-700/50',       label: 'actif' },
+  fix:      { style: 'bg-red-900/40 text-red-300 border border-red-700/50',          label: 'correctif' },
   strategy: { style: 'bg-purple-900/40 text-purple-300 border border-purple-700/50', label: 'stratégie' },
-  perf:     { style: 'bg-green-900/40 text-green-300 border border-green-700/50', label: 'perf' },
-  risk:     { style: 'bg-orange-900/40 text-orange-300 border border-orange-700/50', label: 'risque' },
+  perf:     { style: 'bg-green-900/40 text-green-300 border border-green-700/50',     label: 'perf' },
+  risk:     { style: 'bg-orange-900/40 text-orange-300 border border-orange-700/50',  label: 'risque' },
+  signal:   { style: 'bg-cyan-900/40 text-cyan-300 border border-cyan-700/50',        label: 'signal' },
+  deploy:   { style: 'bg-indigo-900/40 text-indigo-300 border border-indigo-700/50',  label: 'déploiement' },
 }
 
 interface ChangelogTabProps {
@@ -47,6 +50,9 @@ export default function ChangelogTab({ changelogs }: ChangelogTabProps) {
                   {CATEGORY_CHIP[entry.category]?.label ?? entry.category}
                 </span>
                 <div>
+                  {entry.scope_type !== 'bot' && (
+                    <div className="mb-0.5"><ScopeBadge scope={entry.scope_type} /></div>
+                  )}
                   <p className="text-sm text-foreground">{entry.summary}</p>
                   {entry.detail && (
                     <p className="text-xs text-muted mt-0.5">{entry.detail}</p>
