@@ -61,18 +61,23 @@ export type FicheIndexRow = {
 
 export async function getAllFiches(): Promise<FicheIndexRow[]> {
   // latest thesis_version per ticker
-  const { data, error } = await supabaseServer
-    .from('equity_fiches')
-    .select('ticker,asset_name,category,verdict,thesis_version')
-    .order('thesis_version', { ascending: false })
-  if (error || !data) return []
-  const seen = new Map<string, FicheIndexRow>()
-  for (const r of data as Array<FicheIndexRow & { thesis_version: number }>) {
-    if (!seen.has(r.ticker)) {
-      seen.set(r.ticker, { ticker: r.ticker, asset_name: r.asset_name, category: r.category, verdict: r.verdict })
+  try {
+    const { data, error } = await supabaseServer
+      .from('equity_fiches')
+      .select('ticker,asset_name,category,verdict,thesis_version')
+      .order('thesis_version', { ascending: false })
+    if (error || !data) return []
+    const seen = new Map<string, FicheIndexRow>()
+    for (const r of data as Array<FicheIndexRow & { thesis_version: number }>) {
+      if (!seen.has(r.ticker)) {
+        seen.set(r.ticker, { ticker: r.ticker, asset_name: r.asset_name, category: r.category, verdict: r.verdict })
+      }
     }
+    return [...seen.values()]
+  } catch {
+    // build-time network error (Supabase unreachable) — degrade gracefully
+    return []
   }
-  return [...seen.values()]
 }
 
 export async function getFichesByCategory(
@@ -83,14 +88,18 @@ export async function getFichesByCategory(
 }
 
 export async function getFicheSitemapData(): Promise<{ ticker: string; generated_at: string }[]> {
-  const { data, error } = await supabaseServer
-    .from('equity_fiches')
-    .select('ticker,generated_at,thesis_version')
-    .order('thesis_version', { ascending: false })
-  if (error || !data) return []
-  const seen = new Map<string, string>()
-  for (const r of data as Array<{ ticker: string; generated_at: string; thesis_version: number }>) {
-    if (!seen.has(r.ticker)) seen.set(r.ticker, r.generated_at)
+  try {
+    const { data, error } = await supabaseServer
+      .from('equity_fiches')
+      .select('ticker,generated_at,thesis_version')
+      .order('thesis_version', { ascending: false })
+    if (error || !data) return []
+    const seen = new Map<string, string>()
+    for (const r of data as Array<{ ticker: string; generated_at: string; thesis_version: number }>) {
+      if (!seen.has(r.ticker)) seen.set(r.ticker, r.generated_at)
+    }
+    return [...seen.entries()].map(([ticker, generated_at]) => ({ ticker, generated_at }))
+  } catch {
+    return []
   }
-  return [...seen.entries()].map(([ticker, generated_at]) => ({ ticker, generated_at }))
 }
