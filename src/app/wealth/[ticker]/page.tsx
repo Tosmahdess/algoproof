@@ -3,17 +3,10 @@ import Link from 'next/link'
 import { getLatestFiche, getGrowthRow } from '@/lib/equity'
 import { EquityFichePanel } from '@/components/EquityFichePanel'
 import { sanitizeProse } from '@/lib/prose'
+import { categoryLabel } from '@/lib/fiche-categories'
 
 export const runtime = 'nodejs'
 export const revalidate = 3600
-
-const CATEGORY_LABELS: Record<string, string> = {
-  semiconductors: 'Semiconducteurs', tech_platform: 'Tech Platform / Cloud AI',
-  tech_us_growth: 'Tech US Growth', luxury_eu: 'Luxe EU', pharma_growth: 'Pharma Croissance',
-  pharma_defensive: 'Pharma Défensif', defense_aerospace: 'Défense / Aérospatial',
-  energy_oil: 'Énergie Oil & Gas', energy_transition: 'Énergie Transition',
-  commodities_metal: 'Métaux & Ressources',
-}
 
 const SECTIONS: { title: string; key: 'fondamentaux' | 'valorisation' | 'momentum' | 'risques' }[] = [
   { title: 'Fondamentaux', key: 'fondamentaux' },
@@ -27,7 +20,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
   const fiche = await getLatestFiche(decodeURIComponent(ticker))
   if (!fiche) notFound()
   const market = await getGrowthRow(fiche.ticker)
-  const cat = fiche.category ? (CATEGORY_LABELS[fiche.category] ?? fiche.category) : ''
+  const cat = fiche.category ? categoryLabel(fiche.category) : ''
   const date = new Date(fiche.generated_at).toLocaleDateString('fr-FR', {
     day: 'numeric', month: 'long', year: 'numeric',
   })
