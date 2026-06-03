@@ -182,35 +182,46 @@ const CHANGELOG_COLS =
 export async function getChangelogForBot(bot: Bot): Promise<BotChangelog[]> {
   // bot.slug is a trusted DB value (from the bots table, kebab/snake-case alnum),
   // never a raw route param — safe to interpolate into the PostgREST .or() filter.
-  const { data, error } = await supabase
-    .from('bot_changelogs')
-    .select(CHANGELOG_COLS)
-    .or(`and(scope_type.eq.bot,bot_slug.eq.${bot.slug}),scope_type.eq.fleet`)
-    .order('entry_date', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(200)
-  if (error) {
-    console.error('[getChangelogForBot]', error.message)
+  try {
+    const { data, error } = await supabase
+      .from('bot_changelogs')
+      .select(CHANGELOG_COLS)
+      .or(`and(scope_type.eq.bot,bot_slug.eq.${bot.slug}),scope_type.eq.fleet`)
+      .order('entry_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(200)
+    if (error) {
+      console.error('[getChangelogForBot]', error.message)
+      return []
+    }
+    const rows = (data ?? []) as BotChangelog[]
+    return rows.filter(r => r.scope_type === 'bot' || fleetEntryAppliesTo(r, bot))
+  } catch (e) {
+    // build-time network error (Supabase unreachable) — degrade gracefully
+    console.error('[getChangelogForBot] fetch threw', e)
     return []
   }
-  const rows = (data ?? []) as BotChangelog[]
-  return rows.filter(r => r.scope_type === 'bot' || fleetEntryAppliesTo(r, bot))
 }
 
 export async function getJournalEntries(scope?: ScopeType): Promise<BotChangelog[]> {
-  let q = supabase
-    .from('bot_changelogs')
-    .select(CHANGELOG_COLS)
-    .order('entry_date', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(300)
-  if (scope) q = q.eq('scope_type', scope)
-  const { data, error } = await q
-  if (error) {
-    console.error('[getJournalEntries]', error.message)
+  try {
+    let q = supabase
+      .from('bot_changelogs')
+      .select(CHANGELOG_COLS)
+      .order('entry_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(300)
+    if (scope) q = q.eq('scope_type', scope)
+    const { data, error } = await q
+    if (error) {
+      console.error('[getJournalEntries]', error.message)
+      return []
+    }
+    return (data ?? []) as BotChangelog[]
+  } catch (e) {
+    console.error('[getJournalEntries] fetch threw', e)
     return []
   }
-  return (data ?? []) as BotChangelog[]
 }
 
 export async function getLatestPerScope(): Promise<Record<ScopeType, BotChangelog | null>> {
@@ -226,16 +237,21 @@ export async function getLatestPerScope(): Promise<Record<ScopeType, BotChangelo
 export async function getComponentChangelog(
   scope: 'mi' | 'wealth', limit = 5,
 ): Promise<BotChangelog[]> {
-  const { data, error } = await supabase
-    .from('bot_changelogs')
-    .select(CHANGELOG_COLS)
-    .eq('scope_type', scope)
-    .order('entry_date', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(limit)
-  if (error) {
-    console.error('[getComponentChangelog]', error.message)
+  try {
+    const { data, error } = await supabase
+      .from('bot_changelogs')
+      .select(CHANGELOG_COLS)
+      .eq('scope_type', scope)
+      .order('entry_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    if (error) {
+      console.error('[getComponentChangelog]', error.message)
+      return []
+    }
+    return (data ?? []) as BotChangelog[]
+  } catch (e) {
+    console.error('[getComponentChangelog] fetch threw', e)
     return []
   }
-  return (data ?? []) as BotChangelog[]
 }
