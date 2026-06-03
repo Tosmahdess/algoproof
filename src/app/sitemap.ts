@@ -1,8 +1,19 @@
 import { getBotSlugs } from '@/lib/queries'
+import { getFicheSitemapData } from '@/lib/equity'
 
 export default async function sitemap() {
   let slugs: string[] = []
   try { slugs = await getBotSlugs() } catch { /* build-time network error — continue with empty slugs */ }
+
+  let fiches: { ticker: string; generated_at: string }[] = []
+  try { fiches = await getFicheSitemapData() } catch { /* build-time network error — continue */ }
+
+  const ficheUrls = fiches.map(f => ({
+    url: `https://algoproof.fr/wealth/${encodeURIComponent(f.ticker)}`,
+    lastModified: new Date(f.generated_at),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }))
 
   const strategyUrls = slugs.map(slug => ({
     url: `https://algoproof.fr/strategies/${slug}`,
@@ -54,6 +65,13 @@ export default async function sitemap() {
       changeFrequency: 'weekly' as const,
       priority: 0.6,
     })),
+    {
+      url: 'https://algoproof.fr/wealth/analyses',
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    },
+    ...ficheUrls,
     ...strategyUrls,
   ]
 }
