@@ -81,6 +81,9 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
       {active === 'changelog' && (
         <div className="px-6 py-5">
           <ChangelogTab changelogs={changelogs} />
+            <div className="mt-3">
+              <a href="/journal/intelligence" className="text-sm text-accent">Voir tout le journal Intelligence →</a>
+            </div>
         </div>
       )}
 
