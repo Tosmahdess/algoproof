@@ -42,6 +42,18 @@ export default async function sitemap() {
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     },
+    {
+      url: 'https://algoproof.fr/journal',
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+    ...['flotte', 'intelligence', 'patrimoine'].map(flux => ({
+      url: `https://algoproof.fr/journal/${flux}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    })),
     ...strategyUrls,
   ]
 }
