@@ -6,7 +6,9 @@ describe('BotChangelog type', () => {
     const valid: BotChangelog = {
       id: 'abc',
       created_at: '2026-05-09T00:00:00Z',
+      scope_type: 'bot',
       bot_slug: 'v1-spot',
+      applies_to: null,
       entry_date: '2026-05-09',
       category: 'fix',
       summary: 'Fixed M5 filter USDC symbols',
@@ -21,7 +23,9 @@ describe('BotChangelog type', () => {
     const entry: BotChangelog = {
       id: 'xyz',
       created_at: '2026-05-09T00:00:00Z',
+      scope_type: 'bot',
       bot_slug: 'v1-hl',
+      applies_to: null,
       entry_date: '2026-05-09',
       category: 'asset',
       summary: 'Added BNB/USDC',
