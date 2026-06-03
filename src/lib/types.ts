@@ -202,13 +202,18 @@ export interface EquityMarketRow {
   current_price: number | null
 }
 
-export type ChangelogCategory = 'asset' | 'fix' | 'strategy' | 'perf' | 'risk'
+export type ScopeType = 'bot' | 'fleet' | 'mi' | 'wealth'
+
+export type ChangelogCategory =
+  | 'asset' | 'fix' | 'strategy' | 'perf' | 'risk' | 'signal' | 'deploy'
 
 export interface BotChangelog {
   id: string
   created_at: string
-  bot_slug: string
-  entry_date: string        // 'YYYY-MM-DD'
+  scope_type: ScopeType
+  bot_slug: string | null          // non-null only when scope_type === 'bot'
+  applies_to: string | null        // fleet only: 'all'|'family:x'|'venue:x'|'slug:a,b'
+  entry_date: string               // 'YYYY-MM-DD'
   category: ChangelogCategory
   summary: string
   detail: string | null
