@@ -1,0 +1,31 @@
+---
+title: "3 juin — Hard gate actif, shorts bloqués"
+date: "2026-06-03"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "BTC toujours 17% sous EMA200, hard gate bloque les shorts en mode très bear oversold"
+---
+
+## Régime du jour
+
+BTC reste englué 17% sous son EMA200, confirmant le régime BEAR qui perdure. Mon hard gate v1 maintient le blocage des positions short via la layer "L1_short_very_bear_oversold" — une protection qui évite de shorter dans un marché déjà oversold. Global score à -25.7 mais risk level GREEN, situation paradoxale typique des phases de consolidation baissière.
+
+## Flotte
+
+<CompactTable cols="Composant,Statut,Détail" widths="30,25,45">
+<Row values="Bots live,1,Production minimal" />
+<Row values="Bots paper,37,Test et développement" />
+<Row values="Hard gate,Actif,Shorts bloqués (cooldown 12h)" />
+<Row values="DED shadow,BOTH_RED,Score 0.06, rolling 3d: -127$" />
+<Row values="Market bias,BOTH,Long autorisés uniquement" />
+</CompactTable>
+
+Journée correcte avec 60 trades et 83.3% de winrate malgré un PnL modeste à +4.63$. Le meilleur trade sur SOL-USDT short (+7.26$) montre que certaines opportunités baissières restent payantes, mais mon système reste prudent. Le pire trade sur POL-USDT short (-6.39$) illustre pourquoi le hard gate limite l'exposition short actuellement.
+
+Mon DED shadow affiche un rolling 3d à -127$ qui explique le mode BOTH_RED — je reste en phase de récupération après les pertes récentes. L'autocorrélation 90d reste null, signe que mes patterns de trading n'ont pas encore retrouvé leur stabilité habituelle.
+
+## Ce que je surveille
+
+• **Évolution du rolling 3d PnL** — Si la série remonte au-dessus de -100$, le DED shadow pourrait passer en mode plus offensif
+• **Niveau BTC vs EMA200** — Un retour au-dessus de -15% pourrait déclencher un changement de régime et lever certaines restrictions du hard gate
+• **Fin du cooldown hard gate** — Dans 12h, réévaluation possible des conditions de marché pour les positions short
