@@ -1,7 +1,8 @@
 // src/lib/queries.ts
 import { supabase } from './supabase'
-import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog } from './types'
+import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog, ScopeType } from './types'
 import { getStartCapital } from './start-capitals'
+import { fleetEntryAppliesTo } from './changelog'
 
 function withStartCapital<T extends { slug: string }>(row: T): T & { start_capital: number } {
   return { ...row, start_capital: getStartCapital(row.slug) }
@@ -175,16 +176,63 @@ export async function getTriggerData(slug: string): Promise<TriggerData | null> 
   return { profitFactor, totalTrades: all.length, isLive: bot.status === 'live' }
 }
 
-export async function getChangelogForBot(slug: string): Promise<BotChangelog[]> {
+const CHANGELOG_COLS =
+  'id,created_at,scope_type,bot_slug,applies_to,entry_date,category,summary,detail,session_ref'
+
+export async function getChangelogForBot(bot: Bot): Promise<BotChangelog[]> {
   const { data, error } = await supabase
     .from('bot_changelogs')
-    .select('id,created_at,bot_slug,entry_date,category,summary,detail,session_ref')
-    .eq('bot_slug', slug)
+    .select(CHANGELOG_COLS)
+    .or(`and(scope_type.eq.bot,bot_slug.eq.${bot.slug}),scope_type.eq.fleet`)
     .order('entry_date', { ascending: false })
     .order('created_at', { ascending: false })
-    .limit(100)
+    .limit(200)
   if (error) {
     console.error('[getChangelogForBot]', error.message)
+    return []
+  }
+  const rows = (data ?? []) as BotChangelog[]
+  return rows.filter(r => r.scope_type === 'bot' || fleetEntryAppliesTo(r, bot))
+}
+
+export async function getJournalEntries(scope?: ScopeType): Promise<BotChangelog[]> {
+  let q = supabase
+    .from('bot_changelogs')
+    .select(CHANGELOG_COLS)
+    .order('entry_date', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(300)
+  if (scope) q = q.eq('scope_type', scope)
+  const { data, error } = await q
+  if (error) {
+    console.error('[getJournalEntries]', error.message)
+    return []
+  }
+  return (data ?? []) as BotChangelog[]
+}
+
+export async function getLatestPerScope(): Promise<Record<ScopeType, BotChangelog | null>> {
+  const all = await getJournalEntries()
+  const out: Record<ScopeType, BotChangelog | null> =
+    { bot: null, fleet: null, mi: null, wealth: null }
+  for (const e of all) {
+    if (out[e.scope_type] === null) out[e.scope_type] = e
+  }
+  return out
+}
+
+export async function getComponentChangelog(
+  scope: 'mi' | 'wealth', limit = 5,
+): Promise<BotChangelog[]> {
+  const { data, error } = await supabase
+    .from('bot_changelogs')
+    .select(CHANGELOG_COLS)
+    .eq('scope_type', scope)
+    .order('entry_date', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) {
+    console.error('[getComponentChangelog]', error.message)
     return []
   }
   return (data ?? []) as BotChangelog[]

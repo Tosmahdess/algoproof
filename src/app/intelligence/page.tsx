@@ -4,7 +4,7 @@ import ExplainerBox from '@/components/ExplainerBox'
 import MiRegimeBadge from '@/components/MiRegimeBadge'
 import MiHistoryChart from '@/components/MiHistoryChart'
 import MiPillarsSection from '@/components/MiPillarsSection'
-import { getLatestMacroReport, getMiHistory, getChangelogForBot } from '@/lib/queries'
+import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib/queries'
 
 export const metadata: Metadata = {
   title: 'Intelligence de marché',
@@ -77,7 +77,7 @@ export default async function IntelligencePage() {
   const [report, miHistory, miChangelogs] = await Promise.all([
     getLatestMacroReport(),
     getMiHistory(7),
-    getChangelogForBot('mi'),
+    getComponentChangelog('mi'),
   ])
 
   let reportContent: React.ReactElement | null = null

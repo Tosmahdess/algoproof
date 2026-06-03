@@ -41,7 +41,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
 
-  const changelogs = await getChangelogForBot(slug)
+  const changelogs = await getChangelogForBot(bot)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
