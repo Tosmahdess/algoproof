@@ -17,6 +17,7 @@ const ALL_LINKS = [
   { href: '/strategies',    label: 'Stratégies' },
   { href: '/performance',   label: 'Performance' },
   { href: '/wealth',        label: 'Patrimoine' },
+  { href: '/wealth/analyses', label: 'Analyses' },
   { href: '/intelligence',  label: 'Intelligence' },
   { href: '/blog',          label: 'Blog' },
   { href: '/start',         label: 'Démarrer' },
@@ -65,8 +66,9 @@ export default function Nav() {
 
           {[
             { href: '/performance',  label: 'PERFORMANCE' },
-            { href: '/wealth',       label: 'PATRIMOINE' },
-            { href: '/intelligence', label: 'INTELLIGENCE' },
+            { href: '/wealth',          label: 'PATRIMOINE' },
+            { href: '/wealth/analyses', label: 'ANALYSES' },
+            { href: '/intelligence',    label: 'INTELLIGENCE' },
             { href: '/blog',         label: 'BLOG' },
           ].map(({ href, label }) => {
             const ext = href.startsWith('http')

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import ExplainerBox from '@/components/ExplainerBox'
 import { ExplainerSignal } from '@/components/ExplainerSignal'
 import { SignalTable } from '@/components/SignalTable'
@@ -230,6 +231,9 @@ export default function WealthPage() {
           fiches={ficheByTicker}
           loading={loading}
         />
+        <div className="mt-3 text-right">
+          <Link href="/wealth/analyses" className="text-sm text-accent">Toutes mes analyses →</Link>
+        </div>
       </section>
 
       {/* Allocation */}
