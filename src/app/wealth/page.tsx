@@ -5,7 +5,8 @@ import ExplainerBox from '@/components/ExplainerBox'
 import { ExplainerSignal } from '@/components/ExplainerSignal'
 import { SignalTable } from '@/components/SignalTable'
 import { TopPicks, type FicheLite } from '@/components/TopPicks'
-import type { GrowthAlert, GrowthAsset, Verdict } from '@/lib/types'
+import type { BotChangelog, GrowthAlert, GrowthAsset, Verdict } from '@/lib/types'
+import ComponentChangelog from '@/components/ComponentChangelog'
 
 // Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
 type CoveredFiche = { ticker: string; verdict: Verdict; generated_at: string; price_at_generation: number | null; ticker_yf: string }
@@ -149,6 +150,7 @@ export default function WealthPage() {
   const [growthUniverse, setUniverse]   = useState<GrowthAsset[]>([])
   const [fiches, setFiches]             = useState<CoveredFiche[]>([])
   const [loading, setLoading]           = useState(true)
+  const [wealthChanges, setWealthChanges] = useState<BotChangelog[]>([])
 
   useEffect(() => {
     Promise.all([
@@ -166,6 +168,13 @@ export default function WealthPage() {
       .then((r) => r.json())
       .then((list: CoveredFiche[]) => setFiches(Array.isArray(list) ? list : []))
       .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/changelog?scope=wealth')
+      .then(r => r.ok ? r.json() : [])
+      .then((d: BotChangelog[]) => setWealthChanges(Array.isArray(d) ? d : []))
+      .catch(() => setWealthChanges([]))
   }, [])
 
   // Derived: verdict lookup (universe table) + fiche-lite map (Top 5: verdict + live price)
@@ -202,6 +211,8 @@ export default function WealthPage() {
           j&apos;investis davantage. Chaque achat est enregistré publiquement.
         </p>
       </div>
+
+      <ComponentChangelog title="Derniers changements" entries={wealthChanges} href="/journal/patrimoine" />
 
       {/* Top 5 du moment — qualité en solde maintenant */}
       <section>
