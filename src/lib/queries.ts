@@ -180,6 +180,8 @@ const CHANGELOG_COLS =
   'id,created_at,scope_type,bot_slug,applies_to,entry_date,category,summary,detail,session_ref'
 
 export async function getChangelogForBot(bot: Bot): Promise<BotChangelog[]> {
+  // bot.slug is a trusted DB value (from the bots table, kebab/snake-case alnum),
+  // never a raw route param — safe to interpolate into the PostgREST .or() filter.
   const { data, error } = await supabase
     .from('bot_changelogs')
     .select(CHANGELOG_COLS)
