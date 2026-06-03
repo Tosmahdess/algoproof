@@ -19,7 +19,6 @@ const ALL_LINKS = [
   { href: '/wealth',        label: 'Patrimoine' },
   { href: '/intelligence',  label: 'Intelligence' },
   { href: '/blog',          label: 'Blog' },
-  { href: 'https://lab.algoproof.fr', label: 'Lab' },
   { href: '/start',         label: 'Démarrer' },
 ]
 
@@ -69,7 +68,6 @@ export default function Nav() {
             { href: '/wealth',       label: 'PATRIMOINE' },
             { href: '/intelligence', label: 'INTELLIGENCE' },
             { href: '/blog',         label: 'BLOG' },
-            { href: 'https://lab.algoproof.fr', label: 'LAB' },
           ].map(({ href, label }) => {
             const ext = href.startsWith('http')
             const active = !ext && (path === href || path.startsWith(href + '/'))
