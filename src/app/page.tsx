@@ -2,7 +2,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
-import { getAllBotsWithStats } from '@/lib/queries'
+import WhatsNew from '@/components/WhatsNew'
+import { getAllBotsWithStats, getLatestPerScope } from '@/lib/queries'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
 export const revalidate = 1800
@@ -27,7 +28,10 @@ const FAMILY_LABEL: Record<string, string> = {
 }
 
 export default async function HomePage() {
-  const bots = await getAllBotsWithStats()
+  const [bots, latestPerScope] = await Promise.all([
+    getAllBotsWithStats(),
+    getLatestPerScope(),
+  ])
   // Sort by realized P&L (€), not absolute capital — bots have different start capitals.
   const sorted = [...bots].sort((a, b) =>
     (b.stats.latest_capital - b.start_capital) - (a.stats.latest_capital - a.start_capital)
@@ -86,6 +90,9 @@ export default async function HomePage() {
           </div>
         ))}
       </div>
+
+      {/* Quoi de neuf */}
+      <WhatsNew latest={latestPerScope} />
 
       {/* Tableau comparatif — top 10 */}
       <div className="mb-6 flex items-center justify-between">
