@@ -18,12 +18,26 @@ describe('sellPlanLines', () => {
     const lines = sellPlanLines({ tp1_pct: null, tp1_sell_pct: null, tp2_pct: null, tp2_sell_pct: null, residual_pct: null })
     expect(lines).toEqual([])
   })
-  it('surfaces the unsold remainder for tactical names (residual 0, sells < 100)', () => {
+  it('tactical remainder (legacy, no exit_state) states the rule, never "à la sortie"', () => {
     const lines = sellPlanLines({ tp1_pct: 25, tp1_sell_pct: 25, tp2_pct: 45, tp2_sell_pct: 25, residual_pct: 0 })
-    expect(lines).toEqual([
-      '+25% → vendre 25%',
-      '+45% → vendre 25%',
-      'puis solder le reste (50%) à la sortie',
-    ])
+    expect(lines[2]).toBe('solder le reste (50%) si le cours casse sa tendance longue (clôture sous la MM50 orientée à la baisse)')
+    expect(lines.join(' ')).not.toContain('à la sortie')
+  })
+  it('hold exit_state keeps the residual long-term', () => {
+    const lines = sellPlanLines({ tp1_pct: 40, tp1_sell_pct: 25, tp2_pct: 80, tp2_sell_pct: 25, residual_pct: 50, exit_state: 'hold' })
+    expect(lines[2]).toBe('garder 50% (long terme)')
+  })
+  it('intact exit_state states the trend-break rule', () => {
+    const lines = sellPlanLines({ tp1_pct: 25, tp1_sell_pct: 25, tp2_pct: 45, tp2_sell_pct: 25, residual_pct: 0, exit_state: 'intact' })
+    expect(lines[2]).toBe('solder le reste (50%) si le cours casse sa tendance longue (clôture sous la MM50 orientée à la baisse)')
+  })
+  it('broken exit_state states the action', () => {
+    const lines = sellPlanLines({ tp1_pct: 25, tp1_sell_pct: 25, tp2_pct: 45, tp2_sell_pct: 25, residual_pct: 0, exit_state: 'broken' })
+    expect(lines[2]).toBe('⚠️ tendance cassée : solder le reste (50%)')
+  })
+  it('tactical name with residual_pct 50 (SOL) exits on break, not "garder"', () => {
+    const lines = sellPlanLines({ tp1_pct: 50, tp1_sell_pct: 25, tp2_pct: 100, tp2_sell_pct: 25, residual_pct: 50, exit_state: 'intact' })
+    expect(lines[2]).toContain('solder le reste (50%)')
+    expect(lines.join(' ')).not.toContain('garder')
   })
 })

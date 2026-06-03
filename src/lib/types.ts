@@ -162,6 +162,7 @@ export interface GrowthAsset {
   tp1_sell_pct: number | null
   tp2_sell_pct: number | null
   residual_pct: number | null
+  exit_state: 'hold' | 'intact' | 'broken' | null
   current_price: number | null
   ref_price_180j: number | null
   drawdown_pct: number | null       // fraction: -0.25 = -25%
@@ -199,6 +200,7 @@ export interface EquityMarketRow {
   tp1_sell_pct: number | null
   tp2_sell_pct: number | null
   residual_pct: number | null
+  exit_state: 'hold' | 'intact' | 'broken' | null
   current_price: number | null
 }
 

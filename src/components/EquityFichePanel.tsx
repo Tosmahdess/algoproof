@@ -30,7 +30,7 @@ export function EquityFichePanel({ fiche, market }: { fiche: EquityFiche; market
         >
           <div className="text-muted text-xs">Plan de vente</div>
           <div className="mt-0.5 flex flex-wrap gap-x-3 text-sm font-medium text-positive">
-            {sellPlanLines({ tp1_pct: market?.tp1_pct ?? null, tp1_sell_pct: market?.tp1_sell_pct ?? null, tp2_pct: market?.tp2_pct ?? null, tp2_sell_pct: market?.tp2_sell_pct ?? null, residual_pct: market?.residual_pct ?? null })
+            {sellPlanLines({ tp1_pct: market?.tp1_pct ?? null, tp1_sell_pct: market?.tp1_sell_pct ?? null, tp2_pct: market?.tp2_pct ?? null, tp2_sell_pct: market?.tp2_sell_pct ?? null, residual_pct: market?.residual_pct ?? null, exit_state: market?.exit_state ?? null })
               .map((l, i) => <span key={i}>{l}</span>)}
           </div>
         </div>
