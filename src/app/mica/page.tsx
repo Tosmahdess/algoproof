@@ -17,11 +17,11 @@ const MICA_POINTS = [
   ['Protection renforcée', "Livre blanc obligatoire, droit de rétractation, règles sur la publicité et les conflits d'intérêts."],
   ['Exchanges agréés', "Les plateformes doivent obtenir un agrément CASP pour opérer dans l'UE. Les non-agréés devront partir."],
   ['Stablecoins encadrés', "Les émetteurs de stablecoins doivent respecter des exigences de réserves et de transparence."],
-  ['Ce qui ne change PAS', "La fiscalité reste française (art. 150 VH bis). MiCA ne touche pas tes impôts — voir le calculateur plus bas."],
+  ['Ce qui ne change PAS', "La fiscalité reste française (art. 150 VH bis). MiCA ne touche pas tes impôts. Vois le calculateur plus bas."],
 ]
 
 const FAQ = [
-  { question: "Puis-je encore utiliser Binance en France ?", answer: "Oui pour le spot (Binance est agréé MiCA dans l'UE). Binance Futures reste bloqué aux résidents français depuis 2023 (restriction AMF) — voir la page Démarrer pour les alternatives." },
+  { question: "Puis-je encore utiliser Binance en France ?", answer: "Oui pour le spot (Binance est agréé MiCA dans l'UE). Binance Futures reste bloqué aux résidents français depuis 2023 (restriction AMF). Vois la page Démarrer pour les alternatives." },
   { question: "Dois-je déclarer si je n'ai pas vendu en euros ?", answer: "Tu déclares tes comptes (formulaire 3916-bis) même sans vente. Les échanges crypto→crypto ne sont pas imposables : seule la conversion en monnaie fiat (ou achat d'un bien) déclenche l'impôt sur la plus-value." },
   { question: "Le VPN pour contourner une restriction, c'est risqué ?", answer: "Oui. Utiliser un VPN pour accéder à un produit bloqué expose ton compte au gel et t'engage juridiquement. Mieux vaut un exchange réellement agréé et disponible en France." },
   { question: "MiCA change-t-il combien je paie d'impôts ?", answer: "Non. MiCA encadre les plateformes et protège l'investisseur, mais la fiscalité des plus-values reste nationale : flat tax de 31,4 % (ou option pour le barème progressif)." },
@@ -75,7 +75,7 @@ export default function MicaPage() {
       <section>
         <h2 className="text-lg font-semibold mb-2">Exchanges agréés MiCA</h2>
         <p className="text-sm text-muted mb-4">
-          Statut indicatif — vérifie sur le{' '}
+          Statut indicatif, vérifie sur le{' '}
           <a href="https://www.amf-france.org" target="_blank" rel="noopener noreferrer" className="text-accent">registre AMF/ESMA</a>.
         </p>
         <div className="overflow-x-auto rounded-xl border border-border">
