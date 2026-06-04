@@ -60,6 +60,12 @@ export default async function sitemap() {
       priority: 0.8,
     },
     {
+      url: 'https://algoproof.fr/preuve',
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
       url: 'https://algoproof.fr/journal',
       lastModified: new Date(),
       changeFrequency: 'daily' as const,

@@ -17,4 +17,10 @@ describe('Nav', () => {
     const links = screen.getAllByRole('link', { name: /en règle/i })
     expect(links.some(l => l.getAttribute('href') === '/mica')).toBe(true)
   })
+
+  it('links to the proof landing', () => {
+    render(<Nav />)
+    const links = screen.getAllByRole('link', { name: /la preuve/i })
+    expect(links.some(l => l.getAttribute('href') === '/preuve')).toBe(true)
+  })
 })
