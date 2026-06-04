@@ -22,6 +22,7 @@ const ALL_LINKS = [
   { href: '/blog',          label: 'Blog' },
   { href: '/journal',       label: 'Journal' },
   { href: '/mica',          label: 'En règle' },
+  { href: '/preuve',        label: 'La preuve' },
   { href: '/start',         label: 'Démarrer' },
 ]
 
@@ -74,6 +75,7 @@ export default function Nav() {
             { href: '/blog',         label: 'BLOG' },
             { href: '/journal',      label: 'JOURNAL' },
             { href: '/mica',         label: 'EN RÈGLE' },
+            { href: '/preuve',       label: 'LA PREUVE' },
           ].map(({ href, label }) => {
             const ext = href.startsWith('http')
             const active = !ext && (path === href || path.startsWith(href + '/'))
