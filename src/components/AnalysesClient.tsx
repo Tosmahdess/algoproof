@@ -5,6 +5,8 @@ import Link from 'next/link'
 import type { FicheIndexRow } from '@/lib/equity'
 import type { Verdict } from '@/lib/types'
 import { categoryLabel } from '@/lib/fiche-categories'
+import SearchInput from './SearchInput'
+import { matchesQuery } from '@/lib/search'
 
 const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
   renforcer: { label: 'RENFORCER', color: '#3fb950' },
@@ -18,9 +20,13 @@ const FILTERS: { key: Verdict | 'all'; label: string }[] = [
 
 export default function AnalysesClient({ fiches }: { fiches: FicheIndexRow[] }) {
   const [filter, setFilter] = useState<Verdict | 'all'>('all')
+  const [query, setQuery] = useState('')
 
   const sections = useMemo(() => {
-    const shown = filter === 'all' ? fiches : fiches.filter(f => f.verdict === filter)
+    const shown = fiches.filter(f =>
+      (filter === 'all' || f.verdict === filter) &&
+      matchesQuery([f.ticker, f.asset_name], query)
+    )
     const byCat = new Map<string, FicheIndexRow[]>()
     for (const f of shown) {
       const k = f.category ?? 'autres'
@@ -28,7 +34,10 @@ export default function AnalysesClient({ fiches }: { fiches: FicheIndexRow[] }) 
       byCat.get(k)!.push(f)
     }
     return [...byCat.entries()].map(([cat, rows]) => ({ cat, rows }))
-  }, [fiches, filter])
+  }, [fiches, filter, query])
+
+  const total = fiches.length
+  const shownCount = sections.reduce((n, s) => n + s.rows.length, 0)
 
   return (
     <div>
@@ -45,6 +54,14 @@ export default function AnalysesClient({ fiches }: { fiches: FicheIndexRow[] }) 
           </button>
         ))}
       </div>
+
+      <SearchInput
+        value={query}
+        onChange={setQuery}
+        placeholder="Rechercher une société…"
+        resultCount={shownCount}
+        totalCount={total}
+      />
 
       {sections.length === 0 ? (
         <p className="text-sm text-muted italic py-8">Aucune analyse pour ce filtre.</p>

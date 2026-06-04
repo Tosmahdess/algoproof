@@ -8,6 +8,8 @@ import { SignalTable } from '@/components/SignalTable'
 import { TopPicks, type FicheLite } from '@/components/TopPicks'
 import type { BotChangelog, GrowthAlert, GrowthAsset, Verdict } from '@/lib/types'
 import ComponentChangelog from '@/components/ComponentChangelog'
+import SearchInput from '@/components/SearchInput'
+import { matchesQuery } from '@/lib/search'
 
 // Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
 type CoveredFiche = { ticker: string; verdict: Verdict; generated_at: string; price_at_generation: number | null; ticker_yf: string }
@@ -152,6 +154,7 @@ export default function WealthPage() {
   const [fiches, setFiches]             = useState<CoveredFiche[]>([])
   const [loading, setLoading]           = useState(true)
   const [wealthChanges, setWealthChanges] = useState<BotChangelog[]>([])
+  const [uniQuery, setUniQuery]         = useState('')
 
   useEffect(() => {
     Promise.all([
@@ -194,6 +197,8 @@ export default function WealthPage() {
     }
     return acc
   }, {} as Record<string, string>)
+
+  const filteredUniverse = growthUniverse.filter(a => matchesQuery([a.ticker, a.asset_name], uniQuery))
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
@@ -309,6 +314,17 @@ export default function WealthPage() {
           </span>
         </div>
 
+        <p className="text-xs text-muted mb-4 max-w-2xl leading-relaxed">
+          La surveillance live de tout mon univers d&apos;investissement : repli, prochain seuil d&apos;achat et action par actif.
+          Pour ma thèse détaillée société par société, vois <Link href="/wealth/analyses" className="text-accent">mes analyses</Link>.
+        </p>
+        <SearchInput
+          value={uniQuery}
+          onChange={setUniQuery}
+          placeholder="Filtrer par ticker ou société…"
+          resultCount={filteredUniverse.length}
+          totalCount={growthUniverse.length}
+        />
         <ExplainerSignal />
 
         {loading ? (
@@ -320,7 +336,10 @@ export default function WealthPage() {
             Données en cours de synchronisation (cron toutes les 4h)
           </div>
         ) : (
-          <SignalTable assets={growthUniverse} lastAlerts={lastAlertByTicker} verdictByTicker={verdictByTicker} />
+          <SignalTable assets={filteredUniverse} lastAlerts={lastAlertByTicker} verdictByTicker={verdictByTicker} />
+        )}
+        {uniQuery && filteredUniverse.length === 0 && (
+          <p className="text-xs text-muted italic py-4">Aucune société pour « {uniQuery} ».</p>
         )}
       </section>
 

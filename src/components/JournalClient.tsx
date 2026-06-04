@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { BotChangelog, ScopeType } from '@/lib/types'
 import { scopeLabel } from '@/lib/changelog'
 import ScopeBadge from './ScopeBadge'
@@ -31,6 +31,10 @@ export default function JournalClient({ entries }: { entries: BotChangelog[] }) 
     () => flux === 'all' ? entries : entries.filter(e => e.scope_type === flux),
     [entries, flux],
   )
+  const [expanded, setExpanded] = useState(false)
+  useEffect(() => { setExpanded(false) }, [flux]) // reset on flux change
+  const visible = expanded ? filtered : filtered.slice(0, 5)
+  const hidden = filtered.length - 5
 
   return (
     <div>
@@ -52,7 +56,7 @@ export default function JournalClient({ entries }: { entries: BotChangelog[] }) 
         <p className="text-sm text-muted italic py-8">Aucun changement pour ce filtre.</p>
       ) : (
         <div className="divide-y divide-border">
-          {filtered.map(entry => (
+          {visible.map(entry => (
             <div key={entry.id} className="grid grid-cols-[64px_120px_1fr] gap-3 items-baseline py-2.5">
               <span className="text-xs font-mono text-muted">{fmtDate(entry.entry_date)}</span>
               <ScopeBadge scope={entry.scope_type} label={scopeLabel(entry)} />
@@ -66,6 +70,11 @@ export default function JournalClient({ entries }: { entries: BotChangelog[] }) 
           ))}
         </div>
       )}
+          {hidden > 0 && (
+            <button type="button" onClick={() => setExpanded(v => !v)} className="mt-4 text-xs text-accent hover:underline">
+              {expanded ? 'Replier' : `Déplier (+${hidden})`}
+            </button>
+          )}
     </div>
   )
 }

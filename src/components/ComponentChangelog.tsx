@@ -1,3 +1,5 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 import type { BotChangelog } from '@/lib/types'
 
@@ -8,7 +10,10 @@ function fmtDate(d: string) {
 export default function ComponentChangelog(
   { title, entries, href }: { title: string; entries: BotChangelog[]; href: string },
 ) {
+  const [expanded, setExpanded] = useState(false)
   if (entries.length === 0) return null
+  const visible = expanded ? entries : entries.slice(0, 5)
+  const hidden = entries.length - 5
   return (
     <section className="border border-border rounded-xl p-6 my-8">
       <div className="flex items-baseline justify-between mb-4">
@@ -16,13 +21,22 @@ export default function ComponentChangelog(
         <Link href={href} className="text-sm text-accent">Voir tout →</Link>
       </div>
       <div className="divide-y divide-border">
-        {entries.map(e => (
+        {visible.map(e => (
           <div key={e.id} className="flex gap-3 items-baseline py-2">
             <span className="text-xs font-mono text-muted w-14 flex-shrink-0">{fmtDate(e.entry_date)}</span>
             <span className="text-sm text-foreground">{e.summary}</span>
           </div>
         ))}
       </div>
+      {hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(v => !v)}
+          className="mt-3 text-xs text-accent hover:underline"
+        >
+          {expanded ? 'Replier' : `Déplier (+${hidden})`}
+        </button>
+      )}
     </section>
   )
 }

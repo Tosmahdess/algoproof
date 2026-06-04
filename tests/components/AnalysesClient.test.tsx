@@ -31,4 +31,22 @@ describe('AnalysesClient', () => {
     const link = screen.getByRole('link', { name: /SOL/i })
     expect(link.getAttribute('href')).toBe('/wealth/SOL')
   })
+  it('filters by search query on ticker or name', () => {
+    render(<AnalysesClient fiches={fiches} />)
+    fireEvent.change(screen.getByPlaceholderText(/rechercher/i), { target: { value: 'micro' } })
+    expect(screen.getByText('MSTR')).toBeTruthy()
+    expect(screen.queryByText('SOL')).toBeNull()
+  })
+  it('combines verdict filter AND search (AND semantics)', () => {
+    render(<AnalysesClient fiches={fiches} />)
+    fireEvent.click(screen.getByRole('button', { name: /^Renforcer/i }))
+    fireEvent.change(screen.getByPlaceholderText(/rechercher/i), { target: { value: 'asml' } })
+    expect(screen.getByText('ASML')).toBeTruthy()
+    expect(screen.queryByText('SOL')).toBeNull()
+  })
+  it('shows empty state when search matches nothing', () => {
+    render(<AnalysesClient fiches={fiches} />)
+    fireEvent.change(screen.getByPlaceholderText(/rechercher/i), { target: { value: 'zzz' } })
+    expect(screen.getByText(/Aucune analyse/i)).toBeTruthy()
+  })
 })
