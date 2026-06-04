@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
-import { getAllBotsWithStats } from '@/lib/queries'
+import { getAllBotsWithStats, getJournalEntries } from '@/lib/queries'
 import { supabaseServer } from '@/lib/supabase-server'
 import OverviewClient from '@/components/OverviewClient'
+import OverviewWhatsNew from '@/components/OverviewWhatsNew'
 import type { TradeWithBot } from '@/lib/types'
 
 export const revalidate = 1800
@@ -21,9 +22,10 @@ async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
 }
 
 export default async function OverviewPage() {
-  const [bots, recentTrades] = await Promise.all([
+  const [bots, recentTrades, changes] = await Promise.all([
     getAllBotsWithStats(),
     getRecentTrades(20),
+    getJournalEntries(),
   ])
 
   return (
@@ -40,6 +42,7 @@ export default async function OverviewPage() {
           <p className="opacity-60">ISR 1h</p>
         </div>
       </div>
+      <OverviewWhatsNew entries={changes} />
       <OverviewClient bots={bots} recentTrades={recentTrades} />
     </div>
   )
