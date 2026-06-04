@@ -54,6 +54,12 @@ export default async function sitemap() {
       priority: 0.7,
     },
     {
+      url: 'https://algoproof.fr/mica',
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    },
+    {
       url: 'https://algoproof.fr/journal',
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
