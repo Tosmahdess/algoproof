@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { supabaseServer } from '@/lib/supabase-server'
+import { paginateAll } from '@/lib/paginate'
 import { PerformanceClient } from '@/components/PerformanceClient'
 
 export const revalidate = 3600
@@ -24,12 +25,18 @@ interface BotRow {
 }
 
 async function getData() {
-  const [tradesRes, botsRes] = await Promise.all([
-    supabaseServer
-      .from('trades')
-      .select('pnl,side,closed_at,bot_id')
-      .not('closed_at', 'is', null)
-      .order('closed_at', { ascending: false }),
+  // Supabase caps a single request at 1000 rows — page through every closed trade,
+  // otherwise the "P&L total" silently reflects only the 1000 most recent trades.
+  const [trades, botsRes] = await Promise.all([
+    paginateAll<TradeRow>(async (from, to) => {
+      const { data } = await supabaseServer
+        .from('trades')
+        .select('pnl,side,closed_at,bot_id')
+        .not('closed_at', 'is', null)
+        .order('closed_at', { ascending: false })
+        .range(from, to)
+      return (data ?? []) as TradeRow[]
+    }),
     supabaseServer
       .from('bots')
       .select('id,slug,name,family')
@@ -37,7 +44,7 @@ async function getData() {
   ])
 
   return {
-    trades: (tradesRes.data ?? []) as TradeRow[],
+    trades,
     bots: (botsRes.data ?? []) as BotRow[],
   }
 }
