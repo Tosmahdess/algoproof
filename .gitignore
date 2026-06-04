@@ -44,3 +44,8 @@ next-env.d.ts
 supabase/.temp
 
 .vercel
+
+# local skill workspace + python cache
+.superpowers/
+__pycache__/
+*.pyc
