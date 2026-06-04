@@ -1,0 +1,85 @@
+---
+title: "Fiscalité crypto 2026 : comment ça marche vraiment (et les pièges)"
+date: "2026-06-04"
+category: "guide"
+tags: ["fiscalité", "impôts", "crypto", "france", "2026"]
+summary: "MiCA encadre les plateformes ; tes impôts, eux, restent franco-français. Le taux 2026, la vraie méthode de calcul de la plus-value (celle que personne ne t'explique), le piège des moins-values, le staking, les formulaires — et DAC8, qui change la donne. Sans bullshit."
+---
+
+J'ai écrit [un guide sur MiCA](/blog/2026-06-04-mica-explique) : le règlement européen encadre les **plateformes**. Mais une chose qu'il ne touche pas, c'est **tes impôts** — la fiscalité crypto reste 100 % française. Et c'est là que la plupart des gens se plantent. Voici comment ça marche vraiment en 2026.
+
+<Callout type="warning" title="Pas un conseil fiscal">
+Je vulgarise le régime du particulier (investisseur occasionnel), le cas de loin le plus fréquent. Ta situation peut différer (activité habituelle, mining pro…). La source qui fait foi reste **impots.gouv.fr**.
+</Callout>
+
+## 1. Le taux : 31,4 %, ou ton barème
+
+Depuis le 1er janvier 2026, la flat tax (PFU) sur les plus-values crypto est de **31,4 %** : 12,8 % d'impôt sur le revenu + 18,6 % de prélèvements sociaux (la CSG du capital est passée de 9,2 à 10,6 %).
+
+Tu peux **opter pour le barème progressif** à la place. Mais attention : l'option ne remplace que la part « impôt sur le revenu » (12,8 %) par ta tranche marginale ; les **18,6 % de prélèvements sociaux restent dus dans tous les cas**.
+
+<CompactTable cols="Ta tranche (TMI) | Au barème | vs Flat tax 31,4 %" widths="1.4fr 1.3fr 1.3fr">
+  <Row values="0 % (non imposable) | 18,6 % | le barème gagne largement" />
+  <Row values="11 % | 29,6 % | le barème gagne encore" />
+  <Row values="30 % | 48,6 % | la flat tax gagne" />
+  <Row values="41 % / 45 % | 59,6 % / 63,6 % | la flat tax, sans hésiter" />
+</CompactTable>
+
+Bref : si tu es peu ou pas imposable, le barème peut diviser ta note. Le [calculateur sur la page **En règle**](/mica) te fait la comparaison en deux secondes.
+
+## 2. Quand l'impôt tombe (et quand il ne tombe pas)
+
+Le fait générateur, c'est la **conversion en monnaie fiat** (euros) ou l'achat d'un bien/service. Tant que tu restes en crypto, rien.
+
+<Callout type="insight" title="Crypto → crypto = pas d'impôt">
+Vendre du BTC pour acheter de l'ETH n'est **pas** un événement imposable. Tu peux arbitrer, rééquilibrer, encaisser des gains latents en stablecoin… tant que ça ne sort pas en euros, tu ne déclenches rien. L'impôt attend la sortie en fiat.
+</Callout>
+
+## 3. La vraie formule (celle que personne ne t'explique)
+
+Voici le piège que 90 % des calculateurs en ligne (le mien compris) simplifient. La plus-value imposable d'une cession **ne se calcule pas trade par trade**. L'article 150 VH bis impose une formule sur la **valeur globale de ton portefeuille** :
+
+> Plus-value = Prix de cession − [ Prix total d'acquisition × ( Prix de cession ÷ Valeur globale du portefeuille au moment de la cession ) ]
+
+Traduction : à chaque vente en euros, tu prends ton **prix d'achat cumulé de tout ton portefeuille**, au prorata de ce que tu vends par rapport à la valeur totale de ce que tu détiens. C'est lourd, et ça impose de connaître la valeur de **tout** ton portefeuille à chaque cession.
+
+C'est exactement pour ça que mon [calculateur](/mica) affiche « estimation » : il fait l'hypothèse simple « investi → revendu », parfaite pour avoir un ordre de grandeur, mais la déclaration réelle suit la formule ci-dessus. Pour un portefeuille actif, un outil dédié (type Waltio/Koinly) ou un comptable devient vite rentable.
+
+## 4. Le piège des moins-values
+
+Tu as perdu sur certaines positions ? Les moins-values **s'imputent sur tes plus-values de la même année** — elles réduisent ta base imposable. Mais, contrairement aux moins-values en bourse :
+
+<Callout type="warning" title="Pas de report sur les années suivantes">
+Une moins-value crypto **non utilisée dans l'année est perdue**. Elle ne se reporte pas sur les années futures. Concrètement : si tu es en moins-value nette cette année, elle ne t'aidera pas à payer moins l'an prochain. D'où l'intérêt de piloter tes ventes sur l'année civile.
+</Callout>
+
+## 5. Et le staking, les rewards ?
+
+Deux temps :
+
+- **À la perception** des récompenses : ça relève en principe des **bénéfices non commerciaux (BNC)**, valorisées au cours du jour où tu les reçois.
+- **À la revente** en euros : ça bascule dans le **régime des plus-values** (la base d'acquisition = la valeur déjà imposée à la perception).
+
+Autrement dit, un reward peut être taxé deux fois sur deux bases différentes. À tracer dès le départ.
+
+## 6. La déclaration, en pratique
+
+<CompactTable cols="Formulaire | À quoi il sert" widths="1fr 3fr">
+  <Row values="2086 | Le détail de chaque cession imposable de l'année (calcul de la plus/moins-value)" />
+  <Row values="2042-C | Le report du résultat global sur ta déclaration de revenus" />
+  <Row values="3916-bis | La déclaration de tes comptes crypto ouverts à l'étranger — obligatoire même sans avoir vendu" />
+</CompactTable>
+
+L'oubli du **3916-bis** est l'erreur la plus courante et la plus chère : l'amende s'applique par compte non déclaré, indépendamment du fait que tu aies réalisé une plus-value ou non.
+
+## 7. DAC8 : l'ère du « personne ne saura » est finie
+
+Le gros changement de fond en 2026 : avec la directive européenne **DAC8**, les plateformes régulées **transmettent automatiquement** tes opérations à l'administration fiscale. Le fisc reçoit désormais les données directement des exchanges. Compter sur l'opacité n'est plus une stratégie — déclarer proprement non plus une option, mais le seul chemin tranquille.
+
+## Mes 3 réflexes
+
+1. **Je trace tout depuis le début** — chaque achat, chaque vente, chaque reward, avec la date et le cours. C'est 10× plus simple en continu qu'a posteriori.
+2. **Je pilote mes ventes sur l'année civile** — surtout les moins-values, qui ne se reportent pas.
+3. **J'estime avant de vendre** — un coup d'œil au [calculateur](/mica) pour savoir ce que je garderai vraiment après impôt, et si le barème est plus intéressant que la flat tax.
+
+La crypto régulée, c'est aussi ça : la même rigueur que pour le reste de ton patrimoine. Pas plus compliqué une fois qu'on a la carte — et tu l'as maintenant.
