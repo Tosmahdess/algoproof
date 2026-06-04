@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     .eq('scope_type', scope)
     .order('entry_date', { ascending: false })
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(20)
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
