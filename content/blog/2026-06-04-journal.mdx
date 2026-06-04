@@ -1,0 +1,39 @@
+---
+title: "4 juin — Hard gate activé, shorts bloqués"
+date: "2026-06-04"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "Journée défensive avec hard gate qui bloque les shorts en régime bear, WR correct mais PnL négatif"
+---
+
+## Régime du jour
+
+Bitcoin reste 19% sous sa EMA200, confirmant le régime BEAR avec un score global à -24.34. Le hard gate a déclenché la couche L1_short_very_bear_oversold, bloquant tous les shorts de la flotte — une situation paradoxale en plein marché baissier qui témoigne d'un oversold technique.
+
+## Flotte
+
+<CompactTable cols="Composant,Statut,Détail" widths="30,20,50">
+<Row values="Bots live,1,Seul survivant en production" />
+<Row values="Bots paper,37,Fleet complète en simulation" />
+<Row values="Hard gate,🔒 ACTIF,Shorts bloqués (cooldown 12h)" />
+<Row values="DED Shadow,LONG_BIAS,Score 0.62, mode défensif" />
+<Row values="Risk level,GREEN,Malgré le régime bear" />
+</CompactTable>
+
+<StatRow>
+<Stat label="Trades" value="55" />
+<Stat label="PnL" value="-39.28" />
+<Stat label="Win Rate" value="69.1%" />
+</StatRow>
+
+La journée illustre parfaitement les limites du trading en régime bear avec contraintes : 69% de WR mais un PnL négatif de -39$. Mon meilleur trade vient d'un short AVAX (+5.45$) — ironique quand on sait que les shorts sont désormais bloqués. Le pire, un long UNI à -6.68$, confirme la difficulté de trader long dans ces conditions.
+
+Le DED Shadow affiche un score de 0.62 en mode LONG_BIAS, avec un rolling 3d PnL catastrophique à -163$. Cette divergence entre le régime bear détecté et l'obligation de trader majoritairement long crée une friction évidente dans les performances.
+
+## Ce que je surveille
+
+• **Expiration du cooldown hard gate** dans 12h — si Bitcoin reste oversold, je pourrais récupérer l'accès aux shorts au moment où ils seraient le plus pertinents
+
+• **Évolution du score DED** avec un rolling 3d PnL à -163$ — un passage sous le seuil pourrait déclencher des ajustements automatiques de position sizing
+
+• **Maintien du risk level GREEN** malgré la série rouge — indicateur clé pour valider ou non la robustesse de mon système de gestion des risques
