@@ -5,22 +5,19 @@ import Nav from '@/components/Nav'
 vi.mock('next/navigation', () => ({ usePathname: () => '/' }))
 
 describe('Nav', () => {
-  it('links to the journal', () => {
+  it('keeps the core links in the top bar', () => {
     render(<Nav />)
-    const links = screen.getAllByRole('link', { name: /journal/i })
-    expect(links.length).toBeGreaterThan(0)
-    expect(links.some(l => l.getAttribute('href') === '/journal')).toBe(true)
+    const hrefs = screen.getAllByRole('link').map(l => l.getAttribute('href'))
+    expect(hrefs).toContain('/overview')
+    expect(hrefs).toContain('/blog')
+    expect(hrefs).toContain('/start')
   })
 
-  it('links to the MiCA page', () => {
+  it('does not expose the secondary pages in the menu (reachable via content/SEO only)', () => {
     render(<Nav />)
-    const links = screen.getAllByRole('link', { name: /en règle/i })
-    expect(links.some(l => l.getAttribute('href') === '/mica')).toBe(true)
-  })
-
-  it('links to the proof landing', () => {
-    render(<Nav />)
-    const links = screen.getAllByRole('link', { name: /la preuve/i })
-    expect(links.some(l => l.getAttribute('href') === '/preuve')).toBe(true)
+    const hrefs = screen.getAllByRole('link').map(l => l.getAttribute('href'))
+    expect(hrefs).not.toContain('/journal')
+    expect(hrefs).not.toContain('/mica')
+    expect(hrefs).not.toContain('/preuve')
   })
 })
