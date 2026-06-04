@@ -33,4 +33,14 @@ describe('JournalClient', () => {
     render(<JournalClient entries={[]} />)
     expect(screen.getByText(/aucun changement/i)).toBeTruthy()
   })
+  it('caps the list at 5 with a déplier button when a flux has more', () => {
+    const entries = Array.from({ length: 7 }, (_, i) => ({
+      id: String(i), created_at: '', scope_type: 'fleet', bot_slug: null, applies_to: 'all',
+      entry_date: '2026-06-0' + ((i % 9) + 1), category: 'fix', summary: 'J-entry-' + i, detail: null, session_ref: null,
+    }))
+    render(<JournalClient entries={entries as never} />)
+    expect(screen.getAllByText(/^J-entry-/).length).toBe(5)
+    fireEvent.click(screen.getByRole('button', { name: /déplier/i }))
+    expect(screen.getAllByText(/^J-entry-/).length).toBe(7)
+  })
 })
