@@ -21,6 +21,7 @@ const ALL_LINKS = [
   { href: '/intelligence',  label: 'Intelligence' },
   { href: '/blog',          label: 'Blog' },
   { href: '/journal',       label: 'Journal' },
+  { href: '/mica',          label: 'En règle' },
   { href: '/start',         label: 'Démarrer' },
 ]
 
@@ -72,6 +73,7 @@ export default function Nav() {
             { href: '/intelligence',    label: 'INTELLIGENCE' },
             { href: '/blog',         label: 'BLOG' },
             { href: '/journal',      label: 'JOURNAL' },
+            { href: '/mica',         label: 'EN RÈGLE' },
           ].map(({ href, label }) => {
             const ext = href.startsWith('http')
             const active = !ext && (path === href || path.startsWith(href + '/'))
