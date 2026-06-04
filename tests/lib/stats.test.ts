@@ -100,3 +100,24 @@ describe('computeBotStats', () => {
     expect(s.latest_capital).toBe(1000)
   })
 })
+
+describe('computeBotStats — empty perf_daily fallback (carry bots without equity curve)', () => {
+  // Root cause of /overview vs /performance P&L mismatch: a bot with trades but no
+  // perf_daily (e.g. funding-rate-harvest) must derive latest_capital from trade pnls,
+  // not fall back to startCapital (which yields P&L = 0).
+  it('falls back to startCapital + sum(pnl) when perf_daily is empty (filter all)', () => {
+    const trades = [
+      makeTrade('a', 'long', 5, '2026-06-01'),
+      makeTrade('b', 'long', 3.79, '2026-06-02'),
+    ]
+    const s = computeBotStats(trades, [], 'all', 400)
+    expect(s.latest_capital).toBeCloseTo(408.79, 2)
+  })
+
+  it('still uses the last perf_daily capital when present', () => {
+    const trades = [makeTrade('a', 'long', 5, '2026-06-01')]
+    const perf: PerfDaily[] = [{ id: 'p1', bot_id: 'bot1', date: '2026-06-01', capital: 1005, pnl_day: 5, win_rate: null, profit_factor: null }]
+    const s = computeBotStats(trades, perf, 'all', 1000)
+    expect(s.latest_capital).toBe(1005)
+  })
+})

@@ -79,7 +79,11 @@ export function computeBotStats(
       if (cur > dd) dd = cur
     }
     max_drawdown = dd
-    latest_capital = capitals[capitals.length - 1] ?? startCapital
+    // When perf_daily is empty (e.g. carry bots synced without an equity curve),
+    // derive capital from trade pnls so P&L isn't silently zeroed. See queries.ts.
+    latest_capital = capitals.length > 0
+      ? capitals[capitals.length - 1]
+      : startCapital + trades.reduce((s, t) => s + t.pnl, 0)
   } else {
     max_drawdown = computeDrawdownFromTrades(trades)
     const netPnl = trades.reduce((s, t) => s + t.pnl, 0)

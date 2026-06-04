@@ -77,7 +77,12 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
       profit_factor,
       max_drawdown,
       total_trades: allTrades.length,
-      latest_capital: capitals[capitals.length - 1] ?? startCapital,
+      // Fall back to start + Σ pnl when a bot has trades but no perf_daily rows
+      // (carry bots like funding-rate-harvest) — otherwise /overview zeroes their P&L
+      // while /performance counts it, causing a fleet-total mismatch.
+      latest_capital: capitals.length > 0
+        ? capitals[capitals.length - 1]
+        : startCapital + allTrades.reduce((s, t) => s + t.pnl, 0),
     },
     perf_daily: allPerf,
     recent_trades: allTrades.slice(0, 20),
