@@ -39,9 +39,10 @@ export default async function Image({ params }: { params: { slug: string } }) {
           justifyContent: 'center',
         }}
       >
-        <span style={{ color: '#ff6b35', fontSize: '64px', fontWeight: 700, fontFamily: 'sans-serif' }}>
-          AlgoProof
-        </span>
+        <div style={{ display: 'flex', fontSize: '64px', fontWeight: 700, fontFamily: 'sans-serif' }}>
+          <span style={{ color: '#f5f5f5' }}>Algo</span>
+          <span style={{ color: '#4ade80' }}>Proof</span>
+        </div>
       </div>,
       { width: 1200, height: 630 }
     )
@@ -122,7 +123,10 @@ export default async function Image({ params }: { params: { slug: string } }) {
           </div>
         ))}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-          <span style={{ color: '#ff6b35', fontSize: '22px', fontWeight: 700 }}>AlgoProof</span>
+          <div style={{ display: 'flex', fontSize: '22px', fontWeight: 700 }}>
+            <span style={{ color: '#f5f5f5' }}>Algo</span>
+            <span style={{ color: '#4ade80' }}>Proof</span>
+          </div>
           <span style={{ color: '#8b949e', fontSize: '14px' }}>algoproof.fr</span>
         </div>
       </div>
