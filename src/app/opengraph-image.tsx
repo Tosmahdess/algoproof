@@ -26,7 +26,7 @@ export default function Image() {
         Trading algo vérifié, chaque trade publié
       </span>
       <span style={{ color: '#8b949e', fontSize: '20px', marginTop: '8px' }}>
-        33 bots · données live · zéro faux screenshot
+        38 bots · données live · zéro faux screenshot
       </span>
     </div>,
     { width: 1200, height: 630 }
