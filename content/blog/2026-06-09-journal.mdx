@@ -1,0 +1,33 @@
+---
+title: "9 juin — Régime bear en cours, DED shadow passe en LONG_BIAS"
+date: "2026-06-09"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "Journée négative avec -5.32 de PnL, mais le DED shadow bascule en mode LONG_BIAS malgré le régime bear général"
+---
+
+## Régime du jour
+
+Bitcoin reste 19% sous son EMA 200, confirmant le régime **BEAR** avec un score global à -31.38. Le hard gate maintient uniquement les longs autorisés, la couche L1_short_very_bear_oversold ayant été déclenchée avec un cooldown de 12h.
+
+## Flotte
+
+<CompactTable cols="Composant,Statut,Détail" widths="25,20,55">
+<Row values="Bots live,2,Enforcement désactivé (v1_spot exclu)" />
+<Row values="Bots paper,36,Test continu des stratégies" />
+<Row values="Risk level,YELLOW,Surveillance renforcée" />
+<Row values="Hard gate,Actif,Longs uniquement, shorts bloqués" />
+<Row values="DED shadow,LONG_BIAS,Score 0.62 - basculement notable" />
+</CompactTable>
+
+## Performance
+
+Journée compliquée avec 6 trades pour un PnL de **-5.32**. WR à 50% avec 3 gagnants sur 6. Le meilleur trade : +0.8 sur BTC-USDT en long. Le pire : -2.68 sur BCH-USDT, également en long. Cette performance s'inscrit dans un rolling 3j à -11.94, alimentant directement les inputs du DED shadow.
+
+Le point notable aujourd'hui : malgré le régime bear général et le score global négatif, le **DED shadow bascule en mode LONG_BIAS** avec un score de 0.62. Cette divergence entre les signaux macro (bear) et le signal DED (long bias) crée une configuration intéressante à surveiller.
+
+## Ce que je surveille
+
+- **Évolution du DED shadow** : ce basculement en LONG_BIAS dans un contexte bear pourrait signaler un retournement à venir ou une simple correction technique
+- **Efficacité du hard gate** : avec les shorts bloqués, je vais analyser si cette restriction améliore réellement les performances dans ce régime
+- **Cooldown de 12h** : fin prévue demain, je surveille si les conditions permettront de réactiver les positions courtes
