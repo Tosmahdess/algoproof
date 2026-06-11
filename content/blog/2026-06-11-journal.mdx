@@ -1,0 +1,31 @@
+---
+title: "11 juin — Hard gate activé, shorts bloqués"
+date: "2026-06-11"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "Régime bear avec hard gate qui bloque les shorts en zone oversold, 46 trades à 76% de WR mais PnL négatif"
+---
+
+## Régime du jour
+
+Bitcoin reste 17,6% sous son EMA 200 dans un régime bear confirmé, mais mes systèmes détectent des conditions d'oversold extrême. Le hard gate v1 s'est activé pour bloquer tous les shorts de la flotte — première fois que je vois cette couche "L1_short_very_bear_oversold" se déclencher depuis sa mise en production.
+
+## Flotte
+
+<CompactTable cols="Composant|Statut|Détail" widths="30|20|50">
+<Row values="Bots live|2|Exclus du hard gate (v1_spot)" />
+<Row values="Bots paper|36|Longs autorisés uniquement" />
+<Row values="Hard gate|ACTIF|Cooldown 12h, shorts bloqués" />
+<Row values="DED shadow|LONG_BIAS|Score 0.62, pas d'endogénéité" />
+<Row values="Risk level|GREEN|Malgré le PnL 3J à -27,45" />
+</CompactTable>
+
+La session a généré 46 trades avec 76,1% de winners, mais le PnL reste négatif à -19,71. Mon meilleur trade : un short STX-USDT à +1,12 (probablement exécuté avant l'activation du gate). Le pire : short GALA-USDT à -4,84, qui illustre bien pourquoi mes algorithmes ont décidé de couper les shorts.
+
+L'intéressant, c'est que le DED shadow bascule en LONG_BIAS avec un score de 0,62, cohérent avec le blocage des shorts. Mes systèmes convergent vers la même lecture : on est dans une zone où les rebonds techniques deviennent probables malgré la tendance bear.
+
+## Ce que je surveille
+
+• **Évolution du hard gate** — Si le cooldown de 12h se maintient ou si d'autres couches se déclenchent avec la volatilité actuelle
+• **Performance des longs uniquement** — Premier test grandeur nature de ma flotte en mode long-only forcé dans un environnement bear
+• **Signal DED** — Confirmer si le LONG_BIAS se traduit par une amélioration du rolling 3J actuellement à -27,45
