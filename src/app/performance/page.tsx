@@ -6,8 +6,8 @@ import { PerformanceClient } from '@/components/PerformanceClient'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Performance — AlgoProof',
-  description: 'P&L journalier de la flotte AlgoProof. Filtrez par direction, famille de stratégie et période.',
+  title: 'Performance des bots — P&L réel, jour par jour',
+  description: 'Le P&L journalier de mes bots de trading, filtrable par direction, famille et période. Gains et pertes réels, rien de lissé.',
 }
 
 interface TradeRow {
