@@ -236,7 +236,7 @@ export default function WealthPage() {
           loading={loading}
         />
         <div className="mt-3 text-right">
-          <Link href="/wealth/analyses" className="text-sm text-accent">Toutes mes analyses →</Link>
+          <Link href="#analyses" className="text-sm text-accent">Toutes mes analyses ↓</Link>
         </div>
       </section>
 
@@ -305,7 +305,7 @@ export default function WealthPage() {
       </section>
 
       {/* GROWTH — analyses par secteur (rendu identique à /wealth/analyses) */}
-      <section>
+      <section id="analyses">
         <h2 className="text-base font-bold tracking-tight mb-2">GROWTH · mes analyses par secteur</h2>
         <p className="text-xs text-muted mb-6 max-w-2xl leading-relaxed">
           Tout mon univers d&apos;investissement, classé par secteur, avec mon verdict par société
