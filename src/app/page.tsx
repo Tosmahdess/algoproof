@@ -9,8 +9,8 @@ import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 export const revalidate = 1800
 
 export const metadata: Metadata = {
-  title: 'AlgoProof — Trading algo vérifié',
-  description: 'On montre chaque trade — gains et pertes. Zéro faux screenshot. Données paper trading réelles mises à jour toutes les heures.',
+  title: 'AlgoProof — Mon labo de trading algorithmique, en public',
+  description: 'Je fais tourner des bots de trading en réel et j\'expose chaque trade — gains et pertes. Résultats vérifiables, mis à jour chaque heure. Labo de recherche transparent, en français.',
 }
 
 const FAMILY_COLOR: Record<string, string> = {
@@ -42,53 +42,59 @@ export default async function HomePage() {
     <div className="max-w-6xl mx-auto px-4 py-20">
 
       {/* Hero */}
-      <div className="text-center mb-20">
+      <div className="text-center mb-16">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-positive/10 border border-positive/20 text-positive text-xs mb-6">
           <span className="w-1.5 h-1.5 rounded-full bg-positive animate-pulse" />
-          Open Lab FR — recherche live, résultats en clair
+          Labo de trading algo transparent, en français
         </div>
         <h1 className="text-5xl font-bold tracking-tight mb-6">
-          La preuve par les chiffres.<br />
-          <span className="text-positive">Chaque trade. Chaque perte.</span>
+          Mon labo de trading<br />
+          <span className="text-positive">algorithmique, en public.</span>
         </h1>
         <p className="text-lg text-muted max-w-2xl mx-auto mb-8">
-          Le premier labo de trading algo 100% transparent, en français. J&apos;expose ma recherche en temps réel —
-          gains, pertes, drawdowns — et la communauté suit, challenge, contribue.
+          Je fais tourner des bots en réel, j&apos;expose chaque trade — gains et pertes — et je te donne les outils pour tester par toi-même.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <Link href="/overview" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
-            VUE D&apos;ENSEMBLE →
+          <a href="https://lab.algoproof.fr" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
+            Ouvrir le labo →
+          </a>
+          <Link href="/overview" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
+            Voir mes bots en direct
           </Link>
-          <Link href="/strategies" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
-            STRATÉGIES
-          </Link>
-          <Link href="/wealth" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
-            PATRIMOINE
-          </Link>
-          <Link href="/intelligence" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
-            INTELLIGENCE
-          </Link>
-          <Link href="/performance" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
-            PERFORMANCE
-          </Link>
-          <Link href="/blog" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
-            BLOG
-          </Link>
+        </div>
+        {/* Live proof strip */}
+        <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-muted border border-border rounded-lg px-5 py-3">
+          <span><strong className="text-white font-mono">{bots.length}</strong> bots en direct</span>
+          <span className="text-border">·</span>
+          <span><strong className="text-white font-mono">{bots.filter(b => b.stats.total_trades > 0).length}</strong> avec des trades réels</span>
+          <span className="text-border">·</span>
+          <span>données mises à jour chaque heure</span>
         </div>
       </div>
 
-      {/* Trust signals */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-20 border-y border-border py-10">
+      {/* Les 4 portes — router by interest, not by skill level */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
         {[
-          { label: 'Zéro faux screenshots', desc: 'Dashboard live mis à jour toutes les heures depuis les données réelles des bots' },
-          { label: 'Chaque perte affichée', desc: 'Drawdowns, mauvaises semaines, périodes plates — rien n\'est caché' },
-          { label: 'Communauté active', desc: 'Posez vos questions directement sur chaque stratégie. La commu challenge les résultats.' },
-        ].map(s => (
-          <div key={s.label} className="text-center">
-            <div className="font-semibold mb-1">{s.label}</div>
-            <div className="text-sm text-muted">{s.desc}</div>
-          </div>
+          { href: '/overview',     emoji: '🤖', title: 'Mes bots',  desc: 'Regarde mes bots trader en vrai, chaque trade horodaté.' },
+          { href: '/wealth',       emoji: '💰', title: 'Investir',  desc: 'Ma watchlist long terme et mes points d\'entrée.' },
+          { href: '/intelligence', emoji: '🌤️', title: 'Le marché', desc: 'La météo du marché, en français, chaque jour.' },
+          { href: '/blog',         emoji: '📚', title: 'Apprendre', desc: 'Débuter, ma méthode, la fiscalité, en règle MiCA.' },
+        ].map(p => (
+          <Link key={p.href} href={p.href} className="bg-card border border-border rounded-xl p-6 hover:border-positive/30 transition-colors group">
+            <div className="text-2xl mb-3">{p.emoji}</div>
+            <h2 className="font-bold mb-1 group-hover:text-positive transition-colors">{p.title}</h2>
+            <p className="text-sm text-muted">{p.desc}</p>
+          </Link>
         ))}
+      </div>
+
+      {/* Manifeste transparence (absorbs /preuve intent) */}
+      <div className="border border-border rounded-xl p-8 mb-16 text-center bg-card/40">
+        <h2 className="text-xl font-bold mb-2">Pourquoi je montre chaque trade perdant</h2>
+        <p className="text-muted text-sm max-w-2xl mx-auto mb-4">
+          Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel — drawdowns, mauvaises semaines et erreurs compris. Alors j&apos;expose tout, sans filtre.
+        </p>
+        <Link href="/preuve" className="text-sm text-positive hover:underline">Lire le manifeste →</Link>
       </div>
 
       {/* Quoi de neuf */}
@@ -199,18 +205,26 @@ export default async function HomePage() {
         </Link>
       </div>
 
-      {/* CTA Blog + Performance */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Link href="/performance" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
-          <h2 className="text-xl font-bold mb-2">Performance</h2>
-          <p className="text-muted text-sm">P&L journalier filtrable — direction, famille, période. Les chiffres bruts, sans filtre.</p>
-          <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir les résultats →</span>
-        </Link>
+      {/* Teaser Apprendre + Performance */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
         <Link href="/blog" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
-          <h2 className="text-xl font-bold mb-2">Blog</h2>
-          <p className="text-muted text-sm">Journal de bord quotidien, revues hebdo, autopsies de stratégies. Tout est documenté.</p>
+          <h2 className="text-xl font-bold mb-2">Apprendre</h2>
+          <p className="text-muted text-sm">Journal de bord, revues hebdo, autopsies de stratégies, fiscalité et MiCA. Tout est documenté.</p>
           <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Lire les articles →</span>
         </Link>
+        <Link href="/performance" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
+          <h2 className="text-xl font-bold mb-2">Performance</h2>
+          <p className="text-muted text-sm">P&amp;L journalier filtrable — direction, famille, période. Les chiffres bruts, sans filtre.</p>
+          <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir les résultats →</span>
+        </Link>
+      </div>
+
+      {/* CTA final — distinct from hero (onboarding, not the lab) */}
+      <div className="text-center">
+        <a href="/start" className="inline-flex items-center gap-2 px-6 py-3 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
+          Commence ici →
+        </a>
+        <p className="text-xs text-muted mt-3">Où trader en règle quand on est en France.</p>
       </div>
 
     </div>
