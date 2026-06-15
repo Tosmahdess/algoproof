@@ -54,6 +54,10 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         </div>
         <h1 className="text-3xl font-bold mb-2">{bot.name}</h1>
         <p className="text-muted">{bot.strategy}</p>
+        <p className="text-xs text-muted mb-4 max-w-2xl">
+          Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
+          La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux en argent réel sont marqués « live ».
+        </p>
       </div>
 
       {/* Exchange alert — Binance Futures bloqué FR */}

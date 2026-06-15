@@ -1,94 +1,47 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getAllBotsWithStats } from '@/lib/queries'
-import { computeFleetProof, type FleetProof } from '@/lib/fleet-proof'
-import ProofStrip from '@/components/ProofStrip'
-import ProofComparison from '@/components/ProofComparison'
-
-export const revalidate = 1800
 
 export const metadata: Metadata = {
-  title: 'Le labo ouvert : je teste, je partage tout | AlgoProof',
-  description:
-    "Un labo de trading algo ouvert. Je teste des stratégies en public et je partage tout, gains comme pertes, sans rien vendre. Track record public, paper d'abord, sans paywall.",
-  openGraph: { url: 'https://algoproof.fr/preuve' },
+  title: 'Ma méthode — pourquoi je montre chaque perte',
+  description: 'Comment je valide une stratégie avant de la déployer : backtest sur 2 ans, 20 trades minimum, walk-forward, et rejet des overfits. La transparence comme méthode, pas comme argument.',
 }
 
-const EMPTY: FleetProof = { nBots: 0, nWithData: 0, totalTrades: 0, losingTrades: 0, fleetPnl: 0, fleetPF: 0 }
-
-const HOW = [
-  ['Dashboard live', "Les chiffres sont régénérés toutes les heures depuis les données réelles des bots sur le VPS. Pas de capture d'écran retouchée."],
-  ['Cartes embeddables', "Chaque bot a une carte publique intégrable ailleurs. N'importe qui peut afficher et vérifier les résultats hors de mon site."],
-  ['Bientôt on-chain', 'Avec la migration vers Hyperliquid, les exécutions deviendront vérifiables directement sur la blockchain.'],
-]
-
-export default async function PreuvePage() {
-  let proof = EMPTY
-  try {
-    proof = computeFleetProof(await getAllBotsWithStats())
-  } catch {
-    /* build-time Supabase error: keep the page, show zeros */
-  }
-
-  const jsonLd = {
-    '@context': 'https://schema.org', '@type': 'WebPage',
-    name: 'Le labo ouvert | AlgoProof', description: metadata.description,
-  }
-
+export default function PreuvePage() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-16 space-y-16">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-
-      {/* Hook */}
-      <div className="text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-          Un labo de trading algo, ouvert.<br />
-          <span className="text-positive">Je teste, je partage tout.</span>
-        </h1>
-        <p className="mt-4 text-muted leading-relaxed max-w-2xl mx-auto">
-          Pas de promesse, pas de faux screenshots, rien à vendre. Je teste des stratégies en public,
-          en paper d&apos;abord, et je montre chaque trade : ce qui marche comme ce qui rate. Tu peux tout vérifier.
+    <main className="max-w-3xl mx-auto px-4 py-12 space-y-12">
+      <header>
+        <h1 className="text-3xl font-bold tracking-tight mb-3">Ma méthode</h1>
+        <p className="text-muted leading-relaxed">
+          Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel. Voici comment je
+          travaille — et pourquoi je montre aussi ce qui échoue.
         </p>
-      </div>
+      </header>
 
-      {/* Transparency strip */}
-      <ProofStrip proof={proof} />
-
-      {/* Comparison */}
       <section>
-        <h2 className="text-lg font-semibold mb-4 text-center">Un labo ouvert vs un shop à signaux</h2>
-        <ProofComparison />
+        <h2 className="text-xl font-bold mb-3">Comment je valide une stratégie</h2>
+        <ul className="space-y-2 text-sm text-muted leading-relaxed list-disc pl-5">
+          <li>Backtest sur <strong>au moins 2 ans</strong> de données et <strong>20 trades minimum</strong> — en dessous, ce n&apos;est pas significatif.</li>
+          <li><strong>Walk-forward</strong> : la stratégie doit tenir sur des périodes qu&apos;elle n&apos;a jamais vues. Sinon, c&apos;est de l&apos;<a href="/lexique#overfit" className="text-accent">overfit</a> — je la rejette.</li>
+          <li>Coûts réalistes (frais, slippage, spread) inclus dès le backtest.</li>
+          <li>Déploiement d&apos;abord en <a href="/lexique#paper-trading" className="text-accent">paper trading</a>, puis en argent réel seulement si ça tient.</li>
+        </ul>
       </section>
 
-      {/* Overfit autopsy */}
       <section>
-        <Link href="/blog/2026-05-22-orb-fvg-walkforward"
-          className="block rounded-2xl border border-border bg-card p-6 hover:border-accent/40 transition-colors">
-          <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Je partage aussi mes échecs</p>
-          <p className="text-lg font-bold text-text">Une stratégie qui semblait gagnante, et que j&apos;ai publiquement jetée.</p>
-          <p className="mt-2 text-sm text-muted">L&apos;autopsie complète d&apos;un setup que j&apos;ai abandonné après l&apos;avoir testé. Partager, c&apos;est aussi montrer ce qu&apos;on refuse de garder. Lire l&apos;article.</p>
-        </Link>
+        <h2 className="text-xl font-bold mb-3">Pourquoi je montre chaque perte</h2>
+        <p className="text-muted leading-relaxed">
+          Montrer uniquement ses gains, c&apos;est facile et ça ne prouve rien. J&apos;expose les drawdowns, les
+          mauvaises semaines et les stratégies abandonnées parce que c&apos;est la seule façon honnête de juger une
+          méthode. La transparence n&apos;est pas un argument marketing : c&apos;est l&apos;outil qui me force à rester
+          rigoureux.
+        </p>
       </section>
 
-      {/* Why you can verify */}
       <section>
-        <h2 className="text-lg font-semibold mb-4">Pourquoi tu peux tout vérifier</h2>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {HOW.map(([title, body]) => (
-            <div key={title} className="rounded-xl border border-border bg-card p-5">
-              <h3 className="text-sm font-semibold text-text mb-1">{title}</h3>
-              <p className="text-sm text-muted leading-relaxed">{body}</p>
-            </div>
-          ))}
-        </div>
+        <p className="text-sm">
+          <Link href="/blog" className="text-accent">Lis mes autopsies de stratégies sur le blog →</Link>
+        </p>
       </section>
-
-      {/* CTA */}
-      <div className="flex flex-wrap gap-3 justify-center">
-        <Link href="/overview" className="rounded-lg bg-positive px-5 py-2.5 text-sm font-semibold text-black hover:opacity-90">Voir le labo en direct</Link>
-        <Link href="/blog" className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-text hover:border-positive hover:text-positive">Lire le journal de bord</Link>
-        <Link href="/start" className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-text hover:border-positive hover:text-positive">Commencer en règle</Link>
-      </div>
     </main>
   )
 }

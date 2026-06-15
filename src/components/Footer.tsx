@@ -17,7 +17,7 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
     title: 'Investir',
     links: [
       { href: '/wealth',          label: 'Ma watchlist' },
-      { href: '/wealth/analyses', label: 'Toutes les analyses' },
+      { href: '/wealth#analyses', label: 'Analyses par secteur' },
     ],
   },
   {
@@ -41,13 +41,22 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
       { href: LAB_URL, label: 'Backtester', external: true },
     ],
   },
+  {
+    title: 'Le projet',
+    links: [
+      { href: '/a-propos', label: 'À propos' },
+      { href: '/labo',     label: 'Découvrir le labo' },
+      { href: '/lexique',  label: 'Lexique' },
+      { href: '/faq',      label: 'FAQ' },
+    ],
+  },
 ]
 
 export default function Footer() {
   return (
     <footer className="border-t border-border mt-24 py-12">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           {SITEMAP.map(col => (
             <div key={col.title}>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">{col.title}</h3>

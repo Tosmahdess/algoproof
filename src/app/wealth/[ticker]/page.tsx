@@ -43,7 +43,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
       />
       <div className="flex gap-4 text-sm">
         <Link href="/wealth" className="text-muted hover:text-foreground transition-colors">← Patrimoine</Link>
-        <Link href="/wealth/analyses" className="text-muted hover:text-foreground transition-colors">Toutes mes analyses</Link>
+        <Link href="/wealth" className="text-muted hover:text-foreground transition-colors">Toutes mes analyses</Link>
       </div>
 
       <div className="flex items-center gap-2 text-xs text-muted mt-6 mb-6">
@@ -89,6 +89,9 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
       <p className="mt-12 text-xs text-muted leading-relaxed">
         Mon analyse du {date}. Le prix de référence ci-dessus est celui du jour de l&apos;analyse (figé) ;
         le cours et sa variation sont en direct. C&apos;est mon opinion, pas un conseil en investissement.
+      </p>
+      <p className="text-xs text-muted/70 mt-8 italic">
+        Mon analyse personnelle, pas un conseil d&apos;achat. Vois ma <a href="/preuve" className="text-accent">méthode</a> et le <a href="/lexique" className="text-accent">lexique</a>.
       </p>
     </div>
   )
