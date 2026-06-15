@@ -23,6 +23,6 @@ export function organizationJsonLd() {
     url: 'https://algoproof.fr',
     description:
       'Labo de trading algorithmique transparent, en français. Chaque trade — gains et pertes — est public.',
-    sameAs: ['https://x.com/algoproof'],
+    sameAs: ['https://x.com/AlgoProof'],
   }
 }
