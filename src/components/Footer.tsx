@@ -17,7 +17,7 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
     title: 'Investir',
     links: [
       { href: '/wealth',          label: 'Ma watchlist' },
-      { href: '/wealth/analyses', label: 'Toutes les analyses' },
+      { href: '/wealth#analyses', label: 'Analyses par secteur' },
     ],
   },
   {

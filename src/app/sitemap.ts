@@ -77,12 +77,6 @@ export default async function sitemap() {
       changeFrequency: 'weekly' as const,
       priority: 0.6,
     })),
-    {
-      url: 'https://algoproof.fr/wealth/analyses',
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    },
     ...ficheUrls,
     ...strategyUrls,
   ]

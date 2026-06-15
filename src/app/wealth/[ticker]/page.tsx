@@ -43,7 +43,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
       />
       <div className="flex gap-4 text-sm">
         <Link href="/wealth" className="text-muted hover:text-foreground transition-colors">← Patrimoine</Link>
-        <Link href="/wealth/analyses" className="text-muted hover:text-foreground transition-colors">Toutes mes analyses</Link>
+        <Link href="/wealth" className="text-muted hover:text-foreground transition-colors">Toutes mes analyses</Link>
       </div>
 
       <div className="flex items-center gap-2 text-xs text-muted mt-6 mb-6">

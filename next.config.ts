@@ -7,6 +7,12 @@ const SUPABASE_URL = 'https://avdegocswrhzdnvsyiui.supabase.co'
 const nextConfig: NextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
 
+  async redirects() {
+    return [
+      { source: '/wealth/analyses', destination: '/wealth', permanent: true },
+    ]
+  },
+
   async headers() {
     return [
       {
