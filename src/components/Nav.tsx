@@ -4,8 +4,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
-const LAB_URL = 'https://lab.algoproof.fr'
-
 // "Mes bots" hub — dropdown over the live-proof sub-pages
 const MES_BOTS_SUB = [
   { href: '/overview',    label: 'Vue d\'ensemble' },
@@ -28,7 +26,7 @@ const MOBILE_LINKS = [
   { href: '/wealth',       label: 'Investir',  external: false },
   { href: '/intelligence', label: 'Le marché', external: false },
   { href: '/blog',         label: 'Apprendre', external: false },
-  { href: LAB_URL,         label: 'Le labo',   external: true  },
+  { href: '/labo',          label: 'Le labo',   external: false },
 ]
 
 export default function Nav() {
@@ -80,9 +78,7 @@ export default function Nav() {
 
           {/* Le labo CTA */}
           <Link
-            href={LAB_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/labo"
             className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black"
           >
             LE LABO →

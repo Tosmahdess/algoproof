@@ -16,6 +16,7 @@ describe('Nav — 4 hubs + Labo CTA', () => {
   it('renders the Labo CTA', () => {
     render(<Nav />)
     expect(screen.getByText(/le labo/i)).toBeDefined()
+    expect(screen.getByRole('link', { name: /le labo/i }).getAttribute('href')).toBe('/labo')
   })
 
   it('drops the old jargon top-level items', () => {
