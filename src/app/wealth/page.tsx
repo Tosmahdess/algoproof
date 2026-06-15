@@ -312,6 +312,9 @@ export default function WealthPage() {
           (renforcer / maintenir / passer). Clique une société pour mon analyse complète.
         </p>
         <AnalysesClient fiches={fichesIndex} />
+        <p className="text-xs text-muted/70 mt-4 italic">
+          Mon journal d&apos;investissement personnel, partagé en transparence. Ce n&apos;est pas un conseil financier.
+        </p>
       </section>
 
     </main>

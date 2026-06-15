@@ -90,6 +90,9 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
         Mon analyse du {date}. Le prix de référence ci-dessus est celui du jour de l&apos;analyse (figé) ;
         le cours et sa variation sont en direct. C&apos;est mon opinion, pas un conseil en investissement.
       </p>
+      <p className="text-xs text-muted/70 mt-8 italic">
+        Mon analyse personnelle, pas un conseil d&apos;achat. Vois ma <a href="/preuve" className="text-accent">méthode</a> et le <a href="/lexique" className="text-accent">lexique</a>.
+      </p>
     </div>
   )
 }

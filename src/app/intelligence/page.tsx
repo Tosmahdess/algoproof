@@ -112,6 +112,9 @@ export default async function IntelligencePage() {
         <p className="text-sm text-muted max-w-2xl mb-6">
           Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège volatilité, sentiment, dérivés et macro en un seul indicateur lisible.
         </p>
+        <p className="text-xs text-muted mb-6 max-w-2xl">
+          Pourquoi ça compte : quand le risque passe à OFF, mes bots se font plus prudents (positions réduites, défense active). La météo du marché n&apos;est pas décorative — elle pilote des décisions. Termes expliqués dans le <a href="/lexique" className="text-accent">lexique</a>.
+        </p>
         <p className="mt-3 text-sm text-muted max-w-2xl leading-relaxed">
           Chaque bot AlgoProof est filtré par une couche d&apos;intelligence de marché en temps réel. Avant chaque trade, le service MI consulte 4 sources de données et décide si le marché est sûr. Sinon, aucun bot ne trade — sans exception.
         </p>
