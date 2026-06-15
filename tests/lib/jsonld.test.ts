@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { faqJsonLd, organizationJsonLd } from '@/lib/jsonld'
+import { faqJsonLd, organizationJsonLd, definedTermSetJsonLd } from '@/lib/jsonld'
 
 describe('faqJsonLd', () => {
   it('builds a FAQPage with mapped questions', () => {
@@ -18,5 +18,16 @@ describe('organizationJsonLd', () => {
     expect(out['@type']).toBe('Organization')
     expect(out.name).toBe('AlgoProof')
     expect(out.url).toBe('https://algoproof.fr')
+  })
+})
+
+describe('definedTermSetJsonLd', () => {
+  it('builds a DefinedTermSet with mapped terms', () => {
+    const out = definedTermSetJsonLd([{ id: 'pf', term: 'Profit factor', definition: 'gains / pertes' }])
+    expect(out['@type']).toBe('DefinedTermSet')
+    expect(out.hasDefinedTerm).toHaveLength(1)
+    expect(out.hasDefinedTerm[0]['@type']).toBe('DefinedTerm')
+    expect(out.hasDefinedTerm[0].name).toBe('Profit factor')
+    expect(out.hasDefinedTerm[0]['@id']).toBe('https://algoproof.fr/lexique#pf')
   })
 })
