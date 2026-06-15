@@ -58,4 +58,25 @@ describe('OverviewClient', () => {
     const tradesBtn = screen.getAllByRole('button').find(b => /^Trades/.test(b.textContent ?? ''))!
     expect(tradesBtn.textContent).toContain('↕')
   })
+
+  it('headline P&L counts only live+promoted; lab shown separately', () => {
+    const bots = [
+      mkBot('live1', 5, 0.5, 1.2, 0.05, 1100, { status: 'live' }),   // +100 → headline
+      mkBot('promo1', 5, 0.5, 1.3, 0.05, 1050, { promoted: true }),  // +50  → headline
+      mkBot('lab1',  5, 0.5, 0.8, 0.10, 800),                        // -200 → lab
+    ]
+    render(<OverviewClient bots={bots} recentTrades={[]} />)
+    expect(screen.getByTestId('headline-pnl')).toHaveTextContent('150')
+    expect(screen.getByTestId('lab-pnl')).toHaveTextContent('200')
+  })
+
+  it('hides zero-trade bots from the headline counters', () => {
+    const bots = [
+      mkBot('live1', 5, 0.5, 1.2, 0.05, 1100, { status: 'live' }),
+      mkBot('liveZero', 0, 0, 0, 0, 1000, { status: 'live' }),       // 0 trade → masqué
+    ]
+    render(<OverviewClient bots={bots} recentTrades={[]} />)
+    // 1 seul bot track record visible (le 0-trade est masqué)
+    expect(screen.getByTestId('headline-count')).toHaveTextContent('1')
+  })
 })
