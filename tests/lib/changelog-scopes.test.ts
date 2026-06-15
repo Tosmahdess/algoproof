@@ -6,7 +6,7 @@ const bot = (o: Partial<Bot> = {}): Bot => ({
   id: '1', slug: 'apex-emacross-hl', name: 'EMA HL', strategy: 'ema',
   status: 'paper', family: 'trend', exchange: 'Hyperliquid', assets: ['BTC'],
   timeframe: 'H4', description: null, created_at: '', last_sync_at: null,
-  start_capital: 1000, ...o,
+  start_capital: 1000, promoted: false, ...o,
 })
 
 const entry = (o: Partial<BotChangelog> = {}): BotChangelog => ({

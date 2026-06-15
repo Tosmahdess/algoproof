@@ -15,7 +15,7 @@ const makeBot = (overrides: Partial<BotWithStats>): BotWithStats => ({
   id: '1', slug: 'test', name: 'Test Bot', strategy: 'EMA', status: 'paper',
   family: 'trend', exchange: 'Binance', assets: [], timeframe: 'H4',
   description: null, created_at: '2026-01-01', last_sync_at: null,
-  start_capital: 1000,
+  start_capital: 1000, promoted: false,
   stats: { win_rate: 0.6, profit_factor: 2.0, max_drawdown: 0.05, total_trades: 10, latest_capital: 1050 },
   perf_daily: [], recent_trades: [], all_trades: [],
   ...overrides,
