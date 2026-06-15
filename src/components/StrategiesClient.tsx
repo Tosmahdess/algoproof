@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { BotWithStats } from '@/lib/types'
 import BotCard from '@/components/BotCard'
+import { botTier, visibleBots } from '@/lib/tiers'
 
 type StatusFilter = 'all' | 'live' | 'paper'
 
@@ -29,17 +30,21 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [familyFilter, setFamilyFilter] = useState<string | null>(null)
 
-  const liveCount = bots.filter(b => b.status === 'live').length
+  // Only bots that have traded are shown publicly (zero-trade bots hidden until 1st trade).
+  const shownBots = visibleBots(bots)
+  const liveCount = shownBots.filter(b => b.status === 'live').length
 
-  const filtered = bots.filter(b => {
+  const filtered = shownBots.filter(b => {
     const statusOk = statusFilter === 'all' || b.status === statusFilter
     const familyOk = familyFilter === null || b.family === familyFilter
     return statusOk && familyOk
   })
 
-  const filteredLive  = filtered.filter(b => b.status === 'live')
-  const filteredPaper = filtered.filter(b => b.status !== 'live')
-  const showLiveSection = statusFilter !== 'paper' && filteredLive.length > 0
+  const filteredLive     = filtered.filter(b => botTier(b) === 'live')
+  const filteredPromoted = filtered.filter(b => botTier(b) === 'promoted')
+  const filteredLab       = filtered.filter(b => botTier(b) === 'lab')
+  const showLiveSection     = statusFilter !== 'paper' && filteredLive.length > 0
+  const showPromotedSection = filteredPromoted.length > 0
   const familiesToShow  = familyFilter ? FAMILIES.filter(f => f.slug === familyFilter) : FAMILIES
 
   const toggleStatus = (s: 'live' | 'paper') =>
@@ -56,7 +61,7 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Stratégies de trading</h1>
         <p className="mt-2 text-sm text-muted">
-          {bots.length} bots
+          {shownBots.length} bots
           {liveCount > 0 && (
             <> · <span className="text-positive font-medium">{liveCount} live</span></>
           )}
@@ -149,9 +154,29 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
         </section>
       )}
 
-      {/* Family sections — paper bots only */}
+      {/* Promu section — validated paper bots, counted in the headline track record */}
+      {showPromotedSection && (
+        <section>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-2 h-2 rounded-full bg-accent" />
+            <h2 className="text-sm font-bold text-accent uppercase tracking-widest">
+              Promu — paper validés
+            </h2>
+          </div>
+          <p className="text-xs text-muted mb-4 max-w-2xl">
+            Des bots paper que j&apos;ai promus après validation. Comptés dans la track record mise en avant.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredPromoted.map(bot => (
+              <BotCard key={bot.slug} bot={bot} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Family sections — Laboratoire (R&D paper bots, hors track record) */}
       {familiesToShow.map(fam => {
-        const famBots = filteredPaper
+        const famBots = filteredLab
           .filter(b => b.family === fam.slug)
           .sort((a, b) =>
             (b.stats.latest_capital - b.start_capital) - (a.stats.latest_capital - a.start_capital)

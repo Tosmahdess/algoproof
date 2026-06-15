@@ -50,6 +50,20 @@ describe('StrategiesClient', () => {
     expect(screen.queryByTestId('bot-keltner')).toBeNull()
   })
 
+  it('groups promoted paper bots into their own tier section', () => {
+    const promoted = makeBot({ id: '9', slug: 'promo-bot', name: 'Promo Bot', status: 'paper', promoted: true, family: 'trend' })
+    render(<StrategiesClient bots={[promoted]} />)
+    expect(screen.getByRole('heading', { name: /Promu — paper validés/i })).toBeDefined()
+    expect(screen.getByTestId('bot-promo-bot')).toBeDefined()
+  })
+
+  it('hides zero-trade bots', () => {
+    const zero = makeBot({ id: '8', slug: 'zero-bot', name: 'Zero', status: 'paper',
+      stats: { win_rate: 0, profit_factor: 0, max_drawdown: 0, total_trades: 0, latest_capital: 1000 } })
+    render(<StrategiesClient bots={[...bots, zero]} />)
+    expect(screen.queryByTestId('bot-zero-bot')).toBeNull()
+  })
+
   it('reset button clears both filters and shows all bots', () => {
     render(<StrategiesClient bots={bots} />)
     // live + cassure = 0 bots → triggers empty state with reset button
