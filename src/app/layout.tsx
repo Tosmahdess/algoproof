@@ -3,10 +3,12 @@ import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { Analytics } from '@vercel/analytics/react'
+import JsonLd from '@/components/JsonLd'
+import { organizationJsonLd } from '@/lib/jsonld'
 
 export const metadata: Metadata = {
   title: { template: '%s | AlgoProof', default: 'AlgoProof' },
-  description: 'Algo trading bots — every trade verified, every loss shown. No fake screenshots.',
+  description: 'Labo de trading algorithmique transparent, en français. Je fais tourner des bots en réel et j\'expose chaque trade — gains et pertes.',
   metadataBase: new URL('https://algoproof.fr'),
   openGraph: {
     siteName: 'AlgoProof',
@@ -24,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" className="bg-bg text-white">
       <body className="min-h-screen flex flex-col">
+        <JsonLd data={organizationJsonLd()} />
         <Nav />
         <main className="flex-1">{children}</main>
         <Footer />

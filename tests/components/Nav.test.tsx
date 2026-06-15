@@ -1,23 +1,27 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
 import Nav from '@/components/Nav'
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/' }))
 
-describe('Nav', () => {
-  it('keeps the core links in the top bar', () => {
+describe('Nav — 4 hubs + Labo CTA', () => {
+  it('renders the 4 hub labels', () => {
     render(<Nav />)
-    const hrefs = screen.getAllByRole('link').map(l => l.getAttribute('href'))
-    expect(hrefs).toContain('/overview')
-    expect(hrefs).toContain('/blog')
-    expect(hrefs).toContain('/start')
+    expect(screen.getByText(/mes bots/i)).toBeDefined()
+    expect(screen.getByText(/investir/i)).toBeDefined()
+    expect(screen.getByText(/le marché/i)).toBeDefined()
+    expect(screen.getByText(/apprendre/i)).toBeDefined()
   })
 
-  it('does not expose the secondary pages in the menu (reachable via content/SEO only)', () => {
+  it('renders the Labo CTA', () => {
     render(<Nav />)
-    const hrefs = screen.getAllByRole('link').map(l => l.getAttribute('href'))
-    expect(hrefs).not.toContain('/journal')
-    expect(hrefs).not.toContain('/mica')
-    expect(hrefs).not.toContain('/preuve')
+    expect(screen.getByText(/le labo/i)).toBeDefined()
+  })
+
+  it('drops the old jargon top-level items', () => {
+    render(<Nav />)
+    expect(screen.queryByText(/patrimoine/i)).toBeNull()
+    expect(screen.queryByText(/^analyses$/i)).toBeNull()
+    expect(screen.queryByText(/^intelligence$/i)).toBeNull()
   })
 })

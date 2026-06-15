@@ -4,31 +4,38 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
-const STRATEGIES_SUB = [
-  { href: '/strategies',                label: 'Toutes les stratégies' },
-  { href: '/strategies#trend',          label: 'Suivi de tendance' },
-  { href: '/strategies#breakout',       label: 'Cassure' },
-  { href: '/strategies#mean-reversion', label: 'Retour à la moyenne' },
-  { href: '/strategies#carry',          label: 'Portage' },
+const LAB_URL = 'https://lab.algoproof.fr'
+
+// "Mes bots" hub — dropdown over the live-proof sub-pages
+const MES_BOTS_SUB = [
+  { href: '/overview',    label: 'Vue d\'ensemble' },
+  { href: '/strategies',  label: 'Les stratégies' },
+  { href: '/performance', label: 'Performance' },
+  { href: '/journal',     label: 'Ce qui a changé' },
+]
+const MES_BOTS_PATHS = MES_BOTS_SUB.map(x => x.href)
+
+// The 3 plain hubs after "Mes bots"
+const HUBS = [
+  { href: '/wealth',       label: 'INVESTIR' },
+  { href: '/intelligence', label: 'LE MARCHÉ' },
+  { href: '/blog',         label: 'APPRENDRE' },
 ]
 
-const ALL_LINKS = [
-  { href: '/overview',      label: 'Vue d\'ensemble' },
-  { href: '/strategies',    label: 'Stratégies' },
-  { href: '/performance',   label: 'Performance' },
-  { href: '/wealth',        label: 'Patrimoine' },
-  { href: '/wealth/analyses', label: 'Analyses' },
-  { href: '/intelligence',  label: 'Intelligence' },
-  { href: '/blog',          label: 'Blog' },
-  { href: '/start',         label: 'Démarrer' },
+// Mobile flat list (one tap each)
+const MOBILE_LINKS = [
+  { href: '/overview',     label: 'Mes bots',  external: false },
+  { href: '/wealth',       label: 'Investir',  external: false },
+  { href: '/intelligence', label: 'Le marché', external: false },
+  { href: '/blog',         label: 'Apprendre', external: false },
+  { href: LAB_URL,         label: 'Le labo',   external: true  },
 ]
 
 export default function Nav() {
   const path = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const strategiesActive = path === '/strategies' || path.startsWith('/strategies/')
-  const overviewActive   = path === '/overview'
+  const mesBotsActive = MES_BOTS_PATHS.some(p => path === p || path.startsWith(p + '/'))
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur">
@@ -41,21 +48,17 @@ export default function Nav() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/overview"
-            className={`text-xs font-semibold tracking-widest transition-colors ${overviewActive ? 'text-text' : 'text-muted hover:text-text'}`}>
-            VUE D&apos;ENSEMBLE
-          </Link>
 
-          {/* STRATÉGIES dropdown */}
+          {/* MES BOTS dropdown */}
           <div className="relative group">
-            <button className={`text-xs font-semibold tracking-widest transition-colors flex items-center gap-1 ${strategiesActive ? 'text-text' : 'text-muted hover:text-text'}`}>
-              STRATÉGIES
+            <button type="button" className={`text-xs font-semibold tracking-widest transition-colors flex items-center gap-1 ${mesBotsActive ? 'text-text' : 'text-muted hover:text-text'}`}>
+              MES BOTS
               <svg className="w-2.5 h-2.5 opacity-50 group-hover:opacity-100" viewBox="0 0 10 6" fill="currentColor">
                 <path d="M0 0l5 6 5-6H0z"/>
               </svg>
             </button>
             <div className="absolute left-0 top-full mt-1 w-52 rounded border border-border bg-bg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
-              {STRATEGIES_SUB.map(({ href, label }) => (
+              {MES_BOTS_SUB.map(({ href, label }) => (
                 <Link key={href} href={href}
                   className={`block px-4 py-2.5 text-xs transition-colors hover:text-positive ${path === href ? 'text-text font-semibold' : 'text-muted'}`}>
                   {label}
@@ -64,33 +67,25 @@ export default function Nav() {
             </div>
           </div>
 
-          {[
-            { href: '/performance',  label: 'PERFORMANCE' },
-            { href: '/wealth',          label: 'PATRIMOINE' },
-            { href: '/wealth/analyses', label: 'ANALYSES' },
-            { href: '/intelligence',    label: 'INTELLIGENCE' },
-            { href: '/blog',         label: 'BLOG' },
-          ].map(({ href, label }) => {
-            const ext = href.startsWith('http')
-            const active = !ext && (path === href || path.startsWith(href + '/'))
+          {/* 3 plain hubs */}
+          {HUBS.map(({ href, label }) => {
+            const active = path === href || path.startsWith(href + '/')
             return (
-              <Link key={href} href={href} target={ext ? '_blank' : undefined}
+              <Link key={href} href={href}
                 className={`text-xs font-semibold tracking-widest transition-colors ${active ? 'text-text' : 'text-muted hover:text-text'}`}>
                 {label}
               </Link>
             )
           })}
 
-          {/* Démarrer CTA */}
+          {/* Le labo CTA */}
           <Link
-            href="/start"
-            className={`text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors ${
-              path === '/start'
-                ? 'border-positive text-positive'
-                : 'border-border text-muted hover:border-positive hover:text-positive'
-            }`}
+            href={LAB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black"
           >
-            DÉMARRER
+            LE LABO →
           </Link>
         </div>
 
@@ -115,10 +110,12 @@ export default function Nav() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden border-t border-border bg-bg">
-          {ALL_LINKS.map(({ href, label }) => {
-            const active = path === href || path.startsWith(href + '/')
+          {MOBILE_LINKS.map(({ href, label, external }) => {
+            const active = !external && (path === href || path.startsWith(href + '/'))
             return (
               <Link key={href} href={href}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
                 onClick={() => setMobileOpen(false)}
                 className={`block px-4 py-3 text-sm border-b border-border/50 transition-colors ${active ? 'text-text font-semibold' : 'text-muted hover:text-text'}`}>
                 {label}
