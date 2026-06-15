@@ -1,14 +1,16 @@
 import type { Metadata } from 'next'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import ExplainerBox from '@/components/ExplainerBox'
+import JsonLd from '@/components/JsonLd'
+import { faqJsonLd } from '@/lib/jsonld'
 import MiRegimeBadge from '@/components/MiRegimeBadge'
 import MiHistoryChart from '@/components/MiHistoryChart'
 import MiPillarsSection from '@/components/MiPillarsSection'
 import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib/queries'
 
 export const metadata: Metadata = {
-  title: 'Intelligence de marché',
-  description: 'La boussole du labo — ce qui guide nos décisions d\'entrée. Sentiment, dérivés, actualités, macro : 4 piliers de décision en temps réel.',
+  title: 'La météo du marché — régime, risque ON/OFF, en français',
+  description: 'Chaque jour, l\'état du marché résumé en clair : risque ON ou OFF. Un régime qui agrège volatilité, sentiment, dérivés et macro en un indicateur lisible.',
   openGraph: { url: 'https://algoproof.fr/intelligence' },
 }
 
@@ -94,6 +96,11 @@ export default async function IntelligencePage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
+      <JsonLd data={faqJsonLd([
+        { question: 'C\'est quoi un régime de marché ?', answer: 'Une lecture d\'ensemble de l\'humeur du marché — calme, tendu ou en stress — calculée à partir de plusieurs signaux agrégés.' },
+        { question: 'À quelle fréquence est-ce mis à jour ?', answer: 'Le rapport macro est régénéré chaque jour, et les signaux live plusieurs fois par heure.' },
+        { question: 'Ça sert à quoi ?', answer: 'À savoir quand le contexte est porteur ou risqué, pour les bots comme pour les décisions d\'investissement.' },
+      ])} />
       {/* Hero */}
       <div>
         <p className="text-xs font-semibold tracking-widest uppercase text-positive mb-2">
@@ -102,6 +109,9 @@ export default async function IntelligencePage() {
         <h1 className="text-2xl font-bold tracking-tight">
           Le gardien qui ne dort jamais.
         </h1>
+        <p className="text-sm text-muted max-w-2xl mb-6">
+          Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège volatilité, sentiment, dérivés et macro en un seul indicateur lisible.
+        </p>
         <p className="mt-3 text-sm text-muted max-w-2xl leading-relaxed">
           Chaque bot AlgoProof est filtré par une couche d&apos;intelligence de marché en temps réel. Avant chaque trade, le service MI consulte 4 sources de données et décide si le marché est sûr. Sinon, aucun bot ne trade — sans exception.
         </p>

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Wealth · Portefeuille DCA',
-  description: 'Mon portefeuille long terme exposé en temps réel : DCA sur ETFs et crypto, alertes dips GROWTH, suivi de mes achats.',
+  title: 'Investir long terme — ma watchlist et mes points d\'entrée',
+  description: 'Ma liste d\'actions et cryptos suivies sur le long terme, avec les prix auxquels je renforce. DCA, drawdown 180 jours, plus hauts historiques.',
   openGraph: { url: 'https://algoproof.fr/wealth' },
 }
 

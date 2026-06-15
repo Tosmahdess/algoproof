@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import JsonLd from '@/components/JsonLd'
+import { faqJsonLd } from '@/lib/jsonld'
 import ExplainerBox from '@/components/ExplainerBox'
 import { ExplainerSignal } from '@/components/ExplainerSignal'
 import { SignalTable } from '@/components/SignalTable'
@@ -202,6 +204,11 @@ export default function WealthPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
+      <JsonLd data={faqJsonLd([
+        { question: 'C\'est quoi le DCA ?', answer: 'Acheter une somme fixe à intervalle régulier, peu importe le prix, pour lisser le point d\'entrée dans le temps.' },
+        { question: 'Comment sont choisis les points d\'entrée ?', answer: 'À partir du repli depuis les plus hauts (drawdown) sur 180 jours et des plus hauts historiques, pour renforcer dans les creux sans attraper un couteau qui tombe.' },
+        { question: 'Est-ce un conseil d\'achat ?', answer: 'Non. C\'est mon journal d\'investissement personnel, partagé en transparence. Ce n\'est pas un conseil financier.' },
+      ])} />
 
       {/* Hero */}
       <div>
@@ -211,6 +218,9 @@ export default function WealthPage() {
         <h1 className="text-2xl font-bold tracking-tight">
           J&apos;investis chaque mois. Je montre chaque achat.
         </h1>
+        <p className="text-sm text-muted max-w-2xl mb-6">
+          Je suis une liste d&apos;actions et de cryptos sur le long terme. Le <strong>DCA</strong> (Dollar Cost Averaging) consiste à acheter régulièrement par petites tranches. Ici, je note à quel prix je renforce chaque position.
+        </p>
         <p className="mt-3 text-sm text-muted max-w-2xl leading-relaxed">
           APEX Wealth est mon système d&apos;accumulation systématique, pas un bot de trading. Chaque mois,
           je déploie un budget fixe sur la crypto, les ETF monde et l&apos;or. Quand le marché baisse,

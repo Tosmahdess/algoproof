@@ -18,6 +18,9 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
   return (
     <div className="max-w-3xl mx-auto px-4 py-16">
       <h1 className="text-3xl font-bold mb-6">Articles</h1>
+      <p className="text-sm text-muted max-w-2xl mb-6">
+        Des articles pour comprendre comment je travaille : débuter, ma méthode de recherche, la fiscalité crypto et la conformité <strong>MiCA</strong> en France.
+      </p>
 
       {/* Category filter pills */}
       <div className="flex flex-wrap gap-2 mb-10">
