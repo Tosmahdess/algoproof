@@ -8,12 +8,12 @@ function fmtDate(d: string) {
 }
 
 export default function ComponentChangelog(
-  { title, entries, href }: { title: string; entries: BotChangelog[]; href: string },
+  { title, entries, href, initialCount = 5 }: { title: string; entries: BotChangelog[]; href: string; initialCount?: number },
 ) {
   const [expanded, setExpanded] = useState(false)
   if (entries.length === 0) return null
-  const visible = expanded ? entries : entries.slice(0, 5)
-  const hidden = entries.length - 5
+  const visible = expanded ? entries : entries.slice(0, initialCount)
+  const hidden = entries.length - initialCount
   return (
     <section className="border border-border rounded-xl p-6 my-8">
       <div className="flex items-baseline justify-between mb-4">
