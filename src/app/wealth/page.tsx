@@ -5,13 +5,11 @@ import Link from 'next/link'
 import JsonLd from '@/components/JsonLd'
 import { faqJsonLd } from '@/lib/jsonld'
 import ExplainerBox from '@/components/ExplainerBox'
-import { ExplainerSignal } from '@/components/ExplainerSignal'
-import { SignalTable } from '@/components/SignalTable'
 import { TopPicks, type FicheLite } from '@/components/TopPicks'
-import type { BotChangelog, GrowthAlert, GrowthAsset, Verdict } from '@/lib/types'
+import type { BotChangelog, GrowthAsset, Verdict } from '@/lib/types'
 import ComponentChangelog from '@/components/ComponentChangelog'
-import SearchInput from '@/components/SearchInput'
-import { matchesQuery } from '@/lib/search'
+import AnalysesClient from '@/components/AnalysesClient'
+import type { FicheIndexRow } from '@/lib/equity'
 
 // Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
 type CoveredFiche = { ticker: string; verdict: Verdict; generated_at: string; price_at_generation: number | null; ticker_yf: string }
@@ -151,22 +149,26 @@ const SIGNAL_COLOR_LEGACY: Record<string, string> = {
 }
 
 export default function WealthPage() {
-  const [growthAlerts, setAlerts]       = useState<GrowthAlert[]>([])
   const [growthUniverse, setUniverse]   = useState<GrowthAsset[]>([])
   const [fiches, setFiches]             = useState<CoveredFiche[]>([])
+  const [fichesIndex, setFichesIndex]   = useState<FicheIndexRow[]>([])
   const [loading, setLoading]           = useState(true)
   const [wealthChanges, setWealthChanges] = useState<BotChangelog[]>([])
-  const [uniQuery, setUniQuery]         = useState('')
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/growth-alerts').then(r => r.json()),
-      fetch('/api/growth-universe').then(r => r.json()),
-    ]).then(([alerts, universe]) => {
-      setAlerts(Array.isArray(alerts) ? alerts : [])
-      setUniverse(Array.isArray(universe) ? universe : [])
-      setLoading(false)
-    })
+    fetch('/api/growth-universe')
+      .then(r => r.json())
+      .then((universe) => {
+        setUniverse(Array.isArray(universe) ? universe : [])
+        setLoading(false)
+      })
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/fiches-index')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list: FicheIndexRow[]) => setFichesIndex(Array.isArray(list) ? list : []))
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -183,24 +185,11 @@ export default function WealthPage() {
       .catch(() => setWealthChanges([]))
   }, [])
 
-  // Derived: verdict lookup (universe table) + fiche-lite map (Top 5: verdict + live price)
-  const verdictByTicker = fiches.reduce((acc, f) => {
-    acc[f.ticker] = f.verdict; return acc
-  }, {} as Record<string, Verdict>)
+  // Derived: fiche-lite map (Top 5: verdict + live price)
   const ficheByTicker = fiches.reduce((acc, f) => {
     acc[f.ticker] = { verdict: f.verdict, price_at_generation: f.price_at_generation, ticker_yf: f.ticker_yf }
     return acc
   }, {} as Record<string, FicheLite>)
-
-  // Derived: last alert date per ticker (for SignalTable "Dernière alerte" column)
-  const lastAlertByTicker = growthAlerts.reduce((acc, alert) => {
-    if (!acc[alert.ticker] || alert.alerted_at > acc[alert.ticker]) {
-      acc[alert.ticker] = alert.alerted_at
-    }
-    return acc
-  }, {} as Record<string, string>)
-
-  const filteredUniverse = growthUniverse.filter(a => matchesQuery([a.ticker, a.asset_name], uniQuery))
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
@@ -228,7 +217,7 @@ export default function WealthPage() {
         </p>
       </div>
 
-      <ComponentChangelog title="Derniers changements" entries={wealthChanges} href="/journal/patrimoine" />
+      <ComponentChangelog title="Derniers changements" entries={wealthChanges} href="/journal/patrimoine" initialCount={1} />
 
       {/* Top 5 du moment — qualité en solde maintenant */}
       <section>
@@ -315,42 +304,14 @@ export default function WealthPage() {
         />
       </section>
 
-      {/* GROWTH — Univers complet */}
+      {/* GROWTH — analyses par secteur (rendu identique à /wealth/analyses) */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold tracking-tight">GROWTH · Univers complet</h2>
-          <span className="text-xs text-muted">
-            {growthUniverse.length} actifs · surveillance 4h
-          </span>
-        </div>
-
-        <p className="text-xs text-muted mb-4 max-w-2xl leading-relaxed">
-          La surveillance live de tout mon univers d&apos;investissement : repli, prochain seuil d&apos;achat et action par actif.
-          Pour ma thèse détaillée société par société, vois <Link href="/wealth/analyses" className="text-accent">mes analyses</Link>.
+        <h2 className="text-base font-bold tracking-tight mb-2">GROWTH · mes analyses par secteur</h2>
+        <p className="text-xs text-muted mb-6 max-w-2xl leading-relaxed">
+          Tout mon univers d&apos;investissement, classé par secteur, avec mon verdict par société
+          (renforcer / maintenir / passer). Clique une société pour mon analyse complète.
         </p>
-        <SearchInput
-          value={uniQuery}
-          onChange={setUniQuery}
-          placeholder="Filtrer par ticker ou société…"
-          resultCount={filteredUniverse.length}
-          totalCount={growthUniverse.length}
-        />
-        <ExplainerSignal />
-
-        {loading ? (
-          <div className="rounded border border-border px-6 py-8 text-center text-xs text-muted">
-            Chargement...
-          </div>
-        ) : growthUniverse.length === 0 ? (
-          <div className="rounded border border-dashed border-border px-6 py-8 text-center text-xs text-muted">
-            Données en cours de synchronisation (cron toutes les 4h)
-          </div>
-        ) : (
-          <SignalTable assets={filteredUniverse} lastAlerts={lastAlertByTicker} verdictByTicker={verdictByTicker} />
-        )}
-        {uniQuery && filteredUniverse.length === 0 && (
-          <p className="text-xs text-muted italic py-4">Aucune société pour « {uniQuery} ».</p>
-        )}
+        <AnalysesClient fiches={fichesIndex} />
       </section>
 
     </main>
