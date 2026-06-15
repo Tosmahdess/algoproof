@@ -13,7 +13,7 @@ const MES_BOTS_SUB = [
   { href: '/performance', label: 'Performance' },
   { href: '/journal',     label: 'Ce qui a changé' },
 ]
-const MES_BOTS_PATHS = ['/overview', '/strategies', '/performance', '/journal']
+const MES_BOTS_PATHS = MES_BOTS_SUB.map(x => x.href)
 
 // The 3 plain hubs after "Mes bots"
 const HUBS = [
@@ -51,7 +51,7 @@ export default function Nav() {
 
           {/* MES BOTS dropdown */}
           <div className="relative group">
-            <button className={`text-xs font-semibold tracking-widest transition-colors flex items-center gap-1 ${mesBotsActive ? 'text-text' : 'text-muted hover:text-text'}`}>
+            <button type="button" className={`text-xs font-semibold tracking-widest transition-colors flex items-center gap-1 ${mesBotsActive ? 'text-text' : 'text-muted hover:text-text'}`}>
               MES BOTS
               <svg className="w-2.5 h-2.5 opacity-50 group-hover:opacity-100" viewBox="0 0 10 6" fill="currentColor">
                 <path d="M0 0l5 6 5-6H0z"/>
@@ -81,6 +81,8 @@ export default function Nav() {
           {/* Le labo CTA */}
           <Link
             href={LAB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black"
           >
             LE LABO →
@@ -113,6 +115,7 @@ export default function Nav() {
             return (
               <Link key={href} href={href}
                 target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
                 onClick={() => setMobileOpen(false)}
                 className={`block px-4 py-3 text-sm border-b border-border/50 transition-colors ${active ? 'text-text font-semibold' : 'text-muted hover:text-text'}`}>
                 {label}

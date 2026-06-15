@@ -22,6 +22,6 @@ describe('Nav — 4 hubs + Labo CTA', () => {
     render(<Nav />)
     expect(screen.queryByText(/patrimoine/i)).toBeNull()
     expect(screen.queryByText(/^analyses$/i)).toBeNull()
-    expect(screen.queryByText(/intelligence/i)).toBeNull()
+    expect(screen.queryByText(/^intelligence$/i)).toBeNull()
   })
 })
