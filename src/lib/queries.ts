@@ -11,7 +11,7 @@ function withStartCapital<T extends { slug: string }>(row: T): T & { start_capit
 export async function getBots(): Promise<Bot[]> {
   const { data, error } = await supabase
     .from('bots')
-    .select('id,slug,name,strategy,status,family,exchange,assets,timeframe,description,created_at,last_sync_at')
+    .select('id,slug,name,strategy,status,family,exchange,assets,timeframe,description,created_at,last_sync_at,promoted')
     .neq('status', 'frozen')
     .order('name')
   if (error) throw new Error(error.message)
@@ -72,6 +72,7 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
   return {
     ...bot,
     start_capital: startCapital,
+    promoted: (bot as { promoted?: boolean }).promoted ?? false,
     stats: {
       win_rate,
       profit_factor,

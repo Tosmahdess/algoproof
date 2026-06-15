@@ -16,6 +16,7 @@ export interface Bot {
   created_at: string
   last_sync_at: string | null
   start_capital: number
+  promoted: boolean
 }
 
 export interface Trade {
