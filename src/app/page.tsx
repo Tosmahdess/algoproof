@@ -5,6 +5,7 @@ import StatusBadge from '@/components/StatusBadge'
 import WhatsNew from '@/components/WhatsNew'
 import { getAllBotsWithStats, getLatestPerScope } from '@/lib/queries'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
+import { visibleBots } from '@/lib/tiers'
 
 export const revalidate = 1800
 
@@ -32,8 +33,11 @@ export default async function HomePage() {
     getAllBotsWithStats(),
     getLatestPerScope(),
   ])
-  // Sort by realized P&L (€), not absolute capital — bots have different start capitals.
-  const sorted = [...bots].sort((a, b) =>
+  // Only bots that have actually traded are shown publicly (zero-trade bots are hidden
+  // until their first trade). Sort by realized P&L (€), not absolute capital — bots have
+  // different start capitals.
+  const shown = visibleBots(bots)
+  const sorted = [...shown].sort((a, b) =>
     (b.stats.latest_capital - b.start_capital) - (a.stats.latest_capital - a.start_capital)
   )
   const preview = sorted.slice(0, 10)
@@ -64,9 +68,9 @@ export default async function HomePage() {
         </div>
         {/* Live proof strip */}
         <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-muted border border-border rounded-lg px-5 py-3">
-          <span><strong className="text-white font-mono">{bots.length}</strong> bots en direct</span>
+          <span><strong className="text-white font-mono">{shown.length}</strong> bots en direct</span>
           <span className="text-border">·</span>
-          <span><strong className="text-white font-mono">{bots.filter(b => b.stats.total_trades > 0).length}</strong> avec des trades réels</span>
+          <span><strong className="text-white font-mono">{shown.length}</strong> avec des trades réels</span>
           <span className="text-border">·</span>
           <span>données mises à jour chaque heure</span>
         </div>
@@ -104,7 +108,7 @@ export default async function HomePage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Stratégies actives</h2>
-          <p className="text-sm text-muted mt-0.5">{bots.length} expériences actives — {bots.filter(b => b.stats.total_trades > 0).length} avec des trades</p>
+          <p className="text-sm text-muted mt-0.5">{shown.length} expériences actives avec des trades</p>
         </div>
         <Link href="/overview" className="text-sm text-muted hover:text-white transition-colors">Voir tout →</Link>
       </div>
@@ -201,7 +205,7 @@ export default async function HomePage() {
 
       <div className="text-center mb-16">
         <Link href="/overview" className="inline-flex items-center gap-2 text-sm text-muted hover:text-white transition-colors border border-border rounded-lg px-4 py-2 hover:border-muted/50">
-          Voir les {bots.length} bots complets →
+          Voir les {shown.length} bots complets →
         </Link>
       </div>
 
