@@ -26,3 +26,17 @@ export function organizationJsonLd() {
     sameAs: ['https://x.com/AlgoProof'],
   }
 }
+
+export function definedTermSetJsonLd(terms: { id: string; term: string; definition: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTermSet',
+    name: 'Lexique du trading algorithmique — AlgoProof',
+    hasDefinedTerm: terms.map((t) => ({
+      '@type': 'DefinedTerm',
+      '@id': `https://algoproof.fr/lexique#${t.id}`,
+      name: t.term,
+      description: t.definition,
+    })),
+  }
+}
