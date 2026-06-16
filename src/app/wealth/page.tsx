@@ -223,7 +223,7 @@ export default function WealthPage() {
       <section>
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-base font-bold tracking-tight">5 à renforcer maintenant</h2>
-          <span className="text-xs text-muted">signal d&apos;achat · thèse intacte</span>
+          <span className="text-xs text-muted">creux d&apos;achat actifs · mis à jour toutes les 4h (= mes alertes Telegram)</span>
         </div>
         <p className="text-xs text-muted mb-5 max-w-2xl leading-relaxed">
           Les 5 sociétés du moment : une thèse que je garde en « renforcer » <em>et</em> un creux d&apos;achat actif.
@@ -310,6 +310,8 @@ export default function WealthPage() {
         <p className="text-xs text-muted mb-6 max-w-2xl leading-relaxed">
           Tout mon univers d&apos;investissement, classé par secteur, avec mon verdict par société
           (renforcer / maintenir / passer). Clique une société pour mon analyse complète.
+          <br />
+          <span className="text-muted/70">Ces verdicts sont révisés une fois par mois (le 1ᵉʳ) — c&apos;est une décision de fond, pas une réaction au prix. Pour les creux d&apos;achat du moment, mis à jour toutes les 4h, vois « 5 à renforcer maintenant » plus haut.</span>
         </p>
         <AnalysesClient fiches={fichesIndex} />
         <p className="text-xs text-muted/70 mt-4 italic">
