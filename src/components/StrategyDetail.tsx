@@ -6,6 +6,7 @@ import MetricsRow from '@/components/MetricsRow'
 import EquityCurve from '@/components/EquityCurve'
 import TradesTable from '@/components/TradesTable'
 import DirectionFilterPills from '@/components/DirectionFilterPills'
+import AlsoLiveBadge from '@/components/AlsoLiveBadge'
 import { computeBotStats, countByDirection, filterTrades, type DirectionFilter } from '@/lib/stats'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
@@ -76,7 +77,10 @@ export default function StrategyDetail({ bot }: Props) {
       {/* Filter + total breakdown */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-widest text-muted mb-1">Trades exposés</p>
+          <div className="flex items-center gap-2 mb-1">
+            <p className="text-xs uppercase tracking-widest text-muted">Trades exposés</p>
+            <AlsoLiveBadge slug={bot.slug} />
+          </div>
           <p className="text-sm font-mono">
             <span className="font-bold">{breakdown.total}</span>
             {breakdown.total > 0 && (

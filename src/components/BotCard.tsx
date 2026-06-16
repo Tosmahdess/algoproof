@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { BotWithStats } from '@/lib/types'
 import StatusBadge from './StatusBadge'
+import AlsoLiveBadge from './AlsoLiveBadge'
 import SyncBadge from './SyncBadge'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
@@ -18,7 +19,10 @@ export default function BotCard({ bot }: { bot: BotWithStats }) {
             <h3 className="font-semibold text-white group-hover:text-positive transition-colors">{bot.name}</h3>
             <p className="text-xs text-muted mt-0.5">{bot.strategy}</p>
           </div>
-          <StatusBadge status={bot.status} />
+          <div className="flex items-center gap-2">
+            <StatusBadge status={bot.status} />
+            <AlsoLiveBadge slug={bot.slug} />
+          </div>
         </div>
 
         <div className="grid grid-cols-4 gap-2 mb-3">
