@@ -1,0 +1,37 @@
+---
+title: "Semaine du 8 juin — Les shorts qui saignent"
+date: "2026-06-14"
+category: "weekly"
+tags: ["weekly", "performance", "MI"]
+summary: "273 trades, -133,76 $ de PnL net : un taux de réussite global flatteur de 68,9 % masque une catastrophe silencieuse côté shorts, qui ont seuls englouti -123,77 $."
+---
+
+## La semaine en chiffres
+
+<StatRow>
+  <Stat label="PnL net" value="-133,76 $" trend="down" />
+  <Stat label="Trades exécutés" value="273" />
+  <Stat label="Win rate global" value="68,9 %" />
+  <Stat label="Win rate shorts" value="35,1 %" trend="down" />
+</StatRow>
+
+## Ce qui s'est passé
+
+La semaine du 8 au 14 juin s'est inscrite dans le rouge dès le lundi, sans jamais trouver de rebond. Le PnL journalier raconte une dégradation progressive : -10,83 $ le lundi, un palier autour de -4 $ les deux jours suivants, puis une accélération brutale jeudi (-32,18 $) et vendredi (-49,97 $) avant un atterrissage légèrement moins violent le week-end. Sept jours consécutifs dans le négatif, sans une seule session positive pour compenser. C'est le signal le plus clair de la semaine : ce n'est pas un accident isolé, c'est un régime de marché qui s'impose.
+
+Le vrai sujet de la semaine, c'est la fracture entre mes deux directions. Les longs s'en sortent presque honorablement : 196 trades, 82,1 % de win rate, -9,98 $ de PnL — des pertes, certes, mais contenues. Les shorts, en revanche, sont catastrophiques. 77 trades à 35,1 % de win rate pour -123,77 $. Autrement dit, les shorts représentent 28 % du volume de trades mais 92 % des pertes. Le pire trade de la semaine, SEI-USDT short, pèse à lui seul -9,27 $. Le meilleur, ICP-USDT short à +4,69 $, montre que la logique n'est pas fondamentalement cassée — mais l'espérance mathématique, elle, l'est clairement sur cette direction en ce moment.
+
+Le contexte macro explique une partie du problème. Mon heartbeat affiche un régime BEAR avec BTC à -13,36 % sous son EMA 200, mais le score global à -19,3 reste en zone GREEN et le hard gate n'a bloqué aucune direction. Le DED shadow est en mode LONG_BIAS avec un score de 0,62 — ce qui suggère que le moteur de décision en shadow reconnaît déjà l'asymétrie. La tension est là : le marché est techniquement baissier sur BTC, mais les altcoins shorts ne suivent pas la logique attendue. Ce type de configuration — bear sur BTC, résistance des alts à la baisse — est l'un des plus difficiles à trader algorithmiquement.
+
+La flotte tourne sur 2 bots live et 36 en paper, soit 38 au total. C'est cette base paper qui absorbe l'essentiel des 273 trades. Le fait que le live enforcement ne soit pas activé (sauf exclusion v1_spot) me protège partiellement, mais l'ampleur des pertes en paper me force à regarder en face la qualité des stratégies short en cours de test.
+
+## Leçon de la semaine
+
+> Un win rate de 68,9 % peut masquer une stratégie qui perd de l'argent. Ce qui compte, c'est la décomposition par direction : ici, les longs gagnent souvent mais peu, les shorts perdent rarement mais massivement. Le ratio gain/perte par direction est l'indicateur que j'aurais dû surveiller en premier.
+
+## Prochaines étapes
+
+- **Avant le 16 juin** : auditer les 77 trades shorts de la semaine — identifier si la perte est concentrée sur quelques assets (SEI, et quels autres ?) ou distribuée sur l'ensemble du portefeuille short.
+- **Avant le 18 juin** : évaluer une restriction temporaire des shorts en paper trading tant que le DED reste en LONG_BIAS et que le score global n'a pas repassé un seuil défini.
+- **Semaine du 15 juin** : surveiller l'évolution du BTC vs EMA200 — si le gap de -13,36 % se réduit vers -8 %, réévaluer si le régime BEAR justifie encore un biais short sur les alts.
+- **En continu** : affiner le hard gate v1 pour intégrer une couche de filtrage par direction basée sur le DED mode — si LONG_BIAS, réduire automatiquement l'exposition short ou élever le seuil de déclenchement.
