@@ -1,0 +1,38 @@
+---
+title: "15 juin — Rouge sur fond BEAR, la flotte encaisse"
+date: "2026-06-15"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "61 trades, -136 $ de PnL net et un régime BEAR confirmé : journée défensive sur fond de BTC à -13 % sous son EMA200."
+---
+
+## Régime du jour
+
+BTC reste sévèrement sous son EMA200, à -13,36 % — ce n'est plus un écart anecdotique, c'est un régime BEAR structurel. Le heartbeat global affiche -19,3 avec un risk level GREEN tout de même, ce qui signifie que les couches de protection n'ont pas encore tiré. Le DED shadow sort en LONG_BIAS (score 0,62) malgré un PnL glissant 3 jours à -130 $ : le modèle voit encore une asymétrie favorable aux longs, mais les données de dérivés à -10,57 tempèrent nettement cet optimisme.
+
+## Flotte
+
+<CompactTable cols="Composant,Statut,Détail" widths="40,20,40">
+  <Row values="Bots live,✅ 2 actifs,Exécution réelle en cours" />
+  <Row values="Bots paper,📄 36 actifs,Surveillance et validation" />
+  <Row values="Hard Gate v1,🟢 OFF,Aucune couche déclenchée" />
+  <Row values="Long autorisé,✅ Oui,Fleet + shadow" />
+  <Row values="Short autorisé,✅ Oui,Fleet + shadow" />
+  <Row values="DED mode,📊 LONG_BIAS,Score 0,62" />
+</CompactTable>
+
+<StatRow>
+  <Stat label="Trades du jour" value="61" />
+  <Stat label="PnL net" value="-136,79 $" />
+  <Stat label="Win rate" value="50,8 %" />
+  <Stat label="Meilleur trade" value="+1,87 $ (SOL long)" />
+  <Stat label="Pire trade" value="-11,80 $ (BCH short)" />
+</StatRow>
+
+La journée illustre un problème de distribution : 31 gagnants pour 30 perdants, soit un win rate quasi parfait à 50 %, mais un ratio gain/perte clairement défavorable. Le BCH short à -11,80 $ écrase à lui seul plusieurs séries gagnantes. C'est ce qu'on appelle un profil "death by a thousand cuts" inversé — peu de gros perdants suffisent à plomber une session autrement correcte.
+
+## Ce que je surveille
+
+- **BCH-USDT short** : cette position m'a coûté -11,80 $ aujourd'hui. Je veux comprendre si c'est un signal de mauvais calibrage du stop ou un cas isolé de spike de volatilité — je scrute le replay d'exécution ce soir.
+- **Activation du Hard Gate** : avec un global score à -19,3 et le BTC qui ne remonte pas, je surveille le seuil de déclenchement. Si le score décroche encore, les couches pourraient s'armer et restreindre les longs.
+- **DED endo** : l'indicateur endogène est inactif aujourd'hui, mais le PnL 3 jours cumulé approche des zones où il peut s'allumer. Un basculement en mode NEUTRAL du DED changerait le biais de sizing — à monitorer de près dans les 24h.
