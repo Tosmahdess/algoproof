@@ -6,8 +6,10 @@ import MetricsRow from '@/components/MetricsRow'
 import EquityCurve from '@/components/EquityCurve'
 import TradesTable from '@/components/TradesTable'
 import DirectionFilterPills from '@/components/DirectionFilterPills'
+import AssetFilterSelect from '@/components/AssetFilterSelect'
 import AlsoLiveBadge from '@/components/AlsoLiveBadge'
 import { computeBotStats, countByDirection, filterTrades, type DirectionFilter } from '@/lib/stats'
+import { assetOptionsFromTrades } from '@/lib/asset'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
 interface Props {
@@ -47,27 +49,30 @@ function reconstructPerfDaily(trades: Trade[], startCapital: number): PerfDaily[
 
 export default function StrategyDetail({ bot }: Props) {
   const [direction, setDirection] = useState<DirectionFilter>('all')
+  const [asset, setAsset] = useState<string>('all')
   const startCapital = bot.start_capital
 
   const breakdown = useMemo(() => countByDirection(bot.all_trades), [bot.all_trades])
+  const assetOptions = useMemo(() => assetOptionsFromTrades(bot.all_trades), [bot.all_trades])
+  const unfiltered = direction === 'all' && asset === 'all'
 
   const stats = useMemo(() => (
-    direction === 'all'
+    unfiltered
       ? bot.stats
-      : computeBotStats(bot.all_trades, bot.perf_daily, direction, startCapital)
-  ), [bot.all_trades, bot.perf_daily, bot.stats, direction, startCapital])
+      : computeBotStats(bot.all_trades, bot.perf_daily, direction, startCapital, asset)
+  ), [bot.all_trades, bot.perf_daily, bot.stats, direction, asset, startCapital, unfiltered])
 
   const equityData = useMemo(() => (
-    direction === 'all'
+    unfiltered
       ? bot.perf_daily
-      : reconstructPerfDaily(filterTrades(bot.all_trades, direction), startCapital)
-  ), [bot.all_trades, bot.perf_daily, direction, startCapital])
+      : reconstructPerfDaily(filterTrades(bot.all_trades, direction, asset), startCapital)
+  ), [bot.all_trades, bot.perf_daily, direction, asset, startCapital, unfiltered])
 
   const tradesShown = useMemo(() => (
-    direction === 'all'
+    unfiltered
       ? bot.recent_trades
-      : filterTrades(bot.all_trades, direction).slice(0, 20)
-  ), [bot.all_trades, bot.recent_trades, direction])
+      : filterTrades(bot.all_trades, direction, asset).slice(0, 20)
+  ), [bot.all_trades, bot.recent_trades, direction, asset, unfiltered])
 
   const pct = pnlPct(stats.latest_capital, startCapital)
   const eur = pnlEur(stats.latest_capital, startCapital)
@@ -90,12 +95,15 @@ export default function StrategyDetail({ bot }: Props) {
             )}
           </p>
         </div>
-        <DirectionFilterPills
-          value={direction}
-          onChange={setDirection}
-          longCount={breakdown.long}
-          shortCount={breakdown.short}
-        />
+        <div className="flex flex-wrap items-end gap-4">
+          <AssetFilterSelect options={assetOptions} value={asset} onChange={setAsset} />
+          <DirectionFilterPills
+            value={direction}
+            onChange={setDirection}
+            longCount={breakdown.long}
+            shortCount={breakdown.short}
+          />
+        </div>
       </div>
 
       {/* Key metrics — recomputed when filter changes */}
@@ -108,9 +116,12 @@ export default function StrategyDetail({ bot }: Props) {
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold">
             Courbe d&apos;équité
-            {direction !== 'all' && (
+            {!unfiltered && (
               <span className="text-xs text-muted font-normal ml-2">
-                — reconstruite sur {direction === 'long' ? 'longs' : 'shorts'} uniquement
+                — reconstruite sur {[
+                  asset !== 'all' ? asset : null,
+                  direction === 'long' ? 'longs' : direction === 'short' ? 'shorts' : null,
+                ].filter(Boolean).join(' · ')} uniquement
               </span>
             )}
           </h2>
@@ -124,7 +135,7 @@ export default function StrategyDetail({ bot }: Props) {
         {equityData.length > 0 ? (
           <EquityCurve data={equityData} startCapital={startCapital} />
         ) : (
-          <p className="text-muted text-sm text-center py-12">Aucun trade {direction === 'long' ? 'long' : 'short'} à afficher.</p>
+          <p className="text-muted text-sm text-center py-12">Aucun trade à afficher pour ce filtre.</p>
         )}
         {bot.status === 'paper' && (
           <p className="text-xs text-muted/60 mt-3 text-center">
@@ -139,7 +150,10 @@ export default function StrategyDetail({ bot }: Props) {
           Trades récents
           <span className="text-muted text-sm font-normal ml-2">
             ({tradesShown.length} affiché{tradesShown.length > 1 ? 's' : ''}
-            {direction !== 'all' && ` — ${direction === 'long' ? 'longs' : 'shorts'} uniquement`})
+            {!unfiltered && ` — ${[
+              asset !== 'all' ? asset : null,
+              direction === 'long' ? 'longs' : direction === 'short' ? 'shorts' : null,
+            ].filter(Boolean).join(' · ')} uniquement`})
           </span>
         </h2>
         <TradesTable trades={tradesShown} />
