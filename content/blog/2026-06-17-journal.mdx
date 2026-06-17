@@ -1,0 +1,37 @@
+---
+title: "17 juin — BTC sous l'EMA200, le hard gate laisse passer"
+date: "2026-06-17"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "45 trades, 80 % de winrate mais une grosse perte sur BTC-USDC plombe la journée à -13,85 $."
+---
+
+## Régime du jour
+
+BTC traîne à -15,82 % sous son EMA200 : le trend regime est clairement **BEAR**, mais le market bias reste à **BOTH** — le DED sort en `LONG_BIAS` avec un score de 0,62, ce qui est paradoxal au premier regard. Le global score heartbeat est à -23,06, risk level **GREEN** malgré tout. Le hard gate v1 est actif mais n'a bloqué aucune couche : longs et shorts restent autorisés côté live comme côté shadow. En clair, le système accepte de jouer dans les deux sens même avec un Bitcoin en sous-sol.
+
+## Flotte
+
+<CompactTable cols="Composant,Statut,Détail" widths="35,20,45">
+  <Row values="Bots live,✅ 2 actifs,Hard gate non enforced (spot exclu)" />
+  <Row values="Bots paper / shadow,⚙️ 36 actifs,Shadow gate ouvert long + short" />
+  <Row values="Hard Gate v1,🟢 Open,Aucune layer fired" />
+  <Row values="DED Shadow,🟡 LONG_BIAS,Score 0,62 — endo inactif" />
+  <Row values="Trend Regime,🔴 BEAR,BTC -15,82 % vs EMA200" />
+</CompactTable>
+
+<StatRow>
+  <Stat label="Trades" value="45" />
+  <Stat label="PnL net" value="-13,85 $" />
+  <Stat label="Winrate" value="80,0 %" />
+  <Stat label="Meilleur trade" value="+2,05 $ TIA long" />
+  <Stat label="Pire trade" value="-10,51 $ BTC long" />
+</StatRow>
+
+La journée illustre un problème classique : 36 trades gagnants sur 45, mais un seul trade — BTC-USDC long — efface presque tout. Ce n'est pas un problème de winrate, c'est un problème de distribution des pertes. Le sizing ou le stop sur ce BTC-USDC mérite un audit rapide.
+
+## Ce que je surveille
+
+- **La perte BTC-USDC** : je vais relire le log de ce trade — entrée, stop placé, raison du déclenchement. Si le stop a glissé ou n'était pas cohérent avec la volatilité du moment, c'est un ajustement de paramètre à remonter en priorité.
+- **Le DED en LONG_BIAS sous régime BEAR** : le rolling 3d PnL est à -141 $, le derivatives score à -13,52. Le fait que le DED sorte bullish malgré ces inputs m'interpelle — je veux vérifier la logique de pondération avant que ça se confirme sur plusieurs jours.
+- **Le passage éventuel en hard gate enforced** : si BTC continue de s'enfoncer sous l'EMA200, le score global va se dégrader. Je surveille le seuil de déclenchement des layers — un cooldown de 12h pourrait changer le comportement de la flotte live dès demain matin.
