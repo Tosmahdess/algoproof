@@ -15,6 +15,7 @@ interface TradeRow {
   side: string
   closed_at: string
   bot_id: string
+  asset: string
 }
 
 interface BotRow {
@@ -31,7 +32,7 @@ async function getData() {
     paginateAll<TradeRow>(async (from, to) => {
       const { data } = await supabaseServer
         .from('trades')
-        .select('pnl,side,closed_at,bot_id')
+        .select('pnl,side,closed_at,bot_id,asset')
         .not('closed_at', 'is', null)
         .order('closed_at', { ascending: false })
         .range(from, to)
