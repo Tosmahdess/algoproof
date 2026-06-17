@@ -1,12 +1,15 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import AssetFilterSelect from '@/components/AssetFilterSelect'
+import { assetOptionsFromTrades, toBaseAsset } from '@/lib/asset'
 
 interface TradeRow {
   pnl: number
   side: string
   closed_at: string
   bot_id: string
+  asset: string
 }
 
 type Direction = 'all' | 'long' | 'short'
@@ -70,6 +73,8 @@ export function PerformanceClient({
 }) {
   const [direction, setDirection] = useState<Direction>('all')
   const [family, setFamily] = useState<Family>('all')
+  const [asset, setAsset] = useState<string>('all')
+  const assetOptions = useMemo(() => assetOptionsFromTrades(trades), [trades])
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [selectedBots, setSelectedBots] = useState<Set<string>>(new Set())
@@ -111,6 +116,9 @@ export function PerformanceClient({
     }
     if (family !== 'all') {
       filtered = filtered.filter(t => botFamilyMap[t.bot_id] === family)
+    }
+    if (asset !== 'all') {
+      filtered = filtered.filter(t => toBaseAsset(t.asset) === asset)
     }
     if (selectedBots.size > 0) {
       filtered = filtered.filter(t => selectedBots.has(t.bot_id))
@@ -169,7 +177,7 @@ export function PerformanceClient({
       totalWr: tTrades > 0 ? Math.round((tWinners / tTrades) * 1000) / 10 : 0,
       totalPf: fmtPf(tPnlWin, tPnlLoss),
     }
-  }, [trades, botFamilyMap, direction, family, dateFrom, dateTo, selectedBots])
+  }, [trades, botFamilyMap, direction, family, asset, dateFrom, dateTo, selectedBots])
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -180,6 +188,7 @@ export function PerformanceClient({
       <div className="flex flex-wrap gap-6 mb-4">
         <FilterGroup label="Direction" options={DIRECTION_OPTIONS} value={direction} onChange={v => setDirection(v as Direction)} />
         <FilterGroup label="Famille" options={FAMILY_OPTIONS} value={family} onChange={v => setFamily(v as Family)} />
+        <AssetFilterSelect options={assetOptions} value={asset} onChange={setAsset} />
       </div>
 
       {/* Filters row 2: date range */}

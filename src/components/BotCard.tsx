@@ -1,12 +1,12 @@
 import Link from 'next/link'
-import { BotWithStats } from '@/lib/types'
+import { BotWithStats, BotStats } from '@/lib/types'
 import StatusBadge from './StatusBadge'
 import AlsoLiveBadge from './AlsoLiveBadge'
 import SyncBadge from './SyncBadge'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
-export default function BotCard({ bot }: { bot: BotWithStats }) {
-  const { stats } = bot
+export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; statsOverride?: BotStats }) {
+  const stats   = statsOverride ?? bot.stats
   const pct     = pnlPct(stats.latest_capital, bot.start_capital)
   const eur     = pnlEur(stats.latest_capital, bot.start_capital)
   const hasData = stats.total_trades > 0
