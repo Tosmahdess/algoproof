@@ -1,8 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import type { BotWithStats } from '@/lib/types'
+import { useMemo, useState } from 'react'
+import type { BotWithStats, BotStats } from '@/lib/types'
 import BotCard from '@/components/BotCard'
+import AssetFilterSelect from '@/components/AssetFilterSelect'
+import { assetOptionsFromTrades } from '@/lib/asset'
+import { computeBotStats } from '@/lib/stats'
 
 type StatusFilter = 'all' | 'live' | 'paper'
 
@@ -28,13 +31,32 @@ const FAMILIES = [
 export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [familyFilter, setFamilyFilter] = useState<string | null>(null)
+  const [asset, setAsset] = useState<string>('all')
 
   const liveCount = bots.filter(b => b.status === 'live').length
+
+  const assetOptions = useMemo(
+    () => assetOptionsFromTrades(bots.flatMap(b => b.all_trades)),
+    [bots],
+  )
+  // Per-bot stats recomputed for the selected asset (null = lifetime stats).
+  const assetStats = useMemo<Record<string, BotStats> | null>(() => {
+    if (asset === 'all') return null
+    const map: Record<string, BotStats> = {}
+    for (const b of bots) {
+      map[b.slug] = computeBotStats(b.all_trades, b.perf_daily, 'all', b.start_capital, asset)
+    }
+    return map
+  }, [bots, asset])
+
+  const overrideFor = (slug: string): BotStats | undefined => assetStats?.[slug]
+  const effStats = (b: BotWithStats): BotStats => overrideFor(b.slug) ?? b.stats
 
   const filtered = bots.filter(b => {
     const statusOk = statusFilter === 'all' || b.status === statusFilter
     const familyOk = familyFilter === null || b.family === familyFilter
-    return statusOk && familyOk
+    const assetOk  = asset === 'all' || effStats(b).total_trades > 0
+    return statusOk && familyOk && assetOk
   })
 
   const filteredLive  = filtered.filter(b => b.status === 'live')
@@ -48,7 +70,7 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
   const toggleFamily = (slug: string) =>
     setFamilyFilter(prev => prev === slug ? null : slug)
 
-  const resetFilters = () => { setStatusFilter('all'); setFamilyFilter(null) }
+  const resetFilters = () => { setStatusFilter('all'); setFamilyFilter(null); setAsset('all') }
 
   return (
     <div className="space-y-12">
@@ -114,6 +136,9 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
             {fam.label}
           </button>
         ))}
+
+        <div className="w-px h-4 bg-border" />
+        <AssetFilterSelect options={assetOptions} value={asset} onChange={setAsset} label="Actif" />
       </div>
 
       {/* Empty state */}
@@ -142,7 +167,7 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
                 className="rounded-xl"
                 style={{ boxShadow: '0 0 0 1px rgba(63,185,80,0.35)', background: 'rgba(63,185,80,0.025)' }}
               >
-                <BotCard bot={bot} />
+                <BotCard bot={bot} statsOverride={overrideFor(bot.slug)} />
               </div>
             ))}
           </div>
@@ -154,7 +179,7 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
         const famBots = filteredPaper
           .filter(b => b.family === fam.slug)
           .sort((a, b) =>
-            (b.stats.latest_capital - b.start_capital) - (a.stats.latest_capital - a.start_capital)
+            (effStats(b).latest_capital - b.start_capital) - (effStats(a).latest_capital - a.start_capital)
           )
 
         if (familyFilter !== null && famBots.length === 0) return null
@@ -178,7 +203,7 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {famBots.map(bot => (
-                  <BotCard key={bot.slug} bot={bot} />
+                  <BotCard key={bot.slug} bot={bot} statsOverride={overrideFor(bot.slug)} />
                 ))}
               </div>
             )}
