@@ -7,8 +7,10 @@ import StatusBadge from '@/components/StatusBadge'
 import MiBanner from '@/components/MiBanner'
 import GlobalEquityCurve from '@/components/GlobalEquityCurve'
 import DirectionFilterPills from '@/components/DirectionFilterPills'
+import AssetFilterSelect from '@/components/AssetFilterSelect'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 import { computeBotStats, countByDirection, type DirectionFilter } from '@/lib/stats'
+import { assetOptionsFromTrades, toBaseAsset } from '@/lib/asset'
 
 type SortCol = 'trades' | 'win_rate' | 'profit_factor' | 'max_drawdown' | 'pnl'
 type SortDir = 'asc' | 'desc'
@@ -70,6 +72,11 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
   const [sortCol, setSortCol] = useState<SortCol>('pnl')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [direction, setDirection] = useState<DirectionFilter>('all')
+  const [asset, setAsset] = useState<string>('all')
+  const assetOptions = useMemo(
+    () => assetOptionsFromTrades(bots.flatMap(b => b.all_trades)),
+    [bots],
+  )
 
   const handleSort = (col: SortCol) => {
     if (col === sortCol) {
@@ -84,11 +91,16 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
   // Breakdown (long/short counts) is always derived from the full trade list.
   const views: BotView[] = useMemo(() => bots.map(b => ({
     ...b,
-    stats: direction === 'all'
+    stats: direction === 'all' && asset === 'all'
       ? b.stats
-      : computeBotStats(b.all_trades, b.perf_daily, direction, b.start_capital),
+      : computeBotStats(b.all_trades, b.perf_daily, direction, b.start_capital, asset),
     breakdown: countByDirection(b.all_trades),
-  })), [bots, direction])
+  })), [bots, direction, asset])
+
+  // When an asset is selected, hide bots that never traded it.
+  const visibleViews = asset === 'all'
+    ? views
+    : views.filter(b => b.stats.total_trades > 0)
 
   // Global pill counts: total long/short trades across the fleet.
   const fleetCounts = useMemo(() => {
@@ -101,29 +113,33 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
     return { long, short }
   }, [bots])
 
-  const sorted = [...views].sort((a, b) => {
+  const sorted = [...visibleViews].sort((a, b) => {
     const va = getValue(a, sortCol)
     const vb = getValue(b, sortCol)
     return sortDir === 'asc' ? va - vb : vb - va
   })
 
   const today        = new Date().toISOString().slice(0, 10)
-  const botsWithData = views.filter(b => b.stats.total_trades > 0)
+  const botsWithData = visibleViews.filter(b => b.stats.total_trades > 0)
   const winners      = botsWithData.filter(b => b.stats.latest_capital > b.start_capital).length
-  const todayPnl     = direction === 'all'
+  const todayPnl     = direction === 'all' && asset === 'all'
     ? bots.reduce((s, b) => {
         const row = b.perf_daily.find(p => p.date === today)
         return s + (row?.pnl_day ?? 0)
       }, 0)
     : bots.reduce((s, b) =>
         s + b.all_trades
-              .filter(t => t.side === direction && t.closed_at.slice(0, 10) === today)
+              .filter(t =>
+                (direction === 'all' || t.side === direction) &&
+                (asset === 'all' || toBaseAsset(t.asset) === asset) &&
+                t.closed_at.slice(0, 10) === today)
               .reduce((acc, t) => acc + t.pnl, 0),
       0)
-  const allTimePnl   = views.reduce((s, b) => s + (b.stats.latest_capital - b.start_capital), 0)
-  const filteredRecentTrades = direction === 'all'
-    ? recentTrades
-    : recentTrades.filter(t => t.side === direction)
+  const allTimePnl   = visibleViews.reduce((s, b) => s + (b.stats.latest_capital - b.start_capital), 0)
+  const filteredRecentTrades = recentTrades.filter(t =>
+    (direction === 'all' || t.side === direction) &&
+    (asset === 'all' || toBaseAsset(t.asset) === asset),
+  )
 
   const curveBots = [...botsWithData]
     .sort((a, b) => b.stats.total_trades - a.stats.total_trades)
@@ -142,15 +158,18 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
         <MiBanner />
       </section>
 
-      {/* Direction filter */}
+      {/* Direction + asset filter */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted">Filtrer par direction</h2>
-        <DirectionFilterPills
-          value={direction}
-          onChange={setDirection}
-          longCount={fleetCounts.long}
-          shortCount={fleetCounts.short}
-        />
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted">Filtrer</h2>
+        <div className="flex flex-wrap items-end gap-4">
+          <AssetFilterSelect options={assetOptions} value={asset} onChange={setAsset} />
+          <DirectionFilterPills
+            value={direction}
+            onChange={setDirection}
+            longCount={fleetCounts.long}
+            shortCount={fleetCounts.short}
+          />
+        </div>
       </div>
 
       {/* Summary counters */}
