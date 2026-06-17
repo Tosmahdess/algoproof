@@ -4,6 +4,7 @@
 // (when the user toggles long/short filter).
 
 import type { BotStats, PerfDaily, Trade, TradeSide } from './types'
+import { toBaseAsset, type AssetFilter } from './asset'
 
 export type DirectionFilter = 'all' | 'long' | 'short'
 
@@ -13,9 +14,14 @@ export interface DirectionBreakdown {
   short: number
 }
 
-export function filterTrades(trades: Trade[], filter: DirectionFilter): Trade[] {
-  if (filter === 'all') return trades
-  return trades.filter(t => t.side === filter)
+export function filterTrades(
+  trades: Trade[],
+  filter: DirectionFilter,
+  asset: AssetFilter = 'all',
+): Trade[] {
+  let out = filter === 'all' ? trades : trades.filter(t => t.side === filter)
+  if (asset !== 'all') out = out.filter(t => toBaseAsset(t.asset) === asset)
+  return out
 }
 
 export function countByDirection(trades: Trade[]): DirectionBreakdown {
@@ -57,8 +63,9 @@ export function computeBotStats(
   perfDaily: PerfDaily[],
   filter: DirectionFilter,
   startCapital = 1000,
+  asset: AssetFilter = 'all',
 ): BotStats {
-  const trades = filterTrades(allTrades, filter)
+  const trades = filterTrades(allTrades, filter, asset)
   const wins = trades.filter(t => t.pnl > 0).length
   const win_rate = trades.length > 0 ? wins / trades.length : 0
 
@@ -69,7 +76,11 @@ export function computeBotStats(
   let max_drawdown: number
   let latest_capital: number
 
-  if (filter === 'all') {
+  // The global perf_daily curve is only a valid baseline when NO filter is active.
+  // Any direction OR asset filter means we must reconstruct from the filtered trades.
+  const isFiltered = filter !== 'all' || asset !== 'all'
+
+  if (!isFiltered) {
     const capitals = perfDaily.map(p => p.capital)
     let peak = capitals[0] ?? 0
     let dd = 0

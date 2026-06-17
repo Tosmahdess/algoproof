@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { computeBotStats, countByDirection, filterTrades } from '@/lib/stats'
+import { toBaseAsset } from '@/lib/asset'
 import type { PerfDaily, Trade } from '@/lib/types'
+
+const makeAssetTrade = (id: string, asset: string, pnl: number): Trade => ({
+  id, bot_id: 'bot1', opened_at: '2026-05-01T08:00:00Z', closed_at: '2026-05-01T12:00:00Z',
+  asset, side: 'long', pnl, reason: null, is_paper: true,
+})
 
 const makeTrade = (id: string, side: 'long' | 'short', pnl: number, day: string): Trade => ({
   id,
@@ -98,6 +104,49 @@ describe('computeBotStats', () => {
     expect(s.profit_factor).toBe(0)
     expect(s.max_drawdown).toBe(0)
     expect(s.latest_capital).toBe(1000)
+  })
+})
+
+describe('filterTrades — asset', () => {
+  const mixed: Trade[] = [
+    makeAssetTrade('a', 'BTC-USDT', 10),
+    makeAssetTrade('b', 'BTC/USDT', 5),
+    { ...makeAssetTrade('c', 'ETH-USDT', -3), side: 'short' },
+    makeAssetTrade('d', 'SOL-USDC', 7),
+  ]
+  it('defaults to all (back-compat)', () => {
+    expect(filterTrades(mixed, 'all')).toHaveLength(4)
+  })
+  it('filters by base symbol, merging quote variants', () => {
+    const btc = filterTrades(mixed, 'all', 'BTC')
+    expect(btc.map(t => t.id)).toEqual(['a', 'b'])
+    expect(btc.every(t => toBaseAsset(t.asset) === 'BTC')).toBe(true)
+  })
+  it('composes direction and asset', () => {
+    const shortsEth = filterTrades(mixed, 'short', 'ETH')
+    expect(shortsEth.map(t => t.id)).toEqual(['c'])
+  })
+})
+
+describe('computeBotStats — asset', () => {
+  const mixed: Trade[] = [
+    makeAssetTrade('a', 'BTC-USDT', 10),
+    makeAssetTrade('b', 'BTC-USDT', -4),
+    makeAssetTrade('c', 'ETH-USDT', 100),   // must be excluded when asset=BTC
+  ]
+  it('recomputes from trades (ignores global perf_daily) when asset set', () => {
+    const s = computeBotStats(mixed, [], 'all', 1000, 'BTC')
+    expect(s.total_trades).toBe(2)
+    // PF = 10 / 4 = 2.5 ; latest = 1000 + 10 - 4 = 1006
+    expect(s.profit_factor).toBeCloseTo(2.5)
+    expect(s.latest_capital).toBe(1006)
+  })
+  it('asset=all keeps existing perf_daily behaviour', () => {
+    const perf: PerfDaily[] = [
+      { id: '1', bot_id: 'bot1', date: '2026-05-01', capital: 1106, pnl_day: 106, win_rate: null, profit_factor: null },
+    ]
+    const s = computeBotStats(mixed, perf, 'all', 1000, 'all')
+    expect(s.latest_capital).toBe(1106)
   })
 })
 
