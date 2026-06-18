@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
-import { getAllBotsWithStats, getLatestPerScope } from '@/lib/queries'
+import { getAllBotsWithStats } from '@/lib/queries'
 import { supabaseServer } from '@/lib/supabase-server'
 import OverviewClient from '@/components/OverviewClient'
-import WhatsNew from '@/components/WhatsNew'
 import type { TradeWithBot } from '@/lib/types'
 import JsonLd from '@/components/JsonLd'
 import { faqJsonLd } from '@/lib/jsonld'
@@ -24,10 +23,9 @@ async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
 }
 
 export default async function OverviewPage() {
-  const [bots, recentTrades, latestPerScope] = await Promise.all([
+  const [bots, recentTrades] = await Promise.all([
     getAllBotsWithStats(),
     getRecentTrades(20),
-    getLatestPerScope(),
   ])
 
   return (
@@ -55,7 +53,6 @@ export default async function OverviewPage() {
           <p className="opacity-60">ISR 1h</p>
         </div>
       </div>
-      <WhatsNew latest={latestPerScope} />
       <OverviewClient bots={bots} recentTrades={recentTrades} />
     </div>
   )
