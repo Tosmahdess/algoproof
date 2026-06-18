@@ -61,7 +61,7 @@ function SortBtn({
       className="inline-flex items-center gap-0.5 hover:text-foreground transition-colors"
     >
       {children}
-      <span className={`text-[9px] ml-0.5 ${isActive ? 'text-[#ff6b35]' : 'text-muted/40'}`}>
+      <span className={`text-xs ml-0.5 ${isActive ? 'text-[#ff6b35]' : 'text-muted/40'}`}>
         {isActive ? (dir === 'asc' ? '↑' : '↓') : '↕'}
       </span>
     </button>
@@ -182,7 +182,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
           { label: 'P&L all-time',       value: fmtEur(allTimePnl),  color: allTimePnl  >= 0 ? '#3fb950' : '#ff4444' },
         ].map(s => (
           <div key={s.label} className="rounded border border-border p-4 text-center">
-            <p className="text-[10px] text-muted uppercase tracking-widest mb-1">{s.label}</p>
+            <p className="text-xs text-muted uppercase tracking-widest mb-1">{s.label}</p>
             <p className="text-xl font-bold font-mono" style={s.color ? { color: s.color } : {}}>
               {s.value}
             </p>
@@ -212,12 +212,12 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                     <span className="flex-shrink-0"><StatusBadge status={bot.status} /></span>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                    <span className="text-[10px] font-semibold uppercase"
+                    <span className="text-xs font-semibold uppercase"
                       style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
                       {FAMILY_LABEL[bot.family ?? ''] ?? '—'}
                     </span>
                     {hasData && (
-                      <span className={`text-[10px] ${isLowSample(bot.stats.total_trades) ? 'text-yellow-400/90' : 'text-muted'}`}>
+                      <span className={`text-xs ${isLowSample(bot.stats.total_trades) ? 'text-yellow-400/90' : 'text-muted'}`}>
                         {bot.stats.total_trades} trades
                         {isLowSample(bot.stats.total_trades) && <span className="ml-1">⚠ faible</span>}
                         {direction === 'all' && bot.breakdown.total > 0 && (
@@ -233,7 +233,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                   {hasData ? (
                     <>
                       <p className={`text-sm font-bold font-mono ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</p>
-                      <p className={`text-[10px] font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pct)}</p>
+                      <p className={`text-xs font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pct)}</p>
                     </>
                   ) : <span className="text-xs text-muted">—</span>}
                 </div>
@@ -246,7 +246,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
         <div className="hidden md:block rounded border border-border overflow-hidden">
           <table className="w-full text-xs">
             <thead className="bg-card">
-              <tr className="text-muted text-[10px] uppercase tracking-widest border-b border-border">
+              <tr className="text-muted text-xs uppercase tracking-widest border-b border-border">
                 <th className="px-4 py-3 text-left">Stratégie</th>
                 <th className="px-4 py-3 text-left">Famille</th>
                 <th className="px-4 py-3 text-left hidden lg:table-cell">Exchange</th>
@@ -277,10 +277,10 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                       <Link href={`/strategies/${bot.slug}`} className="font-medium hover:text-positive transition-colors">
                         {bot.name}
                       </Link>
-                      <p className="text-muted text-[10px] mt-0.5">{bot.timeframe}</p>
+                      <p className="text-muted text-xs mt-0.5">{bot.timeframe}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-[10px] font-semibold uppercase tracking-wide"
+                      <span className="text-xs font-semibold uppercase tracking-wide"
                         style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
                         {FAMILY_LABEL[bot.family ?? ''] ?? bot.family ?? '—'}
                       </span>
@@ -294,7 +294,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                             {bot.stats.total_trades}{isLowSample(bot.stats.total_trades) && ' ⚠'}
                           </span>
                           {direction === 'all' && bot.breakdown.total > 0 && (
-                            <span className="block text-[10px] text-muted">
+                            <span className="block text-xs text-muted">
                               {bot.breakdown.long}L · {bot.breakdown.short}S
                             </span>
                           )}
@@ -316,7 +316,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                           <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
                             {fmtEur(pnlEur(bot.stats.latest_capital, bot.start_capital))}
                           </span>
-                          <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
+                          <span className={`block text-xs font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>
                             {fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}
                           </span>
                         </div>
@@ -342,7 +342,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
         <section>
           <div className="flex items-baseline gap-3 mb-4">
             <h2 className="text-xs font-semibold tracking-widest uppercase text-muted">Courbes d&apos;équité — 30 jours</h2>
-            <span className="text-[10px] text-muted">{curveBots.length} bots les plus actifs</span>
+            <span className="text-xs text-muted">{curveBots.length} bots les plus actifs</span>
           </div>
           <div className="rounded border border-border p-4 bg-card">
             <GlobalEquityCurve bots={curveBots} days={30} />
@@ -358,7 +358,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
         <div className="rounded border border-border overflow-x-auto">
           <table className="w-full text-xs min-w-[480px]">
             <thead className="bg-card border-b border-border">
-              <tr className="text-muted text-[10px] uppercase tracking-widest">
+              <tr className="text-muted text-xs uppercase tracking-widest">
                 <th className="px-4 py-2 text-left">Date</th>
                 <th className="px-4 py-2 text-left">Bot</th>
                 <th className="px-4 py-2 text-left hidden sm:table-cell">Actif</th>
@@ -382,7 +382,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                   </td>
                   <td className="px-4 py-2 font-mono hidden sm:table-cell">{t.asset}</td>
                   <td className="px-4 py-2 text-center">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                    <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${
                       t.side === 'long' ? 'bg-positive/10 text-positive' : 'bg-negative/10 text-negative'
                     }`}>
                       {t.side?.toUpperCase()}

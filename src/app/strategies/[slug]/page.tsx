@@ -97,7 +97,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
       {/* Partager */}
       <div className="bg-card border border-border rounded-xl p-6">
-        <h2 className="font-semibold text-sm mb-4">🔗 Partager ce bot</h2>
+        <h2 className="font-semibold mb-4">🔗 Partager ce bot</h2>
         <div className="space-y-3">
           <div>
             <p className="text-xs text-muted mb-1.5">Intégrer (iframe)</p>
