@@ -33,14 +33,14 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
             { label: 'Trades',    value: hasData ? String(stats.total_trades) : '—' },
           ].map(m => (
             <div key={m.label} className="bg-bg rounded-lg p-2 text-center">
-              <div className="text-[10px] text-muted">{m.label}</div>
+              <div className="text-xs text-muted">{m.label}</div>
               <div className="font-mono font-semibold text-sm mt-0.5">{m.value}</div>
             </div>
           ))}
         </div>
 
         {hasData && isLowSample(stats.total_trades) && (
-          <p className="text-[10px] text-yellow-400/90 mb-3 -mt-1">
+          <p className="text-xs text-yellow-400/90 mb-3 -mt-1">
             ⚠ Échantillon faible (&lt;20 trades) — métriques peu fiables
           </p>
         )}
@@ -52,12 +52,12 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
               <span className={`font-mono font-bold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
                 {fmtEur(eur)}
               </span>
-              <span className={`font-mono text-[10px] ml-1 ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+              <span className={`font-mono text-xs ml-1 ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
                 ({fmtPct(pct)})
               </span>
             </div>
           ) : (
-            <span className="text-muted text-[10px]">Pas encore de trades</span>
+            <span className="text-muted text-xs">Pas encore de trades</span>
           )}
         </div>
         <div className="mt-2 pt-2 border-t border-border/40">
