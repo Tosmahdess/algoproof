@@ -3,7 +3,7 @@ import { BotWithStats, BotStats } from '@/lib/types'
 import StatusBadge from './StatusBadge'
 import AlsoLiveBadge from './AlsoLiveBadge'
 import SyncBadge from './SyncBadge'
-import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample } from '@/lib/display'
 
 export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; statsOverride?: BotStats }) {
   const stats   = statsOverride ?? bot.stats
@@ -38,6 +38,12 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
             </div>
           ))}
         </div>
+
+        {hasData && isLowSample(stats.total_trades) && (
+          <p className="text-[10px] text-yellow-400/90 mb-3 -mt-1">
+            ⚠ Échantillon faible (&lt;20 trades) — métriques peu fiables
+          </p>
+        )}
 
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted">{bot.exchange} · {bot.timeframe}</span>

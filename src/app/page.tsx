@@ -4,7 +4,7 @@ import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import WhatsNew from '@/components/WhatsNew'
 import { getAllBotsWithStats, getLatestPerScope } from '@/lib/queries'
-import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample } from '@/lib/display'
 
 export const revalidate = 1800
 
@@ -170,7 +170,12 @@ export default async function HomePage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
-                    {hasData ? bot.stats.total_trades : <span className="text-muted">—</span>}
+                    {hasData ? (
+                      <span className={isLowSample(bot.stats.total_trades) ? 'text-yellow-400/90' : ''}
+                        title={isLowSample(bot.stats.total_trades) ? 'Échantillon faible (<20 trades) — métriques peu fiables' : undefined}>
+                        {bot.stats.total_trades}{isLowSample(bot.stats.total_trades) && ' ⚠'}
+                      </span>
+                    ) : <span className="text-muted">—</span>}
                   </td>
                   <td className="px-4 py-3 text-right font-mono hidden lg:table-cell">
                     {hasData ? `${(bot.stats.win_rate * 100).toFixed(1)}%` : <span className="text-muted">—</span>}

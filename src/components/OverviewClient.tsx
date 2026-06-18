@@ -8,7 +8,7 @@ import MiBanner from '@/components/MiBanner'
 import GlobalEquityCurve from '@/components/GlobalEquityCurve'
 import DirectionFilterPills from '@/components/DirectionFilterPills'
 import AssetFilterSelect from '@/components/AssetFilterSelect'
-import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample } from '@/lib/display'
 import { computeBotStats, countByDirection, type DirectionFilter } from '@/lib/stats'
 import { assetOptionsFromTrades, toBaseAsset } from '@/lib/asset'
 
@@ -217,8 +217,9 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                       {FAMILY_LABEL[bot.family ?? ''] ?? '—'}
                     </span>
                     {hasData && (
-                      <span className="text-[10px] text-muted">
+                      <span className={`text-[10px] ${isLowSample(bot.stats.total_trades) ? 'text-yellow-400/90' : 'text-muted'}`}>
                         {bot.stats.total_trades} trades
+                        {isLowSample(bot.stats.total_trades) && <span className="ml-1">⚠ faible</span>}
                         {direction === 'all' && bot.breakdown.total > 0 && (
                           <span className="ml-1 opacity-70">
                             ({bot.breakdown.long}L · {bot.breakdown.short}S)
@@ -288,7 +289,10 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                     <td className="px-4 py-3 text-right font-mono">
                       {hasData ? (
                         <>
-                          {bot.stats.total_trades}
+                          <span className={isLowSample(bot.stats.total_trades) ? 'text-yellow-400/90' : ''}
+                            title={isLowSample(bot.stats.total_trades) ? 'Échantillon faible (<20 trades) — métriques peu fiables' : undefined}>
+                            {bot.stats.total_trades}{isLowSample(bot.stats.total_trades) && ' ⚠'}
+                          </span>
                           {direction === 'all' && bot.breakdown.total > 0 && (
                             <span className="block text-[10px] text-muted">
                               {bot.breakdown.long}L · {bot.breakdown.short}S

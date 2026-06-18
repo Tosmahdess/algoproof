@@ -1,4 +1,5 @@
 import { BotStats } from '@/lib/types'
+import { isLowSample } from '@/lib/display'
 
 interface Metric { label: string; value: string; positive?: boolean }
 
@@ -15,11 +16,18 @@ function MetricCell({ label, value, positive }: Metric) {
 
 export default function MetricsRow({ stats }: { stats: BotStats }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-card rounded-lg border border-border">
-      <MetricCell label="Taux de gain"      value={`${(stats.win_rate * 100).toFixed(1)}%`} />
-      <MetricCell label="Facteur de profit" value={stats.profit_factor.toFixed(2)} positive={stats.profit_factor > 1} />
-      <MetricCell label="Drawdown max"      value={`${(stats.max_drawdown * 100).toFixed(1)}%`} positive={false} />
-      <MetricCell label="Trades"            value={String(stats.total_trades)} />
+    <div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-card rounded-lg border border-border">
+        <MetricCell label="Taux de gain"      value={`${(stats.win_rate * 100).toFixed(1)}%`} />
+        <MetricCell label="Facteur de profit" value={stats.profit_factor.toFixed(2)} positive={stats.profit_factor > 1} />
+        <MetricCell label="Drawdown max"      value={`${(stats.max_drawdown * 100).toFixed(1)}%`} positive={false} />
+        <MetricCell label="Trades"            value={String(stats.total_trades)} />
+      </div>
+      {isLowSample(stats.total_trades) && (
+        <p className="text-xs text-yellow-400/90 mt-2">
+          ⚠ Échantillon faible ({stats.total_trades} trades, &lt;20) — taux de gain et facteur de profit encore peu fiables.
+        </p>
+      )}
     </div>
   )
 }

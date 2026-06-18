@@ -3,6 +3,14 @@
 
 export const DEFAULT_PAPER_CAPITAL = 1000
 
+// Below this trade count, PF / win-rate / return are not statistically meaningful
+// and must be flagged so visitors don't read a 1-6 trade bot as a real edge.
+export const LOW_SAMPLE_TRADES = 20
+
+export function isLowSample(totalTrades: number): boolean {
+  return totalTrades > 0 && totalTrades < LOW_SAMPLE_TRADES
+}
+
 export function pnlEur(latestCapital: number, startCapital: number = DEFAULT_PAPER_CAPITAL): number {
   return latestCapital - startCapital
 }
