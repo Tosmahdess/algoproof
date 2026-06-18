@@ -207,8 +207,11 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                 className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
                 <span className="text-xs text-muted font-mono w-6 flex-shrink-0">#{i + 1}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{bot.name}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-medium truncate">{bot.name}</p>
+                    <span className="flex-shrink-0"><StatusBadge status={bot.status} /></span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 mt-0.5">
                     <span className="text-[10px] font-semibold uppercase"
                       style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
                       {FAMILY_LABEL[bot.family ?? ''] ?? '—'}
