@@ -1,0 +1,37 @@
+---
+title: "18 juin — PnL négatif en régime BEAR, la flotte tient"
+date: "2026-06-18"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "Journée rouge à -21$ malgré un win rate correct : BTC sous son EMA200 de près de 17%, le régime BEAR pèse sur les longs."
+---
+
+## Régime du jour
+
+BTC affiche -16,64% sous son EMA200 — on est clairement en territoire baissier structurel, et le trend regime confirme BEAR. Malgré ça, le hard gate reste vert des deux côtés (BOTH) : la flotte accepte longs et shorts, aucune couche de protection n'a sauté. Le DED shadow est en mode LONG_BIAS avec un score de 0,62, ce qui tranche un peu avec la réalité du jour : les longs ont souffert, les shorts ont performé.
+
+## Flotte
+
+<CompactTable cols="Composant|Statut|Détail" widths="40|20|40">
+  <Row values="Bots live|🟢 2 actifs|Exécution réelle en cours" />
+  <Row values="Bots paper|🔵 36 actifs|Shadow trading nominal" />
+  <Row values="Hard Gate v1|🟢 GREEN|Longs & shorts autorisés, 0 layer déclenché" />
+  <Row values="DED Shadow|🟡 LONG_BIAS|Score 0,62 — biais long malgré régime BEAR" />
+  <Row values="Trend Regime|🔴 BEAR|BTC -16,64% vs EMA200" />
+</CompactTable>
+
+<StatRow>
+  <Stat label="Trades" value="48" />
+  <Stat label="PnL net" value="-21,14 $" />
+  <Stat label="Win Rate" value="62,5 %" />
+  <Stat label="Meilleur" value="STX-USDC short +23,30 $" />
+  <Stat label="Pire" value="LINK-USDC long -10,29 $" />
+</StatRow>
+
+La journée résume bien la tension du moment : 62,5% de trades gagnants pour finir dans le rouge. Ce sont les losers qui mordent plus fort que les winners ne compensent — un problème de ratio gain/perte, pas de fréquence. Le short STX a sauvé les meubles, le long LINK a rappelé pourquoi un régime BEAR demande de la discipline côté exposition.
+
+## Ce que je surveille
+
+- **La divergence DED vs trend regime** : le DED reste en LONG_BIAS alors que BEAR est confirmé. Si les 3 prochains jours consolident le PnL rolling négatif (-27,27$ sur 3 jours), je m'attends à un basculement du mode DED — je surveille le seuil de bascule.
+- **LINK-USDC** : le pire trade du jour est un long en régime BEAR, exactement ce qu'on cherche à filtrer. Je veux vérifier si le bot concerné passe correctement par le gate ou s'il y a un angle mort dans la logique per-bot.
+- **BTC vs EMA200** : à -16,64%, on est loin d'un retour en zone neutre. Tout rebond technique qui ramènerait BTC dans les -10% changerait l'état du régime — et donc potentiellement le comportement du hard gate shadow.
