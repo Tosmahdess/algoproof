@@ -41,7 +41,7 @@ export default async function OverviewPage() {
           <p className="text-sm text-muted max-w-2xl mb-6">
             Chaque bot ci-dessous trade en conditions réelles. Le <strong>profit factor</strong> (PF) divise les gains par les pertes : au-dessus de 1, la stratégie gagne. Tout est horodaté, rien n&apos;est retiré.
           </p>
-          <p className="text-xs text-muted mb-6 max-w-2xl">
+          <p className="text-sm text-muted mb-6 max-w-2xl">
             Comment lire : le <a href="/lexique#profit-factor" className="text-accent">profit factor</a> mesure les gains divisés par les pertes, le <a href="/lexique#win-rate" className="text-accent">win rate</a> le % de trades gagnants, le <a href="/lexique#drawdown" className="text-accent">drawdown</a> la pire baisse. Plus de définitions dans le <a href="/lexique" className="text-accent">lexique</a>.
           </p>
           <p className="text-sm text-muted mt-1">
