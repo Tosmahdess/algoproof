@@ -17,7 +17,8 @@ interface Props {
 export default function AssetFilterSelect({ options, value, onChange, label = 'Actif' }: Props) {
   if (options.length <= 1) return null
   return (
-    <div>
+    // Hidden on mobile to declutter (direction pills + per-strategy asset list suffice on phones).
+    <div className="hidden sm:block">
       <div className="text-[10px] uppercase tracking-[0.15em] text-muted font-semibold mb-1.5">{label}</div>
       <select
         value={value}
