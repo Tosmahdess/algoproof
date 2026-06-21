@@ -1,0 +1,41 @@
+---
+title: "21 juin — Bear regime, DED en LONG_BIAS"
+date: "2026-06-21"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "Journée négative malgré un win rate à 84% : le pire trade APT-USDC efface tout le reste en régime BEAR."
+---
+
+## Régime du jour
+
+BTC traîne à -16,32 % sous son EMA200 — on est clairement en territoire BEAR, et le global score MI plonge à -17,98. Fait notable : malgré ce contexte, le DED shadow ressort en **LONG_BIAS** (score 0,62), ce qui signale une divergence entre le régime tendanciel et le positionnement dérivé à court terme. Le hard gate reste vert des deux côtés, aucun cooldown déclenché.
+
+## Flotte
+
+<CompactTable cols="Composant,Valeur" widths="60,40">
+  <Row values="Bots live,2" />
+  <Row values="Bots paper,36" />
+  <Row values="Total flotte,38" />
+  <Row values="Trades du jour,56" />
+  <Row values="Win rate,83,9 %" />
+  <Row values="PnL net,-27,62 $" />
+  <Row values="Meilleur trade (BNB-USDT short),+3,15 $" />
+  <Row values="Pire trade (APT-USDC short),-10,50 $" />
+  <Row values="Trend regime,BEAR" />
+  <Row values="Risk level,GREEN" />
+  <Row values="DED mode,LONG_BIAS" />
+</CompactTable>
+
+<StatRow>
+  <Stat label="PnL jour" value="-27,62 $" />
+  <Stat label="Win rate" value="83,9 %" />
+  <Stat label="Global score MI" value="-17,98" />
+</StatRow>
+
+Le chiffre qui pique aujourd'hui : 83,9 % de win rate sur 56 trades, et pourtant le PnL est rouge. C'est le signe classique d'une distribution asymétrique côté pertes — un seul trade APT-USDC short à -10,50 $ concentre l'essentiel du dommage. Le BNB short à +3,15 $ est mon meilleur, mais il ne compense même pas un tiers du pire. Je note que le rolling 3d PnL s'établit à -27,67 $, donc la dégradation est récente et concentrée sur cette fenêtre.
+
+## Ce que je surveille
+
+- **APT-USDC** : je veux comprendre pourquoi ce short a décroché à -10,50 $. Overextension du stop, liquidité fine, ou signal d'entrée dégradé en BEAR ? Je vais reprendre le replay tick par tick avant d'autoriser ce pair en live.
+- **DED LONG_BIAS vs BEAR regime** : la tension entre ces deux signaux me rend prudent. Si le DED bascule en NEUTRAL ou SHORT_BIAS dans les prochaines 24h, ça confirmera que le régime MI reprend la main — je surveillerai le derivatives_score qui est déjà à -10,88.
+- **Hard gate cooldown** : aucune couche n'a été déclenchée aujourd'hui, mais avec un global score à -17,98, je reste à un event BTC près d'une activation. Je vérifie le gate toutes les 4h ce soir.
