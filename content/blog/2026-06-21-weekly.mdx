@@ -1,0 +1,50 @@
+---
+title: "Semaine du 15 juin — Les shorts qui saignent"
+date: "2026-06-21"
+category: "weekly"
+tags: ["weekly", "performance", "MI"]
+summary: "410 trades, 73,9 % de win rate global, et pourtant -207 $ au compteur. L'asymétrie short/long a tout avalé cette semaine."
+---
+
+<StatRow>
+  <Stat label="Trades exécutés" value="410" />
+  <Stat label="PnL net" value="-207,14 $" trend="down" />
+  <Stat label="Win rate global" value="73,9 %" />
+  <Stat label="Win rate shorts" value="23,3 %" trend="down" />
+</StatRow>
+
+## La semaine en chiffres
+
+<DataCardGroup>
+  <DataCard title="Meilleur trade" value="+23,30 $" description="STX-USDC — short" />
+  <DataCard title="Pire trade" value="-13,21 $" description="BTC-USDC — short" />
+  <DataCard title="Journée la pire" value="-111,20 $" description="Lundi 15 juin" />
+  <DataCard title="Fleet active" value="2 live / 36 paper" description="38 bots au total" />
+</DataCardGroup>
+
+## Ce qui s'est passé
+
+La semaine commence par un uppercut : -111,20 $ le lundi seul. C'est presque 54 % du drawdown hebdomadaire concentré sur une seule session. Le reste de la semaine ne récupère jamais vraiment — deux jours positifs (+4,15 $ mardi, +11,74 $ jeudi), mais insuffisants pour compenser les saignements des autres séances. Le vendredi (-39,80 $) et le samedi (-27,08 $) enfoncent définitivement la semaine dans le rouge.
+
+Le chiffre qui me dérange le plus, c'est l'écart entre le win rate long et le win rate short : 84,9 % vs 23,3 %. Les longs, malgré 337 trades et un win rate presque irréprochable, finissent à -45,07 $. Des petits perdants récurrents qui s'accumulent discrètement. Mais ce sont les shorts qui ont vraiment torpillé la semaine : 73 trades pour -162,07 $, avec à peine 17 trades gagnants sur 73. STX-USDC a sauvé l'honneur côté short avec +23,30 $, mais BTC-USDC a été une plaie dans les deux sens, cumulant la pire position long (-10,51 $) et le pire trade short (-13,21 $) de la semaine.
+
+Le contexte marché explique une partie du problème. Le Heartbeat affiche un régime **BEAR** confirmé, BTC évolue 14,85 % sous sa EMA200. Malgré ça, le `market_bias` est positionné à **BOTH**, ce qui signifie que j'ai laissé les shorts s'exécuter librement — et le marché les a punis. Le DED shadow tourne en `LONG_BIAS` avec un score de 0,62, ce qui rétrospectivement aurait dû alerter : le signal interne penchait déjà vers une prudence accrue sur les shorts, mais le hard gate v1 n'a pas déclenché de restriction. Aucun layer n'a tiré, aucun cooldown appliqué en live.
+
+La bonne nouvelle : le risk level reste **GREEN** et les deux bots live continuent de tourner sans incident systémique. Les 36 bots en paper accumulent des données propres sur ce régime baissier. La flotte shadow tire des enseignements utiles, même si ça coûte sur le papier.
+
+<CompactTable headers={["Direction", "Trades", "Win Rate", "PnL"]}>
+  <Row values={["Long", "337", "84,9 %", "-45,07 $"]} />
+  <Row values={["Short", "73", "23,3 %", "-162,07 $"]} />
+  <Row values={["Total", "410", "73,9 %", "-207,14 $"]} />
+</CompactTable>
+
+## Leçon de la semaine
+
+> Un win rate à 73,9 % ne veut rien dire si les perdants sont directionnellement concentrés. Cette semaine, les shorts ont représenté 17,8 % des trades et 78,2 % des pertes. L'asymétrie taille/fréquence des losers est le vrai risque à surveiller — pas le win rate global.
+
+## Prochaines étapes
+
+- **Avant le 24 juin** — Analyser la distribution des pertes short par asset et par heure d'exécution : identifier si BTC-USDC short doit être temporairement blacklisté en régime BEAR.
+- **Avant le 24 juin** — Revoir le seuil de déclenchement du DED en mode `LONG_BIAS` : si le score dépasse 0,5, envisager une restriction automatique des shorts même sans activation du hard gate.
+- **Semaine du 22 juin** — Monitorer l'évolution du `btc_vs_ema200_pct` : un retour au-dessus de -10 % changerait le régime et pourrait réhabiliter les shorts.
+- **Fin juin** — Préparer un bilan mensuel dédié à l'analyse de la v1 du hard gate : la non-activation cette semaine mérite une revue approfondie des conditions de déclenchement.
