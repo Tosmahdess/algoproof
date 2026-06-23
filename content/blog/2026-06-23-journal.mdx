@@ -1,0 +1,40 @@
+---
+title: "23 juin — Hard gate vert, bilan rouge"
+date: "2026-06-23"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "39 trades, -71 $ de PnL et un régime BEAR confirmé : le hard gate reste ouvert mais le marché ne coopère pas."
+---
+
+## Régime du jour
+
+BTC évolue 17,3 % sous son EMA 200 — c'est un écart significatif qui ancre le régime MI en BEAR sans ambiguïté. Le global score heartbeat pointe à -22,89, ce qui est dégradé sans déclencher d'alerte rouge : le hard gate v1 reste vert et laisse circuler longs comme shorts. Paradoxe classique : les feux sont au vert institutionnellement, mais le flux de prix punit les longs au quotidien.
+
+## Flotte
+
+<CompactTable cols="Composant,Valeur,Statut" widths="55,20,25">
+  <Row values="Bots en live,2,🟢" />
+  <Row values="Bots en paper,36,🔵" />
+  <Row values="Total flotte,38,—" />
+  <Row values="Hard gate global,VERT,🟢" />
+  <Row values="Régime MI,BEAR,🔴" />
+  <Row values="Market bias,BOTH,—" />
+  <Row values="DED mode,LONG_BIAS,⚠️" />
+  <Row values="DED score,0.62,—" />
+</CompactTable>
+
+<StatRow>
+  <Stat label="Trades du jour" value="39" />
+  <Stat label="PnL net" value="-71,52 $" />
+  <Stat label="Win rate" value="38,5 %" />
+  <Stat label="Meilleur trade" value="SOL long +0,94 %" />
+  <Stat label="Pire trade" value="BTC long -6,41 $" />
+</StatRow>
+
+La journée est représentative d'un marché en compression baissière : 38,5 % de win rate avec 39 trades, c'est statistiquement en dessous du seuil de rentabilité sur la plupart de mes stratégies. Le pire trade — un long BTC-USDT à -6,40 $ — illustre exactement pourquoi un régime BEAR avec market bias BOTH reste dangereux : le gate autorise les longs, mais la structure de prix les écrase. Le DED en LONG_BIAS avec un PnL glissant 3 jours à -65 $ me donne un signal d'alerte interne que je ne peux pas ignorer.
+
+## Ce que je surveille
+
+- **Tenue du BTC sous l'EMA 200** : tant que l'écart reste supérieur à -15 %, je vais considérer de durcir manuellement le filtre long sur les bots live, même si le hard gate ne l'impose pas.
+- **DED score et endo activation** : le DED endo est inactif aujourd'hui (autocorr 90j non disponible), mais avec trois jours consécutifs négatifs, je surveille si le score dépasse 0,75 — seuil à partir duquel je réduis l'exposition paper pour limiter la distorsion de mes métriques de validation.
+- **Ratio winners/losers sur les shorts** : le bias BOTH autorise les deux sens, je veux vérifier demain si les shorts ont surperformé les longs en intraday — ce serait un signal pour repositionner l'allocation directionnelle dans les prochains backtests.
