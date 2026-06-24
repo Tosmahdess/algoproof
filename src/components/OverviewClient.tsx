@@ -102,32 +102,40 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
     ? views
     : views.filter(b => b.stats.total_trades > 0)
 
-  // Global pill counts: total long/short trades across the fleet.
+  // Archived bots stay VISIBLE in the table below but are excluded from every
+  // aggregate (counters, P&L, equity curves, long/short pills).
+  const countedBots = useMemo(() => bots.filter(b => b.status !== 'archived'), [bots])
+
+  // Global pill counts: total long/short trades across the (non-archived) fleet.
   const fleetCounts = useMemo(() => {
     let long = 0, short = 0
-    for (const b of bots) {
+    for (const b of countedBots) {
       for (const t of b.all_trades) {
         if (t.side === 'long') long++; else short++
       }
     }
     return { long, short }
-  }, [bots])
+  }, [countedBots])
 
   const sorted = [...visibleViews].sort((a, b) => {
+    const aArch = a.status === 'archived' ? 1 : 0
+    const bArch = b.status === 'archived' ? 1 : 0
+    if (aArch !== bArch) return aArch - bArch          // archived bots always sorted last
     const va = getValue(a, sortCol)
     const vb = getValue(b, sortCol)
     return sortDir === 'asc' ? va - vb : vb - va
   })
 
   const today        = new Date().toISOString().slice(0, 10)
-  const botsWithData = visibleViews.filter(b => b.stats.total_trades > 0)
+  const countedViews = visibleViews.filter(b => b.status !== 'archived')
+  const botsWithData = countedViews.filter(b => b.stats.total_trades > 0)
   const winners      = botsWithData.filter(b => b.stats.latest_capital > b.start_capital).length
   const todayPnl     = direction === 'all' && asset === 'all'
-    ? bots.reduce((s, b) => {
+    ? countedBots.reduce((s, b) => {
         const row = b.perf_daily.find(p => p.date === today)
         return s + (row?.pnl_day ?? 0)
       }, 0)
-    : bots.reduce((s, b) =>
+    : countedBots.reduce((s, b) =>
         s + b.all_trades
               .filter(t =>
                 (direction === 'all' || t.side === direction) &&
@@ -135,7 +143,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                 t.closed_at.slice(0, 10) === today)
               .reduce((acc, t) => acc + t.pnl, 0),
       0)
-  const allTimePnl   = visibleViews.reduce((s, b) => s + (b.stats.latest_capital - b.start_capital), 0)
+  const allTimePnl   = countedViews.reduce((s, b) => s + (b.stats.latest_capital - b.start_capital), 0)
   const filteredRecentTrades = recentTrades.filter(t =>
     (direction === 'all' || t.side === direction) &&
     (asset === 'all' || toBaseAsset(t.asset) === asset),
@@ -175,8 +183,8 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
       {/* Summary counters */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {[
-          { label: 'Bots paper trading', value: `${bots.length}` },
-          { label: 'Avec trades',        value: `${botsWithData.length} / ${bots.length}` },
+          { label: 'Bots paper trading', value: `${countedBots.length}` },
+          { label: 'Avec trades',        value: `${botsWithData.length} / ${countedBots.length}` },
           { label: 'En positif',         value: `${winners} / ${botsWithData.length}`, color: '#3fb950' },
           { label: "P&L aujourd'hui",    value: fmtEur(todayPnl),    color: todayPnl    >= 0 ? '#3fb950' : '#ff4444' },
           { label: 'P&L all-time',       value: fmtEur(allTimePnl),  color: allTimePnl  >= 0 ? '#3fb950' : '#ff4444' },
@@ -204,7 +212,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
             const pct = pnlPct(bot.stats.latest_capital, bot.start_capital)
             return (
               <Link key={bot.id} href={`/strategies/${bot.slug}`}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
+                className={`flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors ${bot.status === 'archived' ? 'opacity-60' : ''}`}>
                 <span className="text-xs text-muted font-mono w-6 flex-shrink-0">#{i + 1}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -272,7 +280,7 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
               {sorted.map(bot => {
                 const hasData = bot.stats.total_trades > 0
                 return (
-                  <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
+                  <tr key={bot.id} className={`border-b border-border/50 hover:bg-card/40 transition-colors ${bot.status === 'archived' ? 'opacity-60' : ''}`}>
                     <td className="px-4 py-3">
                       <Link href={`/strategies/${bot.slug}`} className="font-medium hover:text-positive transition-colors">
                         {bot.name}
