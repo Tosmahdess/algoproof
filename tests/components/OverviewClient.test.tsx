@@ -55,4 +55,27 @@ describe('OverviewClient', () => {
     const tradesBtn = screen.getAllByRole('button').find(b => /^Trades/.test(b.textContent ?? ''))!
     expect(tradesBtn.textContent).toContain('↕')
   })
+
+  // Archived bots: stay VISIBLE in the table, but are excluded from every aggregate.
+  const ARCHIVED = { ...mkBot('zeta-arch', 8, 0.5, 1.1, 0.05, 1200), status: 'archived' as const }
+
+  it('still lists archived bots in the table', () => {
+    render(<OverviewClient bots={[...BOTS, ARCHIVED]} recentTrades={[]} />)
+    expect(screen.getAllByText('zeta-arch').length).toBeGreaterThan(0)
+  })
+
+  it('excludes archived bots from the "Bots paper trading" counter', () => {
+    render(<OverviewClient bots={[...BOTS, ARCHIVED]} recentTrades={[]} />)
+    const counter = screen.getByText('Bots paper trading').closest('div')!
+    expect(counter.textContent).toContain('3')      // 3 paper bots
+    expect(counter.textContent).not.toContain('4')  // the archived one is not counted
+  })
+
+  it('excludes archived bots from all-time P&L', () => {
+    // non-archived sum = +50 (alpha) -100 (beta) +100 (gamma) = +50 ; archived zeta = +200
+    render(<OverviewClient bots={[...BOTS, ARCHIVED]} recentTrades={[]} />)
+    const pnl = screen.getByText('P&L all-time').closest('div')!
+    expect(pnl.textContent).toContain('+50.00€')
+    expect(pnl.textContent).not.toContain('250')    // would be +250 if archived counted
+  })
 })

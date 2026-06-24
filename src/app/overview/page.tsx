@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { getAllBotsWithStats } from '@/lib/queries'
-import { excludeArchived } from '@/lib/cohort'
 import { supabaseServer } from '@/lib/supabase-server'
 import OverviewClient from '@/components/OverviewClient'
 import type { TradeWithBot } from '@/lib/types'
@@ -28,9 +27,9 @@ export default async function OverviewPage() {
     getAllBotsWithStats(),
     getRecentTrades(20),
   ])
-  // Archived bots remain on /strategies (with a badge) but are dropped from the
-  // dashboard table, counters and equity curves here.
-  const bots = excludeArchived(allBots)
+  // Archived bots stay VISIBLE in the table (with a badge, muted, sorted last);
+  // OverviewClient excludes them from the counters, P&L and equity curves itself.
+  const bots = allBots
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
