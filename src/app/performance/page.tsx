@@ -40,13 +40,19 @@ async function getData() {
     }),
     supabaseServer
       .from('bots')
-      .select('id,slug,name,family')
+      .select('id,slug,name,family,status')
       .neq('status', 'frozen'),
   ])
 
+  // Archived bots stay listed on /strategies but are excluded from performance:
+  // drop their rows and their trades from the P&L totals.
+  const allBots = (botsRes.data ?? []) as (BotRow & { status: string })[]
+  const archivedIds = new Set(allBots.filter(b => b.status === 'archived').map(b => b.id))
+  const countedBots = allBots.filter(b => b.status !== 'archived')
+
   return {
-    trades,
-    bots: (botsRes.data ?? []) as BotRow[],
+    trades: trades.filter(t => !archivedIds.has(t.bot_id)),
+    bots: countedBots as BotRow[],
   }
 }
 

@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { computeFleetProof } from '@/lib/fleet-proof'
 import type { BotWithStats } from '@/lib/types'
 
-const bot = (o: { trades: number[]; start?: number; latest: number }): BotWithStats => ({
+const bot = (o: { trades: number[]; start?: number; latest: number; status?: string }): BotWithStats => ({
+  status: o.status ?? 'paper',
   stats: { total_trades: o.trades.length, win_rate: 0, profit_factor: 0, max_drawdown: 0, latest_capital: o.latest },
   start_capital: o.start ?? 1000,
   all_trades: o.trades.map((pnl, i) => ({
@@ -32,5 +33,16 @@ describe('computeFleetProof', () => {
     const r = computeFleetProof([bot({ trades: [10], latest: 1010 })])
     expect(r.fleetPF).toBe(999)
     expect(r.losingTrades).toBe(0)
+  })
+  it('excludes archived bots from every aggregate (kept in lists, out of stats)', () => {
+    const r = computeFleetProof([
+      bot({ trades: [10, 20], latest: 1030 }),                      // counted: +30
+      bot({ trades: [-40, -10], latest: 950, status: 'archived' }), // excluded
+    ])
+    expect(r.nBots).toBe(1)
+    expect(r.nWithData).toBe(1)
+    expect(r.totalTrades).toBe(2)
+    expect(r.losingTrades).toBe(0)
+    expect(r.fleetPnl).toBeCloseTo(30, 2)
   })
 })

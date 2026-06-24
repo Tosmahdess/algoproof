@@ -1,5 +1,6 @@
 // src/lib/fleet-proof.ts
 import type { BotWithStats } from './types'
+import { excludeArchived } from './cohort'
 
 export interface FleetProof {
   nBots: number
@@ -10,7 +11,8 @@ export interface FleetProof {
   fleetPF: number
 }
 
-export function computeFleetProof(bots: BotWithStats[]): FleetProof {
+export function computeFleetProof(allBots: BotWithStats[]): FleetProof {
+  const bots = excludeArchived(allBots)
   let totalTrades = 0, losingTrades = 0, fleetPnl = 0, grossProfit = 0, grossLoss = 0, nWithData = 0
   for (const b of bots) {
     if (b.stats.total_trades > 0) nWithData++

@@ -5,6 +5,7 @@ const config: Record<BotStatus, { label: string; classes: string }> = {
   live:     { label: 'Live',           classes: 'bg-positive/10 text-positive border-positive/30' },
   backtest: { label: 'Backtest',      classes: 'bg-accent/10 text-accent border-accent/30' },
   frozen:   { label: 'Gelé',          classes: 'bg-muted/10 text-muted border-muted/30' },
+  archived: { label: 'Archivé',       classes: 'bg-muted/10 text-muted/70 border-muted/20' },
 }
 
 export default function StatusBadge({ status }: { status: BotStatus }) {

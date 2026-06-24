@@ -15,4 +15,8 @@ describe('StatusBadge', () => {
     render(<StatusBadge status="backtest" />)
     expect(screen.getByText(/backtest/i)).toBeInTheDocument()
   })
+  it('renders archived status', () => {
+    render(<StatusBadge status="archived" />)
+    expect(screen.getByText(/archiv/i)).toBeInTheDocument()
+  })
 })
