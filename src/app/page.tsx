@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import { getAllBotsWithStats } from '@/lib/queries'
+import { excludeArchived } from '@/lib/cohort'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample } from '@/lib/display'
 
 export const revalidate = 1800
@@ -27,7 +28,9 @@ const FAMILY_LABEL: Record<string, string> = {
 }
 
 export default async function HomePage() {
-  const bots = await getAllBotsWithStats()
+  // Archived bots stay listed on /strategies (with a badge) but are excluded from
+  // the homepage headline counts and ranking.
+  const bots = excludeArchived(await getAllBotsWithStats())
   // Sort by realized P&L (€), not absolute capital — bots have different start capitals.
   const sorted = [...bots].sort((a, b) =>
     (b.stats.latest_capital - b.start_capital) - (a.stats.latest_capital - a.start_capital)

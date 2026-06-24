@@ -1,5 +1,5 @@
 // src/lib/types.ts
-export type BotStatus = 'paper' | 'live' | 'backtest' | 'frozen'
+export type BotStatus = 'paper' | 'live' | 'backtest' | 'frozen' | 'archived'
 export type TradeSide = 'long' | 'short'
 
 export interface Bot {

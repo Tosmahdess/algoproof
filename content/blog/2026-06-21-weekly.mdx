@@ -16,10 +16,10 @@ summary: "410 trades, 73,9 % de win rate global, et pourtant -207 $ au compteur.
 ## La semaine en chiffres
 
 <DataCardGroup>
-  <DataCard title="Meilleur trade" value="+23,30 $" description="STX-USDC — short" />
-  <DataCard title="Pire trade" value="-13,21 $" description="BTC-USDC — short" />
-  <DataCard title="Journée la pire" value="-111,20 $" description="Lundi 15 juin" />
-  <DataCard title="Fleet active" value="2 live / 36 paper" description="38 bots au total" />
+  <DataCard label="Meilleur trade" metrics="+23,30 $" sub="STX-USDC — short" />
+  <DataCard label="Pire trade" metrics="−13,21 $" sub="BTC-USDC — short" />
+  <DataCard label="Journée la pire" metrics="−111,20 $" sub="Lundi 15 juin" />
+  <DataCard label="Fleet active" metrics="2 live / 36 paper" sub="38 bots au total" intent="neutral" />
 </DataCardGroup>
 
 ## Ce qui s'est passé
@@ -32,10 +32,10 @@ Le contexte marché explique une partie du problème. Le Heartbeat affiche un r�
 
 La bonne nouvelle : le risk level reste **GREEN** et les deux bots live continuent de tourner sans incident systémique. Les 36 bots en paper accumulent des données propres sur ce régime baissier. La flotte shadow tire des enseignements utiles, même si ça coûte sur le papier.
 
-<CompactTable headers={["Direction", "Trades", "Win Rate", "PnL"]}>
-  <Row values={["Long", "337", "84,9 %", "-45,07 $"]} />
-  <Row values={["Short", "73", "23,3 %", "-162,07 $"]} />
-  <Row values={["Total", "410", "73,9 %", "-207,14 $"]} />
+<CompactTable cols="Direction | Trades | Win Rate | PnL">
+  <Row values="Long | 337 | 84,9 % | −45,07 $" />
+  <Row values="Short | 73 | 23,3 % | −162,07 $" />
+  <Row values="Total | 410 | 73,9 % | −207,14 $" />
 </CompactTable>
 
 ## Leçon de la semaine

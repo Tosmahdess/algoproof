@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getAllBotsWithStats } from '@/lib/queries'
+import { excludeArchived } from '@/lib/cohort'
 import { supabaseServer } from '@/lib/supabase-server'
 import OverviewClient from '@/components/OverviewClient'
 import type { TradeWithBot } from '@/lib/types'
@@ -23,10 +24,13 @@ async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
 }
 
 export default async function OverviewPage() {
-  const [bots, recentTrades] = await Promise.all([
+  const [allBots, recentTrades] = await Promise.all([
     getAllBotsWithStats(),
     getRecentTrades(20),
   ])
+  // Archived bots remain on /strategies (with a badge) but are dropped from the
+  // dashboard table, counters and equity curves here.
+  const bots = excludeArchived(allBots)
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
