@@ -304,12 +304,12 @@ BOTS = [
         "paper_state_name": "apex_atrchannel_bfperps_26", "start_capital": 1000.0,
     },
     {
-        "slug": "orb-bf25", "name": "ORB H1 BF", "family": "breakout",
-        "schema": "new", "strategy": "Opening Range H1 — 25 actifs", "status": "paper",
-        "exchange": "Binance Futures", "assets": _bf(25), "timeframe": "H1",
+        "slug": "orb-bf25", "name": "ORB H1 HL", "family": "breakout",
+        "strategy": "Opening Range H1 — 25 actifs", "status": "live",
+        "exchange": "Hyperliquid", "assets": _bf(25), "timeframe": "H1",
         "description": "Opening Range Breakout : le range de la première heure définit les niveaux clés de la journée. Cassure au-dessus ou en dessous → entrée dans le sens de la cassure. Stratégie institutionnelle classique adaptée aux futures crypto.",
-        "db_path": os.path.expanduser("~/apex_orb_bfperps_25/db/paper_state.db"),
-        "paper_state_name": "apex_orb_bfperps_25", "start_capital": 1000.0,
+        "db_path": os.path.expanduser("~/apex_orb_hl_live/db/paper_mirror_1000.db"),
+        "paper_state_name": "apex_orb_hl_live", "start_capital": 1000.0,
     },
     {
         "slug": "donchian-bf17", "name": "Donchian Break H4 BF", "family": "breakout",
@@ -436,6 +436,32 @@ BOTS = [
         "db_path": os.path.expanduser("~/apex_grid_bot/db/grid_state.db"),
         "paper_state_name": "apex-grid-btc",
         "start_capital": 500.0,
+    },
+    {
+        "slug": "hlperps-xsec-degross",
+        "name": "Momentum Cross-Sectionnel D1 - De-gross 0.35",
+        "family": "trend",
+        "strategy": "Momentum cross-sectionnel L/S — dollar-neutral, gross 0.35, sans stop",
+        "status": "paper",
+        "exchange": "Hyperliquid perps (proxy BinFut)",
+        "assets": ["3 long / 3 short parmi les ~120 perps les plus liquides"],
+        "timeframe": "D1",
+        "description": (
+            "Stratégie de momentum cross-sectionnel, neutre au marché. Chaque semaine, le bot classe "
+            "les ~120 perpetuals les plus liquides selon leur momentum récent, achète les 3 meilleurs "
+            "(long) et vend à découvert les 3 pires (short), à parts égales — l'exposition directionnelle "
+            "est nulle (dollar-neutral). Le pari : les forts restent forts, les faibles restent faibles. "
+            "Le seul levier de gestion du risque est la taille : le book n'engage que 35% du capital "
+            "(« de-gross 0.35 »), pondéré inverse-volatilité par jambe. Pas de stop loss — un stop casserait "
+            "la neutralité et réinjecterait du beta (prouvé contre-productif sur 2022-26, cf. le journal). "
+            "Les positions ne sont pas coupées sur le prix : une jambe sort quand elle quitte le classement "
+            "au rééquilibrage hebdomadaire. Garde-fou : si le flux de données revient incomplet, le tick est "
+            "ignoré (le book n'est jamais cassé par un glitch). Bot en paper trading — déployable identique en réel."
+        ),
+        "schema": "xsec",
+        "db_path": os.path.expanduser("~/bt/apex-xsec-hlperps/db/xsec_trades.db"),
+        "paper_state_name": "",
+        "start_capital": 1000.0,
     },
 ]
 
@@ -681,6 +707,47 @@ def get_grid_balance(db_path: str, start_capital: float) -> float:
         return start_capital
 
 
+def load_trades_xsec_schema(db_path: str) -> list[dict]:
+    """Load closed legs (1 leg = 1 trade) from the xsec portfolio paper bot.
+    Each closed_trades row = one symbol's life in the book (entry when it joined the
+    top/bottom-k, exit when it left at a weekly rebalance)."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute(
+            "SELECT entry_date, exit_date, symbol, side, pnl_net "
+            "FROM closed_trades ORDER BY exit_date ASC"
+        ).fetchall()
+    except Exception:
+        conn.close()
+        return []
+    conn.close()
+    trades = []
+    for r in rows:
+        r = dict(r)
+        trades.append({
+            "timestamp":   r["entry_date"],
+            "closed_at":   r["exit_date"],
+            "symbol":      clean_asset(r["symbol"]),
+            "direction":   "long" if int(r["side"]) > 0 else "short",
+            "pnl":         round(float(r["pnl_net"]), 6),
+            "exit_reason": "rebalance",
+        })
+    return trades
+
+
+def get_xsec_balance(db_path: str, start_capital: float) -> float:
+    """Current banked equity from the kv table (realized P&L of closed legs; open-leg
+    MTM is not added, matching build_perf_daily which uses realized closed-trade P&L)."""
+    try:
+        conn = sqlite3.connect(db_path)
+        row = conn.execute("SELECT val FROM kv WHERE key='equity'").fetchone()
+        conn.close()
+        return float(row[0]) if row else start_capital
+    except Exception:
+        return start_capital
+
+
 def build_perf_daily(trades: list[dict], start_capital: float, paper_balance: float) -> list[dict]:
     """
     Build daily equity rows from closed trades.
@@ -737,7 +804,9 @@ def build_perf_daily(trades: list[dict], start_capital: float, paper_balance: fl
             wins_pnl = sum(float(t["pnl"]) for t in day_trades if float(t["pnl"]) > 0)
             losses_pnl = abs(sum(float(t["pnl"]) for t in day_trades if float(t["pnl"]) <= 0))
             if losses_pnl > 0:
-                profit_factor = round(wins_pnl / losses_pnl, 4)
+                # Cap at the perf_daily.profit_factor column ceiling NUMERIC(6,4) (<100);
+                # lopsided bots (e.g. funding harvesting) produce PF>100 -> 22003 overflow.
+                profit_factor = round(min(wins_pnl / losses_pnl, 99.99), 4)
 
         rows.append({
             "date": day_str,
@@ -751,6 +820,36 @@ def build_perf_daily(trades: list[dict], start_capital: float, paper_balance: fl
     return rows
 
 
+# --- Auto-archive criterion (frozen rule) -----------------------------------
+# A paper bot that is a DURABLE loser is auto-archived: kept listed on the site
+# (with an 'Archivé' badge, muted) but out of the rankings and aggregate stats.
+# It auto-restores to 'paper' once it durably recovers. The 0.90 / 1.0 PF
+# hysteresis band stops a bot flapping around the threshold. live/backtest/frozen
+# bots are never touched.
+ARCHIVE_MIN_TRADES = 40     # need a real track record before archiving
+ARCHIVE_PF = 0.90           # archive a paper bot below this profit factor...
+RESTORE_PF = 1.0            # ...and only un-archive once back above this
+
+
+def decide_status(prev_status: str, n: int, pnl: float, pf: float) -> str:
+    """Durable status from lifetime stats. prev_status = the bot's CURRENT status
+    in Supabase (the hysteresis anchor)."""
+    if prev_status not in ("paper", "archived"):
+        return prev_status                      # never touch live/backtest/frozen
+    if prev_status == "archived":
+        return "paper" if (pnl >= 0 and pf >= RESTORE_PF) else "archived"
+    # prev_status == "paper"
+    if n >= ARCHIVE_MIN_TRADES and pnl < 0 and pf < ARCHIVE_PF:
+        return "archived"
+    return "paper"
+
+
+def get_bot_status(slug: str) -> str | None:
+    """Current status of a bot in Supabase (None if it does not exist yet)."""
+    data = supabase_get("bots", {"slug": f"eq.{slug}", "select": "status"})
+    return data[0]["status"] if data else None
+
+
 def sync_bot(bot_cfg: dict) -> None:
     slug = bot_cfg["slug"]
     db_path = bot_cfg["db_path"]
@@ -760,13 +859,45 @@ def sync_bot(bot_cfg: dict) -> None:
 
     print(f"\n[{slug}] Starting sync...")
 
-    # 1. Upsert bot metadata (always, even if DB not yet deployed)
+    # 1. Load trades first (when the DB exists) so the durable auto-archive criterion
+    #    can be evaluated BEFORE we write the bot's status.
+    db_exists = os.path.exists(db_path)
+    trades: list[dict] = []
+    if db_exists:
+        if schema == "new":
+            trades = load_trades_new_schema(db_path)
+        elif schema == "breakout":
+            trades = load_trades_breakout_schema(db_path)
+        elif schema == "funding":
+            trades = load_trades_funding_schema(db_path)
+        elif schema == "grid":
+            trades = load_trades_grid_schema(db_path)
+        elif schema == "xsec":
+            trades = load_trades_xsec_schema(db_path)
+        else:
+            trades = load_trades_from_db(db_path)
+
+    # 2. Decide the durable status: auto-archive durable losers, auto-restore recoverers.
+    status = bot_cfg["status"]
+    if db_exists and bot_cfg["status"] in ("paper", "archived"):
+        n = len(trades)
+        pnl = sum(float(t["pnl"]) for t in trades)
+        wins = sum(float(t["pnl"]) for t in trades if float(t["pnl"]) > 0)
+        losses = -sum(float(t["pnl"]) for t in trades if float(t["pnl"]) < 0)
+        pf = (wins / losses) if losses > 0 else (99.9 if wins > 0 else 0.0)
+        prev_status = get_bot_status(slug) or bot_cfg["status"]
+        status = decide_status(prev_status, n, pnl, pf)
+        if status != bot_cfg["status"]:
+            print(f"[{slug}] auto-status {bot_cfg['status']} -> {status} "
+                  f"(N={n} PnL={pnl:.2f} PF={pf:.2f})")
+
+    # 3. Upsert bot metadata (always, even if DB not yet deployed)
     bot_row = {
         "slug": slug,
         "name": bot_cfg["name"],
         "family": bot_cfg["family"],
         "strategy": bot_cfg["strategy"],
-        "status": bot_cfg["status"],
+        "status": status,
         "exchange": bot_cfg["exchange"],
         "assets": bot_cfg["assets"],
         "timeframe": bot_cfg["timeframe"],
@@ -776,24 +907,12 @@ def sync_bot(bot_cfg: dict) -> None:
     supabase_upsert("bots", [bot_row], "slug")
     bot_id = get_bot_id(slug)
 
-    if not os.path.exists(db_path):
+    if not db_exists:
         print(f"[{slug}] DB not found — metadata synced, skipping trades")
         return
-
-    # 2. Load trades — dispatch by schema
-    if schema == "new":
-        trades = load_trades_new_schema(db_path)
-    elif schema == "breakout":
-        trades = load_trades_breakout_schema(db_path)
-    elif schema == "funding":
-        trades = load_trades_funding_schema(db_path)
-    elif schema == "grid":
-        trades = load_trades_grid_schema(db_path)
-    else:
-        trades = load_trades_from_db(db_path)
     print(f"[{slug}] {len(trades)} valid closed trades loaded (schema={schema})")
 
-    # 3. Sync trades (delete + insert)
+    # 4. Sync trades (delete + insert)
     supabase_delete("trades", bot_id)
     if trades:
         trade_rows = [
@@ -821,6 +940,8 @@ def sync_bot(bot_cfg: dict) -> None:
         paper_balance = get_funding_balance(db_path, start_capital)
     elif schema == "grid":
         paper_balance = get_grid_balance(db_path, start_capital)
+    elif schema == "xsec":
+        paper_balance = get_xsec_balance(db_path, start_capital)
     else:
         paper_balance = get_paper_balance(db_path, paper_name)
     perf = build_perf_daily(trades, start_capital, paper_balance)
@@ -1051,6 +1172,37 @@ def sync_mi_snapshot() -> None:
             print("  [MI] WARN: new columns not in Supabase yet — run migration SQL")
         else:
             raise
+    # --- Hard-Gate per-cycle event (max-data log, added 2026-06-01) ---
+    try:
+        _hg = hb.get("hard_gate") or {}
+        if _hg:
+            _hg_row = {
+                "snapshot_at":               record["snapshot_at"],
+                "version":                   _hg.get("version"),
+                "enabled":                   _hg.get("enabled"),
+                "live_enforced":             _hg.get("live_enforced"),
+                "live_enforced_excludes":    _hg.get("live_enforced_excludes") or [],
+                "fleet_allow_long":          _hg.get("fleet_allow_long"),
+                "fleet_allow_short":         _hg.get("fleet_allow_short"),
+                "fleet_layers_fired":        _hg.get("fleet_layers_fired") or [],
+                "fleet_allow_long_shadow":   _hg.get("fleet_allow_long_shadow"),
+                "fleet_allow_short_shadow":  _hg.get("fleet_allow_short_shadow"),
+                "fleet_layers_fired_shadow": _hg.get("fleet_layers_fired_shadow") or [],
+                "per_bot_gate":              _hg.get("per_bot_gate") or {},
+                "btc_vs_ema200_pct":         hb.get("btc_vs_ema200_pct"),
+                "trend_regime":              hb.get("trend_regime"),
+                "regime":                    hb.get("risk_level"),
+                "market_bias":               hb.get("market_bias"),
+                "is_safe":                   hb.get("allow_new_entries"),
+                "is_macro_safe":             record.get("is_macro_safe"),
+                "derivatives_score":         temporal.get("derivatives_score_ema_24h"),
+                "composite_score":           hb.get("global_score"),
+            }
+            supabase_upsert("hard_gate_events", [_hg_row], "")
+            print("  [hard_gate_events] pushed (live_enforced=" + str(_hg.get("live_enforced")) + ")")
+    except Exception as _hg_e:
+        print("  [hard_gate_events] push failed (non-blocking): " + str(_hg_e))
+
     regime = record.get("regime", "?")
     score = record.get("composite_score", "?")
     print(f"  [MI] Snapshot synced — regime={regime}, score={score}")
@@ -1091,12 +1243,56 @@ def sync_macro_report() -> None:
     print(f"  [macro] Report {date_str} synced (score={score}, regime={regime})")
 
 
+
+def sync_signal_decisions(db_path: str, bot_slug: str) -> None:
+    """Push new signal_decisions rows (local id > cursor) to Supabase. Fail-soft."""
+    import sqlite3, os, json as _json
+    cursor_file = os.path.expanduser("~/.sigjournal_cursor_" + bot_slug)
+    last = 0
+    try:
+        if os.path.exists(cursor_file):
+            last = int(open(cursor_file).read().strip() or "0")
+    except Exception:
+        last = 0
+    try:
+        con = sqlite3.connect(db_path, timeout=5)
+        con.row_factory = sqlite3.Row
+        rows = con.execute("SELECT * FROM signal_decisions WHERE id > ? ORDER BY id LIMIT 500", (last,)).fetchall()
+        con.close()
+    except Exception:
+        return
+    if not rows:
+        return
+    payload = []
+    maxid = last
+    for r in rows:
+        d = dict(r)
+        maxid = max(maxid, d["id"])
+        payload.append({
+            "bot_slug": bot_slug, "local_id": d["id"], "ts_utc": d.get("ts_utc"),
+            "strategy": d.get("strategy"), "family": d.get("family"), "symbol": d.get("symbol"),
+            "side": d.get("side"), "decision": d.get("decision"), "reject_gate": d.get("reject_gate"),
+            "entry_price": d.get("entry_price"), "sl_price": d.get("sl_price"), "tp_price": d.get("tp_price"),
+            "sizing_mult": d.get("sizing_mult"), "btc_vs_ema200_pct": d.get("btc_vs_ema200_pct"),
+            "trend_regime": d.get("trend_regime"), "regime": d.get("regime"), "market_bias": d.get("market_bias"),
+            "hard_gate_layers": _json.loads(d["hard_gate_layers"]) if d.get("hard_gate_layers") else None,
+            "trade_id": d.get("trade_id"),
+        })
+    try:
+        supabase_upsert("signal_decisions", payload, "bot_slug,local_id")
+        open(cursor_file, "w").write(str(maxid))
+        print("  [sigjournal] " + bot_slug + ": pushed " + str(len(payload)) + " (cursor " + str(maxid) + ")")
+    except Exception as e:
+        print("  [sigjournal] " + bot_slug + " push failed (cursor unchanged): " + str(e))
+
+
 def main() -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     print(f"=== AlgoProof VPS Sync — {ts} ===")
     for bot in BOTS:
         try:
             sync_bot(bot)
+            sync_signal_decisions(bot.get("db_path"), bot["slug"])
         except Exception as e:
             print(f"[{bot['slug']}] ERROR: {e}")
 

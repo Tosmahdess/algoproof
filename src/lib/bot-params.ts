@@ -2090,6 +2090,45 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
     ],
   },
+  "hlperps-xsec-degross": {
+    groups: [
+      {
+        title: "Signal & sélection",
+        items: [
+          { label: "Stratégie", value: "Momentum cross-sectionnel L/S", note: "neutre au marché" },
+          { label: "Univers", value: "~120 perps les plus liquides", note: "proxy HL (BinanceFutures)" },
+          { label: "Classement", value: "momentum 30j", note: "rang par performance récente" },
+          { label: "Sélection", value: "3 long / 3 short", note: "top-3 vs bottom-3, hystérésis" },
+          { label: "Timeframe", value: "D1", note: "rééquilibrage hebdomadaire (7j)" },
+        ],
+      },
+      {
+        title: "Construction du book",
+        items: [
+          { label: "Neutralité", value: "Dollar-neutral", note: "$long = $short, pas de pari directionnel" },
+          { label: "Exposition", value: "gross 0,35", note: "35% du capital engagé (« de-gross »)" },
+          { label: "Pondération", value: "inverse-volatilité", note: "par jambe, dans chaque côté" },
+          { label: "Sortie", value: "au rééquilibrage", note: "une jambe sort quand elle quitte le classement" },
+        ],
+      },
+      {
+        title: "Gestion du risque",
+        items: [
+          { label: "Stop loss", value: "Aucun", note: "un stop casse la neutralité (prouvé contre-productif)" },
+          { label: "Risk control", value: "le de-gross 0,35", note: "la taille EST le contrôle du risque" },
+          { label: "Garde-fou data", value: "skip si fetch < 20 actifs", note: "ne jamais flatter le book sur un glitch" },
+          { label: "Min-notional", value: "10 USD / jambe", note: "plancher HL" },
+        ],
+      },
+    ],
+    technicalArticle: [
+      {
+        title: "Pourquoi pas de stop loss",
+        body: "Le book est dollar-neutral : autant à l'achat qu'à la vente, pour ne pas dépendre du marché. Un stop qui couperait une jambe long sans sa contrepartie short romprait cet équilibre et ré-exposerait au marché (du beta) — exactement le risque que la neutralité sert à éviter. Testé sur 2022-26 : un stop par jambe aggrave le drawdown au lieu de le réduire. Le seul levier de risque retenu est la taille : n'engager que 35% du capital.",
+        code: "# chaque semaine\nrang = classer(univers, momentum_30j)\nlong  = rang[:3]        # meilleurs\nshort = rang[-3:]       # pires\nbook = inverse_vol(long, short, gross=0.35)  # dollar-neutral\n# sortie : une jambe quitte le book quand elle sort du top/bottom-3",
+      },
+    ],
+  },
 }
 
 export function getBotParams(slug: string): BotParams | null {
