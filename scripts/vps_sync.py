@@ -440,9 +440,7 @@ BOTS = [
     {
         "slug": "hlperps-xsec-degross",
         "name": "Momentum Cross-Sectionnel D1 - De-gross 0.35",
-        # NOTE: switch to "market-neutral" once the Supabase bots.family CHECK
-        # constraint allows it (manual ALTER in the dashboard SQL editor).
-        "family": "trend",
+        "family": "market-neutral",
         "strategy": "Momentum cross-sectionnel L/S — dollar-neutral, gross 0.35, sans stop",
         "status": "paper",
         "exchange": "Hyperliquid perps (proxy BinFut)",
