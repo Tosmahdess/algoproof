@@ -1,0 +1,36 @@
+---
+title: "25 juin — Bear regime, PnL dans le rouge malgré 67% de WR"
+date: "2026-06-25"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "Journée négative à -40,85 $ sur 57 trades malgré un taux de réussite de 66,7 % : le pire trade SEI écrase les gains."
+---
+
+## Régime du jour
+
+BTC traîne à -21,22 % sous son EMA200 — c'est un bear regime confirmé, pas une correction passagère. Le heartbeat global s'établit à -30,43 avec un niveau de risque YELLOW et un biais marché **BOTH**, ce qui signifie que la flotte accepte les deux sens mais sans conviction directionnelle claire. Le DED shadow affiche un score de 0,62 en mode LONG_BIAS, ce qui est paradoxal face à un BTC aussi enfoncé sous sa moyenne — je garde ça en tête.
+
+## Flotte
+
+<CompactTable cols="Métrique,Valeur" widths="60,40">
+  <Row values="Bots live,2" />
+  <Row values="Bots paper,31" />
+  <Row values="Total déployés,39" />
+  <Row values="Trades du jour,57" />
+  <Row values="Taux de réussite,66,7 %" />
+  <Row values="PnL net,-40,85 $" />
+  <Row values="Meilleur trade,TON-USDT short +3,82 $" />
+  <Row values="Pire trade,SEI-USDT short -11,43 $" />
+  <Row values="Hard gate live enforced,Non" />
+  <Row values="Régime MI,BEAR / YELLOW" />
+</CompactTable>
+
+Le chiffre qui pique : 38 winners sur 57 trades et je termine quand même dans le rouge. Le problème n'est pas le WR, c'est la distribution des gains. SEI-USDT short à -11,43 $ à lui seul représente presque 28 % de la perte totale. C'est le profil classique d'un ratio gain/perte défavorable — les losers sont trop gros relativement aux winners. TON-USDT short à +3,82 $ est le meilleur trade de la journée, mais même le meilleur n'absorbe qu'un tiers du pire. Je dois creuser les stops sur les bots qui ont touché SEI.
+
+Le rolling 3 jours s'établit à -93,38 $, ce qui confirme que ce n'est pas un accident isolé d'aujourd'hui. La pression s'accumule.
+
+## Ce que je surveille
+
+- **SEI-USDT** : je veux comprendre pourquoi le short a dérivé à -11,43 $. Stop trop large, slippage, ou entrée mal timée en bear regime ? L'audit du trade est prioritaire ce soir.
+- **DED LONG_BIAS vs BTC -21 % EMA200** : la tension entre le signal DED et le régime macro est inconfortable. Si BTC continue de s'enfoncer, ce biais long shadow va encaisser des dégâts — je surveille le score DED sur les prochaines 12h pour voir s'il bascule.
+- **Hard gate cooldown 12h** : le gate est désactivé pour l'instant (`live_enforced: false`), mais avec trois jours consécutifs dans le rouge, je me donne comme règle personnelle de réévaluer l'activation si le rolling 3j passe sous -150 $.
