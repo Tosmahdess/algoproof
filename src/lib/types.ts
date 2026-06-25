@@ -8,7 +8,7 @@ export interface Bot {
   name: string
   strategy: string
   status: BotStatus
-  family: 'trend' | 'breakout' | 'mean-reversion' | 'carry' | null
+  family: 'trend' | 'breakout' | 'mean-reversion' | 'carry' | 'market-neutral' | null
   exchange: string
   assets: string[]
   timeframe: string

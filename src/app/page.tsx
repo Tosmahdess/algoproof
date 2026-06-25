@@ -18,6 +18,7 @@ const FAMILY_COLOR: Record<string, string> = {
   'breakout':        '#3fb950',
   'mean-reversion':  '#7c3aed',
   'carry':           '#f6c90e',
+  'market-neutral':  '#14b8a6',
 }
 
 const FAMILY_LABEL: Record<string, string> = {
@@ -25,6 +26,7 @@ const FAMILY_LABEL: Record<string, string> = {
   'breakout':        'Cassure',
   'mean-reversion':  'Retour à la moyenne',
   'carry':           'Portage',
+  'market-neutral':  'Marché neutre',
 }
 
 export default async function HomePage() {

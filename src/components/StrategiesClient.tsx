@@ -26,6 +26,10 @@ const FAMILIES = [
     slug: 'carry', label: 'Portage', color: '#f6c90e',
     description: "Les stratégies de portage capturent un rendement récurrent sans pari directionnel. Elles encaissent des taux de financement (delta-neutre) ou exploitent la volatilité dans un range fixe (grille). Le rendement est indépendant de la hausse ou baisse du marché.",
   },
+  {
+    slug: 'market-neutral', label: 'Marché neutre', color: '#14b8a6',
+    description: "Stratégies neutres au marché : autant de positions longues que courtes, pour ne pas dépendre de la hausse ou de la baisse générale. Le rendement vient de l'écart entre les actifs sélectionnés — les forts contre les faibles — et non de la direction du marché.",
+  },
 ]
 
 export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {

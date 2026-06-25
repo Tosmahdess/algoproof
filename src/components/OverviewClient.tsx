@@ -28,10 +28,12 @@ interface BotView extends BotWithStats {
 const FAMILY_LABEL: Record<string, string> = {
   trend: 'Suivi de tendance', breakout: 'Cassure',
   'mean-reversion': 'Retour à la moyenne', carry: 'Portage',
+  'market-neutral': 'Marché neutre',
 }
 const FAMILY_COLOR: Record<string, string> = {
   trend: '#ff6b35', breakout: '#3fb950',
   'mean-reversion': '#7c3aed', carry: '#f6c90e',
+  'market-neutral': '#14b8a6',
 }
 const BOT_COLORS = [
   '#3fb950','#58a6ff','#ff6b35','#d2a8ff','#f6c90e',

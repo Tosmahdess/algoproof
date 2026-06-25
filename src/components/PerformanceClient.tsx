@@ -13,7 +13,7 @@ interface TradeRow {
 }
 
 type Direction = 'all' | 'long' | 'short'
-type Family = 'all' | 'trend' | 'breakout' | 'mean-reversion' | 'carry'
+type Family = 'all' | 'trend' | 'breakout' | 'mean-reversion' | 'carry' | 'market-neutral'
 
 interface DayRow {
   date: string
@@ -38,6 +38,7 @@ const FAMILY_OPTIONS: { value: Family; label: string }[] = [
   { value: 'breakout', label: 'Cassure' },
   { value: 'mean-reversion', label: 'Retour moyenne' },
   { value: 'carry', label: 'Portage' },
+  { value: 'market-neutral', label: 'Marché neutre' },
 ]
 
 function signColor(v: number): string {
