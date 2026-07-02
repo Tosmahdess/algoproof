@@ -7,8 +7,12 @@ import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
 import DiscussionTab from '@/components/DiscussionTab'
 import ExchangeAlert from '@/components/ExchangeAlert'
+import ConformityCard from '@/components/ConformityCard'
+import ThreeSentences from '@/components/ThreeSentences'
+import CapitalSimulator from '@/components/CapitalSimulator'
 import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
+import { getBotExpectations } from '@/lib/bot-expectations'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -42,6 +46,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   if (!bot) notFound()
 
   const changelogs = await getChangelogForBot(bot)
+  const expectations = getBotExpectations(slug)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -63,8 +68,19 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Exchange alert — Binance Futures bloqué FR */}
       <ExchangeAlert exchange={bot.exchange} />
 
+      {/* Novice layer: plain-FR summary (only for bots with a documented envelope) */}
+      {expectations?.threeSentences && <ThreeSentences data={expectations.threeSentences} />}
+
       {/* Filter + metrics + equity curve + trades — interactive client island */}
       <StrategyDetail bot={bot} />
+
+      {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
+      {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}
+
+      {/* "Sur mon capital" — observed history rescaled to a visitor-chosen capital */}
+      {bot.perf_daily.length > 0 && (
+        <CapitalSimulator perfDaily={bot.perf_daily} startCapital={bot.start_capital} />
+      )}
 
       {/* Explanation: plain overview → technical params */}
       <section className="mb-8">
