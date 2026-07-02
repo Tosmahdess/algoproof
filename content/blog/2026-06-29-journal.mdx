@@ -1,0 +1,37 @@
+---
+title: "29 juin — 91 % de winners, PnL dans le rouge"
+date: "2026-06-29"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "67 trades, taux de réussite à 91 %, mais un seul trade perdant suffit à plomber la journée."
+---
+
+## Régime du jour
+
+BTC reste lourdement sous son EMA 200 (−16,26 %), le régime MI affiche **BEAR** avec un score global à −11,81. La bonne surprise : le hard gate reste en mode permissif, longs et shorts autorisés des deux côtés, aucune couche de blocage déclenchée. Le DED shadow oscille en **LONG_BIAS** (score 0,62), ce qui crée une légère tension avec le régime directionnel bear — je garde ça en tête.
+
+## Flotte
+
+<CompactTable cols="Composant,Statut,Détail" widths="40,20,40">
+  <Row values="Bots live,✅ Actifs,2 bots en production" />
+  <Row values="Bots paper,🧪 En cours,31 sur 40 en simulation" />
+  <Row values="Hard Gate v1,🟢 GREEN,Long + Short autorisés" />
+  <Row values="DED Shadow,⚠️ Tension,LONG_BIAS vs régime BEAR" />
+  <Row values="Best trade,ARB-USDT short,+3,03 $" />
+  <Row values="Worst trade,UNI-USDC short,−10,74 $" />
+</CompactTable>
+
+<StatRow>
+  <Stat label="Trades du jour" value="67" />
+  <Stat label="Win rate" value="91 %" />
+  <Stat label="PnL net" value="−9,41 $" />
+  <Stat label="PnL 3 jours" value="−71,93 $" />
+</StatRow>
+
+La journée illustre parfaitement le problème des queues de distribution : 61 trades gagnants, 6 perdants, et pourtant le PnL finit négatif. UNI-USDC short a avalé à lui seul −10,74 $ — plus que la somme de plusieurs winners. Ce n'est pas un problème de fréquence, c'est un problème de sizing ou de stop placement sur les outliers.
+
+## Ce que je surveille
+
+- **Le glissement PnL 3 jours à −71,93 $** : si la série continue dans cette direction, le DED endo pourrait s'activer et contraindre la flotte. Je surveille le seuil de bascule.
+- **UNI-USDC** : deux pertes importantes en short sur des altcoins à faible liquidité en quelques séances. Je veux vérifier si le slippage ou une configuration de stop trop large explique ces sorties coûteuses.
+- **La divergence DED vs régime MI** : le DED pousse vers un biais long pendant que le trend regime est bear. Si BTC accélère à la baisse dans les 24h, cette tension va se résoudre brutalement — je prépare un scénario de restriction manuelle si le score global passe sous −20.
