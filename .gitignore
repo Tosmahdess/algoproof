@@ -49,3 +49,4 @@ supabase/.temp
 .superpowers/
 __pycache__/
 *.pyc
+env.local
