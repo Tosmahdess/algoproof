@@ -1,0 +1,42 @@
+---
+title: "27 juin — Win rate à 90 % mais PnL négatif : le piège du gros perdant"
+date: "2026-06-27"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "63 trades, 90,5 % de gagnants, et pourtant -17,63 $ au final : une seule position short XRP-USDC efface tout."
+---
+
+## Régime du jour
+
+BTC traîne à -16,26 % sous son EMA 200 — on est clairement en territoire bear, et le score global du heartbeat confirme à -11,81. Pourtant le hard gate reste ouvert des deux côtés (longs et shorts autorisés), et le DED shadow affiche un mode LONG_BIAS avec un score de 0,62, ce qui crée une tension intéressante entre le signal de tendance macro et le biais court terme. Le régime MI est tagué BEAR/BOTH : la flotte peut trader dans les deux sens, mais je reste en alerte sur les shorts qui peuvent vite se retourner dans un marché aussi nerveux.
+
+## Flotte
+
+<CompactTable cols="Métrique|Valeur" widths="60|40">
+  <Row values="Trades du jour|63" />
+  <Row values="PnL net|−17,63 $" />
+  <Row values="Gagnants|57 / 63" />
+  <Row values="Win rate|90,5 %" />
+  <Row values="Meilleur trade|HBAR-USDT short +1,17 $" />
+  <Row values="Pire trade|XRP-USDC short −10,49 $" />
+  <Row values="Bots live|2" />
+  <Row values="Bots paper|31" />
+  <Row values="Total flotte|40" />
+  <Row values="Risk level|🟢 GREEN" />
+  <Row values="Hard gate live|Non enforced" />
+</CompactTable>
+
+La journée illustre parfaitement ce qu'on appelle le "skewness problem" : 90,5 % de win rate, 57 trades dans le vert, et une seule position — XRP-USDC short à -10,49 $ — qui saborde la session entière. Le PnL 3 jours glissants ressort à -71,93 $, ce qui m'indique que ce n'est pas un accident isolé. Le DED endo est inactif pour l'instant, ce qui signifie que le système ne déclenche pas encore de mode dégradé automatique — je surveille ce seuil de près.
+
+<StatRow>
+  <Stat label="PnL jour" value="-17,63 $" />
+  <Stat label="Win rate" value="90,5 %" />
+  <Stat label="PnL 3j" value="-71,93 $" />
+  <Stat label="DED score" value="0,62" />
+</StatRow>
+
+## Ce que je surveille
+
+- **Le short XRP-USDC** : je veux comprendre si la sortie était mal calibrée (stop trop large ?) ou si c'est le sizing qui pose problème sur cet actif spécifiquement — à auditer avant la prochaine session.
+- **L'activation du DED endo** : avec un PnL 3 jours à -71,93 $ et un BTC toujours sous son EMA 200, le système approche des conditions qui pourraient basculer en mode dégradé ; je vérifie les seuils ce soir.
+- **La tension BEAR vs LONG_BIAS** : le DED pousse vers les longs, le régime macro crie bear — je veux voir si les bots paper qui ont un biais long surperforment ou souffrent davantage que les neutres dans les prochaines 24h.
