@@ -1,0 +1,144 @@
+---
+title: "J'ai testé 6 méthodes pour muscler ma stratégie crypto, dont le stop loss. La plus bête les a toutes battues."
+date: "2026-06-25"
+category: "methode"
+tags: ["méthode", "momentum", "recherche", "transparence", "backtest"]
+summary: "J'ai une stratégie qui classe 669 cryptos, parie sur les meilleures et contre les pires. Sur le papier elle gagne bien, mais elle plonge trop fort. J'ai passé plusieurs jours à tester 6 façons de réduire ces plongeons — du momentum résiduel au stop loss, le réflexe de tout trader. Aucune n'a battu le geste le plus bête du monde : parier plus petit. Et le stop loss, lui, a carrément empiré les choses. Voici pourquoi, expliqué simplement."
+---
+
+J'ai une stratégie de trading que j'aime beaucoup sur le papier. Le problème : sur le papier, justement. Pas encore en réel. Et avant de mettre le moindre euro dessus, je voulais répondre à une question simple : **est-ce que je peux la rendre moins violente sans tuer son rendement ?**
+
+J'ai passé plusieurs jours à tester 6 idées sérieuses — cinq issues de la littérature quant, et une que tout trader connaît par cœur : le stop loss. La conclusion m'a un peu vexé : **la méthode la plus bête du monde a battu les 6.** Et le stop loss, le réflexe de protection numéro un, a carrément aggravé le problème. Voici l'histoire, et surtout ce que ça m'apprend.
+
+## D'abord, c'est quoi cette stratégie ?
+
+Ça s'appelle du **momentum cross-sectionnel**. Le mot fait peur, l'idée est simple. Imaginez une course de chevaux avec 669 partants (mes 669 cryptos).
+
+- Chaque semaine, je classe toutes les cryptos selon leur **forme récente** (qui a le plus monté, qui a le plus chuté).
+- Je **parie sur les premières** (j'achète, "long") et **contre les dernières** (je vends à découvert, "short").
+- Je mets **autant d'argent à l'achat qu'à la vente**. Comme ça, je ne parie pas sur le fait que "le marché crypto monte" ou "le marché crypto baisse" — je parie seulement que **les forts restent forts et les faibles restent faibles**. Si tout le marché s'effondre d'un coup, mes shorts gagnent ce que mes longs perdent. On appelle ça être *neutre au marché* (ou "dollar-neutral").
+
+C'est une stratégie connue, qui marche sur les actions depuis 30 ans. La question n'est jamais "est-ce que l'idée est bonne", c'est "est-ce que l'edge survit aux frais et aux krachs".
+
+Mon test : 669 cryptos, de 2022 à 2026. Et là, premier mur.
+
+## Le problème : ça gagne, mais ça fait mal
+
+À pleine taille, la stratégie a un vrai edge (elle gagne plus qu'elle ne perd, de façon mesurable). Mais elle subit un **drawdown de 22 %**.
+
+> **Drawdown** = la pire chute depuis un sommet. Un drawdown de 22 %, ça veut dire qu'à un moment, mon capital a fondu de 22 % avant de repartir. En vrai, sur un compte réel, 22 % c'est le genre de plongeon où on dort mal et où on est tenté de tout couper au pire moment.
+
+Ma règle perso : je ne déploie pas une stratégie dont le drawdown dépasse **10 %**. Donc à pleine taille, c'est non. Il fallait calmer la machine.
+
+## Le geste bête qui marche : parier plus petit
+
+Avant d'inventer quoi que ce soit de malin, j'ai testé la chose la plus simple imaginable : **parier plus petit. Tout le temps. Sans réfléchir.**
+
+Petit point de vocabulaire, parce que c'est LE mot clé de tout l'article :
+
+> **Le "gross", c'est combien de jetons je mets sur la table.** Si j'ai 100 € et que je suis à la fois acheteur de 50 € et vendeur de 50 €, mon exposition totale ("gross") est de 100 € — soit **100 % de mon capital sur la table**. Si je ne mets que 17,50 € à l'achat et 17,50 € à la vente, je suis à **35 %** ("gross 0,35"), et les **65 % restants dorment en cash**.
+>
+> **"De-grosser", c'est donc juste ça : réduire la mise. Parier plus petit.**
+
+J'ai descendu la mise de 100 % à **35 %**. C'est tout. Pas de nouveau signal, pas d'intelligence, pas de filtre. Résultat :
+
+<StatRow>
+  <Stat label="Drawdown" value="9,6 %" subtext="contre 22 % à pleine taille — sous ma barre des 10 %" />
+  <Stat label="Rendement annuel" value="~50 %" subtext="CAGR sur 2022-2026" />
+  <Stat label="Calmar" value="5,22" subtext="rendement / pire chute" />
+</StatRow>
+
+> **Le ratio de Calmar**, c'est le rendement divisé par la pire chute. Autrement dit : *combien de rendement je gagne pour chaque unité de douleur*. Plus c'est haut, mieux c'est. 5,22, c'est très bon.
+
+En parlant moins fort, le drawdown passe sous ma barre des 10 %, **et le rendement reste excellent.** Logique : en divisant la mise, je divise mécaniquement les pertes ET les gains dans les mêmes proportions — mais comme une chute de 22 % fait beaucoup plus mal qu'une chute de 9,6 % (on ne perd pas en ligne droite), le compromis rendement/risque s'améliore franchement.
+
+C'est mon **point de référence** pour la suite. La question devient : *est-ce qu'une méthode plus intelligente peut faire mieux que ce geste idiot ?*
+
+J'ai testé 6 leviers. Voici chacun, en une phrase, et pourquoi il a échoué.
+
+## Levier 1 — Enlever "l'effet BTC" (momentum résiduel)
+
+**L'idée :** quand toutes les cryptos montent en même temps, ce n'est pas du talent, c'est la marée BTC qui soulève tous les bateaux. J'ai donc retiré de chaque crypto la partie de son mouvement qui s'explique juste par BTC, pour ne garder que son mouvement **propre**.
+
+**Le résultat :** un livre de positions plus propre (moins de soubresauts, drawdown ramené à 6,2 %)... mais le **rendement s'effondre à 18 %/an**. Parce que sur 2022-2026, "l'effet BTC" n'était pas du bruit à enlever — c'était un **gros contributeur positif**. En le retirant, j'ai jeté le bébé avec l'eau du bain.
+
+> Verdict : plus calme, mais ça coupe trop de rendement. **Battu par le geste bête.**
+
+## Levier 2 — Réduire la mise automatiquement quand ça tangue
+
+**L'idée :** au lieu de parier petit *tout le temps*, parier petit *seulement* quand BTC plonge et que la stratégie devient nerveuse. Du de-grossing "intelligent", réactif.
+
+**Le résultat :** ce filtre ne s'est presque jamais déclenché sur la période, et quand il se déclenchait, il ne faisait pas mieux que de parier petit en continu. Réduire la mise *parfois* ne peut pas battre réduire la mise *toujours* — au mieux ça l'égale, en ajoutant de la complexité et un risque de mal tomber.
+
+> Verdict : un de-grossing réactif ne bat pas un de-grossing constant. **Battu par le geste bête.**
+
+## Levier 3 — Privilégier les cryptos qui me paient pour les tenir (carry)
+
+**L'idée :** sur les contrats perpétuels, il y a un petit loyer ("funding") versé d'un côté à l'autre du marché. Sur certaines positions, **on me paie pour les tenir**. J'ai ajouté un bonus pour les cryptos au funding favorable.
+
+**Le résultat :** c'est le seul qui a *numériquement* dépassé la référence (Calmar 5,55 contre 5,22). Mais en regardant de près, ce +6 % est **du bruit** : c'est le meilleur résultat parmi 5 184 combinaisons testées, et statistiquement ça ne se distingue pas de la chance. Pire : le carry récupère du rendement surtout en **réintroduisant de l'exposition au marché** — exactement le risque que je cherchais à enlever.
+
+> Verdict : un vrai facteur intéressant, mais qui n'apporte pas d'edge net. **Égalité, dans le bruit.**
+
+## Levier 4 — Ne garder que les paris dans le sens de la tendance
+
+**L'idée :** virer les paris à contre-courant. Garder un long seulement si la crypto est en tendance haussière, un short seulement si elle est en tendance baissière. En théorie, c'est exactement ce qui protège des retournements violents.
+
+**Le résultat :** ça divise bien le drawdown par deux (de 9,6 % à 5,6 %)... mais ça **coupe 58 % du rendement**. Même histoire que le Levier 1 : les paris "à contre-courant" que j'ai retirés étaient, sur 2022-2026, des contributeurs **nets positifs**. Je coupais plus de rendement que de risque.
+
+> Verdict : protège bien, mais paie trop cher. **Battu par le geste bête.**
+
+## Levier 5 — Parier un peu plus à la hausse qu'à la baisse (tilt)
+
+**L'idée :** sur le long terme, le marché crypto monte. Une stratégie parfaitement neutre abandonne cette hausse de fond. J'ai donc penché un peu : 60 % à l'achat, 40 % à la vente, pour capter ce courant ascendant.
+
+**Le résultat :** le rendement monte... mais le drawdown monte **exactement en parallèle**. Parce que ce que j'achète avec le tilt, ce n'est pas du talent — c'est juste de **l'exposition au marché** (du "beta"). Et le marché, ça se paie en plongeons. La meilleure version dépasse de justesse la référence en rendement, mais explose ma barre de drawdown (10,6 % > 10 %).
+
+> Verdict : on achète du rendement en rechargeant le risque qu'on venait d'enlever. **Battu par le geste bête.**
+
+## Levier 6 — Le stop loss (le réflexe de tout trader)
+
+**L'idée :** celle que tout le monde a en tête. Couper une position individuelle dès qu'elle perd trop, sans attendre le rééquilibrage hebdomadaire. Le stop loss — le geste de protection le plus connu du trading. Je l'ai gardé pour la fin parce que c'est le plus évident de tous. Et, spoiler : c'est le pire.
+
+**Le résultat :** non seulement il ne protège pas, il **aggrave** les plongeons. Le drawdown *monte* de 9,6 % à **11-13 %** — il passe carrément au-dessus de ma barre des 10 %. Comment un stop loss peut-il rendre les choses *pires* ? À cause de la neutralité. Ma stratégie parie autant à l'achat qu'à la vente, exprès, pour ne pas dépendre du marché. Quand un stop coupe une position "achat" mais laisse tourner sa contrepartie "vente", l'équilibre est rompu : je me retrouve, sans l'avoir voulu, exposé au sens du marché — exactement le danger que la neutralité servait à éviter. Le stop, en croyant me sauver d'une position qui saigne, me jette dans un risque plus gros que celui qu'il ferme.
+
+> Verdict : le réflexe le plus intuitif du trading est ici le plus contre-productif. **Non seulement battu par le geste bête — carrément empiré.**
+
+## Le bilan : 6 partout, le simple gagne
+
+<CompactTable cols="Levier | L'idée maligne | Verdict" widths="1.3fr 2.2fr 1.3fr" aligns="left | left | left">
+  <Row values="1. Résiduel | Enlever l'effet BTC | Coupe trop de rendement" />
+  <Row values="2. Throttle | De-grosser quand ça tangue | Ne bat pas le de-gross constant" />
+  <Row values="3. Carry | Favoriser le funding payeur | Égalité, dans le bruit" />
+  <Row values="4. Filtre tendance | Virer le contre-courant | Coupe trop de rendement" />
+  <Row values="5. Tilt | Pencher vers l'achat | Rachète du risque (beta)" />
+  <Row values="6. Stop loss | Couper les positions perdantes | Aggrave le risque (casse la neutralité)" />
+</CompactTable>
+
+Quand on aligne les 6 échecs, un schéma saute aux yeux. Chaque levier malin tombait dans un piège :
+
+- **Soit il coupait du risque, mais coupait encore plus de rendement** (leviers 1 et 4). Les "mauvaises" jambes que je voulais retirer étaient en fait rentables sur cette période.
+- **Soit il rajoutait du rendement, mais en re-rajoutant exactement le risque que je voulais éviter** (leviers 3 et 5).
+- **Soit, pire, il re-rajoutait le risque sans même le rendement** (levier 6, le stop loss) : en cassant la neutralité, il m'expose au marché *et* coupe des positions qui seraient souvent reparties — le pire des deux mondes.
+
+Le geste bête — parier plus petit, tout le temps — gagne précisément **parce qu'il est bête.** Il ne cherche pas à deviner quelle jambe est bonne, ni à anticiper quand le marché va devenir dangereux, ni à couper au "bon" moment. Il réduit tout, de façon **symétrique et inconditionnelle**. Chaque levier malin, lui, faisait un **pari caché** ("cette jambe est mauvaise", "ce moment est dangereux", "le haut vaut mieux que le bas", "cette position est perdue") — et chacun de ces paris était soit faux sur 2022-2026, soit un simple recyclage du risque.
+
+C'est une leçon que je retrouve sans arrêt en trading algo : **un contrôle du risque simple et systématique bat presque toujours une prédiction maligne.**
+
+## Ce que je ne prétends PAS
+
+Je reste honnête sur les limites, comme d'habitude :
+
+- **C'est un backtest, pas du réel.** 669 cryptos, 2022-2026, sur de l'historique. Aucun euro, et même pas encore de paper trading. Les chiffres réels seront forcément moins beaux.
+- **J'ai testé 5 184 combinaisons.** Quand on en teste autant, on en trouve forcément une qui brille par chance. C'est exactement pour ça que mon point de référence est le geste *le plus bête possible* : si rien d'intelligent ne le bat franchement, c'est lui qui gagne. Un +6 % obtenu sur le meilleur de 5 184 essais, je le traite comme du bruit, pas comme un edge.
+- **2022-2026 a surtout été une grande tendance haussière BTC.** Le régime où le Levier 4 (filtre tendance) brillerait vraiment — un retournement brutal type "momentum crash" — est quasi absent de mon échantillon. Je ne dis pas que ces leviers sont nuls pour toujours ; je dis que **sur cette donnée-là, le contrôle simple a gagné.**
+
+## La suite
+
+Je clôture cette phase de recherche. Le seul objet déployable qui en sort, c'est la version simple : **classer, parier sur les meilleurs, contre les pires, à taille réduite (35 %), tout le temps.**
+
+Et — détail qui compte — ce bot n'aura **pas de stop loss**. Pas par négligence : parce que le Levier 6 vient de me prouver, chiffres à l'appui, qu'un stop empirerait les choses. C'est exactement le genre de décision contre-intuitive que je ne prendrais jamais "au feeling" — il a fallu la mesurer.
+
+Prochaine étape : un **bot en paper trading** sur cette version, avec la même discipline que tout le reste de ma flotte — **40 trades minimum** avant d'envisager le moindre euro réel. S'il tient ses promesses, ça apparaîtra ici. S'il déçoit, ça apparaîtra ici aussi.
+
+Comme toujours : je montre la méthode, qu'elle valide ou qu'elle casse mes idées. C'est la seule façon que ça vaille quelque chose.

@@ -1,0 +1,37 @@
+---
+title: "Pourquoi certains de mes bots ne tradent pas (et pourquoi je ne les force pas)"
+date: "2026-07-02"
+category: "methode"
+tags: ["méthode", "transparence", "flotte", "backtest"]
+summary: "Huit de mes bots de suivi de tendance n'ont pas pris un seul trade depuis fin avril. J'ai vérifié : ce n'est pas un bug, c'est la bonne décision. Voici l'enquête et les chiffres qui la confirment."
+---
+
+Huit de mes bots de suivi de tendance affichent zéro trade depuis fin avril. Sur un site qui
+expose tout, ça se voit. Et la bonne question, c'est : est-ce que c'est cassé ?
+
+J'ai fait l'enquête complète : processus sains, zéro erreur dans les logs, configurations
+pleines, filtres correctement calibrés. La vraie cause : 2026 est jusqu'ici un marché sans
+tendance durable, et ces stratégies n'entrent que quand une tendance se confirme sur H4.
+Pas de tendance, pas de signal. Le silence EST le comportement prévu.
+
+## Et si je les rendais plus nerveux ?
+
+C'est la tentation évidente : accélérer les paramètres pour générer plus de signaux. J'ai
+backtesté cette idée sur 29 actifs, de 2023 à aujourd'hui, avec les vrais calculs des bots.
+Résultat : des paramètres plus rapides multiplient les signaux par 2 à 4… et font tomber le
+profit factor sous 1. Plus de trades, tous mangés par le bruit. Seuls les réglages lents
+actuels restent rentables sur la période.
+
+Le détail par année est encore plus parlant : en 2024-2025 (marchés en tendance), ces
+stratégies gagnaient. Sur 2026, même bien réglées, elles perdent toutes. Autrement dit :
+les filtres qui les gardent à zéro trade cette année les protègent.
+
+## Ce que j'en retire
+
+Un bot qui ne trade pas n'est pas un bot mort : c'est un bot qui refuse de payer des frais
+pour trader du bruit. La discipline, c'est d'accepter la dormance au lieu de forcer
+l'activité. Ceux qui vous vendent des bots « toujours actifs » vendent de l'activité,
+pas de l'espérance de gain.
+
+Les bots repartiront quand le régime redeviendra tendanciel. En attendant, tout reste
+visible ici, y compris les zéros.
