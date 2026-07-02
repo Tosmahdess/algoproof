@@ -81,6 +81,7 @@ export default function Footer() {
         </div>
         <p className="mt-4 text-xs text-muted/50">
           Ceci n&apos;est pas un conseil financier. Toutes les performances sont en paper trading sauf mention contraire.
+          Je ne touche jamais à vos fonds : pas de dépôt, pas de clé d&apos;exchange, tout est en lecture seule.
         </p>
       </div>
     </footer>
