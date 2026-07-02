@@ -1,0 +1,43 @@
+---
+title: "26 juin — PnL négatif malgré un win rate à 78 %"
+date: "2026-06-26"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "87 trades, 78 % de gagnants, mais un outlier short sur STX-USDC plombe la journée à -30 $."
+---
+
+## Régime du jour
+
+BTC évolue à -16,26 % sous son EMA 200 — on est clairement en territoire BEAR, et ça dure. Le global score MI ressort à -11,81, ce qui maintient le risk level en GREEN malgré la tendance déprimée ; le hard gate reste ouvert dans les deux sens, longs comme shorts. Le DED shadow est en mode LONG_BIAS avec un score de 0,62, porté par un PnL glissant 3 jours à -71 $ qui pousse le système à chercher des opportunités haussières — un signal à prendre avec des pincettes dans ce contexte baissier.
+
+## Flotte
+
+<CompactTable cols="Métrique,Valeur" widths="60,40">
+  <Row values="Bots live,2" />
+  <Row values="Bots paper,31" />
+  <Row values="Total flotte,40" />
+  <Row values="Trades du jour,87" />
+  <Row values="Win rate,78,2 %" />
+  <Row values="PnL net,-30,47 $" />
+  <Row values="Meilleur trade,INJ-USDT short +8,33 $" />
+  <Row values="Pire trade,STX-USDC short -12,45 $" />
+  <Row values="Trend regime,BEAR" />
+  <Row values="Risk level,GREEN" />
+  <Row values="Hard gate longs,OUVERT" />
+  <Row values="Hard gate shorts,OUVERT" />
+</CompactTable>
+
+<StatRow>
+  <Stat label="Trades" value="87" />
+  <Stat label="Win rate" value="78,2 %" />
+  <Stat label="PnL" value="-30,47 $" />
+  <Stat label="DED score" value="0,62" />
+</StatRow>
+
+La journée illustre un problème classique : un win rate élevé ne garantit pas un PnL positif si la distribution des pertes est asymétrique. STX-USDC short à -12,45 $ a pesé à lui seul l'équivalent de plusieurs trades gagnants. INJ-USDT short à +8,33 $ reste le seul trade vraiment significatif en positif. Avec seulement 2 bots en live, l'essentiel du volume de trades vient du paper — ce qui limite l'impact réel sur le capital, mais ne rend pas l'analyse moins utile.
+
+## Ce que je surveille
+
+- **L'asymétrie pertes/gains sur les shorts** : deux journées consécutives où les pires trades sont des shorts qui partent en sens inverse. Je vais regarder si un filtre de volatilité implicite sur les altcoins mid-cap permettrait de couper ces positions plus tôt.
+- **Le DED en LONG_BIAS vs régime BEAR** : le système veut shorter le biais baissier du DED, mais le module pousse vers le long. Je surveille si ce conflit interne se traduit par une dégradation du hit rate sur les longs paper demain.
+- **L'activation éventuelle du hard gate** : le PnL 3 jours est à -71 $, et si la journée du 27 suit la même tendance, je m'attends à voir les layers du gate commencer à se déclencher — notamment sur les cooldown shorts.
