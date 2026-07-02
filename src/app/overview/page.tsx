@@ -42,7 +42,7 @@ export default async function OverviewPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Vue d&apos;ensemble</h1>
           <p className="text-sm text-muted max-w-2xl mb-6">
-            Chaque bot ci-dessous trade en conditions réelles — tout est horodaté, rien n&apos;est retiré.
+            Chaque bot ci-dessous trade en conditions réelles : tout est horodaté, rien n&apos;est retiré.
             Comment lire : le <a href="/lexique#profit-factor" className="text-accent">profit factor</a> mesure
             les gains divisés par les pertes (au-dessus de 1, la stratégie gagne), le{' '}
             <a href="/lexique#win-rate" className="text-accent">win rate</a> le % de trades gagnants, le{' '}

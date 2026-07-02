@@ -128,7 +128,7 @@ export default function StartPage() {
 
       {/* Affiliate disclosure */}
       <p className="text-xs text-muted">
-        Transparence : les liens Bybit et Binance ci-dessus sont des liens d'affiliation — si tu ouvres un
+        Transparence : les liens Bybit et Binance ci-dessus sont des liens d'affiliation : si tu ouvres un
         compte en passant par eux, je touche une commission, sans aucun surcoût pour toi. Le lien
         Hyperliquid n'est pas affilié. Ça ne change ni mon avis ni mes comparatifs.
       </p>
