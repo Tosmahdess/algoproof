@@ -1,0 +1,38 @@
+---
+title: "2 juillet — PnL négatif malgré un win rate solide"
+date: "2026-07-02"
+category: "journal"
+tags: ["daily", "fleet", "MI"]
+summary: "67 trades, 74,6 % de win rate, mais -63 $ au compteur : une journée qui illustre bien le piège du ratio gain/perte asymétrique en régime BEAR."
+---
+
+## Régime du jour
+
+BTC traitait à -16,8 % sous son EMA 200 ce matin — le régime de tendance reste fermement estampillé **BEAR**. Le heartbeat global affiche -10,95, mais le risk level tient à **GREEN** et le hard gate laisse passer longs comme shorts sans restriction. Le DED shadow est en **LONG_BIAS** (score 0,62), ce qui crée une légère tension avec le contexte macro : le modèle penche long, le marché reste baissier.
+
+## Flotte
+
+<CompactTable cols="Composant,Statut,Détail" widths="40,20,40">
+  <Row values="Bots live,✅ Actif,2 bots en production" />
+  <Row values="Bots paper,🧪 Paper,31 bots en simulation" />
+  <Row values="Total flotte,📊 40 slots,2 live / 31 paper / 7 inactifs" />
+  <Row values="Hard gate v1,✅ Ouvert,Long + Short autorisés" />
+  <Row values="DED shadow,⚠️ LONG_BIAS,Score 0,62 — pas encore live" />
+  <Row values="Cooldown,🕐 12h,Live enforced : inactif" />
+</CompactTable>
+
+<StatRow>
+  <Stat label="Trades du jour" value="67" />
+  <Stat label="PnL net" value="-63,33 $" />
+  <Stat label="Win rate" value="74,6 %" />
+  <Stat label="Meilleur trade" value="+3,07 $ (SOL long)" />
+  <Stat label="Pire trade" value="-10,57 $ (STX short)" />
+</StatRow>
+
+La journée résume bien un problème classique : 50 trades gagnants sur 67, et pourtant je sors perdant. Le coupable est immédiat — STX short à -10,57 $ à lui seul efface plusieurs sessions de gains accumulés. En régime BEAR avec un DED qui pousse au long, les positions short contre-tendance auraient dû être filtrées plus agressivement. Je note aussi que le rolling PnL 3 jours plonge à -85,52 $ : ce n'est pas une anomalie isolée, c'est un signal de dérive.
+
+## Ce que je surveille
+
+- **STX-USDC** : je veux comprendre si ce -10,57 $ est une exposition sizing mal calibrée ou un signal d'entrée franchement raté — j'audite la logique de gate sur ce pair avant la prochaine session.
+- **Tension DED vs régime BEAR** : le DED shadow en LONG_BIAS avec BTC à -16,8 % sous l'EMA 200 me met mal à l'aise. Je surveille si le score se consolide au-dessus de 0,7 demain pour décider de l'activer ou de le mettre en pause forcée.
+- **Rolling 3j à -85 $** : si cette série continue demain, j'envisage de réduire temporairement l'exposition live à 1 bot et de laisser le second passer en paper le temps que le régime se stabilise.
