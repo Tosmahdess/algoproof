@@ -60,4 +60,14 @@ describe('MiRegimeBadge', () => {
     render(<MiRegimeBadge />)
     await waitFor(() => expect(screen.getByText(/Pas encore de données/)).toBeDefined())
   })
+
+  it('does not render the retired institutional pillar', async () => {
+    // institutional_score scoring was retired server-side on 2026-06-26 and is always
+    // null in prod since — the dead "INSTITUTIONNEL —" 5th pillar must not display,
+    // even though the snapshot type/mock still carries the (unused) field.
+    vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
+    render(<MiRegimeBadge />)
+    await waitFor(() => expect(screen.getByText('GREEN')).toBeDefined())
+    expect(screen.queryByText('Institutionnel')).toBeNull()
+  })
 })

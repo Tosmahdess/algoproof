@@ -26,12 +26,13 @@ const BIAS_COLOR: Record<string, string> = {
   BLOCKED:    '#666',
 }
 
+// The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
+// 2026-06-26 — institutional_score is always null since. Keep only the 4 live pillars.
 const PILLARS: { key: keyof MiSnapshot; label: string; color: string }[] = [
   { key: 'sentiment_score',     label: 'Sentiment',      color: '#ff6b35' },
   { key: 'derivatives_score',   label: 'Dérivés',        color: '#d2a8ff' },
   { key: 'news_score',          label: 'News',           color: '#3fb950' },
   { key: 'macro_score',         label: 'Macro',          color: '#40c4ff' },
-  { key: 'institutional_score', label: 'Institutionnel', color: '#f6c90e' },
 ]
 
 export default function MiRegimeBadge() {
@@ -93,8 +94,8 @@ export default function MiRegimeBadge() {
         {snap.is_macro_safe === false && ' — Filtre macro actif'}
       </p>
 
-      {/* Row 3 — 5 pillar scores */}
-      <div className="grid grid-cols-5 gap-2 text-xs font-mono">
+      {/* Row 3 — 4 pillar scores */}
+      <div className="grid grid-cols-4 gap-2 text-xs font-mono">
         {PILLARS.map(p => (
           <div key={p.key} className="text-center">
             <p className="text-[9px] text-muted uppercase tracking-wider leading-tight">{p.label}</p>

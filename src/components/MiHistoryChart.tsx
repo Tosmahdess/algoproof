@@ -10,13 +10,14 @@ interface Props {
   data: MiSnapshot[]
 }
 
+// The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
+// 2026-06-26 — institutional_score is always null since. Only the 4 live pillars remain.
 const PILLAR_COLORS = {
   composite_score:     '#ffffff',
   sentiment_score:     '#ff6b35',
   derivatives_score:   '#d2a8ff',
   news_score:          '#3fb950',
   macro_score:         '#40c4ff',
-  institutional_score: '#f6c90e',
 }
 
 const REGIME_BG: Record<string, string> = {
@@ -108,9 +109,6 @@ export default function MiHistoryChart({ data }: Props) {
             <Line dataKey="derivatives_score" name="Dérivés"        stroke={PILLAR_COLORS.derivatives_score} strokeWidth={1} dot={false} strokeOpacity={0.6} />
             <Line dataKey="news_score"        name="News"           stroke={PILLAR_COLORS.news_score}        strokeWidth={1} dot={false} strokeOpacity={0.6} />
             <Line dataKey="macro_score"       name="Macro"          stroke={PILLAR_COLORS.macro_score}       strokeWidth={1} dot={false} strokeOpacity={0.6} />
-            {data.some(d => d.institutional_score != null) && (
-              <Line dataKey="institutional_score" name="Institutionnel" stroke={PILLAR_COLORS.institutional_score} strokeWidth={1} dot={false} strokeOpacity={0.6} />
-            )}
             {/* Global score — bold on top */}
             <Line dataKey="composite_score" name="Global" stroke="#ffffff" strokeWidth={2} dot={false} />
 
@@ -123,13 +121,12 @@ export default function MiHistoryChart({ data }: Props) {
       </div>
 
       {/* Pilier weights note */}
-      <div className="grid grid-cols-5 gap-2 text-center text-[10px] font-mono">
+      <div className="grid grid-cols-4 gap-2 text-center text-[10px] font-mono">
         {[
           { label: 'Sentiment', weight: '30%', color: PILLAR_COLORS.sentiment_score },
           { label: 'Dérivés',   weight: '30%', color: PILLAR_COLORS.derivatives_score },
           { label: 'News',      weight: '20%', color: PILLAR_COLORS.news_score },
           { label: 'Macro',     weight: '20%', color: PILLAR_COLORS.macro_score },
-          { label: 'Institut.', weight: 'obs.', color: PILLAR_COLORS.institutional_score },
         ].map(p => (
           <div key={p.label} className="rounded border border-border py-1.5 px-1">
             <p style={{ color: p.color }} className="font-semibold">{p.weight}</p>
@@ -137,9 +134,6 @@ export default function MiHistoryChart({ data }: Props) {
           </div>
         ))}
       </div>
-      <p className="text-[10px] text-muted/60 text-center -mt-4">
-        Institutionnel = observationnel — non intégré au score avant 90 jours de validation
-      </p>
     </div>
   )
 }
