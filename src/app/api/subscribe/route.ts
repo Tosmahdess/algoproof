@@ -53,11 +53,17 @@ export async function POST(request: NextRequest) {
   }
   const source = normalizeSource(body.source)
 
+  // Plain insert: ON CONFLICT under RLS trips the anon policy (42501), so
+  // duplicates are handled via the unique-violation code instead.
   const { error } = await supabaseServer
     .from('email_subscribers')
-    .upsert({ email, source }, { onConflict: 'email', ignoreDuplicates: true })
+    .insert({ email, source })
 
-  if (error) return NextResponse.json({ error: 'Insert failed' }, { status: 500, headers })
+  const isDuplicate = error?.code === '23505'
+  if (error && !isDuplicate) {
+    return NextResponse.json({ error: 'Insert failed' }, { status: 500, headers })
+  }
+  if (isDuplicate) return NextResponse.json({ ok: true }, { status: 200, headers })
 
   notifyTelegram(email, source)
 
