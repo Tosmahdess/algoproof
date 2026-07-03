@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BYBIT_AFFILIATE_URL, BINANCE_AFFILIATE_URL, HL_AFFILIATE_URL } from '@/lib/affiliates'
+import { BYBIT_AFFILIATE_URL, HL_AFFILIATE_URL } from '@/lib/affiliates'
 
 export const metadata: Metadata = {
   title: 'Démarrer — Trader les bots depuis la France',
-  description: 'Binance Futures est bloqué en France depuis 2023 (AMF). Découvrez Bybit et Hyperliquid, les deux exchanges compatibles pour trader les bots AlgoProof.',
+  description: 'Binance a cessé de servir les résidents français (MiCA, juillet 2026). Découvrez Bybit, Hyperliquid et Kraken, les exchanges compatibles pour trader les stratégies AlgoProof depuis la France.',
   openGraph: { url: 'https://algoproof.fr/start' },
 }
 
@@ -18,8 +18,10 @@ export default function StartPage() {
           Trader les bots depuis la France
         </h1>
         <p className="text-muted leading-relaxed">
-          Binance Futures n&apos;est plus accessible aux résidents français depuis 2023 (restriction AMF).
-          Deux exchanges compatibles permettent de trader les mêmes stratégies.
+          Binance Futures est bloqué pour les résidents français depuis 2023 (restriction AMF), et
+          Binance a cessé de servir la France au 1er juillet 2026 (réglementation MiCA). Trois
+          plateformes restent compatibles pour trader les mêmes stratégies — mon propre bot spot
+          live tourne sur Kraken depuis le 30 juin.
         </p>
       </div>
 
@@ -92,45 +94,45 @@ export default function StartPage() {
           </a>
         </div>
 
-        {/* Binance Spot */}
+        {/* Kraken */}
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Binance Spot</h2>
-            <span className="rounded-full bg-muted/10 border border-border px-2.5 py-0.5 text-xs font-medium text-muted">
-              Spot uniquement
+            <h2 className="text-lg font-semibold">Kraken</h2>
+            <span className="rounded-full bg-positive/10 border border-positive/30 px-2.5 py-0.5 text-xs font-medium text-positive">
+              Mon bot spot tourne ici
             </span>
           </div>
           <ul className="space-y-1.5 text-sm text-muted">
-            <li>✓ Exchange numéro 1 mondial — liquidité maximale</li>
-            <li>✓ Disponible en France pour le spot</li>
-            <li>✓ Frais taker 0.10% (réduits avec BNB)</li>
-            <li>✓ Large choix d&apos;actifs spot</li>
-            <li>⚠ Binance <strong className="text-text">Futures bloqué</strong> — spot uniquement depuis FR</li>
+            <li>✓ Disponible en France (cadre MiCA)</li>
+            <li>✓ Dépôt EUR par virement SEPA</li>
+            <li>✓ Exchange historique (2011), réputation sécurité solide</li>
+            <li>✓ API compatible avec nos bots spot</li>
+            <li>✓ C&apos;est ici que mon bot EMA Cross live tourne depuis le 30 juin 2026</li>
           </ul>
           <div className="space-y-2 text-xs text-muted">
             <p className="font-medium text-text">3 étapes pour démarrer :</p>
             <ol className="list-decimal list-inside space-y-1">
               <li>Créer un compte et passer le KYC</li>
-              <li>Déposer des USDT (virement SEPA)</li>
+              <li>Déposer des EUR (virement SEPA) ou de l&apos;USDC</li>
               <li>Générer une clé API Spot et la configurer dans le bot</li>
             </ol>
           </div>
           <a
-            href={BINANCE_AFFILIATE_URL}
+            href="https://www.kraken.com"
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-text transition-colors hover:border-positive hover:text-positive"
           >
-            Créer un compte Binance →
+            Découvrir Kraken →
           </a>
         </div>
       </div>
 
       {/* Affiliate disclosure */}
       <p className="text-xs text-muted">
-        Transparence : les liens Bybit et Binance ci-dessus sont des liens d'affiliation : si tu ouvres un
-        compte en passant par eux, je touche une commission, sans aucun surcoût pour toi. Le lien
-        Hyperliquid n'est pas affilié. Ça ne change ni mon avis ni mes comparatifs.
+        Transparence : le lien Bybit ci-dessus est un lien d'affiliation : si tu ouvres un
+        compte en passant par lui, je touche une commission, sans aucun surcoût pour toi. Les liens
+        Hyperliquid et Kraken ne sont pas affiliés. Ça ne change ni mon avis ni mes comparatifs.
       </p>
 
       {/* Comparison table */}
@@ -143,39 +145,41 @@ export default function StartPage() {
                 <th className="px-4 py-3 text-left font-medium text-muted">Critère</th>
                 <th className="px-4 py-3 text-left font-medium text-muted">Bybit</th>
                 <th className="px-4 py-3 text-left font-medium text-muted">Hyperliquid</th>
-                <th className="px-4 py-3 text-left font-medium text-muted">Binance Spot</th>
+                <th className="px-4 py-3 text-left font-medium text-muted">Kraken</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {[
                 ['Type',               'CEX',             'DEX',              'CEX'],
-                ['Dépôt',              'Fiat + crypto',   'USDC Arbitrum',    'Fiat + crypto'],
-                ['Frais taker',        '~0.055%',         '0.065%',           '0.10%'],
-                ['Futures FR',         '✓ Oui',           '✓ Oui',            '✗ Bloqué'],
+                ['Dépôt',              'Fiat + crypto',   'USDC Arbitrum',    'Fiat (EUR SEPA) + crypto'],
+                ['Frais taker',        '~0.055%',         '0.065%',           '~0.26% spot*'],
+                ['Futures FR',         '✓ Oui',           '✓ Oui',            '✗ Non'],
                 ['Spot FR',            '✓ Oui',           '—',                '✓ Oui'],
                 ['Complexité setup',   'Facile',          'Avancée',          'Facile'],
                 ['Custodial',          'Oui',             'Non',              'Oui'],
-              ].map(([label, bybit, hl, binance]) => (
+              ].map(([label, bybit, hl, kraken]) => (
                 <tr key={label} className="hover:bg-card/30 transition-colors">
                   <td className="px-4 py-3 font-medium text-muted">{label}</td>
                   <td className="px-4 py-3 text-text">{bybit}</td>
                   <td className="px-4 py-3 text-text">{hl}</td>
-                  <td className="px-4 py-3 text-text">{binance}</td>
+                  <td className="px-4 py-3 text-text">{kraken}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-xs text-muted">* Vérifier les frais exacts sur bybit.com/fee-schedule</p>
+        <p className="mt-2 text-xs text-muted">* Frais dégressifs selon le volume — vérifier les grilles exactes sur les sites des plateformes.</p>
       </div>
 
-      {/* Why not BF */}
+      {/* Why not Binance */}
       <div className="rounded-xl border border-border bg-card p-6 space-y-3">
-        <h2 className="text-base font-semibold">Pourquoi pas Binance Futures ?</h2>
+        <h2 className="text-base font-semibold">Pourquoi pas Binance ?</h2>
         <p className="text-sm text-muted leading-relaxed">
           Depuis 2023, l&apos;AMF (Autorité des Marchés Financiers) a demandé aux plateformes de dérivés crypto
-          de restreindre l&apos;accès aux résidents français. Binance a appliqué cette restriction volontairement
-          pour ses produits Futures. Il n&apos;existe pas de dérogation individuelle.
+          de restreindre l&apos;accès aux résidents français : Binance Futures est bloqué depuis. Et au
+          1er juillet 2026, avec la fin de la période de transition MiCA, Binance a cessé de servir les
+          résidents français y compris pour le spot. Mon propre bot spot live a migré sur Kraken le 30 juin
+          2026, sans changer de stratégie.
         </p>
         <p className="text-sm text-muted leading-relaxed">
           <strong className="text-text">À ne pas faire :</strong> utiliser un VPN pour contourner la restriction
