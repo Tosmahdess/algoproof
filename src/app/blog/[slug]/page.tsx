@@ -34,6 +34,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: article.meta.title as string,
     description: (article.meta.summary ?? article.meta.title) as string,
+    // Daily LLM journals are near-duplicate scaled content (same regime restated every
+    // day) — noindex so they don't dilute; keep follow so their links are still crawled.
+    // The weekly recaps and real articles stay indexable. (D026, 2026-07-03.)
+    robots: article.meta.category === 'journal' ? { index: false, follow: true } : undefined,
     openGraph: {
       type: 'article',
       url: `https://algoproof.fr/blog/${slug}`,
