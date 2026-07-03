@@ -20,9 +20,9 @@ export default function TriggerCounter({ data }: Props) {
       <div className="flex items-center gap-3 mb-5">
         <span className="text-xl">{allMet ? '🔓' : '🔒'}</span>
         <div>
-          <p className="font-semibold text-sm">Code V1 Spot</p>
+          <p className="font-semibold text-sm">Code EMA Cross H4 Binance Spot</p>
           <p className="text-xs text-muted">
-            {allMet ? 'Critères avant live — atteints' : 'Critères avant live — en cours'}
+            {allMet ? 'Critères avant la vente du code : atteints' : 'Critères avant la vente du code : en cours'}
           </p>
         </div>
       </div>
