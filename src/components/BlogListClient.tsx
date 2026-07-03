@@ -5,6 +5,11 @@ import Link from 'next/link'
 import type { ArticleMeta } from '@/app/blog/page'
 import { BLOG_CATEGORIES, CATEGORY_ORDER, type BlogCategory } from '@/lib/blog-categories'
 
+const PINNED_SLUGS = [
+  '2026-06-25-momentum-crypto-de-grossing',
+  '2026-07-02-pourquoi-mes-bots-ne-tradent-pas',
+]
+
 export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
   const [filter, setFilter] = useState<BlogCategory | null>(null)
 
@@ -15,12 +20,35 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
     return acc
   }, {})
 
+  const pinned = PINNED_SLUGS
+    .map(slug => articles.find(a => a.slug === slug))
+    .filter((a): a is ArticleMeta => a !== undefined)
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-16">
       <h1 className="text-3xl font-bold mb-6">Articles</h1>
       <p className="text-sm text-muted max-w-2xl mb-6">
         Des articles pour comprendre comment je travaille : débuter, ma méthode de recherche, la fiscalité crypto et la conformité <strong>MiCA</strong> en France.
       </p>
+
+      {/* Pinned articles */}
+      {pinned.length > 0 && (
+        <div className="mb-10">
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">À lire d&apos;abord</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {pinned.map(a => (
+              <Link
+                key={a.slug}
+                href={`/blog/${a.slug}`}
+                className="bg-card border border-border rounded-xl p-5 hover:border-positive/30 transition-colors group"
+              >
+                <h3 className="font-semibold group-hover:text-positive transition-colors mb-1.5">{a.title}</h3>
+                <p className="text-muted text-xs">{a.summary}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Category filter pills */}
       <div className="flex flex-wrap gap-2 mb-10">

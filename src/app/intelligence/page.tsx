@@ -113,7 +113,15 @@ export default async function IntelligencePage() {
       </div>
 
       {/* Live regime */}
-      <MiRegimeBadge />
+      <div>
+        <MiRegimeBadge />
+        <p className="text-xs text-muted mt-3">
+          Tu peux regarder le gardien travailler : chaque signal accepté ou rejeté, en direct.{' '}
+          <a href="https://lab.algoproof.fr/terminal" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+            Voir le terminal →
+          </a>
+        </p>
+      </div>
 
       {/* Historical scores — 7 days */}
       <section>

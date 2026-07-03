@@ -12,3 +12,19 @@ import type { BotStatus } from './types'
 export function excludeArchived<T extends { status: BotStatus }>(bots: T[]): T[] {
   return bots.filter(b => b.status !== 'archived')
 }
+
+/**
+ * Split a bot list into the three display cohorts used on /strategies:
+ * live (real capital), paper (everything else still active), archived (badged, muted).
+ */
+export function splitCohorts<T extends { status: BotStatus }>(bots: T[]): {
+  live: T[]
+  paper: T[]
+  archived: T[]
+} {
+  return {
+    live: bots.filter(b => b.status === 'live'),
+    paper: bots.filter(b => b.status !== 'live' && b.status !== 'archived'),
+    archived: bots.filter(b => b.status === 'archived'),
+  }
+}

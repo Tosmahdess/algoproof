@@ -6,6 +6,7 @@ import BotCard from '@/components/BotCard'
 import AssetFilterSelect from '@/components/AssetFilterSelect'
 import { assetOptionsFromTrades } from '@/lib/asset'
 import { computeBotStats } from '@/lib/stats'
+import { splitCohorts } from '@/lib/cohort'
 
 type StatusFilter = 'all' | 'live' | 'paper'
 
@@ -63,9 +64,10 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
     return statusOk && familyOk && assetOk
   })
 
-  const filteredLive  = filtered.filter(b => b.status === 'live')
-  const filteredPaper = filtered.filter(b => b.status !== 'live')
-  const showLiveSection = statusFilter !== 'paper' && filteredLive.length > 0
+  const { live: filteredLive, paper: filteredPaper, archived: filteredArchived } = splitCohorts(filtered)
+  const showLiveSection     = statusFilter !== 'paper' && filteredLive.length > 0
+  const showPaperHeading    = filteredPaper.length > 0
+  const showArchivedSection = filteredArchived.length > 0
   const familiesToShow  = familyFilter ? FAMILIES.filter(f => f.slug === familyFilter) : FAMILIES
 
   const toggleStatus = (s: 'live' | 'paper') =>
@@ -178,7 +180,17 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
         </section>
       )}
 
-      {/* Family sections — paper bots only */}
+      {/* Paper trading — grouped by family */}
+      {showPaperHeading && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-2 h-2 rounded-full bg-yellow-500/60" />
+            <h2 className="text-sm font-bold text-yellow-300 uppercase tracking-widest">
+              Paper trading
+            </h2>
+          </div>
+        </div>
+      )}
       {familiesToShow.map(fam => {
         const famBots = filteredPaper
           .filter(b => b.family === fam.slug)
@@ -214,6 +226,23 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
           </section>
         )
       })}
+
+      {/* Archived — badged, excluded from every aggregate, kept visible for transparency */}
+      {showArchivedSection && (
+        <section>
+          <div className="flex items-center gap-2 mb-4 opacity-70">
+            <span className="w-2 h-2 rounded-full bg-muted" />
+            <h2 className="text-sm font-bold text-muted uppercase tracking-widest">
+              Archivés
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
+            {filteredArchived.map(bot => (
+              <BotCard key={bot.slug} bot={bot} statsOverride={overrideFor(bot.slug)} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }
