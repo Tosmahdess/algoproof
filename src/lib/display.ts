@@ -27,3 +27,21 @@ export function fmtEur(n: number, decimals = 2): string {
 export function fmtPct(n: number, decimals = 1): string {
   return `${n >= 0 ? '+' : ''}${n.toFixed(decimals)}%`
 }
+
+// Profit factor and win rate are meaningless for carry/portage bots (grid, funding-rate
+// harvesting): they run by construction with almost no losing round-trips, which produces
+// absurd headline numbers (PF 999.00, WR 100%) that read as a broken metric rather than a
+// real edge. These bots should be judged on P&L/drawdown instead.
+export const CARRY_METRIC_TOOLTIP = 'Métrique non pertinente pour le portage : voir le P&L.'
+
+export function isCarryFamily(family: string | null | undefined): boolean {
+  return family === 'carry'
+}
+
+export function fmtPfForFamily(family: string | null | undefined, pf: number): string {
+  return isCarryFamily(family) ? '—' : pf.toFixed(2)
+}
+
+export function fmtWinRateForFamily(family: string | null | undefined, winRate: number): string {
+  return isCarryFamily(family) ? '—' : `${(winRate * 100).toFixed(1)}%`
+}
