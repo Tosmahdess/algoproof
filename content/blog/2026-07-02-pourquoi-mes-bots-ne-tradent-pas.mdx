@@ -3,35 +3,29 @@ title: "Pourquoi certains de mes bots ne tradent pas (et pourquoi je ne les forc
 date: "2026-07-02"
 category: "methode"
 tags: ["méthode", "transparence", "flotte", "backtest"]
-summary: "Huit de mes bots de suivi de tendance n'ont pas pris un seul trade depuis fin avril. J'ai vérifié : ce n'est pas un bug, c'est la bonne décision. Voici l'enquête et les chiffres qui la confirment."
+summary: "Huit de mes bots de suivi de tendance n'ont pas pris un seul trade depuis fin avril. J'ai vérifié, chiffres à l'appui : ce n'est pas un bug, c'est la bonne décision. Voici l'enquête, et le tableau qui la tranche."
 ---
 
-Huit de mes bots de suivi de tendance affichent zéro trade depuis fin avril. Sur un site qui
-expose tout, ça se voit. Et la bonne question, c'est : est-ce que c'est cassé ?
+Huit de mes bots de suivi de tendance affichent zéro trade depuis fin avril. Sur un site qui expose tout, ça se voit. Et la bonne question, la seule, c'est : est-ce que c'est cassé ?
 
-J'ai fait l'enquête complète : processus sains, zéro erreur dans les logs, configurations
-pleines, filtres correctement calibrés. La vraie cause : 2026 est jusqu'ici un marché sans
-tendance durable, et ces stratégies n'entrent que quand une tendance se confirme sur H4.
-Pas de tendance, pas de signal. Le silence EST le comportement prévu.
+J'ai fait l'enquête complète. Les processus tournent, il n'y a aucune erreur dans les logs, les configurations sont pleines, les filtres sont correctement calibrés. La vraie cause est ailleurs : 2026 est jusqu'ici un marché sans tendance durable, et ces stratégies n'entrent que quand une tendance se confirme en H4. Pas de tendance, pas de signal. Le silence est le comportement prévu, pas une panne.
 
 ## Et si je les rendais plus nerveux ?
 
-C'est la tentation évidente : accélérer les paramètres pour générer plus de signaux. J'ai
-backtesté cette idée sur 29 actifs, de 2023 à aujourd'hui, avec les vrais calculs des bots.
-Résultat : des paramètres plus rapides multiplient les signaux par 2 à 4… et font tomber le
-profit factor sous 1. Plus de trades, tous mangés par le bruit. Seuls les réglages lents
-actuels restent rentables sur la période.
+C'est la tentation évidente : accélérer les paramètres pour générer plus de signaux. Au lieu d'y croire ou de le refuser au feeling, je l'ai backtesté. 29 actifs, de 2023 à aujourd'hui, en H4, avec les calculs exacts que les bots utilisent en direct (je copie le code de production dans le test, pas une approximation).
 
-Le détail par année est encore plus parlant : en 2024-2025 (marchés en tendance), ces
-stratégies gagnaient. Sur 2026, même bien réglées, elles perdent toutes. Autrement dit :
-les filtres qui les gardent à zéro trade cette année les protègent.
+Le résultat est net. Des réglages plus rapides multiplient les signaux par 2 à 4, et font tomber le profit factor sous 1. Sur mon bot HMA, passer des réglages lents actuels (20/100) à des réglages rapides fait exploser le nombre de croisements de 8 400 à 36 000 sur la période, et le profit factor descend de 1,18 à 0,92-0,96. Autrement dit : quatre fois plus de trades, tous mangés par le bruit, et le résultat devient perdant. Même histoire sur le TEMA (1,13 en lent, sous 1 en rapide) et sur l'Ichimoku, le meilleur des trois à 1,23, qui se dégrade dès qu'on le raccourcit. La rareté des trades n'est pas un défaut à corriger : c'est le prix de l'edge.
+
+## Le chiffre qui tranche
+
+Le plus parlant, c'est de regarder les mêmes stratégies, bien réglées, année par année (en facteur de profit, au-dessus de 1 c'est gagnant, en dessous c'est perdant).
+
+En 2023, les trois tournaient autour de l'équilibre : entre 0,85 et 1,01. En 2024 et surtout 2025, quand le marché tenait des tendances, elles imprimaient : jusqu'à 1,34 pour le HMA, 1,49 pour le TEMA, 1,52 pour l'Ichimoku. Et en 2026 ? Les trois repassent nettement perdantes, entre 0,87 et 0,93, avec exactement les mêmes réglages.
+
+Ce n'est donc pas une question de paramètres, c'est une question de régime. Et ça change tout pour lire le silence : les filtres qui gardent ces bots à zéro trade cette année ne les brident pas, ils les protègent. Ils leur évitent précisément les trades 2026 qui auraient perdu.
 
 ## Ce que j'en retire
 
-Un bot qui ne trade pas n'est pas un bot mort : c'est un bot qui refuse de payer des frais
-pour trader du bruit. La discipline, c'est d'accepter la dormance au lieu de forcer
-l'activité. Ceux qui vous vendent des bots « toujours actifs » vendent de l'activité,
-pas de l'espérance de gain.
+Un bot qui ne trade pas n'est pas un bot mort. C'est un bot qui refuse de payer des frais pour trader du bruit. La discipline, ce n'est pas l'activité, c'est d'accepter la dormance quand il n'y a rien à prendre. Ceux qui vous vendent des bots « toujours actifs » vendent de l'activité, pas de l'espérance de gain, parce qu'un bot qui trade tous les jours rassure, même quand il perd tous les jours.
 
-Les bots repartiront quand le régime redeviendra tendanciel. En attendant, tout reste
-visible ici, y compris les zéros.
+Je préfère vous montrer les zéros et vous expliquer pourquoi. Les bots repartiront quand le régime redeviendra tendanciel, et vous le verrez ici en temps réel, comme le reste. En attendant, la meilleure décision que prend mon système, c'est de ne rien faire.
