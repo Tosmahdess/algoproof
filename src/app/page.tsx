@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
+import EmailCapture from '@/components/EmailCapture'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { excludeArchived } from '@/lib/cohort'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample } from '@/lib/display'
@@ -220,6 +221,10 @@ export default async function HomePage() {
           <p className="text-muted text-sm">P&amp;L journalier filtrable — direction, famille, période. Les chiffres bruts, sans filtre.</p>
           <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir les résultats →</span>
         </Link>
+      </div>
+
+      <div className="mb-12">
+        <EmailCapture source="home" />
       </div>
 
       {/* CTA final — distinct from hero (onboarding, not the lab) */}
