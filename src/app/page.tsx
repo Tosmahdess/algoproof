@@ -71,6 +71,15 @@ export default async function HomePage() {
           <span><strong className="text-white font-mono">{bots.filter(b => b.stats.total_trades > 0).length}</strong> avec des trades réels</span>
           <span className="text-border">·</span>
           <span>données mises à jour chaque heure</span>
+          <span className="text-border">·</span>
+          <a
+            href="https://lab.algoproof.fr/galerie"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors"
+          >
+            et un cimetière public de stratégies rejetées
+          </a>
         </div>
       </div>
 
@@ -97,6 +106,28 @@ export default async function HomePage() {
           Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel — drawdowns, mauvaises semaines et erreurs compris. Alors j&apos;expose tout, sans filtre.
         </p>
         <Link href="/preuve" className="text-sm text-positive hover:underline">Lire le manifeste →</Link>
+      </div>
+
+      {/* Ce qui travaille en ce moment */}
+      <div className="mb-16">
+        <h2 className="text-xl font-bold mb-6">Ce qui travaille en ce moment</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link href="/strategies/orb-bf25" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
+            <h3 className="text-lg font-bold mb-2">En argent réel</h3>
+            <p className="text-muted text-sm">ORB H1 tourne sur Hyperliquid avec mon capital. Chaque trade, chaque perte, publié à l&apos;heure.</p>
+            <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir le bot →</span>
+          </Link>
+          <Link href="/strategies/funding-rev-long" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
+            <h3 className="text-lg font-bold mb-2">Le dernier arrivé</h3>
+            <p className="text-muted text-sm">Funding Reversal a passé mon gate de validation le 30 juin : contrarien sur les extrêmes de funding, long only. En paper : 40 trades exigés avant le moindre euro réel.</p>
+            <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir le bot →</span>
+          </Link>
+          <Link href="/blog/2026-07-02-pourquoi-mes-bots-ne-tradent-pas" className="bg-card border border-border rounded-xl p-8 text-center hover:border-muted/50 transition-colors group">
+            <h3 className="text-lg font-bold mb-2">Ceux qui dorment</h3>
+            <p className="text-muted text-sm">Mes bots de tendance n&apos;ont presque pas tradé depuis deux mois. C&apos;est voulu : pas de tendance, pas de trade. J&apos;ai vérifié, les forcer serait perdant.</p>
+            <span className="inline-block mt-4 text-sm text-white group-hover:underline">Lire l&apos;enquête →</span>
+          </Link>
+        </div>
       </div>
 
       {/* Tableau comparatif — top 10 */}

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import type { MiSnapshot } from '@/lib/types'
 
@@ -53,40 +54,49 @@ export default function MiBanner() {
   ]
 
   return (
-    <div className="rounded border overflow-hidden" style={{ borderColor: color + '40' }}>
-      {/* Header bar */}
-      <div className="px-5 py-3 flex items-center gap-4" style={{ background: color + '12' }}>
-        <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ background: color }} />
-        <div className="flex-1 flex items-center gap-4 flex-wrap">
-          <span className="text-sm font-bold tracking-widest uppercase" style={{ color }}>
-            {label}
-          </span>
-          <span className="font-mono text-xs text-muted">
-            Score composite : {snap.composite_score?.toFixed(2) ?? '—'}
-          </span>
-          <span className="text-xs text-muted">
-            {snap.is_safe ? '✅ Trading autorisé' : '🔴 Trading bloqué'}
-          </span>
+    <div>
+      <div className="rounded border overflow-hidden" style={{ borderColor: color + '40' }}>
+        {/* Header bar */}
+        <div className="px-5 py-3 flex items-center gap-4" style={{ background: color + '12' }}>
+          <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ background: color }} />
+          <div className="flex-1 flex items-center gap-4 flex-wrap">
+            <span className="text-sm font-bold tracking-widest uppercase" style={{ color }}>
+              {label}
+            </span>
+            <span className="font-mono text-xs text-muted">
+              Score composite : {snap.composite_score?.toFixed(2) ?? '—'}
+            </span>
+            <span className="text-xs text-muted">
+              {snap.is_safe ? '✅ Trading autorisé' : '🔴 Trading bloqué'}
+            </span>
+          </div>
+          <span className="text-[10px] text-muted flex-shrink-0">màj il y a {ageMin} min</span>
         </div>
-        <span className="text-[10px] text-muted flex-shrink-0">màj il y a {ageMin} min</span>
+
+        {/* Pillar scores */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-border">
+          {PILLARS.map(p => {
+            const val = snap[p.key] as number | null
+            return (
+              <div key={p.key} className="px-4 py-3 text-center">
+                <p className="text-[10px] text-muted uppercase tracking-wider mb-1">
+                  {p.label} <span className="opacity-50">{p.weight}</span>
+                </p>
+                <p className="font-mono font-bold text-base" style={{ color: p.color }}>
+                  {val != null ? val.toFixed(1) : '—'}
+                </p>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
-      {/* Pillar scores */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-border">
-        {PILLARS.map(p => {
-          const val = snap[p.key] as number | null
-          return (
-            <div key={p.key} className="px-4 py-3 text-center">
-              <p className="text-[10px] text-muted uppercase tracking-wider mb-1">
-                {p.label} <span className="opacity-50">{p.weight}</span>
-              </p>
-              <p className="font-mono font-bold text-base" style={{ color: p.color }}>
-                {val != null ? val.toFixed(1) : '—'}
-              </p>
-            </div>
-          )
-        })}
-      </div>
+      {!snap.is_safe && (
+        <p className="text-xs text-muted mt-2">
+          Le gardien a coupé les nouvelles entrées : marché jugé défavorable. C&apos;est le comportement prévu, pas une panne.{' '}
+          <Link href="/intelligence" className="text-accent hover:underline">Comment il décide →</Link>
+        </p>
+      )}
     </div>
   )
 }

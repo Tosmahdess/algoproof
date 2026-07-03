@@ -105,6 +105,21 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         />
       </section>
 
+      {/* Bridge to the lab */}
+      <div className="bg-card border border-border rounded-xl p-6 mb-8 text-center">
+        <p className="text-sm text-muted mb-3">
+          Envie de tester une idée avec la même rigueur ? Le labo applique mes contrôles anti-overfit à tes propres backtests.
+        </p>
+        <a
+          href="https://lab.algoproof.fr/lab"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-positive hover:underline"
+        >
+          Ouvrir le labo →
+        </a>
+      </div>
+
       {/* Discussion */}
       <div className="bg-card border border-border rounded-xl p-6 mb-8">
         <h2 className="font-semibold mb-4">💬 Discussion</h2>
