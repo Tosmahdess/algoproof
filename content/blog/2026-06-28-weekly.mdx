@@ -1,0 +1,48 @@
+---
+title: "Semaine du 22 juin : le mercredi sauve tout"
+date: "2026-06-28"
+category: "weekly"
+tags: ["weekly", "performance", "MI"]
+summary: "453 trades, un PnL global positif de 25,4 $ et une semaine en dents de scie où un seul jour a failli tout changer. Le bilan des longs reste préoccupant."
+---
+
+## La semaine en chiffres
+
+<StatRow>
+  <Stat label="Trades exécutés" value="453" />
+  <Stat label="PnL net" value="+25,40 $" highlight />
+  <Stat label="Win rate global" value="74,8 %" />
+  <Stat label="Bots live" value="2 / 39" />
+</StatRow>
+
+## Ce qui s'est passé
+
+La semaine du 22 juin se résume en un seul chiffre : **+160,23 $** mercredi 24. Sans ce jour, je clôturais la semaine à -134,83 $. C'est brutal à écrire, mais c'est la réalité. Lundi ouvre timidement à +11,21 $, puis mardi s'effondre à -71,79 $, une session courte qui touche des stops à répétition dans un marché qui n'offre aucune directionnalité lisible. Mercredi contre-attaque avec une violence rare, portée principalement par les shorts qui trouvent enfin des tendances franches à exploiter. Puis la machine se grippe : jeudi à -43,71 $, vendredi à -30,47 $, samedi encore dans le rouge à -17,63 $. Dimanche finit en légère reprise à +17,56 $, histoire de rester dans le vert sur la semaine, de justesse.
+
+La dissymétrie entre longs et shorts est le vrai sujet de cette semaine. Les **327 longs** affichent un PnL de **-103,25 $** malgré un win rate de 80,4 %. En d'autres termes : je gagne souvent, mais petit, et je perds rarement mais fort. C'est le profil classique d'un bot long qui lutte contre le trend régime. À l'inverse, les **126 shorts** génèrent **+128,66 $** avec un win rate plus modeste de 60,3 %, preuve que les gains unitaires compensent largement. Le meilleur trade de la semaine confirme cette lecture : un short sur **BCH-USDC** à +40,57 $, propre, directionnel. Le pire, un short raté sur **ETH-USDC** à -12,91 $, ETH a eu ses rebonds techniques qui ont piégé la position.
+
+<DataCardGroup>
+  <DataCard title="Meilleur trade" value="+40,57 $" description="BCH-USDC · Short · 24 juin" />
+  <DataCard title="Pire trade" value="-12,91 $" description="ETH-USDC · Short · semaine chargée" />
+  <DataCard title="Journée monstre" value="+160,23 $" description="Mercredi 24 juin, shorts dominants" />
+  <DataCard title="Journée noire" value="-71,79 $" description="Mardi 23 juin, stops en série" />
+</DataCardGroup>
+
+Le contexte macro reste sous tension. Le **heartbeat** affiche un score global de **-19,33** avec un trend régime classifié **BEAR** et un BTC qui cote à **-19,3 %** sous son EMA 200. Le risk level reste GREEN et le hard gate ne bloque rien, longs et shorts sont tous les deux autorisés. Le module DED shadow calcule un score de 0,62 en mode **LONG_BIAS**, ce qui tranche avec la réalité des performances longs cette semaine. Ce décalage est à surveiller : le DED voit un contexte propice aux longs sur 3 jours glissants (+4,10 $ de PnL rolling), mais la semaine complète raconte une autre histoire.
+
+<CompactTable headers={["Direction", "Trades", "PnL ($)", "Win rate", "Meilleur"]}>
+  <Row values={["Long", "327", "-103,25", "80,4 %", "SOL-USDT +1,19 $"]} />
+  <Row values={["Short", "126", "+128,66", "60,3 %", "BCH-USDC +40,57 $"]} />
+  <Row values={["Global", "453", "+25,40", "74,8 %", "BCH-USDC +40,57 $"]} />
+</CompactTable>
+
+## Leçon de la semaine
+
+> Un win rate de 80 % sur les longs ne sert à rien si le ratio gain/perte est inversé. Cette semaine, j'ai gagné souvent mais petit, et perdu rarement mais fort, exactement le profil qui ronge un compte en régime BEAR. Le vrai edge n'est pas dans le taux de victoire, c'est dans la symétrie entre espérance et exposition.
+
+## Prochaines étapes
+
+- **Analyser le ratio risk/reward des longs** sur les 4 dernières semaines pour quantifier la dégradation structurelle en régime BEAR, avant le 2 juillet.
+- **Étudier la pondération DED** en contexte de score global négatif : le mode LONG_BIAS à 0,62 mérite d'être challengé quand BTC est à -19 % sous son EMA 200.
+- **Passer en revue les 31 bots paper** pour identifier lesquels performent en short, potentiels candidats au passage live avant fin juillet.
+- **Préparer un post-mortem du mardi 23 juin** : comprendre quels signaux ont déclenché les stops en série et si une règle de filtrage aurait pu réduire l'exposition ce jour-là.
