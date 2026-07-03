@@ -20,7 +20,7 @@ export default function StartPage() {
         <p className="text-muted leading-relaxed">
           Binance Futures est bloqué pour les résidents français depuis 2023 (restriction AMF), et
           Binance a cessé de servir la France au 1er juillet 2026 (réglementation MiCA). Trois
-          plateformes restent compatibles pour trader les mêmes stratégies — mon propre bot spot
+          plateformes restent compatibles pour trader les mêmes stratégies. Mon propre bot spot
           live tourne sur Kraken depuis le 30 juin.
         </p>
       </div>
@@ -168,7 +168,7 @@ export default function StartPage() {
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-xs text-muted">* Frais dégressifs selon le volume — vérifier les grilles exactes sur les sites des plateformes.</p>
+        <p className="mt-2 text-xs text-muted">* Frais dégressifs selon le volume : vérifier les grilles exactes sur les sites des plateformes.</p>
       </div>
 
       {/* Why not Binance */}
