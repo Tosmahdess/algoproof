@@ -78,4 +78,29 @@ describe('OverviewClient', () => {
     expect(pnl.textContent).toContain('+50.00€')
     expect(pnl.textContent).not.toContain('250')    // would be +250 if archived counted
   })
+
+  // Carry/portage bots (grid, funding-rate harvesting) have near-zero losing round-trips
+  // by construction — PF/WR read as broken (PF 999.00, WR 100%) rather than a real edge.
+  const CARRY_BOT = { ...mkBot('grid-btc-spot', 15, 1.0, 999, 0.01, 1150), family: 'carry' as const }
+
+  // Both the mobile list (<a>) and desktop table (<tr>) render the bot name — scope to
+  // the desktop <tr>, which is the only row exposing separate PF/WR cells.
+  const desktopRow = (name: string) =>
+    screen.getAllByText(name).map(el => el.closest('tr')).find((tr): tr is HTMLTableRowElement => tr !== null)!
+
+  it('shows — instead of profit factor / win rate for carry-family bots', () => {
+    render(<OverviewClient bots={[...BOTS, CARRY_BOT]} recentTrades={[]} />)
+    const row = desktopRow('grid-btc-spot')
+    expect(row.textContent).not.toContain('999.00')
+    expect(row.textContent).not.toContain('100.0%')
+    const dashCells = Array.from(row.querySelectorAll('td')).filter(td => td.textContent === '—')
+    expect(dashCells.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('still shows a normal PF/WR for non-carry bots', () => {
+    render(<OverviewClient bots={[...BOTS, CARRY_BOT]} recentTrades={[]} />)
+    const row = desktopRow('gamma')
+    expect(row.textContent).toContain('2.00')
+    expect(row.textContent).toContain('70.0%')
+  })
 })

@@ -163,11 +163,15 @@ export async function getTriggerData(slug: string): Promise<TriggerData | null> 
     .single()
   if (botErr || !bot) return null
 
+  // Count the SAME trade set as getBotWithStats/BotCard: all rows for this bot_id,
+  // regardless of is_paper. For v1-spot every row is is_paper=true (the bot runs a
+  // paper-mirror ledger as its official public track record since real position
+  // sizes are too small to be meaningful) — filtering on is_paper=false here
+  // silently zeroed out the counter while the fiche showed 13 trades / PF 2.00.
   const { data: trades, error: tradesErr } = await supabase
     .from('trades')
     .select('pnl')
     .eq('bot_id', bot.id)
-    .eq('is_paper', false)
     .order('closed_at', { ascending: false })
   if (tradesErr) return null
 

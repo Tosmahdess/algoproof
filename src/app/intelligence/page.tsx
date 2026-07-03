@@ -61,16 +61,8 @@ const PILLARS = [
     technical:
       'Base : VIX + DXY 5j. Ajustements MI-8→MI-11 : VIX term structure · credit spreads HYG/IEI · Put/Call SPY · insider buying SEC Form 4 · earnings beat · analyst revisions · short interest · options flow SPY+QQQ. Calendrier : FOMC/CPI/NFP blackout 2h, T2 blackout 30min.',
   },
-  {
-    id: 'institutional',
-    label: 'Institutionnel',
-    weight: 'obs.',
-    color: '#f6c90e',
-    functional:
-      "Mesure le comportement des acteurs institutionnels : vol d'options crypto (DVOL), flux ETF Bitcoin (IBIT + FBTC), et structure du marché (dominance BTC, stablecoin dry powder). Ces signaux reflètent ce que font les grands capitaux, pas les traders retail.",
-    technical:
-      'BTC DVOL Deribit × 40% (vol implicite crypto VIX) + flux IBIT/FBTC var. j/j × 40% + USDT.D niveau + BTC.D tendance × 20%. Score observationnel [-100, +100], non intégré au score global avant validation 90 jours.',
-  },
+  // The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
+  // 2026-06-26 — institutional_score is always null since. Removed from display.
 ]
 
 export const revalidate = 1800

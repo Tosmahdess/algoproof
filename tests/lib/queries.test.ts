@@ -111,6 +111,34 @@ describe('getTriggerData', () => {
     const result = await getTriggerData('v1-spot')
     expect(result?.isLive).toBe(false)
   })
+
+  it('counts trades regardless of is_paper — same definition as getBotWithStats/BotCard', async () => {
+    // Regression: v1-spot runs a paper-mirror ledger (is_paper=true on every row) as
+    // its official public track record. getTriggerData must not filter on is_paper,
+    // otherwise it reports 0/30 while the bot fiche shows 13 trades / PF 2.00 for the
+    // exact same bot_id.
+    const botChain = mockChain({ id: 'bot-1', status: 'live' })
+    const tradesChain = mockChain([
+      { pnl: 10, is_paper: true }, { pnl: 5, is_paper: true }, { pnl: -3, is_paper: true },
+    ])
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(botChain)
+      .mockReturnValueOnce(tradesChain)
+    const result = await getTriggerData('v1-spot')
+    expect(result?.totalTrades).toBe(3)
+    expect(result?.profitFactor).toBeCloseTo(5.0, 1)
+  })
+
+  it('never filters the trades query by is_paper', async () => {
+    const botChain = mockChain({ id: 'bot-1', status: 'live' })
+    const tradesChain = mockChain([{ pnl: 10 }])
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(botChain)
+      .mockReturnValueOnce(tradesChain)
+    await getTriggerData('v1-spot')
+    const eqCalls = tradesChain.eq.mock.calls.map((c: unknown[]) => c[0])
+    expect(eqCalls).not.toContain('is_paper')
+  })
 })
 
 const MOCK_BOT = { id: 'bot-1', slug: 'v1-spot', name: 'EMA Cross', strategy: 'EMA', status: 'live', family: 'trend', exchange: 'Binance', assets: ['BTC/USDT'], timeframe: 'H4', description: null, created_at: '2026-01-01' }

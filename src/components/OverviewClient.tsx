@@ -8,7 +8,7 @@ import MiBanner from '@/components/MiBanner'
 import GlobalEquityCurve from '@/components/GlobalEquityCurve'
 import DirectionFilterPills from '@/components/DirectionFilterPills'
 import AssetFilterSelect from '@/components/AssetFilterSelect'
-import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfForFamily, fmtWinRateForFamily, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 import { computeBotStats, countByDirection, type DirectionFilter } from '@/lib/stats'
 import { assetOptionsFromTrades, toBaseAsset } from '@/lib/asset'
 
@@ -311,11 +311,17 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                         </>
                       ) : <span className="text-muted">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono">
-                      {hasData ? `${(bot.stats.win_rate * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
+                    <td
+                      className="px-4 py-3 text-right font-mono"
+                      title={hasData && isCarryFamily(bot.family) ? CARRY_METRIC_TOOLTIP : undefined}
+                    >
+                      {hasData ? fmtWinRateForFamily(bot.family, bot.stats.win_rate) : <span className="text-muted">—</span>}
                     </td>
-                    <td className={`px-4 py-3 text-right font-mono ${hasData ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}>
-                      {hasData ? bot.stats.profit_factor.toFixed(2) : <span className="text-muted">—</span>}
+                    <td
+                      className={`px-4 py-3 text-right font-mono ${hasData && !isCarryFamily(bot.family) ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}
+                      title={hasData && isCarryFamily(bot.family) ? CARRY_METRIC_TOOLTIP : undefined}
+                    >
+                      {hasData ? fmtPfForFamily(bot.family, bot.stats.profit_factor) : <span className="text-muted">—</span>}
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-negative hidden lg:table-cell">
                       {hasData ? `${(bot.stats.max_drawdown * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
