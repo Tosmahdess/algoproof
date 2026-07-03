@@ -7,6 +7,7 @@ import matter from 'gray-matter'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { mdxComponents } from '@/components/mdx/MDXComponents'
 import { BLOG_CATEGORIES, type BlogCategory } from '@/lib/blog-categories'
+import EmailCapture from '@/components/EmailCapture'
 
 export const dynamicParams = false
 
@@ -65,6 +66,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <h1 className="text-3xl font-bold mb-8">{article.meta.title as string}</h1>
       <div className="prose prose-invert prose-base max-w-none prose-headings:font-semibold prose-p:text-foreground/70 prose-p:leading-relaxed prose-li:text-foreground/70 prose-li:my-1 prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground/90">
         <MDXRemote source={article.content} components={mdxComponents} />
+      </div>
+      <div className="mt-12">
+        <EmailCapture
+          source="blog"
+          description="Si cet article t’a servi : je publie mes backtests, mes rejets et les évolutions du labo. Laisse ton email pour recevoir les prochains write-ups. Pas de spam, désinscription sur simple réponse."
+        />
       </div>
     </div>
   )

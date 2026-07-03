@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import EmailCapture from '@/components/EmailCapture'
 
 export const metadata: Metadata = {
   title: 'Le labo — teste tes stratégies de trading',
@@ -51,6 +52,12 @@ export default function LaboPage() {
           Ouvrir le labo →
         </a>
       </section>
+
+      <EmailCapture
+        source="labo"
+        title="Être prévenu des évolutions du labo"
+        description="Nouvelles stratégies, nouveaux diagnostics, ouverture de l’abonnement : je préviens par email. Pas de spam, désinscription sur simple réponse."
+      />
     </main>
   )
 }
