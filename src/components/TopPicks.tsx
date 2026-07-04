@@ -26,8 +26,8 @@ interface Props {
 
 // Sélection "du moment" : un nom de qualité (verdict=renforcer) en solde maintenant
 // (signal d'achat actif). Classé par force du signal puis profondeur du recul.
-// Le signal sert au tri en coulisse — il n'est plus affiché (cf prix figé trompeur).
-function selectTopPicks(assets: GrowthAsset[], fiches: Record<string, FicheLite>): GrowthAsset[] {
+// Real dips only: no "watching" backfill (it froze the block all month).
+export function selectTopPicks(assets: GrowthAsset[], fiches: Record<string, FicheLite>): GrowthAsset[] {
   const isRenforcer = (a: GrowthAsset) => fiches[a.ticker]?.verdict === 'renforcer'
   const cmp = (a: GrowthAsset, b: GrowthAsset) => {
     const sa = a.signal_level ? SIGNAL_RANK[a.signal_level] : 0
@@ -35,14 +35,7 @@ function selectTopPicks(assets: GrowthAsset[], fiches: Record<string, FicheLite>
     if (sb !== sa) return sb - sa
     return (a.drawdown_pct ?? 0) - (b.drawdown_pct ?? 0)
   }
-
-  const active = assets.filter(a => isRenforcer(a) && a.signal_level).sort(cmp)
-  if (active.length >= 5) return active.slice(0, 5)
-
-  const watching = assets
-    .filter(a => isRenforcer(a) && !a.signal_level)
-    .sort((a, b) => (a.drawdown_pct ?? 0) - (b.drawdown_pct ?? 0))
-  return [...active, ...watching].slice(0, 5)
+  return assets.filter(a => isRenforcer(a) && a.signal_level).sort(cmp).slice(0, 5)
 }
 
 // LivePriceLine extracted to its own component (reused by LatestAnalyses).
@@ -86,12 +79,6 @@ function PickCard({ asset, fiche }: { asset: GrowthAsset; fiche: FicheLite | und
         )}
       </div>
 
-      <div className="mt-3 pt-2 border-t border-zinc-900 flex items-baseline justify-between">
-        <span className="text-[9px] text-zinc-500 uppercase tracking-widest">À acheter</span>
-        <span className="text-xs font-mono text-zinc-200">
-          {asset.suggested_min && asset.suggested_max ? `${asset.suggested_min}–${asset.suggested_max}€` : '—'}
-        </span>
-      </div>
     </Link>
   )
 }
