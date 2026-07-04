@@ -20,12 +20,12 @@ describe('TriggerCounter', () => {
 
   it('shows locked label when criteria not met', () => {
     render(<TriggerCounter data={livePending} />)
-    expect(screen.getByText(/critères de validation en réel : en cours/i)).toBeDefined()
+    expect(screen.getByText(/preuve en réel : en construction/i)).toBeDefined()
   })
 
   it('shows unlocked label when all criteria met', () => {
     render(<TriggerCounter data={liveMet} />)
-    expect(screen.getByText(/critères de validation en réel : atteints/i)).toBeDefined()
+    expect(screen.getByText(/preuve en réel : critères atteints/i)).toBeDefined()
   })
 
   it('renders profit factor with 2 decimal places', () => {
