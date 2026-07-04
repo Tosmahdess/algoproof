@@ -6,6 +6,7 @@ import JsonLd from '@/components/JsonLd'
 import { faqJsonLd } from '@/lib/jsonld'
 import ExplainerBox from '@/components/ExplainerBox'
 import { TopPicks, type FicheLite } from '@/components/TopPicks'
+import { LatestAnalyses } from '@/components/LatestAnalyses'
 import type { BotChangelog, GrowthAsset, Verdict } from '@/lib/types'
 import ComponentChangelog from '@/components/ComponentChangelog'
 import AnalysesClient from '@/components/AnalysesClient'
@@ -14,16 +15,16 @@ import type { FicheIndexRow } from '@/lib/equity'
 // Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
 type CoveredFiche = { ticker: string; verdict: Verdict; generated_at: string; price_at_generation: number | null; ticker_yf: string }
 
-// Source: apex-wealth/portfolios.py WEALTH_ALLOCATION + BUDGET_CONFIG
-// Total budget: 250€/month (WEALTH 70% = 175€, GROWTH 30% = 75€)
-// WEALTH asset weights are % of the 175€ WEALTH bucket → converted to % of total 250€
+// Source: apex-wealth/portfolios.py WEALTH_ALLOCATION.
+// Target allocation, percentages only (2026-07-04: the monthly DCA is a published
+// framework, not an executed journal — no € amounts, no venues).
 const WEALTH_ASSETS = [
-  { name: 'Bitcoin (BTC)',    pct: 21,   color: '#f7931a', venue: 'Binance (auto)',  assetClass: 'Crypto' },
-  { name: 'Ethereum (ETH)',   pct: 14,   color: '#627eea', venue: 'Binance (auto)',  assetClass: 'Crypto' },
-  { name: 'MSCI World (CW8)', pct: 17.5, color: '#4299e1', venue: 'PEA Boursobank', assetClass: 'ETF' },
-  { name: 'Nasdaq-100 (CL2)', pct: 11.9, color: '#667eea', venue: 'PEA Boursobank', assetClass: 'ETF' },
-  { name: 'Gold (XAU)',       pct: 5.6,  color: '#f6c90e', venue: 'Binance (auto)',  assetClass: 'Commodity' },
-  { name: 'GROWTH tactical',  pct: 30,   color: '#3fb950', venue: 'Trade Republic', assetClass: 'Tactical' },
+  { name: 'Bitcoin (BTC)',    pct: 21,   color: '#f7931a', assetClass: 'Crypto' },
+  { name: 'Ethereum (ETH)',   pct: 14,   color: '#627eea', assetClass: 'Crypto' },
+  { name: 'MSCI World (CW8)', pct: 17.5, color: '#4299e1', assetClass: 'ETF' },
+  { name: 'Nasdaq-100 (CL2)', pct: 11.9, color: '#667eea', assetClass: 'ETF' },
+  { name: 'Gold (XAU)',       pct: 5.6,  color: '#f6c90e', assetClass: 'Commodity' },
+  { name: 'GROWTH tactical',  pct: 30,   color: '#3fb950', assetClass: 'Tactical' },
 ]
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for reference only
@@ -135,18 +136,11 @@ const _SECTORS_REF = [
 ]
 
 const AMPLIFICATION = [
-  { label: 'Marché normal',        multiplier: '1.0×', amount: '250€', condition: 'Score MI > −30',  color: '#3fb950' },
-  { label: 'Baisse mineure',       multiplier: '1.5×', amount: '375€', condition: 'Score MI < −30',  color: '#f6c90e' },
-  { label: 'Baisse majeure / krach', multiplier: '2.5×', amount: '625€', condition: 'Score MI < −50',  color: '#ff6b35' },
-  { label: 'ETF (PEA)',            multiplier: 'never', amount: '174€', condition: 'Toujours stable', color: '#4299e1' },
+  { label: 'Marché normal',          multiplier: '1.0×',            condition: 'Score MI > −30',  color: '#3fb950' },
+  { label: 'Baisse mineure',         multiplier: '1.5×',            condition: 'Score MI < −30',  color: '#f6c90e' },
+  { label: 'Baisse majeure / krach', multiplier: '2.5×',            condition: 'Score MI < −50',  color: '#ff6b35' },
+  { label: 'ETF',                    multiplier: 'jamais amplifié', condition: 'Cadence fixe',    color: '#4299e1' },
 ]
-
-// Signal colors — used in legacy portfolio tracking section only
-const SIGNAL_COLOR_LEGACY: Record<string, string> = {
-  minor: '#f6c90e',
-  major: '#ff6b35',
-  crash: '#ff4444',
-}
 
 export default function WealthPage() {
   const [growthUniverse, setUniverse]   = useState<GrowthAsset[]>([])
@@ -194,7 +188,7 @@ export default function WealthPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
       <JsonLd data={faqJsonLd([
-        { question: 'C\'est quoi le DCA ?', answer: 'Acheter une somme fixe à intervalle régulier, peu importe le prix, pour lisser le point d\'entrée dans le temps.' },
+        { question: 'C\'est quoi cette page ?', answer: 'Mon cadre d\'investissement long terme : une allocation cible en pourcentages et mes analyses par société (verdict, thèse, creux d\'achat). Un modèle publié en transparence, pas un journal d\'achats.' },
         { question: 'Comment sont choisis les points d\'entrée ?', answer: 'À partir du repli depuis les plus hauts (drawdown) sur 180 jours et des plus hauts historiques, pour renforcer dans les creux sans attraper un couteau qui tombe.' },
         { question: 'Est-ce un conseil d\'achat ?', answer: 'Non. C\'est mon journal d\'investissement personnel, partagé en transparence. Ce n\'est pas un conseil financier.' },
       ])} />
@@ -205,39 +199,61 @@ export default function WealthPage() {
           APEX Wealth
         </p>
         <h1 className="text-2xl font-bold tracking-tight">
-          J&apos;investis chaque mois. Je montre chaque achat.
+          Mon allocation cible et mes analyses long terme.
         </h1>
-        <p className="text-sm text-muted max-w-2xl mb-6">
-          Je suis une liste d&apos;actions et de cryptos sur le long terme. Le <strong>DCA</strong> (Dollar Cost Averaging) consiste à acheter régulièrement par petites tranches. Ici, je note à quel prix je renforce chaque position.
-        </p>
-        <p className="mt-3 text-sm text-muted max-w-2xl leading-relaxed">
-          APEX Wealth est mon système d&apos;accumulation systématique, pas un bot de trading. Chaque mois,
-          je déploie un budget fixe sur la crypto, les ETF monde et l&apos;or. Quand le marché baisse,
-          j&apos;investis davantage. Chaque achat est enregistré publiquement.
+        <p className="text-sm text-muted max-w-2xl mt-3 leading-relaxed">
+          Je maintiens une allocation cible (crypto, ETF monde, or, poche tactique) et
+          j&apos;analyse en continu un univers de 80+ sociétés : verdict par société, phrase de
+          thèse, creux d&apos;achat détectés automatiquement. Ce n&apos;est pas un conseil :
+          c&apos;est mon travail d&apos;analyse, publié.
         </p>
       </div>
 
       <ComponentChangelog title="Dernier changement" entries={wealthChanges.slice(0, 1)} href="/journal/patrimoine" initialCount={1} />
 
-      {/* Top 5 du moment — qualité en solde maintenant */}
+      {/* Latest analyses — the hero: freshness from the real analysis rhythm */}
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-base font-bold tracking-tight">5 à renforcer maintenant</h2>
-          <span className="text-xs text-muted">creux d&apos;achat actifs · mis à jour toutes les 4h (= mes alertes Telegram)</span>
+          <h2 className="text-base font-bold tracking-tight">Dernières analyses</h2>
+          <span className="text-xs text-muted">verdict + thèse, les plus récentes d&apos;abord</span>
+        </div>
+        <LatestAnalyses fiches={fichesIndex} />
+        <div className="mt-3 text-right">
+          <Link href="#analyses" className="text-sm text-accent">Tout l&apos;univers par secteur ↓</Link>
+        </div>
+      </section>
+
+      {/* Active dip signals only (0..5) — honest empty state otherwise */}
+      <section>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-base font-bold tracking-tight">Creux d&apos;achat actifs</h2>
+          <span className="text-xs text-muted">mis à jour toutes les 4h (= mes alertes Telegram)</span>
         </div>
         <p className="text-xs text-muted mb-5 max-w-2xl leading-relaxed">
-          Les 5 sociétés du moment : une thèse que je garde en « renforcer » <em>et</em> un creux d&apos;achat actif.
-          Je les classe par force du signal puis profondeur du repli. Rien de choisi à la main, tout sort des données.
-          Clique pour mon analyse complète.
+          Les sociétés dont je garde la thèse en « renforcer » et qui présentent un creux
+          d&apos;achat actif en ce moment. Rien de choisi à la main, tout sort des données.
+          S&apos;il n&apos;y en a pas, le bloc le dit.
         </p>
         <TopPicks
           assets={growthUniverse}
           fiches={ficheByTicker}
           loading={loading}
         />
-        <div className="mt-3 text-right">
-          <Link href="#analyses" className="text-sm text-accent">Toutes mes analyses ↓</Link>
-        </div>
+      </section>
+
+      {/* GROWTH — analyses par secteur (moved up: the fiches are the product) */}
+      <section id="analyses">
+        <h2 className="text-base font-bold tracking-tight mb-2">GROWTH · mes analyses par secteur</h2>
+        <p className="text-xs text-muted mb-6 max-w-2xl leading-relaxed">
+          Tout mon univers d&apos;investissement, classé par secteur, avec mon verdict par société
+          (renforcer / maintenir / passer). Clique une société pour mon analyse complète.
+          <br />
+          <span className="text-muted/70">Ces verdicts sont révisés une fois par mois (le 1ᵉʳ) : une décision de fond, pas une réaction au prix. Pour les creux d&apos;achat du moment, mis à jour toutes les 4h, vois « Creux d&apos;achat actifs » plus haut.</span>
+        </p>
+        <AnalysesClient fiches={fichesIndex} />
+        <p className="text-xs text-muted/70 mt-4 italic">
+          Mon journal d&apos;investissement personnel, partagé en transparence. Ce n&apos;est pas un conseil financier.
+        </p>
       </section>
 
       {/* Allocation */}
@@ -246,30 +262,29 @@ export default function WealthPage() {
         <ExplainerBox stacked
           functional={
             <p>
-              250€ par mois, répartis entre un socle WEALTH stable (70%) et une poche GROWTH
-              tactique (30%). Je conserve le socle WEALTH indéfiniment : crypto, actions monde, or.
-              La poche GROWTH achète sur les baisses et prend des bénéfices à des niveaux prédéfinis.
+              Une allocation cible en deux poches : un socle stable (70 %) fait de crypto,
+              d&apos;actions monde et d&apos;or, que je conserve indéfiniment, et une poche
+              tactique GROWTH (30 %) qui cible les baisses et prend des bénéfices à des
+              niveaux prédéfinis.
             </p>
           }
           technical={
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-mono">
               <div>
-                <p className="text-muted mb-2 font-semibold">SOCLE WEALTH · 175€/mois</p>
+                <p className="text-muted mb-2 font-semibold">SOCLE · 70 %</p>
                 {WEALTH_ASSETS.filter(a => a.assetClass !== 'Tactical').map(a => (
                   <div key={a.name} className="flex items-center gap-2 py-0.5">
                     <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: a.color }} />
                     <span className="text-muted flex-1">{a.name}</span>
                     <span className="font-semibold">{a.pct}%</span>
-                    <span className="text-muted text-[10px] w-28 text-right">{a.venue}</span>
                   </div>
                 ))}
               </div>
               <div>
-                <p className="text-muted mb-2 font-semibold">GROWTH · 75€/mois</p>
+                <p className="text-muted mb-2 font-semibold">GROWTH · 30 %</p>
                 <p className="text-muted text-[10px] leading-relaxed">
-                  Achats opportunistes sur baisses. Déploiement sur corrections −20% à −30% par actif.
-                  Prise de bénéfices à +40% (30%) et +80% (30%). Max 6 positions ouvertes.
-                  Venue : Trade Republic CTO.
+                  Achats opportunistes sur corrections −20% à −30% par actif.
+                  Prises de bénéfices à +40% (30%) et +80% (30%). Max 6 positions ouvertes.
                 </p>
               </div>
             </div>
@@ -283,9 +298,10 @@ export default function WealthPage() {
         <ExplainerBox stacked
           functional={
             <p>
-              J&apos;investis davantage quand les prix baissent. Quand mon service d&apos;Intelligence de Marché détecte une
-              baisse significative, le budget mensuel est automatiquement multiplié, jusqu&apos;à 2,5×.
-              Les ETF en PEA ne sont jamais amplifiés : leur cadence reste fixe pour l&apos;optimisation fiscale.
+              Le cadre amplifie quand les prix baissent : si mon service d&apos;Intelligence
+              de Marché détecte une baisse significative, le multiplicateur d&apos;achat
+              passe de 1× à 1,5×, jusqu&apos;à 2,5× en krach. Les ETF ne sont jamais
+              amplifiés : leur cadence reste fixe.
             </p>
           }
           technical={
@@ -294,29 +310,13 @@ export default function WealthPage() {
                 <div key={a.label} className="flex items-center gap-3 py-1.5 border-b border-border last:border-0">
                   <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: a.color }} />
                   <span className="text-muted w-36 flex-shrink-0">{a.label}</span>
-                  <span className="font-bold w-14">{a.multiplier}</span>
-                  <span className="text-positive w-14">{a.amount}</span>
+                  <span className="font-bold w-28">{a.multiplier}</span>
                   <span className="text-muted text-[10px]">{a.condition}</span>
                 </div>
               ))}
             </div>
           }
         />
-      </section>
-
-      {/* GROWTH — analyses par secteur (rendu identique à /wealth/analyses) */}
-      <section id="analyses">
-        <h2 className="text-base font-bold tracking-tight mb-2">GROWTH · mes analyses par secteur</h2>
-        <p className="text-xs text-muted mb-6 max-w-2xl leading-relaxed">
-          Tout mon univers d&apos;investissement, classé par secteur, avec mon verdict par société
-          (renforcer / maintenir / passer). Clique une société pour mon analyse complète.
-          <br />
-          <span className="text-muted/70">Ces verdicts sont révisés une fois par mois (le 1ᵉʳ) — c&apos;est une décision de fond, pas une réaction au prix. Pour les creux d&apos;achat du moment, mis à jour toutes les 4h, vois « 5 à renforcer maintenant » plus haut.</span>
-        </p>
-        <AnalysesClient fiches={fichesIndex} />
-        <p className="text-xs text-muted/70 mt-4 italic">
-          Mon journal d&apos;investissement personnel, partagé en transparence. Ce n&apos;est pas un conseil financier.
-        </p>
       </section>
 
     </main>

@@ -57,6 +57,10 @@ export type FicheIndexRow = {
   asset_name: string
   category: string | null
   verdict: Verdict
+  generated_at: string
+  verdict_reason: string | null
+  price_at_generation: number | null
+  ticker_yf: string | null
 }
 
 export async function getAllFiches(): Promise<FicheIndexRow[]> {
@@ -64,13 +68,17 @@ export async function getAllFiches(): Promise<FicheIndexRow[]> {
   try {
     const { data, error } = await supabaseServer
       .from('equity_fiches')
-      .select('ticker,asset_name,category,verdict,thesis_version')
+      .select('ticker,asset_name,category,verdict,thesis_version,generated_at,verdict_reason,price_at_generation,ticker_yf')
       .order('thesis_version', { ascending: false })
     if (error || !data) return []
     const seen = new Map<string, FicheIndexRow>()
     for (const r of data as Array<FicheIndexRow & { thesis_version: number }>) {
       if (!seen.has(r.ticker)) {
-        seen.set(r.ticker, { ticker: r.ticker, asset_name: r.asset_name, category: r.category, verdict: r.verdict })
+        seen.set(r.ticker, {
+          ticker: r.ticker, asset_name: r.asset_name, category: r.category, verdict: r.verdict,
+          generated_at: r.generated_at, verdict_reason: r.verdict_reason ?? null,
+          price_at_generation: r.price_at_generation ?? null, ticker_yf: r.ticker_yf ?? null,
+        })
       }
     }
     return [...seen.values()]

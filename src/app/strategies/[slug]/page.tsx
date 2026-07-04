@@ -8,6 +8,7 @@ import ExplainerBox from '@/components/ExplainerBox'
 import DiscussionTab from '@/components/DiscussionTab'
 import ExchangeAlert from '@/components/ExchangeAlert'
 import ConformityCard from '@/components/ConformityCard'
+import PathToRealCard from '@/components/PathToRealCard'
 import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
@@ -76,6 +77,14 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
       {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
       {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}
+
+      {/* Paper→real gate (paper bots) or real-money start date (live bots) */}
+      <PathToRealCard
+        status={bot.status}
+        stats={bot.stats}
+        liveGate={expectations?.liveGate}
+        liveSince={expectations?.liveSince}
+      />
 
       {/* "Sur mon capital" — observed history rescaled to a visitor-chosen capital */}
       {bot.perf_daily.length > 0 && (
