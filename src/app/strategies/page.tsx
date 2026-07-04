@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
-import { getAllBotsWithStats, getTriggerData } from '@/lib/queries'
+import { getAllBotsWithStats } from '@/lib/queries'
 import StrategiesClient from '@/components/StrategiesClient'
 import FaqAccordion from '@/components/FaqAccordion'
-import TriggerCounter from '@/components/TriggerCounter'
 
 export const revalidate = 300
 
@@ -21,17 +20,8 @@ const FAQ_ITEMS = [
 
 export default async function StrategiesPage() {
   const bots = await getAllBotsWithStats()
-  const trigger = await getTriggerData('v1-spot')
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 space-y-12">
-      {trigger && (
-        <div className="mb-8 max-w-md">
-          <TriggerCounter data={trigger} />
-          <p className="text-xs text-muted mt-2">
-            Je ne vends rien tant que ces deux critères ne sont pas atteints en argent réel. C&apos;est public et vérifiable.
-          </p>
-        </div>
-      )}
       <StrategiesClient bots={bots} />
       <section>
         <h2 className="text-sm font-semibold text-muted uppercase tracking-widest mb-4">
