@@ -13,7 +13,10 @@ const PINNED_SLUGS = [
 export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
   const [filter, setFilter] = useState<BlogCategory | null>(null)
 
-  const filtered = filter ? articles.filter(a => a.category === filter) : articles
+  // D026 (2026-07-03): daily journals drowned the real articles — hidden from the
+  // default view, still reachable via the « Journal de bord » pill (no URL broken).
+  const defaultVisible = articles.filter(a => a.category !== 'journal')
+  const filtered = filter ? articles.filter(a => a.category === filter) : defaultVisible
 
   const counts = articles.reduce<Record<string, number>>((acc, a) => {
     acc[a.category] = (acc[a.category] || 0) + 1
@@ -60,7 +63,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
               : 'border-border text-muted hover:text-foreground hover:border-foreground/30'
           }`}
         >
-          Tous ({articles.length})
+          Tous ({defaultVisible.length})
         </button>
         {CATEGORY_ORDER.map(cat => {
           const meta = BLOG_CATEGORIES[cat]
@@ -79,6 +82,13 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
           )
         })}
       </div>
+
+      {filter === null && (counts['journal'] || 0) > 0 && (
+        <p className="text-xs text-muted -mt-6 mb-8">
+          Les journaux de bord quotidiens ({counts['journal']}) ne sont plus mis en avant — la synthèse
+          se fait dans la revue hebdo. Ils restent consultables via le filtre « Journal de bord ».
+        </p>
+      )}
 
       {/* Article list */}
       <div className="space-y-8">
