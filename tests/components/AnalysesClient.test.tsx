@@ -3,11 +3,12 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import AnalysesClient from '@/components/AnalysesClient'
 import type { FicheIndexRow } from '@/lib/equity'
 
+const base = { generated_at: '2026-07-01T00:00:00Z', verdict_reason: null, price_at_generation: null, ticker_yf: null }
 const fiches: FicheIndexRow[] = [
-  { ticker: 'SOL', asset_name: 'Solana', category: 'crypto_alt', verdict: 'renforcer' },
-  { ticker: 'MSTR', asset_name: 'MicroStrategy', category: 'crypto_proxy', verdict: 'maintenir' },
-  { ticker: 'ASML', asset_name: 'ASML Holding', category: 'semiconductors', verdict: 'renforcer' },
-  { ticker: 'KLAC', asset_name: 'KLA Corp', category: 'semiconductors', verdict: 'skip' },
+  { ...base, ticker: 'SOL', asset_name: 'Solana', category: 'crypto_alt', verdict: 'renforcer' },
+  { ...base, ticker: 'MSTR', asset_name: 'MicroStrategy', category: 'crypto_proxy', verdict: 'maintenir' },
+  { ...base, ticker: 'ASML', asset_name: 'ASML Holding', category: 'semiconductors', verdict: 'renforcer' },
+  { ...base, ticker: 'KLAC', asset_name: 'KLA Corp', category: 'semiconductors', verdict: 'skip' },
 ]
 
 describe('AnalysesClient', () => {
