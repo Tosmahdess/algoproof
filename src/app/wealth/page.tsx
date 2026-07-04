@@ -319,6 +319,18 @@ export default function WealthPage() {
         />
       </section>
 
+      {/* Bridge to the trading side — no bot cards here on purpose: long-term
+          investing and algo trading are two different products/risk levels. */}
+      <section className="rounded-xl border border-border bg-card px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted">
+          Le trading algo, c&apos;est de l&apos;autre côté : mes 30+ bots publient chaque
+          trade, gains comme pertes.
+        </p>
+        <Link href="/strategies" className="text-sm text-positive hover:underline flex-shrink-0">
+          Voir mes bots →
+        </Link>
+      </section>
+
     </main>
   )
 }
