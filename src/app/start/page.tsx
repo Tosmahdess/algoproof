@@ -41,7 +41,7 @@ export default function StartPage() {
             <li>✓ Dépôt fiat (virement, carte bancaire)</li>
             <li>✓ KYC standard, disponible en France</li>
             <li>✓ Frais taker compétitifs</li>
-            <li>✓ API compatible avec nos bots</li>
+            <li>✓ API compatible avec mes bots</li>
           </ul>
           <div className="space-y-2 text-xs text-muted">
             <p className="font-medium text-text">3 étapes pour démarrer :</p>
@@ -106,7 +106,7 @@ export default function StartPage() {
             <li>✓ Disponible en France (cadre MiCA)</li>
             <li>✓ Dépôt EUR par virement SEPA</li>
             <li>✓ Exchange historique (2011), réputation sécurité solide</li>
-            <li>✓ API compatible avec nos bots spot</li>
+            <li>✓ API compatible avec mes bots spot</li>
             <li>✓ C&apos;est ici que mon bot EMA Cross live tourne depuis le 30 juin 2026</li>
           </ul>
           <div className="space-y-2 text-xs text-muted">

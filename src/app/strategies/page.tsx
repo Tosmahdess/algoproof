@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const FAQ_ITEMS = [
   {
     question: 'Puis-je utiliser ces bots depuis la France ?',
-    answer: "Les bots fonctionnant sur Binance Futures ne sont pas accessibles aux résidents français depuis 2023 (restriction AMF). En revanche, Bybit Futures et Hyperliquid sont disponibles et offrent les mêmes actifs. Consultez notre guide pour démarrer.",
+    answer: "Les bots fonctionnant sur Binance Futures ne sont pas accessibles aux résidents français depuis 2023 (restriction AMF). En revanche, Bybit Futures et Hyperliquid sont disponibles et offrent les mêmes actifs. Consulte mon guide pour démarrer.",
   },
 ]
 
