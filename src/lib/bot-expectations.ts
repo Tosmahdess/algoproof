@@ -27,6 +27,10 @@ export interface BotExpectations {
   threeSentences?: ThreeSentences
   /** Optional note explaining an expected quiet period (regime dormancy, fresh bot…). */
   dormancyNote?: string
+  /** Per-bot override of the standard paper→real gate (PF/WR/trades/DD). */
+  liveGate?: Partial<import('./path-to-real').LiveGate>
+  /** Date this bot started trading real money (YYYY-MM-DD). Verified, never guessed. */
+  liveSince?: string
 }
 
 const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
@@ -34,6 +38,10 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     source:
       'Critères GO pré-enregistrés avant le passage en live (backtests 730 j par actif : PF ≥ 1.2, DD ≤ 15 %) + règles de risque du bot.',
     registeredAt: '2026-05-08',
+    // Verified 2026-07-04: MIN(timestamp) of the live-only DB (apex_live_trades.db).
+    // orb-bf25 has NO liveSince on purpose: its DB mixes migrated paper history and
+    // real trades with no marker — no verifiable real-money start date yet.
+    liveSince: '2026-05-08',
     pfFloor: 1.2,
     maxDrawdown: 0.15,
     killCriteria: [
