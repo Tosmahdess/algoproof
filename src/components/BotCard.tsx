@@ -21,7 +21,7 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
           </div>
           <div className="flex items-center gap-2">
             <StatusBadge status={bot.status} />
-            <AlsoLiveBadge slug={bot.slug} />
+            <AlsoLiveBadge slug={bot.slug} status={bot.status} />
           </div>
         </div>
 

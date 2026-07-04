@@ -27,7 +27,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "Entry", value: "EMA 21 × EMA 55", note: "direction confirmed by EMA 200" },
           { label: "Timeframe", value: "H4", note: "4-hour candles" },
           { label: "ADX filter", value: "per-asset", note: "BTC ≥20 · SOL ≥12 · LINK/DOGE ≥15 · ADA ≥18" },
-          { label: "Direction", value: "Long only", note: "Binance Spot — no shorting" },
+          { label: "Direction", value: "Long only", note: "Kraken Spot — no shorting" },
         ],
       },
       {
@@ -53,10 +53,10 @@ const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Spot" },
-          { label: "Taker fee", value: "0.10%" },
+          { label: "Exchange", value: "Kraken Spot", note: "depuis le 30 juin 2026 (départ Binance FR / MiCA)" },
+          { label: "Taker fee", value: "0.26%" },
           { label: "Slippage est.", value: "0.10%" },
-          { label: "Round-trip cost", value: "~0.40%" },
+          { label: "Round-trip cost", value: "~0.70%" },
         ],
       },
     ],
@@ -73,7 +73,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Defense Mesh — filtre Market Intelligence",
         body: "Avant chaque entrée, le service MI évalue le régime macro via 4 piliers : sentiment Fear & Greed, dérivés Binance (funding rates + ratio L/S + liquidations 60s), actualités RSS, macro globale (VIX, DXY, calendrier de 134 événements). Si risk_level est RED — notamment quand VIX > 30 — aucune entrée n'est ouverte. Événements Tier 1 (Fed, NFP, CPI) : fenêtre de blocage ±2h. Tier 2 : ±30min.",
-        code: "if risk_level == 'RED':\n    return 'HOLD'   # MI veto — aucune entrée\nif cross_up:\n    return 'BUY'    # long only sur Binance Spot\nreturn 'HOLD'",
+        code: "if risk_level == 'RED':\n    return 'HOLD'   # MI veto — aucune entrée\nif cross_up:\n    return 'BUY'    # long only sur Kraken Spot\nreturn 'HOLD'",
       },
     ],
   },
@@ -1530,7 +1530,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
         items: [
           { label: "Entry", value: "Opening Range Breakout (H1)" },
           { label: "Timeframe", value: "H1" },
-          { label: "Assets", value: "25 (BF perps)" },
+          { label: "Assets", value: "25 (HL perps)" },
         ],
       },
       {
@@ -1555,22 +1555,22 @@ const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
-          { label: "Taker fee", value: "0.05%" },
+          { label: "Exchange", value: "Hyperliquid Perps", note: "le live tourne sur Hyperliquid" },
+          { label: "Taker fee", value: "0.065%" },
           { label: "Slippage est.", value: "0.05%" },
-          { label: "Round-trip cost", value: "~0.20%" },
+          { label: "Round-trip cost", value: "~0.23%" },
         ],
       },
     ],
     technicalArticle: [
       {
         title: "Signal — Opening Range Breakout",
-        body: "Stratégie ORB classique adaptée au crypto. La première bougie de la session UTC (00:00-01:00) définit le range d'ouverture (high et low de cette heure). Une entrée long se déclenche dès qu'une bougie suivante de la session casse au-dessus du high de la première heure ; un short dès qu'une bougie casse sous le low. C'est le seul bot Vague 2 en H1 — toutes les autres tournent en H4 ou D1. Cette granularité plus fine génère plus de signaux et capture des mouvements intraday qui échappent aux bots H4. Sharpe le plus haut de Vague 2 (5.39 sur backtest DOGE). 25 actifs BF perps.",
+        body: "Stratégie ORB classique adaptée au crypto. La première bougie de la session UTC (00:00-01:00) définit le range d'ouverture (high et low de cette heure). Une entrée long se déclenche dès qu'une bougie suivante de la session casse au-dessus du high de la première heure ; un short dès qu'une bougie casse sous le low. C'est le seul bot Vague 2 en H1 — toutes les autres tournent en H4 ou D1. Cette granularité plus fine génère plus de signaux et capture des mouvements intraday qui échappent aux bots H4. Sharpe le plus haut de Vague 2 (5.39 sur backtest DOGE). 25 actifs HL perps.",
         code: "session_start = '00:00'\nor_range = df.between_time('00:00', '01:00')\nor_high  = or_range['high'].max()\nor_low   = or_range['low'].min()\n\nbar = df.iloc[-1]\nif bar.name.time() > pd.Timestamp('01:00').time():\n    long_  = bar['close'] > or_high\n    short_ = bar['close'] < or_low",
       },
       {
         title: "Gestion du risque",
-        body: "Stop loss à ATR(14)×2.0 calculé sur H1, take profit R:R 1:2. Risque 1% par trade, max 8 positions, daily cap 3%. Frais BF : taker 0.05%, slippage 0.05%, round-trip ~0.20%.",
+        body: "Stop loss à ATR(14)×2.0 calculé sur H1, take profit R:R 1:2. Risque 1% par trade, max 8 positions, daily cap 3%. Frais Hyperliquid : taker 0.065%, slippage 0.05%, round-trip ~0.23%.",
       },
       {
         title: "Defense Mesh",
