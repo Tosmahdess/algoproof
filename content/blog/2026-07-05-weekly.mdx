@@ -1,0 +1,50 @@
+---
+title: "Semaine du 29 juin : les shorts plombent tout"
+date: "2026-07-05"
+category: "weekly"
+tags: ["weekly", "performance", "MI"]
+summary: "542 trades, 81 % de winrate global, mais -319 $ au compteur. Le coupable est identifié : les positions short ont détruit la semaine à elles seules."
+---
+
+## La semaine en chiffres
+
+<StatRow>
+  <Stat label="PnL net" value="-319,77 $" trend="down" />
+  <Stat label="Trades exécutés" value="542" trend="neutral" />
+  <Stat label="Winrate global" value="81,0 %" trend="neutral" />
+  <Stat label="Pire journée" value="-97,60 $ (1er juil.)" trend="down" />
+</StatRow>
+
+## Ce qui s'est passé
+
+La semaine s'ouvre mollement le 29 juin avec un léger recul de 9 $ puis rebondit timidement le 30 (+1,11 $). C'est trompeur. Dès le 1er juillet, le portefeuille prend une gifle de presque 98 $, et les trois jours suivants enfoncent le clou : -64 $, -77 $, -76 $. Le week-end sauve l'honneur avec +4,97 $ le 5 juillet, mais le mal est fait. Sur sept jours, cinq sont dans le rouge, et le drawdown s'est concentré sur une fenêtre de 96 heures particulièrement brutale en milieu de semaine.
+
+Le chiffre qui me dérange le plus n'est pas le PnL total, c'est la dissymétrie entre longs et shorts. Les longs affichent 415 trades, un winrate de 94,7 % et une perte nette de seulement 16 $. C'est quasiment flat, ce qui signifie que la stratégie long fonctionne correctement dans ce régime. Les shorts, en revanche, c'est une autre histoire : 127 trades, 36,2 % de winrate, et -303 $ absorbés. Le meilleur short de la semaine est NEAR-USDC à +14,95 $, le pire est POL-USDC à -12,54 $. Mais ce qui tue, c'est la répétition des petites pertes sur les shorts perdants, pas un trade catastrophique isolé.
+
+<DataCardGroup>
+  <DataCard title="Meilleur trade" value="+14,95 $" label="NEAR-USDC short" icon="trending-up" />
+  <DataCard title="Pire trade" value="-27,02 $" label="WLD long" icon="trending-down" />
+  <DataCard title="Winrate longs" value="94,7 %" label="415 trades" icon="check" />
+  <DataCard title="Winrate shorts" value="36,2 %" label="127 trades" icon="alert" />
+</DataCardGroup>
+
+Le contexte marché explique une partie du problème. Le heartbeat indique un régime BEAR avec BTC à -13,27 % sous son EMA 200 : le marché dérive à la baisse, ce qui défavorise les longs en théorie. Pourtant ce sont les shorts qui souffrent. Pourquoi ? Parce que même dans un régime bearish global, les actifs altcoin oscillent violemment dans les deux sens sans tendance franche, et mes shorts sont calibrés pour des mouvements directionnels propres. Dans un marché chaotique, ils se font stoper dans tous les sens.
+
+<CompactTable headers={["Direction", "Trades", "Winrate", "PnL net"]}>
+  <Row values={["Long", "415", "94,7 %", "-16,46 $"]} />
+  <Row values={["Short", "127", "36,2 %", "-303,31 $"]} />
+  <Row values={["Total", "542", "81,0 %", "-319,77 $"]} />
+</CompactTable>
+
+Côté fleet, 2 bots sont en live, 31 en paper, 40 au total. Le shadow gate version 1 tourne avec les deux sens autorisés en live, mais en shadow le layer `l5_funding_long` a déjà tiré, ce qui a désactivé les longs en simulation. Le DED score ressort à 0,62 en mode LONG_BIAS, cohérent avec un PnL 3 jours légèrement positif (+0,998 $) malgré la semaine difficile.
+
+## Leçon de la semaine
+
+> Un winrate de 81 % ne veut rien dire si la distribution des pertes est asymétrique par direction. Ici, 23 % des trades (les shorts) ont absorbé 95 % des pertes. Avant de corriger le sizing ou les stops, il faut d'abord répondre à une question simple : est-ce que mes shorts ont leur place dans ce régime de marché ?
+
+## Prochaines étapes
+
+- Analyser les 127 shorts trade par trade pour identifier si la perte est liée au signal d'entrée, au stop-loss ou à la sélection d'asset, cible avant le 9 juillet.
+- Tester une règle de filtrage des shorts conditionnel au score heartbeat : si `global_score` passe sous -10 et que le régime est BEAR sans tendance claire, désactiver les shorts en live, pas seulement en shadow.
+- Faire passer `live_enforced` à true sur le hard gate v1 pour les bots shorts, en excluant `v1_spot` comme déjà prévu, objectif avant fin de semaine prochaine (12 juillet).
+- Surveiller le layer `l5_funding_long` en shadow : si il reste actif plus de 48h consécutives, c'est un signal que le financement est structurellement baisseur et que les longs doivent eux aussi être filtrés en live.
