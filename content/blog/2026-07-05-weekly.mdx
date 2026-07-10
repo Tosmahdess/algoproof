@@ -30,10 +30,10 @@ Le chiffre qui me dérange le plus n'est pas le PnL total, c'est la dissymétrie
 
 Le contexte marché explique une partie du problème. Le heartbeat indique un régime BEAR avec BTC à -13,27 % sous son EMA 200 : le marché dérive à la baisse, ce qui défavorise les longs en théorie. Pourtant ce sont les shorts qui souffrent. Pourquoi ? Parce que même dans un régime bearish global, les actifs altcoin oscillent violemment dans les deux sens sans tendance franche, et mes shorts sont calibrés pour des mouvements directionnels propres. Dans un marché chaotique, ils se font stoper dans tous les sens.
 
-<CompactTable headers={["Direction", "Trades", "Winrate", "PnL net"]}>
-  <Row values={["Long", "415", "94,7 %", "-16,46 $"]} />
-  <Row values={["Short", "127", "36,2 %", "-303,31 $"]} />
-  <Row values={["Total", "542", "81,0 %", "-319,77 $"]} />
+<CompactTable cols="Direction | Trades | Winrate | PnL net" summary>
+  <Row values="Long | 415 | 94,7 % | -16,46 $" />
+  <Row values="Short | 127 | 36,2 % | -303,31 $" />
+  <Row values="Total | 542 | 81,0 % | -319,77 $" />
 </CompactTable>
 
 Côté fleet, 2 bots sont en live, 31 en paper, 40 au total. Le shadow gate version 1 tourne avec les deux sens autorisés en live, mais en shadow le layer `l5_funding_long` a déjà tiré, ce qui a désactivé les longs en simulation. Le DED score ressort à 0,62 en mode LONG_BIAS, cohérent avec un PnL 3 jours légèrement positif (+0,998 $) malgré la semaine difficile.
