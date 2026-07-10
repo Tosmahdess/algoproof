@@ -124,6 +124,115 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
         'Levier ×2 maximum, 6 positions simultanées maximum, stop initial sur chaque trade ; c’est un bot en argent réel, chaque trade est publié.',
     },
   },
+
+  // ——— Enveloppes étendues le 2026-07-10 (audit flotte du 09/07) aux 5 bots paper
+  // les mieux classés. Chiffres = gate standard APEX (PF ≥ 1.30, DD ≤ 20 %) + config
+  // de risque du bot — jamais le réalisé.
+
+  'combobbrsi-bf9': {
+    source:
+      'Gate standard APEX pré-enregistré (PF ≥ 1.30, DD ≤ 20 %) + règles de risque du bot (1 % par trade, stop ATR×2, kill switch −3 %/jour).',
+    registeredAt: '2026-07-10',
+    pfFloor: 1.3,
+    maxDrawdown: 0.2,
+    killCriteria: [
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
+      '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
+    ],
+    threeSentences: {
+      entry:
+        'Il entre sur la cassure d’une bande de Bollinger (20, 2.5σ) en H4, uniquement si le RSI(21) confirme un momentum net dans le même sens (> 55 pour un long, < 45 pour un short).',
+      exit:
+        'Stop initial à ATR × 2 depuis l’entrée, take profit au double de la distance du stop (R:R 1:2).',
+      risk:
+        '1 % du capital risqué par trade, 8 positions simultanées maximum, plafond de risque journalier à 3 % ; entrées bloquées quand le régime de marché est RED.',
+    },
+  },
+
+  'combosupermacd-bf11': {
+    source:
+      'Gate standard APEX pré-enregistré (PF ≥ 1.30, DD ≤ 20 %) + règles de risque du bot (1 % par trade, stop ATR×2, kill switch −3 %/jour).',
+    registeredAt: '2026-07-10',
+    pfFloor: 1.3,
+    maxDrawdown: 0.2,
+    killCriteria: [
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
+      '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
+    ],
+    threeSentences: {
+      entry:
+        'Il suit la tendance donnée par le SuperTrend (7, 2.0) et entre au moment précis où le MACD rapide (8/21/5) croise son signal dans le sens de cette tendance, en H4 sur 11 perpétuels.',
+      exit:
+        'Stop initial à ATR × 2 depuis l’entrée, take profit au double de la distance du stop (R:R 1:2).',
+      risk:
+        '1 % du capital risqué par trade, 8 positions simultanées maximum, plafond de risque journalier à 3 % ; entrées bloquées quand le régime de marché est RED.',
+    },
+  },
+
+  'macsimple-bf10': {
+    source:
+      'Gate standard APEX pré-enregistré (PF ≥ 1.30, DD ≤ 20 %) + règles de risque du bot (1 % par trade, stop ATR×2, kill switch −3 %/jour).',
+    registeredAt: '2026-07-10',
+    pfFloor: 1.3,
+    maxDrawdown: 0.2,
+    killCriteria: [
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
+      '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
+    ],
+    threeSentences: {
+      entry:
+        'Il entre sur un croisement de moyennes mobiles simples — long quand la SMA 10 passe au-dessus de la SMA 30, short quand elle passe en dessous — en H4 sur 10 perpétuels.',
+      exit:
+        'Stop initial à ATR × 2 depuis l’entrée, take profit au double de la distance du stop (R:R 1:2).',
+      risk:
+        '1 % du capital risqué par trade, 8 positions simultanées maximum, plafond de risque journalier à 3 % ; entrées bloquées quand le régime de marché est RED.',
+    },
+  },
+
+  'ttmsqueeze-bf7': {
+    source:
+      'Gate standard APEX pré-enregistré (PF ≥ 1.30, DD ≤ 20 %) + règles de risque du bot (1 % par trade, stop ATR×2, kill switch −3 %/jour).',
+    registeredAt: '2026-07-10',
+    pfFloor: 1.3,
+    maxDrawdown: 0.2,
+    killCriteria: [
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
+      '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
+    ],
+    threeSentences: {
+      entry:
+        'Il attend qu’une phase de compression de volatilité (TTM Squeeze : Bollinger à l’intérieur du Keltner) se relâche, puis entre dans la direction indiquée par le momentum, en H4 sur 7 perpétuels.',
+      exit:
+        'Stop initial à ATR × 2 depuis l’entrée, take profit au double de la distance du stop (R:R 1:2).',
+      risk:
+        '1 % du capital risqué par trade, 8 positions simultanées maximum, plafond de risque journalier à 3 % ; entrées bloquées quand le régime de marché est RED.',
+    },
+  },
+
+  'hatrend-bf28': {
+    source:
+      'Gate standard APEX pré-enregistré (PF ≥ 1.30, DD ≤ 20 %) + règles de risque du bot (1 % par trade, stop ATR×2, kill switch −3 %/jour).',
+    registeredAt: '2026-07-10',
+    pfFloor: 1.3,
+    maxDrawdown: 0.2,
+    killCriteria: [
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
+      '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
+    ],
+    threeSentences: {
+      entry:
+        'Il lisse les bougies H4 en HeikinAshi et entre après 3 bougies consécutives dans le même sens — long après 3 haussières, short après 3 baissières — sur 28 perpétuels.',
+      exit:
+        'Stop initial à ATR × 2 depuis l’entrée, take profit au double de la distance du stop (R:R 1:2).',
+      risk:
+        '1 % du capital risqué par trade, 8 positions simultanées maximum, plafond de risque journalier à 3 % ; entrées bloquées quand le régime de marché est RED.',
+    },
+  },
 }
 
 export function getBotExpectations(slug: string): BotExpectations | null {
