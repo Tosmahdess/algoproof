@@ -1,0 +1,57 @@
+---
+title: "Ton bot Binance est mort le 1er juillet. Et maintenant ?"
+date: "2026-07-10"
+category: "guide"
+tags: ["binance", "mica", "backtest", "migration", "france"]
+summary: "Binance a quitté la France avec MiCA : bots coupés, retraits dans le chaos, 2 millions d'utilisateurs orphelins. Avant de redéployer ta stratégie ailleurs, re-backteste-la aux frais réels de la venue cible. Voici comment faire, gratuitement."
+---
+
+Le 1er juillet, Binance a cessé de servir les utilisateurs français. Si tu faisais tourner
+un bot dessus, il s'est arrêté ce jour-là, au milieu d'une file de retraits saturée. Tu
+n'es pas seul : on parle d'environ deux millions de comptes français.
+
+La tentation, c'est de reprendre le même bot, la même config, et de le relancer tel quel
+sur Kraken ou Coinbase. C'est exactement l'erreur que j'ai failli faire avec mon propre
+bot spot, et elle mérite qu'on s'y arrête.
+
+## Le vrai danger n'est pas la migration, c'est les frais
+
+Une stratégie n'a pas un rendement dans l'absolu. Elle a un rendement **net de frais**, et
+les frais changent du tout au tout d'une venue à l'autre. Mon EMA Cross H4 spot était
+rentable en backtest aux frais Binance ; rejoué aux frais de sa nouvelle venue, aller-retour
+plus cher, le même backtest passe sous l'eau. Même signaux, mêmes trades, verdict inverse.
+
+C'est devenu une règle chez moi : **toute migration de venue impose de re-backtester aux
+frais de la venue cible avant de redéployer**. Pas « à peu près », pas « on verra en
+réel » : en backtest, avec le taker réel, le spread réel, et un stress de coûts au-dessus.
+
+## Comment re-tester ta stratégie, concrètement
+
+Tu peux le faire gratuitement dans [le Lab](https://lab.algoproof.fr/lab), sans compte :
+
+1. **Exporte ton historique Binance en CSV** (les données OHLCV de ta paire, ou ton
+   export de trades pour retrouver tes paramètres). Binance laisse l'export accessible
+   même après la coupure du trading.
+2. **Importe le CSV dans le Lab** : source de données « CSV », dépose le fichier,
+   l'actif et le timeframe sont déduits automatiquement.
+3. **Rejoue ta stratégie avec les presets de frais de la venue cible** : le Lab embarque
+   des profils de coûts réalistes (frais, slippage, spread) que tu peux durcir.
+4. **Lis le diagnostic, pas seulement le P&L.** Chaque run reçoit un bulletin
+   anti-overfit : dépendance aux meilleurs trades, survie à un doublement des coûts,
+   sensibilité des paramètres. Si ton edge ne survit pas au stress de coûts, tu viens
+   d'économiser des mois de pertes en réel.
+
+## Où trader maintenant ?
+
+Je ne vais pas te dire où ouvrir un compte, ce n'est pas le sujet du Lab. Pour la
+photographie réglementaire complète (qui est enregistré, qui ne l'est pas, ce que MiCA
+change pour toi), j'ai un guide dédié : [MiCA expliqué simplement](/blog/2026-06-04-mica-explique).
+Ce que je peux te dire côté données : mes propres bots tournent aujourd'hui sur Kraken
+(spot, réel) et Hyperliquid (perps), et le Lab sait backtester aux frais des deux.
+
+## La leçon qui reste quand la poussière retombe
+
+Un backtest gagnant sur une venue n'est pas une promesse sur une autre. Si cette
+migration forcée te pousse à re-tester ta stratégie sérieusement une fois dans ta vie,
+elle aura au moins servi à ça. Et si le verdict est mauvais, c'est une bonne nouvelle
+déguisée : tu l'as appris gratuitement.
