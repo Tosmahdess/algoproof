@@ -9,10 +9,10 @@ summary: "542 trades, 81 % de winrate global, mais -319 $ au compteur. Le coupab
 ## La semaine en chiffres
 
 <StatRow>
-  <Stat label="PnL net" value="-319,77 $" trend="down" />
-  <Stat label="Trades exécutés" value="542" trend="neutral" />
-  <Stat label="Winrate global" value="81,0 %" trend="neutral" />
-  <Stat label="Pire journée" value="-97,60 $ (1er juil.)" trend="down" />
+  <Stat label="PnL net" value="-319,77 $" />
+  <Stat label="Trades exécutés" value="542" />
+  <Stat label="Winrate global" value="81,0 %" />
+  <Stat label="Pire journée" value="-97,60 $" subtext="1er juillet" />
 </StatRow>
 
 ## Ce qui s'est passé
@@ -22,10 +22,10 @@ La semaine s'ouvre mollement le 29 juin avec un léger recul de 9 $ puis rebondi
 Le chiffre qui me dérange le plus n'est pas le PnL total, c'est la dissymétrie entre longs et shorts. Les longs affichent 415 trades, un winrate de 94,7 % et une perte nette de seulement 16 $. C'est quasiment flat, ce qui signifie que la stratégie long fonctionne correctement dans ce régime. Les shorts, en revanche, c'est une autre histoire : 127 trades, 36,2 % de winrate, et -303 $ absorbés. Le meilleur short de la semaine est NEAR-USDC à +14,95 $, le pire est POL-USDC à -12,54 $. Mais ce qui tue, c'est la répétition des petites pertes sur les shorts perdants, pas un trade catastrophique isolé.
 
 <DataCardGroup>
-  <DataCard title="Meilleur trade" value="+14,95 $" label="NEAR-USDC short" icon="trending-up" />
-  <DataCard title="Pire trade" value="-27,02 $" label="WLD long" icon="trending-down" />
-  <DataCard title="Winrate longs" value="94,7 %" label="415 trades" icon="check" />
-  <DataCard title="Winrate shorts" value="36,2 %" label="127 trades" icon="alert" />
+  <DataCard label="Meilleur trade" sub="NEAR-USDC short" metrics="P&L:+14,95 $" intent="positive" />
+  <DataCard label="Pire trade" sub="WLD long" metrics="P&L:-27,02 $" intent="negative" />
+  <DataCard label="Winrate longs" sub="415 trades" metrics="WR:94,7 %" intent="neutral" />
+  <DataCard label="Winrate shorts" sub="127 trades" metrics="WR:36,2 %" intent="negative" />
 </DataCardGroup>
 
 Le contexte marché explique une partie du problème. Le heartbeat indique un régime BEAR avec BTC à -13,27 % sous son EMA 200 : le marché dérive à la baisse, ce qui défavorise les longs en théorie. Pourtant ce sont les shorts qui souffrent. Pourquoi ? Parce que même dans un régime bearish global, les actifs altcoin oscillent violemment dans les deux sens sans tendance franche, et mes shorts sont calibrés pour des mouvements directionnels propres. Dans un marché chaotique, ils se font stoper dans tous les sens.
