@@ -30,6 +30,8 @@ const MOBILE_LINKS = [
   { href: '/intelligence', label: 'Le marché',        external: false },
   { href: '/blog',         label: 'Apprendre',        external: false },
   { href: '/labo',         label: 'Le labo',          external: false },
+  { href: 'https://lab.algoproof.fr/#vote',   label: 'Le vote du labo',  external: true },
+  { href: 'https://lab.algoproof.fr/membre',  label: 'Membres (bientôt)', external: true },
 ]
 
 export default function Nav() {
