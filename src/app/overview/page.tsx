@@ -3,6 +3,7 @@ import { getAllBotsWithStats } from '@/lib/queries'
 import { supabaseServer } from '@/lib/supabase-server'
 import OverviewClient from '@/components/OverviewClient'
 import type { TradeWithBot } from '@/lib/types'
+import { isCarryFamily } from '@/lib/display'
 import JsonLd from '@/components/JsonLd'
 import { faqJsonLd } from '@/lib/jsonld'
 
@@ -14,12 +15,17 @@ export const metadata: Metadata = {
 }
 
 async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
+  // Carry bots (grid, funding harvest) micro-rotate dozens of times a day and
+  // archived bots are dead: both would flood the global feed. Fetch a wider
+  // window, filter, then keep the newest `limit`.
   const { data } = await supabaseServer
     .from('trades')
-    .select('id,opened_at,closed_at,asset,side,pnl,reason,bots(name,slug,family)')
+    .select('id,opened_at,closed_at,asset,side,pnl,reason,bots(name,slug,family,status)')
     .order('closed_at', { ascending: false })
-    .limit(limit)
-  return (data ?? []) as unknown as TradeWithBot[]
+    .limit(limit * 5)
+  return ((data ?? []) as unknown as TradeWithBot[])
+    .filter(t => !isCarryFamily(t.bots?.family) && t.bots?.status !== 'archived')
+    .slice(0, limit)
 }
 
 export default async function OverviewPage() {

@@ -146,7 +146,7 @@ export interface TradeWithBot {
   side: string
   pnl: number
   reason: string | null
-  bots: { name: string; slug: string; family: string | null } | null
+  bots: { name: string; slug: string; family: string | null; status?: string | null } | null
 }
 
 export interface GrowthAsset {

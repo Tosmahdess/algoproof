@@ -48,9 +48,9 @@ export default function MiBanner() {
 
   const PILLARS = [
     { key: 'sentiment_score'   as keyof MiSnapshot, label: 'Sentiment',   color: '#ff6b35', weight: '30%' },
-    { key: 'derivatives_score' as keyof MiSnapshot, label: 'Dérivés',     color: '#d2a8ff', weight: '30%' },
-    { key: 'news_score'        as keyof MiSnapshot, label: 'Actualités',  color: '#3fb950', weight: '20%' },
-    { key: 'macro_score'       as keyof MiSnapshot, label: 'Macro',       color: '#40c4ff', weight: '20%' },
+    { key: 'derivatives_score' as keyof MiSnapshot, label: 'Dérivés',     color: '#d2a8ff', weight: '40%' },
+    { key: 'news_score'        as keyof MiSnapshot, label: 'Actualités',  color: '#3fb950', weight: '5%' },
+    { key: 'macro_score'       as keyof MiSnapshot, label: 'Macro',       color: '#40c4ff', weight: '25%' },
   ]
 
   return (

@@ -34,7 +34,7 @@ const PILLARS = [
   {
     id: 'derivatives',
     label: 'Produits dérivés',
-    weight: '30%',
+    weight: '40%',
     color: '#d2a8ff',
     functional:
       'Surveille le marché des futures crypto en temps réel. Les taux de financement, l\'open interest et les liquidations révèlent quand l\'effet de levier est dangereusement élevé — précurseur classique des corrections violentes.',
@@ -44,17 +44,17 @@ const PILLARS = [
   {
     id: 'news',
     label: 'Actualités',
-    weight: '20%',
+    weight: '5%',
     color: '#3fb950',
     functional:
-      "Analyse les titres financiers en continu. Un événement négatif majeur (hack d'exchange, répression réglementaire, choc macro) peut bouger les marchés plus vite que n'importe quel indicateur. On surveille les news pour que les bots n'entrent pas dans la tempête.",
+      "Analyse les titres financiers en continu. Un événement négatif majeur (hack d'exchange, répression réglementaire, choc macro) peut bouger les marchés plus vite que n'importe quel indicateur. Je surveille les news pour que les bots n'entrent pas dans la tempête.",
     technical:
       'Flux RSS : 3 sources crypto (CoinDesk, Decrypt, Cointelegraph) + 4 géopolitiques (Reuters, BBC, NYT, Al Jazeera). Scoring mots-clés ±15 pts/titre, décroissance exponentielle τ=2h. >20 000 titres archivés.',
   },
   {
     id: 'macro',
     label: 'Macro',
-    weight: '20%',
+    weight: '25%',
     color: '#40c4ff',
     functional:
       "Surveille les conditions macroéconomiques : volatilité des marchés actions (VIX), force du dollar américain (DXY), et événements à venir comme les décisions de la Fed ou le CPI. La crypto n'existe pas en vase clos.",
@@ -101,13 +101,13 @@ export default async function IntelligencePage() {
         <h1 className="text-2xl font-bold tracking-tight">
           Le gardien qui ne dort jamais.
         </h1>
-        <p className="text-sm text-muted max-w-2xl mb-6">
+        <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
           Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège volatilité, sentiment, dérivés et macro en un seul indicateur lisible.
         </p>
-        <p className="text-xs text-muted mb-6 max-w-2xl">
+        <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
           Pourquoi ça compte : quand le risque passe à OFF, mes bots se font plus prudents (positions réduites, défense active). La météo du marché n&apos;est pas décorative — elle pilote des décisions. Termes expliqués dans le <a href="/lexique" className="text-accent">lexique</a>.
         </p>
-        <p className="mt-3 text-sm text-muted max-w-2xl leading-relaxed">
+        <p className="text-sm text-muted max-w-2xl leading-relaxed">
           Chaque bot AlgoProof est filtré par une couche d&apos;intelligence de marché en temps réel. Avant chaque trade, le service MI consulte 4 sources de données et décide si le marché est sûr. Sinon, aucun bot ne trade — sans exception.
         </p>
       </div>
@@ -194,7 +194,7 @@ export default async function IntelligencePage() {
                 <span className="text-muted">Watchdog heartbeat — données périmées → bloqué par défaut</span>
               </div>
               <p className="pt-2 text-[10px] text-muted">
-                Plage de score : [−100, +100]. Pondérations : Sentiment 30% · Dérivés 30% · Actualités 20% · Macro 20%.
+                Plage de score : [−100, +100]. Pondérations : Sentiment 30% · Dérivés 40% · Actualités 5% · Macro 25% (re-pondération du 4 juillet 2026).
                 Condition : composite &gt; −30 ET VIX ≤ 30 ET pas de T1 dans 2h ET pas de T2 dans 30min.
               </p>
             </div>
