@@ -22,11 +22,14 @@ const HUBS = [
 
 // Mobile flat list (one tap each)
 const MOBILE_LINKS = [
-  { href: '/overview',     label: 'Mes bots',  external: false },
-  { href: '/wealth',       label: 'Investir',  external: false },
-  { href: '/intelligence', label: 'Le marché', external: false },
-  { href: '/blog',         label: 'Apprendre', external: false },
-  { href: '/labo',          label: 'Le labo',   external: false },
+  { href: '/overview',     label: 'Mes bots',         external: false },
+  { href: '/strategies',   label: 'Les stratégies',   external: false },
+  { href: '/performance',  label: 'Performance',      external: false },
+  { href: '/journal',      label: 'Ce qui a changé',  external: false },
+  { href: '/wealth',       label: 'Investir',         external: false },
+  { href: '/intelligence', label: 'Le marché',        external: false },
+  { href: '/blog',         label: 'Apprendre',        external: false },
+  { href: '/labo',         label: 'Le labo',          external: false },
 ]
 
 export default function Nav() {
