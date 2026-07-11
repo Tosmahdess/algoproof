@@ -6,7 +6,7 @@ tags: ["methode", "IA", "overfit", "backtest"]
 summary: "10 stratégies classiques générées par un LLM, 2 ans de données, frais Kraken réels : 0 profitable, 0 qui survit à un stress de coûts. Ce que ça dit vraiment, et ce que ça ne dit pas."
 ---
 
-En 2026, faire générer une stratégie de trading par une IA prend dix secondes et ne coûte rien. QuantConnect a son copilote, StrategyQuant génère des centaines de configs, les agents passent des ordres chez Robinhood. La génération est devenue gratuite. La vérification, elle, n'intéresse personne.
+Générer une stratégie de trading par une IA ne coûte plus rien, j'en ai eu dix en dix secondes. QuantConnect a son copilote, StrategyQuant génère des centaines de configs, les agents passent des ordres chez Robinhood. Vérifier si tout ça vaut quelque chose, par contre, personne ne se bouscule. C'est pourtant là que ton argent se joue.
 
 Alors j'ai fait l'expérience complète, en public.
 
@@ -19,7 +19,7 @@ Ensuite, chaque stratégie est passée au [Lab](https://lab.algoproof.fr/lab) da
 - **2 ans de données** (juillet 2024 à juillet 2026), pas une fenêtre choisie pour arranger qui que ce soit ;
 - **frais réels Kraken spot** (environ 0,68 % l'aller-retour), la venue où mon propre bot tourne en argent réel depuis MiCA ;
 - le **moteur public du Lab**, via la même API que le [serveur MCP](https://lab.algoproof.fr/agents) expose aux agents IA ;
-- des **runs publics** : chaque résultat est vérifiable dans le Lab, je n'ai rien à cacher ni à embellir.
+- des **runs publics** : chaque résultat est vérifiable dans le Lab, je n'ai rien retouché.
 
 ## Le résultat
 
@@ -43,18 +43,18 @@ Ensuite, chaque stratégie est passée au [Lab](https://lab.algoproof.fr/lab) da
   <Row values="EMA Ribbon 8/13/21/34 | ETH 4h | 184 | 0.79 | 0 % des voisins profitables : du bruit ajusté" />
 </CompactTable>
 
-La meilleure des dix, l'Ichimoku, affiche un PF de 1.02 : dix euros de gain sur mille misés, en deux ans. Et le bulletin montre que ces dix euros tiennent à cinq trades chanceux qui pèsent huit fois le gain total. Retire-les, il ne reste rien.
+La meilleure des dix, l'Ichimoku, affiche un PF de 1.02 : à peine plus de gains bruts que de pertes brutes, en deux ans. L'écart tient dans l'épaisseur du trait. Et le bulletin montre que ces dix euros tiennent à cinq trades chanceux qui pèsent huit fois le gain total. Retire-les, il ne reste rien.
 
 ## Les trois leçons
 
-**1. Les frais sont l'adversaire numéro un, pas la direction.** Aucune de ces stratégies n'est « fausse » dans sa logique. Elles perdent parce qu'elles tradent trop pour ce qu'elles capturent : 200 à 320 trades en deux ans à 0,68 % l'aller-retour, l'arithmétique est sans appel. C'est exactement la leçon que mon bot réel m'a coûté cher à apprendre au passage sur Kraken.
+**1. Les frais sont l'adversaire numéro un, pas la direction.** Aucune de ces stratégies n'est « fausse » dans sa logique. Elles perdent parce qu'elles tradent trop pour ce qu'elles capturent : 200 à 320 trades en deux ans à 0,68 % l'aller-retour, l'arithmétique est sans appel. Mon bot réel me l'a appris au passage sur Kraken : mêmes signaux, frais triplés, verdict inversé.
 
-**2. « Battre le hasard » ne suffit pas.** Trois stratégies battent 97 à 99 % des jeux d'entrées aléatoires du bulletin... tout en perdant de l'argent. Le hasard, aux mêmes frais, perd encore plus qu'elles. Un compliment statistique n'est pas un edge : c'est le genre de nuance qu'un chiffre isolé ne te dira jamais.
+**2. « Battre le hasard » ne suffit pas.** Trois stratégies battent 97 à 99 % des jeux d'entrées aléatoires du bulletin... tout en perdant de l'argent. Le hasard, aux mêmes frais, perd encore plus qu'elles. Sur le compte, ça ne change rien : elles perdent quand même.
 
-**3. Le régime décide.** 2024-2026 mélange un marché haussier puis un long régime sans tendance, celui qui met mes propres bots de tendance en dormance volontaire depuis des mois. Une fenêtre différente donnerait des chiffres différents : c'est précisément pour ça qu'un backtest se juge avec un bulletin complet, pas avec un PF.
+**3. Le régime décide.** 2024-2026 mélange un marché haussier puis un long régime sans tendance, celui qui met mes propres bots de tendance en dormance volontaire depuis des mois. Une fenêtre différente donnerait des chiffres différents. C'est pour ça que je lis le bulletin complet avant de regarder le PF.
 
 <Callout type="warning" title="Ce que ce test ne dit PAS">
-Ce n'est pas « l'IA est nulle en trading ». Un humain qui recopie ces mêmes recettes de manuel obtient exactement les mêmes pertes. Le problème n'est pas qui génère la stratégie : c'est que la génération sans vérification produit de la confiance sans fondement. Et l'IA industrialise la génération.
+Ce n'est pas « l'IA est nulle en trading ». Un humain qui recopie ces mêmes recettes de manuel obtient exactement les mêmes pertes. La différence, c'est le débit : une IA en sort dix par minute, et presque personne ne prend cinq minutes pour les tester.
 </Callout>
 
 ## La suite logique
@@ -65,4 +65,4 @@ Aucune des dix stratégies générées ne mérite un euro réel en l'état : zé
 
 Si tu utilises une IA pour générer des stratégies, donne-lui aussi l'outil pour les vérifier : le [serveur MCP du Lab](https://lab.algoproof.fr/agents) rend le bulletin anti-overfit accessible à n'importe quel agent, gratuitement. Et si tu préfères vérifier toi-même : [le Lab](https://lab.algoproof.fr/lab) est gratuit, sans compte, et la [bibliothèque des stratégies](https://lab.algoproof.fr/bibliotheque) explique honnêtement quand chacune de ces recettes marche, et quand elle meurt.
 
-L'IA génère. Le bulletin vérifie. Dans cet ordre, et jamais l'inverse.
+Les dix runs de ce test restent publics dans le Lab. Si tu veux vérifier mes chiffres, ou tester la onzième idée de ton LLM, tout est là.

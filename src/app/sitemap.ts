@@ -1,5 +1,17 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { getBotSlugs } from '@/lib/queries'
 import { getFicheSitemapData } from '@/lib/equity'
+
+function getBlogSlugs(): string[] {
+  try {
+    return fs.readdirSync(path.join(process.cwd(), 'content/blog'))
+      .filter(f => f.endsWith('.mdx'))
+      .map(f => f.replace(/\.mdx$/, ''))
+  } catch {
+    return []
+  }
+}
 
 export default async function sitemap() {
   let slugs: string[] = []
@@ -80,6 +92,13 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.6,
+    })),
+    ...getBlogSlugs().map(slug => ({
+      url: `https://algoproof.fr/blog/${slug}`,
+      // Filenames start with the publication date (YYYY-MM-DD-slug).
+      lastModified: /^\d{4}-\d{2}-\d{2}/.test(slug) ? new Date(slug.slice(0, 10)) : new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
     })),
     ...ficheUrls,
     ...strategyUrls,

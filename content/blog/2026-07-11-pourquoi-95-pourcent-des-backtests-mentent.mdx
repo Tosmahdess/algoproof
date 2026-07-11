@@ -12,39 +12,41 @@ Un backtest gagnant est l'objet le plus facile à fabriquer du monde. Il suffit 
 
 Tu backtestes sur le BTC de 2020 à 2026 et ça gagne. Évidemment : tu as choisi, en 2026, un actif dont tu SAIS qu'il a survécu et monté. Les centaines de tokens morts en route, personne ne les backteste : ils ont disparu des listes. C'est le biais du survivant : ton univers de test est déjà trié par le futur.
 
-Le même biais existe en version stratégie : tu ne testes que les idées qui « ont l'air de marcher », c'est-à-dire celles que le marché récent a récompensées. L'échantillon est pollué avant même le premier calcul.
+Le même biais existe en version stratégie : tu ne testes que les idées qui « ont l'air de marcher », c'est-à-dire celles que le marché récent a récompensées. Le tri est fait avant que tu ouvres le backtest.
 
 ## Mensonge n°2 : le futur qui fuit
 
 Le look-ahead, c'est utiliser une information qui n'existait pas au moment de la décision : une clôture pas encore imprimée, un indicateur recalculé sur toute l'histoire, des données révisées après coup. Un seul octet de futur suffit à rendre un backtest imbattable et faux.
 
-C'est pour ça que le Lab revendique des données point-in-time : la stratégie ne voit jamais rien de plus que ce qu'un bot aurait vu ce jour-là. Ce n'est pas un détail d'implémentation, c'est la frontière entre une simulation et une fiction.
+C'est pour ça que le Lab revendique des données point-in-time : la stratégie ne voit jamais rien de plus que ce qu'un bot aurait vu ce jour-là. Un indicateur recalculé sur toute l'histoire suffit à rendre un backtest imbattable, et faux.
 
 ## Mensonge n°3 : le sur-ajustement (l'overfit)
 
-Teste 500 combinaisons de paramètres sur la même fenêtre : la meilleure sera brillante, par construction. Pas parce qu'elle a trouvé un edge, parce que tu as trié 500 tirages et gardé le plus chanceux. Le PF de la gagnante ne mesure plus le marché : il mesure ton nombre d'essais.
+Teste 500 combinaisons de paramètres sur la même fenêtre : la meilleure sera brillante, par construction. Tu as trié 500 tirages et gardé le plus chanceux. Son PF flatteur récompense ton nombre d'essais, pas un edge.
 
 <Callout type="note" title="Vois-le de tes propres yeux, en deux clics">
 Le Lab a une configuration piégée exprès : un suivi de tendance posé pile sur les quatre mois où SOL a explosé fin 2024. PF 1.5, Sharpe 4, tout brille. Puis le bulletin retire les 4 meilleurs trades : le gain disparaît. Et des entrées tirées au hasard font presque aussi bien : c'est la fenêtre qui gagne, pas la stratégie. [Lance « le piège » ici](https://lab.algoproof.fr/lab?firstrun=piege&run=1), c'est gratuit et sans compte.
 </Callout>
 
-L'overfit ne se voit pas dans le chiffre final : il se voit dans la fragilité. Bouge un paramètre d'un cran et tout s'effondre ? Tu as ajusté du bruit. C'est exactement ce que mesurent la sensibilité, le PBO et le Sharpe dégonflé du bulletin.
+L'overfit se repère à la fragilité. Bouge un paramètre d'un cran : si tout s'effondre, tu as ajusté du bruit. C'est ce que mesurent la sensibilité, le PBO et le Sharpe dégonflé du bulletin.
 
 ## Mensonge n°4 : les frais qu'on oublie
 
-Le mensonge le plus bête et le plus cher. À 0,7 % l'aller-retour, une stratégie qui trade 300 fois en deux ans doit d'abord payer plus de deux fois son capital en frais avant de gagner un centime. J'ai [testé 10 stratégies de manuel générées par une IA](/blog/2026-07-11-10-strategies-ia-au-bulletin) aux frais réels de Kraken : zéro profitable, et l'adversaire n'était presque jamais la direction, c'était la caisse enregistreuse.
+Le mensonge le plus bête et le plus cher. À 0,68 % l'aller-retour (mes frais réels Kraken), une stratégie qui trade 300 fois en deux ans doit d'abord payer plus de deux fois son capital en frais avant de gagner un centime. J'ai [testé 10 stratégies de manuel générées par une IA](/blog/2026-07-11-10-strategies-ia-au-bulletin) à ces frais-là : zéro profitable, et l'adversaire n'était presque jamais la direction. C'étaient les frais, ligne après ligne.
 
 Je l'ai aussi appris en réel : mon bot V1 est passé de Binance à Kraken après MiCA, les frais ont triplé, et le backtest re-joué aux nouveaux frais est passé de viable à structurellement perdant. Re-tester aux frais de la venue cible est depuis une règle non négociable de ma méthode.
 
 ## La parade : un bulletin, pas un chiffre
 
-Aucun de ces mensonges ne résiste à une vérification systématique. C'est le travail du [bulletin anti-overfit du Lab](https://lab.algoproof.fr/apprendre/lire-le-bulletin) : dépendance aux meilleurs trades, stress de coûts, sensibilité des paramètres, entrées aléatoires, règle `n<20`. Et c'est la discipline que j'applique à mes propres bots : mon [cimetière public](https://lab.algoproof.fr/galerie) recale bien plus de stratégies que je n'en promeus en argent réel : 16 recalées ou gelées, pour 2 bots seulement passés en réel. Chaque rejet est daté, publié, et reste en ligne.
+Aucun de ces mensonges ne résiste à une vérification systématique. C'est le travail du [bulletin anti-overfit du Lab](https://lab.algoproof.fr/apprendre/lire-le-bulletin) : dépendance aux meilleurs trades, stress de coûts, sensibilité des paramètres, entrées aléatoires, règle `n<20`. Et c'est la discipline que j'applique à mes propres bots : mon [cimetière public](https://lab.algoproof.fr/galerie) recale bien plus de stratégies que je n'en promeus en argent réel. 16 recalées ou gelées, pour 2 bots passés en réel. Chaque rejet est daté et publié, les pires y sont encore.
 
 <StatRow>
-  <Stat label="Vérité inconfortable" value="95 %" subtext="des backtests gagnants sont des illusions" />
+  <Stat label="Backtests gagnants illusoires" value="95 %" subtext="mon estimation (mon cimetière dit 89 %)" />
   <Stat label="Vérifier prend" value="5 min" subtext="dans le Lab, gratuit, sans compte" />
-  <Stat label="Se tromper en réel coûte" value="ton capital" subtext="et la leçon ne se rembourse pas" />
+  <Stat label="Se tromper en réel coûte" value="cher" subtext="mon V1 l'a payé au passage Kraken" />
 </StatRow>
+
+Le 95 % du titre, c'est mon estimation, pas une étude. Mon propre cimetière dit 89 % : 16 stratégies recalées ou gelées pour 2 passées en réel. Et encore, je me juge avec bienveillance.
 
 ## La suite : la formation
 
@@ -58,4 +60,4 @@ Elle n'est pas encore ouverte : j'écris dans l'ordre et je ne vends pas ce qui 
   description="Un email quand la formation ouvre, avec le tarif fondateur pour la liste d'attente. Pas de spam, désinscription sur simple réponse."
 />
 
-En attendant, tout ce qui permet d'apprendre est déjà gratuit : [les tutoriels](https://lab.algoproof.fr/apprendre), [la bibliothèque des stratégies](https://lab.algoproof.fr/bibliotheque) et [le Lab](https://lab.algoproof.fr/lab) lui-même. La méthode n'a pas de secret, elle a une discipline.
+En attendant, tout ce qui permet d'apprendre est déjà gratuit : [les tutoriels](https://lab.algoproof.fr/apprendre), [la bibliothèque des stratégies](https://lab.algoproof.fr/bibliotheque) et [le Lab](https://lab.algoproof.fr/lab) lui-même. Commence par le piège du mensonge n°3 : deux clics, et tu auras vu de tes yeux tout ce que ce module raconte.

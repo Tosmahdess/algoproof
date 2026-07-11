@@ -68,7 +68,7 @@ export default async function HomePage() {
         <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-muted border border-border rounded-lg px-5 py-3">
           <span><strong className="text-white font-mono">{bots.length}</strong> bots en direct</span>
           <span className="text-border">·</span>
-          <span><strong className="text-white font-mono">{bots.filter(b => b.stats.total_trades > 0).length}</strong> avec des trades réels</span>
+          <span><strong className="text-white font-mono">{bots.filter(b => b.stats.total_trades > 0).length}</strong> avec des trades publiés</span>
           <span className="text-border">·</span>
           <span>données mises à jour chaque heure</span>
           <span className="text-border">·</span>
