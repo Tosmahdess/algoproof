@@ -1,6 +1,6 @@
 // Email capture — pure helpers shared by the API route and tests.
 
-export const VALID_SOURCES = ['home', 'blog', 'labo', 'lab-landing', 'lab-galerie', 'lab-performance', 'lab-apprendre', 'lab-bibliotheque', 'formation-waitlist', 'site'] as const
+export const VALID_SOURCES = ['home', 'blog', 'labo', 'lab-landing', 'lab-galerie', 'lab-performance', 'lab-apprendre', 'lab-bibliotheque', 'formation-waitlist', 'lab-membership', 'site'] as const
 export type SubscribeSource = (typeof VALID_SOURCES)[number]
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
