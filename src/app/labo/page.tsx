@@ -47,6 +47,26 @@ export default function LaboPage() {
             Cinq tutoriels pas à pas et le guide du cockpit, pièce par pièce.
           </p>
         </a>
+        <a
+          href={`${LAB_URL}/bibliotheque`}
+          className="block bg-card border border-border rounded-xl p-5 hover:border-positive transition-colors"
+        >
+          <h2 className="font-bold mb-1">📚 La bibliothèque des stratégies</h2>
+          <p className="text-sm text-muted">
+            Les 22 stratégies du labo expliquées honnêtement : quand ça marche, quand ça
+            meurt, et le bouton pour tester chacune.
+          </p>
+        </a>
+        <a
+          href={`${LAB_URL}/agents`}
+          className="block bg-card border border-border rounded-xl p-5 hover:border-positive transition-colors"
+        >
+          <h2 className="font-bold mb-1">🤖 Pour ton agent IA</h2>
+          <p className="text-sm text-muted">
+            Le serveur MCP public : ton agent lance des backtests et reçoit le bulletin
+            anti-overfit, gratuitement.
+          </p>
+        </a>
       </section>
 
       <section>
