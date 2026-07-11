@@ -81,13 +81,30 @@ export default function Nav() {
             )
           })}
 
-          {/* Le labo CTA */}
-          <Link
-            href="/labo"
-            className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black"
-          >
-            LE LABO →
-          </Link>
+          {/* Le labo : CTA + dropdown miroir de MES BOTS */}
+          <div className="relative group">
+            <Link
+              href="/labo"
+              className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black"
+            >
+              LE LABO →
+            </Link>
+            <div className="absolute right-0 top-full mt-1 w-56 rounded border border-border bg-bg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+              {[
+                { href: 'https://lab.algoproof.fr', label: 'Ouvrir le labo' },
+                { href: 'https://lab.algoproof.fr/apprendre', label: 'Tutoriels' },
+                { href: 'https://lab.algoproof.fr/bibliotheque', label: 'Bibliothèque des stratégies' },
+                { href: 'https://lab.algoproof.fr/agents', label: 'Agents IA (MCP)' },
+                { href: 'https://lab.algoproof.fr/#vote', label: 'Le vote du labo' },
+                { href: 'https://lab.algoproof.fr/membre', label: 'Membres (bientôt)' },
+              ].map(({ href, label }) => (
+                <a key={href} href={href} target="_blank" rel="noopener noreferrer"
+                  className="block px-4 py-2.5 text-xs text-muted transition-colors hover:text-positive">
+                  {label} ↗
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Mobile hamburger */}
