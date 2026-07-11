@@ -95,9 +95,12 @@ export default function Nav() {
           <div className="relative group">
             <Link
               href="/labo"
-              className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black"
+              className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black inline-flex items-center gap-1.5"
             >
-              LE LABO →
+              LE LABO
+              <svg className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100" viewBox="0 0 10 6" fill="currentColor">
+                <path d="M0 0l5 6 5-6H0z"/>
+              </svg>
             </Link>
             <div className="absolute right-0 top-full mt-1 w-56 rounded border border-border bg-bg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
               {LABO_LINKS.map(({ href, label }) => (
@@ -128,26 +131,33 @@ export default function Nav() {
         </button>
       </div>
 
-      {/* Mobile menu — grouped like the desktop dropdowns */}
+      {/* Mobile menu — real collapsible accordions (native details/summary).
+          The group containing the current page starts open. */}
       {mobileOpen && (
         <div className="md:hidden border-t border-border bg-bg max-h-[80vh] overflow-y-auto">
-          {MOBILE_GROUPS.map(group => (
-            <div key={group.title}>
-              <div className="px-4 pt-4 pb-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-positive">{group.title}</div>
-              {group.links.map(({ href, label, external }) => {
-                const active = !external && (path === href || path.startsWith(href + '/'))
-                return (
-                  <Link key={href} href={href}
-                    target={external ? '_blank' : undefined}
-                    rel={external ? 'noopener noreferrer' : undefined}
-                    onClick={() => setMobileOpen(false)}
-                    className={`block px-4 py-2.5 text-sm border-b border-border/40 transition-colors ${active ? 'text-text font-semibold' : 'text-muted hover:text-text'}`}>
-                    {label}{external ? ' ↗' : ''}
-                  </Link>
-                )
-              })}
-            </div>
-          ))}
+          {MOBILE_GROUPS.map(group => {
+            const containsActive = group.links.some(l => !l.external && (path === l.href || path.startsWith(l.href + '/')))
+            return (
+              <details key={group.title} open={containsActive} className="group border-b border-border/40">
+                <summary className="flex items-center justify-between px-4 py-3 cursor-pointer list-none text-[11px] font-semibold tracking-[0.2em] uppercase text-positive select-none [&::-webkit-details-marker]:hidden">
+                  {group.title}
+                  <svg className="w-2.5 h-2.5 opacity-60 transition-transform group-open:rotate-180" viewBox="0 0 10 6" fill="currentColor"><path d="M0 0l5 6 5-6H0z"/></svg>
+                </summary>
+                {group.links.map(({ href, label, external }) => {
+                  const active = !external && (path === href || path.startsWith(href + '/'))
+                  return (
+                    <Link key={href} href={href}
+                      target={external ? '_blank' : undefined}
+                      rel={external ? 'noopener noreferrer' : undefined}
+                      onClick={() => setMobileOpen(false)}
+                      className={`block pl-7 pr-4 py-2.5 text-sm border-t border-border/30 transition-colors ${active ? 'text-text font-semibold' : 'text-muted hover:text-text'}`}>
+                      {label}{external ? ' ↗' : ''}
+                    </Link>
+                  )
+                })}
+              </details>
+            )
+          })}
         </div>
       )}
     </nav>
