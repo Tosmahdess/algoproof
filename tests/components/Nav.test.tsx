@@ -13,10 +13,13 @@ describe('Nav — 4 hubs + Labo CTA', () => {
     expect(screen.getByText(/apprendre/i)).toBeDefined()
   })
 
-  it('renders the Labo CTA', () => {
+  it('renders the Labo CTA with its dropdown (lab surfaces + vote + membres)', () => {
     render(<Nav />)
-    expect(screen.getByText(/le labo/i)).toBeDefined()
-    expect(screen.getByRole('link', { name: /le labo/i }).getAttribute('href')).toBe('/labo')
+    const cta = screen.getAllByRole('link').find(a => a.getAttribute('href') === '/labo' && /le labo/i.test(a.textContent ?? ''))
+    expect(cta).toBeDefined()
+    for (const label of [/tutoriels/i, /bibliothèque/i, /agents ia/i, /vote du labo/i, /membres/i]) {
+      expect(screen.getByText(label)).toBeDefined()
+    }
   })
 
   it('drops the old jargon top-level items', () => {
