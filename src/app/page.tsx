@@ -108,6 +108,25 @@ export default async function HomePage() {
         <Link href="/preuve" className="text-sm text-positive hover:underline">Lire le manifeste →</Link>
       </div>
 
+      {/* L'IA genere. AlgoLab verifie. */}
+      <div className="border border-border rounded-xl p-8 mb-16 bg-card/40">
+        <h2 className="text-xl font-bold mb-2 text-center">L&apos;IA génère. AlgoLab vérifie.</h2>
+        <p className="text-muted text-sm max-w-2xl mx-auto mb-5 text-center">
+          Les IA produisent des stratégies de trading en dix secondes, et la plupart sont des
+          illusions statistiques. Le labo fait le travail que personne ne fait : la vérification.
+          J&apos;ai passé 10 stratégies générées par un LLM au bulletin anti-overfit : zéro
+          profitable aux frais réels. Ton agent IA peut faire pareil avec les siennes, gratuitement.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link href="/blog/2026-07-11-10-strategies-ia-au-bulletin" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
+            Lire le test des 10 stratégies
+          </Link>
+          <a href="https://lab.algoproof.fr/agents" className="px-5 py-2.5 border border-border font-semibold rounded-lg hover:bg-card transition-colors text-sm">
+            Connecter son agent (MCP)
+          </a>
+        </div>
+      </div>
+
       {/* Ce qui travaille en ce moment */}
       <div className="mb-16">
         <h2 className="text-xl font-bold mb-6">Ce qui travaille en ce moment</h2>

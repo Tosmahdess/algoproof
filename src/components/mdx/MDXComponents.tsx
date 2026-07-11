@@ -10,6 +10,7 @@
 
 import type { ReactNode, HTMLAttributes } from 'react'
 import { Callout } from './Callout'
+import EmailCapture from '@/components/EmailCapture'
 import { Verdict } from './Verdict'
 import { Stat, StatRow } from './Stat'
 import { DataCard, DataCardGroup } from './DataCard'
@@ -186,4 +187,5 @@ export const mdxComponents = {
   DataCardGroup,
   CompactTable,
   Row,
+  EmailCapture,
 }
