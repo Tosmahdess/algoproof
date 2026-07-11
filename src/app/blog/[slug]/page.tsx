@@ -74,7 +74,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <div className="mt-12">
         <EmailCapture
           source="blog"
-          description="Si cet article t’a servi : je publie mes backtests, mes rejets et les évolutions du labo. Laisse ton email pour recevoir les prochains write-ups. Pas de spam, désinscription sur simple réponse."
+          description="Si cet article t’a servi : je publie mes backtests, mes rejets et les évolutions du labo. Laisse ton email pour recevoir les prochains articles d’analyse. Pas de spam, désinscription sur simple réponse."
         />
       </div>
     </div>

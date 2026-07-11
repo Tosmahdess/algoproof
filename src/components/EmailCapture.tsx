@@ -12,7 +12,7 @@ interface Props {
 export default function EmailCapture({
   source,
   title = 'Suivre la recherche',
-  description = 'Je publie mes backtests, mes rejets et les évolutions du labo. Laisse ton email pour recevoir les prochains write-ups et être prévenu à l’ouverture de l’abonnement. Pas de spam, désinscription sur simple réponse.',
+  description = 'Je publie mes backtests, mes rejets et les évolutions du labo. Laisse ton email pour recevoir les prochains articles d’analyse et être prévenu à l’ouverture de l’abonnement. Pas de spam, désinscription sur simple réponse.',
 }: Props) {
   const [email, setEmail] = useState('')
   const [website, setWebsite] = useState('') // honeypot, humans never fill it
