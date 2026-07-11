@@ -10,8 +10,8 @@ export interface MicaExchange {
 
 // Statut indicatif au 2026-06 — vérifier sur le registre AMF/ESMA.
 export const MICA_EXCHANGES: MicaExchange[] = [
-  { name: 'Bybit',       type: 'CEX', status: 'Agrément MiCA (entité UE)',     franceOk: 'Oui', url: BYBIT_AFFILIATE_URL },
-  { name: 'Binance',     type: 'CEX', status: 'Agrément MiCA (entité UE)',     franceOk: 'Spot oui · Futures non', url: BINANCE_AFFILIATE_URL },
+  { name: 'Bybit',       type: 'CEX', status: 'A cessé de servir la France (01/07/2026)',     franceOk: 'Oui', url: BYBIT_AFFILIATE_URL },
+  { name: 'Binance',     type: 'CEX', status: 'Agrément MiCA (entité UE)',     franceOk: 'Spot non · Futures non', url: BINANCE_AFFILIATE_URL },
   { name: 'Kraken',      type: 'CEX', status: 'Agrément MiCA',                 franceOk: 'Oui', url: null },
   { name: 'Coinbase',    type: 'CEX', status: 'Agrément MiCA',                 franceOk: 'Oui', url: null },
   { name: 'Hyperliquid', type: 'DEX', status: 'DEX non-custodial (hors champ CASP)', franceOk: 'Oui', url: HL_AFFILIATE_URL },

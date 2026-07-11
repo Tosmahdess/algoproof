@@ -77,7 +77,14 @@ export default async function IntelligencePage() {
   let reportContent: React.ReactElement | null = null
   if (report?.content) {
     try {
-      const { content } = await compileMDX({ source: report.content })
+      const { content } = await compileMDX({
+        source: report.content,
+        // The generated report carries its own h1 title: demote it so the page
+        // keeps a single h1 (it was rendering 3, near-duplicated back to back).
+        components: {
+          h1: (props: React.ComponentProps<'h2'>) => <h2 className="text-lg font-bold mt-6 mb-2" {...props} />,
+        },
+      })
       reportContent = content
     } catch {
       reportContent = null

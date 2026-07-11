@@ -45,3 +45,17 @@ export function fmtPfForFamily(family: string | null | undefined, pf: number): s
 export function fmtWinRateForFamily(family: string | null | undefined, winRate: number): string {
   return isCarryFamily(family) ? '—' : `${(winRate * 100).toFixed(1)}%`
 }
+
+// Unified display rule (site-wide honesty): PF/WR are meaningless for carry
+// bots AND for low samples (n<20 — the same rule the lab enforces), and a PF
+// that only exists because losses are ~0 reads as a broken metric.
+export function fmtPfDisplay(family: string | null | undefined, totalTrades: number, pf: number): string {
+  if (isCarryFamily(family) || totalTrades < 20) return '—'
+  if (pf >= 999) return '∞'
+  return pf.toFixed(2)
+}
+
+export function fmtWinRateDisplay(family: string | null | undefined, totalTrades: number, winRate: number): string {
+  if (isCarryFamily(family) || totalTrades < 20) return '—'
+  return `${(winRate * 100).toFixed(1)}%`
+}

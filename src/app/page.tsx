@@ -5,7 +5,7 @@ import StatusBadge from '@/components/StatusBadge'
 import EmailCapture from '@/components/EmailCapture'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { excludeArchived } from '@/lib/cohort'
-import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfForFamily, fmtWinRateForFamily, CARRY_METRIC_TOOLTIP } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 
 export const revalidate = 1800
 
@@ -230,13 +230,13 @@ export default async function HomePage() {
                     className="px-4 py-3 text-right font-mono hidden lg:table-cell"
                     title={hasData && isCarryFamily(bot.family) ? CARRY_METRIC_TOOLTIP : undefined}
                   >
-                    {hasData ? fmtWinRateForFamily(bot.family, bot.stats.win_rate) : <span className="text-muted">—</span>}
+                    {hasData ? fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate) : <span className="text-muted">—</span>}
                   </td>
                   <td
                     className={`px-4 py-3 text-right font-mono hidden lg:table-cell ${hasData && !isCarryFamily(bot.family) ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}
                     title={hasData && isCarryFamily(bot.family) ? CARRY_METRIC_TOOLTIP : undefined}
                   >
-                    {hasData ? fmtPfForFamily(bot.family, bot.stats.profit_factor) : <span className="text-muted">—</span>}
+                    {hasData ? fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor) : <span className="text-muted">—</span>}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-negative hidden lg:table-cell">
                     {hasData ? `${(bot.stats.max_drawdown * 100).toFixed(1)}%` : <span className="text-muted">—</span>}

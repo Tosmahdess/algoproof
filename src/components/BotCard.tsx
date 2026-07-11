@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { BotWithStats, BotStats } from '@/lib/types'
+import { fmtPfDisplay, fmtWinRateDisplay } from '@/lib/display'
 import StatusBadge from './StatusBadge'
 import AlsoLiveBadge from './AlsoLiveBadge'
 import SyncBadge from './SyncBadge'
@@ -27,8 +28,8 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
 
         <div className="grid grid-cols-4 gap-2 mb-3">
           {[
-            { label: 'T. gain',   value: hasData ? `${(stats.win_rate * 100).toFixed(1)}%` : '—' },
-            { label: 'F. profit', value: hasData ? stats.profit_factor.toFixed(2) : '—' },
+            { label: 'T. gain',   value: hasData ? fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate) : '—' },
+            { label: 'F. profit', value: hasData ? fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor) : '—' },
             { label: 'Drawdown',  value: hasData ? `${(stats.max_drawdown * 100).toFixed(1)}%` : '—' },
             { label: 'Trades',    value: hasData ? String(stats.total_trades) : '—' },
           ].map(m => (

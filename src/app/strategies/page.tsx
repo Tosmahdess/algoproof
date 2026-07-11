@@ -6,8 +6,8 @@ import FaqAccordion from '@/components/FaqAccordion'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Stratégies',
-  description: '33 expériences de trading algo en cours — résultats en temps réel, chaque trade publié. Tendance, cassure, multi-signaux, multi-actifs.',
+  title: 'Mes bots de trading en direct — stratégies et résultats',
+  description: 'Mes expériences de trading algo en cours — résultats en temps réel, chaque trade publié. Tendance, cassure, multi-signaux, multi-actifs.',
   openGraph: { url: 'https://algoproof.fr/strategies' },
 }
 

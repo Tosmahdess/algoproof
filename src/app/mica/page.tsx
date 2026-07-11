@@ -21,7 +21,7 @@ const MICA_POINTS = [
 ]
 
 const FAQ = [
-  { question: "Puis-je encore utiliser Binance en France ?", answer: "Oui pour le spot (Binance est agréé MiCA dans l'UE). Binance Futures reste bloqué aux résidents français depuis 2023 (restriction AMF). Vois la page Démarrer pour les alternatives." },
+  { question: "Puis-je encore utiliser Binance en France ?", answer: "Non. Binance a cessé de servir la France au 1er juillet 2026 (réglementation MiCA), y compris pour le spot — les Futures étaient déjà bloqués depuis 2023 (restriction AMF). Vois la page Démarrer pour les alternatives réellement disponibles (Kraken, Bybit, Hyperliquid)." },
   { question: "Dois-je déclarer si je n'ai pas vendu en euros ?", answer: "Tu déclares tes comptes (formulaire 3916-bis) même sans vente. Les échanges crypto→crypto ne sont pas imposables : seule la conversion en monnaie fiat (ou achat d'un bien) déclenche l'impôt sur la plus-value." },
   { question: "Le VPN pour contourner une restriction, c'est risqué ?", answer: "Oui. Utiliser un VPN pour accéder à un produit bloqué expose ton compte au gel et t'engage juridiquement. Mieux vaut un exchange réellement agréé et disponible en France." },
   { question: "MiCA change-t-il combien je paie d'impôts ?", answer: "Non. MiCA encadre les plateformes et protège l'investisseur, mais la fiscalité des plus-values reste nationale : flat tax de 31,4 % (ou option pour le barème progressif)." },

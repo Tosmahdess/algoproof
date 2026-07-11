@@ -53,8 +53,10 @@ function fmtPnl(v: number): string {
 }
 
 function fmtPf(wins: number, losses: number): number {
+  // Cap at 99.9: a near-zero-loss day produced a 4-digit ratio (5561.91 live)
+  // that reads as a bug, not transparency.
   if (losses === 0) return wins > 0 ? 99.9 : 0
-  return Math.round((wins / Math.abs(losses)) * 100) / 100
+  return Math.min(Math.round((wins / Math.abs(losses)) * 100) / 100, 99.9)
 }
 
 function daysAgo(n: number): string {

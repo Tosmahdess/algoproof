@@ -84,9 +84,12 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Stratégies de trading</h1>
         <p className="mt-2 text-sm text-muted">
-          {bots.length} bots
+          {bots.filter(b => b.status !== 'archived').length} bots actifs
           {liveCount > 0 && (
             <> · <span className="text-positive font-medium">{liveCount} live</span></>
+          )}
+          {bots.some(b => b.status === 'archived') && (
+            <> · {bots.filter(b => b.status === 'archived').length} archivés</>
           )}
           {' · '}chaque trade publié
         </p>

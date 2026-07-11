@@ -108,7 +108,7 @@ export default function StrategyDetail({ bot }: Props) {
 
       {/* Key metrics — recomputed when filter changes */}
       <div className="mb-8">
-        <MetricsRow stats={stats} />
+        <MetricsRow stats={stats} family={bot.family} />
       </div>
 
       {/* Equity curve */}
