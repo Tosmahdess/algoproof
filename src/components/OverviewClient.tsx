@@ -413,6 +413,10 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
             </tbody>
           </table>
         </div>
+        <p className="text-xs text-muted mt-2">
+          Les bots de portage (grid, funding) et les bots archivés sont exclus de ce flux :
+          leurs micro-rotations le noieraient. Leurs trades restent visibles sur leur fiche.
+        </p>
       </section>
     </div>
   )
