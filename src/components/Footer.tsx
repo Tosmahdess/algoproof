@@ -39,6 +39,10 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
     title: 'Le labo',
     links: [
       { href: LAB_URL, label: 'Backtester', external: true },
+      { href: `${LAB_URL}/apprendre`, label: 'Tutoriels', external: true },
+      { href: `${LAB_URL}/bibliotheque`, label: 'Bibliothèque des stratégies', external: true },
+      { href: `${LAB_URL}/agents`, label: 'Agents IA (MCP)', external: true },
+      { href: `${LAB_URL}/membre`, label: 'Mode gratuit & membres', external: true },
     ],
   },
   {
