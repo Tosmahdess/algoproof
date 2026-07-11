@@ -34,6 +34,25 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
         Des articles pour comprendre comment je travaille : débuter, ma méthode de recherche, la fiscalité crypto et la conformité <strong>MiCA</strong> en France.
       </p>
 
+      {/* Apprendre en pratique : les entrees du labo (2e chemin de decouverte) */}
+      <div className="mb-10">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">Apprendre en pratique, dans le labo</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <a href="https://lab.algoproof.fr/apprendre" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
+            <div className="font-bold text-sm mb-1">🎓 Les tutoriels</div>
+            <p className="text-xs text-muted">Cinq pas-à-pas interactifs, de zéro à ton premier verdict, plus le guide du cockpit.</p>
+          </a>
+          <a href="https://lab.algoproof.fr/bibliotheque" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
+            <div className="font-bold text-sm mb-1">📚 La bibliothèque</div>
+            <p className="text-xs text-muted">Les 22 stratégies du labo expliquées : quand ça marche, quand ça meurt, testables en un clic.</p>
+          </a>
+          <a href="https://lab.algoproof.fr/agents" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
+            <div className="font-bold text-sm mb-1">🤖 Pour ton agent IA</div>
+            <p className="text-xs text-muted">Le serveur MCP public : ton agent backteste et reçoit le bulletin anti-overfit.</p>
+          </a>
+        </div>
+      </div>
+
       {/* Pinned articles */}
       {pinned.length > 0 && (
         <div className="mb-10">
