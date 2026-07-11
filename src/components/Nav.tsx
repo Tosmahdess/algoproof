@@ -20,18 +20,28 @@ const HUBS = [
   { href: '/blog',         label: 'APPRENDRE' },
 ]
 
-// Mobile flat list (one tap each)
-const MOBILE_LINKS = [
-  { href: '/overview',     label: 'Mes bots',         external: false },
-  { href: '/strategies',   label: 'Les stratégies',   external: false },
-  { href: '/performance',  label: 'Performance',      external: false },
-  { href: '/journal',      label: 'Ce qui a changé',  external: false },
-  { href: '/wealth',       label: 'Investir',         external: false },
-  { href: '/intelligence', label: 'Le marché',        external: false },
-  { href: '/blog',         label: 'Apprendre',        external: false },
-  { href: '/labo',         label: 'Le labo',          external: false },
-  { href: 'https://lab.algoproof.fr/#vote',   label: 'Le vote du labo',  external: true },
-  { href: 'https://lab.algoproof.fr/membre',  label: 'Membres (bientôt)', external: true },
+// Le labo — shared by the desktop dropdown and the mobile group
+const LABO_LINKS = [
+  { href: 'https://lab.algoproof.fr', label: 'Ouvrir le labo' },
+  { href: 'https://lab.algoproof.fr/apprendre', label: 'Tutoriels' },
+  { href: 'https://lab.algoproof.fr/bibliotheque', label: 'Bibliothèque des stratégies' },
+  { href: 'https://lab.algoproof.fr/agents', label: 'Agents IA (MCP)' },
+  { href: 'https://lab.algoproof.fr/#vote', label: 'Le vote du labo' },
+  { href: 'https://lab.algoproof.fr/membre', label: 'Membres (bientôt)' },
+]
+
+// Mobile menu, grouped to mirror the desktop hierarchy
+const MOBILE_GROUPS: { title: string; links: { href: string; label: string; external?: boolean }[] }[] = [
+  { title: 'Mes bots', links: MES_BOTS_SUB },
+  { title: 'Explorer', links: [
+    { href: '/wealth',       label: 'Investir' },
+    { href: '/intelligence', label: 'Le marché' },
+    { href: '/blog',         label: 'Apprendre' },
+  ]},
+  { title: 'Le labo', links: [
+    { href: '/labo', label: 'Découvrir le labo' },
+    ...LABO_LINKS.map(l => ({ ...l, external: true })),
+  ]},
 ]
 
 export default function Nav() {
@@ -90,14 +100,7 @@ export default function Nav() {
               LE LABO →
             </Link>
             <div className="absolute right-0 top-full mt-1 w-56 rounded border border-border bg-bg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
-              {[
-                { href: 'https://lab.algoproof.fr', label: 'Ouvrir le labo' },
-                { href: 'https://lab.algoproof.fr/apprendre', label: 'Tutoriels' },
-                { href: 'https://lab.algoproof.fr/bibliotheque', label: 'Bibliothèque des stratégies' },
-                { href: 'https://lab.algoproof.fr/agents', label: 'Agents IA (MCP)' },
-                { href: 'https://lab.algoproof.fr/#vote', label: 'Le vote du labo' },
-                { href: 'https://lab.algoproof.fr/membre', label: 'Membres (bientôt)' },
-              ].map(({ href, label }) => (
+              {LABO_LINKS.map(({ href, label }) => (
                 <a key={href} href={href} target="_blank" rel="noopener noreferrer"
                   className="block px-4 py-2.5 text-xs text-muted transition-colors hover:text-positive">
                   {label} ↗
@@ -125,21 +128,26 @@ export default function Nav() {
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — grouped like the desktop dropdowns */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-bg">
-          {MOBILE_LINKS.map(({ href, label, external }) => {
-            const active = !external && (path === href || path.startsWith(href + '/'))
-            return (
-              <Link key={href} href={href}
-                target={external ? '_blank' : undefined}
-                rel={external ? 'noopener noreferrer' : undefined}
-                onClick={() => setMobileOpen(false)}
-                className={`block px-4 py-3 text-sm border-b border-border/50 transition-colors ${active ? 'text-text font-semibold' : 'text-muted hover:text-text'}`}>
-                {label}
-              </Link>
-            )
-          })}
+        <div className="md:hidden border-t border-border bg-bg max-h-[80vh] overflow-y-auto">
+          {MOBILE_GROUPS.map(group => (
+            <div key={group.title}>
+              <div className="px-4 pt-4 pb-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-positive">{group.title}</div>
+              {group.links.map(({ href, label, external }) => {
+                const active = !external && (path === href || path.startsWith(href + '/'))
+                return (
+                  <Link key={href} href={href}
+                    target={external ? '_blank' : undefined}
+                    rel={external ? 'noopener noreferrer' : undefined}
+                    onClick={() => setMobileOpen(false)}
+                    className={`block px-4 py-2.5 text-sm border-b border-border/40 transition-colors ${active ? 'text-text font-semibold' : 'text-muted hover:text-text'}`}>
+                    {label}{external ? ' ↗' : ''}
+                  </Link>
+                )
+              })}
+            </div>
+          ))}
         </div>
       )}
     </nav>
