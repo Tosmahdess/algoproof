@@ -25,11 +25,29 @@ export default function LaboPage() {
           backtester, mesurer et challenger des stratégies sur des données réelles — exactement avec les mêmes outils
           que j&apos;utilise pour mes bots.
         </p>
-        <a href={LAB_URL} className="inline-block mt-6 px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
-          Ouvrir le labo →
-        </a>
-        <p className="text-xs text-muted mt-2">Explorable sans compte. Un compte servira plus tard pour sauvegarder ton travail.</p>
+        <p className="text-xs text-muted mt-4">Explorable sans compte. Un compte servira plus tard pour sauvegarder ton travail.</p>
       </header>
+
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <a
+          href={LAB_URL}
+          className="block bg-card border border-border rounded-xl p-5 hover:border-positive transition-colors"
+        >
+          <h2 className="font-bold mb-1">⚗ Je teste tout de suite</h2>
+          <p className="text-sm text-muted">
+            Ouvre le labo et lance un premier backtest en un clic, sans compte.
+          </p>
+        </a>
+        <a
+          href={`${LAB_URL}/apprendre`}
+          className="block bg-card border border-border rounded-xl p-5 hover:border-positive transition-colors"
+        >
+          <h2 className="font-bold mb-1">🎓 Je préfère comprendre d&apos;abord</h2>
+          <p className="text-sm text-muted">
+            Cinq tutoriels pas à pas et le guide du cockpit, pièce par pièce.
+          </p>
+        </a>
+      </section>
 
       <section>
         <h2 className="text-xl font-bold mb-4">Ce que tu peux faire</h2>
