@@ -284,7 +284,9 @@ export default function WealthPage() {
                 <p className="text-muted mb-2 font-semibold">GROWTH · 30 %</p>
                 <p className="text-muted text-[10px] leading-relaxed">
                   Achats opportunistes sur corrections −20% à −30% par actif.
-                  Prises de bénéfices à +40% (30%) et +80% (30%). Max 6 positions ouvertes.
+                  Prises de bénéfices par paliers : vendre 25% à chaque seuil (seuils
+                  propres à chaque actif, typiquement +40% puis +80%), garder au moins 50%.
+                  Max 6 positions ouvertes.
                 </p>
               </div>
             </div>
