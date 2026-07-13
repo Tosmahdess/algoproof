@@ -1,0 +1,37 @@
+---
+title: "Semaine du 6 juillet : les shorts cassent la semaine"
+date: "2026-07-12"
+category: "weekly"
+tags: ["weekly", "performance", "MI"]
+summary: "475 trades, taux de gain global à 72,4%, mais les positions short ont plombé le P&L avec un win rate de seulement 30,1%. Bilan net : -761,92 EUR sur sept jours consécutifs dans le rouge."
+---
+
+## La semaine en chiffres
+
+<StatRow>
+  <Stat label="P&L net" value="-761,92 EUR" change="-100,19" subtext="dernier jour" />
+  <Stat label="Trades" value="475" subtext="semaine complète" />
+  <Stat label="Win rate global" value="72,4%" subtext="344 gagnants / 475" />
+  <Stat label="Win rate short" value="30,1%" change="-52,6" subtext="vs longs à 82,7%" />
+</StatRow>
+
+## Ce qui s'est passé
+
+La semaine a été rouge du lundi au dimanche, sans exception. Le P&L journalier a glissé progressivement vers le bas : -49 EUR lundi, -43 mardi, puis une accélération marquée mercredi et jeudi avec respectivement -118 et -204 EUR. Vendredi et samedi ont légèrement desserré la pression avant un dimanche à -100 EUR qui referme la semaine sur une perte totale de -761,92 EUR. Aucune journée positive, aucun rebond. C'est une dégradation continue et ordonnée, ce qui est en soi un signal à analyser.
+
+Le vrai problème de la semaine, c'est la direction short. Sur 93 trades courts, seulement 28 sont gagnants, soit un win rate de 30,1%. C'est structurellement cassé : le P&L short à lui seul représente -520,87 EUR, soit 68% de la perte totale. ARB-USDT concentre le pire trade de la semaine à -47,82 EUR en short. En face, les longs s'en sortent bien mieux, 316 gagnants sur 382 trades, 82,7% de win rate, mais leur P&L reste négatif à -241 EUR, plombé par des outliers comme VELVET à -27 EUR. Le meilleur trade de la semaine, FIL-USDC long à +10,79 EUR, illustre que la mécanique fonctionne côté acheteur. C'est côté vendeur que ça déraille.
+
+Le contexte marché explique en partie cette déroute. Le heartbeat affiche un régime BEAR avec un BTC à -14,66% sous son EMA 200. Le score global du système de veille tombe à -17,95. La version shadow du hard gate a déclenché deux layers : `l4_fear_long` et `l5_funding_long`, ce qui a bloqué les longs shadow mais pas les longs live sur v1_spot. Le mode DED shadow est en `BOTH_RED` avec un score à -0,09, une autocorrélation à 90 jours de 0,845 et un P&L 3 jours glissant à -109,86 EUR. En production, le hard gate v1 n'a pas été enforced (live_enforced: false), v1_spot étant explicitement exclu du périmètre. Autrement dit, la flotte live a tradé librement dans un contexte où le système de protection signalait déjà des alertes côté long.
+
+La flotte reste modeste en production : 2 bots live, 28 en paper trading, 40 au total dans le pipeline. Les 28 bots en paper accumulent des données sur ce régime bear, ce qui est précieux. Mais les 2 bots live ont encaissé une semaine difficile, et la question du déclenchement du hard gate sur le périmètre spot mérite une réponse claire avant la semaine prochaine.
+
+## Leçon de la semaine
+
+> Un win rate global à 72% peut masquer une stratégie short structurellement inadaptée au régime en cours. 30% de win rate sur les courts dans un marché bear ne signifie pas que le marché descend uniformément : les rebonds violents et la volatilité asymétrique tuent les shorts mal calibrés. Regarder la direction séparément, c'est non négociable.
+
+## Prochaines étapes
+
+- Analyser trade par trade les 93 shorts de la semaine pour identifier si l'erreur vient de l'entrée, du sizing ou du stop, objectif : rapport avant le 16 juillet.
+- Décider formellement si v1_spot doit être inclus dans le périmètre d'enforcement du hard gate, et tester l'impact en paper sur les données de cette semaine, deadline : 14 juillet.
+- Surveiller le score DED shadow : si l'autocorrélation reste au-dessus de 0,8 et que le P&L 3 jours ne remonte pas, envisager de passer le hard gate en mode enforced sur la flotte live complète.
+- Préparer le passage en paper d'au moins 5 nouveaux bots parmi les 40 en pipeline, en priorisant ceux qui ont une logique de filtre de régime intégrée.
