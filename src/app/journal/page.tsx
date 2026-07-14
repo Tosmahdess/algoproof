@@ -7,7 +7,7 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: 'Journal — tous les changements | AlgoProof',
   description:
-    "Le journal des changements d'AlgoProof : flotte de bots, Market Intelligence, patrimoine. Chaque évolution, datée et catégorisée.",
+    "Le journal des changements d'AlgoProof : flotte de bots, veille de marché, patrimoine. Chaque évolution, datée et catégorisée.",
 }
 
 export default async function JournalPage() {

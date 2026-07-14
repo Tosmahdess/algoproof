@@ -49,15 +49,19 @@ async function getData() {
   const allBots = (botsRes.data ?? []) as (BotRow & { status: string })[]
   const archivedIds = new Set(allBots.filter(b => b.status === 'archived').map(b => b.id))
   const countedBots = allBots.filter(b => b.status !== 'archived')
+  // Live cohort = real money (v1-spot, orb-bf25). Passed down so the P&L headline can
+  // separate real from laboratoire (simulation) instead of fusing them into one total.
+  const liveBotIds = countedBots.filter(b => b.status === 'live').map(b => b.id)
 
   return {
     trades: trades.filter(t => !archivedIds.has(t.bot_id)),
     bots: countedBots as BotRow[],
+    liveBotIds,
   }
 }
 
 export default async function PerformancePage() {
-  const { trades, bots } = await getData()
+  const { trades, bots, liveBotIds } = await getData()
 
   const botFamilyMap: Record<string, string> = {}
   const botNameMap: Record<string, string> = {}
@@ -66,5 +70,5 @@ export default async function PerformancePage() {
     botNameMap[b.id] = b.name ?? b.slug
   }
 
-  return <PerformanceClient trades={trades} botFamilyMap={botFamilyMap} botNameMap={botNameMap} />
+  return <PerformanceClient trades={trades} botFamilyMap={botFamilyMap} botNameMap={botNameMap} liveBotIds={liveBotIds} />
 }

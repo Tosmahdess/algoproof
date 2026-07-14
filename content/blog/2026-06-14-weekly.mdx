@@ -1,37 +1,67 @@
 ---
-title: "Semaine du 8 juin — Les shorts qui saignent"
+title: "Quand le marché pousse à shorter, c'est souvent lui qui a raison de se méfier"
 date: "2026-06-14"
 category: "weekly"
-tags: ["weekly", "performance", "MI"]
-summary: "273 trades, -133,76 $ de PnL net : un taux de réussite global flatteur de 68,9 % masque une catastrophe silencieuse côté shorts, qui ont seuls englouti -123,77 $."
+tags: ["weekly", "performance"]
+summary: "Une semaine dominée par les shorts, dans un marché clairement baissier. Les bots en réel perdent du terrain, le laboratoire confirme que les positions vendeuses résistent mal à la volatilité actuelle."
 ---
 
-## La semaine en chiffres
+## Mes bots en réel
+
+> Suivi sur une base normalisée de 1 000 EUR, pour que tous les bots soient comparables entre eux. Ce chiffre ne représente pas un solde broker brut.
 
 <StatRow>
-  <Stat label="PnL net" value="-133,76 $" trend="down" />
-  <Stat label="Trades exécutés" value="273" />
-  <Stat label="Win rate global" value="68,9 %" />
-  <Stat label="Win rate shorts" value="35,1 %" trend="down" />
+  <Stat label="Trades réels" value="18" />
+  <Stat label="P&L semaine" value="-30,36 €" intent="negative" />
+  <Stat label="Taux de réussite" value="27,8 %" subtext="5 trades gagnants sur 18" />
+  <Stat label="Meilleur trade" value="+1,45 €" subtext="UNI-USDT short" />
 </StatRow>
 
-## Ce qui s'est passé
+<DataCardGroup>
+  <DataCard label="Toutes directions confondues" sub="18 trades cette semaine" metrics="P&L: -30,36 € | Gagnants: 5 | WR: 27,8 %" intent="negative" />
+  <DataCard label="Positions longues (achat)" sub="2 trades" metrics="P&L: -0,77 € | WR: 50 % | Meilleur: INJ-USDT +0,11 €" intent="negative" />
+  <DataCard label="Positions courtes (vente à découvert)" sub="16 trades" metrics="P&L: -29,59 € | WR: 25 % | Pire: STX-USDT -6,13 €" intent="negative" />
+</DataCardGroup>
 
-La semaine du 8 au 14 juin s'est inscrite dans le rouge dès le lundi, sans jamais trouver de rebond. Le PnL journalier raconte une dégradation progressive : -10,83 $ le lundi, un palier autour de -4 $ les deux jours suivants, puis une accélération brutale jeudi (-32,18 $) et vendredi (-49,97 $) avant un atterrissage légèrement moins violent le week-end. Sept jours consécutifs dans le négatif, sans une seule session positive pour compenser. C'est le signal le plus clair de la semaine : ce n'est pas un accident isolé, c'est un régime de marché qui s'impose.
+Cette semaine, les bots en réel ont surtout joué le short, c'est-à-dire qu'ils ont parié sur des baisses de prix. C'est cohérent avec le contexte : Bitcoin évolue environ 13,7 % sous sa moyenne de prix sur 200 jours, un signal que je surveille en permanence pour qualifier le régime de marché. Le tableau de bord global affiche une tendance baissière franche, et l'indicateur de biais que j'utilise pour orienter les positions penche nettement dans le rouge des deux côtés, longs comme shorts.
 
-Le vrai sujet de la semaine, c'est la fracture entre mes deux directions. Les longs s'en sortent presque honorablement : 196 trades, 82,1 % de win rate, -9,98 $ de PnL — des pertes, certes, mais contenues. Les shorts, en revanche, sont catastrophiques. 77 trades à 35,1 % de win rate pour -123,77 $. Autrement dit, les shorts représentent 28 % du volume de trades mais 92 % des pertes. Le pire trade de la semaine, SEI-USDT short, pèse à lui seul -9,27 $. Le meilleur, ICP-USDT short à +4,69 $, montre que la logique n'est pas fondamentalement cassée — mais l'espérance mathématique, elle, l'est clairement sur cette direction en ce moment.
+Le problème cette semaine : shorter dans un marché baissier ne protège pas automatiquement. STX-USDT a coûté 6,13 EUR à lui seul, ce qui a pesé lourd sur un total de 18 trades. Le taux de réussite à 27,8 % (le WR, soit le ratio de trades gagnants) est bien en dessous de ce que j'attends de mes systèmes. Seul UNI-USDT s'en tire avec +1,45 EUR, une petite lumière dans une semaine difficile.
 
-Le contexte macro explique une partie du problème. Mon heartbeat affiche un régime BEAR avec BTC à -13,36 % sous son EMA 200, mais le score global à -19,3 reste en zone GREEN et le hard gate n'a bloqué aucune direction. Le DED shadow est en mode LONG_BIAS avec un score de 0,62 — ce qui suggère que le moteur de décision en shadow reconnaît déjà l'asymétrie. La tension est là : le marché est techniquement baissier sur BTC, mais les altcoins shorts ne suivent pas la logique attendue. Ce type de configuration — bear sur BTC, résistance des alts à la baisse — est l'un des plus difficiles à trader algorithmiquement.
+À noter : les filtres de sécurité actifs cette semaine interdisent les nouvelles positions longues en mode observation (pour les bots en test), en raison du contexte de peur et de conditions de financement défavorables. Les bots actifs en réel, eux, continuent de prendre des positions dans les deux sens, mais le biais du marché invite clairement à la prudence.
 
-La flotte tourne sur 2 bots live et 36 en paper, soit 38 au total. C'est cette base paper qui absorbe l'essentiel des 273 trades. Le fait que le live enforcement ne soit pas activé (sauf exclusion v1_spot) me protège partiellement, mais l'ampleur des pertes en paper me force à regarder en face la qualité des stratégies short en cours de test.
+---
+
+## Laboratoire (simulation)
+
+> Ce qui suit concerne des bots en phase de test, qui ne manipulent pas d'argent réel. Une perte en simulation n'est pas une perte : c'est le coût de la simulation cette semaine, de l'argent qui n'existe pas, dépensé pour apprendre.
+
+<StatRow>
+  <Stat label="Trades simulés" value="255" />
+  <Stat label="Coût de la simulation" value="-70,50 €" subtext="argent fictif" />
+  <Stat label="Taux de réussite" value="74,1 %" subtext="189 trades gagnants" />
+  <Stat label="Meilleur trade" value="+4,81 €" subtext="ICP-USDT short" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Positions longues simulées" sub="194 trades" metrics="P&L fictif: -7,16 € | WR: 83 % | Meilleur: ARB-USDT +0,80 €" intent="neutral" />
+  <DataCard label="Positions courtes simulées" sub="61 trades" metrics="P&L fictif: -63,34 € | WR: 45,9 % | Pire: BTC-USDT -5,97 €" intent="negative" />
+</DataCardGroup>
+
+L'observation qui saute aux yeux cette semaine : en simulation, les positions longues affichent un taux de réussite remarquable de 83 %, mais les shorts tirent l'ensemble vers le bas avec seulement 45,9 % de trades gagnants. C'est exactement l'inverse de ce qu'on pourrait attendre dans un marché baissier.
+
+Ce paradoxe s'explique probablement par la structure des stops et des objectifs de gain (SL pour stop-loss, TP pour take-profit) dans les stratégies testées : les shorts captent bien les débuts de mouvement, mais se font stopper sur les rebonds techniques. Le laboratoire me dit que shorter mécaniquement dans ce contexte demande un calibrage plus fin. C'est précisément pour ça que ces bots ne sont pas encore en réel.
+
+---
 
 ## Leçon de la semaine
 
-> Un win rate de 68,9 % peut masquer une stratégie qui perd de l'argent. Ce qui compte, c'est la décomposition par direction : ici, les longs gagnent souvent mais peu, les shorts perdent rarement mais massivement. Le ratio gain/perte par direction est l'indicateur que j'aurais dû surveiller en premier.
+> Un marché baissier donne envie de shorter tout ce qui bouge. Mais vendre à découvert dans la panique, c'est souvent arriver après la chute. Cette semaine me rappelle que la direction du marché ne suffit pas : la précision du point d'entrée, elle, reste décisive.
+
+---
 
 ## Prochaines étapes
 
-- **Avant le 16 juin** : auditer les 77 trades shorts de la semaine — identifier si la perte est concentrée sur quelques assets (SEI, et quels autres ?) ou distribuée sur l'ensemble du portefeuille short.
-- **Avant le 18 juin** : évaluer une restriction temporaire des shorts en paper trading tant que le DED reste en LONG_BIAS et que le score global n'a pas repassé un seuil défini.
-- **Semaine du 15 juin** : surveiller l'évolution du BTC vs EMA200 — si le gap de -13,36 % se réduit vers -8 %, réévaluer si le régime BEAR justifie encore un biais short sur les alts.
-- **En continu** : affiner le hard gate v1 pour intégrer une couche de filtrage par direction basée sur le DED mode — si LONG_BIAS, réduire automatiquement l'exposition short ou élever le seuil de déclenchement.
+- **Analyser STX-USDT** : une seule position a représenté plus de 20 % de la perte totale en réel. Je veux comprendre si c'est un problème de timing, de taille de position, ou un signal que ce type d'actif se comporte différemment dans un régime baissier.
+- **Revoir le calibrage des shorts en simulation** : avec 61 shorts pour un WR de 45,9 % et une perte fictive de 63 EUR, il y a clairement un travail à faire sur les niveaux de sortie.
+- **Surveiller le tableau de bord de marché** : le score global reste fortement négatif et le régime baissier est confirmé. Tant que Bitcoin reste aussi loin sous sa moyenne de prix sur 200 jours, je maintiens une vigilance accrue sur toute nouvelle prise de risque.
+- **Ne pas sur-trader** : 18 trades en réel dans un contexte de signal dégradé, c'est beaucoup. La semaine prochaine, je regarderai si les filtres de sécurité auraient dû réduire ce volume davantage.

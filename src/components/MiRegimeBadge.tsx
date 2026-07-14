@@ -120,7 +120,7 @@ export default function MiRegimeBadge() {
             <span className="font-mono">{snap.trend_regime ?? '—'}</span>
             {snap.btc_vs_ema200_pct != null && (
               <span className={`font-mono text-[10px] ${snap.btc_vs_ema200_pct >= 0 ? 'text-positive' : 'text-negative'}`}>
-                ({snap.btc_vs_ema200_pct > 0 ? '+' : ''}{snap.btc_vs_ema200_pct.toFixed(1)}% vs EMA200)
+                ({snap.btc_vs_ema200_pct > 0 ? '+' : ''}{snap.btc_vs_ema200_pct.toFixed(1)}% vs moyenne 200 j)
               </span>
             )}
           </div>

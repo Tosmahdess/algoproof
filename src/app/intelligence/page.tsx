@@ -198,7 +198,7 @@ export default async function IntelligencePage() {
                 <span className="font-semibold">Layer 4</span>
                 <span className="text-muted">Blackouts événements T1/T2 — pauses 2h / 30min</span>
                 <span className="font-semibold">Layer 5</span>
-                <span className="text-muted">Watchdog heartbeat — données périmées → bloqué par défaut</span>
+                <span className="text-muted">Tableau de bord du marché : données périmées, entrées bloquées par défaut</span>
               </div>
               <p className="pt-2 text-[10px] text-muted">
                 Plage de score : [−100, +100]. Pondérations : Sentiment 30% · Dérivés 40% · Actualités 5% · Macro 25% (re-pondération du 4 juillet 2026).

@@ -5,7 +5,7 @@ import TrackedLink from '@/components/TrackedLink'
 import StatusBadge from '@/components/StatusBadge'
 import EmailCapture from '@/components/EmailCapture'
 import { getAllBotsWithStats } from '@/lib/queries'
-import { excludeArchived } from '@/lib/cohort'
+import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 
 export const revalidate = 1800
@@ -35,6 +35,9 @@ export default async function HomePage() {
   // Archived bots stay listed on /strategies (with a badge) but are excluded from
   // the homepage headline counts and ranking.
   const bots = excludeArchived(await getAllBotsWithStats())
+  // Live = real money (v1-spot, orb-bf25) ; the rest is the laboratoire (simulation).
+  // Keep these counts apart so the hero never implies the whole fleet is real capital.
+  const { live: liveBots, paper: paperBots } = splitCohorts(bots)
   // Sort by realized P&L (€), not absolute capital — bots have different start capitals.
   const sorted = [...bots].sort((a, b) =>
     (b.stats.latest_capital - b.start_capital) - (a.stats.latest_capital - a.start_capital)
@@ -55,7 +58,7 @@ export default async function HomePage() {
           <span className="text-positive">algorithmique, en public.</span>
         </h1>
         <p className="text-lg text-muted max-w-2xl mx-auto mb-8">
-          Je fais tourner des bots en réel, j&apos;expose chaque trade — gains et pertes — et je te donne les outils pour tester par toi-même.
+          Je fais tourner {liveBots.length} bots en argent réel et le reste en laboratoire (simulation). J&apos;expose chaque trade, gains comme pertes, et je te donne les outils pour tester par toi-même.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
           <TrackedLink href="https://lab.algoproof.fr" event="cta_lab" location="home-hero" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
@@ -67,9 +70,9 @@ export default async function HomePage() {
         </div>
         {/* Live proof strip */}
         <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-muted border border-border rounded-lg px-5 py-3">
-          <span><strong className="text-white font-mono">{bots.length}</strong> bots en direct</span>
+          <span><strong className="text-white font-mono">{liveBots.length}</strong> bots en argent réel</span>
           <span className="text-border">·</span>
-          <span><strong className="text-white font-mono">{bots.filter(b => b.stats.total_trades > 0).length}</strong> avec des trades publiés</span>
+          <span><strong className="text-white font-mono">{paperBots.length}</strong> en laboratoire (simulation)</span>
           <span className="text-border">·</span>
           <span>données mises à jour chaque heure</span>
           <span className="text-border">·</span>

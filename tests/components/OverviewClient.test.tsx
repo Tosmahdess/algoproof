@@ -64,19 +64,34 @@ describe('OverviewClient', () => {
     expect(screen.getAllByText('zeta-arch').length).toBeGreaterThan(0)
   })
 
-  it('excludes archived bots from the "Bots paper trading" counter', () => {
+  it('excludes archived bots from the "Bots actifs" counter', () => {
     render(<OverviewClient bots={[...BOTS, ARCHIVED]} recentTrades={[]} />)
-    const counter = screen.getByText('Bots paper trading').closest('div')!
-    expect(counter.textContent).toContain('3')      // 3 paper bots
+    const counter = screen.getByText('Bots actifs').closest('div')!
+    expect(counter.textContent).toContain('3')      // 3 active (non-archived) bots
     expect(counter.textContent).not.toContain('4')  // the archived one is not counted
   })
 
-  it('excludes archived bots from all-time P&L', () => {
-    // non-archived sum = +50 (alpha) -100 (beta) +100 (gamma) = +50 ; archived zeta = +200
+  it('excludes archived bots from all-time P&L (laboratoire cohort)', () => {
+    // BOTS are all paper → laboratoire sum = +50 (alpha) -100 (beta) +100 (gamma) = +50.
+    // archived zeta (+200) must not count.
     render(<OverviewClient bots={[...BOTS, ARCHIVED]} recentTrades={[]} />)
     const pnl = screen.getByText('P&L all-time').closest('div')!
-    expect(pnl.textContent).toContain('+50.00€')
+    expect(pnl.textContent).toContain('+50.00€')    // shown under Laboratoire · simulation
     expect(pnl.textContent).not.toContain('250')    // would be +250 if archived counted
+  })
+
+  // Real money and laboratoire (simulation) must never be summed into one headline.
+  // Live bot = real capital, paper bots = laboratoire; each is shown separately.
+  const LIVE = { ...mkBot('orb-live', 12, 0.6, 1.5, 0.03, 1300), status: 'live' as const } // +300 real
+
+  it('splits all-time P&L into real vs laboratoire and never fuses them', () => {
+    render(<OverviewClient bots={[...BOTS, LIVE]} recentTrades={[]} />)
+    const tile = screen.getByText('P&L all-time').closest('div')!
+    expect(tile.textContent).toContain('Argent réel')
+    expect(tile.textContent).toContain('+300.00€')     // live cohort only
+    expect(tile.textContent).toContain('Laboratoire · simulation')
+    expect(tile.textContent).toContain('+50.00€')       // paper cohort only
+    expect(tile.textContent).not.toContain('+350.00€')  // never the fused sum
   })
 
   // Carry/portage bots (grid, funding-rate harvesting) have near-zero losing round-trips

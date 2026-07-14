@@ -1,37 +1,75 @@
 ---
-title: "Semaine du 1 juin — Résistance des shorts en territoire baissier"
+title: "Quand les shorts sauvent la semaine mais ne compensent pas le biais long"
 date: "2026-06-07"
 category: "weekly"
-tags: ["weekly", "performance", "MI"]
-summary: "Une semaine contrastée avec 383 trades et une performance négative compensée par l'efficacité remarquable des positions courtes."
+tags: ["weekly", "performance"]
+summary: "Semaine mitigée sur les bots réels : le P&L global reste à peine positif malgré un bon taux de réussite, pendant que le laboratoire révèle une asymétrie nette entre les positions longues et courtes."
 ---
 
-## La semaine en chiffres
+## Mes bots en réel
+
+*Suivi sur une base de 1000 EUR pour comparer les bots entre eux, pas un solde broker brut.*
 
 <StatRow>
-  <Stat label="Trades exécutés" value="383" />
-  <Stat label="P&L global" value="-151 USDT" />
-  <Stat label="Win rate" value="70.8%" />
-  <Stat label="Bots actifs" value="38" />
+  <Stat label="Trades réels" value="13" />
+  <Stat label="Taux de réussite" value="61,5 %" subtext="8 trades gagnants sur 13" />
+  <Stat label="P&L de la semaine" value="+0,39 EUR" subtext="sur base 1000 €" />
 </StatRow>
 
-## Ce qui s'est passé
+<DataCardGroup>
+  <DataCard label="Meilleur trade de la semaine" sub="TON-USDT, position longue" metrics="P&L: +7,16 EUR" intent="positive" />
+  <DataCard label="Pire trade de la semaine" sub="POL-USDT, position courte" metrics="P&L: -9,61 EUR" intent="negative" />
+  <DataCard label="Côté long (3 trades)" sub="2 gagnants sur 3" metrics="P&L: +8,00 EUR | WR: 66,7 %" intent="positive" />
+  <DataCard label="Côté court (10 trades)" sub="6 gagnants sur 10" metrics="P&L: -7,61 EUR | WR: 60,0 %" intent="negative" />
+</DataCardGroup>
 
-Cette semaine a été marquée par une dichotomie frappante entre mes positions longues et courtes. Avec 383 trades au compteur, j'ai maintenu un win rate solide de 70,8%, mais le P&L global de -151 USDT révèle une histoire plus nuancée.
+La semaine se termine à peine à l'équilibre : +0,39 EUR sur base 1000 EUR, ce qui est honnêtement décevant au vu du taux de réussite de 61,5 %. Le taux de réussite (WR, soit le pourcentage de trades fermés en profit) est correct, mais ce qui pèse, c'est la disproportion entre le gain moyen et la perte moyenne. Le pire trade à -9,61 EUR sur POL-USDT annule presque à lui seul tout le travail positif du côté court.
 
-Le régime baissier confirmé (BEAR) et le score global négatif de -32,27 ont créé un environnement particulièrement difficile pour les positions longues. Mes 299 trades longs ont généré une perte de -305,3 USDT malgré un win rate de 71,2%. Cette performance illustre parfaitement le piège des marchés baissiers : on peut avoir raison sur la direction à court terme tout en subir des pertes cumulées significatives.
+Ce qui m'a surpris : les 3 trades longs ont mieux performé en P&L total (+8,00 EUR) que les 10 trades courts (-7,61 EUR), alors que le marché cette semaine n'était pas franchement favorable aux positions longues. TON-USDT a tiré le résultat vers le haut seul. Sans lui, la semaine aurait été clairement négative.
 
-À l'inverse, mes positions courtes ont brillé avec un P&L de +154,33 USDT sur seulement 84 trades. Le meilleur trade de la semaine était d'ailleurs un short sur BCH-USDT pour +32,65 USDT, confirmant l'efficacité de ma stratégie directionnelle en environnement baissier. Le hard gate a d'ailleurs désactivé les shorts suite au layer "L1_short_very_bear_oversold", montrant que mes systèmes de protection fonctionnent correctement.
+---
 
-La journée du 2 juin a été particulièrement brutale avec -121,95 USDT, représentant à elle seule 80% des pertes hebdomadaires. Cette concentration des pertes sur une seule session souligne l'importance des mécanismes de protection que j'ai mis en place, même si ils n'ont pas suffi cette fois-ci.
+## Laboratoire (simulation)
+
+*Ce qui suit concerne des bots en observation uniquement. Aucun euro réel n'est engagé ici.*
+
+<StatRow>
+  <Stat label="Trades simulés" value="370" />
+  <Stat label="Taux de réussite" value="73,5 %" subtext="272 gagnants sur 370" />
+  <Stat label="Coût de la simulation" value="-112,74 EUR" subtext="de l'argent qui n'existe pas, dépensé pour apprendre" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Meilleur trade simulé" sub="BCH-USDT, position courte" metrics="P&L simulé: +33,09 EUR" intent="positive" />
+  <DataCard label="Pire trade simulé" sub="RENDER-USDT, position courte" metrics="P&L simulé: -10,30 EUR" intent="negative" />
+  <DataCard label="Côté long simulé (296 trades)" sub="215 gagnants sur 296" metrics="P&L simulé: -240,19 EUR | WR: 72,6 %" intent="negative" />
+  <DataCard label="Côté court simulé (74 trades)" sub="57 gagnants sur 74" metrics="P&L simulé: +127,44 EUR | WR: 77,0 %" intent="positive" />
+</DataCardGroup>
+
+L'observation la plus intéressante du laboratoire cette semaine est l'écart brutal entre les positions longues et courtes. 296 trades longs simulés pour -240 EUR de P&L papier, contre 74 trades courts pour +127 EUR. Le WR des longs est pourtant de 72,6 %, ce qui est bon, mais les pertes quand elles arrivent sont nettement plus lourdes que les gains. Le ratio gain/perte est déséquilibré côté long.
+
+C'est une observation, pas une perte réelle. Mais elle me dit quelque chose d'important sur le contexte de marché de cette semaine.
+
+---
+
+## Le contexte marché en clair
+
+Cette semaine, le tableau de bord global du marché affichait un score négatif à -19,91 : le marché était en tendance baissière, avec un indicateur de biais en position bloquée. Bitcoin se trouvait environ 13,7 % sous sa moyenne de prix sur 200 jours, ce qui est un signal de prudence clair.
+
+Dans ce contexte, mes filtres de sécurité en observation ont bloqué les nouvelles positions longues simulées, en raison d'un signal de peur élevé et d'un financement défavorable pour les longs. Les bots réels, eux, ont continué à tourner normalement, les filtres n'ayant pas déclenché de blocage côté live cette semaine.
+
+Ce décalage entre ce que les simulations observent et ce que les bots réels exécutent est exactement la raison pour laquelle je maintiens ces deux couches séparées.
+
+---
 
 ## Leçon de la semaine
 
-> En territoire baissier, la sélectivité prime sur le volume. Mes shorts représentaient 22% des trades mais ont généré 100% de la rentabilité positive de la semaine.
+> Un WR de 61 % ne suffit pas si une seule perte dépasse plusieurs gains combinés. La taille des trades et la sélectivité comptent autant que le taux de réussite.
+
+---
 
 ## Prochaines étapes
 
-• Analyser en détail la session du 2 juin pour identifier les patterns d'échec des positions longues
-• Ajuster les paramètres DED qui montrent un biais long (LONG_BIAS) malgré le contexte baissier évident
-• Évaluer l'opportunité de réactiver les shorts maintenant que le cooldown de 12h du hard gate est écoulé
-• Tester l'impact d'une réduction temporaire de l'exposition long tant que BTC reste 17% sous son EMA200
+- Analyser POL-USDT en détail : pourquoi ce trade court a-t-il autant perdu alors que le WR global des courts était de 60 % ? Est-ce un problème de sizing, de timing, ou simplement un événement isolé ?
+- Surveiller l'asymétrie long/short qui apparaît aussi bien en réel qu'en simulation : si les longs perdent en P&L global malgré un bon WR, je veux comprendre si c'est conjoncturel (marché baissier) ou structurel (paramètres de TP/SL à revoir).
+- Suivre l'évolution de Bitcoin par rapport à sa moyenne 200 jours : tant que le cours reste aussi loin en dessous, je reste en mode observation renforcée côté longs simulés.

@@ -11,6 +11,7 @@ import AssetFilterSelect from '@/components/AssetFilterSelect'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 import { computeBotStats, countByDirection, type DirectionFilter } from '@/lib/stats'
 import { assetOptionsFromTrades, toBaseAsset } from '@/lib/asset'
+import { splitCohorts } from '@/lib/cohort'
 
 type SortCol = 'trades' | 'win_rate' | 'profit_factor' | 'max_drawdown' | 'pnl'
 type SortDir = 'asc' | 'desc'
@@ -67,6 +68,26 @@ function SortBtn({
         {isActive ? (dir === 'asc' ? '↑' : '↓') : '↕'}
       </span>
     </button>
+  )
+}
+
+// A P&L tile that always keeps real money and the laboratoire (simulation) apart.
+// Real leads (bigger, on top); the simulated cohort sits below, explicitly labelled.
+function SplitPnlTile({ label, real, labo }: { label: string; real: number; labo: number }) {
+  return (
+    <div className="rounded border border-border p-4 text-center">
+      <p className="text-xs text-muted uppercase tracking-widest mb-2">{label}</p>
+      <p className="text-[10px] text-muted uppercase tracking-wider">Argent réel</p>
+      <p className="text-lg font-bold font-mono" style={{ color: real >= 0 ? '#3fb950' : '#ff4444' }}>
+        {fmtEur(real)}
+      </p>
+      <p className="text-[10px] text-muted uppercase tracking-wider mt-2 pt-2 border-t border-border/50">
+        Laboratoire · simulation
+      </p>
+      <p className="text-sm font-bold font-mono opacity-80" style={{ color: labo >= 0 ? '#3fb950' : '#ff4444' }}>
+        {fmtEur(labo)}
+      </p>
+    </div>
   )
 }
 
@@ -132,20 +153,30 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
   const countedViews = visibleViews.filter(b => b.status !== 'archived')
   const botsWithData = countedViews.filter(b => b.stats.total_trades > 0)
   const winners      = botsWithData.filter(b => b.stats.latest_capital > b.start_capital).length
-  const todayPnl     = direction === 'all' && asset === 'all'
-    ? countedBots.reduce((s, b) => {
-        const row = b.perf_daily.find(p => p.date === today)
-        return s + (row?.pnl_day ?? 0)
-      }, 0)
-    : countedBots.reduce((s, b) =>
-        s + b.all_trades
-              .filter(t =>
-                (direction === 'all' || t.side === direction) &&
-                (asset === 'all' || toBaseAsset(t.asset) === asset) &&
-                t.closed_at.slice(0, 10) === today)
-              .reduce((acc, t) => acc + t.pnl, 0),
-      0)
-  const allTimePnl   = countedViews.reduce((s, b) => s + (b.stats.latest_capital - b.start_capital), 0)
+
+  // Never fuse real-money and laboratory P&L into one headline number. Split every P&L
+  // aggregate by cohort: live = my real capital (v1-spot, orb-bf25), paper/backtest =
+  // laboratoire (simulation). splitCohorts() is the same partition used on /strategies.
+  const todayPnlOf = (subset: BotWithStats[]) =>
+    direction === 'all' && asset === 'all'
+      ? subset.reduce((s, b) => s + (b.perf_daily.find(p => p.date === today)?.pnl_day ?? 0), 0)
+      : subset.reduce((s, b) =>
+          s + b.all_trades
+                .filter(t =>
+                  (direction === 'all' || t.side === direction) &&
+                  (asset === 'all' || toBaseAsset(t.asset) === asset) &&
+                  t.closed_at.slice(0, 10) === today)
+                .reduce((acc, t) => acc + t.pnl, 0),
+        0)
+  const allTimePnlOf = (subset: BotView[]) =>
+    subset.reduce((s, b) => s + (b.stats.latest_capital - b.start_capital), 0)
+
+  const todayCohorts   = splitCohorts(countedBots)
+  const allTimeCohorts = splitCohorts(countedViews)
+  const todayPnlReal   = todayPnlOf(todayCohorts.live)
+  const todayPnlLabo   = todayPnlOf(todayCohorts.paper)
+  const allTimePnlReal = allTimePnlOf(allTimeCohorts.live)
+  const allTimePnlLabo = allTimePnlOf(allTimeCohorts.paper)
   const filteredRecentTrades = recentTrades.filter(t =>
     (direction === 'all' || t.side === direction) &&
     (asset === 'all' || toBaseAsset(t.asset) === asset),
@@ -182,14 +213,12 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
         </div>
       </div>
 
-      {/* Summary counters */}
+      {/* Summary counters — P&L never fuses real money with the laboratoire (simulation) */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {[
-          { label: 'Bots paper trading', value: `${countedBots.length}` },
-          { label: 'Avec trades',        value: `${botsWithData.length} / ${countedBots.length}` },
-          { label: 'En positif',         value: `${winners} / ${botsWithData.length}`, color: '#3fb950' },
-          { label: "P&L aujourd'hui",    value: fmtEur(todayPnl),    color: todayPnl    >= 0 ? '#3fb950' : '#ff4444' },
-          { label: 'P&L all-time',       value: fmtEur(allTimePnl),  color: allTimePnl  >= 0 ? '#3fb950' : '#ff4444' },
+          { label: 'Bots actifs', value: `${countedBots.length}` },
+          { label: 'Avec trades', value: `${botsWithData.length} / ${countedBots.length}` },
+          { label: 'En positif',  value: `${winners} / ${botsWithData.length}`, color: '#3fb950' },
         ].map(s => (
           <div key={s.label} className="rounded border border-border p-4 text-center">
             <p className="text-xs text-muted uppercase tracking-widest mb-1">{s.label}</p>
@@ -198,6 +227,8 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
             </p>
           </div>
         ))}
+        <SplitPnlTile label="P&L aujourd'hui" real={todayPnlReal}   labo={todayPnlLabo} />
+        <SplitPnlTile label="P&L all-time"    real={allTimePnlReal} labo={allTimePnlLabo} />
       </div>
 
       {/* Tableau triable */}

@@ -69,10 +69,12 @@ export function PerformanceClient({
   trades,
   botFamilyMap,
   botNameMap,
+  liveBotIds,
 }: {
   trades: TradeRow[]
   botFamilyMap: Record<string, string>
   botNameMap: Record<string, string>
+  liveBotIds: string[]
 }) {
   const [direction, setDirection] = useState<Direction>('all')
   const [family, setFamily] = useState<Family>('all')
@@ -111,7 +113,7 @@ export function PerformanceClient({
     }
   }
 
-  const { rows, totalTrades, totalPnl, totalWr, totalPf } = useMemo(() => {
+  const { rows, totalTrades, totalPnl, totalPnlReal, totalPnlLabo, totalWr, totalPf } = useMemo(() => {
     let filtered = trades
 
     if (direction !== 'all') {
@@ -173,14 +175,21 @@ export function PerformanceClient({
     const tPnlWin = filtered.filter(t => (t.pnl || 0) > 0).reduce((s, t) => s + (t.pnl || 0), 0)
     const tPnlLoss = filtered.filter(t => (t.pnl || 0) <= 0).reduce((s, t) => s + (t.pnl || 0), 0)
 
+    // Never fuse real-money and laboratory P&L into one headline. Split the total by
+    // cohort: live = my real capital (v1-spot, orb-bf25), everything else = laboratoire.
+    const liveSet = new Set(liveBotIds)
+    const sumPnl = (rows: TradeRow[]) => Math.round(rows.reduce((s, t) => s + (t.pnl || 0), 0) * 100) / 100
+
     return {
       rows: dayRows,
       totalTrades: tTrades,
-      totalPnl: Math.round(filtered.reduce((s, t) => s + (t.pnl || 0), 0) * 100) / 100,
+      totalPnl: sumPnl(filtered),
+      totalPnlReal: sumPnl(filtered.filter(t => liveSet.has(t.bot_id))),
+      totalPnlLabo: sumPnl(filtered.filter(t => !liveSet.has(t.bot_id))),
       totalWr: tTrades > 0 ? Math.round((tWinners / tTrades) * 1000) / 10 : 0,
       totalPf: fmtPf(tPnlWin, tPnlLoss),
     }
-  }, [trades, botFamilyMap, direction, family, asset, dateFrom, dateTo, selectedBots])
+  }, [trades, botFamilyMap, direction, family, asset, dateFrom, dateTo, selectedBots, liveBotIds])
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -266,9 +275,10 @@ export function PerformanceClient({
         )}
       </div>
 
-      {/* Summary */}
+      {/* Summary — P&L is split by cohort, real money never fused with the laboratoire */}
       <div className="flex flex-wrap gap-x-2 gap-y-4 border-y border-border py-5 mb-8">
-        <SummaryMetric label="P&L total" value={fmtPnl(totalPnl)} unit="USDT" sign={totalPnl} />
+        <SummaryMetric label="P&L argent réel" value={fmtPnl(totalPnlReal)} unit="USDT" sign={totalPnlReal} />
+        <SummaryMetric label="P&L laboratoire" value={fmtPnl(totalPnlLabo)} unit="USDT" sign={totalPnlLabo} />
         <SummaryMetric label="Trades" value={String(totalTrades)} />
         <SummaryMetric label="Win rate" value={`${totalWr} %`} />
         <SummaryMetric label="Profit factor" value={String(totalPf)} sign={totalPf > 1 ? 1 : totalPf < 1 ? -1 : 0} />
@@ -304,7 +314,7 @@ export function PerformanceClient({
 
             {rows.length > 0 && (
               <div className="grid bg-card border-t border-border" style={{ gridTemplateColumns: '1.2fr 0.7fr 0.7fr 0.7fr 1fr 1fr' }}>
-                <div className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-semibold text-foreground/90">Total</div>
+                <div className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-semibold text-foreground/90">Total réel + labo</div>
                 <div className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-mono tabular-nums text-right font-semibold text-foreground/90">{totalTrades}</div>
                 <div className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-mono tabular-nums text-right font-semibold text-foreground/90">{totalWr} %</div>
                 <div className={`px-3 sm:px-4 py-3 text-xs sm:text-sm font-mono tabular-nums text-right font-semibold ${totalPf >= 1.5 ? 'text-positive' : totalPf < 1 ? 'text-negative' : 'text-foreground/90'}`}>{totalPf}</div>
@@ -316,7 +326,7 @@ export function PerformanceClient({
         </div>
       </div>
 
-      <p className="text-xs text-muted mt-4">Données synchronisées toutes les heures depuis le VPS. Tous les trades (paper + live) sont inclus.</p>
+      <p className="text-xs text-muted mt-4">Données synchronisées toutes les heures depuis le VPS. Les deux totaux ci-dessus séparent mon argent réel de mon laboratoire (simulation). Le tableau ci-dessous est le journal combiné, jour par jour.</p>
     </div>
   )
 }
