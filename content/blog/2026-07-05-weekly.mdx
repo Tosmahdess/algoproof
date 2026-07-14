@@ -1,70 +1,74 @@
 ---
-title: "Shorter à contre-courant d'un marché qui remonte : leçon apprise à prix réel"
+title: "Shorter à contre-courant d'un marché qui rebondit, ça coûte cher"
 date: "2026-07-05"
 category: "weekly"
 tags: ["weekly", "performance"]
-summary: "Semaine difficile en réel : 19 trades, majoritairement shorts, dans un marché qui a refusé de coopérer. En simulation, les longs tiennent bien, mais les shorts font des dégâts considérables sur le papier."
+summary: "Une semaine difficile côté shorts en réel comme en simulation : le marché a refusé de baisser davantage, et mes bots ont payé le prix de ce biais directionnel mal calibré."
 ---
 
 ## Mes bots en réel
 
-> Suivi sur une base de 1000 €, pour rendre les résultats comparables quelle que soit la taille réelle du compte. Ce n'est pas le solde brut chez le broker.
+> Suivi sur une base de 1 000 EUR, pas un solde broker brut. Ce chiffre sert uniquement à comparer mes bots entre eux sur un pied d'égalité.
 
 <StatRow>
   <Stat label="Trades réels" value="19" />
-  <Stat label="P&L de la semaine" value="-57,73 €" intent="negative" />
-  <Stat label="Taux de réussite" value="42,1 %" subtext="8 trades gagnants sur 19" />
-  <Stat label="Ratio longs / shorts" value="3 / 16" subtext="déséquilibre marqué" />
+  <Stat label="P&L semaine" value="-57,73 €" intent="negative" />
+  <Stat label="Taux de réussite" value="42,1 %" subtext="8 gagnants sur 19" />
+  <Stat label="Ratio long/short" value="3 longs / 16 shorts" />
 </StatRow>
 
 <DataCardGroup>
-  <DataCard label="Meilleur trade de la semaine" sub="NEAR-USDC, short" metrics="P&L: +14,95 € | Direction: short" intent="positive" />
-  <DataCard label="Pire trade de la semaine" sub="POL-USDC, short" metrics="P&L: -12,54 € | Direction: short" intent="negative" />
-  <DataCard label="Longs (3 trades)" sub="Taux de réussite : 66,7 %" metrics="P&L: +7,61 € | Meilleur: XRP-USDC +10,15 €" intent="positive" />
-  <DataCard label="Shorts (16 trades)" sub="Taux de réussite : 37,5 %" metrics="P&L: -65,34 € | Perdants: 10 sur 16" intent="negative" />
+  <DataCard label="Meilleur trade" sub="NEAR-USDC, short" metrics="P&L: +14,95 € | Direction: short" intent="positive" />
+  <DataCard label="Pire trade" sub="POL-USDC, short" metrics="P&L: -12,54 € | Direction: short" intent="negative" />
+  <DataCard label="Shorts (16 trades)" sub="La direction dominante" metrics="P&L: -65,34 € | WR: 37,5 %" intent="negative" />
+  <DataCard label="Longs (3 trades)" sub="Peu de trades mais positifs" metrics="P&L: +7,61 € | WR: 66,7 %" intent="positive" />
 </DataCardGroup>
 
-La semaine se résume en une phrase : j'ai shooté massivement à la baisse, et le marché a partiellement refusé. Seize trades en short pour un bilan de -65,34 €, c'est le signe que mes bots ont joué la tendance baissière un peu trop agressivement. Les trois longs, en comparaison, s'en sortent mieux avec un taux de réussite (WR, proportion de trades gagnants) de 66,7 % et un léger bénéfice net.
+La semaine se résume en une ligne : j'ai pris 16 trades en short pour un résultat global de -65,34 EUR sur cette direction, et 3 trades en long pour +7,61 EUR. Le marché avait un score global négatif et Bitcoin se trouve environ 11 % sous sa moyenne de prix sur 200 jours, ce qui signale une tendance baissière de fond. Pourtant, sur la semaine, les prix ont plutôt résisté voire rebondi sur certains actifs, ce qui a cisaillé mes positions courtes une par une.
 
-Ce qui est intéressant ici, c'est que le contexte de marché était pourtant cohérent avec une posture baissière : Bitcoin évoluait environ 13,7 % sous sa moyenne de prix sur 200 jours, ce qui indique un marché structurellement baissier. Mon indicateur de biais global affichait d'ailleurs un score négatif prononcé, et le tableau de bord du marché signalait un niveau de risque élevé. Tout pointait vers le rouge, et pourtant les shorts ont saigné.
+Le seul éclat positif vient de NEAR-USDC en short, +14,95 EUR, ce qui montre que la stratégie n'est pas cassée. Mais un bon trade ne suffit pas à compenser seize engagements dont beaucoup se sont retournés contre moi.
 
-C'est précisément là la leçon : un marché baissier ne signifie pas qu'on peut shorter n'importe quoi à n'importe quel moment. La direction générale peut être à la baisse, mais les rebonds techniques existent, et ils font mal quand on est positionné contre eux avec 16 trades simultanés.
+Un point de contexte important : mon tableau de bord de marché affiche actuellement deux signaux de prudence côté achats, liés à la peur et au financement des positions sur les marchés dérivés. Ces filtres de sécurité bloquent les nouveaux longs en simulation, mais pas encore en réel, car les bots actifs en argent réel fonctionnent dans un cadre différent. C'est une nuance que je surveille.
 
 ---
 
 ## Laboratoire (simulation)
 
-> Ce qui suit ne représente pas de l'argent réel. C'est le coût de la simulation cette semaine : de l'argent qui n'existe pas, dépensé pour apprendre.
+> Ce qui suit concerne des trades fictifs, exécutés sans argent réel. Une perte paper n'est pas une perte : c'est une observation.
 
 <StatRow>
   <Stat label="Trades simulés" value="523" />
-  <Stat label="Coût de la simulation" value="-262,04 €" subtext="papier uniquement" />
-  <Stat label="Taux de réussite global" value="82,4 %" subtext="431 trades gagnants" />
+  <Stat label="Coût de la simulation" value="-204,91 € fictifs" subtext="De l'argent qui n'existe pas, dépensé pour apprendre" />
+  <Stat label="Taux de réussite global" value="83,7 %" subtext="438 gagnants sur 523" />
 </StatRow>
 
 <DataCardGroup>
-  <DataCard label="Longs simulés (412 trades)" sub="Taux de réussite : 94,9 %" metrics="P&L paper: -24,06 € | Meilleur: LAB +5,31 €" intent="neutral" />
-  <DataCard label="Shorts simulés (111 trades)" sub="Taux de réussite : 36,0 %" metrics="P&L paper: -237,97 € | Pire: UNI-USDT -10,13 €" intent="negative" />
-  <DataCard label="Pire observation de la semaine" sub="WLD, long simulé" metrics="P&L paper: -27,02 €" intent="negative" />
+  <DataCard label="Longs simulés (412 trades)" sub="Quasi parfaits en nombre de gains" metrics="P&L: -14,16 € fictifs | WR: 95,4 %" intent="neutral" />
+  <DataCard label="Shorts simulés (111 trades)" sub="Le vrai problème cette semaine" metrics="P&L: -190,75 € fictifs | WR: 40,5 %" intent="negative" />
+  <DataCard label="Meilleur trade simulé" sub="LAB, long" metrics="P&L: +5,31 € fictifs" intent="positive" />
+  <DataCard label="Pire trade simulé" sub="WLD, long" metrics="P&L: -27,02 € fictifs" intent="negative" />
 </DataCardGroup>
 
-Ce qui ressort clairement de l'observation en simulation cette semaine, c'est une fracture nette entre longs et shorts. Les longs en simulation affichent un WR de 94,9 %, ce qui est remarquable, même si les quelques pertes pèsent lourd (WLD à -27,02 € de papier illustre bien qu'un seul trade mal calibré peut effacer beaucoup de petits gains).
+Ce qui me frappe ici, c'est le paradoxe : un taux de réussite global de 83,7 % avec une perte nette de 204 EUR fictifs. Comment est-ce possible ? Parce que les longs gagnent très souvent mais pour de petits montants, et les shorts perdent moins souvent mais pour des montants bien plus élevés. WLD à -27 EUR fictifs sur un long illustre aussi qu'un seul mauvais trade peut effacer beaucoup de petits gains.
 
-Mais la vraie alerte vient des shorts simulés : 36 % de réussite sur 111 trades pour -237,97 € de papier. C'est cohérent avec ce que j'observe en réel cette semaine : shorter en quantité dans un marché qui oscille entre baisse et rebond génère beaucoup de friction. Cette observation va alimenter mes réflexions sur les filtres de sécurité à appliquer côté simulation avant tout passage en live.
+Le ratio de réussite des shorts en simulation (40,5 %) colle exactement à ce que j'observe en réel cette semaine, ce qui n'a rien d'une coïncidence. Shorter dans un environnement qui cherche à rebondir, même avec une tendance de fond baissière, c'est aller contre le flux de court terme (même si je n'ai pas encore de règle claire pour distinguer un vrai rebond d'un simple sursaut avant la suite de la baisse).
 
-À noter que mes filtres de sécurité en veille de marché bloquaient déjà les nouveaux longs simulés cette semaine (deux niveaux successifs avaient détecté une peur excessive et un financement défavorable côté longs). Les shorts simulés, eux, restaient autorisés, et c'est là que la casse s'est produite.
+Les filtres de sécurité ont d'ailleurs bloqué les nouveaux longs en simulation à partir d'un certain seuil, ce qui explique la proportion élevée de shorts dans le flux simulé. C'est exactement pour ça qu'ils existent : limiter l'exposition quand les signaux se dégradent.
 
 ---
 
 ## Leçon de la semaine
 
-> Un signal baissier justifie une posture baissière, pas une avalanche de shorts. La concentration du risque dans une seule direction finit toujours par se payer.
+> "La tendance de fond ne garantit rien à court terme. Un marché baissier peut très bien rebondir pendant une semaine entière, et c'est pendant ces rebonds que les stratégies shorts paient le prix de leur conviction."
 
 ---
 
 ## Prochaines étapes
 
-- Analyser les 16 shorts réels un par un pour identifier si c'est un problème de timing, d'actif ciblé, ou de taille de position.
-- Réfléchir à un plafond hebdomadaire sur le nombre de trades shorts actifs simultanément, surtout en contexte de marché hésitant.
-- Observer si le renforcement des filtres de sécurité côté simulation sur les shorts permet de réduire la casse paper sans trop sacrifier le WR.
-- Continuer à surveiller la distance de Bitcoin par rapport à sa moyenne de prix sur 200 jours : tant qu'on reste largement en dessous, je garde une prudence accrue sur les positions longues en réel.
+- **Analyser le timing des shorts.** Sur 16 trades en réel cette semaine, seulement 6 gagnants. Je veux regarder si ces pertes se concentrent sur certains moments de la journée ou certains types de configurations, pour voir si un filtre temporel aurait aidé.
+
+- **Surveiller l'évolution des filtres de sécurité.** Deux signaux bloquent actuellement les longs en simulation. Si ces signaux disparaissent, je devrais voir le flux simulé rééquilibrer longs et shorts, et potentiellement observer si la performance suit.
+
+- **Observer WLD de près.** Un trade simulé à -27 EUR fictifs sur un long dans un contexte de marché baissier, c'est une alerte sur le paramétrage du stop-loss (niveau auquel je coupe une position perdante) pour cet actif spécifique. Je vais vérifier si la configuration mérite un ajustement.
+
+- **Ne pas sur-corriger.** La tentation après une semaine rouge est de tout changer. Mais les données de simulation montrent que les longs fonctionnent bien (WR 95,4 %). Le problème est ciblé : les shorts dans ce contexte précis. Je vais affiner, pas démolir.

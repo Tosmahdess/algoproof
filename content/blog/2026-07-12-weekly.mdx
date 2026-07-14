@@ -1,70 +1,69 @@
 ---
-title: "Les shorts sauvent la semaine, les longs la coulent"
+title: "Les longs souffrent, les shorts sauvent : comprendre un marché qui hésite à remonter"
 date: "2026-07-12"
 category: "weekly"
 tags: ["weekly", "performance"]
-summary: "Semaine contrastée : mes bots en réel terminent dans le rouge malgré un taux de victoire correct, tirés vers le bas par des positions longues peu performantes. Le laboratoire, lui, confirme une faiblesse structurelle sur les shorts en simulation."
+summary: "Semaine difficile sur le réel avec un biais long pénalisé par un marché encore baissier. En simulation, les shorts révèlent une faiblesse structurelle que j'ai désormais bien identifiée."
 ---
 
 ## Mes bots en réel
 
-> Suivi sur une base normalisée de 1 000 €, pour rendre les deux bots comparables entre eux. Ce n'est pas le solde brut de mon compte broker.
+> Suivi sur une base normalisée de 1 000 €, indépendamment du solde réel chez le broker. Ce chiffre permet de comparer les deux bots sur un pied d'égalité.
 
 <StatRow>
-  <Stat label="Trades" value="14" />
-  <Stat label="Taux de victoire" value="57,1 %" subtext="8 gagnants sur 14" />
-  <Stat label="P&L de la semaine" value="-29,50 €" change="-29.50" subtext="base 1 000 €" />
+  <Stat label="Trades réels" value="14" />
+  <Stat label="P&L de la semaine" value="-29,50 €" intent="negative" />
+  <Stat label="Taux de réussite (WR)" value="57,1 %" subtext="8 trades gagnants sur 14" />
+  <Stat label="Meilleur trade" value="+10,79 €" subtext="FIL-USDC, long" />
 </StatRow>
 
 <DataCardGroup>
-  <DataCard label="Longs" sub="6 trades" metrics="P&L: -30,45 € | Gagnants: 2/6 | WR: 33,3 % | Meilleur: FIL-USDC +10,79 € | Pire: AVAX-USDC -11,09 €" intent="negative" />
-  <DataCard label="Shorts" sub="8 trades" metrics="P&L: +0,95 € | Gagnants: 6/8 | WR: 75,0 % | Meilleur: SUI-USDC +7,58 € | Pire: POL-USDC -11,40 €" intent="neutral" />
+  <DataCard label="Trades à la hausse (longs)" sub="6 trades cette semaine" metrics="P&L: -30,45 € | Gagnants: 2 sur 6 | WR: 33,3 % | Meilleur: FIL-USDC +10,79 € | Pire: AVAX-USDC -11,09 €" intent="negative" />
+  <DataCard label="Trades à la baisse (shorts)" sub="8 trades cette semaine" metrics="P&L: +0,95 € | Gagnants: 6 sur 8 | WR: 75,0 % | Meilleur: SUI-USDC +7,58 € | Pire: POL-USDC -11,40 €" intent="positive" />
 </DataCardGroup>
 
-La semaine se résume en une ligne : mes shorts ont bien travaillé, mes longs ont plombé le résultat. Avec un taux de victoire global (WR) de 57 %, la mécanique n'est pas cassée, mais la répartition est brutale. Côté long, 33 % de trades gagnants seulement : deux positions qui ont fonctionné, dont FIL-USDC qui a sauvé l'honneur avec presque 11 €. Les quatre autres ont perdu, et AVAX-USDC a coûté à lui seul plus de 11 €. Côté short, c'est presque l'inverse : six trades sur huit dans le vert, un résultat global légèrement positif, mais POL-USDC a effacé une bonne partie des gains.
+57 % de trades gagnants cette semaine : les bots ont eu raison plus souvent qu'ils n'ont eu tort. Mais quand ils ont eu tort, ça a coûté cher, les pertes ont pesé plus lourd que les gains. Le marché avait encore clairement la tête vers le bas, et il punit sévèrement les positions à la hausse dans ce genre de configuration.
 
-Ce n'est pas une surprise totale compte tenu du contexte marché : le Bitcoin évolue environ 14 % sous sa moyenne de prix sur 200 jours, ce qui place le marché en tendance baissière. Dans ces conditions, les positions longues naviguent à contre-courant, et les chiffres de cette semaine le confirment.
+Le détail par direction est parlant. Les longs ont perdu en bloc, -30,45 € sur six trades avec seulement deux gagnants. AVAX-USDC a pesé lourd à -11,09 €. À l'inverse, les shorts ont tenu la barque, terminant légèrement positifs à +0,95 € sur huit trades avec un taux de réussite de 75 %. SUI-USDC a bien joué son rôle avec +7,58 €. Sans les shorts, la semaine aurait été bien plus sombre.
+
+Ce déséquilibre n'est pas une surprise quand je regarde le contexte de marché : Bitcoin évolue encore environ 11 % sous sa moyenne de prix sur 200 jours, un seuil que je surveille pour qualifier la santé générale du marché. En dessous, le marché est techniquement baissier, et ouvrir des longs dans ces conditions, c'est nager à contre-courant. Les filtres de sécurité de la flotte en observation le signalent d'ailleurs : les signaux de peur et de financement sur les longs ont déclenché des alertes côté laboratoire. Sur les bots actifs en réel, ces filtres n'ont pas bloqué les longs cette semaine, ce qui explique en partie les dégâts.
 
 ---
 
 ## Laboratoire (simulation)
 
-> Ce bloc ne contient que des trades simulés. Une perte ici n'est pas une perte réelle : c'est le coût de la simulation, de l'argent qui n'existe pas, dépensé pour apprendre.
+> Ce qui suit concerne des bots qui ne tradent pas en argent réel. Chaque chiffre ici est une observation, pas une perte. C'est le coût de la simulation cette semaine : de l'argent qui n'existe pas, dépensé pour apprendre.
 
 <StatRow>
   <Stat label="Trades simulés" value="461" />
-  <Stat label="Taux de victoire" value="72,9 %" subtext="336 gagnants" />
-  <Stat label="Coût de la simulation" value="-732,42 €" subtext="argent fictif" />
+  <Stat label="Coût de la simulation" value="-517,98 €" subtext="argent fictif, données réelles" />
+  <Stat label="WR global" value="75,3 %" subtext="347 trades gagnants sur 461" />
 </StatRow>
 
 <DataCardGroup>
-  <DataCard label="Longs simulés" sub="376 trades" metrics="P&L: -210,61 € | WR: 83,5 % | Pire: VELVET -27,09 €" intent="neutral" />
-  <DataCard label="Shorts simulés" sub="85 trades" metrics="P&L: -521,82 € | WR: 25,9 % | Meilleur: ADA-USDT +3,89 € | Pire: ARB-USDT -47,82 €" intent="negative" />
+  <DataCard label="Longs simulés" sub="376 trades" metrics="P&L fictif: -178,72 € | WR: 84,8 % | Meilleur: ARB-USDT +3,72 € | Pire: VELVET -27,09 €" intent="neutral" />
+  <DataCard label="Shorts simulés" sub="85 trades" metrics="P&L fictif: -339,26 € | WR: 32,9 % | Meilleur: ADA-USDT +4,63 € | Pire: SUI-USDT -12,86 €" intent="negative" />
 </DataCardGroup>
 
-Ce qui retient mon attention ici, c'est le gouffre entre longs et shorts en simulation. Les longs affichent un taux de victoire de 83,5 %, ce qui est excellent, mais les pertes unitaires sur les rares trades perdants font mal (VELVET à -27 €). Les shorts, eux, n'atteignent que 25,9 % de victoire sur 85 trades : c'est un signal clair que certaines configurations testées ne sont pas mûres pour des positions vendeuses dans ce régime de marché.
+Le laboratoire confirme cette semaine quelque chose que je soupçonnais : les shorts simulés sont structurellement défaillants dans la configuration actuelle. Un taux de réussite de 32,9 % sur 85 trades à la baisse, c'est insuffisant, et ça ne sent pas la malchance : plutôt un signal de calibration. Les bots en observation qui tentent des positions baissières sur des altcoins volatils se font régulièrement stopper par des rebonds brutaux, même dans un marché globalement baissier.
 
-L'observation centrale : en simulation, prendre des shorts en masse dans un marché baissier ne garantit pas la rentabilité. La tendance générale aide, mais si l'entrée ou le dimensionnement sont mal calibrés, la direction seule ne suffit pas. C'est exactement ce que le laboratoire est fait pour révéler, avant que l'argent réel ne soit en jeu.
+Ce que VELVET m'a appris en absorbant -27,09 € fictifs en long, c'est qu'un actif peu liquide peut déviser d'une façon que le backtest (test sur données historiques) n'avait pas anticipée. Je vais retravailler les filtres de liquidité sur ces configurations.
 
----
-
-## Contexte marché de la semaine
-
-Le tableau de bord du marché est resté en alerte rouge toute la semaine. Le score global de sentiment se situe en territoire négatif, la tendance est clairement baissière, et l'indicateur de biais penche des deux côtés vers la prudence. Concrètement : mes filtres de sécurité automatiques ont bloqué en simulation les nouvelles positions longues, jugées trop risquées dans ce contexte. En réel, les deux bots ont continué à tourner normalement, mais avec la conscience que l'environnement n'est pas favorable aux achats.
-
-Ce type de semaine rappelle que le marché n'est pas neutre. Un bot qui performe bien en tendance haussière peut se retrouver structurellement désavantagé quand les conditions se retournent. L'objectif n'est pas de tout arrêter, mais de comprendre quand réduire la voilure.
+La bonne nouvelle vient des longs simulés : 84,8 % de taux de réussite sur 376 trades, c'est robuste. Le problème est que les quelques perdants sont trop coûteux par rapport aux gagnants. Le ratio gain/perte (profit factor, ou PF) doit progresser.
 
 ---
 
 ## Leçon de la semaine
 
-> Un bon taux de victoire ne suffit pas si les trades perdants sont systématiquement plus gros que les gagnants : l'asymétrie des résultats entre longs et shorts cette semaine en est la démonstration parfaite.
+> "Dans un marché qui descend, un bon taux de réussite ne suffit pas : ce qui compte, c'est que les trades perdants ne coûtent pas trois fois plus que les trades gagnants."
+
+Cette semaine m'a rappelé que le WR (taux de réussite) est un indicateur séduisant mais incomplet. 57 % de trades gagnants en réel, et pourtant -29,50 €. Parce que les stop-loss (niveaux de sortie automatique en cas de perte) sur les longs ont été touchés sur des mouvements amples, pendant que les take-profit (objectifs de gain) ont été modestes. Je dois corriger ce déséquilibre en priorité, sans savoir encore si c'est le stop-loss ou le take-profit qu'il faut bouger en premier.
 
 ---
 
 ## Prochaines étapes
 
-- Analyser pourquoi AVAX-USDC et POL-USDC ont généré des pertes supérieures aux meilleurs gains : est-ce un problème de stop-loss (SL) trop large, ou d'entrée en mauvais timing ?
-- Investiguer la chute des shorts en simulation : 25,9 % de WR sur 85 trades est un niveau qui mérite un audit des conditions d'entrée utilisées dans ces configurations.
-- Surveiller l'évolution du marché par rapport à la moyenne de prix sur 200 jours : un retour au-dessus soulagerait structurellement les longs.
-- Laisser tourner les bots réels sans intervention manuelle : le contexte est difficile, mais couper les systèmes au mauvais moment serait pire que d'encaisser quelques semaines de rouge.
+- Revoir le dimensionnement des stop-loss sur les longs en contexte baissier : réduire le risque par trade quand Bitcoin est sous sa moyenne 200 jours.
+- Analyser les shorts simulés défaillants : comprendre pourquoi le taux de réussite chute à 32,9 % et si une règle de filtrage supplémentaire peut corriger ça avant de déployer ces configurations en réel.
+- Surveiller VELVET et les actifs faiblement liquides : ajouter un filtre de volume minimum dans les règles d'entrée pour éviter ce type de dérapage.
+- Continuer à observer le niveau de Bitcoin par rapport à sa moyenne 200 jours : si le marché repasse durablement au-dessus, le contexte pour les longs redeviendra plus favorable.
