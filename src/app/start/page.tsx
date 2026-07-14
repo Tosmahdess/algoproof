@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BYBIT_AFFILIATE_URL, HL_AFFILIATE_URL } from '@/lib/affiliates'
+import TrackedLink from '@/components/TrackedLink'
 
 export const metadata: Metadata = {
   title: 'Démarrer — Trader les bots depuis la France',
@@ -51,14 +52,17 @@ export default function StartPage() {
               <li>Générer une clé API et la configurer dans le bot</li>
             </ol>
           </div>
-          <a
+          <TrackedLink
             href={BYBIT_AFFILIATE_URL}
+            event="outbound_exchange"
+            exchange="bybit"
+            location="start"
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full rounded-lg bg-positive py-2.5 text-center text-sm font-semibold text-black transition-opacity hover:opacity-90"
           >
             Ouvrir un compte Bybit →
-          </a>
+          </TrackedLink>
         </div>
 
         {/* Hyperliquid */}
@@ -84,14 +88,17 @@ export default function StartPage() {
               <li>Créer un agent wallet avec permissions trade-only</li>
             </ol>
           </div>
-          <a
+          <TrackedLink
             href={HL_AFFILIATE_URL}
+            event="outbound_exchange"
+            exchange="hyperliquid"
+            location="start"
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-text transition-colors hover:border-muted"
           >
             Découvrir Hyperliquid →
-          </a>
+          </TrackedLink>
         </div>
 
         {/* Kraken */}
@@ -117,14 +124,17 @@ export default function StartPage() {
               <li>Générer une clé API Spot et la configurer dans le bot</li>
             </ol>
           </div>
-          <a
+          <TrackedLink
             href="https://www.kraken.com"
+            event="outbound_exchange"
+            exchange="kraken"
+            location="start"
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-text transition-colors hover:border-positive hover:text-positive"
           >
             Découvrir Kraken →
-          </a>
+          </TrackedLink>
         </div>
       </div>
 

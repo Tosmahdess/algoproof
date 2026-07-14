@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import EmailCapture from '@/components/EmailCapture'
+import TrackedLink from '@/components/TrackedLink'
 
 export const metadata: Metadata = {
   title: 'Le labo — teste tes stratégies de trading',
@@ -29,15 +30,17 @@ export default function LaboPage() {
       </header>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <a
+        <TrackedLink
           href={LAB_URL}
+          event="cta_lab"
+          location="labo-teste"
           className="block bg-card border border-border rounded-xl p-5 hover:border-positive transition-colors"
         >
           <h2 className="font-bold mb-1">⚗ Je teste tout de suite</h2>
           <p className="text-sm text-muted">
             Ouvre le labo et lance un premier backtest en un clic, sans compte.
           </p>
-        </a>
+        </TrackedLink>
         <a
           href={`${LAB_URL}/apprendre`}
           className="block bg-card border border-border rounded-xl p-5 hover:border-positive transition-colors"
@@ -86,9 +89,9 @@ export default function LaboPage() {
         <p className="text-muted text-sm mb-4 max-w-xl mx-auto">
           Le labo tourne sur un sous-domaine dédié. Tout est gratuit pour explorer.
         </p>
-        <a href={LAB_URL} className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
+        <TrackedLink href={LAB_URL} event="cta_lab" location="labo-bottom" className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
           Ouvrir le labo →
-        </a>
+        </TrackedLink>
       </section>
 
       <EmailCapture
