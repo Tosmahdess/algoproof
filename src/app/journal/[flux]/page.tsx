@@ -8,7 +8,7 @@ export const revalidate = 3600
 
 const FLUX_MAP: Record<string, { scope: ScopeType; title: string; intro: string }> = {
   flotte:       { scope: 'fleet',  title: 'Journal — Flotte',        intro: "Les changements appliqués à l'ensemble des stratégies." },
-  intelligence: { scope: 'mi',     title: 'Journal — Intelligence',  intro: 'Les évolutions du moteur de Market Intelligence.' },
+  intelligence: { scope: 'mi',     title: 'Journal — Intelligence',  intro: 'Les évolutions de ma veille de marché.' },
   patrimoine:   { scope: 'wealth', title: 'Journal — Patrimoine',    intro: 'Les changements de la watchlist GROWTH et de la logique DCA.' },
 }
 
