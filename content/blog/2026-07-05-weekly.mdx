@@ -1,50 +1,70 @@
 ---
-title: "Semaine du 29 juin : les shorts plombent tout"
+title: "Shorter à contre-courant d'un marché qui remonte : leçon apprise à prix réel"
 date: "2026-07-05"
 category: "weekly"
-tags: ["weekly", "performance", "MI"]
-summary: "542 trades, 81 % de winrate global, mais -319 $ au compteur. Le coupable est identifié : les positions short ont détruit la semaine à elles seules."
+tags: ["weekly", "performance"]
+summary: "Semaine difficile en réel : 19 trades, majoritairement shorts, dans un marché qui a refusé de coopérer. En simulation, les longs tiennent bien, mais les shorts font des dégâts considérables sur le papier."
 ---
 
-## La semaine en chiffres
+## Mes bots en réel
+
+> Suivi sur une base de 1000 €, pour rendre les résultats comparables quelle que soit la taille réelle du compte. Ce n'est pas le solde brut chez le broker.
 
 <StatRow>
-  <Stat label="PnL net" value="-319,77 $" />
-  <Stat label="Trades exécutés" value="542" />
-  <Stat label="Winrate global" value="81,0 %" />
-  <Stat label="Pire journée" value="-97,60 $" subtext="1er juillet" />
+  <Stat label="Trades réels" value="19" />
+  <Stat label="P&L de la semaine" value="-57,73 €" intent="negative" />
+  <Stat label="Taux de réussite" value="42,1 %" subtext="8 trades gagnants sur 19" />
+  <Stat label="Ratio longs / shorts" value="3 / 16" subtext="déséquilibre marqué" />
 </StatRow>
 
-## Ce qui s'est passé
-
-La semaine s'ouvre mollement le 29 juin avec un léger recul de 9 $ puis rebondit timidement le 30 (+1,11 $). C'est trompeur. Dès le 1er juillet, le portefeuille prend une gifle de presque 98 $, et les trois jours suivants enfoncent le clou : -64 $, -77 $, -76 $. Le week-end sauve l'honneur avec +4,97 $ le 5 juillet, mais le mal est fait. Sur sept jours, cinq sont dans le rouge, et le drawdown s'est concentré sur une fenêtre de 96 heures particulièrement brutale en milieu de semaine.
-
-Le chiffre qui me dérange le plus n'est pas le PnL total, c'est la dissymétrie entre longs et shorts. Les longs affichent 415 trades, un winrate de 94,7 % et une perte nette de seulement 16 $. C'est quasiment flat, ce qui signifie que la stratégie long fonctionne correctement dans ce régime. Les shorts, en revanche, c'est une autre histoire : 127 trades, 36,2 % de winrate, et -303 $ absorbés. Le meilleur short de la semaine est NEAR-USDC à +14,95 $, le pire est POL-USDC à -12,54 $. Mais ce qui tue, c'est la répétition des petites pertes sur les shorts perdants, pas un trade catastrophique isolé.
-
 <DataCardGroup>
-  <DataCard label="Meilleur trade" sub="NEAR-USDC short" metrics="P&L:+14,95 $" intent="positive" />
-  <DataCard label="Pire trade" sub="WLD long" metrics="P&L:-27,02 $" intent="negative" />
-  <DataCard label="Winrate longs" sub="415 trades" metrics="WR:94,7 %" intent="neutral" />
-  <DataCard label="Winrate shorts" sub="127 trades" metrics="WR:36,2 %" intent="negative" />
+  <DataCard label="Meilleur trade de la semaine" sub="NEAR-USDC, short" metrics="P&L: +14,95 € | Direction: short" intent="positive" />
+  <DataCard label="Pire trade de la semaine" sub="POL-USDC, short" metrics="P&L: -12,54 € | Direction: short" intent="negative" />
+  <DataCard label="Longs (3 trades)" sub="Taux de réussite : 66,7 %" metrics="P&L: +7,61 € | Meilleur: XRP-USDC +10,15 €" intent="positive" />
+  <DataCard label="Shorts (16 trades)" sub="Taux de réussite : 37,5 %" metrics="P&L: -65,34 € | Perdants: 10 sur 16" intent="negative" />
 </DataCardGroup>
 
-Le contexte marché explique une partie du problème. Le heartbeat indique un régime BEAR avec BTC à -13,27 % sous son EMA 200 : le marché dérive à la baisse, ce qui défavorise les longs en théorie. Pourtant ce sont les shorts qui souffrent. Pourquoi ? Parce que même dans un régime bearish global, les actifs altcoin oscillent violemment dans les deux sens sans tendance franche, et mes shorts sont calibrés pour des mouvements directionnels propres. Dans un marché chaotique, ils se font stopper dans tous les sens.
+La semaine se résume en une phrase : j'ai shooté massivement à la baisse, et le marché a partiellement refusé. Seize trades en short pour un bilan de -65,34 €, c'est le signe que mes bots ont joué la tendance baissière un peu trop agressivement. Les trois longs, en comparaison, s'en sortent mieux avec un taux de réussite (WR, proportion de trades gagnants) de 66,7 % et un léger bénéfice net.
 
-<CompactTable cols="Direction | Trades | Winrate | PnL net" summary>
-  <Row values="Long | 415 | 94,7 % | -16,46 $" />
-  <Row values="Short | 127 | 36,2 % | -303,31 $" />
-  <Row values="Total | 542 | 81,0 % | -319,77 $" />
-</CompactTable>
+Ce qui est intéressant ici, c'est que le contexte de marché était pourtant cohérent avec une posture baissière : Bitcoin évoluait environ 13,7 % sous sa moyenne de prix sur 200 jours, ce qui indique un marché structurellement baissier. Mon indicateur de biais global affichait d'ailleurs un score négatif prononcé, et le tableau de bord du marché signalait un niveau de risque élevé. Tout pointait vers le rouge, et pourtant les shorts ont saigné.
 
-Côté fleet, 2 bots sont en live, 31 en paper, 33 actifs au total. Le shadow gate version 1 tourne avec les deux sens autorisés en live, mais en shadow le layer `l5_funding_long` a déjà tiré, ce qui a désactivé les longs en simulation. Le DED score ressort à 0,62 en mode LONG_BIAS, cohérent avec un PnL 3 jours légèrement positif (+0,998 $) malgré la semaine difficile.
+C'est précisément là la leçon : un marché baissier ne signifie pas qu'on peut shorter n'importe quoi à n'importe quel moment. La direction générale peut être à la baisse, mais les rebonds techniques existent, et ils font mal quand on est positionné contre eux avec 16 trades simultanés.
+
+---
+
+## Laboratoire (simulation)
+
+> Ce qui suit ne représente pas de l'argent réel. C'est le coût de la simulation cette semaine : de l'argent qui n'existe pas, dépensé pour apprendre.
+
+<StatRow>
+  <Stat label="Trades simulés" value="523" />
+  <Stat label="Coût de la simulation" value="-262,04 €" subtext="papier uniquement" />
+  <Stat label="Taux de réussite global" value="82,4 %" subtext="431 trades gagnants" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Longs simulés (412 trades)" sub="Taux de réussite : 94,9 %" metrics="P&L paper: -24,06 € | Meilleur: LAB +5,31 €" intent="neutral" />
+  <DataCard label="Shorts simulés (111 trades)" sub="Taux de réussite : 36,0 %" metrics="P&L paper: -237,97 € | Pire: UNI-USDT -10,13 €" intent="negative" />
+  <DataCard label="Pire observation de la semaine" sub="WLD, long simulé" metrics="P&L paper: -27,02 €" intent="negative" />
+</DataCardGroup>
+
+Ce qui ressort clairement de l'observation en simulation cette semaine, c'est une fracture nette entre longs et shorts. Les longs en simulation affichent un WR de 94,9 %, ce qui est remarquable, même si les quelques pertes pèsent lourd (WLD à -27,02 € de papier illustre bien qu'un seul trade mal calibré peut effacer beaucoup de petits gains).
+
+Mais la vraie alerte vient des shorts simulés : 36 % de réussite sur 111 trades pour -237,97 € de papier. C'est cohérent avec ce que j'observe en réel cette semaine : shorter en quantité dans un marché qui oscille entre baisse et rebond génère beaucoup de friction. Cette observation va alimenter mes réflexions sur les filtres de sécurité à appliquer côté simulation avant tout passage en live.
+
+À noter que mes filtres de sécurité en veille de marché bloquaient déjà les nouveaux longs simulés cette semaine (deux niveaux successifs avaient détecté une peur excessive et un financement défavorable côté longs). Les shorts simulés, eux, restaient autorisés, et c'est là que la casse s'est produite.
+
+---
 
 ## Leçon de la semaine
 
-> Un winrate de 81 % ne veut rien dire si la distribution des pertes est asymétrique par direction. Ici, 23 % des trades (les shorts) ont absorbé 95 % des pertes. Avant de corriger le sizing ou les stops, il faut d'abord répondre à une question simple : est-ce que mes shorts ont leur place dans ce régime de marché ?
+> Un signal baissier justifie une posture baissière, pas une avalanche de shorts. La concentration du risque dans une seule direction finit toujours par se payer.
+
+---
 
 ## Prochaines étapes
 
-- Analyser les 127 shorts trade par trade pour identifier si la perte est liée au signal d'entrée, au stop-loss ou à la sélection d'asset, cible avant le 9 juillet.
-- Tester une règle de filtrage des shorts conditionnel au score heartbeat : si `global_score` passe sous -10 et que le régime est BEAR sans tendance claire, désactiver les shorts en live, pas seulement en shadow.
-- Faire passer `live_enforced` à true sur le hard gate v1 pour les bots shorts, en excluant `v1_spot` comme déjà prévu, objectif avant fin de semaine prochaine (12 juillet).
-- Surveiller le layer `l5_funding_long` en shadow : s'il reste actif plus de 48h consécutives, c'est un signal que le financement est structurellement baisseur et que les longs doivent eux aussi être filtrés en live.
+- Analyser les 16 shorts réels un par un pour identifier si c'est un problème de timing, d'actif ciblé, ou de taille de position.
+- Réfléchir à un plafond hebdomadaire sur le nombre de trades shorts actifs simultanément, surtout en contexte de marché hésitant.
+- Observer si le renforcement des filtres de sécurité côté simulation sur les shorts permet de réduire la casse paper sans trop sacrifier le WR.
+- Continuer à surveiller la distance de Bitcoin par rapport à sa moyenne de prix sur 200 jours : tant qu'on reste largement en dessous, je garde une prudence accrue sur les positions longues en réel.
