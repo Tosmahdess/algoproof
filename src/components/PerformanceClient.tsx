@@ -314,7 +314,7 @@ export function PerformanceClient({
 
             {rows.length > 0 && (
               <div className="grid bg-card border-t border-border" style={{ gridTemplateColumns: '1.2fr 0.7fr 0.7fr 0.7fr 1fr 1fr' }}>
-                <div className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-semibold text-foreground/90">Total</div>
+                <div className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-semibold text-foreground/90">Total réel + labo</div>
                 <div className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-mono tabular-nums text-right font-semibold text-foreground/90">{totalTrades}</div>
                 <div className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-mono tabular-nums text-right font-semibold text-foreground/90">{totalWr} %</div>
                 <div className={`px-3 sm:px-4 py-3 text-xs sm:text-sm font-mono tabular-nums text-right font-semibold ${totalPf >= 1.5 ? 'text-positive' : totalPf < 1 ? 'text-negative' : 'text-foreground/90'}`}>{totalPf}</div>
