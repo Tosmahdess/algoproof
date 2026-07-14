@@ -1,6 +1,7 @@
 // src/app/page.tsx
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import TrackedLink from '@/components/TrackedLink'
 import StatusBadge from '@/components/StatusBadge'
 import EmailCapture from '@/components/EmailCapture'
 import { getAllBotsWithStats } from '@/lib/queries'
@@ -57,9 +58,9 @@ export default async function HomePage() {
           Je fais tourner des bots en réel, j&apos;expose chaque trade — gains et pertes — et je te donne les outils pour tester par toi-même.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <a href="https://lab.algoproof.fr" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
+          <TrackedLink href="https://lab.algoproof.fr" event="cta_lab" location="home-hero" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
             Ouvrir le labo →
-          </a>
+          </TrackedLink>
           <Link href="/overview" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
             Voir mes bots en direct
           </Link>

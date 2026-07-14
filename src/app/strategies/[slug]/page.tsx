@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import StatusBadge from '@/components/StatusBadge'
 import StrategyDetail from '@/components/StrategyDetail'
+import TrackView from '@/components/TrackView'
 import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
 import DiscussionTab from '@/components/DiscussionTab'
@@ -51,6 +52,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
+
+      {/* Analytics: view_bot on mount (client leaf, keeps the page server-rendered) */}
+      <TrackView slug={slug} />
 
       {/* Header */}
       <div className="mb-8">

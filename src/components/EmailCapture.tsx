@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { SubscribeSource } from '@/lib/subscribe'
+import { trackEmailSubscribe } from '@/lib/analytics'
 
 interface Props {
   source: SubscribeSource
@@ -32,6 +33,7 @@ export default function EmailCapture({
         body: JSON.stringify({ email: email.trim(), source, website }),
       })
       if (!res.ok) throw new Error('bad status')
+      trackEmailSubscribe(source)
       setSubmitted(true)
       setEmail('')
     } catch {
