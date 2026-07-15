@@ -1,75 +1,72 @@
 ---
-title: "Quand les shorts sauvent la semaine mais ne compensent pas le biais long"
+title: "Quand les shorts sauvent la semaine mais ne cachent pas la vérité des longs"
 date: "2026-06-07"
 category: "weekly"
 tags: ["weekly", "performance"]
-summary: "Semaine mitigée sur les bots réels : le P&L global reste à peine positif malgré un bon taux de réussite, pendant que le laboratoire révèle une asymétrie nette entre les positions longues et courtes."
+summary: "Une semaine en demi-teinte : mes bots en réel terminent à l'équilibre malgré un marché baissier, pendant que le laboratoire révèle une fracture nette entre positions longues et courtes."
 ---
 
 ## Mes bots en réel
 
-*Suivi sur une base de 1000 EUR pour comparer les bots entre eux, pas un solde broker brut.*
+Tout ce qui suit est exprimé sur une base de suivi fictive de 1 000 €, pas un solde broker brut. Cela me permet de comparer les deux bots sur un pied d'égalité, quelle que soit leur taille réelle.
 
 <StatRow>
-  <Stat label="Trades réels" value="13" />
+  <Stat label="Trades réels" value="13" subtext="semaine du 1 au 7 juin" />
+  <Stat label="P&L de la semaine" value="+0,39 €" subtext="sur base 1 000 €" />
   <Stat label="Taux de réussite" value="61,5 %" subtext="8 trades gagnants sur 13" />
-  <Stat label="P&L de la semaine" value="+0,39 EUR" subtext="sur base 1000 €" />
 </StatRow>
 
 <DataCardGroup>
-  <DataCard label="Meilleur trade de la semaine" sub="TON-USDT, position longue" metrics="P&L: +7,16 EUR" intent="positive" />
-  <DataCard label="Pire trade de la semaine" sub="POL-USDT, position courte" metrics="P&L: -9,61 EUR" intent="negative" />
-  <DataCard label="Côté long (3 trades)" sub="2 gagnants sur 3" metrics="P&L: +8,00 EUR | WR: 66,7 %" intent="positive" />
-  <DataCard label="Côté court (10 trades)" sub="6 gagnants sur 10" metrics="P&L: -7,61 EUR | WR: 60,0 %" intent="negative" />
+  <DataCard label="Longs (3 trades)" sub="2 gagnants sur 3" metrics="P&L: +8,00 € | WR: 66,7 % | Meilleur: TON-USDT +7,16 € | Pire: HBAR-USDT -3,57 €" intent="positive" />
+  <DataCard label="Shorts (10 trades)" sub="6 gagnants sur 10" metrics="P&L: -7,61 € | WR: 60,0 % | Meilleur: BTC-USDT +4,26 € | Pire: POL-USDT -9,61 €" intent="negative" />
 </DataCardGroup>
 
-La semaine se termine à peine à l'équilibre : +0,39 EUR sur base 1000 EUR, ce qui est honnêtement décevant au vu du taux de réussite de 61,5 %. Le taux de réussite (WR, soit le pourcentage de trades fermés en profit) est correct, mais ce qui pèse, c'est la disproportion entre le gain moyen et la perte moyenne. Le pire trade à -9,61 EUR sur POL-USDT annule presque à lui seul tout le travail positif du côté court.
+La semaine se termine à presque zéro, soit +0,39 € sur l'ensemble des 13 trades. Ce chiffre masque une vraie tension interne : les longs, peu nombreux, ont été rentables. Les shorts, dix fois plus sollicités cette semaine, ont globalement pesé sur le résultat. Le pire trade de la semaine, POL-USDT en short à -9,61 €, a effacé à lui seul une grande partie des gains accumulés ailleurs. TON-USDT en long à +7,16 € reste la belle surprise.
 
-Ce qui m'a surpris : les 3 trades longs ont mieux performé en P&L total (+8,00 EUR) que les 10 trades courts (-7,61 EUR), alors que le marché cette semaine n'était pas franchement favorable aux positions longues. TON-USDT a tiré le résultat vers le haut seul. Sans lui, la semaine aurait été clairement négative.
+Ce n'est pas une semaine catastrophique. Pas franchement à célébrer non plus (sur ce -9,61 € de POL-USDT, je n'ai toujours pas tranché si c'est une taille de position à revoir ou juste un mouvement atypique sur l'actif).
 
 ---
 
 ## Laboratoire (simulation)
 
-*Ce qui suit concerne des bots en observation uniquement. Aucun euro réel n'est engagé ici.*
+Le coût de la simulation cette semaine : 111,91 € qui n'existent pas, dépensés pour apprendre. C'est de l'argent paper, pas du capital réel.
 
 <StatRow>
-  <Stat label="Trades simulés" value="370" />
-  <Stat label="Taux de réussite" value="73,5 %" subtext="272 gagnants sur 370" />
-  <Stat label="Coût de la simulation" value="-112,74 EUR" subtext="de l'argent qui n'existe pas, dépensé pour apprendre" />
+  <Stat label="Trades simulés" value="370" subtext="flotte complète en observation" />
+  <Stat label="P&L paper" value="-111,91 €" subtext="sur base 1 000 € fictifs" />
+  <Stat label="Taux de réussite global" value="73,8 %" subtext="273 trades gagnants sur 370" />
 </StatRow>
 
 <DataCardGroup>
-  <DataCard label="Meilleur trade simulé" sub="BCH-USDT, position courte" metrics="P&L simulé: +33,09 EUR" intent="positive" />
-  <DataCard label="Pire trade simulé" sub="RENDER-USDT, position courte" metrics="P&L simulé: -10,30 EUR" intent="negative" />
-  <DataCard label="Côté long simulé (296 trades)" sub="215 gagnants sur 296" metrics="P&L simulé: -240,19 EUR | WR: 72,6 %" intent="negative" />
-  <DataCard label="Côté court simulé (74 trades)" sub="57 gagnants sur 74" metrics="P&L simulé: +127,44 EUR | WR: 77,0 %" intent="positive" />
+  <DataCard label="Longs simulés (296 trades)" sub="72,6 % de réussite" metrics="P&L: -240,19 € | Meilleur: TON-USDT +17,32 € | Pire: SEI-USDT -5,48 €" intent="negative" />
+  <DataCard label="Shorts simulés (74 trades)" sub="78,4 % de réussite" metrics="P&L: +128,27 € | Meilleur: BCH-USDT +33,09 € | Pire: RENDER-USDT -10,30 €" intent="positive" />
 </DataCardGroup>
 
-L'observation la plus intéressante du laboratoire cette semaine est l'écart brutal entre les positions longues et courtes. 296 trades longs simulés pour -240 EUR de P&L papier, contre 74 trades courts pour +127 EUR. Le WR des longs est pourtant de 72,6 %, ce qui est bon, mais les pertes quand elles arrivent sont nettement plus lourdes que les gains. Le ratio gain/perte est déséquilibré côté long.
+Le laboratoire confirme quelque chose que j'observais déjà en réel : les shorts performent nettement mieux que les longs cette semaine. En simulation, les shorts affichent +128,27 € avec un taux de réussite de 78,4 %. Les longs, eux, plombent le bilan à -240,19 € malgré un taux de réussite correct de 72,6 % (SEI-USDT signe le pire résultat côté longs simulés, -5,48 €, presque anecdotique à côté du reste).
 
-C'est une observation, pas une perte réelle. Mais elle me dit quelque chose d'important sur le contexte de marché de cette semaine.
+Les trades perdants en long perdent beaucoup, les trades gagnants en long gagnent peu, c'est ça qui pèse plus que leur fréquence brute. Le contexte marché de cette semaine explique une bonne partie de cette asymétrie.
 
 ---
 
-## Le contexte marché en clair
+## Pourquoi les longs souffrent : le contexte marché
 
-Cette semaine, le tableau de bord global du marché affichait un score négatif à -19,91 : le marché était en tendance baissière, avec un indicateur de biais en position bloquée. Bitcoin se trouvait environ 13,7 % sous sa moyenne de prix sur 200 jours, ce qui est un signal de prudence clair.
+Le Bitcoin se trouve environ 11 % sous sa moyenne de prix calculée sur les 200 derniers jours. C'est un signal clair de marché baissier. Mon tableau de bord global affiche un score négatif, et l'indicateur de biais du marché signale une dégradation côté positions longues : deux filtres de sécurité se sont déclenchés en observation pour bloquer les longs dans la flotte simulée, notamment un filtre lié à la peur du marché et un autre lié aux conditions de financement.
 
-Dans ce contexte, mes filtres de sécurité en observation ont bloqué les nouvelles positions longues simulées, en raison d'un signal de peur élevé et d'un financement défavorable pour les longs. Les bots réels, eux, ont continué à tourner normalement, les filtres n'ayant pas déclenché de blocage côté live cette semaine.
+En pratique, cela signifie que mes bots en réel continuent à prendre des longs, mais la flotte en observation les aurait évités. Ce décalage est volontaire : je teste les deux approches en parallèle pour mesurer l'impact réel de ces filtres de sécurité sur les résultats.
 
-Ce décalage entre ce que les simulations observent et ce que les bots réels exécutent est exactement la raison pour laquelle je maintiens ces deux couches séparées.
+Réduire l'exposition longue dans un marché comme celui-ci n'est pas de la prudence excessive. C'est plutôt du bon sens, même si je ne sais pas encore si ça tiendra la semaine prochaine : il faudra voir si Bitcoin se rapproche de sa moyenne 200 jours.
 
 ---
 
 ## Leçon de la semaine
 
-> Un WR de 61 % ne suffit pas si une seule perte dépasse plusieurs gains combinés. La taille des trades et la sélectivité comptent autant que le taux de réussite.
+> Un taux de réussite élevé ne suffit pas. Ce qui compte, c'est ce que je perds quand j'ai tort, comparé à ce que je gagne quand j'ai raison. Cette semaine, les shorts ont eu raison souvent, mais les quelques gros shorts perdants (POL-USDT, -9,61 € à lui seul) ont tout rééquilibré à la baisse. Je garde les shorts. Je vérifie juste que le ratio gain/perte reste cohérent avec le contexte, semaine après semaine.
 
 ---
 
 ## Prochaines étapes
 
-- Analyser POL-USDT en détail : pourquoi ce trade court a-t-il autant perdu alors que le WR global des courts était de 60 % ? Est-ce un problème de sizing, de timing, ou simplement un événement isolé ?
-- Surveiller l'asymétrie long/short qui apparaît aussi bien en réel qu'en simulation : si les longs perdent en P&L global malgré un bon WR, je veux comprendre si c'est conjoncturel (marché baissier) ou structurel (paramètres de TP/SL à revoir).
-- Suivre l'évolution de Bitcoin par rapport à sa moyenne 200 jours : tant que le cours reste aussi loin en dessous, je reste en mode observation renforcée côté longs simulés.
+- Analyser pourquoi POL-USDT en short a généré une perte aussi disproportionnée (-9,61 €) : est-ce un problème de taille de position, de stop-loss mal calibré, ou d'un mouvement atypique sur cet actif ?
+- Comparer les résultats des longs en réel versus les longs bloqués en simulation sur la même période, pour quantifier l'impact des filtres de sécurité.
+- Surveiller si le Bitcoin se rapproche de sa moyenne 200 jours : une amélioration du contexte changerait l'équilibre long/short pour la semaine prochaine.
+- Documenter le comportement de TON-USDT, qui apparaît dans le top des deux flores (réel et simulation) : est-ce une tendance ou une coïncidence de la semaine ?

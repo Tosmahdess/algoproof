@@ -1,80 +1,69 @@
 ---
-title: "Quand le marché pousse dans les deux sens et que ni les longs ni les shorts ne gagnent"
+title: "Quand le marché hésite, les shorts perdent plus qu'ils ne gagnent"
 date: "2026-06-21"
 category: "weekly"
 tags: ["weekly", "performance"]
-summary: "Une semaine difficile sur les bots réels avec seulement 25 % de trades gagnants, tandis que le laboratoire révèle une fracture nette entre longs et shorts en simulation."
+summary: "Une semaine difficile en réel avec 20 trades et un biais court dominant qui a pesé lourd. En simulation, les longs résistent bien mais les shorts s'effondrent : une observation précieuse avant de passer à l'échelle."
 ---
 
 ## Mes bots en réel
 
-> Suivi sur une base normalisée de 1 000 EUR : ce ne sont pas des soldes broker bruts, mais une base commune pour rendre les deux bots comparables entre eux semaine après semaine.
+> Suivi sur une base normalisée de 1 000 €, pas un solde broker brut. Ces chiffres permettent de comparer les bots entre eux sur un pied d'égalité.
 
 <StatRow>
-  <Stat label="Trades réels" value="20" subtext="semaine du 15 au 21 juin" />
-  <Stat label="P&L réel" value="-42,75 €" subtext="sur base 1 000 €" />
+  <Stat label="Trades réels" value="20" />
+  <Stat label="P&L de la semaine" value="-42,75 €" intent="negative" />
   <Stat label="Taux de réussite (WR)" value="25 %" subtext="5 trades gagnants sur 20" />
 </StatRow>
 
 <DataCardGroup>
-  <DataCard label="Meilleur trade de la semaine" sub="STX-USDC, short" metrics="P&L: +23,30 € | Direction: short" intent="positive" />
-  <DataCard label="Pire trade de la semaine" sub="BTC-USDC, short" metrics="P&L: -13,21 € | Direction: short" intent="negative" />
-  <DataCard label="Côté long (3 trades)" sub="1 gagnant sur 3" metrics="P&L: -12,23 € | WR: 33,3 %" intent="negative" />
-  <DataCard label="Côté short (17 trades)" sub="4 gagnants sur 17" metrics="P&L: -30,52 € | WR: 23,5 %" intent="negative" />
+  <DataCard label="Meilleur trade de la semaine" sub="STX-USDC, position short" metrics="P&L: +23,30 € | Direction: short" intent="positive" />
+  <DataCard label="Pire trade de la semaine" sub="BTC-USDC, position short" metrics="P&L: -13,21 € | Direction: short" intent="negative" />
+  <DataCard label="Bilan longs (3 trades)" sub="33 % de réussite" metrics="P&L: -12,23 € | Meilleur: SOL-USDC +8,57 €" intent="negative" />
+  <DataCard label="Bilan shorts (17 trades)" sub="23,5 % de réussite" metrics="P&L: -30,52 € | Meilleur: STX-USDC +23,30 €" intent="negative" />
 </DataCardGroup>
 
-La semaine est clairement dans le rouge : 20 trades, un seul côté positif à retenir (ce short sur STX qui a rapporté 23 euros), mais l'ensemble reste lourd. Ce qui me frappe, c'est que les shorts ont dominé le nombre de trades (17 sur 20) sans pour autant dominer les gains. Le marché a oscillé sans direction franche, et mes bots ont subi cette ambivalence des deux côtés.
+La semaine a été claire dans un sens : 17 des 20 trades étaient des shorts (positions à la baisse), et ils ont signé un taux de réussite de seulement 23,5 %. Pas une erreur d'exécution à proprement parler, plutôt un marché qui ne tendait pas assez franchement pour que mes signaux de cassure soient fiables (même si je ne suis pas sûr que ce soit toute l'histoire : le coût fictif du labo, plus bas, est concentré sur peu de trades, ce qui sent plutôt des sorties mal calibrées).
 
-Un WR (taux de trades gagnants) à 25 % n'est pas catastrophique en soi si le ratio gain/perte compense, mais cette semaine ce n'est pas le cas. La perte nette de 42,75 EUR est réelle, c'est de l'argent sorti.
+Le seul éclat positif vient de STX-USDC, avec un short à +23,30 €. C'est d'ailleurs ce trade qui évite une semaine encore plus douloureuse. BTC a tiré dans les deux sens : un long à -10,51 € et un short à -13,21 €, soit le pire des deux mondes sur un même actif. Cela illustre bien le régime de marché actuel : Bitcoin est environ 11 % sous sa moyenne de prix sur 200 jours, ce qui le place en territoire baissier, mais sans conviction directionnelle forte.
+
+Mon tableau de bord du marché affiche un score global négatif (-18,8), ce qui classe la situation en tendance baissière. Pourtant, le niveau de risque reste "vert" : les deux directions, longs et shorts, sont autorisées pour mes bots actifs. En revanche, en mode observation (pour les stratégies que je teste en parallèle), les longs sont bloqués par deux filtres de sécurité liés à la peur du marché et aux taux de financement des contrats à terme. Mon indicateur de biais de marché pointe dans les deux sens simultanément, ce qui revient à dire qu'il ne pointe nulle part. Tu vas me dire que 23,5 % de réussite sur les shorts, ça sent la stratégie cassée. Peut-être. Mais le laboratoire, juste en dessous, raconte une autre histoire.
 
 ---
 
 ## Laboratoire (simulation)
 
-> Ce qui suit concerne des bots en mode observation pure : aucun euro réel n'est engagé. Le "coût" ci-dessous est une dépense fictive, de l'argent qui n'existe pas, utilisé pour apprendre.
-
-Le coût de la simulation cette semaine : **164,39 EUR** de pertes paper, soit de l'argent qui n'existe pas, dépensé pour révéler quelque chose d'important.
+> Ce qui suit est 100 % simulation. Aucun euro réel n'est en jeu. Une perte paper n'est pas une perte : c'est le coût de l'apprentissage, de l'argent qui n'existe pas, dépensé pour observer.
 
 <StatRow>
-  <Stat label="Trades simulés" value="390" subtext="semaine du 15 au 21 juin" />
-  <Stat label="WR global" value="76,4 %" subtext="298 trades gagnants sur 390" />
-  <Stat label="P&L simulation" value="-164,39 €" subtext="argent fictif, pas réel" />
+  <Stat label="Trades simulés" value="390" />
+  <Stat label="Coût de la simulation" value="-140,54 € fictifs" />
+  <Stat label="WR global" value="78,5 %" subtext="306 trades gagnants sur 390" />
 </StatRow>
 
 <DataCardGroup>
-  <DataCard label="Longs simulés (334 trades)" sub="85,3 % de réussite" metrics="P&L: -32,84 € | WR: 85,3 %" intent="neutral" />
-  <DataCard label="Shorts simulés (56 trades)" sub="23,2 % de réussite seulement" metrics="P&L: -131,55 € | WR: 23,2 %" intent="negative" />
-  <DataCard label="Pire observation" sub="GALA-USDT, short" metrics="P&L simulé: -8,58 € | aussi pire en long: -5,27 €" intent="negative" />
-  <DataCard label="Meilleure observation" sub="BNB-USDT, short" metrics="P&L simulé: +3,15 €" intent="positive" />
+  <DataCard label="Longs simulés (334 trades)" sub="WR 85,6 %" metrics="P&L fictif: -25,96 € | Meilleur: BTC-USDT +1,37 €" intent="neutral" />
+  <DataCard label="Shorts simulés (56 trades)" sub="WR 35,7 %" metrics="P&L fictif: -114,57 € | Meilleur: BNB-USDT +3,41 €" intent="negative" />
+  <DataCard label="Pire observation" sub="INJ-USDT, short" metrics="P&L fictif: -7,41 €" intent="negative" />
 </DataCardGroup>
 
-Ce que la simulation dit clairement cette semaine : les longs tiennent, avec 85 % de trades gagnants. Les shorts, eux, sont en difficulté sévère, 23,2 % de réussite sur 56 trades, et ils représentent à eux seuls 131 euros de perte fictive sur les 164 au total.
+L'asymétrie est frappante. Les longs simulés affichent un taux de réussite de 85,6 % sur 334 trades, avec une perte globale très contenue. Les shorts simulés s'en sortent beaucoup moins bien : 35,7 % de réussite sur 56 trades, et ils concentrent l'essentiel du coût fictif de la semaine (-114,57 € sur les -140,54 € totaux). INJ-USDT y contribue pour -7,41 € à lui seul, un détail que je note sans l'expliquer davantage pour l'instant.
 
-C'est une observation, pas une perte. Mais c'est une observation qui compte.
+Ce que j'observe ici confirme ce que le tableau de bord me dit : les stratégies short ne sont pas dans leur environnement favorable en ce moment, même si le marché est techniquement baissier. Un marché qui baisse lentement et sans élan n'est pas le terrain de chasse des bots de cassure.
 
----
-
-## Contexte marché : pourquoi c'est compliqué en ce moment
-
-Le tableau de bord du marché affiche cette semaine un signal négatif fort. Bitcoin évolue environ 13,7 % sous sa moyenne de prix sur 200 jours, ce qui place le marché clairement en régime baissier. Mon indicateur de biais global ressort négatif, et les deux orientations (haussière et baissière) sont en difficulté simultanément.
-
-En clair : ce n'est pas un marché où il est facile de prendre position dans un sens comme dans l'autre. Les filtres de sécurité de mes bots en observation bloquent en particulier les achats (longs), jugés trop risqués dans ce contexte. Seuls les paris à la baisse (shorts) restent ouverts en simulation, mais comme les chiffres le montrent, même ceux-là souffrent.
-
-Les bots réels, eux, continuent de fonctionner normalement dans les deux sens, car leur filtre de sécurité n'a pas encore été enclenché au niveau du capital réel.
+L'écart entre le WR des longs (85,6 %) et celui des shorts (35,7 %) est une observation que je vais creuser avant d'envisager d'élargir la flotte dans cette configuration.
 
 ---
 
 ## Leçon de la semaine
 
-> "Un marché qui hésite punit les certitudes des deux côtés. La vraie question n'est pas 'long ou short ?' mais 'est-ce que le contexte mérite un trade du tout ?'"
-
-Cette semaine m'a rappelé que 17 shorts actifs dans un régime baissier ne garantissent pas le profit. Le marché peut être globalement baissier et quand même infliger des pertes sur des positions courtes si la volatilité est chaotique et les mouvements sans suite. La direction macro ne suffit pas : il faut aussi le timing et la structure du trade.
+> Un marché baissier sans conviction, c'est le pire terrain pour les stratégies de cassure : il valide les signaux à moitié, puis se retourne. Cette semaine m'a rappelé que le sens de la tendance compte moins que la force de la tendance.
 
 ---
 
 ## Prochaines étapes
 
-- Analyser pourquoi les shorts en simulation ont un WR si bas cette semaine (23 %) malgré un régime baissier : le problème vient-il du point d'entrée, du stop-loss (niveau de coupe de perte), ou de la durée de tenue ?
-- Surveiller si le signal de marché s'améliore : tant que Bitcoin reste aussi loin sous sa moyenne 200 jours, je reste prudent sur le dimensionnement réel.
-- Regarder de plus près GALA-USDT, qui apparaît en pire trade aussi bien du côté long que short en simulation : c'est un actif à surveiller ou à exclure temporairement.
-- Continuer à documenter la fracture longs/shorts en simulation : si elle persiste deux semaines de suite, c'est un signal structurel, pas du bruit.
+- Analyser pourquoi BTC génère des signaux contradictoires dans les deux directions la même semaine, et si un filtre de cohérence directionnelle par actif aurait changé le résultat.
+- Regarder de plus près le comportement des shorts simulés : le coût fictif est concentré sur peu de trades, ce qui suggère des sorties mal calibrées plutôt qu'une mauvaise sélection d'entrées.
+- Surveiller l'indicateur de biais de marché : s'il bascule clairement dans un sens, je réactiverai les observations sur les stratégies en veille.
+- Documenter le trade STX-USDC : c'est un short qui a bien fonctionné dans un environnement difficile, je veux comprendre ce qui l'a distingué des 16 autres.
