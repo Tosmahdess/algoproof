@@ -1,0 +1,65 @@
+---
+title: "Quand le marché hésite, mes shorts paient le prix fort"
+date: "2026-07-19"
+category: "weekly"
+tags: ["weekly", "performance"]
+summary: "Une semaine difficile sur mes bots en réel avec un biais short massivement perdant, pendant que le laboratoire confirme que les longs restent la direction moins risquée en ce moment."
+---
+
+## Mes bots en réel
+
+> Suivi sur une base normalisée de 1000 €, pas un solde broker brut. Cela me permet de comparer les bots entre eux indépendamment du capital réellement déployé.
+
+<StatRow>
+  <Stat label="Trades réels" value="26" subtext="semaine du 13 au 19 juillet" />
+  <Stat label="P&L semaine" value="-141,19 €" subtext="sur base 1000 €" intent="negative" />
+  <Stat label="Taux de réussite" value="26,9 %" subtext="7 trades gagnants sur 26" />
+  <Stat label="P&L cumulé (all-time)" value="+36,02 €" subtext="depuis le début, rodage inclus" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Longs (8 trades)" sub="3 gagnants sur 8" metrics="P&L: -19,84 € | WR: 37,5 % | Meilleur: LINK-USDC +21,72 € | Pire: SOL-USDC -11,84 €" intent="negative" />
+  <DataCard label="Shorts (18 trades)" sub="4 gagnants sur 18" metrics="P&L: -121,35 € | WR: 22,2 % | Meilleur: HBAR-USDC +15,95 € | Pire: DOT-USDC -12,78 €" intent="negative" />
+</DataCardGroup>
+
+C'est la direction short qui plombe la semaine. 18 trades ouverts à la baisse pour seulement 4 gagnants, un taux de réussite de 22,2 % : c'est très en dessous du seuil de rentabilité. Ce qui est paradoxal, c'est que le marché est globalement en tendance baissière cette semaine. Bitcoin se situe environ 10 % sous sa moyenne de prix sur 200 jours, un signal qui traduit une pression vendeuse persistante. Pourtant, mes shorts échouent massivement.
+
+L'explication tient probablement dans la mécanique du marché lui-même : en tendance baissière déjà bien installée, les rebonds violents sont fréquents. Les prix descendent par escaliers, avec des sursauts brusques qui déclenchent mes ordres de protection (SL : le stop-loss, seuil de sortie automatique pour limiter les pertes) avant que la direction ne reprenne. C'est coûteux, et c'est exactement ce que les données de la semaine illustrent.
+
+Le cumulé reste positif à +36,02 € depuis le début (rodage compris), ce qui me rappelle que cette semaine difficile s'inscrit dans une série plus longue. Une mauvaise semaine ne remet pas en cause une stratégie, elle l'interroge.
+
+---
+
+## Laboratoire (simulation)
+
+> Ce qui suit concerne des bots qui ne tradent pas en argent réel. Un P&L négatif en simulation n'est pas une perte : c'est le coût de l'apprentissage, payé avec de l'argent qui n'existe pas.
+
+<StatRow>
+  <Stat label="Trades simulés" value="496" subtext="semaine du 13 au 19 juillet" />
+  <Stat label="Coût de la simulation" value="-349,11 €" subtext="argent fictif, pas une perte réelle" />
+  <Stat label="Taux de réussite" value="78,0 %" subtext="387 trades gagnants sur 496" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Longs simulés (397 trades)" sub="337 gagnants sur 397" metrics="P&L: -164,46 € | WR: 84,9 % | Meilleur: POL-USDT +1,99 € | Pire: SOL-USDT -6,25 €" intent="neutral" />
+  <DataCard label="Shorts simulés (99 trades)" sub="50 gagnants sur 99" metrics="P&L: -184,66 € | WR: 50,5 % | Meilleur: GALA-USDT +7,29 € | Pire: TIA-USDT -11,40 €" intent="neutral" />
+</DataCardGroup>
+
+Observation intéressante : le laboratoire reproduit exactement le même schéma que le réel. Les longs affichent un taux de réussite de 84,9 % mais un P&L négatif, ce qui signifie que les rares trades perdants effacent les nombreux gagnants. Les shorts, eux, stagnent autour de 50 % de réussite. Ce n'est pas une stratégie mal configurée : c'est le reflet d'un marché qui n'offre pas de tendance claire sur la plupart des actifs testés cette semaine.
+
+Côté tableau de bord du marché, un filtre de sécurité côté funding rate (le coût de portage des positions) a signalé un excès de positions longues sur les marchés dérivés. Concrètement, trop d'intervenants parient à la hausse, ce qui peut précéder une correction. Ce signal a mis en veille les nouvelles ouvertures longues sur certains bots en observation, une précaution que je trouve justifiée au vu des résultats.
+
+---
+
+## Leçon de la semaine
+
+> Un marché baissier ne garantit pas que les shorts gagnent. La pression vendeuse de fond coexiste avec des rebonds violents qui punissent les entrées trop précipitées. Multiplier les trades en espérant que la direction finisse par payer, c'est payer le bruit de marché au prix fort.
+
+---
+
+## Prochaines étapes
+
+- **Analyser le ratio gain/perte des shorts** : avec 22,2 % de réussite, la stratégie ne peut tenir que si les trades gagnants sont significativement plus grands que les perdants. Je vais vérifier ce rapport sur les dernières semaines.
+- **Réduire le volume de shorts en période de rebond** : le filtre de sécurité sur le funding rate est un signal à intégrer plus tôt, pas seulement en observation mais potentiellement en réel.
+- **Observer LINK-USDC** : c'est le meilleur trade de la semaine en réel avec +21,72 €. Comprendre pourquoi celui-là a fonctionné quand les autres échouaient mérite une analyse séparée.
+- **Tenir le cap sur le cumulé** : +36,02 € all-time, c'est fragile mais c'est positif. La priorité reste de ne pas laisser une mauvaise semaine déclencher des ajustements précipités.
