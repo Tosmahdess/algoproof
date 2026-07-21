@@ -39,8 +39,6 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
       'Critères GO pré-enregistrés avant le passage en live (backtests 730 j par actif : PF ≥ 1.2, DD ≤ 15 %) + règles de risque du bot.',
     registeredAt: '2026-05-08',
     // Verified 2026-07-04: MIN(timestamp) of the live-only DB (apex_live_trades.db).
-    // orb-bf25 has NO liveSince on purpose: its DB mixes migrated paper history and
-    // real trades with no marker — no verifiable real-money start date yet.
     liveSince: '2026-05-08',
     pfFloor: 1.2,
     maxDrawdown: 0.15,
@@ -108,6 +106,9 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     source:
       'Gate standard APEX pré-enregistré (PF ≥ 1.30, DD ≤ 20 %). Le backtest d’origine (PF 1.41 sur 25 actifs) s’est révélé optimiste : c’est le live qui juge, et il est affiché ici sans filtre.',
     registeredAt: '2026-06-20',
+    // Confirmed real-money since inception (Binance Futures period then Hyperliquid
+    // cutover 2026-06-18) — the full track is real. First real trade: 2026-04-26.
+    liveSince: '2026-04-26',
     pfFloor: 1.3,
     maxDrawdown: 0.2,
     killCriteria: [
