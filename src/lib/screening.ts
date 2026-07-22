@@ -102,7 +102,9 @@ export async function getStrategyDossier(base: string): Promise<{
     .from('screening_campaigns').select('*').eq('base', base)
   if (e1) throw new Error(`dossier campaigns: ${e1.message}`)
 
-  const ids = (campaigns ?? []).map((c: ScreeningCampaign) => c.id!).filter(Boolean)
+  const ids = (campaigns ?? [])
+    .map((c: ScreeningCampaign) => c.id)
+    .filter((id): id is number => id != null)
   const { data: cands, error: e2 } = ids.length
     ? await supabase.from('screening_candidates').select('*').in('campaign_id', ids)
     : { data: [], error: null }
