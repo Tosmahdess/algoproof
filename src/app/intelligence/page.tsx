@@ -214,6 +214,17 @@ export default async function IntelligencePage() {
         <h2 className="text-base font-bold tracking-tight mb-4">Les piliers</h2>
         <MiPillarsSection pillars={PILLARS} changelogs={miChangelogs} />
       </section>
+
+      {/* CTA: test météo on own strategy */}
+      <section>
+        <a href="https://lab.algoproof.fr/lab" className="block border border-border rounded-lg p-8 bg-card/40 hover:border-positive/30 transition-colors group text-center">
+          <h2 className="text-base font-bold tracking-tight mb-2">Teste la météo sur ta stratégie</h2>
+          <p className="text-sm text-muted max-w-2xl mx-auto">
+            Le labo rejoue mes règles réelles sur ton backtest, avec et sans la météo.
+          </p>
+          <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Ouvrir le labo →</span>
+        </a>
+      </section>
     </main>
   )
 }
