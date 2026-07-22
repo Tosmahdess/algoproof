@@ -93,6 +93,35 @@ export async function getScreeningGrid(): Promise<ScreeningCampaign[]> {
   return (data ?? []) as ScreeningCampaign[]
 }
 
+/**
+ * Resolves a bot's screening origin by its slug, independent of any strategy-family label the
+ * bot record itself carries. Bot.family (trend/breakout/mean-reversion/carry/market-neutral) is
+ * a coarse behavioural bucket shared by many distinct screening bases (EMAcross, Donchian,
+ * ATRChannel, ... are all "trend"), so it cannot be used to look up a single campaign — hence
+ * this direct bot_slug -> candidate -> campaign lookup instead of guessing a base. Degrades to
+ * null on any error (including the screening tables not existing yet): a missing provenance
+ * block must never break the bot fiche.
+ */
+export async function getProvenanceForBot(slug: string): Promise<{
+  campaign: ScreeningCampaign
+  candidate: ScreeningCandidate
+} | null> {
+  try {
+    const { data: candidate, error: e1 } = await supabase
+      .from('screening_candidates').select('*').eq('bot_slug', slug).maybeSingle()
+    if (e1 || !candidate) return null
+
+    const { data: campaign, error: e2 } = await supabase
+      .from('screening_campaigns').select('*').eq('id', candidate.campaign_id).maybeSingle()
+    if (e2 || !campaign) return null
+
+    return { campaign: campaign as ScreeningCampaign, candidate: candidate as ScreeningCandidate }
+  } catch (e) {
+    console.error('[getProvenanceForBot] fetch threw', e)
+    return null
+  }
+}
+
 export async function getStrategyDossier(base: string): Promise<{
   campaigns: ScreeningCampaign[]
   candidates: Record<number, ScreeningCandidate[]>

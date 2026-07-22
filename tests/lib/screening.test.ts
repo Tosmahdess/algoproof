@@ -1,6 +1,28 @@
 // tests/lib/screening.test.ts
-import { describe, it, expect } from 'vitest'
-import { cellLabel, marginLabel, isDossierUnlocked, TF_ORDER, ScreeningCampaign, ScreeningState } from '@/lib/screening'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+vi.mock('@/lib/supabase', () => ({
+  supabase: {
+    from: vi.fn(),
+  },
+}))
+
+import { supabase } from '@/lib/supabase'
+import {
+  cellLabel, marginLabel, isDossierUnlocked, getProvenanceForBot,
+  TF_ORDER, ScreeningCampaign, ScreeningState,
+} from '@/lib/screening'
+
+const mockChain = (data: unknown, error: unknown = null) => {
+  const terminal = { data, error }
+  const chain: any = {
+    then: (resolve: (v: unknown) => unknown) => Promise.resolve(terminal).then(resolve),
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockResolvedValue(terminal),
+  }
+  return chain
+}
 
 const cell = (o: Partial<ScreeningCampaign> = {}): ScreeningCampaign => ({
   base: 'EMAcross', tf: 'H4', state: 'judged', judged_on: '2026-07-22',
@@ -61,5 +83,45 @@ describe('isDossierUnlocked', () => {
   it('unlocks everything until a membership system exists', () => {
     expect(isDossierUnlocked('EMAcross', 'H4')).toBe(true)
     expect(isDossierUnlocked('Donchian', 'M5')).toBe(true)
+  })
+})
+
+describe('getProvenanceForBot', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('resolves the campaign + candidate for a bot found by slug', async () => {
+    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: ['tendance'],
+      null_pct: 95.16, dd: 19.57, dd_limit: 20, wf_oos: 1.195, wf_bar: 1.15, pf_net: 1.611,
+      trades: 249, assets_go: 6, qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 3 }
+    const campaign = cell({ base: 'EMAcross', tf: 'H4' })
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain(candidate))
+      .mockReturnValueOnce(mockChain(campaign))
+
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toEqual({ campaign, candidate })
+  })
+
+  it('returns null when the bot has no screening candidate (not screened yet, or another family)', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null))
+    const result = await getProvenanceForBot('some-other-bot')
+    expect(result).toBeNull()
+  })
+
+  it('degrades to null on a Supabase error instead of throwing (tables not created yet)', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toBeNull()
+  })
+
+  it('degrades to null when the candidate exists but its campaign lookup fails', async () => {
+    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: [], null_pct: 95,
+      dd: 10, dd_limit: 20, wf_oos: 1.2, wf_bar: 1.15, pf_net: 1.5, trades: 100, assets_go: 3,
+      qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 0 }
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain(candidate))
+      .mockReturnValueOnce(mockChain(null, { message: 'not found' }))
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toBeNull()
   })
 })
