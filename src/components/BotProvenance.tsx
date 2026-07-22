@@ -1,17 +1,5 @@
 import Link from 'next/link'
-import { marginLabel, type ScreeningCampaign, type ScreeningCandidate } from '@/lib/screening'
-
-/**
- * French number grouping. toLocaleString('fr-FR') inserts a narrow no-break space (U+202F,
- * sometimes U+00A0) between groups — invisible in a terminal but not a literal ASCII space,
- * so a raw-textContent regex match (this component's own test) would miss it. Testing-Library's
- * getByText normalizer collapses that for free, but this component is asserted on
- * data-testid + textContent directly, so the replacement must happen here.
- */
-function count(n: number | null): string {
-  if (n === null || n === undefined) return '—'
-  return n.toLocaleString('fr-FR').replace(/ | /g, ' ')
-}
+import { marginLabel, count, type ScreeningCampaign, type ScreeningCandidate } from '@/lib/screening'
 
 export default function BotProvenance({ campaign, candidate }: {
   campaign: ScreeningCampaign

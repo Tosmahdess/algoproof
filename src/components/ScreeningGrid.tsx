@@ -1,16 +1,5 @@
 import Link from 'next/link'
-import { TF_ORDER, cellLabel, type ScreeningCampaign } from '@/lib/screening'
-
-/**
- * 73770 -> "73 770" with a narrow no-break space (U+202F), the French convention.
- * `toLocaleString('fr-FR')` already groups with U+202F on full-ICU Node builds, but the
- * replace is explicit so the separator is correct regardless of the runtime's ICU data
- * (some builds fall back to a regular space or NBSP for the same locale).
- */
-function count(n: number | null): string {
-  if (n === null || n === undefined) return '—'
-  return n.toLocaleString('fr-FR').replace(/[   ]/g, ' ')
-}
+import { TF_ORDER, cellLabel, count, type ScreeningCampaign } from '@/lib/screening'
 
 export default function ScreeningGrid({ campaigns }: { campaigns: ScreeningCampaign[] }) {
   const bases = Array.from(new Set(campaigns.map((c) => c.base))).sort()

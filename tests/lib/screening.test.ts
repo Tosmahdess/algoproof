@@ -9,7 +9,7 @@ vi.mock('@/lib/supabase', () => ({
 
 import { supabase } from '@/lib/supabase'
 import {
-  cellLabel, marginLabel, isDossierUnlocked, getProvenanceForBot,
+  cellLabel, marginLabel, isDossierUnlocked, getProvenanceForBot, count,
   TF_ORDER, ScreeningCampaign, ScreeningState,
 } from '@/lib/screening'
 
@@ -19,6 +19,8 @@ const mockChain = (data: unknown, error: unknown = null) => {
     then: (resolve: (v: unknown) => unknown) => Promise.resolve(terminal).then(resolve),
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
     maybeSingle: vi.fn().mockResolvedValue(terminal),
   }
   return chain
@@ -86,6 +88,29 @@ describe('isDossierUnlocked', () => {
   })
 })
 
+describe('count', () => {
+  // Pins the actual codepoint, not a DOM-normalised approximation of it. toLocaleString('fr-FR')
+  // groups thousands with a narrow no-break space (U+202F) — a character class of plain ASCII
+  // spaces never matches it, which is exactly the bug that shipped in ScreeningDossier.tsx and
+  // stayed invisible because screen.getByText()'s whitespace normaliser (\s, which matches
+  // U+202F/U+00A0 too) made the broken and the fixed version look identical through the DOM.
+  // Asserting on the string directly, with explicit \u escapes rather than a literal invisible
+  // character in the source, is the only way to actually pin this.
+  const NARROW_NBSP = ' '
+  const ASCII_SPACE = ' '
+
+  it('groups thousands with a narrow no-break space, never a plain ASCII space', () => {
+    const formatted = count(73770)
+    expect(formatted).toBe(`73${NARROW_NBSP}770`)
+    expect(formatted).toContain(NARROW_NBSP)
+    expect(formatted.includes(ASCII_SPACE)).toBe(false)
+  })
+
+  it('returns the em-dash placeholder for null', () => {
+    expect(count(null)).toBe('—')
+  })
+})
+
 describe('getProvenanceForBot', () => {
   beforeEach(() => vi.clearAllMocks())
 
@@ -123,5 +148,48 @@ describe('getProvenanceForBot', () => {
       .mockReturnValueOnce(mockChain(null, { message: 'not found' }))
     const result = await getProvenanceForBot('v1-spot')
     expect(result).toBeNull()
+  })
+
+  it('logs the Supabase error before degrading to null on the candidate lookup', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toBeNull()
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getProvenanceForBot]'),
+      expect.stringContaining('relation does not exist'),
+    )
+    errSpy.mockRestore()
+  })
+
+  it('logs the Supabase error before degrading to null on the campaign lookup', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: [], null_pct: 95,
+      dd: 10, dd_limit: 20, wf_oos: 1.2, wf_bar: 1.15, pf_net: 1.5, trades: 100, assets_go: 3,
+      qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 0 }
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain(candidate))
+      .mockReturnValueOnce(mockChain(null, { message: 'campaign not found' }))
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toBeNull()
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getProvenanceForBot]'),
+      expect.stringContaining('campaign not found'),
+    )
+    errSpy.mockRestore()
+  })
+
+  it('orders by rank ascending and takes one row instead of erroring on multiple candidates', async () => {
+    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: [], null_pct: 95,
+      dd: 10, dd_limit: 20, wf_oos: 1.2, wf_bar: 1.15, pf_net: 1.5, trades: 100, assets_go: 3,
+      qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 0 }
+    const candidateChain = mockChain(candidate)
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(candidateChain)
+      .mockReturnValueOnce(mockChain(cell()))
+
+    await getProvenanceForBot('v1-spot')
+    expect(candidateChain.order).toHaveBeenCalledWith('rank', { ascending: true })
+    expect(candidateChain.limit).toHaveBeenCalledWith(1)
   })
 })

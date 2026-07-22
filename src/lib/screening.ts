@@ -51,6 +51,23 @@ function fr(n: number): string {
 }
 
 /**
+ * French thousands separator. toLocaleString('fr-FR') groups with a narrow no-break space
+ * (U+202F), sometimes falling back to a regular no-break space (U+00A0) depending on the
+ * runtime's ICU data. Both are normalised to the canonical U+202F so every renderer of a
+ * screening count is guaranteed the same character regardless of the runtime.
+ *
+ * Single source of truth for this: a previous per-component copy in ScreeningDossier.tsx used a
+ * character class of three plain ASCII spaces instead of the non-breaking variants, so its
+ * `.replace()` never matched anything — invisible in the DOM because Testing Library's
+ * whitespace normaliser treats every space variant as equivalent, so the component's own test
+ * passed anyway (see tests/lib/screening.test.ts's `count` suite, which pins the real codepoint).
+ */
+export function count(n: number | null): string {
+  if (n === null || n === undefined) return '—'
+  return n.toLocaleString('fr-FR').replace(/[\u00a0\u202f]/g, '\u202f')
+}
+
+/**
  * The cell's one-line state. Never leaks GO_PAPER/MARGINAL/NO_GO, and never says
  * "survivants" — a zero is stated as a result, not as an absence (spec section 4.1).
  */
@@ -107,13 +124,26 @@ export async function getProvenanceForBot(slug: string): Promise<{
   candidate: ScreeningCandidate
 } | null> {
   try {
+    // .order + .limit(1) instead of relying on at-most-one-row: if a bot is ever re-screened
+    // into two candidate rows, .maybeSingle() alone would throw a Supabase "multiple rows"
+    // error and silently drop the whole provenance block. Ordering by rank picks the best
+    // candidate deterministically instead.
     const { data: candidate, error: e1 } = await supabase
-      .from('screening_candidates').select('*').eq('bot_slug', slug).maybeSingle()
-    if (e1 || !candidate) return null
+      .from('screening_candidates').select('*').eq('bot_slug', slug)
+      .order('rank', { ascending: true }).limit(1).maybeSingle()
+    if (e1) {
+      console.error('[getProvenanceForBot] candidate lookup failed', e1.message)
+      return null
+    }
+    if (!candidate) return null
 
     const { data: campaign, error: e2 } = await supabase
       .from('screening_campaigns').select('*').eq('id', candidate.campaign_id).maybeSingle()
-    if (e2 || !campaign) return null
+    if (e2) {
+      console.error('[getProvenanceForBot] campaign lookup failed', e2.message)
+      return null
+    }
+    if (!campaign) return null
 
     return { campaign: campaign as ScreeningCampaign, candidate: candidate as ScreeningCandidate }
   } catch (e) {

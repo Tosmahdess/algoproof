@@ -1,11 +1,5 @@
 // src/components/ScreeningDossier.tsx
-import { marginLabel, type ScreeningCampaign, type ScreeningCandidate } from '@/lib/screening'
-
-/** French number grouping — see ScreeningGrid.tsx for the narrow no-break space rationale. */
-function count(n: number | null): string {
-  if (n === null || n === undefined) return '—'
-  return n.toLocaleString('fr-FR').replace(/[   ]/g, ' ')
-}
+import { marginLabel, count, type ScreeningCampaign, type ScreeningCandidate } from '@/lib/screening'
 
 function fr(n: number): string {
   return String(n).replace('.', ',')

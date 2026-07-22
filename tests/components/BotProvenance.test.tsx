@@ -17,7 +17,7 @@ describe('BotProvenance', () => {
   it("states the origin campaign, its scale and this bot's margin", () => {
     render(<BotProvenance campaign={campaign} candidate={candidate} />)
     const t = screen.getByTestId('provenance').textContent ?? ''
-    expect(t).toMatch(/73 770 configurations jugées/)
+    expect(t).toMatch(new RegExp(`73\u202f770 configurations jugées`))
     expect(t).toMatch(/2 retenues/)
     expect(t).toMatch(/95,16 pour une barre à 95/)
     expect(t).toMatch(/22\/07\/2026|2026-07-22/)
