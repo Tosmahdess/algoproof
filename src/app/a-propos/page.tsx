@@ -10,7 +10,7 @@ const PIECES = [
   { href: '/overview',     title: 'Mes bots',   desc: 'Des bots qui tradent en conditions réelles. Chaque trade est public, gains comme pertes.' },
   { href: '/labo',         title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
   { href: '/wealth',       title: 'Investir',   desc: 'Mon accumulation long terme (DCA) sur la crypto, les ETF et les actions, en transparence.' },
-  { href: '/intelligence', title: 'Le marché',  desc: 'La météo du marché que je calcule chaque jour : risque ON ou OFF, en français.' },
+  { href: '/intelligence', title: 'Météo du marché', desc: 'La météo du marché que je calcule chaque jour : risque ON ou OFF, en français.' },
   { href: '/blog',         title: 'Apprendre',  desc: 'Mon journal, ma méthode, la fiscalité et la conformité MiCA — tout est documenté.' },
 ]
 

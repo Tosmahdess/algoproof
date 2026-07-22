@@ -5,8 +5,8 @@ import Footer from '@/components/Footer'
 describe('Footer sitemap', () => {
   it('renders all 5 hub column titles', () => {
     render(<Footer />)
-    for (const t of ['Mes bots', 'Investir', 'Le marché', 'Apprendre', 'Le labo']) {
-      expect(screen.getByText(t)).toBeDefined()
+    for (const t of ['Mes bots', 'Investir', 'Météo du marché', 'Apprendre', 'Le labo']) {
+      expect(screen.getByRole('heading', { name: t, level: 3 })).toBeDefined()
     }
   })
 
