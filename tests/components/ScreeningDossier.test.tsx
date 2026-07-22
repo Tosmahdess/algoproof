@@ -55,4 +55,42 @@ describe('ScreeningDossier', () => {
       n_rejected: 374, n_marginal: 0, n_candidates: 0 }} candidates={[]} />)
     expect(screen.getByText(/c'est un résultat, pas un échec/i)).toBeTruthy()
   })
+
+  it('handles an empty intersection without claiming a shared asset', () => {
+    const noOverlap = [
+      candidates[0],
+      { ...candidates[1], qualified_assets: ['SUI', 'ADA', 'NEAR', 'UNI', 'LINK', 'SOL'] },
+    ]
+    const { container } = render(<ScreeningDossier campaign={campaign} candidates={noOverlap} />)
+    expect(screen.getByTestId('exhibit-intersection').textContent).toMatch(/aucun/i)
+    expect(container.innerHTML).not.toMatch(/cet actif/)
+    // must not assert a one-name intersection when there is none
+    expect(container.textContent).not.toMatch(/intersection d'un seul nom/i)
+  })
+
+  it('names the shared asset when the intersection is exactly one', () => {
+    render(<ScreeningDossier campaign={campaign} candidates={candidates} />)
+    const exhibit = screen.getByTestId('exhibit-intersection')
+    expect(exhibit.textContent).toMatch(/BTC/)
+    expect(document.body.textContent).toMatch(/intersection d'un seul nom/i)
+  })
+
+  it('names both shared assets when the intersection is two or more', () => {
+    const twoOverlap = [
+      candidates[0],
+      { ...candidates[1], qualified_assets: ['SUI', 'ADA', 'NEAR', 'BTC', 'GALA', 'SOL'] },
+    ]
+    render(<ScreeningDossier campaign={campaign} candidates={twoOverlap} />)
+    const exhibit = screen.getByTestId('exhibit-intersection')
+    expect(exhibit.textContent).toMatch(/BTC/)
+    expect(exhibit.textContent).toMatch(/GALA/)
+    expect(document.body.textContent).toMatch(/intersection de 2 noms/i)
+  })
+
+  it('derives the per-asset trade density from trades and assets_go instead of a hardcoded figure', () => {
+    render(<ScreeningDossier campaign={campaign} candidates={candidates} />)
+    // fixture: (249 + 221) trades / (6 + 6) assets_go = 39.1(6) -> 39
+    expect(document.body.textContent).toMatch(/environ 39 trades par actif/i)
+    expect(document.body.textContent).not.toMatch(/huit trades par actif/i)
+  })
 })

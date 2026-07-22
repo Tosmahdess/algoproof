@@ -23,10 +23,13 @@ export default async function StrategyFamilyPage(
   const { campaigns, candidates, events } = await getStrategyDossier(base)
   if (campaigns.length === 0) notFound()
 
-  const ordered = [...campaigns].sort(
-    (a, b) => TF_ORDER.indexOf(a.tf as (typeof TF_ORDER)[number]) -
-      TF_ORDER.indexOf(b.tf as (typeof TF_ORDER)[number]),
-  )
+  // Unknown timeframes (not in TF_ORDER) sort last rather than first: indexOf's -1 for a miss
+  // would otherwise outrank D1 (index 0).
+  const tfRank = (tf: string) => {
+    const idx = TF_ORDER.indexOf(tf as (typeof TF_ORDER)[number])
+    return idx === -1 ? TF_ORDER.length : idx
+  }
+  const ordered = [...campaigns].sort((a, b) => tfRank(a.tf) - tfRank(b.tf))
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-10">

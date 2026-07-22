@@ -11,6 +11,51 @@ function fr(n: number): string {
   return String(n).replace('.', ',')
 }
 
+/** Oxford-style French join: "a", "a et b", "a, b et c". */
+function joinFr(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? ''
+  return `${names.slice(0, -1).join(', ')} et ${names[names.length - 1]}`
+}
+
+/**
+ * The two-candidate assets exhibit's defusing paragraph. Every quantity is derived from the
+ * candidates actually rendered — no universe size, no history span, no hardcoded overlap or
+ * trade count (those varied per dossier and were wrongly baked into prose, see review finding).
+ */
+function assetsExhibitParagraph(shared: string[], a: ScreeningCandidate, b: ScreeningCandidate): string {
+  const sizeA = a.qualified_assets.length
+  const sizeB = b.qualified_assets.length
+  const listSizePhrase = sizeA === sizeB
+    ? `deux listes de ${sizeA}`
+    : `une liste de ${sizeA} et une liste de ${sizeB}`
+
+  let opening: string
+  if (shared.length === 0) {
+    opening = `Et ce n'est pas non plus un signal : une intersection vide entre ${listSizePhrase}, ` +
+      `c'est exactement ce que produit un tirage aléatoire — la preuve, s'il en fallait une, ` +
+      `qu'aucune des deux configurations ne « sait » quels actifs choisir.`
+  } else if (shared.length === 1) {
+    opening = `Et non, cela ne fait pas de ${shared[0]} une valeur sûre validée deux fois : une ` +
+      `intersection d'un seul nom entre ${listSizePhrase}, c'est exactement ce que le hasard prédit.`
+  } else {
+    opening = `Et non, cela ne fait pas de ${joinFr(shared)} des valeurs sûres validées deux fois : ` +
+      `une intersection de ${shared.length} noms entre ${listSizePhrase}, c'est exactement ce ` +
+      `que le hasard prédit.`
+  }
+
+  let densityClause = ''
+  if (a.trades !== null && b.trades !== null && a.assets_go && b.assets_go) {
+    const density = Math.round((a.trades + b.trades) / (a.assets_go + b.assets_go))
+    densityClause = ` La cause est arithmétique — environ ${density} trade${density === 1 ? '' : 's'}` +
+      ` par actif sur la période mesurée.`
+  }
+
+  const closing = ` C'est pourquoi les deux bots en observation tradent tout l'univers testé : ` +
+    `la sélection se fera sur les données à venir, pas sur ce tableau.`
+
+  return opening + densityClause + closing
+}
+
 function Margin({ id, value, bar, unit, suffix }: {
   id: string; value: number | null; bar: number | null
   unit: 'pct' | 'ratio'; suffix?: string
@@ -105,14 +150,7 @@ export default function ScreeningDossier({ campaign, candidates }: {
           <p data-testid="exhibit-intersection">
             En commun : {shared.join(', ') || 'aucun'}.
           </p>
-          <p>
-            Et non, cela ne fait pas de {shared[0] ?? 'cet actif'} une valeur sûre validée deux
-            fois : une intersection d&apos;un seul nom entre deux listes de six tirées parmi trente,
-            c&apos;est <strong>exactement ce que le hasard prédit</strong>. La cause est
-            arithmétique — environ huit trades par actif sur trois ans et demi. C&apos;est pourquoi
-            les deux bots en observation tradent les trente actifs : la sélection se fera sur les
-            données à venir, pas sur ce tableau.
-          </p>
+          <p>{assetsExhibitParagraph(shared, candidates[0], candidates[1])}</p>
         </aside>
       )}
     </section>
