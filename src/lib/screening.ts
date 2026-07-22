@@ -1,8 +1,6 @@
 // src/lib/screening.ts
 import { supabase } from './supabase'
 
-export const TF_ORDER = ['D1', 'H4', 'H1', 'M30', 'M15', 'M5'] as const
-
 export type ScreeningState = 'judged' | 'running' | 'queued' | 'never'
 
 export type ScreeningCampaign = {
@@ -36,14 +34,6 @@ export type ScreeningCandidate = {
   qualified_assets: string[]
   bot_slug: string | null
   forward_trades: number
-}
-
-export type ScreeningEvent = {
-  base: string
-  tf: string
-  happened_on: string
-  kind: string
-  summary: string
 }
 
 /** French number: comma decimal separator, no trailing zeros beyond what was given. */
@@ -82,22 +72,6 @@ export function count(n: number | null): string {
 }
 
 /**
- * The cell's one-line state. Never leaks GO_PAPER/MARGINAL/NO_GO, and never says
- * "survivants" — a zero is stated as a result, not as an absence (spec section 4.1).
- */
-export function cellLabel(c: ScreeningCampaign): string {
-  if (c.state === 'running') return 'en cours'
-  if (c.state === 'queued') return 'en file'
-  if (c.state === 'never') return 'jamais testé'
-  // A judged campaign with a null count means the export failed, not that zero configurations
-  // survived — those are different facts and must not collapse into the same "0" reading.
-  if (c.n_candidates === null) return 'clos'
-  return c.n_candidates === 0
-    ? 'clos · résultat négatif'
-    : `${c.n_candidates} en observation`
-}
-
-/**
  * "95,16 pour une barre à 95" plus whether it only just clears. `tight` drives the
  * "un souffle" annotation — the margin is what carries fragility (spec section 4.3).
  * For a limit-style bar (drawdown: lower is better) tightness is measured the other way.
@@ -110,79 +84,6 @@ export function marginLabel(
   const span = unit === 'pct' ? 2 : 0.1
   const tight = Math.abs(value - bar) <= span
   return { text: `${fr(value)} pour une barre à ${fr(bar)}`, tight }
-}
-
-export type CorpusTotals = { judged: number; rejected: number; standing: number; strategies: number }
-
-/**
- * The only place the whole-corpus scale appears (spec section 2). Derived from the grid, never
- * stored: a queued or never-tested cell contributes nothing (it has not judged anything yet), and
- * a null count on a judged campaign (export failed) is treated as 0 rather than poisoning the sum
- * with NaN — the per-cell reading of that same null already distinguishes "clos" from a real zero
- * (see `cellLabel`), so this total does not need to re-litigate that distinction, it just doesn't
- * let it wreck the running sum.
- */
-export function corpusTotals(campaigns: ScreeningCampaign[]): CorpusTotals {
-  const judged = campaigns.filter((c) => c.state === 'judged')
-  return {
-    judged: judged.reduce((sum, c) => sum + (c.n_behaviors ?? 0), 0),
-    rejected: judged.reduce((sum, c) => sum + (c.n_rejected ?? 0), 0),
-    standing: judged.reduce((sum, c) => sum + (c.n_candidates ?? 0), 0),
-    strategies: new Set(judged.map((c) => c.base)).size,
-  }
-}
-
-export type CrossTf = 'isolated' | 'adjacent_coherent' | null
-
-/** True when a campaign was judged and left at least one configuration standing. */
-function hasStanding(c: ScreeningCampaign | undefined): boolean {
-  return c !== undefined && c.state === 'judged' && c.n_candidates !== null && c.n_candidates > 0
-}
-
-/**
- * Cross-timeframe coherence (spec section 9.4): an isolated result — standing on exactly one
- * timeframe with nothing standing on either immediately adjacent timeframe — is the weakest cell
- * in the rubric, easy to misread as a niche gem instead of an artefact of that one clock setting.
- * Adjacency is position in TF_ORDER, not calendar distance: D1's only neighbour is H4, M5's only
- * neighbour is M15, everything else has two. Derived from the campaigns already on the page, no
- * extra database column.
- */
-export function crossTf(campaigns: ScreeningCampaign[], tf: string): CrossTf {
-  const byTf = new Map(campaigns.map((c) => [c.tf, c]))
-  if (!hasStanding(byTf.get(tf))) return null
-
-  const idx = TF_ORDER.indexOf(tf as (typeof TF_ORDER)[number])
-  const neighbours = (idx === -1 ? [] : [TF_ORDER[idx - 1], TF_ORDER[idx + 1]])
-    .filter((n): n is (typeof TF_ORDER)[number] => n !== undefined)
-  const coherent = neighbours.some((n) => hasStanding(byTf.get(n)))
-  return coherent ? 'adjacent_coherent' : 'isolated'
-}
-
-/**
- * Gating seam. No membership system exists in this repo yet (no auth, no payments), so the
- * policy is "everything unlocked". When the membership spec lands, this is the only function
- * that changes: free = the whole grid + one demo dossier, paid = every other dossier.
- */
-export function isDossierUnlocked(_base: string, _tf: string): boolean {
-  return true
-}
-
-/**
- * Degrades to an empty grid on any Supabase error (including the tables not existing yet),
- * matching getProvenanceForBot: a missing screening grid must never break /strategies.
- */
-export async function getScreeningGrid(): Promise<ScreeningCampaign[]> {
-  try {
-    const { data, error } = await supabase.from('screening_campaigns').select('*')
-    if (error) {
-      console.error('[getScreeningGrid] fetch failed', error.message)
-      return []
-    }
-    return (data ?? []) as ScreeningCampaign[]
-  } catch (e) {
-    console.error('[getScreeningGrid] fetch threw', e)
-    return []
-  }
 }
 
 /**
@@ -224,65 +125,5 @@ export async function getProvenanceForBot(slug: string): Promise<{
   } catch (e) {
     console.error('[getProvenanceForBot] fetch threw', e)
     return null
-  }
-}
-
-const EMPTY_DOSSIER = {
-  campaigns: [] as ScreeningCampaign[],
-  candidates: {} as Record<number, ScreeningCandidate[]>,
-  events: [] as ScreeningEvent[],
-}
-
-/**
- * Degrades to an empty dossier on any Supabase error (including the tables not existing yet),
- * matching getProvenanceForBot: a missing dossier must never render the framework's English
- * error page on this French site — /strategies/famille/[base] must still render (or 404 on an
- * empty campaigns list, which the caller already treats as "not found").
- */
-export async function getStrategyDossier(base: string): Promise<{
-  campaigns: ScreeningCampaign[]
-  candidates: Record<number, ScreeningCandidate[]>
-  events: ScreeningEvent[]
-}> {
-  try {
-    const { data: campaigns, error: e1 } = await supabase
-      .from('screening_campaigns').select('*').eq('base', base)
-    if (e1) {
-      console.error('[getStrategyDossier] campaigns fetch failed', e1.message)
-      return EMPTY_DOSSIER
-    }
-
-    const ids = (campaigns ?? [])
-      .map((c: ScreeningCampaign) => c.id)
-      .filter((id): id is number => id != null)
-    const { data: cands, error: e2 } = ids.length
-      ? await supabase.from('screening_candidates').select('*').in('campaign_id', ids)
-      : { data: [], error: null }
-    if (e2) {
-      console.error('[getStrategyDossier] candidates fetch failed', e2.message)
-      return EMPTY_DOSSIER
-    }
-
-    const { data: events, error: e3 } = await supabase
-      .from('screening_events').select('*').eq('base', base).order('happened_on', { ascending: false })
-    if (e3) {
-      console.error('[getStrategyDossier] events fetch failed', e3.message)
-      return EMPTY_DOSSIER
-    }
-
-    const byCampaign: Record<number, ScreeningCandidate[]> = {}
-    for (const c of (cands ?? []) as ScreeningCandidate[]) {
-      ;(byCampaign[c.campaign_id] ??= []).push(c)
-    }
-    for (const list of Object.values(byCampaign)) list.sort((a, b) => a.rank - b.rank)
-
-    return {
-      campaigns: (campaigns ?? []) as ScreeningCampaign[],
-      candidates: byCampaign,
-      events: (events ?? []) as ScreeningEvent[],
-    }
-  } catch (e) {
-    console.error('[getStrategyDossier] fetch threw', e)
-    return EMPTY_DOSSIER
   }
 }
