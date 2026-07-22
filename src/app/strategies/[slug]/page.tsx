@@ -12,9 +12,11 @@ import ConformityCard from '@/components/ConformityCard'
 import PathToRealCard from '@/components/PathToRealCard'
 import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
+import BotProvenance from '@/components/BotProvenance'
 import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
+import { getProvenanceForBot } from '@/lib/screening'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -49,6 +51,10 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
   const changelogs = await getChangelogForBot(bot)
   const expectations = getBotExpectations(slug)
+  // Resolved by bot_slug directly (see getProvenanceForBot) — never breaks the page: it
+  // returns null both when this bot was never screened and when the screening tables
+  // don't exist yet in this environment.
+  const provenance = await getProvenanceForBot(bot.slug)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -69,6 +75,11 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux en argent réel sont marqués « live ».
         </p>
       </div>
+
+      {/* Provenance: which screening campaign this bot came from, and how narrow its margin was */}
+      {provenance && (
+        <BotProvenance campaign={provenance.campaign} candidate={provenance.candidate} />
+      )}
 
       {/* Exchange alert — Binance Futures bloqué FR */}
       <ExchangeAlert exchange={bot.exchange} />

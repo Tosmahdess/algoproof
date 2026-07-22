@@ -1,0 +1,390 @@
+// tests/lib/screening.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+vi.mock('@/lib/supabase', () => ({
+  supabase: {
+    from: vi.fn(),
+  },
+}))
+
+import { supabase } from '@/lib/supabase'
+import {
+  cellLabel, marginLabel, isDossierUnlocked, getProvenanceForBot, getScreeningGrid,
+  getStrategyDossier, count, frDate, corpusTotals, crossTf,
+  TF_ORDER, ScreeningCampaign, ScreeningState,
+} from '@/lib/screening'
+
+const mockChain = (data: unknown, error: unknown = null) => {
+  const terminal = { data, error }
+  const chain: any = {
+    then: (resolve: (v: unknown) => unknown) => Promise.resolve(terminal).then(resolve),
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockResolvedValue(terminal),
+  }
+  return chain
+}
+
+const cell = (o: Partial<ScreeningCampaign> = {}): ScreeningCampaign => ({
+  base: 'EMAcross', tf: 'H4', state: 'judged', judged_on: '2026-07-22',
+  data_dir: null, n_behaviors: 73770, n_rejected: 73744, n_marginal: 20, n_candidates: 2,
+  n_assets: 30, null_bar: 95, ...o,
+})
+
+describe('TF_ORDER', () => {
+  it('runs from the slowest to the fastest so D1 reads first', () => {
+    expect(TF_ORDER).toEqual(['D1', 'H4', 'H1', 'M30', 'M15', 'M5'])
+  })
+})
+
+describe('cellLabel', () => {
+  it('states the outcome for a closed campaign with survivors', () => {
+    expect(cellLabel(cell())).toBe('2 en observation')
+  })
+
+  it('names a zero as a result, never as an absence', () => {
+    expect(cellLabel(cell({ n_candidates: 0 }))).toBe('clos · résultat négatif')
+  })
+
+  it('distinguishes running, queued and untested', () => {
+    expect(cellLabel(cell({ state: 'running' }))).toBe('en cours')
+    expect(cellLabel(cell({ state: 'queued' }))).toBe('en file')
+    expect(cellLabel(cell({ state: 'never' }))).toBe('jamais testé')
+  })
+
+  it('never uses the internal verdict vocabulary', () => {
+    const all = (['judged', 'running', 'queued', 'never'] as ScreeningState[])
+      .map((s) => cellLabel(cell({ state: s }))).join(' ')
+    expect(all).not.toMatch(/GO_PAPER|MARGINAL|NO_GO|strong|survivant/i)
+  })
+
+  it('states a bare "clos" for a judged campaign whose count export failed, never a false zero', () => {
+    expect(cellLabel(cell({ n_candidates: null }))).toBe('clos')
+    expect(cellLabel(cell({ n_candidates: null }))).not.toBe('clos · résultat négatif')
+  })
+})
+
+describe('marginLabel', () => {
+  it('flags a value that only just clears its bar', () => {
+    const m = marginLabel(95.16, 95, 'pct')
+    expect(m.tight).toBe(true)
+    expect(m.text).toBe('95,16 pour une barre à 95')
+  })
+
+  it('does not flag a comfortable margin', () => {
+    expect(marginLabel(98.66, 95, 'pct').tight).toBe(false)
+  })
+
+  it('treats a limit-style bar (lower is better) correctly', () => {
+    expect(marginLabel(19.57, 20, 'pct').tight).toBe(true)
+    expect(marginLabel(16.81, 20, 'pct').tight).toBe(false)
+  })
+
+  it('uses the French decimal comma', () => {
+    expect(marginLabel(1.195, 1.15, 'ratio').text).toBe('1,195 pour une barre à 1,15')
+  })
+})
+
+describe('isDossierUnlocked', () => {
+  it('unlocks everything until a membership system exists', () => {
+    expect(isDossierUnlocked('EMAcross', 'H4')).toBe(true)
+    expect(isDossierUnlocked('Donchian', 'M5')).toBe(true)
+  })
+})
+
+describe('count', () => {
+  // Pins the actual codepoint, not a DOM-normalised approximation of it. toLocaleString('fr-FR')
+  // groups thousands with a narrow no-break space (U+202F) — a character class of plain ASCII
+  // spaces never matches it, which is exactly the bug that shipped in ScreeningDossier.tsx and
+  // stayed invisible because screen.getByText()'s whitespace normaliser (\s, which matches
+  // U+202F/U+00A0 too) made the broken and the fixed version look identical through the DOM.
+  // NARROW_NBSP below holds the literal U+202F character itself, typed directly into the
+  // source (not a JS unicode escape sequence) - asserting on the string directly is the
+  // only way to actually pin the exact byte a browser renders.
+  const NARROW_NBSP = ' '
+  const ASCII_SPACE = ' '
+
+  it('groups thousands with a narrow no-break space, never a plain ASCII space', () => {
+    const formatted = count(73770)
+    expect(formatted).toBe(`73${NARROW_NBSP}770`)
+    expect(formatted).toContain(NARROW_NBSP)
+    expect(formatted.includes(ASCII_SPACE)).toBe(false)
+  })
+
+  it('returns the em-dash placeholder for null', () => {
+    expect(count(null)).toBe('—')
+  })
+})
+
+describe('frDate', () => {
+  it('formats a bare YYYY-MM-DD date the French way', () => {
+    expect(frDate('2026-07-22')).toBe('22/07/2026')
+  })
+
+  it('anchors to noon UTC so no negative-offset timezone rolls the date back a day', () => {
+    expect(frDate('2026-01-01')).toBe('01/01/2026')
+  })
+
+  it('returns the em-dash placeholder for null', () => {
+    expect(frDate(null)).toBe('—')
+  })
+})
+
+describe('getProvenanceForBot', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('resolves the campaign + candidate for a bot found by slug', async () => {
+    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: ['tendance'],
+      null_pct: 95.16, dd: 19.57, dd_limit: 20, wf_oos: 1.195, wf_bar: 1.15, pf_net: 1.611,
+      trades: 249, assets_go: 6, qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 3 }
+    const campaign = cell({ base: 'EMAcross', tf: 'H4' })
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain(candidate))
+      .mockReturnValueOnce(mockChain(campaign))
+
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toEqual({ campaign, candidate })
+  })
+
+  it('returns null when the bot has no screening candidate (not screened yet, or another family)', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null))
+    const result = await getProvenanceForBot('some-other-bot')
+    expect(result).toBeNull()
+  })
+
+  it('degrades to null on a Supabase error instead of throwing (tables not created yet)', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toBeNull()
+  })
+
+  it('degrades to null when the candidate exists but its campaign lookup fails', async () => {
+    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: [], null_pct: 95,
+      dd: 10, dd_limit: 20, wf_oos: 1.2, wf_bar: 1.15, pf_net: 1.5, trades: 100, assets_go: 3,
+      qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 0 }
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain(candidate))
+      .mockReturnValueOnce(mockChain(null, { message: 'not found' }))
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toBeNull()
+  })
+
+  it('logs the Supabase error before degrading to null on the candidate lookup', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toBeNull()
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getProvenanceForBot]'),
+      expect.stringContaining('relation does not exist'),
+    )
+    errSpy.mockRestore()
+  })
+
+  it('logs the Supabase error before degrading to null on the campaign lookup', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: [], null_pct: 95,
+      dd: 10, dd_limit: 20, wf_oos: 1.2, wf_bar: 1.15, pf_net: 1.5, trades: 100, assets_go: 3,
+      qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 0 }
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain(candidate))
+      .mockReturnValueOnce(mockChain(null, { message: 'campaign not found' }))
+    const result = await getProvenanceForBot('v1-spot')
+    expect(result).toBeNull()
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getProvenanceForBot]'),
+      expect.stringContaining('campaign not found'),
+    )
+    errSpy.mockRestore()
+  })
+
+  it('orders by rank ascending and takes one row instead of erroring on multiple candidates', async () => {
+    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: [], null_pct: 95,
+      dd: 10, dd_limit: 20, wf_oos: 1.2, wf_bar: 1.15, pf_net: 1.5, trades: 100, assets_go: 3,
+      qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 0 }
+    const candidateChain = mockChain(candidate)
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(candidateChain)
+      .mockReturnValueOnce(mockChain(cell()))
+
+    await getProvenanceForBot('v1-spot')
+    expect(candidateChain.order).toHaveBeenCalledWith('rank', { ascending: true })
+    expect(candidateChain.limit).toHaveBeenCalledWith(1)
+  })
+})
+
+describe('getScreeningGrid', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns the grid on success', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain([cell()]))
+    const result = await getScreeningGrid()
+    expect(result).toEqual([cell()])
+  })
+
+  it('degrades to an empty grid on a Supabase error instead of throwing (tables not created yet)', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
+    const result = await getScreeningGrid()
+    expect(result).toEqual([])
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getScreeningGrid]'),
+      expect.stringContaining('relation does not exist'),
+    )
+    errSpy.mockRestore()
+  })
+})
+
+describe('getStrategyDossier', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('degrades to an empty dossier on a Supabase error instead of throwing (tables not created yet)', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
+    const result = await getStrategyDossier('EMAcross')
+    expect(result).toEqual({ campaigns: [], candidates: {}, events: [] })
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getStrategyDossier]'),
+      expect.stringContaining('relation does not exist'),
+    )
+    errSpy.mockRestore()
+  })
+
+  it('degrades to an empty dossier when the candidates fetch fails', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain([cell({ id: 7 })]))
+      .mockReturnValueOnce(mockChain(null, { message: 'candidates unreachable' }))
+    const result = await getStrategyDossier('EMAcross')
+    expect(result).toEqual({ campaigns: [], candidates: {}, events: [] })
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getStrategyDossier]'),
+      expect.stringContaining('candidates unreachable'),
+    )
+    errSpy.mockRestore()
+  })
+
+  it('degrades to an empty dossier when the events fetch fails', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain([cell({ id: 7 })]))
+      .mockReturnValueOnce(mockChain([]))
+      .mockReturnValueOnce(mockChain(null, { message: 'events unreachable' }))
+    const result = await getStrategyDossier('EMAcross')
+    expect(result).toEqual({ campaigns: [], candidates: {}, events: [] })
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getStrategyDossier]'),
+      expect.stringContaining('events unreachable'),
+    )
+    errSpy.mockRestore()
+  })
+})
+
+describe('corpusTotals', () => {
+  it('returns all zeros for an empty grid', () => {
+    expect(corpusTotals([])).toEqual({ judged: 0, rejected: 0, standing: 0, strategies: 0 })
+  })
+
+  it('sums n_behaviors/n_rejected/n_candidates across judged campaigns only', () => {
+    const campaigns = [
+      cell({ base: 'EMAcross', tf: 'H4', state: 'judged', n_behaviors: 73770, n_rejected: 73744, n_candidates: 2 }),
+      cell({ base: 'EMAcross', tf: 'D1', state: 'judged', n_behaviors: 374, n_rejected: 374, n_candidates: 0 }),
+      cell({ base: 'Donchian', tf: 'H4', state: 'running', n_behaviors: 999, n_rejected: 999, n_candidates: 5 }),
+      cell({ base: 'Donchian', tf: 'M15', state: 'queued', n_behaviors: 999, n_rejected: 999, n_candidates: 5 }),
+      cell({ base: 'Donchian', tf: 'M5', state: 'never', n_behaviors: null, n_rejected: null, n_candidates: null }),
+    ]
+    expect(corpusTotals(campaigns)).toEqual({ judged: 74144, rejected: 74118, standing: 2, strategies: 1 })
+  })
+
+  it('treats null counts on a judged campaign as zero instead of poisoning the sum with NaN', () => {
+    const campaigns = [
+      cell({ base: 'EMAcross', tf: 'H4', state: 'judged', n_behaviors: null, n_rejected: null, n_candidates: null }),
+      cell({ base: 'Donchian', tf: 'H4', state: 'judged', n_behaviors: 100, n_rejected: 90, n_candidates: 10 }),
+    ]
+    expect(corpusTotals(campaigns)).toEqual({ judged: 100, rejected: 90, standing: 10, strategies: 2 })
+  })
+
+  it('counts distinct base values among judged campaigns only', () => {
+    const campaigns = [
+      cell({ base: 'EMAcross', tf: 'H4', state: 'judged' }),
+      cell({ base: 'EMAcross', tf: 'D1', state: 'judged' }),
+      cell({ base: 'Donchian', tf: 'H4', state: 'judged' }),
+      cell({ base: 'ATRChannel', tf: 'H4', state: 'never', n_behaviors: null, n_rejected: null, n_candidates: null }),
+    ]
+    expect(corpusTotals(campaigns).strategies).toBe(2)
+  })
+})
+
+describe('crossTf', () => {
+  const withStanding = (base: string, tf: string, n: number) =>
+    cell({ base, tf, state: 'judged' as const, n_candidates: n })
+  const untested = (base: string, tf: string) =>
+    cell({ base, tf, state: 'never' as const, n_behaviors: null, n_rejected: null, n_candidates: null })
+
+  it('returns null when the timeframe itself is not judged', () => {
+    const campaigns = [untested('EMAcross', 'H4'), withStanding('EMAcross', 'H1', 3)]
+    expect(crossTf(campaigns, 'H4')).toBeNull()
+  })
+
+  it('returns null when the timeframe is judged but has no standing configuration', () => {
+    const campaigns = [
+      withStanding('EMAcross', 'H4', 0),
+      withStanding('EMAcross', 'H1', 3),
+    ]
+    expect(crossTf(campaigns, 'H4')).toBeNull()
+  })
+
+  it('returns isolated when no immediately adjacent timeframe has anything standing', () => {
+    const campaigns = [
+      withStanding('EMAcross', 'H4', 2),
+      untested('EMAcross', 'D1'),
+      withStanding('EMAcross', 'H1', 0),
+    ]
+    expect(crossTf(campaigns, 'H4')).toBe('isolated')
+  })
+
+  it('returns adjacent_coherent when an immediately adjacent timeframe also has something standing', () => {
+    const campaigns = [
+      withStanding('EMAcross', 'H4', 2),
+      withStanding('EMAcross', 'H1', 1),
+    ]
+    expect(crossTf(campaigns, 'H4')).toBe('adjacent_coherent')
+  })
+
+  it('ignores a non-adjacent timeframe with standing configurations (H4 is not adjacent to M30)', () => {
+    const campaigns = [
+      withStanding('EMAcross', 'H4', 2),
+      withStanding('EMAcross', 'M30', 1),
+      untested('EMAcross', 'D1'),
+      untested('EMAcross', 'H1'),
+    ]
+    expect(crossTf(campaigns, 'H4')).toBe('isolated')
+  })
+
+  it("recognises both of H1's neighbours (H4 and M30)", () => {
+    const viaH4 = [withStanding('EMAcross', 'H1', 2), withStanding('EMAcross', 'H4', 1), untested('EMAcross', 'M30')]
+    expect(crossTf(viaH4, 'H1')).toBe('adjacent_coherent')
+
+    const viaM30 = [withStanding('EMAcross', 'H1', 2), untested('EMAcross', 'H4'), withStanding('EMAcross', 'M30', 1)]
+    expect(crossTf(viaM30, 'H1')).toBe('adjacent_coherent')
+  })
+
+  it("D1's only neighbour is H4 (edge of TF_ORDER)", () => {
+    const isolated = [withStanding('EMAcross', 'D1', 1), withStanding('EMAcross', 'H1', 1)]
+    expect(crossTf(isolated, 'D1')).toBe('isolated')
+
+    const coherent = [withStanding('EMAcross', 'D1', 1), withStanding('EMAcross', 'H4', 1)]
+    expect(crossTf(coherent, 'D1')).toBe('adjacent_coherent')
+  })
+
+  it("M5's only neighbour is M15 (edge of TF_ORDER)", () => {
+    const isolated = [withStanding('EMAcross', 'M5', 1), withStanding('EMAcross', 'M30', 1)]
+    expect(crossTf(isolated, 'M5')).toBe('isolated')
+
+    const coherent = [withStanding('EMAcross', 'M5', 1), withStanding('EMAcross', 'M15', 1)]
+    expect(crossTf(coherent, 'M5')).toBe('adjacent_coherent')
+  })
+})

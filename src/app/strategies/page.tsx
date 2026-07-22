@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { getAllBotsWithStats } from '@/lib/queries'
+import { getScreeningGrid } from '@/lib/screening'
 import StrategiesClient from '@/components/StrategiesClient'
+import ScreeningGrid from '@/components/ScreeningGrid'
 import FaqAccordion from '@/components/FaqAccordion'
 
 export const revalidate = 300
@@ -19,9 +21,17 @@ const FAQ_ITEMS = [
 ]
 
 export default async function StrategiesPage() {
-  const bots = await getAllBotsWithStats()
+  const [bots, campaigns] = await Promise.all([getAllBotsWithStats(), getScreeningGrid()])
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 space-y-12">
+      {campaigns.length > 0 && (
+        <section>
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-widest mb-4">
+            Ce que j&apos;ai testé, et ce qui en reste
+          </h2>
+          <ScreeningGrid campaigns={campaigns} />
+        </section>
+      )}
       <StrategiesClient bots={bots} />
       <section>
         <h2 className="text-sm font-semibold text-muted uppercase tracking-widest mb-4">
