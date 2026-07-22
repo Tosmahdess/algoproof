@@ -43,7 +43,8 @@ export default async function StrategyFamilyPage(
 
       {ordered.map((c) =>
         c.state === 'judged' && isDossierUnlocked(c.base, c.tf) ? (
-          <ScreeningDossier key={c.tf} campaign={c} candidates={candidates[c.id!] ?? []} />
+          <ScreeningDossier key={c.tf} campaign={c} candidates={candidates[c.id!] ?? []}
+                            siblings={campaigns} />
         ) : null,
       )}
 

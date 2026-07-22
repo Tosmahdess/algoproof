@@ -112,6 +112,52 @@ export function marginLabel(
   return { text: `${fr(value)} pour une barre à ${fr(bar)}`, tight }
 }
 
+export type CorpusTotals = { judged: number; rejected: number; standing: number; strategies: number }
+
+/**
+ * The only place the whole-corpus scale appears (spec section 2). Derived from the grid, never
+ * stored: a queued or never-tested cell contributes nothing (it has not judged anything yet), and
+ * a null count on a judged campaign (export failed) is treated as 0 rather than poisoning the sum
+ * with NaN — the per-cell reading of that same null already distinguishes "clos" from a real zero
+ * (see `cellLabel`), so this total does not need to re-litigate that distinction, it just doesn't
+ * let it wreck the running sum.
+ */
+export function corpusTotals(campaigns: ScreeningCampaign[]): CorpusTotals {
+  const judged = campaigns.filter((c) => c.state === 'judged')
+  return {
+    judged: judged.reduce((sum, c) => sum + (c.n_behaviors ?? 0), 0),
+    rejected: judged.reduce((sum, c) => sum + (c.n_rejected ?? 0), 0),
+    standing: judged.reduce((sum, c) => sum + (c.n_candidates ?? 0), 0),
+    strategies: new Set(judged.map((c) => c.base)).size,
+  }
+}
+
+export type CrossTf = 'isolated' | 'adjacent_coherent' | null
+
+/** True when a campaign was judged and left at least one configuration standing. */
+function hasStanding(c: ScreeningCampaign | undefined): boolean {
+  return c !== undefined && c.state === 'judged' && c.n_candidates !== null && c.n_candidates > 0
+}
+
+/**
+ * Cross-timeframe coherence (spec section 9.4): an isolated result — standing on exactly one
+ * timeframe with nothing standing on either immediately adjacent timeframe — is the weakest cell
+ * in the rubric, easy to misread as a niche gem instead of an artefact of that one clock setting.
+ * Adjacency is position in TF_ORDER, not calendar distance: D1's only neighbour is H4, M5's only
+ * neighbour is M15, everything else has two. Derived from the campaigns already on the page, no
+ * extra database column.
+ */
+export function crossTf(campaigns: ScreeningCampaign[], tf: string): CrossTf {
+  const byTf = new Map(campaigns.map((c) => [c.tf, c]))
+  if (!hasStanding(byTf.get(tf))) return null
+
+  const idx = TF_ORDER.indexOf(tf as (typeof TF_ORDER)[number])
+  const neighbours = (idx === -1 ? [] : [TF_ORDER[idx - 1], TF_ORDER[idx + 1]])
+    .filter((n): n is (typeof TF_ORDER)[number] => n !== undefined)
+  const coherent = neighbours.some((n) => hasStanding(byTf.get(n)))
+  return coherent ? 'adjacent_coherent' : 'isolated'
+}
+
 /**
  * Gating seam. No membership system exists in this repo yet (no auth, no payments), so the
  * policy is "everything unlocked". When the membership spec lands, this is the only function

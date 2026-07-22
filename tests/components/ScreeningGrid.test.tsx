@@ -67,4 +67,48 @@ describe('ScreeningGrid', () => {
     expect(screen.getByText(/22\/07\/2026/)).toBeTruthy()
     expect(screen.queryByText(/2026-07-22/)).toBeNull()
   })
+
+  it('renders the three corpus-wide counters above the framing line', () => {
+    render(<ScreeningGrid campaigns={campaigns} />)
+    // fixture: D1 (374 behaviors, 374 rejected, 0 standing) + H4 (73770, 73744, 2 standing),
+    // M15 is judged but n_candidates is null (export failed) -> its 500/490 still count as
+    // judged/rejected, its null n_candidates contributes 0 to standing.
+    // judged = 374 + 73770 + 500 = 74644 ; rejected = 374 + 73744 + 490 = 74608 ; standing = 0+2+0 = 2
+    // U+202F narrow no-break space — same convention as `count()` (see tests/lib/screening.test.ts).
+    expect(screen.getByTestId('corpus-judged').textContent).toBe('74 644')
+    expect(screen.getByTestId('corpus-rejected').textContent).toBe('74 608')
+    expect(screen.getByTestId('corpus-standing').textContent).toBe('2')
+    expect(screen.getByTestId('corpus-strategies-label').textContent).toMatch(/1 stratégie\b/)
+    expect(screen.getByTestId('corpus-framing').textContent).toMatch(/J'ai jugé 74 644 configurations sur 1 stratégie/)
+    expect(screen.getByTestId('corpus-framing').textContent).toMatch(/J'en ai rejeté 74 608/)
+    expect(screen.getByTestId('corpus-framing').textContent).toMatch(/Il en reste 2 en observation/)
+  })
+
+  it('renders the three counters with identical visual weight (same className)', () => {
+    render(<ScreeningGrid campaigns={campaigns} />)
+    const judged = screen.getByTestId('corpus-judged')
+    const rejected = screen.getByTestId('corpus-rejected')
+    const standing = screen.getByTestId('corpus-standing')
+    expect(rejected.className).toBe(judged.className)
+    expect(standing.className).toBe(judged.className)
+  })
+
+  it('renders the corpus counters as all zeros when the grid is empty', () => {
+    render(<ScreeningGrid campaigns={[]} />)
+    expect(screen.getByTestId('corpus-judged').textContent).toBe('0')
+    expect(screen.getByTestId('corpus-rejected').textContent).toBe('0')
+    expect(screen.getByTestId('corpus-standing').textContent).toBe('0')
+  })
+
+  it('excludes non-judged campaigns from the corpus counters', () => {
+    const onlyQueued = [
+      { base: 'Donchian', tf: 'H4', state: 'queued' as const, judged_on: null,
+        data_dir: null, n_behaviors: null, n_rejected: null, n_marginal: null,
+        n_candidates: null, n_assets: null, null_bar: null },
+    ]
+    render(<ScreeningGrid campaigns={onlyQueued} />)
+    expect(screen.getByTestId('corpus-judged').textContent).toBe('0')
+    expect(screen.getByTestId('corpus-rejected').textContent).toBe('0')
+    expect(screen.getByTestId('corpus-standing').textContent).toBe('0')
+  })
 })

@@ -1,12 +1,39 @@
 import Link from 'next/link'
-import { TF_ORDER, cellLabel, count, frDate, type ScreeningCampaign } from '@/lib/screening'
+import { TF_ORDER, cellLabel, corpusTotals, count, frDate, type ScreeningCampaign } from '@/lib/screening'
+
+/** Shared className so the three corpus counters carry identical visual weight — the rejected
+ * count is the point of the site and must never read smaller than the standing count. */
+const CORPUS_NUMBER_CLASS = 'text-3xl font-mono font-semibold tabular-nums'
 
 export default function ScreeningGrid({ campaigns }: { campaigns: ScreeningCampaign[] }) {
   const bases = Array.from(new Set(campaigns.map((c) => c.base))).sort()
   const byKey = new Map(campaigns.map((c) => [`${c.base}|${c.tf}`, c]))
+  const totals = corpusTotals(campaigns)
 
   return (
     <section className="space-y-6">
+      {/* The only place the whole-corpus scale appears (spec section 2). */}
+      <div className="grid grid-cols-3 gap-4 rounded-lg border border-border p-4 text-center">
+        <div className="space-y-1">
+          <div data-testid="corpus-judged" className={CORPUS_NUMBER_CLASS}>{count(totals.judged)}</div>
+          <div data-testid="corpus-strategies-label" className="text-xs text-muted uppercase tracking-widest">
+            configurations jugées ({count(totals.strategies)} stratégie{totals.strategies > 1 ? 's' : ''})
+          </div>
+        </div>
+        <div className="space-y-1">
+          <div data-testid="corpus-rejected" className={CORPUS_NUMBER_CLASS}>{count(totals.rejected)}</div>
+          <div className="text-xs text-muted uppercase tracking-widest">rejetées</div>
+        </div>
+        <div className="space-y-1">
+          <div data-testid="corpus-standing" className={CORPUS_NUMBER_CLASS}>{count(totals.standing)}</div>
+          <div className="text-xs text-muted uppercase tracking-widest">en observation</div>
+        </div>
+      </div>
+      <p data-testid="corpus-framing" className="text-sm">
+        J&apos;ai jugé {count(totals.judged)} configurations sur {count(totals.strategies)}
+        {' '}stratégie{totals.strategies > 1 ? 's' : ''}. J&apos;en ai rejeté {count(totals.rejected)}.
+        {' '}Il en reste {count(totals.standing)} en observation.
+      </p>
       <p className="text-sm text-muted">
         Chaque ligne est une stratégie, chaque colonne un horizon de temps. Rien ici ne réagit
         au marché d&apos;aujourd&apos;hui : ce qui bouge, c&apos;est la mesure, pas le marché.

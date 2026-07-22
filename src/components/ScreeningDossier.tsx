@@ -1,5 +1,8 @@
 // src/components/ScreeningDossier.tsx
-import { marginLabel, count, fr, frDate, type ScreeningCampaign, type ScreeningCandidate } from '@/lib/screening'
+import {
+  crossTf, marginLabel, count, fr, frDate, TF_ORDER,
+  type ScreeningCampaign, type ScreeningCandidate,
+} from '@/lib/screening'
 
 /** Oxford-style French join: "a", "a et b", "a, b et c". */
 function joinFr(names: string[]): string {
@@ -60,6 +63,54 @@ function assetsExhibitParagraph(
   return opening + densityClause + closing
 }
 
+/**
+ * Cross-timeframe coherence (spec section 9.4): an isolated result is the weakest cell in the
+ * rubric, but reads to a naive visitor as a niche gem, so it must be impossible to miss — placed
+ * directly under the funnel box, read before any candidate card, never behind a tab or footnote.
+ * Renders nothing when `crossTf` finds nothing to qualify (queued/untested timeframe, or a judged
+ * timeframe with no standing configuration of its own).
+ */
+function CrossTfNote({ campaign, siblings }: {
+  campaign: ScreeningCampaign
+  siblings: ScreeningCampaign[]
+}) {
+  const verdict = crossTf(siblings, campaign.tf)
+  if (verdict === null) return null
+
+  if (verdict === 'isolated') {
+    return (
+      <p data-testid="cross-tf-note" className="text-sm">
+        Ce résultat ne tient qu&apos;à cet horizon de temps : aux horizons voisins, rien ne tient.
+        {' '}C&apos;est le cas de figure le plus fragile — un edge réel survit rarement à un seul
+        {' '}réglage d&apos;horloge.
+      </p>
+    )
+  }
+
+  // adjacent_coherent: name which neighbour(s) also have something standing, so the reader sees
+  // the actual evidence instead of a bare label.
+  const idx = TF_ORDER.indexOf(campaign.tf as (typeof TF_ORDER)[number])
+  const neighbourTfs = (idx === -1 ? [] : [TF_ORDER[idx - 1], TF_ORDER[idx + 1]])
+    .filter((tf): tf is (typeof TF_ORDER)[number] => tf !== undefined)
+  const bySibling = new Map(siblings.map((s) => [s.tf, s]))
+  const coherentNeighbours = neighbourTfs.filter((tf) => {
+    const s = bySibling.get(tf)
+    return s !== undefined && s.state === 'judged' && s.n_candidates !== null && s.n_candidates > 0
+  })
+  const plural = coherentNeighbours.length > 1
+  const subject = plural
+    ? `Les horizons ${joinFr(coherentNeighbours)}, voisins de celui-ci,`
+    : `L'horizon ${coherentNeighbours[0]}, voisin de celui-ci,`
+  const verb = plural ? 'ont eux aussi' : 'a lui aussi'
+
+  return (
+    <p data-testid="cross-tf-note" className="text-sm">
+      {subject} {verb} une configuration en observation : ce résultat n&apos;est pas isolé à un
+      {' '}seul réglage d&apos;horloge.
+    </p>
+  )
+}
+
 function Margin({ id, value, bar, unit, suffix }: {
   id: string; value: number | null; bar: number | null
   unit: 'pct' | 'ratio'; suffix?: string
@@ -74,9 +125,10 @@ function Margin({ id, value, bar, unit, suffix }: {
   )
 }
 
-export default function ScreeningDossier({ campaign, candidates }: {
+export default function ScreeningDossier({ campaign, candidates, siblings }: {
   campaign: ScreeningCampaign
   candidates: ScreeningCandidate[]
+  siblings: ScreeningCampaign[]
 }) {
   const shared = candidates.length === 2
     ? candidates[0].qualified_assets.filter((a) => candidates[1].qualified_assets.includes(a))
@@ -114,6 +166,8 @@ export default function ScreeningDossier({ campaign, candidates }: {
         )}
         <div className="pl-4">└─ {count(campaign.n_candidates)} encore debout</div>
       </div>
+
+      <CrossTfNote campaign={campaign} siblings={siblings} />
 
       {campaign.n_candidates === 0 ? (
         <p className="text-sm">
