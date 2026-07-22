@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { marginLabel, count, frDate, type ScreeningCampaign, type ScreeningCandidate } from '@/lib/screening'
 
 export default function BotProvenance({ campaign, candidate }: {
@@ -19,9 +18,14 @@ export default function BotProvenance({ campaign, candidate }: {
         {margin ? ` Celle-ci tient sa barre de hasard à ${margin.text}${margin.tight ? ' — un souffle' : ''}.` : ''}
         {' '}Elle est en observation — {candidate.forward_trades} trade{candidate.forward_trades > 1 ? 's' : ''} forward à ce jour.
       </p>
-      <Link href={`/strategies/famille/${campaign.base}`} className="text-accent hover:underline">
+      <a
+        href={`https://lab.algoproof.fr/moteur-backtest/${campaign.base}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-accent hover:underline"
+      >
         Voir le dossier complet →
-      </Link>
+      </a>
     </aside>
   )
 }

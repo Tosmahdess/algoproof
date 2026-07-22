@@ -23,9 +23,12 @@ describe('BotProvenance', () => {
     expect(t).toMatch(/22\/07\/2026|2026-07-22/)
   })
 
-  it('links back to the dossier', () => {
+  it('links back to the dossier in the lab', () => {
     render(<BotProvenance campaign={campaign} candidate={candidate} />)
-    expect(screen.getByRole('link').getAttribute('href')).toBe('/strategies/famille/EMAcross')
+    const link = screen.getByRole('link')
+    expect(link.getAttribute('href')).toBe('https://lab.algoproof.fr/moteur-backtest/EMAcross')
+    expect(link.getAttribute('target')).toBe('_blank')
+    expect(link.getAttribute('rel')).toBe('noopener noreferrer')
   })
 
   it('never claims the bot is validated', () => {

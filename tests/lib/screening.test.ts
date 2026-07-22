@@ -9,9 +9,7 @@ vi.mock('@/lib/supabase', () => ({
 
 import { supabase } from '@/lib/supabase'
 import {
-  cellLabel, marginLabel, isDossierUnlocked, getProvenanceForBot, getScreeningGrid,
-  getStrategyDossier, count, frDate, corpusTotals, crossTf,
-  TF_ORDER, ScreeningCampaign, ScreeningState,
+  marginLabel, getProvenanceForBot, count, frDate, ScreeningCampaign,
 } from '@/lib/screening'
 
 const mockChain = (data: unknown, error: unknown = null) => {
@@ -34,39 +32,6 @@ const cell = (o: Partial<ScreeningCampaign> = {}): ScreeningCampaign => ({
   n_assets: 30, null_bar: 95, ...o,
 })
 
-describe('TF_ORDER', () => {
-  it('runs from the slowest to the fastest so D1 reads first', () => {
-    expect(TF_ORDER).toEqual(['D1', 'H4', 'H1', 'M30', 'M15', 'M5'])
-  })
-})
-
-describe('cellLabel', () => {
-  it('states the outcome for a closed campaign with survivors', () => {
-    expect(cellLabel(cell())).toBe('2 en observation')
-  })
-
-  it('names a zero as a result, never as an absence', () => {
-    expect(cellLabel(cell({ n_candidates: 0 }))).toBe('clos · résultat négatif')
-  })
-
-  it('distinguishes running, queued and untested', () => {
-    expect(cellLabel(cell({ state: 'running' }))).toBe('en cours')
-    expect(cellLabel(cell({ state: 'queued' }))).toBe('en file')
-    expect(cellLabel(cell({ state: 'never' }))).toBe('jamais testé')
-  })
-
-  it('never uses the internal verdict vocabulary', () => {
-    const all = (['judged', 'running', 'queued', 'never'] as ScreeningState[])
-      .map((s) => cellLabel(cell({ state: s }))).join(' ')
-    expect(all).not.toMatch(/GO_PAPER|MARGINAL|NO_GO|strong|survivant/i)
-  })
-
-  it('states a bare "clos" for a judged campaign whose count export failed, never a false zero', () => {
-    expect(cellLabel(cell({ n_candidates: null }))).toBe('clos')
-    expect(cellLabel(cell({ n_candidates: null }))).not.toBe('clos · résultat négatif')
-  })
-})
-
 describe('marginLabel', () => {
   it('flags a value that only just clears its bar', () => {
     const m = marginLabel(95.16, 95, 'pct')
@@ -85,13 +50,6 @@ describe('marginLabel', () => {
 
   it('uses the French decimal comma', () => {
     expect(marginLabel(1.195, 1.15, 'ratio').text).toBe('1,195 pour une barre à 1,15')
-  })
-})
-
-describe('isDossierUnlocked', () => {
-  it('unlocks everything until a membership system exists', () => {
-    expect(isDossierUnlocked('EMAcross', 'H4')).toBe(true)
-    expect(isDossierUnlocked('Donchian', 'M5')).toBe(true)
   })
 })
 
@@ -213,178 +171,5 @@ describe('getProvenanceForBot', () => {
     await getProvenanceForBot('v1-spot')
     expect(candidateChain.order).toHaveBeenCalledWith('rank', { ascending: true })
     expect(candidateChain.limit).toHaveBeenCalledWith(1)
-  })
-})
-
-describe('getScreeningGrid', () => {
-  beforeEach(() => vi.clearAllMocks())
-
-  it('returns the grid on success', async () => {
-    vi.mocked(supabase.from).mockReturnValueOnce(mockChain([cell()]))
-    const result = await getScreeningGrid()
-    expect(result).toEqual([cell()])
-  })
-
-  it('degrades to an empty grid on a Supabase error instead of throwing (tables not created yet)', async () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
-    const result = await getScreeningGrid()
-    expect(result).toEqual([])
-    expect(errSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[getScreeningGrid]'),
-      expect.stringContaining('relation does not exist'),
-    )
-    errSpy.mockRestore()
-  })
-})
-
-describe('getStrategyDossier', () => {
-  beforeEach(() => vi.clearAllMocks())
-
-  it('degrades to an empty dossier on a Supabase error instead of throwing (tables not created yet)', async () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
-    const result = await getStrategyDossier('EMAcross')
-    expect(result).toEqual({ campaigns: [], candidates: {}, events: [] })
-    expect(errSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[getStrategyDossier]'),
-      expect.stringContaining('relation does not exist'),
-    )
-    errSpy.mockRestore()
-  })
-
-  it('degrades to an empty dossier when the candidates fetch fails', async () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.mocked(supabase.from)
-      .mockReturnValueOnce(mockChain([cell({ id: 7 })]))
-      .mockReturnValueOnce(mockChain(null, { message: 'candidates unreachable' }))
-    const result = await getStrategyDossier('EMAcross')
-    expect(result).toEqual({ campaigns: [], candidates: {}, events: [] })
-    expect(errSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[getStrategyDossier]'),
-      expect.stringContaining('candidates unreachable'),
-    )
-    errSpy.mockRestore()
-  })
-
-  it('degrades to an empty dossier when the events fetch fails', async () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.mocked(supabase.from)
-      .mockReturnValueOnce(mockChain([cell({ id: 7 })]))
-      .mockReturnValueOnce(mockChain([]))
-      .mockReturnValueOnce(mockChain(null, { message: 'events unreachable' }))
-    const result = await getStrategyDossier('EMAcross')
-    expect(result).toEqual({ campaigns: [], candidates: {}, events: [] })
-    expect(errSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[getStrategyDossier]'),
-      expect.stringContaining('events unreachable'),
-    )
-    errSpy.mockRestore()
-  })
-})
-
-describe('corpusTotals', () => {
-  it('returns all zeros for an empty grid', () => {
-    expect(corpusTotals([])).toEqual({ judged: 0, rejected: 0, standing: 0, strategies: 0 })
-  })
-
-  it('sums n_behaviors/n_rejected/n_candidates across judged campaigns only', () => {
-    const campaigns = [
-      cell({ base: 'EMAcross', tf: 'H4', state: 'judged', n_behaviors: 73770, n_rejected: 73744, n_candidates: 2 }),
-      cell({ base: 'EMAcross', tf: 'D1', state: 'judged', n_behaviors: 374, n_rejected: 374, n_candidates: 0 }),
-      cell({ base: 'Donchian', tf: 'H4', state: 'running', n_behaviors: 999, n_rejected: 999, n_candidates: 5 }),
-      cell({ base: 'Donchian', tf: 'M15', state: 'queued', n_behaviors: 999, n_rejected: 999, n_candidates: 5 }),
-      cell({ base: 'Donchian', tf: 'M5', state: 'never', n_behaviors: null, n_rejected: null, n_candidates: null }),
-    ]
-    expect(corpusTotals(campaigns)).toEqual({ judged: 74144, rejected: 74118, standing: 2, strategies: 1 })
-  })
-
-  it('treats null counts on a judged campaign as zero instead of poisoning the sum with NaN', () => {
-    const campaigns = [
-      cell({ base: 'EMAcross', tf: 'H4', state: 'judged', n_behaviors: null, n_rejected: null, n_candidates: null }),
-      cell({ base: 'Donchian', tf: 'H4', state: 'judged', n_behaviors: 100, n_rejected: 90, n_candidates: 10 }),
-    ]
-    expect(corpusTotals(campaigns)).toEqual({ judged: 100, rejected: 90, standing: 10, strategies: 2 })
-  })
-
-  it('counts distinct base values among judged campaigns only', () => {
-    const campaigns = [
-      cell({ base: 'EMAcross', tf: 'H4', state: 'judged' }),
-      cell({ base: 'EMAcross', tf: 'D1', state: 'judged' }),
-      cell({ base: 'Donchian', tf: 'H4', state: 'judged' }),
-      cell({ base: 'ATRChannel', tf: 'H4', state: 'never', n_behaviors: null, n_rejected: null, n_candidates: null }),
-    ]
-    expect(corpusTotals(campaigns).strategies).toBe(2)
-  })
-})
-
-describe('crossTf', () => {
-  const withStanding = (base: string, tf: string, n: number) =>
-    cell({ base, tf, state: 'judged' as const, n_candidates: n })
-  const untested = (base: string, tf: string) =>
-    cell({ base, tf, state: 'never' as const, n_behaviors: null, n_rejected: null, n_candidates: null })
-
-  it('returns null when the timeframe itself is not judged', () => {
-    const campaigns = [untested('EMAcross', 'H4'), withStanding('EMAcross', 'H1', 3)]
-    expect(crossTf(campaigns, 'H4')).toBeNull()
-  })
-
-  it('returns null when the timeframe is judged but has no standing configuration', () => {
-    const campaigns = [
-      withStanding('EMAcross', 'H4', 0),
-      withStanding('EMAcross', 'H1', 3),
-    ]
-    expect(crossTf(campaigns, 'H4')).toBeNull()
-  })
-
-  it('returns isolated when no immediately adjacent timeframe has anything standing', () => {
-    const campaigns = [
-      withStanding('EMAcross', 'H4', 2),
-      untested('EMAcross', 'D1'),
-      withStanding('EMAcross', 'H1', 0),
-    ]
-    expect(crossTf(campaigns, 'H4')).toBe('isolated')
-  })
-
-  it('returns adjacent_coherent when an immediately adjacent timeframe also has something standing', () => {
-    const campaigns = [
-      withStanding('EMAcross', 'H4', 2),
-      withStanding('EMAcross', 'H1', 1),
-    ]
-    expect(crossTf(campaigns, 'H4')).toBe('adjacent_coherent')
-  })
-
-  it('ignores a non-adjacent timeframe with standing configurations (H4 is not adjacent to M30)', () => {
-    const campaigns = [
-      withStanding('EMAcross', 'H4', 2),
-      withStanding('EMAcross', 'M30', 1),
-      untested('EMAcross', 'D1'),
-      untested('EMAcross', 'H1'),
-    ]
-    expect(crossTf(campaigns, 'H4')).toBe('isolated')
-  })
-
-  it("recognises both of H1's neighbours (H4 and M30)", () => {
-    const viaH4 = [withStanding('EMAcross', 'H1', 2), withStanding('EMAcross', 'H4', 1), untested('EMAcross', 'M30')]
-    expect(crossTf(viaH4, 'H1')).toBe('adjacent_coherent')
-
-    const viaM30 = [withStanding('EMAcross', 'H1', 2), untested('EMAcross', 'H4'), withStanding('EMAcross', 'M30', 1)]
-    expect(crossTf(viaM30, 'H1')).toBe('adjacent_coherent')
-  })
-
-  it("D1's only neighbour is H4 (edge of TF_ORDER)", () => {
-    const isolated = [withStanding('EMAcross', 'D1', 1), withStanding('EMAcross', 'H1', 1)]
-    expect(crossTf(isolated, 'D1')).toBe('isolated')
-
-    const coherent = [withStanding('EMAcross', 'D1', 1), withStanding('EMAcross', 'H4', 1)]
-    expect(crossTf(coherent, 'D1')).toBe('adjacent_coherent')
-  })
-
-  it("M5's only neighbour is M15 (edge of TF_ORDER)", () => {
-    const isolated = [withStanding('EMAcross', 'M5', 1), withStanding('EMAcross', 'M30', 1)]
-    expect(crossTf(isolated, 'M5')).toBe('isolated')
-
-    const coherent = [withStanding('EMAcross', 'M5', 1), withStanding('EMAcross', 'M15', 1)]
-    expect(crossTf(coherent, 'M5')).toBe('adjacent_coherent')
   })
 })

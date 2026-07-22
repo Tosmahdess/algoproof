@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       { source: '/wealth/analyses', destination: '/wealth', permanent: true },
       // 44 daily LLM journals purged 2026-07-04 (D026): redirect old URLs to the blog index
       { source: '/blog/:date(\\d{4}-\\d{2}-\\d{2})-journal', destination: '/blog', permanent: true },
+      // Screening dossiers moved to the lab 2026-07-22: this path was live and deployed here first.
+      { source: '/strategies/famille/:base', destination: 'https://lab.algoproof.fr/moteur-backtest/:base', permanent: true },
     ]
   },
 
