@@ -92,7 +92,7 @@ export default async function HomePage() {
         {[
           { href: '/overview',     emoji: '🤖', title: 'Mes bots',  desc: 'Regarde mes bots trader en vrai, chaque trade horodaté.' },
           { href: '/wealth',       emoji: '💰', title: 'Investir',  desc: 'Ma watchlist long terme et mes points d\'entrée.' },
-          { href: '/intelligence', emoji: '🌤️', title: 'Le marché', desc: 'La météo du marché, en français, chaque jour.' },
+          { href: '/intelligence', emoji: '🌤️', title: 'Météo du marché', desc: 'La météo du marché, en français, chaque jour.' },
           { href: 'https://lab.algoproof.fr/apprendre', emoji: '📚', title: 'Apprendre', desc: 'Tutoriels pas à pas dans le labo, bibliothèque des 22 stratégies, et les guides du blog.' },
         ].map(p => (
           <Link key={p.href} href={p.href} className="bg-card border border-border rounded-xl p-6 hover:border-positive/30 transition-colors group">

@@ -16,7 +16,7 @@ const MES_BOTS_PATHS = MES_BOTS_SUB.map(x => x.href)
 // The 3 plain hubs after "Mes bots"
 const HUBS = [
   { href: '/wealth',       label: 'INVESTIR' },
-  { href: '/intelligence', label: 'LE MARCHÉ' },
+  { href: '/intelligence', label: 'MÉTÉO DU MARCHÉ' },
   { href: '/blog',         label: 'APPRENDRE' },
 ]
 
@@ -35,7 +35,7 @@ const MOBILE_GROUPS: { title: string; links: { href: string; label: string; exte
   { title: 'Mes bots', links: MES_BOTS_SUB },
   { title: 'Explorer', links: [
     { href: '/wealth',       label: 'Investir' },
-    { href: '/intelligence', label: 'Le marché' },
+    { href: '/intelligence', label: 'Météo du marché' },
     { href: '/blog',         label: 'Apprendre' },
   ]},
   { title: 'Le labo', links: [

@@ -9,7 +9,7 @@ describe('Nav — 4 hubs + Labo CTA', () => {
     render(<Nav />)
     expect(screen.getByText(/mes bots/i)).toBeDefined()
     expect(screen.getByText(/investir/i)).toBeDefined()
-    expect(screen.getByText(/le marché/i)).toBeDefined()
+    expect(screen.getByText(/météo du marché/i)).toBeDefined()
     expect(screen.getByText(/apprendre/i)).toBeDefined()
   })
 

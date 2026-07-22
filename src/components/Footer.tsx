@@ -21,7 +21,7 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
     ],
   },
   {
-    title: 'Le marché',
+    title: 'Météo du marché',
     links: [
       { href: '/intelligence', label: 'Météo du marché' },
     ],
