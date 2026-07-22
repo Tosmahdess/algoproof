@@ -9,7 +9,8 @@ vi.mock('@/lib/supabase', () => ({
 
 import { supabase } from '@/lib/supabase'
 import {
-  cellLabel, marginLabel, isDossierUnlocked, getProvenanceForBot, count,
+  cellLabel, marginLabel, isDossierUnlocked, getProvenanceForBot, getScreeningGrid,
+  getStrategyDossier, count, frDate,
   TF_ORDER, ScreeningCampaign, ScreeningState,
 } from '@/lib/screening'
 
@@ -21,6 +22,7 @@ const mockChain = (data: unknown, error: unknown = null) => {
     eq: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
     maybeSingle: vi.fn().mockResolvedValue(terminal),
   }
   return chain
@@ -29,7 +31,7 @@ const mockChain = (data: unknown, error: unknown = null) => {
 const cell = (o: Partial<ScreeningCampaign> = {}): ScreeningCampaign => ({
   base: 'EMAcross', tf: 'H4', state: 'judged', judged_on: '2026-07-22',
   data_dir: null, n_behaviors: 73770, n_rejected: 73744, n_marginal: 20, n_candidates: 2,
-  null_bar: 95, ...o,
+  n_assets: 30, null_bar: 95, ...o,
 })
 
 describe('TF_ORDER', () => {
@@ -57,6 +59,11 @@ describe('cellLabel', () => {
     const all = (['judged', 'running', 'queued', 'never'] as ScreeningState[])
       .map((s) => cellLabel(cell({ state: s }))).join(' ')
     expect(all).not.toMatch(/GO_PAPER|MARGINAL|NO_GO|strong|survivant/i)
+  })
+
+  it('states a bare "clos" for a judged campaign whose count export failed, never a false zero', () => {
+    expect(cellLabel(cell({ n_candidates: null }))).toBe('clos')
+    expect(cellLabel(cell({ n_candidates: null }))).not.toBe('clos · résultat négatif')
   })
 })
 
@@ -94,8 +101,9 @@ describe('count', () => {
   // spaces never matches it, which is exactly the bug that shipped in ScreeningDossier.tsx and
   // stayed invisible because screen.getByText()'s whitespace normaliser (\s, which matches
   // U+202F/U+00A0 too) made the broken and the fixed version look identical through the DOM.
-  // Asserting on the string directly, with explicit \u escapes rather than a literal invisible
-  // character in the source, is the only way to actually pin this.
+  // NARROW_NBSP below holds the literal U+202F character itself, typed directly into the
+  // source (not a JS unicode escape sequence) - asserting on the string directly is the
+  // only way to actually pin the exact byte a browser renders.
   const NARROW_NBSP = ' '
   const ASCII_SPACE = ' '
 
@@ -108,6 +116,20 @@ describe('count', () => {
 
   it('returns the em-dash placeholder for null', () => {
     expect(count(null)).toBe('—')
+  })
+})
+
+describe('frDate', () => {
+  it('formats a bare YYYY-MM-DD date the French way', () => {
+    expect(frDate('2026-07-22')).toBe('22/07/2026')
+  })
+
+  it('anchors to noon UTC so no negative-offset timezone rolls the date back a day', () => {
+    expect(frDate('2026-01-01')).toBe('01/01/2026')
+  })
+
+  it('returns the em-dash placeholder for null', () => {
+    expect(frDate(null)).toBe('—')
   })
 })
 
@@ -191,5 +213,72 @@ describe('getProvenanceForBot', () => {
     await getProvenanceForBot('v1-spot')
     expect(candidateChain.order).toHaveBeenCalledWith('rank', { ascending: true })
     expect(candidateChain.limit).toHaveBeenCalledWith(1)
+  })
+})
+
+describe('getScreeningGrid', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns the grid on success', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain([cell()]))
+    const result = await getScreeningGrid()
+    expect(result).toEqual([cell()])
+  })
+
+  it('degrades to an empty grid on a Supabase error instead of throwing (tables not created yet)', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
+    const result = await getScreeningGrid()
+    expect(result).toEqual([])
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getScreeningGrid]'),
+      expect.stringContaining('relation does not exist'),
+    )
+    errSpy.mockRestore()
+  })
+})
+
+describe('getStrategyDossier', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('degrades to an empty dossier on a Supabase error instead of throwing (tables not created yet)', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
+    const result = await getStrategyDossier('EMAcross')
+    expect(result).toEqual({ campaigns: [], candidates: {}, events: [] })
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getStrategyDossier]'),
+      expect.stringContaining('relation does not exist'),
+    )
+    errSpy.mockRestore()
+  })
+
+  it('degrades to an empty dossier when the candidates fetch fails', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain([cell({ id: 7 })]))
+      .mockReturnValueOnce(mockChain(null, { message: 'candidates unreachable' }))
+    const result = await getStrategyDossier('EMAcross')
+    expect(result).toEqual({ campaigns: [], candidates: {}, events: [] })
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getStrategyDossier]'),
+      expect.stringContaining('candidates unreachable'),
+    )
+    errSpy.mockRestore()
+  })
+
+  it('degrades to an empty dossier when the events fetch fails', async () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain([cell({ id: 7 })]))
+      .mockReturnValueOnce(mockChain([]))
+      .mockReturnValueOnce(mockChain(null, { message: 'events unreachable' }))
+    const result = await getStrategyDossier('EMAcross')
+    expect(result).toEqual({ campaigns: [], candidates: {}, events: [] })
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[getStrategyDossier]'),
+      expect.stringContaining('events unreachable'),
+    )
+    errSpy.mockRestore()
   })
 })

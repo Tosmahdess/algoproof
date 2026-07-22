@@ -1,7 +1,7 @@
 // src/app/strategies/famille/[base]/page.tsx
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getStrategyDossier, isDossierUnlocked, TF_ORDER } from '@/lib/screening'
+import { getStrategyDossier, isDossierUnlocked, TF_ORDER, frDate } from '@/lib/screening'
 import ScreeningDossier from '@/components/ScreeningDossier'
 
 export const revalidate = 300
@@ -55,7 +55,7 @@ export default async function StrategyFamilyPage(
           <ul className="space-y-1 text-sm">
             {events.map((e, i) => (
               <li key={i}>
-                <span className="font-mono text-muted">{e.happened_on}</span>{' '}
+                <span className="font-mono text-muted">{frDate(e.happened_on)}</span>{' '}
                 <span className="font-mono text-muted">{e.tf}</span> · {e.summary}
               </li>
             ))}

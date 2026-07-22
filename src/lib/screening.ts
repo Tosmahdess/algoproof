@@ -16,6 +16,7 @@ export type ScreeningCampaign = {
   n_rejected: number | null
   n_marginal: number | null
   n_candidates: number | null
+  n_assets: number | null
   null_bar: number | null
 }
 
@@ -46,8 +47,21 @@ export type ScreeningEvent = {
 }
 
 /** French number: comma decimal separator, no trailing zeros beyond what was given. */
-function fr(n: number): string {
+export function fr(n: number): string {
   return String(n).replace('.', ',')
+}
+
+/**
+ * French date: `judged_on`/`happened_on` are stored as bare `YYYY-MM-DD` dates with no time
+ * component. Parsing them directly (`new Date('2026-07-22')`) reads them as UTC midnight, which
+ * a negative-offset local timezone then rolls back to the previous day. Anchoring to noon UTC
+ * before formatting avoids that off-by-one regardless of the viewer's timezone.
+ */
+export function frDate(d: string | null): string {
+  if (d === null) return '—'
+  return new Date(`${d}T12:00:00Z`).toLocaleDateString('fr-FR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  })
 }
 
 /**
@@ -75,7 +89,10 @@ export function cellLabel(c: ScreeningCampaign): string {
   if (c.state === 'running') return 'en cours'
   if (c.state === 'queued') return 'en file'
   if (c.state === 'never') return 'jamais testé'
-  return (c.n_candidates ?? 0) === 0
+  // A judged campaign with a null count means the export failed, not that zero configurations
+  // survived — those are different facts and must not collapse into the same "0" reading.
+  if (c.n_candidates === null) return 'clos'
+  return c.n_candidates === 0
     ? 'clos · résultat négatif'
     : `${c.n_candidates} en observation`
 }
@@ -104,10 +121,22 @@ export function isDossierUnlocked(_base: string, _tf: string): boolean {
   return true
 }
 
+/**
+ * Degrades to an empty grid on any Supabase error (including the tables not existing yet),
+ * matching getProvenanceForBot: a missing screening grid must never break /strategies.
+ */
 export async function getScreeningGrid(): Promise<ScreeningCampaign[]> {
-  const { data, error } = await supabase.from('screening_campaigns').select('*')
-  if (error) throw new Error(`screening grid: ${error.message}`)
-  return (data ?? []) as ScreeningCampaign[]
+  try {
+    const { data, error } = await supabase.from('screening_campaigns').select('*')
+    if (error) {
+      console.error('[getScreeningGrid] fetch failed', error.message)
+      return []
+    }
+    return (data ?? []) as ScreeningCampaign[]
+  } catch (e) {
+    console.error('[getScreeningGrid] fetch threw', e)
+    return []
+  }
 }
 
 /**
@@ -152,36 +181,62 @@ export async function getProvenanceForBot(slug: string): Promise<{
   }
 }
 
+const EMPTY_DOSSIER = {
+  campaigns: [] as ScreeningCampaign[],
+  candidates: {} as Record<number, ScreeningCandidate[]>,
+  events: [] as ScreeningEvent[],
+}
+
+/**
+ * Degrades to an empty dossier on any Supabase error (including the tables not existing yet),
+ * matching getProvenanceForBot: a missing dossier must never render the framework's English
+ * error page on this French site — /strategies/famille/[base] must still render (or 404 on an
+ * empty campaigns list, which the caller already treats as "not found").
+ */
 export async function getStrategyDossier(base: string): Promise<{
   campaigns: ScreeningCampaign[]
   candidates: Record<number, ScreeningCandidate[]>
   events: ScreeningEvent[]
 }> {
-  const { data: campaigns, error: e1 } = await supabase
-    .from('screening_campaigns').select('*').eq('base', base)
-  if (e1) throw new Error(`dossier campaigns: ${e1.message}`)
+  try {
+    const { data: campaigns, error: e1 } = await supabase
+      .from('screening_campaigns').select('*').eq('base', base)
+    if (e1) {
+      console.error('[getStrategyDossier] campaigns fetch failed', e1.message)
+      return EMPTY_DOSSIER
+    }
 
-  const ids = (campaigns ?? [])
-    .map((c: ScreeningCampaign) => c.id)
-    .filter((id): id is number => id != null)
-  const { data: cands, error: e2 } = ids.length
-    ? await supabase.from('screening_candidates').select('*').in('campaign_id', ids)
-    : { data: [], error: null }
-  if (e2) throw new Error(`dossier candidates: ${e2.message}`)
+    const ids = (campaigns ?? [])
+      .map((c: ScreeningCampaign) => c.id)
+      .filter((id): id is number => id != null)
+    const { data: cands, error: e2 } = ids.length
+      ? await supabase.from('screening_candidates').select('*').in('campaign_id', ids)
+      : { data: [], error: null }
+    if (e2) {
+      console.error('[getStrategyDossier] candidates fetch failed', e2.message)
+      return EMPTY_DOSSIER
+    }
 
-  const { data: events, error: e3 } = await supabase
-    .from('screening_events').select('*').eq('base', base).order('happened_on', { ascending: false })
-  if (e3) throw new Error(`dossier events: ${e3.message}`)
+    const { data: events, error: e3 } = await supabase
+      .from('screening_events').select('*').eq('base', base).order('happened_on', { ascending: false })
+    if (e3) {
+      console.error('[getStrategyDossier] events fetch failed', e3.message)
+      return EMPTY_DOSSIER
+    }
 
-  const byCampaign: Record<number, ScreeningCandidate[]> = {}
-  for (const c of (cands ?? []) as ScreeningCandidate[]) {
-    ;(byCampaign[c.campaign_id] ??= []).push(c)
-  }
-  for (const list of Object.values(byCampaign)) list.sort((a, b) => a.rank - b.rank)
+    const byCampaign: Record<number, ScreeningCandidate[]> = {}
+    for (const c of (cands ?? []) as ScreeningCandidate[]) {
+      ;(byCampaign[c.campaign_id] ??= []).push(c)
+    }
+    for (const list of Object.values(byCampaign)) list.sort((a, b) => a.rank - b.rank)
 
-  return {
-    campaigns: (campaigns ?? []) as ScreeningCampaign[],
-    candidates: byCampaign,
-    events: (events ?? []) as ScreeningEvent[],
+    return {
+      campaigns: (campaigns ?? []) as ScreeningCampaign[],
+      candidates: byCampaign,
+      events: (events ?? []) as ScreeningEvent[],
+    }
+  } catch (e) {
+    console.error('[getStrategyDossier] fetch threw', e)
+    return EMPTY_DOSSIER
   }
 }

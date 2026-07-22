@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { TF_ORDER, cellLabel, count, type ScreeningCampaign } from '@/lib/screening'
+import { TF_ORDER, cellLabel, count, frDate, type ScreeningCampaign } from '@/lib/screening'
 
 export default function ScreeningGrid({ campaigns }: { campaigns: ScreeningCampaign[] }) {
   const bases = Array.from(new Set(campaigns.map((c) => c.base))).sort()
@@ -32,7 +32,7 @@ export default function ScreeningGrid({ campaigns }: { campaigns: ScreeningCampa
                   const c: ScreeningCampaign = byKey.get(`${base}|${tf}`) ?? {
                     base, tf, state: 'never', judged_on: null, data_dir: null,
                     n_behaviors: null, n_rejected: null, n_marginal: null,
-                    n_candidates: null, null_bar: null,
+                    n_candidates: null, n_assets: null, null_bar: null,
                   }
                   return (
                     <tr key={tf} className="border-t border-border">
@@ -43,11 +43,13 @@ export default function ScreeningGrid({ campaigns }: { campaigns: ScreeningCampa
                       </td>
                       <td className="px-4 py-2 tabular-nums"
                           data-testid={`cell-${base}-${tf}-count`}>
-                        {c.state === 'judged' ? String(c.n_candidates ?? 0) : '—'}
+                        {/* A null count (export failed) must read as unknown, never as a false
+                            zero (review finding I4) — only an actual number renders bare. */}
+                        {c.state === 'judged' && c.n_candidates !== null ? String(c.n_candidates) : '—'}
                       </td>
                       <td className="px-4 py-2 text-muted">
                         {cellLabel(c)}
-                        {c.judged_on ? ` · ${c.judged_on}` : ''}
+                        {c.judged_on ? ` · ${frDate(c.judged_on)}` : ''}
                       </td>
                     </tr>
                   )
