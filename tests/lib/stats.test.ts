@@ -5,7 +5,7 @@ import type { PerfDaily, Trade } from '@/lib/types'
 
 const makeAssetTrade = (id: string, asset: string, pnl: number): Trade => ({
   id, bot_id: 'bot1', opened_at: '2026-05-01T08:00:00Z', closed_at: '2026-05-01T12:00:00Z',
-  asset, side: 'long', pnl, reason: null, is_paper: true,
+  asset, side: 'long', pnl, reason: null, is_paper: true, entry_price: null, exit_price: null,
 })
 
 const makeTrade = (id: string, side: 'long' | 'short', pnl: number, day: string): Trade => ({
@@ -18,6 +18,8 @@ const makeTrade = (id: string, side: 'long' | 'short', pnl: number, day: string)
   pnl,
   reason: 'take_profit_1',
   is_paper: true,
+  entry_price: null,
+  exit_price: null,
 })
 
 const trades: Trade[] = [
