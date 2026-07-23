@@ -18,6 +18,7 @@ import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { getProvenanceForBot } from '@/lib/screening'
+import { toBaseAsset } from '@/lib/asset'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -57,6 +58,18 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   // don't exist yet in this environment.
   const provenance = await getProvenanceForBot(bot.slug)
 
+  // Real-price chart is single-asset (one candle series). Bot has no singular `asset` field
+  // (`assets: string[]`, some bots trade several symbols) and StrategyDetail's own asset
+  // filter defaults to 'all' (no single default to align with) — so we pick the first asset,
+  // same order the header displays. Server-computed once per render (not client-side) so the
+  // chart never receives another leg's trades: StrategyDetail already normalizes asset
+  // matching via base symbol (`toBaseAsset`, see assetOptionsFromTrades/filterTrades in
+  // src/lib/asset.ts + src/lib/stats.ts) since a trade's quote currency can differ from the
+  // bot's listed asset string (e.g. 'BTC/USDT' trade vs 'BTC/USDC' bot asset) — reused here.
+  const chartAsset = bot.assets[0] ?? ''
+  const chartBase = toBaseAsset(chartAsset)
+  const chartTrades = bot.all_trades.filter(t => toBaseAsset(t.asset) === chartBase)
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
 
@@ -92,13 +105,13 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       <StrategyDetail bot={bot} />
 
       {/* Real price chart + trade entry/exit segments — client island, ssr:false.
-          Bot has no single `asset` field (`assets: string[]`, some bots trade several
-          symbols); use the first as the primary one, same order used in the header above.
-          Renders null on any failure (unmappable asset, fetch error) — equity curve above
-          stays the fallback. */}
+          `chartAsset`/`chartTrades` computed above: only trades matching the charted asset's
+          base symbol are passed, so a multi-asset bot never plots a foreign leg's trade on
+          top of this candle series. Renders null on any failure (unmappable asset, fetch
+          error) — equity curve above stays the fallback. */}
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-3">Trades réels sur le prix</h2>
-        <BotTradeChartIsland asset={bot.assets[0] ?? ''} timeframe={bot.timeframe} trades={bot.all_trades} />
+        <BotTradeChartIsland asset={chartAsset} timeframe={bot.timeframe} trades={chartTrades} />
       </section>
 
       {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
