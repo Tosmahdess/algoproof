@@ -12,6 +12,15 @@ describe('assetToBinanceSymbol', () => {
     expect(assetToBinanceSymbol('')).toBeNull()
     expect(assetToBinanceSymbol('WEIRD')).toBeNull()
   })
+  it('maps bare major-crypto tickers to USDT pairs (case-insensitive)', () => {
+    expect(assetToBinanceSymbol('SOL')).toBe('SOLUSDT')
+    expect(assetToBinanceSymbol('btc')).toBe('BTCUSDT')
+  })
+  it('returns null for bare equity/unknown tickers', () => {
+    expect(assetToBinanceSymbol('NVDA')).toBeNull()
+    expect(assetToBinanceSymbol('MC.PA')).toBeNull()
+    expect(assetToBinanceSymbol('S')).toBeNull()
+  })
 })
 
 describe('assetToWidgetSymbol', () => {
@@ -20,6 +29,12 @@ describe('assetToWidgetSymbol', () => {
   })
   it('returns null when unmappable', () => {
     expect(assetToWidgetSymbol('WEIRD')).toBeNull()
+  })
+  it('maps bare major-crypto tickers', () => {
+    expect(assetToWidgetSymbol('SOL')).toBe('BINANCE:SOLUSDT')
+  })
+  it('returns null for bare equity tickers', () => {
+    expect(assetToWidgetSymbol('NVDA')).toBeNull()
   })
 })
 
