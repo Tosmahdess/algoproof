@@ -59,7 +59,7 @@ const PILLARS = [
     functional:
       "Surveille les conditions macroéconomiques : volatilité des marchés actions (VIX), force du dollar américain (DXY), et événements à venir comme les décisions de la Fed ou le CPI. La crypto n'existe pas en vase clos.",
     technical:
-      'Base : VIX + DXY 5j. Ajustements MI-8→MI-11 : VIX term structure · credit spreads HYG/IEI · Put/Call SPY · insider buying SEC Form 4 · earnings beat · analyst revisions · short interest · options flow SPY+QQQ. Calendrier : FOMC/CPI/NFP blackout 2h, T2 blackout 30min.',
+      'Base : VIX + DXY 5j. Ajustements MI-8→MI-11 : VIX term structure · credit spreads HYG/IEI · Put/Call SPY · insider buying SEC Form 4 · earnings beat · analyst revisions · short interest · options flow SPY+QQQ. Calendrier d\'événements suivi à titre informatif : les fenêtres de blocage pré-événement ont été retirées le 23/07/2026 (contre-productives sur un replay de 2 ans).',
   },
   // The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
   // 2026-06-26 — institutional_score is always null since. Removed from display.
@@ -196,13 +196,13 @@ export default async function IntelligencePage() {
                 <span className="font-semibold">Layer 3</span>
                 <span className="text-muted">VIX &gt; 30 — arrêt complet inconditionnel</span>
                 <span className="font-semibold">Layer 4</span>
-                <span className="text-muted">Blackouts événements T1/T2 — pauses 2h / 30min</span>
+                <span className="text-muted">Blackouts événements : retirés le 23/07/2026 (un replay de 2 ans a montré qu'ils coûtaient du P&L sans réduire le drawdown)</span>
                 <span className="font-semibold">Layer 5</span>
                 <span className="text-muted">Tableau de bord du marché : données périmées, entrées bloquées par défaut</span>
               </div>
               <p className="pt-2 text-[10px] text-muted">
                 Plage de score : [−100, +100]. Pondérations : Sentiment 30% · Dérivés 40% · Actualités 5% · Macro 25% (re-pondération du 4 juillet 2026).
-                Condition : composite &gt; −30 ET VIX ≤ 30 ET pas de T1 dans 2h ET pas de T2 dans 30min.
+                Condition : composite &gt; −30 ET VIX ≤ 30 (les fenêtres pré-événement T1/T2 ont été retirées le 23/07/2026).
               </p>
             </div>
           }
