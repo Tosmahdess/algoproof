@@ -47,7 +47,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks entry when macro unsafe (VIX / F&G / funding)" },
           { label: "Kill switch", value: "−5% / day", note: "auto-halt, Telegram alert" },
           { label: "Circuit breaker", value: "3 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min", note: "around major macro events" },
         ],
       },
       {
@@ -72,7 +71,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité (veille de marché)",
-        body: "Avant chaque entrée, le service de veille de marché évalue le régime macro via 4 piliers : sentiment Fear & Greed, dérivés Binance (funding rates + ratio L/S + liquidations 60s), actualités RSS, macro globale (VIX, DXY, calendrier de 134 événements). Si risk_level est RED — notamment quand VIX > 30 — aucune entrée n'est ouverte. Événements Tier 1 (Fed, NFP, CPI) : fenêtre de blocage ±2h. Tier 2 : ±30min.",
+        body: "Avant chaque entrée, le service de veille de marché évalue le régime macro via 4 piliers : sentiment Fear & Greed, dérivés Binance (funding rates + ratio L/S + liquidations 60s), actualités RSS, macro globale (VIX, DXY, calendrier de 134 événements). Si risk_level est RED — notamment quand VIX > 30 — aucune entrée n'est ouverte. Les fenêtres de blocage pré-annonce (côté service comme le filtre ±30min embarqué dans le bot) ont été retirées le 23/07/2026 : un replay de 2 ans les a montrées contre-productives (P&L en baisse, drawdown légèrement pire).",
         code: "if risk_level == 'RED':\n    return 'HOLD'   # MI veto — aucune entrée\nif cross_up:\n    return 'BUY'    # long only sur Kraken Spot\nreturn 'HOLD'",
       },
     ],
@@ -161,7 +160,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "is_safe + is_macro_safe both required" },
           { label: "Kill switch", value: "−5% / day", note: "auto-halt, Telegram alert" },
           { label: "Circuit breaker", value: "3 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min", note: "around major macro events" },
         ],
       },
       {
@@ -186,7 +184,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité (veille de marché)",
-        body: "Avant chaque entrée, le service de veille de marché évalue le régime macro via 4 piliers : sentiment Fear & Greed, dérivés Binance (funding rates + ratio L/S + liquidations 60s), actualités RSS, macro globale (VIX, DXY, calendrier de 134 événements). Si risk_level est RED — notamment quand VIX > 30 — aucune nouvelle entrée n'est ouverte, indépendamment de la direction du signal : ouvrir un short en plein rally de sentiment (F&G > 80) ou lors d'un squeeze de liquidations présente un risque asymétrique particulièrement coûteux sur les perps. Les événements Tier 1 (Fed, NFP, CPI) déclenchent une fenêtre de blocage ±2h ; les Tier 2 ±30min.",
+        body: "Avant chaque entrée, le service de veille de marché évalue le régime macro via 4 piliers : sentiment Fear & Greed, dérivés Binance (funding rates + ratio L/S + liquidations 60s), actualités RSS, macro globale (VIX, DXY, calendrier de 134 événements). Si risk_level est RED — notamment quand VIX > 30 — aucune nouvelle entrée n'est ouverte, indépendamment de la direction du signal : ouvrir un short en plein rally de sentiment (F&G > 80) ou lors d'un squeeze de liquidations présente un risque asymétrique particulièrement coûteux sur les perps. Les fenêtres de blocage pré-annonce (côté service comme le filtre ±30min embarqué dans le bot) ont été retirées le 23/07/2026 : un replay de 2 ans les a montrées contre-productives (P&L en baisse, drawdown légèrement pire).",
         code: "if risk_level == 'RED':\n    return 'HOLD'   # MI veto — aucune entrée\nif cross_up:\n    return 'BUY'    # long\nif cross_dn and asset != 'ADA':\n    return 'SELL'   # short (ADA exclu)\nreturn 'HOLD'",
       },
     ],
