@@ -47,7 +47,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks entry when macro unsafe (VIX / F&G / funding)" },
           { label: "Kill switch", value: "−5% / day", note: "auto-halt, Telegram alert" },
           { label: "Circuit breaker", value: "3 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min", note: "around major macro events" },
         ],
       },
       {
@@ -72,7 +71,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité (veille de marché)",
-        body: "Avant chaque entrée, le service de veille de marché évalue le régime macro via 4 piliers : sentiment Fear & Greed, dérivés Binance (funding rates + ratio L/S + liquidations 60s), actualités RSS, macro globale (VIX, DXY, calendrier de 134 événements). Si risk_level est RED — notamment quand VIX > 30 — aucune entrée n'est ouverte. Événements Tier 1 (Fed, NFP, CPI) : fenêtre de blocage ±2h. Tier 2 : ±30min.",
+        body: "Avant chaque entrée, le service de veille de marché évalue le régime macro via 4 piliers : sentiment Fear & Greed, dérivés Binance (funding rates + ratio L/S + liquidations 60s), actualités RSS, macro globale (VIX, DXY, calendrier de 134 événements). Si risk_level est RED — notamment quand VIX > 30 — aucune entrée n'est ouverte. Les fenêtres de blocage pré-annonce (côté service comme le filtre ±30min embarqué dans le bot) ont été retirées le 23/07/2026 : un replay de 2 ans les a montrées contre-productives (P&L en baisse, drawdown légèrement pire).",
         code: "if risk_level == 'RED':\n    return 'HOLD'   # MI veto — aucune entrée\nif cross_up:\n    return 'BUY'    # long only sur Kraken Spot\nreturn 'HOLD'",
       },
     ],
@@ -161,7 +160,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "is_safe + is_macro_safe both required" },
           { label: "Kill switch", value: "−5% / day", note: "auto-halt, Telegram alert" },
           { label: "Circuit breaker", value: "3 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min", note: "around major macro events" },
         ],
       },
       {
@@ -186,7 +184,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité (veille de marché)",
-        body: "Avant chaque entrée, le service de veille de marché évalue le régime macro via 4 piliers : sentiment Fear & Greed, dérivés Binance (funding rates + ratio L/S + liquidations 60s), actualités RSS, macro globale (VIX, DXY, calendrier de 134 événements). Si risk_level est RED — notamment quand VIX > 30 — aucune nouvelle entrée n'est ouverte, indépendamment de la direction du signal : ouvrir un short en plein rally de sentiment (F&G > 80) ou lors d'un squeeze de liquidations présente un risque asymétrique particulièrement coûteux sur les perps. Les événements Tier 1 (Fed, NFP, CPI) déclenchent une fenêtre de blocage ±2h ; les Tier 2 ±30min.",
+        body: "Avant chaque entrée, le service de veille de marché évalue le régime macro via 4 piliers : sentiment Fear & Greed, dérivés Binance (funding rates + ratio L/S + liquidations 60s), actualités RSS, macro globale (VIX, DXY, calendrier de 134 événements). Si risk_level est RED — notamment quand VIX > 30 — aucune nouvelle entrée n'est ouverte, indépendamment de la direction du signal : ouvrir un short en plein rally de sentiment (F&G > 80) ou lors d'un squeeze de liquidations présente un risque asymétrique particulièrement coûteux sur les perps. Les fenêtres de blocage pré-annonce (côté service comme le filtre ±30min embarqué dans le bot) ont été retirées le 23/07/2026 : un replay de 2 ans les a montrées contre-productives (P&L en baisse, drawdown légèrement pire).",
         code: "if risk_level == 'RED':\n    return 'HOLD'   # MI veto — aucune entrée\nif cross_up:\n    return 'BUY'    # long\nif cross_dn and asset != 'ADA':\n    return 'SELL'   # short (ADA exclu)\nreturn 'HOLD'",
       },
     ],
@@ -218,7 +216,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -243,7 +240,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -274,7 +271,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -299,7 +295,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -330,7 +326,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -355,7 +350,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -590,7 +585,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -615,7 +609,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED — particulièrement important pour les breakouts qui se déclenchent souvent autour des événements macro. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED — particulièrement important pour les breakouts qui se déclenchent souvent autour des événements macro. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -646,7 +640,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -671,7 +664,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -702,7 +695,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -727,7 +719,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
       },
     ],
   },
@@ -758,7 +750,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -783,7 +774,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -814,7 +805,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -839,7 +829,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -870,7 +860,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -895,7 +884,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (Fear & Greed, dérivés Binance, news, macro) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → pause 4h, blackout ±30min sur événements macro majeurs.",
+        body: "La veille de marché (Fear & Greed, dérivés Binance, news, macro) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → pause 4h.",
       },
     ],
   },
@@ -931,7 +920,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI = RED", value: "0× multiplier", note: "no new entries" },
           { label: "Kill switch", value: "−5% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -957,7 +945,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité — veille de marché comme contrôleur de levier",
-        body: "Particularité critique de ce bot : le service de veille de marché ne contrôle pas seulement la permission d'entrer — il contrôle directement le multiplicateur de risque. Un régime RED se traduit par un multiplicateur 0×, donc aucune nouvelle entrée. Un YELLOW autorise mais réduit fortement la taille. Le bot devient ainsi un bot à exposition variable : très agressif en période de risque faible (vert), très défensif sinon. En complément : kill switch -5% sur la journée (plus sensible que les autres bots à -3% pour compenser la volatilité levier), circuit breaker 5 pertes → pause 4h, blackout news ±30min.",
+        body: "Particularité critique de ce bot : le service de veille de marché ne contrôle pas seulement la permission d'entrer — il contrôle directement le multiplicateur de risque. Un régime RED se traduit par un multiplicateur 0×, donc aucune nouvelle entrée. Un YELLOW autorise mais réduit fortement la taille. Le bot devient ainsi un bot à exposition variable : très agressif en période de risque faible (vert), très défensif sinon. En complément : kill switch -5% sur la journée (plus sensible que les autres bots à -3% pour compenser la volatilité levier), circuit breaker 5 pertes → pause 4h.",
       },
     ],
   },
@@ -989,7 +977,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "même service que crypto bots" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min", note: "Fed, BCE, NFP" },
         ],
       },
       {
@@ -1013,7 +1000,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité — veille de marché sur forex",
-        body: "Le service de veille de marché utilisé est le même que pour les bots crypto — les 4 piliers (Fear & Greed, dérivés Binance, news RSS, calendrier macro 134 événements) restent pertinents pour EUR/USD. Le pilier macro (VIX, DXY, calendrier Fed/BCE/CPI) est même particulièrement direct sur le forex : un FOMC ou un NFP impacte EUR/USD au même titre que les cryptos via le DXY. Le blackout news ±30min est appliqué autour des releases majeurs. Kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
+        body: "Le service de veille de marché utilisé est le même que pour les bots crypto — les 4 piliers (Fear & Greed, dérivés Binance, news RSS, calendrier macro 134 événements) restent pertinents pour EUR/USD. Le pilier macro (VIX, DXY, calendrier Fed/BCE/CPI) est même particulièrement direct sur le forex : un FOMC ou un NFP impacte EUR/USD au même titre que les cryptos via le DXY. Kill switch -3%/jour, circuit breaker 5 pertes → 4h. (Les fenêtres de blocage pré-annonce ont été retirées le 23/07/2026 : un replay de 2 ans les a montrées contre-productives.)",
       },
     ],
   },
@@ -1044,7 +1031,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1069,7 +1055,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min sur macro events.",
+        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -1100,7 +1086,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1125,7 +1110,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité (veille de marché) et coupe-circuits",
-        body: "Avant chaque entrée, le service Market Intelligence évalue le régime macro via 4 piliers (sentiment Fear & Greed, dérivés Binance, actualités RSS, calendrier macro). Si le régime est RED, l'entrée est bloquée. En complément : kill switch à -3% sur la journée (auto-halt + alerte Telegram), circuit breaker après 5 trades perdants consécutifs (pause 4h), et fenêtre de blackout de ±30min autour des événements macro majeurs.",
+        body: "Avant chaque entrée, le service Market Intelligence évalue le régime macro via 4 piliers (sentiment Fear & Greed, dérivés Binance, actualités RSS, calendrier macro). Si le régime est RED, l'entrée est bloquée. En complément : kill switch à -3% sur la journée (auto-halt + alerte Telegram), circuit breaker après 5 trades perdants consécutifs (pause 4h).",
       },
     ],
   },
@@ -1156,7 +1141,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1181,7 +1165,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers : F&G, dérivés, news, macro) bloque l'entrée si risk_level=RED. Kill switch -3%/jour, circuit breaker 5 pertes → pause 4h, blackout ±30min autour des événements macro majeurs.",
+        body: "La veille de marché (4 piliers : F&G, dérivés, news, macro) bloque l'entrée si risk_level=RED. Kill switch -3%/jour, circuit breaker 5 pertes → pause 4h.",
       },
     ],
   },
@@ -1212,7 +1196,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1237,7 +1220,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque l'entrée si risk_level=RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h, blackout ±30min autour des événements macro majeurs.",
+        body: "La veille de marché (4 piliers) bloque l'entrée si risk_level=RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
       },
     ],
   },
@@ -1268,7 +1251,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1293,7 +1275,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité (veille de marché) et coupe-circuits",
-        body: "Veille de marché active en amont de chaque entrée : 4 piliers (Fear & Greed, dérivés Binance, news RSS, calendrier macro 134 événements). Si risk_level=RED, blocage de l'entrée. Kill switch -3%/jour (auto-halt + Telegram), circuit breaker 5 pertes consécutives → pause 4h, blackout news ±30min autour des événements macro majeurs.",
+        body: "Veille de marché active en amont de chaque entrée : 4 piliers (Fear & Greed, dérivés Binance, news RSS, calendrier macro 134 événements). Si risk_level=RED, blocage de l'entrée. Kill switch -3%/jour (auto-halt + Telegram), circuit breaker 5 pertes consécutives → pause 4h.",
       },
     ],
   },
@@ -1325,7 +1307,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "Fed/CPI events critical for XAU" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1350,7 +1331,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité — veille de marché critique pour XAU",
-        body: "Le service de veille de marché est particulièrement pertinent pour l'or : les événements macro (décisions Fed, CPI, données emploi US) ont un impact direct et souvent brutal sur XAU via le canal taux réels et DXY. Le pilier macro de la veille de marché (calendrier 134 événements) déclenche un blackout ±30min autour des releases Tier 1 (FOMC, NFP, CPI), évitant les gaps de prix typiques sur l'or autour de ces annonces. La veille de marché bloque toute entrée en régime RED, kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
+        body: "Le service de veille de marché est particulièrement pertinent pour l'or : les événements macro (décisions Fed, CPI, données emploi US) ont un impact direct et souvent brutal sur XAU via le canal taux réels et DXY. Le pilier macro de la veille de marché (calendrier 134 événements) suit ces releases à titre informatif ; les fenêtres de blocage pré-annonce ont été retirées le 23/07/2026 (contre-productives sur un replay de 2 ans, y compris sur ce bot). La veille de marché bloque toute entrée en régime RED, kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
       },
     ],
   },
@@ -1381,7 +1362,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1406,7 +1386,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED — particulièrement important pour les breakouts qui se déclenchent souvent autour des événements macro. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED — particulièrement important pour les breakouts qui se déclenchent souvent autour des événements macro. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -1437,7 +1417,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1462,7 +1441,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → pause 4h, blackout ±30min sur macro events.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → pause 4h.",
       },
     ],
   },
@@ -1493,7 +1472,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1518,7 +1496,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
       },
     ],
   },
@@ -1549,7 +1527,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1574,7 +1551,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED — particulièrement critique en H1 où le bruit macro impacte directement les ouvertures de session. Kill switch -3%/jour, circuit breaker 5 pertes → 4h, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED — particulièrement critique en H1 où le bruit macro impacte directement les ouvertures de session. Kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
       },
     ],
   },
@@ -1605,7 +1582,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1630,7 +1606,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
       },
     ],
   },
@@ -1661,7 +1637,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1686,7 +1661,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
       },
     ],
   },
@@ -1717,7 +1692,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1742,7 +1716,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -1773,7 +1747,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1798,7 +1771,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -1829,7 +1802,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1854,7 +1826,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -1885,7 +1857,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1910,7 +1881,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -1941,7 +1912,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -1966,7 +1936,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -1997,7 +1967,6 @@ const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -2022,7 +1991,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
