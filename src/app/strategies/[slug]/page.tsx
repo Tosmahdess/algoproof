@@ -13,6 +13,7 @@ import PathToRealCard from '@/components/PathToRealCard'
 import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
+import BotTradeChartIsland from '@/components/BotTradeChartIsland'
 import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -89,6 +90,16 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
       {/* Filter + metrics + equity curve + trades — interactive client island */}
       <StrategyDetail bot={bot} />
+
+      {/* Real price chart + trade entry/exit segments — client island, ssr:false.
+          Bot has no single `asset` field (`assets: string[]`, some bots trade several
+          symbols); use the first as the primary one, same order used in the header above.
+          Renders null on any failure (unmappable asset, fetch error) — equity curve above
+          stays the fallback. */}
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold mb-3">Trades réels sur le prix</h2>
+        <BotTradeChartIsland asset={bot.assets[0] ?? ''} timeframe={bot.timeframe} trades={bot.all_trades} />
+      </section>
 
       {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
       {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}
