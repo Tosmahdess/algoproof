@@ -34,6 +34,7 @@ export default function BotTradeChart({
 
     fetchKlines(symbol, timeframeToInterval(timeframe)).then(candles => {
       if (cancelled || !ref.current) return
+      if (candles.length === 0) { setFailed(true); return }  // blank box is worse than fallback
       chart = createChart(ref.current, {
         autoSize: true,
         layout: { background: { type: ColorType.Solid, color: 'transparent' }, textColor: '#9ca3af' },
@@ -48,6 +49,7 @@ export default function BotTradeChart({
       for (const t of trades) {
         const o = Math.floor(new Date(t.opened_at).getTime() / 1000) as UTCTimestamp
         const c = Math.floor(new Date(t.closed_at).getTime() / 1000) as UTCTimestamp
+        if (!Number.isFinite(o) || !Number.isFinite(c)) continue  // malformed date: skip this trade only
         if (o < first) continue                       // outside the visible window
         if (t.entry_price == null || t.exit_price == null) continue  // degrade: no segment
         const color = t.pnl >= 0 ? '#22c55e' : '#ef4444'
@@ -66,6 +68,7 @@ export default function BotTradeChart({
   if (failed) return null   // fiche keeps its Recharts equity curve as fallback
   return (
     <div>
+      <h2 className="text-lg font-semibold mb-3">Trades réels sur le prix</h2>
       <div ref={ref} className="w-full h-[360px]" />
       <p className="text-xs text-gray-500 mt-1">
         Graphique <a href="https://www.tradingview.com" target="_blank" rel="noopener noreferrer" className="underline">TradingView</a> · bougies Binance · trades réels tracés à leur prix d&apos;exécution

@@ -107,10 +107,10 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Real price chart + trade entry/exit segments — client island, ssr:false.
           `chartAsset`/`chartTrades` computed above: only trades matching the charted asset's
           base symbol are passed, so a multi-asset bot never plots a foreign leg's trade on
-          top of this candle series. Renders null on any failure (unmappable asset, fetch
-          error) — equity curve above stays the fallback. */}
+          top of this candle series. Heading lives inside BotTradeChart so it disappears
+          together with the chart on any failure (unmappable asset, fetch error) — equity
+          curve above stays the fallback. Empty <section> margin-only remnant is acceptable. */}
       <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">Trades réels sur le prix</h2>
         <BotTradeChartIsland asset={chartAsset} timeframe={bot.timeframe} trades={chartTrades} />
       </section>
 
