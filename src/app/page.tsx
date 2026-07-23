@@ -4,6 +4,7 @@ import Link from 'next/link'
 import TrackedLink from '@/components/TrackedLink'
 import StatusBadge from '@/components/StatusBadge'
 import EmailCapture from '@/components/EmailCapture'
+import TVTickerTapeIsland from '@/components/TVTickerTapeIsland'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
@@ -85,6 +86,11 @@ export default async function HomePage() {
             et un cimetière public de stratégies rejetées
           </a>
         </div>
+      </div>
+
+      {/* Ambiance ticker — live crypto prices, purely decorative (no trading signal) */}
+      <div className="mb-16">
+        <TVTickerTapeIsland />
       </div>
 
       {/* Les 4 portes — router by interest, not by skill level */}

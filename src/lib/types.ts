@@ -28,6 +28,8 @@ export interface Trade {
   pnl: number
   reason: string | null
   is_paper: boolean
+  entry_price: number | null
+  exit_price: number | null
 }
 
 export interface PerfDaily {

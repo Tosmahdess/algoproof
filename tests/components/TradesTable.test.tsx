@@ -5,9 +5,9 @@ import { Trade } from '@/lib/types'
 
 const trades: Trade[] = [
   { id: '1', bot_id: 'b1', opened_at: '2026-04-01T10:00:00Z', closed_at: '2026-04-02T14:00:00Z',
-    asset: 'BTC/USDT', side: 'long', pnl: 23.4, reason: 'EMA cross', is_paper: true },
+    asset: 'BTC/USDT', side: 'long', pnl: 23.4, reason: 'EMA cross', is_paper: true, entry_price: null, exit_price: null },
   { id: '2', bot_id: 'b1', opened_at: '2026-04-03T08:00:00Z', closed_at: '2026-04-03T20:00:00Z',
-    asset: 'SOL/USDT', side: 'short', pnl: -8.2, reason: 'Stop loss', is_paper: true },
+    asset: 'SOL/USDT', side: 'short', pnl: -8.2, reason: 'Stop loss', is_paper: true, entry_price: null, exit_price: null },
 ]
 
 describe('TradesTable', () => {
