@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const PIECES = [
   { href: '/overview',     title: 'Mes bots',   desc: 'Des bots qui tradent en conditions réelles. Chaque trade est public, gains comme pertes.' },
-  { href: '/labo',         title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
+  { href: 'https://lab.algoproof.fr', title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
   { href: '/wealth',       title: 'Investir',   desc: 'Mon accumulation long terme (DCA) sur la crypto, les ETF et les actions, en transparence.' },
   { href: '/intelligence', title: 'Météo du marché', desc: 'La météo du marché que je calcule chaque jour : risque ON ou OFF, en français.' },
   { href: '/blog',         title: 'Apprendre',  desc: 'Mon journal, ma méthode, la fiscalité et la conformité MiCA — tout est documenté.' },
@@ -60,7 +60,7 @@ export default function AProposPage() {
       <section>
         <h2 className="text-xl font-bold mb-3">Gratuit ou payant ?</h2>
         <p className="text-muted leading-relaxed">
-          Tout ce que tu vois ici est en accès libre. <Link href="/labo" className="text-accent">Le labo</Link> sera
+          Tout ce que tu vois ici est en accès libre. <a href="https://lab.algoproof.fr" className="text-accent">Le labo</a> sera
           l&apos;espace où tu pourras tester tes propres stratégies ; il demandera un compte pour sauvegarder ton
           travail, mais l&apos;exploration restera ouverte. Rien de tout ça n&apos;est un conseil financier.
         </p>

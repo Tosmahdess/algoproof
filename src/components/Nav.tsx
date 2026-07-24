@@ -39,7 +39,6 @@ const MOBILE_GROUPS: { title: string; links: { href: string; label: string; exte
     { href: '/blog',         label: 'Apprendre' },
   ]},
   { title: 'Le labo', links: [
-    { href: '/labo', label: 'Découvrir le labo' },
     ...LABO_LINKS.map(l => ({ ...l, external: true })),
   ]},
 ]
@@ -93,15 +92,15 @@ export default function Nav() {
 
           {/* Le labo : CTA + dropdown miroir de MES BOTS */}
           <div className="relative group">
-            <Link
-              href="/labo"
+            <a
+              href="https://lab.algoproof.fr"
               className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black inline-flex items-center gap-1.5"
             >
               LE LABO
               <svg className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100" viewBox="0 0 10 6" fill="currentColor">
                 <path d="M0 0l5 6 5-6H0z"/>
               </svg>
-            </Link>
+            </a>
             <div className="absolute right-0 top-full mt-1 w-56 rounded border border-border bg-bg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
               {LABO_LINKS.map(({ href, label }) => (
                 <a key={href} href={href} target="_blank" rel="noopener noreferrer"

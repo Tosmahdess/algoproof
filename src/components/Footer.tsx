@@ -49,7 +49,7 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
     title: 'Le projet',
     links: [
       { href: '/a-propos', label: 'À propos' },
-      { href: '/labo',     label: 'Découvrir le labo' },
+      { href: LAB_URL,     label: 'Découvrir le labo', external: true },
       { href: '/lexique',  label: 'Lexique' },
       { href: '/faq',      label: 'FAQ' },
     ],

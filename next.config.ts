@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: '/wealth/analyses', destination: '/wealth', permanent: true },
+      // /labo internal landing removed 2026-07-24 (redundant with the lab subdomain — every
+      // card just funneled to lab.algoproof.fr). Redirect inbound/SEO links to the subdomain.
+      { source: '/labo', destination: 'https://lab.algoproof.fr', permanent: true },
       // 44 daily LLM journals purged 2026-07-04 (D026): redirect old URLs to the blog index
       { source: '/blog/:date(\\d{4}-\\d{2}-\\d{2})-journal', destination: '/blog', permanent: true },
       // Screening dossiers moved to the lab 2026-07-22: this path was live and deployed here first.
