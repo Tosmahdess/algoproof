@@ -19,7 +19,10 @@ const mockChain = (data: unknown, error: unknown = null) => {
     select: vi.fn().mockReturnThis(),
     neq:    vi.fn().mockReturnThis(),
     eq:     vi.fn().mockReturnThis(),
-    order:  vi.fn().mockResolvedValue(terminal),
+    // order is chainable (the chain is itself thenable, so awaiting after .order()
+    // still resolves) so that paginated fetches can call .range() after .order().
+    order:  vi.fn().mockReturnThis(),
+    range:  vi.fn().mockResolvedValue(terminal),
     single: vi.fn().mockResolvedValue(terminal),
   }
   return chain

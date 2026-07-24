@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { getBotWithStats } from '@/lib/queries'
+import { fmtPfDisplay, fmtWinRateDisplay } from '@/lib/display'
 
 export const runtime = 'nodejs'
 export const size = { width: 1200, height: 630 }
@@ -111,8 +112,8 @@ export default async function Image({ params }: { params: { slug: string } }) {
       >
         {[
           { label: 'P&L', value: `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`, color: pnlColor },
-          { label: 'Win Rate', value: `${(bot.stats.win_rate * 100).toFixed(1)}%`, color: '#e6edf3' },
-          { label: 'Profit Factor', value: bot.stats.profit_factor.toFixed(2), color: '#e6edf3' },
+          { label: 'Win Rate', value: fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate), color: '#e6edf3' },
+          { label: 'Profit Factor', value: fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor), color: '#e6edf3' },
           { label: 'Trades', value: String(bot.stats.total_trades), color: '#e6edf3' },
         ].map((stat, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>

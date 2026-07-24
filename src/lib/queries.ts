@@ -3,6 +3,7 @@ import { supabase } from './supabase'
 import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog, ScopeType } from './types'
 import { getStartCapital } from './start-capitals'
 import { fleetEntryAppliesTo } from './changelog'
+import { paginateAll } from './paginate'
 
 function withStartCapital<T extends { slug: string }>(row: T): T & { start_capital: number } {
   return { ...row, start_capital: getStartCapital(row.slug) }
@@ -35,22 +36,31 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
     .single()
   if (botErr || !bot) return null
 
-  const { data: trades, error: tradesErr } = await supabase
-    .from('trades')
-    .select('*')
-    .eq('bot_id', bot.id)
-    .order('closed_at', { ascending: false })
-  if (tradesErr) throw new Error(`trades fetch failed for bot ${bot.id}: ${tradesErr.message}`)
+  // Supabase caps a single request at 1000 rows — page through every row, otherwise
+  // PF/WR/capital silently reflect only the newest 1000 trades (and, for perf_daily
+  // ordered ascending, the OLDEST 1000 rows — freezing capital in the past). This is
+  // the same cap /performance already pages around. See paginate.ts.
+  const allTrades = await paginateAll<Trade>(async (from, to) => {
+    const { data, error } = await supabase
+      .from('trades')
+      .select('*')
+      .eq('bot_id', bot.id)
+      .order('closed_at', { ascending: false })
+      .range(from, to)
+    if (error) throw new Error(`trades fetch failed for bot ${bot.id}: ${error.message}`)
+    return (data ?? []) as Trade[]
+  })
 
-  const { data: perf, error: perfErr } = await supabase
-    .from('perf_daily')
-    .select('*')
-    .eq('bot_id', bot.id)
-    .order('date', { ascending: true })
-  if (perfErr) throw new Error(`perf_daily fetch failed for bot ${bot.id}: ${perfErr.message}`)
-
-  const allTrades: Trade[] = trades ?? []
-  const allPerf: PerfDaily[] = perf ?? []
+  const allPerf = await paginateAll<PerfDaily>(async (from, to) => {
+    const { data, error } = await supabase
+      .from('perf_daily')
+      .select('*')
+      .eq('bot_id', bot.id)
+      .order('date', { ascending: true })
+      .range(from, to)
+    if (error) throw new Error(`perf_daily fetch failed for bot ${bot.id}: ${error.message}`)
+    return (data ?? []) as PerfDaily[]
+  })
   const startCapital = getStartCapital(bot.slug)
 
   const wins = allTrades.filter(t => t.pnl > 0).length
@@ -168,14 +178,22 @@ export async function getTriggerData(slug: string): Promise<TriggerData | null> 
   // paper-mirror ledger as its official public track record since real position
   // sizes are too small to be meaningful) — filtering on is_paper=false here
   // silently zeroed out the counter while the fiche showed 13 trades / PF 2.00.
-  const { data: trades, error: tradesErr } = await supabase
-    .from('trades')
-    .select('pnl')
-    .eq('bot_id', bot.id)
-    .order('closed_at', { ascending: false })
-  if (tradesErr) return null
-
-  const all = trades ?? []
+  // Page through the full trade set (1000-row cap) so PF/total match getBotWithStats.
+  let all: { pnl: number }[]
+  try {
+    all = await paginateAll<{ pnl: number }>(async (from, to) => {
+      const { data, error } = await supabase
+        .from('trades')
+        .select('pnl')
+        .eq('bot_id', bot.id)
+        .order('closed_at', { ascending: false })
+        .range(from, to)
+      if (error) throw new Error(error.message)
+      return (data ?? []) as { pnl: number }[]
+    })
+  } catch {
+    return null
+  }
   if (all.length === 0) return { profitFactor: 0, totalTrades: 0, isLive: bot.status === 'live' }
 
   const grossProfit = all.filter((t: { pnl: number }) => t.pnl > 0).reduce((s: number, t: { pnl: number }) => s + t.pnl, 0)

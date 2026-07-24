@@ -30,12 +30,15 @@ async function getData() {
   // otherwise the "P&L total" silently reflects only the 1000 most recent trades.
   const [trades, botsRes] = await Promise.all([
     paginateAll<TradeRow>(async (from, to) => {
-      const { data } = await supabaseServer
+      const { data, error } = await supabaseServer
         .from('trades')
         .select('pnl,side,closed_at,bot_id,asset')
         .not('closed_at', 'is', null)
         .order('closed_at', { ascending: false })
         .range(from, to)
+      // Fail loud: swallowing the error made paginateAll stop early on a short page,
+      // publishing a truncated P&L total as fact (mirror the throw pattern in queries.ts).
+      if (error) throw new Error(`/performance trades fetch failed: ${error.message}`)
       return (data ?? []) as TradeRow[]
     }),
     supabaseServer
@@ -43,6 +46,9 @@ async function getData() {
       .select('id,slug,name,family,status')
       .neq('status', 'frozen'),
   ])
+
+  // A failed bots fetch would empty liveBotIds → real P&L rendered as +0.00; fail loud instead.
+  if (botsRes.error) throw new Error(`/performance bots fetch failed: ${botsRes.error.message}`)
 
   // Archived bots stay listed on /strategies but are excluded from performance:
   // drop their rows and their trades from the P&L totals.

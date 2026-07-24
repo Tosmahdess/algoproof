@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { getBotWithStats } from '@/lib/queries'
-import { pnlEur, fmtEur } from '@/lib/display'
+import { pnlEur, fmtEur, fmtPfDisplay, fmtWinRateDisplay } from '@/lib/display'
 
 export const runtime = 'nodejs'
 export const revalidate = 3600
@@ -17,8 +17,8 @@ export async function GET(
   const isLive = bot.status === 'live'
 
   const metrics = [
-    { label: 'T. GAIN',   value: `${(bot.stats.win_rate * 100).toFixed(1)}%`, color: '#e6edf3' },
-    { label: 'F. PROFIT', value: bot.stats.profit_factor.toFixed(2),          color: bot.stats.profit_factor >= 1 ? '#3fb950' : '#ff4444' },
+    { label: 'T. GAIN',   value: fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate), color: '#e6edf3' },
+    { label: 'F. PROFIT', value: fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor), color: bot.stats.profit_factor >= 1 ? '#3fb950' : '#ff4444' },
     { label: 'DRAWDOWN',  value: `${(bot.stats.max_drawdown * 100).toFixed(1)}%`, color: '#ff4444' },
     { label: 'P&L',       value: fmtEur(eur),                                 color: eur >= 0 ? '#3fb950' : '#ff4444' },
   ]

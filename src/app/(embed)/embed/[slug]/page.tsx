@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
-import { pnlEur, fmtEur } from '@/lib/display'
+import { pnlEur, fmtEur, fmtPfDisplay, fmtWinRateDisplay } from '@/lib/display'
 
 export const revalidate = 3600
 export const dynamicParams = true
@@ -23,8 +23,8 @@ export default async function EmbedPage({ params }: { params: Promise<{ slug: st
   const isLive = bot.status === 'live'
 
   const metrics: Array<{ label: string; value: string; neutral?: boolean; pos?: boolean }> = [
-    { label: 'T. GAIN',   value: `${(bot.stats.win_rate * 100).toFixed(1)}%`, neutral: true },
-    { label: 'F. PROFIT', value: bot.stats.profit_factor.toFixed(2),          pos: bot.stats.profit_factor >= 1 },
+    { label: 'T. GAIN',   value: fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate), neutral: true },
+    { label: 'F. PROFIT', value: fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor), pos: bot.stats.profit_factor >= 1 },
     { label: 'DRAWDOWN',  value: `${(bot.stats.max_drawdown * 100).toFixed(1)}%`, pos: false },
     { label: 'P&L',       value: fmtEur(eur),                                 pos: eur >= 0 },
   ]
