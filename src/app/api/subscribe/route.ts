@@ -22,11 +22,13 @@ function corsHeaders(request: NextRequest): Record<string, string> {
 
 async function notifyTelegram(email: string, source: string) {
   if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return
-  const text = `📬 *Nouvel inscrit email AlgoProof*\n\n${email}\n_source : ${source}_`
+  // Plain text, no parse_mode: the email local-part is user-controlled and must not be
+  // interpreted as Telegram Markdown.
+  const text = `📬 Nouvel inscrit email AlgoProof\n\n${email}\nsource : ${source}`
   await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: 'Markdown' }),
+    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text }),
   }).catch(() => {})
 }
 

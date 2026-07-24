@@ -12,6 +12,7 @@ export default function DiscussionTab({ slug }: Props) {
   const [comments,   setComments]   = useState<Comment[]>([])
   const [pseudo,     setPseudo]     = useState('')
   const [message,    setMessage]    = useState('')
+  const [website,    setWebsite]    = useState('') // honeypot — real users never fill this
   const [loading,    setLoading]    = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [submitted,  setSubmitted]  = useState(false)
@@ -43,7 +44,7 @@ export default function DiscussionTab({ slug }: Props) {
       const res = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bot_slug: slug, pseudo, message }),
+        body: JSON.stringify({ bot_slug: slug, pseudo, message, website }),
       })
       if (!res.ok) throw new Error("Erreur lors de l'envoi")
       setSubmitted(true)
@@ -81,13 +82,24 @@ export default function DiscussionTab({ slug }: Props) {
 
       {submitted ? (
         <p className="text-xs text-positive">
-          Message envoyé — il apparaîtra après modération.
+          Message publié — merci !
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3 border-t border-border pt-4">
           <p className="text-xs font-semibold text-muted uppercase tracking-widest">
             Poser une question
           </p>
+          {/* Honeypot: hidden from users, bots fill it → server drops the submit. */}
+          <input
+            type="text"
+            name="website"
+            value={website}
+            onChange={e => setWebsite(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="hidden"
+          />
           <input
             type="text"
             placeholder="Pseudo"

@@ -15,7 +15,8 @@ export async function GET() {
     .select('*')
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('[growth-universe]', error.message)
+    return NextResponse.json({ error: 'internal error' }, { status: 500 })
   }
 
   const sorted = (data ?? []).sort((a, b) => {
