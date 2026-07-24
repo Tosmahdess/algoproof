@@ -15,7 +15,7 @@ describe('Nav — 4 hubs + Labo CTA', () => {
 
   it('renders the Labo CTA with its dropdown (lab surfaces + vote + membres)', () => {
     render(<Nav />)
-    const cta = screen.getAllByRole('link').find(a => a.getAttribute('href') === '/labo' && /le labo/i.test(a.textContent ?? ''))
+    const cta = screen.getAllByRole('link').find(a => a.getAttribute('href') === 'https://lab.algoproof.fr' && /le labo/i.test(a.textContent ?? ''))
     expect(cta).toBeDefined()
     for (const label of [/tutoriels/i, /bibliothèque/i, /agents ia/i, /vote du labo/i, /membres/i]) {
       expect(screen.getByText(label)).toBeDefined()
