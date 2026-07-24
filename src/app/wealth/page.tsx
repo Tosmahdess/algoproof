@@ -11,8 +11,6 @@ import type { BotChangelog, GrowthAsset, Verdict } from '@/lib/types'
 import ComponentChangelog from '@/components/ComponentChangelog'
 import AnalysesClient from '@/components/AnalysesClient'
 import type { FicheIndexRow } from '@/lib/equity'
-import TVMiniChart from '@/components/tv/TVMiniChart'
-import { assetToWidgetSymbol } from '@/lib/tv-symbol'
 
 // Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
 type CoveredFiche = { ticker: string; verdict: Verdict; generated_at: string; price_at_generation: number | null; ticker_yf: string }
@@ -187,17 +185,6 @@ export default function WealthPage() {
     return acc
   }, {} as Record<string, FicheLite>)
 
-  // Ambiance mini-charts: only watchlist tickers that map to a TradingView/Binance
-  // widget symbol (crypto pairs). Most of the GROWTH universe is equities
-  // (NVDA, LVMH...), which assetToWidgetSymbol can't map — those are skipped, not
-  // an error. Ticker strings come from growthUniverse (internal API data), never
-  // from user input.
-  const chartableAssets = growthUniverse.reduce((acc, a) => {
-    const symbol = assetToWidgetSymbol(a.ticker)
-    if (symbol) acc.push({ ticker: a.ticker, symbol })
-    return acc
-  }, [] as { ticker: string; symbol: string }[])
-
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
       <JsonLd data={faqJsonLd([
@@ -253,22 +240,6 @@ export default function WealthPage() {
           loading={loading}
         />
       </section>
-
-      {/* Ambiance mini-charts — crypto tickers from the watchlist only (equities
-          aren't mappable to a TradingView/Binance symbol). Renders nothing if
-          the watchlist has no crypto entry this cycle. */}
-      {chartableAssets.length > 0 && (
-        <section>
-          <h2 className="text-base font-bold tracking-tight mb-6">Aperçu marché</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {chartableAssets.map(a => (
-              <div key={a.ticker} className="bg-card border border-border rounded-xl p-2">
-                <TVMiniChart symbol={a.symbol} />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* GROWTH — analyses par secteur (moved up: the fiches are the product) */}
       <section id="analyses">
