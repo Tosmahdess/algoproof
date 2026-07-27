@@ -1,0 +1,71 @@
+---
+title: "Quand le marché hésite, les shorts sauvent la semaine"
+date: "2026-07-26"
+category: "weekly"
+tags: ["weekly", "performance"]
+summary: "Semaine en territoire négatif pour mes bots en réel, mais les positions short ont limité la casse. En simulation, 514 trades révèlent une asymétrie inquiétante entre longs et shorts."
+---
+
+## Mes bots en réel
+
+> Suivi sur une base normalisée de 1 000 €, pour comparer mes deux bots sur un pied d'égalité. Ce n'est pas un solde broker brut.
+
+<StatRow>
+  <Stat label="Trades (semaine)" value="14" />
+  <Stat label="P&L (semaine)" value="-9,29 €" subtext="base 1 000 €" />
+  <Stat label="Taux de réussite" value="57,1 %" subtext="8 gagnants / 14" />
+  <Stat label="P&L cumulé (all-time)" value="+57,09 €" subtext="depuis le début, rodage inclus" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Meilleur trade de la semaine" sub="NEAR-USDC" metrics="Sens: short | P&L: +14,81 €" intent="positive" />
+  <DataCard label="Pire trade de la semaine" sub="ETH-USDC" metrics="Sens: long | P&L: -10,84 €" intent="negative" />
+  <DataCard label="Côté long (8 trades)" metrics="P&L: -11,50 € | Taux de réussite: 50,0 %" intent="negative" />
+  <DataCard label="Côté short (6 trades)" metrics="P&L: +2,21 € | Taux de réussite: 66,7 %" intent="positive" />
+</DataCardGroup>
+
+La semaine est dans le rouge, avec -9,29 € sur base 1 000 €. Pourtant, il y a quelque chose d'instructif ici : mes positions short ont tenu bon (66,7 % de réussite, légèrement positives sur la semaine) pendant que mes longs souffraient. Le meilleur trade, NEAR-USDC short à +14,81 €, a presque compensé à lui seul le pire, ETH-USDC long à -10,84 €.
+
+Le contexte marché explique beaucoup. Bitcoin se situe environ 10 % en dessous de sa moyenne de prix sur 200 jours, ce qui place le marché en régime baissier. Mon tableau de bord global affiche un score négatif. Dans ce contexte, les longs subissent une pression structurelle, ce qui colle exactement à ce que je vois dans les chiffres : 50 % de réussite côté long, contre 66,7 % côté short.
+
+Le cumulé depuis le début reste positif à +57,09 € sur base 1 000 €. C'est modeste, mais c'est réel.
+
+---
+
+## Laboratoire (simulation)
+
+> Ce qui suit concerne exclusivement des trades simulés. Aucun euro n'a été perdu ou gagné. Le P&L paper est le coût de la simulation cette semaine : de l'argent qui n'existe pas, dépensé pour apprendre.
+
+<StatRow>
+  <Stat label="Trades simulés" value="514" />
+  <Stat label="Coût de simulation" value="-262,36 € (fictifs)" />
+  <Stat label="Taux de réussite global" value="79,8 %" subtext="410 gagnants / 514" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Meilleur trade simulé" sub="OP-USDT short" metrics="P&L fictif: +7,46 €" intent="positive" />
+  <DataCard label="Pire trade simulé" sub="XRP-USDT short" metrics="P&L fictif: -12,76 €" intent="negative" />
+  <DataCard label="Longs simulés (388 trades)" metrics="Taux de réussite: 86,3 % | P&L fictif: -142,76 €" intent="neutral" />
+  <DataCard label="Shorts simulés (126 trades)" metrics="Taux de réussite: 59,5 % | P&L fictif: -119,60 €" intent="negative" />
+</DataCardGroup>
+
+Ce qui saute aux yeux cette semaine dans le laboratoire, c'est une contradiction apparente : 79,8 % de trades gagnants pour un résultat global négatif. C'est le paradoxe classique d'un ratio gain/perte (PF, profit factor) insuffisant. Beaucoup de petites victoires, mais les pertes quand elles arrivent sont trop lourdes.
+
+Le côté long affiche 86,3 % de réussite mais perd -142,76 € fictifs. Le côté short perd encore plus en proportion malgré seulement 126 trades. Le pire trade, XRP-USDT short à -12,76 € fictifs, illustre le problème : un seul stop-loss (le niveau de sortie en perte programmé à l'avance) mal calibré peut effacer beaucoup de petits gains.
+
+Mon indicateur de biais de marché signale actuellement une configuration où les deux sens sont sous pression, et un filtre de sécurité interne a détecté des conditions de financement défavorables côté long en simulation. Ces observations guident mes prochains ajustements.
+
+---
+
+## Leçon de la semaine
+
+> Un marché baissier ne signifie pas qu'il faut arrêter de trader : il signifie qu'il faut trader avec plus de discernement sur le sens, et laisser les données décider à la place de l'intuition.
+
+---
+
+## Prochaines étapes
+
+- Analyser pourquoi les longs en simulation affichent 86,3 % de réussite mais un résultat fictif négatif : le ratio moyen gain/perte est probablement trop faible et mérite un recalibrage des niveaux de sortie.
+- Surveiller l'évolution de Bitcoin par rapport à sa moyenne de prix sur 200 jours : tant que le marché reste en dessous, je maintiens une vigilance accrue sur les positions longues en réel.
+- Comparer le comportement du bot spot Kraken et du bot de cassure séparément la semaine prochaine, pour isoler lequel souffre le plus du régime baissier actuel.
+- Continuer le suivi du filtre de sécurité lié aux conditions de financement : si la pression sur les longs persiste en simulation, cela pourrait justifier un ajustement de l'exposition côté long en réel.
