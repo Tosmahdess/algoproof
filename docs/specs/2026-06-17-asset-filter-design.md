@@ -1,5 +1,7 @@
 # Spec — Filtre par actif (asset filter)
 
+> **SUPERSEDÉ (2026-07-31, refonte frontière).** Ce document décrit un filtre porté par `PerformanceClient`, `OverviewClient`, `StrategiesClient` et `StrategyDetail` : les trois premiers n'existent plus (page `/performance` absorbée par `/overview`, `/strategies` devenu la bibliothèque de concepts). Ce qui subsiste : `AssetFilterSelect` + `StrategyDetail` sur la fiche d'un bot, et la facette `asset` de `src/lib/bot-filters.ts` (URL `?asset=`, sans contrôle dédié dans `FleetFilterBar` à ce jour). À lire comme une archive de conception, jamais comme des instructions d'édition.
+
 > Date : 2026-06-17
 > Repo : `D:\code\algoproof` (algoproof.fr, Next.js 14 + Supabase)
 > Statut : design validé, prêt pour plan d'implémentation

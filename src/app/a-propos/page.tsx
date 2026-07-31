@@ -64,7 +64,7 @@ export default function AProposPage() {
         <p className="text-muted leading-relaxed">
           Tout est gratuit aujourd&apos;hui, site et <a href="https://lab.algoproof.fr" className="text-accent">labo</a> compris,
           et aucune offre payante n&apos;est active. Quand une offre arrivera, elle portera sur la configuration exacte
-          des bots et sur leur dossier de validation — jamais sur leurs résultats, qui resteront publics et gratuits.{' '}
+          des bots et sur leur dossier de validation, jamais sur leurs résultats, qui resteront publics et gratuits.{' '}
           <Link href="/preuve" className="text-accent">Où passera la ligne, en détail →</Link>
         </p>
       </section>

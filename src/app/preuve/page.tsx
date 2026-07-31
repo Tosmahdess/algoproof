@@ -47,7 +47,7 @@ export default function PreuvePage() {
         <p className="text-sm mb-3">
           Tout ce que mes bots font restera public, gratuitement, pour toujours :
           leurs trades, leurs pertes, leur historique, et le cimetière des
-          stratégies que j&apos;ai tuées. On pourra toujours les voir tourner, avec
+          stratégies que j&apos;ai tuées. Tu pourras toujours les voir tourner, avec
           leurs chiffres.
         </p>
         <p className="text-sm mb-3">
@@ -66,7 +66,7 @@ export default function PreuvePage() {
           pas.
         </p>
         <p className="text-sm">
-          L&apos;abonnement donnera accès à de la recherche et à un outil. Il ne
+          Un abonnement donnera accès à de la recherche et à un outil. Il ne
           promettra aucun gain, ne donnera aucun conseil, et ne s&apos;occupera
           jamais de l&apos;argent de qui que ce soit.
         </p>

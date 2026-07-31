@@ -22,7 +22,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
   return (
     <section data-testid="fleet-recent-trades" className="bg-card border border-border rounded-lg p-6">
       <h2 className="text-xs uppercase tracking-wider text-muted mb-4">
-        Les {trades.length} derniers trades — tous bots
+        Les {trades.length} derniers trades, tous bots
       </h2>
       <div className="-mx-2 overflow-x-auto">
         <table className="w-full text-xs min-w-[480px]">

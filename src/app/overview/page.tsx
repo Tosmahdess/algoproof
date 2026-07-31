@@ -26,7 +26,7 @@ import { faqJsonLd } from '@/lib/jsonld'
 // 15+ does not cache fetch() by default.
 
 export const metadata: Metadata = {
-  title: 'La flotte — ce qui tourne, avec quel argent',
+  title: 'La flotte : ce qui tourne, avec quel argent',
   description:
     'Tous mes bots de trading : ceux en argent réel, ceux en laboratoire, et le bilan brut sans filtre.',
   openGraph: { url: 'https://algoproof.fr/overview' },
