@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import StrategiesClient from '@/components/StrategiesClient'
 import type { BotWithStats } from '@/lib/types'
+import { FAMILY_ORDER, familyLabel } from '@/lib/families'
 
 vi.mock('@/components/BotCard', () => ({
   default: ({ bot }: { bot: BotWithStats }) => (
@@ -50,6 +51,42 @@ describe('StrategiesClient', () => {
     expect(screen.getByTestId('bot-v1-spot')).toBeDefined()
     expect(screen.queryByTestId('bot-ema-cross')).toBeNull()
     expect(screen.queryByTestId('bot-keltner')).toBeNull()
+  })
+
+  // FIX (final review, C1): the FAMILIES list was hand-written and held five of
+  // the nine canonical families. A paper bot only renders INSIDE a family
+  // section, so a momentum / price-action / stat-arb / event bot was counted in
+  // the header and rendered nowhere. This test walks the taxonomy itself, so it
+  // fails the day a family is added to families.ts and forgotten here.
+  it('renders a section, a filter pill and the bot itself for EVERY canonical family', () => {
+    const oneBotPerFamily = FAMILY_ORDER.map((family, i) =>
+      makeBot({ id: `f${i}`, slug: `bot-${family}`, name: `Bot ${family}`, status: 'paper', family }),
+    )
+    render(<StrategiesClient bots={oneBotPerFamily} />)
+
+    for (const family of FAMILY_ORDER) {
+      // the section exists and is anchored on the family slug
+      expect(document.getElementById(family)).not.toBeNull()
+      // its label comes from families.ts, not from a second local copy
+      expect(screen.getAllByText(familyLabel(family)).length).toBeGreaterThan(0)
+      // and the bot of that family is actually rendered by that section
+      expect(screen.getByTestId(`bot-bot-${family}`)).toBeDefined()
+    }
+  })
+
+  it('shows as many bots as the header counts (no family renders nowhere)', () => {
+    const oneBotPerFamily = FAMILY_ORDER.map((family, i) =>
+      makeBot({ id: `f${i}`, slug: `bot-${family}`, name: `Bot ${family}`, status: 'paper', family }),
+    )
+    render(<StrategiesClient bots={oneBotPerFamily} />)
+    expect(screen.getByText(new RegExp(`${FAMILY_ORDER.length} bots actifs`))).toBeDefined()
+    expect(screen.getAllByTestId(/^bot-bot-/)).toHaveLength(FAMILY_ORDER.length)
+  })
+
+  it('labels market-neutral exactly as families.ts does, on every page', () => {
+    render(<StrategiesClient bots={[makeBot({ slug: 'xsec', family: 'market-neutral' })]} />)
+    expect(screen.getAllByText('Neutre au marché').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Marché neutre')).toBeNull()
   })
 
   it('reset button clears both filters and shows all bots', () => {

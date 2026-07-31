@@ -7,31 +7,65 @@ import AssetFilterSelect from '@/components/AssetFilterSelect'
 import { assetOptionsFromTrades } from '@/lib/asset'
 import { computeBotStats } from '@/lib/stats'
 import { splitCohorts } from '@/lib/cohort'
+import { FAMILY_ORDER, familyLabel, type Family } from '@/lib/families'
 
 type StatusFilter = 'all' | 'live' | 'paper'
 
-const FAMILIES = [
-  {
-    slug: 'trend', label: 'Suivi de tendance', color: '#ff6b35',
+// FIX (final review, C1): this used to be a hand-written array of FIVE families.
+// The taxonomy has nine (src/lib/families.ts, mirroring migration 017), and a
+// paper bot only ever renders INSIDE one of these sections — so a bot whose
+// family was momentum / price-action / stat-arb / event was counted in the
+// header above and rendered by no section at all, making the header claim more
+// bots than the page showed.
+//
+// `Record<Family, …>` is the point: the compiler fails on a missing entry the
+// day a tenth family lands, which an array literal could never do. Labels are
+// NOT redeclared here — familyLabel() is the single source of truth (this file
+// used to say « Marché neutre » where families.ts says « Neutre au marché »).
+const FAMILY_META: Record<Family, { color: string; description: string }> = {
+  trend: {
+    color: '#ff6b35',
     description: "Les stratégies de suivi de tendance exploitent les mouvements directionnels du marché. Le bot entre quand la tendance est confirmée et sort quand elle s'affaiblit. Peu de trades, mais un excellent ratio gain/risque quand ils se déclenchent.",
   },
-  {
-    slug: 'breakout', label: 'Cassure', color: '#3fb950',
+  momentum: {
+    color: '#58a6ff',
+    description: "Le momentum mesure la vitesse d'un mouvement plutôt que sa direction de fond. Le bot entre quand l'accélération est nette et ressort dès qu'elle retombe, sans attendre qu'une tendance longue soit installée.",
+  },
+  breakout: {
+    color: '#3fb950',
     description: "Détecte quand le prix franchit un niveau clé ou sort d'une zone de consolidation. Ces bots capturent l'élan naissant au début d'un nouveau mouvement.",
   },
-  {
-    slug: 'mean-reversion', label: 'Retour à la moyenne', color: '#7c3aed',
+  'mean-reversion': {
+    color: '#7c3aed',
     description: "Ces stratégies exploitent les excès de marché : le prix s'est écarté de sa valeur d'équilibre et tend à y revenir. Entrée en contre-tendance, sortie rapide dès la normalisation.",
   },
-  {
-    slug: 'carry', label: 'Portage', color: '#f6c90e',
+  'price-action': {
+    color: '#d2a8ff',
+    description: "Ici le bot lit le graphique lui-même : zones de déséquilibre laissées par un mouvement trop rapide, niveaux retravaillés plusieurs fois, réaction du prix à une zone déjà connue. Aucun indicateur calculé — seulement la structure des bougies.",
+  },
+  carry: {
+    color: '#f6c90e',
     description: "Les stratégies de portage capturent un rendement récurrent sans pari directionnel. Elles encaissent des taux de financement (delta-neutre) ou exploitent la volatilité dans un range fixe (grille). Le rendement est indépendant de la hausse ou baisse du marché.",
   },
-  {
-    slug: 'market-neutral', label: 'Marché neutre', color: '#14b8a6',
+  'market-neutral': {
+    color: '#14b8a6',
     description: "Stratégies neutres au marché : autant de positions longues que courtes, pour ne pas dépendre de la hausse ou de la baisse générale. Le rendement vient de l'écart entre les actifs sélectionnés — les forts contre les faibles — et non de la direction du marché.",
   },
-]
+  'stat-arb': {
+    color: '#40c4ff',
+    description: "L'arbitrage statistique parie sur le retour d'un écart entre deux actifs qui bougent habituellement ensemble. Le bot achète le retardataire, vend l'autre, et gagne quand l'écart se referme — quel que soit le sens du marché.",
+  },
+  event: {
+    color: '#fb923c',
+    description: "L'événementiel se déclenche sur un fait daté et connu à l'avance : déblocage de tokens, publication macro, annonce d'un exchange. La position est prise autour de l'événement et refermée une fois son effet absorbé.",
+  },
+}
+
+const FAMILIES = FAMILY_ORDER.map(slug => ({
+  slug,
+  label: familyLabel(slug),
+  ...FAMILY_META[slug],
+}))
 
 export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')

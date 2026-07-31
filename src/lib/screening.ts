@@ -88,7 +88,8 @@ export function marginLabel(
 
 /**
  * Resolves a bot's screening origin by its slug, independent of any strategy-family label the
- * bot record itself carries. Bot.family (trend/breakout/mean-reversion/carry/market-neutral) is
+ * bot record itself carries. Bot.family (the nine slugs in src/lib/families.ts — trend, momentum,
+ * breakout, mean-reversion, price-action, carry, market-neutral, stat-arb, event) is
  * a coarse behavioural bucket shared by many distinct screening bases (EMAcross, Donchian,
  * ATRChannel, ... are all "trend"), so it cannot be used to look up a single campaign — hence
  * this direct bot_slug -> candidate -> campaign lookup instead of guessing a base. Degrades to
