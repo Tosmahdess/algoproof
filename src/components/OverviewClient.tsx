@@ -26,6 +26,10 @@ interface BotView extends BotWithStats {
   breakdown: { total: number; long: number; short: number }
 }
 
+// These maps still cover the original five families, not the nine-family taxonomy in
+// src/lib/families.ts. The `?? '#888'` / `?? '—'` fallbacks below are load-bearing for
+// momentum/price-action/stat-arb/event bots (the four families missing here) until this
+// component is rewritten.
 const FAMILY_LABEL: Record<string, string> = {
   trend: 'Suivi de tendance', breakout: 'Cassure',
   'mean-reversion': 'Retour à la moyenne', carry: 'Portage',
@@ -254,8 +258,8 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mt-0.5">
                     <span className="text-xs font-semibold uppercase"
-                      style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
-                      {FAMILY_LABEL[bot.family ?? ''] ?? '—'}
+                      style={{ color: FAMILY_COLOR[bot.family] ?? '#888' }}>
+                      {FAMILY_LABEL[bot.family] ?? '—'}
                     </span>
                     {hasData && (
                       <span className={`text-xs ${isLowSample(bot.stats.total_trades) ? 'text-yellow-400/90' : 'text-muted'}`}>
@@ -322,8 +326,8 @@ export default function OverviewClient({ bots, recentTrades }: Props) {
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
-                        {FAMILY_LABEL[bot.family ?? ''] ?? bot.family ?? '—'}
+                        style={{ color: FAMILY_COLOR[bot.family] ?? '#888' }}>
+                        {FAMILY_LABEL[bot.family] ?? '—'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-muted hidden lg:table-cell">{bot.exchange}</td>
