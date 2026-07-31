@@ -155,12 +155,25 @@ const PREDICATES = {
 
 type FacetKey = keyof typeof PREDICATES
 
+// A `backtest` bot is an engine CANDIDATE that has never been deployed: no
+// paper run, no live run, nothing a visitor should ever see. The spec is
+// explicit that only deployed bots get a public page. This is a visibility
+// rule, not a facet choice, so it is not a `status` branch inside PREDICATES
+// (a user could otherwise select `status=paper` and, on a pristine facet,
+// still see it) — it is enforced unconditionally, before any facet runs.
+function isPubliclyVisible(bot: FilterableBot): boolean {
+  return bot.status !== 'backtest'
+}
+
 export function applyFleetFilters<T extends FilterableBot>(bots: T[], s: FleetFilterState): T[] {
-  return bots.filter(b => (Object.keys(PREDICATES) as FacetKey[]).every(k => PREDICATES[k](b, s)))
+  return bots.filter(b =>
+    isPubliclyVisible(b) && (Object.keys(PREDICATES) as FacetKey[]).every(k => PREDICATES[k](b, s)),
+  )
 }
 
 function applyExcept<T extends FilterableBot>(bots: T[], s: FleetFilterState, skip: FacetKey): T[] {
   return bots.filter(b =>
+    isPubliclyVisible(b) &&
     (Object.keys(PREDICATES) as FacetKey[]).filter(k => k !== skip).every(k => PREDICATES[k](b, s)),
   )
 }
@@ -203,9 +216,20 @@ export function optionCounts<T extends FilterableBot>(bots: T[], s: FleetFilterS
   return { family, status, venue, timeframe }
 }
 
+// `direction` is deliberately excluded: it narrows nothing (see the doc
+// comment on `DirectionFilterValue` above), so counting it here would tell a
+// visitor "1 filtre actif" while the register still lists every bot.
 export function activeFilterCount(s: FleetFilterState): number {
-  return s.family.length + s.status.length + s.asset.length + s.timeframe.length +
-    s.venue.length + (s.direction === 'all' ? 0 : 1)
+  return s.family.length + s.status.length + s.asset.length + s.timeframe.length + s.venue.length
+}
+
+/**
+ * Whether the direction switch is off its default. NOT a filter count: it
+ * changes what the numbers mean, not which bots are listed. The filter bar
+ * mentions it separately so a non-default direction is never silently applied.
+ */
+export function isDirectionNarrowed(s: FleetFilterState): boolean {
+  return s.direction !== 'all'
 }
 
 /**
@@ -234,7 +258,10 @@ export function describeEmptyResult(bots: FilterableBot[], s: FleetFilterState):
     { key: 'status', describe: () => s.status.join(', ') },
   ]
 
-  let remaining = bots
+  // Start from the publicly visible set: a `backtest` candidate must never be
+  // the thing "blamed" for an empty result, since it was never a candidate
+  // for display in the first place (see `isPubliclyVisible`).
+  let remaining = bots.filter(isPubliclyVisible)
   for (const facet of facets) {
     const next = remaining.filter(b => PREDICATES[facet.key](b, s))
     if (next.length === 0 && remaining.length > 0) {

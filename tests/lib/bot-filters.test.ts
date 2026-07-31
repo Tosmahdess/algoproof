@@ -6,6 +6,7 @@ import {
   applyFleetFilters,
   optionCounts,
   activeFilterCount,
+  isDirectionNarrowed,
   describeEmptyResult,
 } from '@/lib/bot-filters'
 import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
@@ -49,8 +50,27 @@ describe('parse and serialize', () => {
 })
 
 describe('applyFleetFilters', () => {
-  it('returns everything when nothing is selected', () => {
-    expect(applyFleetFilters(FIXTURE_FLEET, EMPTY_FILTERS)).toHaveLength(FIXTURE_FLEET.length)
+  it('returns every publicly visible bot when nothing is selected', () => {
+    // Not FIXTURE_FLEET.length: the fleet also contains a `backtest` candidate
+    // that must never be publicly listed (see the dedicated test below).
+    const publiclyVisible = FIXTURE_FLEET.filter(b => b.status !== 'backtest')
+    expect(applyFleetFilters(FIXTURE_FLEET, EMPTY_FILTERS)).toHaveLength(publiclyVisible.length)
+  })
+
+  it('excludes a backtest candidate under every filter state, including the pristine one', () => {
+    // status='backtest' means an engine candidate that has never been
+    // deployed: no paper run, no live run. It must never reach the public
+    // fleet, regardless of which facets are selected — this is a visibility
+    // rule, not something a `status` filter choice can opt back into.
+    const candidate = FIXTURE_FLEET.find(b => b.status === 'backtest')
+    expect(candidate).toBeDefined()
+
+    expect(applyFleetFilters(FIXTURE_FLEET, EMPTY_FILTERS).map(b => b.slug))
+      .not.toContain(candidate!.slug)
+    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, status: ['paper'] }).map(b => b.slug))
+      .not.toContain(candidate!.slug)
+    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, family: [candidate!.family] }).map(b => b.slug))
+      .not.toContain(candidate!.slug)
   })
 
   it('ORs within a facet and ANDs across facets', () => {
@@ -108,6 +128,15 @@ describe('optionCounts', () => {
     const counts = optionCounts(FIXTURE_FLEET, { ...EMPTY_FILTERS, family: ['trend'] })
     expect(counts.family.breakout).toBeGreaterThan(0)
   })
+
+  it('does not count a backtest candidate anywhere', () => {
+    const candidate = FIXTURE_FLEET.find(b => b.status === 'backtest')!
+    const counts = optionCounts(FIXTURE_FLEET, EMPTY_FILTERS)
+    const familyOnlyFromCandidate = FIXTURE_FLEET.filter(
+      b => b.status !== 'backtest' && b.family === candidate.family,
+    ).length
+    expect(counts.family[candidate.family]).toBe(familyOnlyFromCandidate)
+  })
 })
 
 describe('activeFilterCount', () => {
@@ -118,6 +147,19 @@ describe('activeFilterCount', () => {
 
   it('does not count sort as a filter', () => {
     expect(activeFilterCount({ ...EMPTY_FILTERS, sort: 'pnl', dir: 'asc' })).toBe(0)
+  })
+
+  it('does not count direction: it recomputes stats, it does not narrow the list', () => {
+    expect(activeFilterCount({ ...EMPTY_FILTERS, direction: 'long' })).toBe(0)
+    expect(activeFilterCount({ ...EMPTY_FILTERS, direction: 'short' })).toBe(0)
+  })
+})
+
+describe('isDirectionNarrowed', () => {
+  it('is false at the default and true otherwise, independently of activeFilterCount', () => {
+    expect(isDirectionNarrowed(EMPTY_FILTERS)).toBe(false)
+    expect(isDirectionNarrowed({ ...EMPTY_FILTERS, direction: 'long' })).toBe(true)
+    expect(isDirectionNarrowed({ ...EMPTY_FILTERS, direction: 'short' })).toBe(true)
   })
 })
 

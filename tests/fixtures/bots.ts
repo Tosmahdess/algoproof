@@ -93,4 +93,11 @@ export const FIXTURE_FLEET: BotWithStats[] = [
   mkBot({ slug: 'tsmom-retired', strategy: 'TSMOM', family: 'trend', timeframe: 'D1',
           venue: 'binance-futures', assets: ['BTC'], status: 'archived',
           archived_at: '2026-06-01T00:00:00Z' }),
+  // backtest candidate: found by the engine, never deployed. Must NEVER appear
+  // on the public fleet, under any filter state — it has no paper_since.
+  mkBot({ slug: 'candidate-never-deployed', name: 'Candidate (not deployed) — Wavelet Cross',
+          strategy: 'Wavelet Cross', family: 'momentum', timeframe: 'H1',
+          venue: 'hyperliquid', assets: ['ETH'], status: 'backtest', origin: 'engine',
+          found_at: '2026-07-29T00:00:00Z', validated_at: null, paper_since: null,
+          engine_unit_key: 'WaveletCross|H1|data_20260701|4', rejudge_status: 'not_needed' }),
 ]
