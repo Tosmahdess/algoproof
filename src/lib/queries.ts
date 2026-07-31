@@ -1,8 +1,9 @@
 // src/lib/queries.ts
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
-import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog, ScopeType } from './types'
+import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog, ScopeType } from './types'
 import { getStartCapital } from './start-capitals'
+import { isCarryFamily } from './display'
 import { fleetEntryAppliesTo } from './changelog'
 import { paginateAll } from './paginate'
 import type { AggregateTradeRow } from './fleet-aggregate'
@@ -204,6 +205,39 @@ export async function getLiveBotIds(): Promise<string[]> {
     .eq('status', 'live')
   if (error) throw new Error(`/overview live bots fetch failed: ${error.message}`)
   return (data ?? []).map(b => b.id)
+}
+
+// FIX (final review, I1+I2): restored. The fleet-wide recent-trades feed
+// (« 20 derniers trades — tous bots ») lived inline in the retired /overview
+// page and disappeared with OverviewClient — it existed on no page at all
+// afterwards. It is back, in the data layer this time, feeding stage 0 of « La
+// flotte » where it belongs: page-level, unfiltered, cohort-safe.
+//
+// Uses the same public `supabase` client as every other query in this module,
+// NOT supabaseServer as the old inline version did: MiRegimeBadge ('use
+// client') imports from this file, so pulling supabase-server in here would
+// drag server-only env into the browser bundle. Trades are public-readable and
+// getAllTradesForAggregate already reads them through the public client.
+export async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
+  // Carry bots (grid, funding harvest) micro-rotate dozens of times a day and
+  // archived bots are dead: both would flood the global feed. Fetch a wider
+  // window, filter, then keep the newest `limit`.
+  const { data, error } = await supabase
+    .from('trades')
+    .select('id,opened_at,closed_at,asset,side,pnl,reason,bots(name,slug,family,status)')
+    .not('closed_at', 'is', null)
+    .order('closed_at', { ascending: false })
+    .limit(limit * 5)
+  // Degrade to an empty feed rather than taking the whole page down: unlike the
+  // aggregate (where a partial fetch would publish a WRONG total), a short feed
+  // states nothing false — it just shows fewer rows.
+  if (error) {
+    console.error('[getRecentTrades]', error.message)
+    return []
+  }
+  return ((data ?? []) as unknown as TradeWithBot[])
+    .filter(t => !isCarryFamily(t.bots?.family) && t.bots?.status !== 'archived')
+    .slice(0, limit)
 }
 
 export async function getWealthCalls(): Promise<WealthCall[]> {

@@ -22,6 +22,7 @@
 // Filter state is now parsed server-side, in `overview/page.tsx`, from the
 // route's `searchParams`, and handed down as `initialState`.
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { BotWithStats } from '@/lib/types'
 import type { Family } from '@/lib/families'
@@ -157,9 +158,14 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
                 <ul className="px-4 pb-4 divide-y divide-border">
                   {group.bots.map(bot => (
                     <li key={bot.slug} className="py-3 flex items-center justify-between gap-4">
-                      <a href={`/strategies/${bot.slug}`} className="text-sm hover:text-accent">
+                      {/* FIX (final review, I3): next/link, not a raw <a>. This
+                          page is dynamically rendered, so a full document
+                          reload on Back pays a fresh server render of the whole
+                          fan-out. Link is unrelated to the round-2 CSR bailout,
+                          which was about useSearchParams. */}
+                      <Link href={`/strategies/${bot.slug}`} className="text-sm hover:text-accent">
                         {bot.name}
-                      </a>
+                      </Link>
                       <span className="flex items-center gap-3 text-xs text-muted font-mono">
                         <span>{bot.stats.total_trades} trades</span>
                         {bot.stats.total_trades === 0 && <span>en attente d&apos;un signal</span>}
@@ -190,7 +196,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
               */}
               {archivedVisible.map(bot => (
                 <li key={bot.slug} className="py-3 text-sm opacity-60 flex items-center justify-between gap-4">
-                  <a href={`/strategies/${bot.slug}`}>{bot.name}</a>
+                  <Link href={`/strategies/${bot.slug}`}>{bot.name}</Link>
                   <span className="text-xs text-muted">{bot.strategy}</span>
                 </li>
               ))}

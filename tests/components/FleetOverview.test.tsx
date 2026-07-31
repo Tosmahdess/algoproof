@@ -3,7 +3,21 @@ import { render, screen, fireEvent, within } from '@testing-library/react'
 import FleetOverview from '@/components/FleetOverview'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
+import type { TradeWithBot } from '@/lib/types'
 import { FIXTURE_FLEET } from '../fixtures/bots'
+
+// FIX (final review, I1+I2): stage 0 now also carries the market-intelligence
+// banner, the 30-day equity curves and the fleet-wide recent-trades feed —
+// three pieces the retired /overview page had and that vanished with
+// OverviewClient without anyone deciding to retire them.
+const RECENT: TradeWithBot[] = [
+  { id: 'tr-1', opened_at: '2026-07-30T08:00:00Z', closed_at: '2026-07-30T12:00:00Z',
+    asset: 'BTC/USDC', side: 'long', pnl: 12.5, reason: 'take profit',
+    bots: { name: 'ORB H1 HL', slug: 'orb-bf25', family: 'breakout', status: 'live' } },
+  { id: 'tr-2', opened_at: '2026-07-29T08:00:00Z', closed_at: '2026-07-29T20:00:00Z',
+    asset: 'ETH/USDC', side: 'short', pnl: -4.25, reason: 'stop loss',
+    bots: { name: 'MACD Vol', slug: 'macd-vol', family: 'momentum', status: 'paper' } },
+]
 
 // FIX round 2: FleetRegister (rendered by FleetOverview) no longer calls
 // useSearchParams(), so this mock only needs usePathname.
@@ -20,6 +34,7 @@ const AGG = computeFleetAggregate(
 )
 
 beforeEach(() => {
+  // MiBanner (restored into stage 0) fetches /api/mi on mount.
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => null }))
 })
 
@@ -31,7 +46,7 @@ beforeEach(() => {
 // change, so the test can't go green while filtering is broken.
 describe('FleetOverview — stage 0 invariant', () => {
   it('does not move the balance sheet when a filter is applied, and the register does', () => {
-    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} initialState={EMPTY_FILTERS} />)
+    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
     const balanceBefore = screen.getByTestId('fleet-balance').textContent
     const registerBefore = screen.getByTestId('fleet-register').textContent
 
@@ -46,7 +61,7 @@ describe('FleetOverview — stage 0 invariant', () => {
   // Assert both testids are actually present (index >= 0) before comparing.
   it('renders the balance sheet before the filter controls in document order', () => {
     const { container } = render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} initialState={EMPTY_FILTERS} />,
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
     )
     const html = container.innerHTML
     const balanceIdx = html.indexOf('data-testid="fleet-balance"')
@@ -65,12 +80,15 @@ describe('FleetOverview — stage 0 invariant', () => {
 // build` check (which can't run against real Supabase in this environment).
 describe('FleetOverview — server-rendered register (fix round 2)', () => {
   it('renders the register\'s bot links in a single synchronous render, no Suspense involved', () => {
-    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} initialState={EMPTY_FILTERS} />)
+    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
     // A representative /strategies link from the filterable register — if the
     // CSR bailout were still happening, this component tree would contain an
     // animate-pulse fallback instead of this link, and getByRole would fail
     // synchronously rather than resolving after a suspended child settles.
-    const link = screen.getByRole('link', { name: /ORB H1 HL/ })
+    // Scoped to the register: since I1+I2 restored the fleet-wide recent-trades
+    // feed into stage 0, the same bot name is also a link up there.
+    const register = screen.getByTestId('fleet-register')
+    const link = within(register).getByRole('link', { name: /ORB H1 HL/ })
     expect(link.getAttribute('href')).toBe('/strategies/orb-bf25')
   })
 
@@ -79,6 +97,7 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
       <FleetOverview
         bots={FIXTURE_FLEET}
         aggregate={AGG}
+        recentTrades={RECENT}
         initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }}
       />,
     )
@@ -91,6 +110,48 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
     expect(within(register).getByText(/Donchian/)).toBeTruthy()
     expect(within(register).queryByText(/Ichimoku/)).toBeNull()
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
+  })
+})
+
+// FIX (final review, I1+I2): GlobalEquityCurve and MiBanner had zero importers
+// after OverviewClient was deleted, and the fleet-wide recent-trades feed
+// existed on no page at all. Nobody decided to retire any of the three. They
+// are restored into stage 0 — page-level, unfiltered, cohort-safe — and these
+// tests pin that they are there AND that they sit outside the filter pipeline.
+describe('FleetOverview — restored stage-0 content', () => {
+  it('renders the market-intelligence banner, the equity curves and the recent-trades feed', () => {
+    render(
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+    )
+    expect(screen.getByTestId('fleet-mi')).toBeTruthy()
+    expect(screen.getByTestId('fleet-equity-curves')).toBeTruthy()
+    const feed = screen.getByTestId('fleet-recent-trades')
+    expect(within(feed).getByText('BTC/USDC')).toBeTruthy()
+    expect(within(feed).getByRole('link', { name: 'MACD Vol' }).getAttribute('href'))
+      .toBe('/strategies/macd-vol')
+  })
+
+  it('keeps all three outside the register, so no filter can reach them', () => {
+    render(
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+    )
+    const register = screen.getByTestId('fleet-register')
+    for (const id of ['fleet-mi', 'fleet-equity-curves', 'fleet-recent-trades', 'fleet-balance']) {
+      expect(register.contains(screen.getByTestId(id))).toBe(false)
+    }
+
+    const feedBefore = screen.getByTestId('fleet-recent-trades').textContent
+    const curvesBefore = screen.getByTestId('fleet-equity-curves').textContent
+    fireEvent.click(screen.getByRole('button', { name: /Cassure/ }))
+    expect(screen.getByTestId('fleet-recent-trades').textContent).toBe(feedBefore)
+    expect(screen.getByTestId('fleet-equity-curves').textContent).toBe(curvesBefore)
+  })
+
+  it('omits the feed entirely rather than printing an empty table', () => {
+    render(
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={[]} initialState={EMPTY_FILTERS} />,
+    )
+    expect(screen.queryByTestId('fleet-recent-trades')).toBeNull()
   })
 })
 
@@ -114,13 +175,14 @@ describe('FleetOverview — remounts on a new server-sent filter state (fix roun
       <FleetOverview
         bots={FIXTURE_FLEET}
         aggregate={AGG}
+        recentTrades={RECENT}
         initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }}
       />,
     )
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
     expect(within(screen.getByTestId('fleet-register')).queryByText(/Ichimoku/)).toBeNull()
 
-    rerender(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} initialState={EMPTY_FILTERS} />)
+    rerender(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
 
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'false')
     expect(within(screen.getByTestId('fleet-register')).getByText(/Ichimoku/)).toBeTruthy()

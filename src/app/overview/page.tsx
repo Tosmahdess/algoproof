@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBotIds } from '@/lib/queries'
+import Link from 'next/link'
+import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBotIds, getRecentTrades } from '@/lib/queries'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { parseFleetFilters } from '@/lib/bot-filters'
 import FleetOverview from '@/components/FleetOverview'
@@ -51,10 +52,14 @@ function toURLSearchParams(sp: Record<string, string | string[] | undefined>): U
 }
 
 export default async function OverviewPage({ searchParams }: OverviewPageProps) {
-  const [bots, trades, liveBotIds, resolvedSearchParams] = await Promise.all([
+  const [bots, trades, liveBotIds, recentTrades, resolvedSearchParams] = await Promise.all([
     getAllBotsWithStats(),
     getAllTradesForAggregate(),
     getLiveBotIds(),
+    // FIX (final review, I1+I2): the fleet-wide recent-trades feed the retired
+    // page carried. Fetched here, in the server component, so it stays inside
+    // stage 0 and never reaches the filter pipeline.
+    getRecentTrades(20),
     searchParams,
   ])
   const aggregate = computeFleetAggregate(trades, liveBotIds)
@@ -84,13 +89,18 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
       <h1 className="text-2xl font-bold tracking-tight mb-2">La flotte</h1>
       <p className="text-sm text-muted max-w-2xl mb-8">
         Ce qui tourne en ce moment, avec quel argent, et ce que ça donne au total.
-        Comment lire : le <a href="/lexique#profit-factor" className="text-accent">profit factor</a> mesure
+        Comment lire : le <Link href="/lexique#profit-factor" className="text-accent">profit factor</Link> mesure
         les gains divisés par les pertes (au-dessus de 1, la stratégie gagne), le{' '}
-        <a href="/lexique#win-rate" className="text-accent">win rate</a> le % de trades gagnants, le{' '}
-        <a href="/lexique#drawdown" className="text-accent">drawdown</a> la pire baisse. Plus de définitions
-        dans le <a href="/lexique" className="text-accent">lexique</a>.
+        <Link href="/lexique#win-rate" className="text-accent">win rate</Link> le % de trades gagnants, le{' '}
+        <Link href="/lexique#drawdown" className="text-accent">drawdown</Link> la pire baisse. Plus de définitions
+        dans le <Link href="/lexique" className="text-accent">lexique</Link>.
       </p>
-      <FleetOverview bots={bots} aggregate={aggregate} initialState={initialState} />
+      <FleetOverview
+        bots={bots}
+        aggregate={aggregate}
+        recentTrades={recentTrades}
+        initialState={initialState}
+      />
     </main>
   )
 }
