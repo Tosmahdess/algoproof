@@ -38,12 +38,33 @@ const LABELS: Record<Family, string> = {
   event: 'Événementiel',
 }
 
+// The accent colour each family is drawn in. Lives here rather than in a page
+// for the same reason LABELS does: /strategies and the home page both colour a
+// family badge, and two local maps drift (both held five entries and fell back
+// to a grey `#888` for the other four, which is how a momentum bot ended up
+// painted as "unknown family" on the home page).
+const COLORS: Record<Family, string> = {
+  trend: '#ff6b35',
+  momentum: '#58a6ff',
+  breakout: '#3fb950',
+  'mean-reversion': '#7c3aed',
+  'price-action': '#d2a8ff',
+  carry: '#f6c90e',
+  'market-neutral': '#14b8a6',
+  'stat-arb': '#40c4ff',
+  event: '#fb923c',
+}
+
 export function isFamily(value: unknown): value is Family {
   return typeof value === 'string' && (FAMILY_ORDER as readonly string[]).includes(value)
 }
 
 export function familyLabel(f: Family): string {
   return LABELS[f]
+}
+
+export function familyColor(f: Family): string {
+  return COLORS[f]
 }
 
 export type Venue =

@@ -6,6 +6,7 @@ import StatusBadge from '@/components/StatusBadge'
 import EmailCapture from '@/components/EmailCapture'
 import TVTickerTapeIsland from '@/components/TVTickerTapeIsland'
 import { getAllBotsWithStats } from '@/lib/queries'
+import { familyColor, familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 
@@ -16,25 +17,11 @@ export const metadata: Metadata = {
   description: 'Je fais tourner des bots de trading en réel et j\'expose chaque trade — gains et pertes. Résultats vérifiables, mis à jour chaque heure. Labo de recherche transparent, en français.',
 }
 
-// These maps still cover the original five families, not the nine-family taxonomy in
-// src/lib/families.ts. The `?? '#888'` / `?? '—'` fallbacks below are load-bearing for
-// momentum/price-action/stat-arb/event bots (the four families missing here) until this
-// component is rewritten.
-const FAMILY_COLOR: Record<string, string> = {
-  'trend':           '#ff6b35',
-  'breakout':        '#3fb950',
-  'mean-reversion':  '#7c3aed',
-  'carry':           '#f6c90e',
-  'market-neutral':  '#14b8a6',
-}
-
-const FAMILY_LABEL: Record<string, string> = {
-  'trend':           'Suivi de tendance',
-  'breakout':        'Cassure',
-  'mean-reversion':  'Retour à la moyenne',
-  'carry':           'Portage',
-  'market-neutral':  'Marché neutre',
-}
+// FIX (final review, C1 follow-on): these were two local five-entry maps with
+// `?? '#888'` / `?? '—'` fallbacks, so a momentum, price-action, stat-arb or
+// event bot rendered its family as a grey dash — and this page said « Marché
+// neutre » where families.ts says « Neutre au marché », the exact divergence
+// C1 called out on /strategies. Both now come from the taxonomy itself.
 
 export default async function HomePage() {
   // Archived bots stay listed on /strategies (with a badge) but are excluded from
@@ -184,8 +171,8 @@ export default async function HomePage() {
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium truncate">{bot.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] font-semibold uppercase" style={{ color: FAMILY_COLOR[bot.family] ?? '#888' }}>
-                    {FAMILY_LABEL[bot.family] ?? '—'}
+                  <span className="text-[10px] font-semibold uppercase" style={{ color: familyColor(bot.family) }}>
+                    {familyLabel(bot.family)}
                   </span>
                   {hasData && <span className="text-[10px] text-muted">{bot.stats.total_trades} trades</span>}
                 </div>
@@ -228,8 +215,8 @@ export default async function HomePage() {
                     <p className="text-muted text-[10px] mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: FAMILY_COLOR[bot.family] ?? '#888' }}>
-                      {FAMILY_LABEL[bot.family] ?? '—'}
+                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: familyColor(bot.family) }}>
+                      {familyLabel(bot.family)}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
