@@ -287,8 +287,8 @@ export default async function HomePage() {
           <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Lire les articles →</span>
         </Link>
         <Link href="/overview" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
-          <h2 className="text-xl font-bold mb-2">Performance</h2>
-          <p className="text-muted text-sm">P&amp;L journalier filtrable — direction, famille, période. Les chiffres bruts, sans filtre.</p>
+          <h2 className="text-xl font-bold mb-2">La flotte</h2>
+          <p className="text-muted text-sm">Ce qui tourne, avec quel argent, et le bilan brut.</p>
           <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir les résultats →</span>
         </Link>
       </div>

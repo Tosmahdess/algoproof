@@ -1,14 +1,23 @@
 'use client'
-// « La flotte » — three stages.
+// « La flotte » — stages 1 and 2.
 //
-//   Stage 0  the balance sheet. UNFILTERABLE, by design and by test. A
-//            filterable aggregate is the tool for telling a flattering story;
-//            the unfiltered total is what makes this page defensible.
 //   Stage 1  real money, in cards, never mixed into the sort or the pagination.
 //   Stage 2  the laboratory register: filterable, grouped by strategy,
 //            archived collapsed at the bottom.
+//
+// Renamed from FleetClient (fix round 1, C1): this component no longer
+// receives `aggregate` at all — the balance sheet (stage 0) moved to the
+// server component `FleetBalance`, which renders outside this client
+// boundary entirely. That is what makes "filters cannot reach the balance"
+// a structural fact again instead of only a convention backed by a test:
+// there is no prop path from here to there. The caller (`FleetOverview`)
+// wraps this component in `<Suspense>`, which is required because
+// `useSearchParams()` below opts this subtree into client-side rendering,
+// and Next refuses to build a statically-prerendered route with a
+// searchParams-reading client component that isn't inside a Suspense
+// boundary (`missing-suspense-with-csr-bailout`).
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { useSearchParams, usePathname } from 'next/navigation'
 import type { BotWithStats } from '@/lib/types'
 import type { Family } from '@/lib/families'
 import {
@@ -18,35 +27,29 @@ import {
 } from '@/lib/bot-filters'
 import { sortFleet } from '@/lib/fleet-sort'
 import { groupByStrategy } from '@/lib/fleet-grouping'
-import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import { splitCohorts } from '@/lib/cohort'
-import { fmtEur, isLowSample } from '@/lib/display'
+import { isLowSample } from '@/lib/display'
 import BotCard from '@/components/BotCard'
 import StatusBadge from '@/components/StatusBadge'
 import FleetFilterBar from '@/components/FleetFilterBar'
 
-export interface FleetClientProps {
+export interface FleetRegisterProps {
   bots: BotWithStats[]
-  aggregate: FleetAggregate
 }
 
-export default function FleetClient({ bots, aggregate }: FleetClientProps) {
-  const router = useRouter()
+export default function FleetRegister({ bots }: FleetRegisterProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  // FIX (brief bug, flagged in task-6-report.md): the brief derived `state` with
-  // `useMemo(..., [searchParams])`. `useSearchParams()` returns a fresh
-  // `URLSearchParams` instance on every render in this test's next/navigation
-  // mock (and in some real navigation cases too), so keying a memo off that
-  // object's identity recomputes — and resets to EMPTY_FILTERS — on every
-  // render, including the one caused by our own toggle. A toggle would visibly
-  // never stick. State is local (source of truth for this render), seeded once
-  // from the URL, and pushed back to the URL for shareability. A separate
-  // effect resyncs from the URL when it changes from OUTSIDE this component
-  // (back/forward navigation, a shared link) — keyed on the STRING, not the
-  // object, so an unstable-reference-but-same-value hook doesn't fight our own
-  // optimistic update.
+  // FIX (brief bug, flagged in task-6-report.md): state derived via
+  // `useMemo(..., [searchParams])` never stuck, because `useSearchParams()`
+  // returns a fresh `URLSearchParams` instance on every render under this
+  // test's next/navigation mock (and in some real navigation cases too).
+  // State is local, seeded once from the URL, and pushed back to the URL for
+  // shareability. A separate effect resyncs from the URL when it changes
+  // from OUTSIDE this component (back/forward navigation, a shared link) —
+  // keyed on the STRING, not the object, so an unstable-reference-but-same-
+  // value hook doesn't fight our own optimistic update.
   const [state, setState] = useState<FleetFilterState>(() =>
     parseFleetFilters(new URLSearchParams(searchParams.toString())),
   )
@@ -59,8 +62,18 @@ export default function FleetClient({ bots, aggregate }: FleetClientProps) {
   const push = useCallback((next: FleetFilterState) => {
     setState(next)
     const qs = serializeFleetFilters(next).toString()
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
-  }, [router, pathname])
+    // FIX round 1 (I1+I2, reviewer ruling): `router.replace()` triggered a full
+    // RSC round trip on every single pill click even though no server-rendered
+    // prop here depends on these params, and its async resolution raced the
+    // searchParams-sync effect above — a second click could resolve before the
+    // first, letting the effect clobber an already-applied optimistic toggle
+    // with a stale parsed value. `window.history.replaceState` (supported by
+    // the App Router since Next 14.1 for exactly this shallow-routing case)
+    // updates the URL and, in the real app, `useSearchParams()`'s value,
+    // synchronously and without hitting the server — no round trip, no race
+    // window for the sync effect to land in.
+    window.history.replaceState(null, '', qs ? `${pathname}?${qs}` : pathname)
+  }, [pathname])
 
   const toggleFamily = useCallback((f: Family) => {
     push({
@@ -94,26 +107,12 @@ export default function FleetClient({ bots, aggregate }: FleetClientProps) {
   const archivedVisible = useMemo(() => sorted.filter(b => b.status === 'archived'), [sorted])
 
   return (
-    <div className="space-y-12">
-      {/* ---------- Stage 0 : the balance sheet, outside the filter pipeline ---------- */}
-      <section data-testid="fleet-balance" className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xs uppercase tracking-wider text-muted mb-4">Le bilan</h2>
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <div className="text-xs text-muted">Argent réel</div>
-            <div className="text-xl font-mono">{fmtEur(aggregate.totalPnlReal)}</div>
-          </div>
-          <div>
-            <div className="text-xs text-muted">Laboratoire · simulation</div>
-            <div className="text-xl font-mono">{fmtEur(aggregate.totalPnlLabo)}</div>
-          </div>
-        </div>
-        <p className="text-xs text-muted mt-4">
-          {aggregate.totalTrades} trades depuis le début. Ces deux totaux ne se
-          fusionnent jamais et ne bougent pas avec les filtres ci-dessous.
-        </p>
-      </section>
-
+    // data-testid added in fix round 1 (I3): the stage-0 invariant test needs
+    // a handle on "did the register actually change" as well as "did the
+    // balance stay the same" — otherwise a test that only checks the balance
+    // is inert to the exact bug that round found (filtering silently doing
+    // nothing).
+    <div data-testid="fleet-register" className="space-y-12">
       {/* ---------- Stage 1 : real money ---------- */}
       <section data-testid="fleet-real" className="space-y-4">
         <h2 className="text-xs uppercase tracking-wider text-muted">Argent réel</h2>
