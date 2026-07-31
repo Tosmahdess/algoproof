@@ -11,6 +11,17 @@ function withStartCapital<T extends { slug: string }>(row: T): T & { start_capit
   return { ...row, start_capital: getStartCapital(row.slug) }
 }
 
+// FIX (final review, C3): `backtest` is excluded HERE, at the query, not only
+// downstream. A `backtest` bot is an engine CANDIDATE that was never deployed —
+// no paper run, no live run — and the spec says candidates never appear
+// publicly. The rule used to live only inside `isPubliclyVisible` in
+// src/lib/bot-filters.ts, which /overview's register goes through but
+// /strategies (splitCohorts buckets `backtest` into `paper`) and the home page
+// preview do not: a candidate was hidden on one page out of three. Filtering at
+// the source makes it true by construction for every consumer, present and
+// future. `isPubliclyVisible` stays in bot-filters.ts as defence in depth.
+const PUBLIC_STATUS_EXCLUSION = '("frozen","backtest")'
+
 export async function getBots(): Promise<Bot[]> {
   const { data, error } = await supabase
     .from('bots')
@@ -20,7 +31,7 @@ export async function getBots(): Promise<Bot[]> {
     .select(
       'id,slug,name,strategy,status,family,exchange,venue,assets,timeframe,description,created_at,last_sync_at,origin,found_at,validated_at,paper_since,live_since,frozen_at,archived_at,engine_unit_key,rejudge_status'
     )
-    .neq('status', 'frozen')
+    .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
     .order('name')
   if (error) throw new Error(error.message)
   return (data ?? []).map(withStartCapital) as Bot[]
@@ -30,7 +41,7 @@ export async function getBotSlugs(): Promise<string[]> {
   const { data, error } = await supabase
     .from('bots')
     .select('slug')
-    .neq('status', 'frozen')
+    .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
   if (error) throw new Error(error.message)
   return (data ?? []).map(r => r.slug)
 }

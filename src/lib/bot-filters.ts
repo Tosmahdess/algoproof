@@ -170,6 +170,14 @@ type FacetKey = keyof typeof PREDICATES
 // rule, not a facet choice, so it is not a `status` branch inside PREDICATES
 // (a user could otherwise select `status=paper` and, on a pristine facet,
 // still see it) — it is enforced unconditionally, before any facet runs.
+//
+// DEFENCE IN DEPTH, not the primary enforcement. Since the final review (C3)
+// the same rule is applied at the query itself — `getBots()` and
+// `getBotSlugs()` in src/lib/queries.ts both carry
+// `.not('status', 'in', '("frozen","backtest")')` — because this function is
+// only reached by /overview's register, while /strategies and the home page
+// preview never call it. Keep both: this one still guards any caller that
+// builds a bot list by other means (tests, a future query, a direct fetch).
 function isPubliclyVisible(bot: FilterableBot): boolean {
   return bot.status !== 'backtest'
 }

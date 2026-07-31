@@ -32,6 +32,7 @@ const mockChain = (data: unknown, error: unknown = null) => {
     then: (resolve: (v: unknown) => unknown) => Promise.resolve(terminal).then(resolve),
     select: vi.fn().mockReturnThis(),
     neq:    vi.fn().mockReturnThis(),
+    not:    vi.fn().mockReturnThis(),
     eq:     vi.fn().mockReturnThis(),
     // order is chainable (the chain is itself thenable, so awaiting after .order()
     // still resolves) so that paginated fetches can call .range() after .order().
@@ -63,6 +64,22 @@ describe('getBots', () => {
     vi.mocked(supabase.from).mockReturnValue(mockChain(null, { message: 'db error' }))
     await expect(getBots()).rejects.toThrow('db error')
   })
+
+  // FIX (final review, C3): `backtest` bots — engine candidates that were never
+  // deployed — were excluded only inside bot-filters.ts's isPubliclyVisible,
+  // which /overview's register goes through but /strategies and the home page
+  // preview do not (both read getAllBotsWithStats → getBots directly, and
+  // splitCohorts buckets `backtest` into `paper`). A candidate was therefore
+  // hidden on one page out of three. The rule now lives at the query, so no
+  // consumer can forget it.
+  it('excludes frozen AND backtest at the query, not just downstream', async () => {
+    const chain = mockChain([])
+    vi.mocked(supabase.from).mockReturnValue(chain)
+    await getBots()
+    expect(chain.not).toHaveBeenCalledWith('status', 'in', '("frozen","backtest")')
+    // and never the old rule, which let backtest candidates through
+    expect(chain.neq).not.toHaveBeenCalledWith('status', 'frozen')
+  })
 })
 
 describe('getBotSlugs', () => {
@@ -83,6 +100,16 @@ describe('getBotSlugs', () => {
   it('throws on Supabase error', async () => {
     vi.mocked(supabase.from).mockReturnValue(mockChain(null, { message: 'slugs error' }))
     await expect(getBotSlugs()).rejects.toThrow('slugs error')
+  })
+
+  // Same rule as getBots: a backtest candidate must not get a statically
+  // generated /strategies/<slug> page either.
+  it('excludes frozen AND backtest at the query', async () => {
+    const chain = mockChain([])
+    vi.mocked(supabase.from).mockReturnValue(chain)
+    await getBotSlugs()
+    expect(chain.not).toHaveBeenCalledWith('status', 'in', '("frozen","backtest")')
+    expect(chain.neq).not.toHaveBeenCalledWith('status', 'frozen')
   })
 })
 
@@ -274,6 +301,16 @@ describe('getAllBotsWithStats', () => {
     vi.mocked(supabase.from).mockReturnValue(mockChain([]))
     const result = await getAllBotsWithStats()
     expect(result).toEqual([])
+  })
+
+  // getAllBotsWithStats is the single source /strategies (StrategiesClient) and
+  // the home page preview both read. Neither applies isPubliclyVisible, so the
+  // exclusion has to be inherited from getBots — assert it survives the wrapper.
+  it('inherits the backtest exclusion, so /strategies and the home preview cannot show a candidate', async () => {
+    const chain = mockChain([])
+    vi.mocked(supabase.from).mockReturnValue(chain)
+    await getAllBotsWithStats()
+    expect(chain.not).toHaveBeenCalledWith('status', 'in', '("frozen","backtest")')
   })
 
   it('throws when getBotWithStats returns null for a listed bot', async () => {
