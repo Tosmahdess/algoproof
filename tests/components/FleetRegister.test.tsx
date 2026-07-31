@@ -2,7 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, within, act } from '@testing-library/react'
 import FleetRegister from '@/components/FleetRegister'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
-import { FIXTURE_FLEET } from '../fixtures/bots'
+import { SORT_LABELS } from '@/lib/fleet-sort'
+import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
 
 // FIX round 2: no more useSearchParams() in FleetRegister at all (it now
 // receives `initialState` as a prop instead), so this mock only needs
@@ -72,5 +73,67 @@ describe('FleetRegister', () => {
     // After popstate re-parses ?family=carry, only the carry-family bot remains.
     expect(screen.getAllByText(/Funding Harvest/).length).toBeGreaterThan(0)
     expect(screen.queryByText(/Ichimoku/)).toBeNull()
+  })
+})
+
+// FIX (final whole-branch review, I1): SORT_LABELS and FleetFilterState.sort
+// existed, sortFleet applied them, and nothing on screen could set them. The
+// register is grouped by strategy, so these bots deliberately share one
+// `strategy` string: that is the production shape (fleet-grouping.ts exists
+// because « 14 strategies, 240 incarnations »), and it is where a sort is
+// visible. Group ORDER is decided by groupByStrategy (incarnation count, then
+// label) and is not a function of the sort — the sort orders the rows.
+describe('FleetRegister — the sort control', () => {
+  const SORTABLE = [
+    mkBot({
+      slug: 'seasoned', name: 'Seasoned Bot', strategy: 'EMA Cross', status: 'paper',
+      stats: { total_trades: 400, profit_factor: 1.1, win_rate: 0.5, max_drawdown: 0.1, latest_capital: 1100 },
+    }),
+    mkBot({
+      slug: 'lucky', name: 'Lucky Bot', strategy: 'EMA Cross', status: 'paper',
+      stats: { total_trades: 3, profit_factor: 9, win_rate: 1, max_drawdown: 0, latest_capital: 3000 },
+    }),
+  ]
+
+  const rowOrder = () =>
+    within(screen.getByTestId('fleet-register'))
+      .getAllByRole('link')
+      .map(a => a.textContent)
+
+  it('defaults to the most-proven-first sort, and says so in the control', () => {
+    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
+    const select = screen.getByLabelText('Trier par') as HTMLSelectElement
+    expect(select.value).toBe('proven')
+    expect(rowOrder()).toEqual(['Seasoned Bot', 'Lucky Bot'])
+  })
+
+  it('offers every sort key, labelled from SORT_LABELS', () => {
+    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
+    for (const label of Object.values(SORT_LABELS)) {
+      expect(screen.getByRole('option', { name: label })).toBeTruthy()
+    }
+  })
+
+  it('reorders the register when a performance sort is picked', () => {
+    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
+    fireEvent.change(screen.getByLabelText('Trier par'), { target: { value: 'profit_factor' } })
+    expect(rowOrder()).toEqual(['Lucky Bot', 'Seasoned Bot'])
+  })
+
+  it('flips the order with the direction toggle', () => {
+    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
+    fireEvent.change(screen.getByLabelText('Trier par'), { target: { value: 'profit_factor' } })
+    fireEvent.click(screen.getByRole('button', { name: /Décroissant|Croissant/ }))
+    expect(rowOrder()).toEqual(['Seasoned Bot', 'Lucky Bot'])
+  })
+
+  // This is what makes offering the sort defensible: the 3-trade bot that a
+  // profit-factor ranking hoists to the top says on its own row that its
+  // sample is too small to conclude from.
+  it('keeps the low-sample note on a bot a performance sort promotes to the top', () => {
+    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
+    fireEvent.change(screen.getByLabelText('Trier par'), { target: { value: 'profit_factor' } })
+    expect(rowOrder()[0]).toBe('Lucky Bot')
+    expect(screen.getByText('trop tôt pour conclure')).toBeTruthy()
   })
 })

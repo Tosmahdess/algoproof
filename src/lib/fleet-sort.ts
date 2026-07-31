@@ -11,8 +11,18 @@
 //  - Behavioural: it trains the visitor to chase the top of the table, which is
 //    the mistake the site claims to teach people to avoid.
 //
-// Manual performance sorting stays available. The low-sample badge is what makes
-// it honest, and it is applied at the row level by the caller.
+// Manual performance sorting stays available, and — since the final
+// whole-branch review (I1) — is actually reachable: FleetFilterBar renders a
+// `<select>` over SORT_LABELS plus a direction toggle, wired through
+// FleetRegister's push() so the choice lands in the URL like a filter. Before
+// that, this paragraph described a feature no control offered, which is the
+// same defect `direction` was deleted for in bot-filters.ts.
+//
+// The default being a choice rather than a limitation is the whole point: a
+// visitor who wants the profit-factor ranking can have it, and gets it with
+// « trop tôt pour conclure » still on every low-sample row (applied at the row
+// level by the caller, unconditionally — see FleetRegister). That note is what
+// makes offering the sort honest.
 import type { SortKey, SortDir } from './bot-filters'
 
 export interface SortableBot {

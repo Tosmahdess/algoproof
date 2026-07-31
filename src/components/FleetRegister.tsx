@@ -29,7 +29,7 @@ import type { Family } from '@/lib/families'
 import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
-  type Venue,
+  type Venue, type SortKey,
 } from '@/lib/bot-filters'
 import { sortFleet } from '@/lib/fleet-sort'
 import { groupByStrategy } from '@/lib/fleet-grouping'
@@ -96,6 +96,17 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     })
   }, [state, push])
 
+  // FIX (final whole-branch review, I1): the sort was parsed from the URL,
+  // applied by sortFleet and labelled by SORT_LABELS, but no control ever set
+  // it — inert state behind a comment claiming a feature. Wired through the
+  // same `push()` as the pills, so a chosen sort survives sharing and the back
+  // button exactly like a filter does.
+  const setSort = useCallback((sort: SortKey) => push({ ...state, sort }), [state, push])
+  const toggleDir = useCallback(
+    () => push({ ...state, dir: state.dir === 'desc' ? 'asc' : 'desc' }),
+    [state, push],
+  )
+
   const reset = useCallback(() => push(EMPTY_FILTERS), [push])
 
   const { live, paper, archived } = useMemo(() => splitCohorts(bots), [bots])
@@ -138,6 +149,8 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           activeCount={activeFilterCount(state)}
           onToggleFamily={toggleFamily}
           onToggleVenue={toggleVenue}
+          onSort={setSort}
+          onToggleDir={toggleDir}
           onReset={reset}
         />
 

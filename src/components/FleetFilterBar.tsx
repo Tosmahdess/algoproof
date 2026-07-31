@@ -12,8 +12,9 @@
 // `bg-accent` are the vocabulary; `bg-background` does not exist.
 import { FAMILY_ORDER, familyLabel, type Family } from '@/lib/families'
 import {
-  VENUE_ORDER, venueLabel, type FleetFilterState, type OptionCounts,
+  VENUE_ORDER, venueLabel, type FleetFilterState, type OptionCounts, type SortKey,
 } from '@/lib/bot-filters'
+import { SORT_LABELS } from '@/lib/fleet-sort'
 
 interface Props {
   state: FleetFilterState
@@ -21,6 +22,8 @@ interface Props {
   activeCount: number
   onToggleFamily: (f: Family) => void
   onToggleVenue: (v: (typeof VENUE_ORDER)[number]) => void
+  onSort: (key: SortKey) => void
+  onToggleDir: () => void
   onReset: () => void
 }
 
@@ -59,7 +62,7 @@ function Pill({ label, count, active, onClick }: {
 }
 
 export default function FleetFilterBar({
-  state, counts, activeCount, onToggleFamily, onToggleVenue, onReset,
+  state, counts, activeCount, onToggleFamily, onToggleVenue, onSort, onToggleDir, onReset,
 }: Props) {
   return (
     <details data-testid="fleet-filters" className="bg-card border border-border rounded-lg">
@@ -69,10 +72,51 @@ export default function FleetFilterBar({
           on a block closed by default is the only affordance that says it opens —
           so the badge is inline-block, never flex. */}
       <summary className="cursor-pointer px-4 py-3 text-xs uppercase tracking-wider text-muted">
-        {activeCount === 0 ? 'Filtrer la flotte' : `Filtrer la flotte — ${activeCount} filtre(s) actif(s)`}
+        {activeCount === 0 ? 'Filtrer et trier la flotte' : `Filtrer et trier la flotte : ${activeCount} filtre(s) actif(s)`}
       </summary>
 
       <div className="px-4 pb-4 space-y-4">
+        {/* FIX (final whole-branch review, I1): the sort control is RENDERED,
+            not deleted. fleet-sort.ts's default is deliberately not a
+            performance ranking, and that choice only reads as a choice if the
+            visitor can see the alternative and decline it. Without a control,
+            SORT_LABELS was inert state under a comment claiming a feature —
+            the exact thing `direction` was deleted for.
+
+            What keeps offering it honest is on the rows, not here: every row
+            under the low-sample threshold carries « trop tôt pour conclure »
+            unconditionally (FleetRegister), so a profit-factor ranking topped
+            by a 3-trade bot says so on its own line. */}
+        <div>
+          <div className="text-xs uppercase tracking-wider text-muted mb-2">Trier</div>
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              aria-label="Trier par"
+              value={state.sort}
+              onChange={e => onSort(e.target.value as SortKey)}
+              className="px-3 py-1.5 text-xs font-mono bg-bg text-muted border border-border rounded"
+            >
+              {(Object.keys(SORT_LABELS) as SortKey[]).map(key => (
+                <option key={key} value={key}>{SORT_LABELS[key]}</option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={onToggleDir}
+              aria-pressed={state.dir === 'asc'}
+              className="px-3 py-1.5 text-xs font-mono bg-bg text-muted border border-border rounded hover:text-white transition-colors"
+            >
+              {state.dir === 'desc' ? 'Décroissant ↓' : 'Croissant ↑'}
+            </button>
+          </div>
+          <p className="text-xs text-muted mt-2">
+            Le tri par défaut est l&apos;historique, pas la performance : le haut
+            d&apos;un classement par gains est peuplé mécaniquement par les petits
+            échantillons. Les bots qui ont trop peu tradé restent marqués « trop
+            tôt pour conclure », quel que soit le tri choisi.
+          </p>
+        </div>
+
         <div>
           <div className="text-xs uppercase tracking-wider text-muted mb-2">Famille</div>
           <div className="flex flex-wrap gap-2">
