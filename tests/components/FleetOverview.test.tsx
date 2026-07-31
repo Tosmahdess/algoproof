@@ -93,3 +93,36 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
   })
 })
+
+// Fix round 3, Finding A: FleetRegister seeds useState(initialState) ONCE and
+// never resyncs from the prop afterwards — correct for a real navigation
+// (server remounts, fresh initialState arrives with it), but the App Router
+// keys a page segment WITHOUT its search params, so a search-params-only
+// navigation (e.g. clicking a plain nav <Link href="/overview"> while already
+// on /overview?family=breakout) re-renders this same FleetRegister instance
+// instead of remounting it — the filter would stay stuck on-screen even
+// though the server just sent EMPTY_FILTERS. The fix is a `key` on
+// <FleetRegister> in FleetOverview, derived from the serialized
+// initialState: a new value is a new key, which forces React to unmount the
+// stale instance and mount a fresh one. rerender() with a new initialState is
+// the test-level equivalent of "the server sent something different this
+// time" — exactly what a real client-side navigation to a new /overview URL
+// looks like from FleetOverview's perspective.
+describe('FleetOverview — remounts on a new server-sent filter state (fix round 3, Finding A)', () => {
+  it('drops a stale filter when a new (empty) initialState arrives via rerender', () => {
+    const { rerender } = render(
+      <FleetOverview
+        bots={FIXTURE_FLEET}
+        aggregate={AGG}
+        initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }}
+      />,
+    )
+    expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(within(screen.getByTestId('fleet-register')).queryByText(/Ichimoku/)).toBeNull()
+
+    rerender(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} initialState={EMPTY_FILTERS} />)
+
+    expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'false')
+    expect(within(screen.getByTestId('fleet-register')).getByText(/Ichimoku/)).toBeTruthy()
+  })
+})

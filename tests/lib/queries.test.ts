@@ -7,6 +7,20 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
+// FIX round 3 (Finding B): getAllBotsWithStats/getAllTradesForAggregate are
+// now wrapped in next/cache's unstable_cache. That cache requires a real
+// Next.js request runtime ("Invariant: incrementalCache missing") — calling
+// it directly from a Vitest process throws. Mocked here as a pass-through
+// identity wrapper, the standard way to unit-test code that uses
+// unstable_cache in isolation: it keeps getAllBotsWithStats/
+// getAllTradesForAggregate behaviourally identical to their *Uncached
+// counterparts for these tests (each test still gets a fresh mock, since
+// there is no actual caching happening), while the real cache only ever
+// activates inside an actual Next.js server request.
+vi.mock('next/cache', () => ({
+  unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
+}))
+
 import { supabase } from '@/lib/supabase'
 import { getBots, getBotSlugs, getTriggerData, getBotWithStats, getAllBotsWithStats } from '@/lib/queries'
 

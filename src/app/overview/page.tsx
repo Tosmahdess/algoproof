@@ -13,6 +13,16 @@ import { faqJsonLd } from '@/lib/jsonld'
 // (e.g. ?family=carry) now renders its real, filtered content on first
 // paint instead of a client-side spinner. Leaving a `revalidate` value here
 // would be dead code that misstates the caching story to the next reader.
+//
+// FIX round 3 (Finding B, reviewer ruling): dynamic rendering is NOT free,
+// and the paragraph above stopped short of saying what pays for it.
+// getAllBotsWithStats() and getAllTradesForAggregate() (below) are wrapped
+// in next/cache's unstable_cache (revalidate: 1800, tags 'fleet-bots' /
+// 'fleet-trades') in src/lib/queries.ts — the same 30 minutes this route's
+// old `revalidate` export used to buy, just moved to the data layer instead
+// of the route. Without that, every request would re-run a paginated
+// select('*') over trades AND perf_daily for each of ~33 bots, since Next
+// 15+ does not cache fetch() by default.
 
 export const metadata: Metadata = {
   title: 'La flotte — ce qui tourne, avec quel argent',

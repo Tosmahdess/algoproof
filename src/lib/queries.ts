@@ -1,4 +1,5 @@
 // src/lib/queries.ts
+import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
 import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog, ScopeType } from './types'
 import { getStartCapital } from './start-capitals'
@@ -107,7 +108,7 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
   }
 }
 
-export async function getAllBotsWithStats(): Promise<BotWithStats[]> {
+async function getAllBotsWithStatsUncached(): Promise<BotWithStats[]> {
   const bots = await getBots()
   return Promise.all(bots.map(async b => {
     const result = await getBotWithStats(b.slug)
@@ -116,10 +117,29 @@ export async function getAllBotsWithStats(): Promise<BotWithStats[]> {
   }))
 }
 
+// FIX round 3 (Finding B): /overview used to carry `export const revalidate =
+// 1800`, amortising this page's cost to one render per 30 minutes. Fix round 2
+// deleted it — reading `searchParams` there opts the route into dynamic
+// (per-request) rendering regardless, so a route-level `revalidate` would have
+// been dead code — but nothing replaced the amortisation itself. Without it,
+// every request re-runs a paginated `select('*')` over trades AND perf_daily
+// for each of ~33 bots. Next 15+ does not cache `fetch()` by default, and
+// there is no other caching layer in this codebase, so the cache moves HERE,
+// to the data layer, which is where it belonged anyway — a route being
+// dynamic and its data being cacheable are independent facts. Tagged
+// separately from getAllTradesForAggregate's cache below so either can be
+// revalidated on its own (`revalidateTag('fleet-bots')`) without invalidating
+// the other's still-fresh data.
+export const getAllBotsWithStats = unstable_cache(
+  getAllBotsWithStatsUncached,
+  ['fleet-bots'],
+  { revalidate: 1800, tags: ['fleet-bots'] },
+)
+
 // Lifted from the old /performance page (folded into /overview 2026-07-31, see
 // next.config.ts redirects). Feeds computeFleetAggregate() for stage 0 of « La
 // flotte » — the unfilterable balance sheet.
-export async function getAllTradesForAggregate(): Promise<AggregateTradeRow[]> {
+async function getAllTradesForAggregateUncached(): Promise<AggregateTradeRow[]> {
   // Supabase caps a single request at 1000 rows — page through every closed trade,
   // otherwise the "P&L total" silently reflects only the 1000 most recent trades.
   const [trades, botsRes] = await Promise.all([
@@ -150,6 +170,18 @@ export async function getAllTradesForAggregate(): Promise<AggregateTradeRow[]> {
   )
   return trades.filter(t => !archivedIds.has(t.bot_id))
 }
+
+// FIX round 3 (Finding B): same reasoning as getAllBotsWithStats above — this
+// is a full paginated scan of the trades table, and needs its own 30-minute
+// cache now that the route itself is dynamic. Kept pure
+// (getAllTradesForAggregateUncached) with the cache applied at the boundary,
+// so the underlying logic stays trivially unit-testable without touching
+// Next's cache runtime.
+export const getAllTradesForAggregate = unstable_cache(
+  getAllTradesForAggregateUncached,
+  ['fleet-trades'],
+  { revalidate: 1800, tags: ['fleet-trades'] },
+)
 
 // Live cohort = real money (v1-spot, orb-bf25). Passed down so the P&L headline
 // can separate real from laboratoire (simulation) instead of fusing them into

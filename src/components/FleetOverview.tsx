@@ -19,7 +19,7 @@
 // bailout left to contain, and the boundary would only have been decorative.
 import type { BotWithStats } from '@/lib/types'
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
-import type { FleetFilterState } from '@/lib/bot-filters'
+import { serializeFleetFilters, type FleetFilterState } from '@/lib/bot-filters'
 import FleetBalance from '@/components/FleetBalance'
 import FleetRegister from '@/components/FleetRegister'
 
@@ -33,7 +33,29 @@ export default function FleetOverview({ bots, aggregate, initialState }: FleetOv
   return (
     <div className="space-y-12">
       <FleetBalance aggregate={aggregate} />
-      <FleetRegister bots={bots} initialState={initialState} />
+      {/*
+        FIX round 3 (Finding A, reviewer ruling): FleetRegister seeds its
+        state ONCE from `initialState` (useState(initialState), no resync
+        from the prop). That's correct for a real navigation — the server
+        component remounts and a fresh initialState arrives with it — but the
+        App Router keys a page segment WITHOUT its search params, so a
+        search-params-only navigation (e.g. clicking a plain `<Link
+        href="/overview">` in the nav while already on a filtered
+        /overview?family=breakout) re-renders this same component instance
+        instead of remounting it. FleetRegister would then keep its stale
+        filtered state while the server-sent initialState silently went back
+        to EMPTY_FILTERS underneath it.
+        `key` forces the issue: a new initialState value serializes to a
+        different key, which IS enough to make React unmount the old
+        FleetRegister and mount a fresh one, re-seeding useState(initialState)
+        from scratch. One line, can't go stale (it's derived from the exact
+        value being seeded, not tracked separately), needs no effect.
+      */}
+      <FleetRegister
+        key={serializeFleetFilters(initialState).toString()}
+        bots={bots}
+        initialState={initialState}
+      />
     </div>
   )
 }
