@@ -44,7 +44,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
                 </td>
                 <td className="px-2 py-1.5">
                   {t.bots ? (
-                    <Link href={`/strategies/${t.bots.slug}`} className="hover:text-accent transition-colors">
+                    <Link href={`/strategies/bot/${t.bots.slug}`} className="hover:text-accent transition-colors">
                       {t.bots.name}
                     </Link>
                   ) : '—'}

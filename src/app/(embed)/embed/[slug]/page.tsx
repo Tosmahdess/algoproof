@@ -69,7 +69,7 @@ export default async function EmbedPage({ params }: { params: Promise<{ slug: st
 
       {/* Footer */}
       <div style={{ textAlign: 'right' }}>
-        <a href={`https://algoproof.fr/strategies/${slug}`} target="_blank" rel="noopener noreferrer"
+        <a href={`https://algoproof.fr/strategies/bot/${slug}`} target="_blank" rel="noopener noreferrer"
           style={{ fontSize: 10, color: '#8b949e', textDecoration: 'none' }}>
           Vérifié par algoproof.fr →
         </a>

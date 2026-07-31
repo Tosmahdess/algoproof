@@ -132,12 +132,12 @@ export default async function HomePage() {
       <div className="mb-16">
         <h2 className="text-xl font-bold mb-6">Ce qui travaille en ce moment</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link href="/strategies/orb-bf25" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
+          <Link href="/strategies/bot/orb-bf25" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
             <h3 className="text-lg font-bold mb-2">En argent réel</h3>
             <p className="text-muted text-sm">ORB H1 tourne sur Hyperliquid avec mon capital. Chaque trade, chaque perte, publié à l&apos;heure.</p>
             <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir le bot →</span>
           </Link>
-          <Link href="/strategies/funding-rev-long" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
+          <Link href="/strategies/bot/funding-rev-long" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
             <h3 className="text-lg font-bold mb-2">Le dernier arrivé</h3>
             <p className="text-muted text-sm">Funding Reversal a passé mon gate de validation le 30 juin : contrarien sur les extrêmes de funding, long only. En paper : 40 trades exigés avant le moindre euro réel.</p>
             <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir le bot →</span>
@@ -166,7 +166,7 @@ export default async function HomePage() {
           const eur     = pnlEur(bot.stats.latest_capital, bot.start_capital)
           const pct     = pnlPct(bot.stats.latest_capital, bot.start_capital)
           return (
-            <Link key={bot.id} href={`/strategies/${bot.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
+            <Link key={bot.id} href={`/strategies/bot/${bot.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
               <span className="text-xs text-muted font-mono w-6 flex-shrink-0">#{i + 1}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium truncate">{bot.name}</p>
@@ -211,7 +211,7 @@ export default async function HomePage() {
               return (
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/strategies/${bot.slug}`} className="font-medium hover:text-positive transition-colors">{bot.name}</Link>
+                    <Link href={`/strategies/bot/${bot.slug}`} className="font-medium hover:text-positive transition-colors">{bot.name}</Link>
                     <p className="text-muted text-[10px] mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">

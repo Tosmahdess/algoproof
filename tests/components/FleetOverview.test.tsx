@@ -104,7 +104,7 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
     // feed into stage 0, the same bot name is also a link up there.
     const register = screen.getByTestId('fleet-register')
     const link = within(register).getByRole('link', { name: /ORB H1 HL/ })
-    expect(link.getAttribute('href')).toBe('/strategies/orb-bf25')
+    expect(link.getAttribute('href')).toBe('/strategies/bot/orb-bf25')
   })
 
   it('seeds the register from a non-empty initial filter state (server-parsed searchParams)', () => {
@@ -143,7 +143,7 @@ describe('FleetOverview — restored stage-0 content', () => {
     const feed = screen.getByTestId('fleet-recent-trades')
     expect(within(feed).getByText('BTC/USDC')).toBeTruthy()
     expect(within(feed).getByRole('link', { name: 'MACD Vol' }).getAttribute('href'))
-      .toBe('/strategies/macd-vol')
+      .toBe('/strategies/bot/macd-vol')
   })
 
   it('keeps all three outside the register, so no filter can reach them', () => {

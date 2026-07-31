@@ -26,7 +26,7 @@ describe('BotCard', () => {
   })
   it('links to strategy page', () => {
     render(<BotCard bot={bot} />)
-    expect(screen.getByRole('link')).toHaveAttribute('href', '/strategies/v1-spot')
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/strategies/bot/v1-spot')
   })
   it('shows win rate', () => {
     render(<BotCard bot={bot} />)

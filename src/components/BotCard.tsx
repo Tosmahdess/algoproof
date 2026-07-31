@@ -13,7 +13,7 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
   const hasData = stats.total_trades > 0
 
   return (
-    <Link href={`/strategies/${bot.slug}`} className="block group">
+    <Link href={`/strategies/bot/${bot.slug}`} className="block group">
       <div className="bg-card border border-border rounded-xl p-5 hover:border-muted/50 transition-colors">
         <div className="flex items-start justify-between mb-3">
           <div>

@@ -163,7 +163,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
                           reload on Back pays a fresh server render of the whole
                           fan-out. Link is unrelated to the round-2 CSR bailout,
                           which was about useSearchParams. */}
-                      <Link href={`/strategies/${bot.slug}`} className="text-sm hover:text-accent">
+                      <Link href={`/strategies/bot/${bot.slug}`} className="text-sm hover:text-accent">
                         {bot.name}
                       </Link>
                       <span className="flex items-center gap-3 text-xs text-muted font-mono">
@@ -196,7 +196,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
               */}
               {archivedVisible.map(bot => (
                 <li key={bot.slug} className="py-3 text-sm opacity-60 flex items-center justify-between gap-4">
-                  <Link href={`/strategies/${bot.slug}`}>{bot.name}</Link>
+                  <Link href={`/strategies/bot/${bot.slug}`}>{bot.name}</Link>
                   <span className="text-xs text-muted">{bot.strategy}</span>
                 </li>
               ))}
