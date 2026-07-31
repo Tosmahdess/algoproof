@@ -303,9 +303,10 @@ describe('getAllBotsWithStats', () => {
     expect(result).toEqual([])
   })
 
-  // getAllBotsWithStats is the single source /strategies (StrategiesClient) and
-  // the home page preview both read. Neither applies isPubliclyVisible, so the
-  // exclusion has to be inherited from getBots — assert it survives the wrapper.
+  // getAllBotsWithStats is the single source /strategies (the concept index
+  // and each concept page's incarnations list) and the home page preview both
+  // read. Neither applies isPubliclyVisible, so the exclusion has to be
+  // inherited from getBots — assert it survives the wrapper.
   it('inherits the backtest exclusion, so /strategies and the home preview cannot show a candidate', async () => {
     const chain = mockChain([])
     vi.mocked(supabase.from).mockReturnValue(chain)

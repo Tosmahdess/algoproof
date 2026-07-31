@@ -78,8 +78,11 @@ export interface FilterableBot {
   venue: Venue | null
 }
 
-// Parameter order is fixed here and nowhere else.
-const PARAM_ORDER = ['family', 'status', 'venue', 'asset', 'tf', 'sort', 'dir'] as const
+// Parameter order is fixed here and nowhere else. Exported (fix round 1) so
+// tests/lib/robots-facets.test.ts can assert every entry here has a matching
+// /*?<name>= line in robots.ts's disallow list — adding a facet must not be
+// able to outrun the disallow list silently.
+export const PARAM_ORDER = ['family', 'status', 'venue', 'asset', 'tf', 'sort', 'dir'] as const
 
 function readList(sp: URLSearchParams, key: string): string[] {
   const raw = sp.get(key)

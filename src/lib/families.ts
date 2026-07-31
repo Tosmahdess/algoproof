@@ -67,6 +67,30 @@ export function familyColor(f: Family): string {
   return COLORS[f]
 }
 
+// Restored from the deleted StrategiesClient.tsx (see git show 65818d1) after
+// Plan 3 Task 4's rewrite of /strategies silently dropped it — nine
+// hand-written paragraphs with no other copy anywhere in src/ or content/.
+// `Record<Family, …>` for the same reason LABELS/COLORS use it: the compiler
+// fails on a missing entry the day a tenth family lands, an array literal
+// never would. Em dashes in the original text (three occurrences) were
+// replaced with a comma or parentheses to match this repo's no-em-dash rule
+// for French copy — the wording is otherwise unchanged.
+const DESCRIPTIONS: Record<Family, string> = {
+  trend: "Les stratégies de suivi de tendance exploitent les mouvements directionnels du marché. Le bot entre quand la tendance est confirmée et sort quand elle s'affaiblit. Peu de trades, mais un excellent ratio gain/risque quand ils se déclenchent.",
+  momentum: "Le momentum mesure la vitesse d'un mouvement plutôt que sa direction de fond. Le bot entre quand l'accélération est nette et ressort dès qu'elle retombe, sans attendre qu'une tendance longue soit installée.",
+  breakout: "Détecte quand le prix franchit un niveau clé ou sort d'une zone de consolidation. Ces bots capturent l'élan naissant au début d'un nouveau mouvement.",
+  'mean-reversion': "Ces stratégies exploitent les excès de marché : le prix s'est écarté de sa valeur d'équilibre et tend à y revenir. Entrée en contre-tendance, sortie rapide dès la normalisation.",
+  'price-action': "Ici le bot lit le graphique lui-même : zones de déséquilibre laissées par un mouvement trop rapide, niveaux retravaillés plusieurs fois, réaction du prix à une zone déjà connue. Aucun indicateur calculé, seulement la structure des bougies.",
+  carry: "Les stratégies de portage capturent un rendement récurrent sans pari directionnel. Elles encaissent des taux de financement (delta-neutre) ou exploitent la volatilité dans un range fixe (grille). Le rendement est indépendant de la hausse ou baisse du marché.",
+  'market-neutral': "Stratégies neutres au marché : autant de positions longues que courtes, pour ne pas dépendre de la hausse ou de la baisse générale. Le rendement vient de l'écart entre les actifs sélectionnés (les forts contre les faibles) et non de la direction du marché.",
+  'stat-arb': "L'arbitrage statistique parie sur le retour d'un écart entre deux actifs qui bougent habituellement ensemble. Le bot achète le retardataire, vend l'autre, et gagne quand l'écart se referme, quel que soit le sens du marché.",
+  event: "L'événementiel se déclenche sur un fait daté et connu à l'avance : déblocage de tokens, publication macro, annonce d'un exchange. La position est prise autour de l'événement et refermée une fois son effet absorbé.",
+}
+
+export function familyDescription(f: Family): string {
+  return DESCRIPTIONS[f]
+}
+
 export type Venue =
   | 'binance-spot'
   | 'binance-futures'

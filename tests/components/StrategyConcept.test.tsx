@@ -14,7 +14,8 @@ describe('concept pages', () => {
     }
   })
 
-  it('no fiche slug collides with the reserved /strategies/bot segment', () => {
-    expect(STRATEGY_FICHES.some(f => f.slug === 'bot')).toBe(false)
-  })
+  // The "no fiche slug collides with the reserved bot segment" assertion used
+  // to be duplicated here and in tests/lib/strategy-routing.test.ts (fix
+  // round 1) — kept in strategy-routing.test.ts only, which is the file about
+  // routing collisions.
 })

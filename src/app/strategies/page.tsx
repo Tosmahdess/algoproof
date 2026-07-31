@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { fichesByFamily } from '@/lib/strategy-library'
-import { familyLabel } from '@/lib/families'
+import { familyLabel, familyDescription } from '@/lib/families'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
 
@@ -31,6 +31,7 @@ export default async function StrategiesIndexPage() {
           <h2 className="text-xs uppercase tracking-wider text-muted mb-3">
             {familyLabel(family)}
           </h2>
+          <p className="text-xs text-muted mb-4 max-w-2xl">{familyDescription(family)}</p>
           <ul className="space-y-2">
             {fiches.map(f => {
               const n = incarnationsOf(f, bots).length

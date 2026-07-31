@@ -1,4 +1,4 @@
-// src/app/strategies/[slug]/page.tsx
+// src/app/strategies/bot/[slug]/page.tsx
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import StatusBadge from '@/components/StatusBadge'

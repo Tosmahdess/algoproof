@@ -4,6 +4,7 @@ import { STRATEGY_FICHES, getStrategyFiche } from '@/lib/strategy-library'
 import { familyLabel } from '@/lib/families'
 import { getAllBotsWithStats, getBotSlugs } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
+import { resolveStrategyRoute } from '@/lib/strategy-routing'
 import StatusBadge from '@/components/StatusBadge'
 
 export const revalidate = 300
@@ -27,17 +28,27 @@ export async function generateMetadata({ params }: { params: Promise<{ concept: 
 
 export default async function ConceptPage({ params }: { params: Promise<{ concept: string }> }) {
   const { concept } = await params
-  const fiche = getStrategyFiche(concept)
+  const ficheSlugs = STRATEGY_FICHES.map(f => f.slug)
 
-  // Not a concept? Then this is an old bot URL. Bot fiches moved under
-  // /strategies/bot/ so the concept pages could own the clean namespace, and
-  // those old URLs were indexed at sitemap priority 1.0 — so 308, not 404.
-  if (!fiche) {
-    const slugs = await getBotSlugs()
-    if (slugs.includes(concept)) permanentRedirect(`/strategies/bot/${concept}`)
-    notFound()
+  // resolveStrategyRoute (src/lib/strategy-routing.ts) is the tested decision:
+  // fiche wins on a slug collision (real one in the tree today: fvg-multi is
+  // both a fiche and a bot slug), a bot-only slug 308s to /strategies/bot/,
+  // anything else 404s. getBotSlugs() is only fetched when needed — a known
+  // fiche never touches Supabase to render.
+  let botSlugs: string[] = []
+  if (!ficheSlugs.includes(concept)) {
+    // Fix round 1: a Supabase blip here used to 500 the page. Those old bot
+    // URLs were indexed at sitemap priority 1.0, so a 308 is the goal, but a
+    // 404 is a far better failure mode than a 500 — sitemap.ts's own
+    // getBotSlugs() call degrades the same way.
+    try { botSlugs = await getBotSlugs() } catch { /* degrade to notFound below */ }
   }
 
+  const route = resolveStrategyRoute(concept, ficheSlugs, botSlugs)
+  if (route.kind === 'redirect') permanentRedirect(route.to)
+  if (route.kind === 'notFound') notFound()
+
+  const fiche = getStrategyFiche(concept)!
   const bots = await getAllBotsWithStats()
   const incarnations = incarnationsOf(fiche, bots)
 
@@ -76,7 +87,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
         <ul className="space-y-3">
           {fiche.params.map(p => (
             <li key={p.name} className="text-sm">
-              <span className="font-mono text-accent">{p.name}</span> — {p.role}
+              <span className="font-mono text-accent">{p.name}</span> : {p.role}
               {p.pitfall && <span className="block text-xs text-muted mt-1">{p.pitfall}</span>}
             </li>
           ))}
