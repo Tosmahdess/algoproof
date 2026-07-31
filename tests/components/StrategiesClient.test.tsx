@@ -13,9 +13,11 @@ vi.mock('@/components/BotCard', () => ({
 
 const makeBot = (overrides: Partial<BotWithStats>): BotWithStats => ({
   id: '1', slug: 'test', name: 'Test Bot', strategy: 'EMA', status: 'paper',
-  family: 'trend', exchange: 'Binance', assets: [], timeframe: 'H4',
+  family: 'trend', exchange: 'Binance', venue: 'binance-spot', assets: [], timeframe: 'H4',
   description: null, created_at: '2026-01-01', last_sync_at: null,
   start_capital: 1000,
+  origin: 'engine', found_at: null, validated_at: null, paper_since: null, live_since: null,
+  frozen_at: null, archived_at: null, engine_unit_key: null, rejudge_status: 'not_needed',
   stats: { win_rate: 0.6, profit_factor: 2.0, max_drawdown: 0.05, total_trades: 10, latest_capital: 1050 },
   perf_daily: [], recent_trades: [], all_trades: [],
   ...overrides,

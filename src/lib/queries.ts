@@ -12,7 +12,12 @@ function withStartCapital<T extends { slug: string }>(row: T): T & { start_capit
 export async function getBots(): Promise<Bot[]> {
   const { data, error } = await supabase
     .from('bots')
-    .select('id,slug,name,strategy,status,family,exchange,assets,timeframe,description,created_at,last_sync_at')
+    // NOTE: this must stay a single string literal, not a `+` concatenation — supabase-js
+    // parses the select list from the literal type of the argument to type the result rows,
+    // and concatenation widens it to `string`, which degrades every row to a typed error.
+    .select(
+      'id,slug,name,strategy,status,family,exchange,venue,assets,timeframe,description,created_at,last_sync_at,origin,found_at,validated_at,paper_since,live_since,frozen_at,archived_at,engine_unit_key,rejudge_status'
+    )
     .neq('status', 'frozen')
     .order('name')
   if (error) throw new Error(error.message)

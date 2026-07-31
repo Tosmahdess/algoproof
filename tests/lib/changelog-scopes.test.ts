@@ -4,9 +4,12 @@ import type { Bot, BotChangelog } from '@/lib/types'
 
 const bot = (o: Partial<Bot> = {}): Bot => ({
   id: '1', slug: 'apex-emacross-hl', name: 'EMA HL', strategy: 'ema',
-  status: 'paper', family: 'trend', exchange: 'Hyperliquid', assets: ['BTC'],
+  status: 'paper', family: 'trend', exchange: 'Hyperliquid', venue: 'hyperliquid', assets: ['BTC'],
   timeframe: 'H4', description: null, created_at: '', last_sync_at: null,
-  start_capital: 1000, ...o,
+  start_capital: 1000,
+  origin: 'engine', found_at: null, validated_at: null, paper_since: null, live_since: null,
+  frozen_at: null, archived_at: null, engine_unit_key: null, rejudge_status: 'not_needed',
+  ...o,
 })
 
 const entry = (o: Partial<BotChangelog> = {}): BotChangelog => ({

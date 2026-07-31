@@ -1,4 +1,6 @@
 // src/lib/types.ts
+import type { Family, Venue, BotOrigin, RejudgeStatus } from './families'
+
 export type BotStatus = 'paper' | 'live' | 'backtest' | 'frozen' | 'archived'
 export type TradeSide = 'long' | 'short'
 
@@ -8,14 +10,25 @@ export interface Bot {
   name: string
   strategy: string
   status: BotStatus
-  family: 'trend' | 'breakout' | 'mean-reversion' | 'carry' | 'market-neutral' | null
-  exchange: string
+  family: Family
+  exchange: string          // human-readable display string
+  venue: Venue | null       // normalised slug the filters key on; null = venue not yet mapped
   assets: string[]
   timeframe: string
   description: string | null
   created_at: string
   last_sync_at: string | null
   start_capital: number
+  // provenance and lifecycle (migration 019)
+  origin: BotOrigin
+  found_at: string | null
+  validated_at: string | null
+  paper_since: string | null
+  live_since: string | null
+  frozen_at: string | null
+  archived_at: string | null
+  engine_unit_key: string | null
+  rejudge_status: RejudgeStatus
 }
 
 export interface Trade {
