@@ -1,0 +1,246 @@
+// src/lib/bot-filters.ts
+// Filter state for « La flotte », as pure data. No React, no router, no DOM.
+//
+// Two rules drive the design:
+//   1. State lives in the URL so it survives sharing and the back button. It is
+//      NOT there for SEO — Google's faceted-navigation guidance asks that facet
+//      URLs not be crawled, so robots.txt disallows this parameter space
+//      (Plan 3). Parameter order is constant because that guidance requires it
+//      of any facet URL that does get crawled, and because it makes the
+//      round-trip test meaningful.
+//   2. Anything unknown in the URL is dropped, never trusted. A stale link with
+//      a family that no longer exists renders the default view, not a crash.
+import { FAMILY_ORDER, isFamily, familyLabel, type Family, type Venue } from './families'
+import { toBaseAsset } from './asset'
+
+export type FleetStatusFilter = 'live' | 'paper' | 'archived'
+export type SortKey = 'proven' | 'trades' | 'win_rate' | 'profit_factor' | 'max_drawdown' | 'pnl'
+export type SortDir = 'asc' | 'desc'
+/**
+ * NOT a facet. A bot is neither long nor short; its trades are. This switch
+ * recomputes the displayed stats through `computeBotStats(..., direction, ...)`,
+ * exactly as the old OverviewClient did, and never removes a bot from the list.
+ * It is therefore absent from PREDICATES and from activeFilterCount, and a test
+ * pins that. Putting it in PREDICATES would have been the obvious "fix" and
+ * would have quietly hidden every bot with no trade in that direction.
+ */
+export type DirectionFilterValue = 'all' | 'long' | 'short'
+
+export const VENUE_ORDER = [
+  'binance-spot', 'binance-futures', 'kraken', 'hyperliquid', 'bybit', 'okx',
+] as const satisfies readonly Venue[]
+
+const VENUE_LABELS: Record<Venue, string> = {
+  'binance-spot': 'Binance Spot',
+  'binance-futures': 'Binance Futures',
+  kraken: 'Kraken',
+  hyperliquid: 'Hyperliquid',
+  bybit: 'Bybit',
+  okx: 'OKX',
+}
+
+export function venueLabel(v: Venue): string {
+  return VENUE_LABELS[v]
+}
+
+const STATUS_VALUES: readonly FleetStatusFilter[] = ['live', 'paper', 'archived']
+const SORT_VALUES: readonly SortKey[] = ['proven', 'trades', 'win_rate', 'profit_factor', 'max_drawdown', 'pnl']
+
+export interface FleetFilterState {
+  family: Family[]
+  status: FleetStatusFilter[]
+  asset: string[]
+  timeframe: string[]
+  venue: Venue[]
+  direction: DirectionFilterValue
+  sort: SortKey
+  dir: SortDir
+}
+
+/** The default view: no filter, and the only sort that is not a performance ranking. */
+export const EMPTY_FILTERS: FleetFilterState = {
+  family: [], status: [], asset: [], timeframe: [], venue: [],
+  direction: 'all', sort: 'proven', dir: 'desc',
+}
+
+export interface FilterableBot {
+  family: Family
+  status: string
+  assets: string[]
+  timeframe: string
+  venue: Venue | null
+}
+
+// Parameter order is fixed here and nowhere else.
+const PARAM_ORDER = ['family', 'status', 'venue', 'asset', 'tf', 'dir_trade', 'sort', 'dir'] as const
+
+function readList(sp: URLSearchParams, key: string): string[] {
+  const raw = sp.get(key)
+  if (!raw) return []
+  return raw.split(',').map(s => s.trim()).filter(Boolean)
+}
+
+function isVenue(v: unknown): v is Venue {
+  return typeof v === 'string' && (VENUE_ORDER as readonly string[]).includes(v)
+}
+
+export function parseFleetFilters(sp: URLSearchParams): FleetFilterState {
+  const direction = sp.get('dir_trade')
+  const sort = sp.get('sort')
+  const dir = sp.get('dir')
+  return {
+    family: readList(sp, 'family').filter(isFamily),
+    status: readList(sp, 'status').filter((s): s is FleetStatusFilter =>
+      (STATUS_VALUES as readonly string[]).includes(s)),
+    venue: readList(sp, 'venue').filter(isVenue),
+    asset: readList(sp, 'asset').map(a => a.toUpperCase()),
+    timeframe: readList(sp, 'tf').map(t => t.toUpperCase()),
+    direction: direction === 'long' || direction === 'short' ? direction : 'all',
+    sort: (SORT_VALUES as readonly string[]).includes(sort ?? '') ? (sort as SortKey) : 'proven',
+    dir: dir === 'asc' ? 'asc' : 'desc',
+  }
+}
+
+export function serializeFleetFilters(s: FleetFilterState): URLSearchParams {
+  const values: Record<(typeof PARAM_ORDER)[number], string> = {
+    family: s.family.join(','),
+    status: s.status.join(','),
+    venue: s.venue.join(','),
+    asset: s.asset.join(','),
+    tf: s.timeframe.join(','),
+    dir_trade: s.direction === 'all' ? '' : s.direction,
+    sort: s.sort === EMPTY_FILTERS.sort ? '' : s.sort,
+    dir: s.dir === EMPTY_FILTERS.dir ? '' : s.dir,
+  }
+  const sp = new URLSearchParams()
+  for (const key of PARAM_ORDER) {
+    if (values[key]) sp.set(key, values[key])
+  }
+  return sp
+}
+
+function matchesStatus(bot: FilterableBot, selected: FleetStatusFilter[]): boolean {
+  if (selected.length === 0) return true
+  const bucket: FleetStatusFilter =
+    bot.status === 'live' ? 'live' : bot.status === 'archived' ? 'archived' : 'paper'
+  return selected.includes(bucket)
+}
+
+function matchesAsset(bot: FilterableBot, selected: string[]): boolean {
+  if (selected.length === 0) return true
+  // Exact match on the normalised base asset, never containment: `includes`
+  // makes BTC swallow WBTC and BTCB, so the count next to the option and the
+  // rows below it would both be wrong while every parser test stayed green.
+  // `selected` is normalised here too (not just in parseFleetFilters) because
+  // applyFleetFilters is a public entry point in its own right: callers that
+  // build FleetFilterState directly (tests, future callers) must not silently
+  // get case-sensitive matching just because they bypassed the URL parser.
+  const wanted = selected.map(v => v.toUpperCase())
+  return bot.assets.some(a => wanted.includes(toBaseAsset(a)))
+}
+
+/** Each predicate is exported-by-shape so optionCounts can leave one facet out. */
+const PREDICATES = {
+  family: (b: FilterableBot, s: FleetFilterState) => s.family.length === 0 || s.family.includes(b.family),
+  status: (b: FilterableBot, s: FleetFilterState) => matchesStatus(b, s.status),
+  // A bot whose venue is not yet mapped stays visible everywhere except under a
+  // venue filter. Hiding it would make an unmapped exchange look like a missing
+  // bot instead of a missing mapping.
+  venue: (b: FilterableBot, s: FleetFilterState) =>
+    s.venue.length === 0 || (b.venue !== null && s.venue.includes(b.venue)),
+  asset: (b: FilterableBot, s: FleetFilterState) => matchesAsset(b, s.asset),
+  timeframe: (b: FilterableBot, s: FleetFilterState) =>
+    s.timeframe.length === 0 || s.timeframe.includes(b.timeframe.toUpperCase()),
+} as const
+
+type FacetKey = keyof typeof PREDICATES
+
+export function applyFleetFilters<T extends FilterableBot>(bots: T[], s: FleetFilterState): T[] {
+  return bots.filter(b => (Object.keys(PREDICATES) as FacetKey[]).every(k => PREDICATES[k](b, s)))
+}
+
+function applyExcept<T extends FilterableBot>(bots: T[], s: FleetFilterState, skip: FacetKey): T[] {
+  return bots.filter(b =>
+    (Object.keys(PREDICATES) as FacetKey[]).filter(k => k !== skip).every(k => PREDICATES[k](b, s)),
+  )
+}
+
+export interface OptionCounts {
+  family: Record<string, number>
+  status: Record<string, number>
+  venue: Record<string, number>
+  timeframe: Record<string, number>
+}
+
+/**
+ * Counts shown next to each option. Each facet is counted against the OTHER
+ * facets only — counting a facet against itself would drive every unselected
+ * option to zero the moment one is picked, which makes multi-select unusable.
+ */
+export function optionCounts<T extends FilterableBot>(bots: T[], s: FleetFilterState): OptionCounts {
+  const family: Record<string, number> = {}
+  for (const f of FAMILY_ORDER) family[f] = 0
+  for (const b of applyExcept(bots, s, 'family')) family[b.family] = (family[b.family] ?? 0) + 1
+
+  const status: Record<string, number> = { live: 0, paper: 0, archived: 0 }
+  for (const b of applyExcept(bots, s, 'status')) {
+    const bucket = b.status === 'live' ? 'live' : b.status === 'archived' ? 'archived' : 'paper'
+    status[bucket] += 1
+  }
+
+  const venue: Record<string, number> = {}
+  for (const v of VENUE_ORDER) venue[v] = 0
+  for (const b of applyExcept(bots, s, 'venue')) {
+    if (b.venue) venue[b.venue] = (venue[b.venue] ?? 0) + 1
+  }
+
+  const timeframe: Record<string, number> = {}
+  for (const b of applyExcept(bots, s, 'timeframe')) {
+    const tf = b.timeframe.toUpperCase()
+    timeframe[tf] = (timeframe[tf] ?? 0) + 1
+  }
+
+  return { family, status, venue, timeframe }
+}
+
+export function activeFilterCount(s: FleetFilterState): number {
+  return s.family.length + s.status.length + s.asset.length + s.timeframe.length +
+    s.venue.length + (s.direction === 'all' ? 0 : 1)
+}
+
+/**
+ * A zero-result view must name the filter responsible and offer its removal.
+ * Returns the French sentence to show, or null while results remain.
+ *
+ * Facets are applied one at a time, in order, on top of the shrinking result
+ * of the previous ones. The facet blamed is the first whose application on
+ * that already-narrowed set is what drives the count to zero. This is not the
+ * same as "the first facet that would unblock the list if removed alone":
+ * with two independently-restrictive facets (e.g. family=carry AND
+ * venue=kraken, each matching a different single bot), removing EITHER one
+ * alone reopens the list, so that check cannot tell them apart. Sequential
+ * narrowing can, because it mirrors how the predicates actually combine
+ * (AND across facets) and names whichever facet's constraint had no bot left
+ * to apply to.
+ */
+export function describeEmptyResult(bots: FilterableBot[], s: FleetFilterState): string | null {
+  if (applyFleetFilters(bots, s).length > 0) return null
+
+  const facets: { key: FacetKey; describe: () => string }[] = [
+    { key: 'family', describe: () => s.family.map(f => familyLabel(f)).join(', ') },
+    { key: 'venue', describe: () => s.venue.map(v => venueLabel(v)).join(', ') },
+    { key: 'timeframe', describe: () => s.timeframe.join(', ') },
+    { key: 'asset', describe: () => s.asset.join(', ') },
+    { key: 'status', describe: () => s.status.join(', ') },
+  ]
+
+  let remaining = bots
+  for (const facet of facets) {
+    const next = remaining.filter(b => PREDICATES[facet.key](b, s))
+    if (next.length === 0 && remaining.length > 0) {
+      return `Aucun bot ne correspond. C'est le filtre « ${facet.describe()} » qui vide la liste.`
+    }
+    remaining = next
+  }
+  return 'Aucun bot ne correspond à cette combinaison de filtres.'
+}
