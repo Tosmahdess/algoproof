@@ -18,7 +18,7 @@ import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { getProvenanceForBot } from '@/lib/screening'
-import { conceptSlugForStrategy } from '@/lib/incarnations'
+import { ficheSlugForBot } from '@/lib/strategy-keys'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -57,7 +57,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   // returns null both when this bot was never screened and when the screening tables
   // don't exist yet in this environment.
   const provenance = await getProvenanceForBot(bot.slug)
-  const conceptSlug = conceptSlugForStrategy(bot.strategy)
+  const conceptSlug = ficheSlugForBot(bot)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -73,12 +73,12 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         </div>
         <h1 className="text-3xl font-bold mb-2">{bot.name}</h1>
         <p className="text-muted">{bot.strategy}</p>
-        {/* FIX (final whole-branch review, I8): the third edge of the graph.
-            /overview groups this bot under its strategy and /strategies/<concept>
-            explains that strategy and lists this bot — and from here there was no
-            way back to either. Absent, not broken, when no fiche claims the
-            strategy string: 13 fiches carry no alias yet, and a bot may run a
-            strategy that has no fiche at all. */}
+        {/* The third edge of the graph. /overview groups this bot under its
+            strategy and /strategies/<concept> explains that strategy and lists
+            this bot — and from here there was no way back to either. Absent,
+            not broken, when no fiche claims this bot: six of the 27 deployed
+            bots run something no fiche describes (grid, delta-neutral carry,
+            funding reversal…). */}
         {conceptSlug && (
           <p className="text-sm mt-1 mb-2">
             <Link href={`/strategies/${conceptSlug}`} className="text-accent hover:underline">

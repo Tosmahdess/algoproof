@@ -94,14 +94,14 @@ describe('applyFleetFilters', () => {
 
   it('keeps a dormant bot: zero trades is not a reason to hide a deployed bot', () => {
     const kept = applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, family: ['trend'] })
-    expect(kept.map(b => b.slug)).toContain('ichimoku-dormant')
+    expect(kept.map(b => b.slug)).toContain('ichimoku-bf25')
   })
 
   it('a bot with an unmapped venue survives every filter except a venue filter', () => {
     const all = applyFleetFilters(FIXTURE_FLEET, EMPTY_FILTERS)
-    expect(all.map(b => b.slug)).toContain('new-venue-bot')
+    expect(all.map(b => b.slug)).toContain('donchian-bf17')
     const byVenue = applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, venue: ['hyperliquid'] })
-    expect(byVenue.map(b => b.slug)).not.toContain('new-venue-bot')
+    expect(byVenue.map(b => b.slug)).not.toContain('donchian-bf17')
   })
 
   it('matches the base asset exactly, so BTC does not swallow WBTC', () => {

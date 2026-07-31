@@ -3,33 +3,36 @@
 // science. The register groups so a visitor scans a dozen groups instead of
 // hundreds of rows.
 //
-// Keyed on the `strategy` string, which every bot already carries.
+// Keyed on the FICHE SLUG (src/lib/strategy-keys.ts), labelled with the fiche
+// title. This file used to key on the `strategy` string, "which every bot
+// already carries" — and every bot carries a DIFFERENT one, because production
+// `strategy` is a per-deployment display sentence with the timeframe and the
+// asset count baked in. The register therefore rendered 27 groups of one bot:
+// one header per row, the exact opposite of what grouping is for. The eight
+// deployed EMA Cross incarnations are one group again.
 //
-// FIX (final whole-branch review, I8): this used to promise that once plan 3
-// brought the strategy library onto this domain, "the key becomes the fiche
-// slug and the label the fiche title — a change confined to this file". Plan 3
-// landed and this file was not touched, so the promise was stale in both
-// directions: nothing changed here, and nothing needed to. The key stays the
-// strategy string (it is what the fleet actually carries, and 13 fiches have
-// no alias for it yet), and the LABEL stays the operator's own wording rather
-// than the library's display title — « EMA Cross H4 » is what the bot is
-// called, « EMA Cross » is what the concept page is called, and flattening one
-// into the other would lose information the register exists to show.
-//
-// What was actually missing was the link. FleetRegister now resolves each
-// group label through conceptSlugForStrategy (src/lib/incarnations.ts) and
-// renders the header as a link to the concept page when a fiche claims it,
-// plain text when none does. Joining is a rendering concern, not a grouping
-// one, which is why it lives there and not here.
+// A bot no fiche claims keeps its own `strategy` string as key and label, so
+// nothing disappears from the register — a grid bot or a delta-neutral carry bot
+// is still listed, under its own wording, just without a concept page behind it.
+// That is also why the label is the fiche TITLE only when a fiche exists: for
+// everything else the operator's own sentence is the most informative thing
+// available.
+import { ficheSlugForBot } from './strategy-keys'
+import { getStrategyFiche } from './strategy-library'
+import type { FicheSlug } from './strategy-library'
 
 export interface GroupableBot {
+  slug: string
   strategy: string
   status: string
+  engine_unit_key: string | null
 }
 
 export interface StrategyGroup<T> {
   key: string
   label: string
+  /** The concept page this group belongs to, or null when no fiche claims it. */
+  ficheSlug: FicheSlug | null
   bots: T[]
   promotedCount: number
 }
@@ -37,7 +40,7 @@ export interface StrategyGroup<T> {
 const UNGROUPED_KEY = '__ungrouped__'
 const UNGROUPED_LABEL = 'Non classées'
 
-function keyOf(strategy: string): string {
+function rawKeyOf(strategy: string): string {
   const norm = strategy.trim().toLowerCase().replace(/\s+/g, ' ')
   return norm.length > 0 ? norm : UNGROUPED_KEY
 }
@@ -46,15 +49,17 @@ export function groupByStrategy<T extends GroupableBot>(bots: T[]): StrategyGrou
   const map = new Map<string, StrategyGroup<T>>()
 
   for (const bot of bots) {
-    const key = keyOf(bot.strategy)
+    const ficheSlug = ficheSlugForBot(bot)
+    const key = ficheSlug ?? rawKeyOf(bot.strategy)
     let group = map.get(key)
     if (!group) {
-      group = {
-        key,
-        label: key === UNGROUPED_KEY ? UNGROUPED_LABEL : bot.strategy.trim(),
-        bots: [],
-        promotedCount: 0,
-      }
+      // getStrategyFiche cannot return null for a slug ficheSlugForBot just
+      // produced (both are typed against the same 22 fiches), but the fallback
+      // keeps the label defined rather than "undefined" if that ever changes.
+      const label = ficheSlug
+        ? getStrategyFiche(ficheSlug)?.title ?? bot.strategy.trim()
+        : key === UNGROUPED_KEY ? UNGROUPED_LABEL : bot.strategy.trim()
+      group = { key, label, ficheSlug, bots: [], promotedCount: 0 }
       map.set(key, group)
     }
     group.bots.push(bot)

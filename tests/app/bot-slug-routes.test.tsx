@@ -45,7 +45,9 @@ const CANDIDATE = {
   id: 'bot-x',
   slug: 'candidate-never-deployed',
   name: 'Candidate (not deployed) — Wavelet Cross',
-  strategy: 'Wavelet Cross',
+  // An engine candidate that was never deployed has no production `bots` row,
+  // so it has no real `strategy` sentence to borrow. Marked rather than invented.
+  strategy: 'NOT-A-PRODUCTION-STRING (engine candidate, never deployed)',
   status: 'backtest',
   family: 'momentum',
   exchange: 'Hyperliquid',

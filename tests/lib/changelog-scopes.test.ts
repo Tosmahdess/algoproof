@@ -3,7 +3,7 @@ import { fleetEntryAppliesTo, botVenue, scopeLabel } from '@/lib/changelog'
 import type { Bot, BotChangelog } from '@/lib/types'
 
 const bot = (o: Partial<Bot> = {}): Bot => ({
-  id: '1', slug: 'apex-emacross-hl', name: 'EMA HL', strategy: 'ema',
+  id: '1', slug: 'v1-hl', name: 'EMA HL', strategy: 'EMA Cross H4 (21/55/200) — Hyperliquid Perps',
   status: 'paper', family: 'trend', exchange: 'Hyperliquid', venue: 'hyperliquid', assets: ['BTC'],
   timeframe: 'H4', description: null, created_at: '', last_sync_at: null,
   start_capital: 1000,
@@ -34,7 +34,7 @@ describe('fleetEntryAppliesTo', () => {
     expect(fleetEntryAppliesTo(entry({ applies_to: 'venue:hl' }), bot({ exchange: 'Binance Spot' }))).toBe(false)
   })
   it('slug target matches listed slugs', () => {
-    expect(fleetEntryAppliesTo(entry({ applies_to: 'slug:a,apex-emacross-hl' }), bot())).toBe(true)
+    expect(fleetEntryAppliesTo(entry({ applies_to: 'slug:a,v1-hl' }), bot())).toBe(true)
     expect(fleetEntryAppliesTo(entry({ applies_to: 'slug:a,b' }), bot())).toBe(false)
   })
 })

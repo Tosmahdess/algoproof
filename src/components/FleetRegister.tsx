@@ -33,7 +33,6 @@ import {
 } from '@/lib/bot-filters'
 import { sortFleet } from '@/lib/fleet-sort'
 import { groupByStrategy } from '@/lib/fleet-grouping'
-import { conceptSlugForStrategy } from '@/lib/incarnations'
 import { splitCohorts } from '@/lib/cohort'
 import { isLowSample } from '@/lib/display'
 import BotCard from '@/components/BotCard'
@@ -166,21 +165,23 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           <div className="space-y-6">
             {activeGroups.map(group => (
               <details key={group.key} open className="bg-card border border-border rounded-lg">
-                {/* FIX (final whole-branch review, I8): the group header links
-                    to the concept page when a fiche claims this strategy
-                    string, and stays plain text when none does (13 fiches
-                    carry no alias yet). Before this, /overview and
-                    /strategies/<concept> described the same bots with no link
-                    in either direction.
+                {/* The group header links to the concept page when a fiche
+                    claims this group, and stays plain text when none does (a
+                    grid bot, a delta-neutral carry bot). `group.ficheSlug` is
+                    decided by groupByStrategy through ficheSlugForBot — the
+                    same call that decided the grouping — so the header can only
+                    link to a page that lists the bots underneath it. Resolving
+                    it a second time here, from the label, is what used to make
+                    that guarantee a coincidence.
 
                     stopPropagation because a click on an <a> inside a
                     <summary> would otherwise also toggle the <details>: the
                     visitor would navigate away AND collapse the group they
                     left behind. */}
                 <summary className="cursor-pointer px-4 py-3 text-sm">
-                  {conceptSlugForStrategy(group.label) ? (
+                  {group.ficheSlug ? (
                     <Link
-                      href={`/strategies/${conceptSlugForStrategy(group.label)}`}
+                      href={`/strategies/${group.ficheSlug}`}
                       onClick={e => e.stopPropagation()}
                       className="hover:text-accent"
                     >

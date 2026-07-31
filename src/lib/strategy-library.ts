@@ -24,15 +24,23 @@ export interface StrategyFiche {
   title: string;
   family: Family;
   oneLiner: string;
-  logic: string[];      // "comment ça marche", plain French paragraphs
-  worksWhen: string[];
-  diesWhen: string[];
-  params: StrategyParamNote[];
+  // readonly, so `STRATEGY_FICHES` below can be `as const satisfies` this shape:
+  // that is what turns `slug` from `string` into a union of the 22 literals and
+  // lets strategy-keys.ts fail `tsc` on a mistyped fiche slug.
+  logic: readonly string[];      // "comment ça marche", plain French paragraphs
+  worksWhen: readonly string[];
+  diesWhen: readonly string[];
+  params: readonly StrategyParamNote[];
   labHref: string;      // "Tester cette stratégie dans le Lab"
   presetHref?: string;  // reproduce the real bot in one click, when a preset exists
 }
 
-export const STRATEGY_FICHES: StrategyFiche[] = [
+// Declared `as const` so the slugs survive as literal types (see FicheSlug
+// below), then re-exported through the wide `readonly StrategyFiche[]` alias so
+// every consumer keeps seeing one uniform fiche shape rather than 22 narrowed
+// object types (a fiche without `presetHref` would otherwise not even have the
+// property to test for).
+const FICHES = [
   {
     slug: "ema-cross",
     strategyId: "ema_cross",
@@ -962,7 +970,17 @@ export const STRATEGY_FICHES: StrategyFiche[] = [
     ],
     labHref: "https://lab.algoproof.fr/lab?strategy=fvg_multi",
   },
-];
+] as const satisfies readonly StrategyFiche[];
+
+/**
+ * The 22 fiche slugs, as a type. Derived from the array itself — adding,
+ * renaming or deleting a fiche above changes this union with no second list to
+ * keep in step, and every map keyed or valued by a fiche slug (strategy-keys.ts)
+ * fails `tsc` on a typo instead of silently resolving to nothing.
+ */
+export type FicheSlug = (typeof FICHES)[number]['slug']
+
+export const STRATEGY_FICHES: readonly StrategyFiche[] = FICHES;
 
 export function getStrategyFiche(slug: string): StrategyFiche | null {
   return STRATEGY_FICHES.find(f => f.slug === slug) ?? null

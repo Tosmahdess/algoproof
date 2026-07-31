@@ -117,12 +117,16 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
       />,
     )
     const register = screen.getByTestId('fleet-register')
-    // Only breakout-family register bots (atrchannel-k3, new-venue-bot) — no
+    // Only breakout-family register bots (atrchannel-k3, donchian-bf17) — no
     // trend/momentum/etc. group headers (Ichimoku is trend, and would be
     // present in the register unfiltered — see FleetRegister.test.tsx), and
-    // the filter pill itself reads active.
+    // the filter pill itself reads active. getAllByText for Donchian: since the
+    // register groups on the fiche, the group header (« Donchian Breakout », a
+    // link to the concept page) and the bot row both carry the word.
     expect(within(register).getByText(/ATR Channel/)).toBeTruthy()
-    expect(within(register).getByText(/Donchian/)).toBeTruthy()
+    expect(within(register).getAllByText(/Donchian/).length).toBeGreaterThan(0)
+    expect(within(register).getByRole('link', { name: 'Donchian Breakout' })
+      .getAttribute('href')).toBe('/strategies/donchian')
     expect(within(register).queryByText(/Ichimoku/)).toBeNull()
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
   })
@@ -222,11 +226,12 @@ describe('FleetOverview — remounts on a new server-sent filter state (fix roun
       />,
     )
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
-    expect(within(screen.getByTestId('fleet-register')).queryByText(/Ichimoku/)).toBeNull()
+    expect(within(screen.getByTestId('fleet-register')).queryAllByText(/Ichimoku/)).toHaveLength(0)
 
     rerender(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
 
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'false')
-    expect(within(screen.getByTestId('fleet-register')).getByText(/Ichimoku/)).toBeTruthy()
+    expect(within(screen.getByTestId('fleet-register')).getAllByText(/Ichimoku/).length)
+      .toBeGreaterThan(0)
   })
 })

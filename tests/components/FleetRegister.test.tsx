@@ -3,7 +3,7 @@ import { render, screen, fireEvent, within, act } from '@testing-library/react'
 import FleetRegister from '@/components/FleetRegister'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
 import { SORT_LABELS } from '@/lib/fleet-sort'
-import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
+import { FIXTURE_FLEET, mkBot, prodBot } from '../fixtures/bots'
 
 // FIX round 2: no more useSearchParams() in FleetRegister at all (it now
 // receives `initialState` as a prop instead), so this mock only needs
@@ -21,7 +21,7 @@ describe('FleetRegister', () => {
   it('pins real-money bots to their own stage, outside the filterable register', () => {
     render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
     const real = screen.getByTestId('fleet-real')
-    expect(within(real).getByText('EMA Cross H4 Kraken')).toBeTruthy()
+    expect(within(real).getByText('EMA Cross H4 Kraken Spot')).toBeTruthy()
     expect(within(real).getByText('ORB H1 HL')).toBeTruthy()
   })
 
@@ -35,7 +35,9 @@ describe('FleetRegister', () => {
     const archived = screen.getByTestId('fleet-archived')
     expect(archived.tagName.toLowerCase()).toBe('details')
     expect(archived.hasAttribute('open')).toBe(false)
-    expect(within(archived).getByText(/TSMOM/)).toBeTruthy()
+    // The archived section is flat, not grouped, so the row prints the bot's own
+    // production `strategy` sentence rather than a fiche title.
+    expect(within(archived).getByText('Chandelier Exit H4 — 14 actifs')).toBeTruthy()
   })
 
   it('shows a count next to every family option', () => {
@@ -59,7 +61,7 @@ describe('FleetRegister', () => {
     render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
     // Unfiltered: both the trend-family dormant bot and the carry-family bot show.
     expect(screen.getAllByText(/Ichimoku/).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/Funding Harvest/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Funding Rate Harvesting/).length).toBeGreaterThan(0)
 
     // `window.dispatchEvent` bypasses React Testing Library's `fireEvent`
     // act() wrapping (that only instruments DOM element events), so the
@@ -71,26 +73,27 @@ describe('FleetRegister', () => {
     })
 
     // After popstate re-parses ?family=carry, only the carry-family bot remains.
-    expect(screen.getAllByText(/Funding Harvest/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Funding Rate Harvesting/).length).toBeGreaterThan(0)
     expect(screen.queryByText(/Ichimoku/)).toBeNull()
   })
 })
 
 // FIX (final whole-branch review, I1): SORT_LABELS and FleetFilterState.sort
 // existed, sortFleet applied them, and nothing on screen could set them. The
-// register is grouped by strategy, so these bots deliberately share one
-// `strategy` string: that is the production shape (fleet-grouping.ts exists
-// because « 14 strategies, 240 incarnations »), and it is where a sort is
-// visible. Group ORDER is decided by groupByStrategy (incarnation count, then
-// label) and is not a function of the sort — the sort orders the rows.
+// register is grouped by strategy, so these two bots deliberately land in ONE
+// group: two of the eight real EMA Cross incarnations, which carry two
+// different `strategy` sentences in production and are joined by the fiche key
+// rather than by that sentence. Group ORDER is decided by groupByStrategy
+// (incarnation count, then label) and is not a function of the sort — the sort
+// orders the rows.
 describe('FleetRegister — the sort control', () => {
   const SORTABLE = [
-    mkBot({
-      slug: 'seasoned', name: 'Seasoned Bot', strategy: 'EMA Cross', status: 'paper',
+    prodBot('v1-spot', {
+      name: 'Seasoned Bot', status: 'paper',
       stats: { total_trades: 400, profit_factor: 1.1, win_rate: 0.5, max_drawdown: 0.1, latest_capital: 1100 },
     }),
-    mkBot({
-      slug: 'lucky', name: 'Lucky Bot', strategy: 'EMA Cross', status: 'paper',
+    prodBot('v1-hl', {
+      name: 'Lucky Bot', status: 'paper',
       stats: { total_trades: 3, profit_factor: 9, win_rate: 1, max_drawdown: 0, latest_capital: 3000 },
     }),
   ]
@@ -141,30 +144,32 @@ describe('FleetRegister — the sort control', () => {
   })
 })
 
-// FIX (final whole-branch review, I8): /overview and /strategies/<concept>
-// described the same bots with no link in either direction, under a
-// fleet-grouping.ts comment still promising plan 3 would join them.
+// /overview and /strategies/<concept> described the same bots with no link in
+// either direction. The header is now titled from the fiche, not from the bot's
+// own deployment sentence — « EMA Cross », not « EMA Cross H4 (21/55/200) ».
 describe('FleetRegister — the group header joins the register to the concept page', () => {
-  it('links a strategy a fiche claims to that fiche', () => {
+  it('links a group a fiche claims to that fiche', () => {
     render(
       <FleetRegister
-        bots={[mkBot({ name: 'EMA Bot', strategy: 'EMA Cross H4', status: 'paper' })]}
+        bots={[prodBot('v1-spot', { name: 'EMA Bot', status: 'paper' })]}
         initialState={EMPTY_FILTERS}
       />,
     )
-    const header = screen.getByRole('link', { name: 'EMA Cross H4' })
+    const header = screen.getByRole('link', { name: 'EMA Cross' })
     expect(header.getAttribute('href')).toBe('/strategies/ema-cross')
   })
 
-  it('leaves the header as plain text when no fiche claims the strategy', () => {
+  it('leaves the header as plain text when no fiche claims the group', () => {
+    const grid = 'Grille arithmétique ±8% — BTC/USDT Binance Spot'
     render(
       <FleetRegister
-        bots={[mkBot({ name: 'Mystery Bot', strategy: 'Wavelet Cross', status: 'paper' })]}
+        bots={[prodBot('grid-btc-spot', { name: 'Grid BTC Spot', status: 'paper' })]}
         initialState={EMPTY_FILTERS}
       />,
     )
-    // The group is still headed and still counted — it just is not a link.
-    expect(screen.getByText(/Wavelet Cross/)).toBeTruthy()
-    expect(screen.queryByRole('link', { name: 'Wavelet Cross' })).toBeNull()
+    // The group is still headed, under the operator's own wording, and still
+    // counted — it just is not a link.
+    expect(screen.getByText(new RegExp(grid.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))).toBeTruthy()
+    expect(screen.queryByRole('link', { name: grid })).toBeNull()
   })
 })

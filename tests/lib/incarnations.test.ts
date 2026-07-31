@@ -1,63 +1,73 @@
 import { describe, it, expect } from 'vitest'
-import { incarnationsOf, conceptSlugForStrategy } from '@/lib/incarnations'
+import { incarnationsOf } from '@/lib/incarnations'
 import { getStrategyFiche, STRATEGY_FICHES } from '@/lib/strategy-library'
-import { mkBot } from '../fixtures/bots'
+import { ficheSlugForBot } from '@/lib/strategy-keys'
+import { EMA_CROSS_SLUGS, prodBot, mkBot } from '../fixtures/bots'
 
+const emaCross = getStrategyFiche('ema-cross')!
+const maCross = getStrategyFiche('ma-cross')!
 const orb = getStrategyFiche('orb')!
 
 describe('incarnationsOf', () => {
-  it('finds every bot running the strategy, not just one', () => {
-    const bots = [
-      mkBot({ slug: 'orb-bf25', strategy: 'ORB' }),
-      mkBot({ slug: 'orb-hl-2', strategy: 'ORB' }),
-      mkBot({ slug: 'other', strategy: 'EMA Cross' }),
-    ]
-    expect(incarnationsOf(orb, bots).map(b => b.slug)).toEqual(['orb-bf25', 'orb-hl-2'])
+  // The case the old string join got wrong, silently: eight deployed bots, eight
+  // distinct `strategy` sentences, one strategy. The page said « aucun bot ne
+  // fait tourner cette stratégie » and no test disagreed.
+  it('finds all eight EMA Cross incarnations, not one and not none', () => {
+    const fleet = EMA_CROSS_SLUGS.map(slug => prodBot(slug))
+    expect(incarnationsOf(emaCross, fleet).map(b => b.slug)).toEqual([...EMA_CROSS_SLUGS])
   })
 
-  it('matches regardless of case and surrounding whitespace', () => {
-    const bots = [mkBot({ slug: 'a', strategy: '  orb ' })]
-    expect(incarnationsOf(orb, bots)).toHaveLength(1)
+  it('finds the two MA-cross incarnations', () => {
+    const fleet = [
+      prodBot('hmacross-bf22'),
+      prodBot('temacross-bf10'),
+      prodBot('v1-spot'),
+      prodBot('grid-btc-spot'),
+    ]
+    expect(incarnationsOf(maCross, fleet).map(b => b.slug))
+      .toEqual(['hmacross-bf22', 'temacross-bf10'])
+  })
+
+  it('does not lend a bot to a neighbouring fiche', () => {
+    const fleet = EMA_CROSS_SLUGS.map(slug => prodBot(slug))
+    expect(incarnationsOf(maCross, fleet)).toEqual([])
+    expect(incarnationsOf(orb, fleet)).toEqual([])
   })
 
   it('returns an empty array for a fiche nothing runs, without throwing', () => {
     const stoch = getStrategyFiche('stochastic')!
-    expect(incarnationsOf(stoch, [mkBot({ strategy: 'ORB' })])).toEqual([])
+    expect(incarnationsOf(stoch, [prodBot('orb-bf25')])).toEqual([])
   })
 
-  it('does not match a different strategy whose name merely contains this one', () => {
-    const bots = [mkBot({ slug: 'x', strategy: 'ORB Reversal' })]
-    expect(incarnationsOf(orb, bots)).toEqual([])
-  })
-})
-
-// FIX (final whole-branch review, I8): the inverse join, used by the register's
-// group header and the bot fiche's breadcrumb.
-describe('conceptSlugForStrategy', () => {
-  it('resolves an aliased operator string to its fiche', () => {
-    expect(conceptSlugForStrategy('EMA Cross H4')).toBe('ema-cross')
-    expect(conceptSlugForStrategy('ORB')).toBe('orb')
+  it('lists an engine-born bot on the fiche its engine base names', () => {
+    const engineBot = mkBot({
+      slug: 'emacross-m30-k3',
+      engine_unit_key: 'EMAcross|M30|data_20260701|3',
+    })
+    expect(incarnationsOf(emaCross, [engineBot]).map(b => b.slug)).toEqual(['emacross-m30-k3'])
   })
 
-  it('matches regardless of case and surrounding whitespace, like incarnationsOf', () => {
-    expect(conceptSlugForStrategy('  orb ')).toBe('orb')
-  })
-
-  it('returns null for a strategy no fiche claims, rather than guessing', () => {
-    expect(conceptSlugForStrategy('Wavelet Cross')).toBeNull()
-    expect(conceptSlugForStrategy('ORB Reversal')).toBeNull()
-    expect(conceptSlugForStrategy('')).toBeNull()
-  })
-
-  // The property that matters: a header linking to a concept page must lead to
-  // a page that lists the bot it was clicked from. Two independent copies of
-  // the matching rule would eventually disagree and produce exactly that lie.
-  it('is the exact inverse of incarnationsOf for every fiche', () => {
+  it('claims no bot for a fiche when the bot runs something with no fiche', () => {
     for (const fiche of STRATEGY_FICHES) {
-      const bot = mkBot({ strategy: fiche.title })
-      const slug = conceptSlugForStrategy(bot.strategy)
+      expect(incarnationsOf(fiche, [prodBot('grid-btc-spot')])).toEqual([])
+    }
+  })
+
+  // The property that matters across surfaces: the register's group header links
+  // to a concept page, and that page must list the bot the visitor clicked from.
+  // Both sides now call ficheSlugForBot, so this cannot drift.
+  it('is the exact inverse of ficheSlugForBot for every fiche', () => {
+    const fleet = [
+      ...EMA_CROSS_SLUGS.map(slug => prodBot(slug)),
+      prodBot('hmacross-bf22'), prodBot('temacross-bf10'), prodBot('orb-bf25'),
+      prodBot('grid-btc-spot'), prodBot('tsi-bf8'), prodBot('ttmsqueeze-bf7'),
+    ]
+    for (const bot of fleet) {
+      const slug = ficheSlugForBot(bot)
       if (slug === null) {
-        expect(incarnationsOf(fiche, [bot])).toEqual([])
+        for (const fiche of STRATEGY_FICHES) {
+          expect(incarnationsOf(fiche, [bot])).toEqual([])
+        }
       } else {
         expect(incarnationsOf(getStrategyFiche(slug)!, [bot])).toHaveLength(1)
       }
