@@ -37,6 +37,31 @@ export default function PreuvePage() {
         </p>
       </section>
 
+      <section className="mb-10">
+        <h2 className="text-lg mb-3">Ce qui est gratuit, ce qui ne l&apos;est pas</h2>
+        <p className="text-sm mb-3">
+          Tout ce que mes bots font est public, gratuitement, pour toujours : leurs
+          trades, leurs pertes, leur historique. Les membres du labo voient en plus
+          comment chaque bot a été trouvé, testé et réglé : sa configuration exacte
+          et son dossier de validation complet.
+        </p>
+        <p className="text-sm mb-3">
+          Dit autrement : <strong>ce que mes bots font est gratuit, comment ils ont
+          gagné le droit de tourner se paie</strong>.
+        </p>
+        <p className="text-sm mb-3">
+          Je ne cache aucun résultat. Je ne donne pas mes réglages : c&apos;est la
+          seule chose que je vends. Le cimetière, lui, reste ouvert à tout le monde :
+          les stratégies qui meurent sont la partie la plus utile de ce site, et
+          personne ne devrait avoir à payer pour savoir ce qui ne marche pas.
+        </p>
+        <p className="text-sm">
+          L&apos;abonnement donne accès à de la recherche et à un outil. Il ne promet
+          aucun gain, ne donne aucun conseil, et ne s&apos;occupe jamais de
+          l&apos;argent de qui que ce soit.
+        </p>
+      </section>
+
       <section>
         <p className="text-sm">
           <Link href="/blog" className="text-accent">Lis mes autopsies de stratégies sur le blog →</Link>
