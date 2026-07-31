@@ -7,9 +7,8 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
   {
     title: 'Mes bots',
     links: [
-      { href: '/overview',    label: 'Vue d\'ensemble' },
+      { href: '/overview',    label: 'La flotte' },
       { href: '/strategies',  label: 'Les stratégies' },
-      { href: '/performance', label: 'Performance' },
       { href: '/journal',     label: 'Ce qui a changé' },
     ],
   },

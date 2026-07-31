@@ -21,7 +21,7 @@ export default function ProofStrip({ proof }: { proof: FleetProof }) {
       </div>
       <p className="mt-5 text-center text-xs text-muted">
         Données paper, mises à jour toutes les heures depuis le VPS.{' '}
-        <Link href="/performance" className="text-accent">le détail jour par jour</Link>
+        <Link href="/overview" className="text-accent">le détail jour par jour</Link>
         {' · '}
         <Link href="/overview" className="text-accent">tous les bots</Link>
       </p>

@@ -20,10 +20,9 @@ describe('ProofStrip', () => {
     expect(screen.queryByText(/profit factor/i)).toBeNull()
   })
 
-  it('links to /performance and /overview', () => {
+  it('links to /overview (folded from the retired /performance route, 2026-07-31)', () => {
     render(<ProofStrip proof={proof} />)
     const hrefs = screen.getAllByRole('link').map(l => l.getAttribute('href'))
-    expect(hrefs).toContain('/performance')
-    expect(hrefs).toContain('/overview')
+    expect(hrefs).toEqual(['/overview', '/overview'])
   })
 })

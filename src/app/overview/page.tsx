@@ -1,70 +1,32 @@
 import type { Metadata } from 'next'
-import { getAllBotsWithStats } from '@/lib/queries'
-import { supabaseServer } from '@/lib/supabase-server'
-import OverviewClient from '@/components/OverviewClient'
-import type { TradeWithBot } from '@/lib/types'
-import { isCarryFamily } from '@/lib/display'
-import JsonLd from '@/components/JsonLd'
-import { faqJsonLd } from '@/lib/jsonld'
+import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBotIds } from '@/lib/queries'
+import { computeFleetAggregate } from '@/lib/fleet-aggregate'
+import FleetClient from '@/components/FleetClient'
 
 export const revalidate = 1800
 
 export const metadata: Metadata = {
-  title: 'Mes bots en direct — résultats de trading algo vérifiés',
-  description: 'Chaque bot trade en conditions réelles, chaque trade est horodaté — gains et pertes. Profit factor, win rate et drawdown mis à jour toutes les heures.',
-}
-
-async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
-  // Carry bots (grid, funding harvest) micro-rotate dozens of times a day and
-  // archived bots are dead: both would flood the global feed. Fetch a wider
-  // window, filter, then keep the newest `limit`.
-  const { data } = await supabaseServer
-    .from('trades')
-    .select('id,opened_at,closed_at,asset,side,pnl,reason,bots(name,slug,family,status)')
-    .order('closed_at', { ascending: false })
-    .limit(limit * 5)
-  return ((data ?? []) as unknown as TradeWithBot[])
-    .filter(t => !isCarryFamily(t.bots?.family) && t.bots?.status !== 'archived')
-    .slice(0, limit)
+  title: 'La flotte — ce qui tourne, avec quel argent',
+  description:
+    'Tous mes bots de trading : ceux en argent réel, ceux en laboratoire, et le bilan brut sans filtre.',
+  openGraph: { url: 'https://algoproof.fr/overview' },
 }
 
 export default async function OverviewPage() {
-  const [allBots, recentTrades] = await Promise.all([
+  const [bots, trades, liveBotIds] = await Promise.all([
     getAllBotsWithStats(),
-    getRecentTrades(20),
+    getAllTradesForAggregate(),
+    getLiveBotIds(),
   ])
-  // Archived bots stay VISIBLE in the table (with a badge, muted, sorted last);
-  // OverviewClient excludes them from the counters, P&L and equity curves itself.
-  const bots = allBots
+  const aggregate = computeFleetAggregate(trades, liveBotIds)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
-      <JsonLd data={faqJsonLd([
-        { question: 'Les résultats sont-ils réels ?', answer: 'Oui. Les bots tournent en continu et chaque trade est enregistré automatiquement, gains comme pertes. Les chiffres sont mis à jour toutes les heures.' },
-        { question: 'Qu\'est-ce que le profit factor ?', answer: 'C\'est le rapport entre l\'argent gagné et l\'argent perdu. Un PF de 1,3 signifie 1,30 € gagné pour 1 € perdu.' },
-        { question: 'Le trading est-il en argent réel ?', answer: 'La plupart des bots sont en paper trading (simulation fidèle). Les bots en argent réel sont indiqués comme « live ».' },
-      ])} />
-      <div className="flex items-start justify-between mb-10">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Vue d&apos;ensemble</h1>
-          <p className="text-sm text-muted max-w-2xl mb-6">
-            Chaque bot ci-dessous trade en conditions réelles : tout est horodaté, rien n&apos;est retiré.
-            Comment lire : le <a href="/lexique#profit-factor" className="text-accent">profit factor</a> mesure
-            les gains divisés par les pertes (au-dessus de 1, la stratégie gagne), le{' '}
-            <a href="/lexique#win-rate" className="text-accent">win rate</a> le % de trades gagnants, le{' '}
-            <a href="/lexique#drawdown" className="text-accent">drawdown</a> la pire baisse. Plus de définitions
-            dans le <a href="/lexique" className="text-accent">lexique</a>.
-          </p>
-          <p className="text-sm text-muted mt-1">
-            Dashboard complet — données synchronisées depuis le VPS toutes les heures.
-          </p>
-        </div>
-        <div className="text-right text-xs text-muted font-mono">
-          <p>{new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
-          <p className="opacity-60">ISR 1h</p>
-        </div>
-      </div>
-      <OverviewClient bots={bots} recentTrades={recentTrades} />
-    </div>
+    <main className="mx-auto max-w-6xl px-4 py-12">
+      <h1 className="text-2xl mb-2">La flotte</h1>
+      <p className="text-sm text-muted mb-8">
+        Ce qui tourne en ce moment, avec quel argent, et ce que ça donne au total.
+      </p>
+      <FleetClient bots={bots} aggregate={aggregate} />
+    </main>
   )
 }

@@ -4,6 +4,7 @@ import { Bot, BotWithStats, PerfDaily, Trade, WealthCall, AssetPrice, MiSnapshot
 import { getStartCapital } from './start-capitals'
 import { fleetEntryAppliesTo } from './changelog'
 import { paginateAll } from './paginate'
+import type { AggregateTradeRow } from './fleet-aggregate'
 
 function withStartCapital<T extends { slug: string }>(row: T): T & { start_capital: number } {
   return { ...row, start_capital: getStartCapital(row.slug) }
@@ -44,7 +45,7 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
   // Supabase caps a single request at 1000 rows — page through every row, otherwise
   // PF/WR/capital silently reflect only the newest 1000 trades (and, for perf_daily
   // ordered ascending, the OLDEST 1000 rows — freezing capital in the past). This is
-  // the same cap /performance already pages around. See paginate.ts.
+  // the same cap /overview already pages around. See paginate.ts.
   const allTrades = await paginateAll<Trade>(async (from, to) => {
     const { data, error } = await supabase
       .from('trades')
@@ -93,8 +94,9 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
       max_drawdown,
       total_trades: allTrades.length,
       // Fall back to start + Σ pnl when a bot has trades but no perf_daily rows
-      // (carry bots like funding-rate-harvest) — otherwise /overview zeroes their P&L
-      // while /performance counts it, causing a fleet-total mismatch.
+      // (carry bots like funding-rate-harvest) — otherwise this per-bot stat zeroes
+      // their P&L while the stage 0 aggregate (computeFleetAggregate, driven off raw
+      // trades) counts it, causing a fleet-total mismatch on /overview.
       latest_capital: capitals.length > 0
         ? capitals[capitals.length - 1]
         : startCapital + allTrades.reduce((s, t) => s + t.pnl, 0),
@@ -112,6 +114,53 @@ export async function getAllBotsWithStats(): Promise<BotWithStats[]> {
     if (!result) throw new Error(`getBotWithStats returned null for slug: ${b.slug}`)
     return result
   }))
+}
+
+// Lifted from the old /performance page (folded into /overview 2026-07-31, see
+// next.config.ts redirects). Feeds computeFleetAggregate() for stage 0 of « La
+// flotte » — the unfilterable balance sheet.
+export async function getAllTradesForAggregate(): Promise<AggregateTradeRow[]> {
+  // Supabase caps a single request at 1000 rows — page through every closed trade,
+  // otherwise the "P&L total" silently reflects only the 1000 most recent trades.
+  const [trades, botsRes] = await Promise.all([
+    paginateAll<AggregateTradeRow>(async (from, to) => {
+      const { data, error } = await supabase
+        .from('trades')
+        .select('pnl,side,closed_at,bot_id,asset')
+        .not('closed_at', 'is', null)
+        .order('closed_at', { ascending: false })
+        .range(from, to)
+      // Fail loud: swallowing the error made paginateAll stop early on a short page,
+      // publishing a truncated P&L total as fact.
+      if (error) throw new Error(`/overview trades fetch failed: ${error.message}`)
+      return (data ?? []) as AggregateTradeRow[]
+    }),
+    supabase.from('bots').select('id,status'),
+  ])
+
+  // A failed bots fetch would leave archived trades uncounted — fail loud instead.
+  if (botsRes.error) throw new Error(`/overview bots fetch failed: ${botsRes.error.message}`)
+
+  // Archived bots stay listed on /strategies but are excluded from every
+  // aggregate: drop their trades from the P&L totals.
+  const archivedIds = new Set(
+    ((botsRes.data ?? []) as { id: string; status: string }[])
+      .filter(b => b.status === 'archived')
+      .map(b => b.id),
+  )
+  return trades.filter(t => !archivedIds.has(t.bot_id))
+}
+
+// Live cohort = real money (v1-spot, orb-bf25). Passed down so the P&L headline
+// can separate real from laboratoire (simulation) instead of fusing them into
+// one total. Mirrors the cohort split in splitCohorts()/cohort.ts.
+export async function getLiveBotIds(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('bots')
+    .select('id')
+    .eq('status', 'live')
+  if (error) throw new Error(`/overview live bots fetch failed: ${error.message}`)
+  return (data ?? []).map(b => b.id)
 }
 
 export async function getWealthCalls(): Promise<WealthCall[]> {

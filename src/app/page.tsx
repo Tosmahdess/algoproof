@@ -286,7 +286,7 @@ export default async function HomePage() {
           <p className="text-muted text-sm">Journal de bord, revues hebdo, autopsies de stratégies, fiscalité et MiCA. Tout est documenté.</p>
           <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Lire les articles →</span>
         </Link>
-        <Link href="/performance" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
+        <Link href="/overview" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
           <h2 className="text-xl font-bold mb-2">Performance</h2>
           <p className="text-muted text-sm">P&amp;L journalier filtrable — direction, famille, période. Les chiffres bruts, sans filtre.</p>
           <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir les résultats →</span>
