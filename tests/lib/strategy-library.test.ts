@@ -13,18 +13,42 @@ describe('strategy library', () => {
     }
   })
 
-  it('applies the agreed mapping for the two families that had no equivalent', () => {
-    expect(getStrategyFiche('macd')!.family).toBe('momentum')
-    expect(getStrategyFiche('roc')!.family).toBe('momentum')
-    expect(getStrategyFiche('tsi')!.family).toBe('momentum')
-    expect(getStrategyFiche('fvg')!.family).toBe('price-action')
-    expect(getStrategyFiche('fvg-multi')!.family).toBe('price-action')
-  })
+  // One row per fiche — a spot-check on a handful of slugs can stay green
+  // through a mis-mapping (e.g. reassigning 'ichimoku' to 'momentum' would
+  // not fail a test that only checks 'macd', 'roc', 'tsi', 'ema-cross',
+  // 'orb', 'rsi-mean-reversion'). This table is the exact mapping applied in
+  // src/lib/strategy-library.ts's port from the lab's free-form labels; any
+  // future edit to a fiche's family must edit this table too.
+  const EXPECTED_FAMILY: Record<string, string> = {
+    'ema-cross': 'trend',
+    ichimoku: 'trend',
+    'ma-cross': 'trend',
+    'kama-cross': 'trend',
+    'ema-ribbon': 'trend',
+    supertrend: 'trend',
+    'heikin-ashi': 'trend',
+    'chandelier-exit': 'trend',
+    macd: 'momentum',
+    roc: 'momentum',
+    tsi: 'momentum',
+    donchian: 'breakout',
+    keltner: 'breakout',
+    'atr-channel': 'breakout',
+    bollinger: 'breakout',
+    'ttm-squeeze': 'breakout',
+    orb: 'breakout',
+    'rsi-divergence': 'mean-reversion',
+    'rsi-mean-reversion': 'mean-reversion',
+    stochastic: 'mean-reversion',
+    fvg: 'price-action',
+    'fvg-multi': 'price-action',
+  }
 
-  it('maps the three families that did have an equivalent', () => {
-    expect(getStrategyFiche('ema-cross')!.family).toBe('trend')
-    expect(getStrategyFiche('orb')!.family).toBe('breakout')
-    expect(getStrategyFiche('rsi-mean-reversion')!.family).toBe('mean-reversion')
+  it('maps every one of the 22 fiches to its agreed family', () => {
+    expect(Object.keys(EXPECTED_FAMILY)).toHaveLength(22)
+    for (const [slug, family] of Object.entries(EXPECTED_FAMILY)) {
+      expect(getStrategyFiche(slug)!.family, slug).toBe(family)
+    }
   })
 
   it('has unique slugs and unique strategyIds', () => {
