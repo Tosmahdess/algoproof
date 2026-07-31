@@ -50,9 +50,23 @@ const CURVE_COLORS = [
   '#ff4444', '#4ade80', '#fb923c', '#a78bfa', '#14b8a6', '#7c3aed',
 ]
 
+const CURVE_DAYS = 30
+
 export default function FleetOverview({
   bots, aggregate, recentTrades, initialState,
 }: FleetOverviewProps) {
+  // FIX (re-review, residual 2): the 30-day cutoff is applied HERE, before the
+  // prop is built, not inside GlobalEquityCurve — which is `'use client'`, so
+  // mapping `b.perf_daily` in full serialized twelve bots' entire history into
+  // the RSC payload to draw thirty days of it. Same principle FleetBalance
+  // states two files away: never ship a row set to the browser that the browser
+  // will not use. GlobalEquityCurve still applies its own `days` cutoff, which
+  // is now a no-op on this data rather than the only thing standing between
+  // full history and the wire.
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - CURVE_DAYS)
+  const cutoffStr = cutoff.toISOString().slice(0, 10)
+
   // Archived bots are excluded from every aggregate on this page, and a dead
   // bot's flat line is noise on a 30-day chart. Same rule as the balance sheet.
   const curveBots = bots
@@ -63,7 +77,9 @@ export default function FleetOverview({
       slug: b.slug,
       name: b.name,
       color: CURVE_COLORS[i % CURVE_COLORS.length],
-      data: b.perf_daily.map(p => ({ date: p.date, capital: p.capital })),
+      data: b.perf_daily
+        .filter(p => p.date >= cutoffStr)
+        .map(p => ({ date: p.date, capital: p.capital })),
     }))
 
   return (
@@ -81,7 +97,7 @@ export default function FleetOverview({
             <h2 className="text-xs uppercase tracking-wider text-muted">Courbes d&apos;équité — 30 jours</h2>
             <span className="text-xs text-muted">{curveBots.length} bots les plus actifs</span>
           </div>
-          <GlobalEquityCurve bots={curveBots} days={30} />
+          <GlobalEquityCurve bots={curveBots} days={CURVE_DAYS} />
         </section>
       )}
 

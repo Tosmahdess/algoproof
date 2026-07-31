@@ -83,6 +83,32 @@ describe('StrategiesClient', () => {
     expect(screen.getAllByTestId(/^bot-bot-/)).toHaveLength(FAMILY_ORDER.length)
   })
 
+  // FIX (re-review, residual 1): the empty-section guard only fired under a
+  // family filter, so clicking « Live » — which empties the paper cohort while
+  // familyFilter stays null — rendered all nine families as empty boxes reading
+  // « Bientôt disponible — bots en développement ou en phase de backtest », a
+  // claim a visitor cannot check now that C3 delisted the backtest cohort. An
+  // empty family section must not render, whatever the filter.
+  it('renders no empty family box, and no "Bientôt disponible", under the Live filter', () => {
+    render(<StrategiesClient bots={bots} />)
+    fireEvent.click(screen.getByRole('button', { name: /^live$/i }))
+    expect(screen.queryByText(/Bientôt disponible/)).toBeNull()
+    // the live bot is still there; only the empty paper sections are gone
+    expect(screen.getByTestId('bot-v1-spot')).toBeDefined()
+    for (const family of FAMILY_ORDER) {
+      expect(document.getElementById(family)).toBeNull()
+    }
+  })
+
+  it('never renders "Bientôt disponible" for a family that has only live bots', () => {
+    // trend's only bot is live: its family section would otherwise print the
+    // placeholder directly under that very bot in the « En direct » section.
+    render(<StrategiesClient bots={[liveTrend, paperBreakout]} />)
+    expect(screen.queryByText(/Bientôt disponible/)).toBeNull()
+    expect(document.getElementById('trend')).toBeNull()
+    expect(document.getElementById('breakout')).not.toBeNull()
+  })
+
   it('labels market-neutral exactly as families.ts does, on every page', () => {
     render(<StrategiesClient bots={[makeBot({ slug: 'xsec', family: 'market-neutral' })]} />)
     expect(screen.getAllByText('Neutre au marché').length).toBeGreaterThan(0)

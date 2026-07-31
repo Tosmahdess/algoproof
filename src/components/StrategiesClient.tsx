@@ -211,7 +211,18 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
             (effStats(b).latest_capital - b.start_capital) - (effStats(a).latest_capital - a.start_capital)
           )
 
-        if (familyFilter !== null && famBots.length === 0) return null
+        // FIX (re-review, residual 1): this used to be
+        // `familyFilter !== null && famBots.length === 0`, so an empty family
+        // section was dropped ONLY under a family filter. Clicking « Live »
+        // empties `filteredPaper` while `familyFilter` stays null, which
+        // rendered all nine families as empty boxes reading « Bientôt
+        // disponible — bots en développement ou en phase de backtest », with no
+        // « Paper trading » heading above them — and printed that line directly
+        // under a live bot for any family whose only bot is live. The claim was
+        // also uncheckable: C3 made the `backtest` cohort invisible site-wide
+        // in this same wave. An empty section now never renders, whatever the
+        // filter, which retires the string with it.
+        if (famBots.length === 0) return null
 
         return (
           <section key={fam.slug} id={fam.slug}>
@@ -225,17 +236,11 @@ export default function StrategiesClient({ bots }: { bots: BotWithStats[] }) {
             </div>
             <p className="text-xs text-muted mb-6 max-w-2xl">{fam.description}</p>
 
-            {famBots.length === 0 ? (
-              <div className="rounded border border-border px-6 py-8 text-center text-xs text-muted">
-                Bientôt disponible — bots en développement ou en phase de backtest.
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {famBots.map(bot => (
-                  <BotCard key={bot.slug} bot={bot} statsOverride={overrideFor(bot.slug)} />
-                ))}
-              </div>
-            )}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {famBots.map(bot => (
+                <BotCard key={bot.slug} bot={bot} statsOverride={overrideFor(bot.slug)} />
+              ))}
+            </div>
           </section>
         )
       })}

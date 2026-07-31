@@ -4,7 +4,22 @@ import FleetOverview from '@/components/FleetOverview'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
 import type { TradeWithBot } from '@/lib/types'
-import { FIXTURE_FLEET } from '../fixtures/bots'
+import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
+import type { PerfDaily } from '@/lib/types'
+
+// FIX (re-review, residual 2): GlobalEquityCurve is a client component, so
+// whatever FleetOverview puts in its props crosses the RSC boundary and is
+// serialized into the payload. Capturing the props is the only way to assert
+// that the 30-day window is applied BEFORE the boundary rather than inside the
+// chart. The mock keeps the wrapper section's own assertions intact — the
+// `fleet-equity-curves` testid lives on FleetOverview's <section>, not here.
+const curveProps: { bots: { slug: string; data: { date: string }[] }[] }[] = []
+vi.mock('@/components/GlobalEquityCurve', () => ({
+  default: (props: { bots: { slug: string; data: { date: string }[] }[] }) => {
+    curveProps.push(props)
+    return <div data-testid="equity-curve-stub" />
+  },
+}))
 
 // FIX (final review, I1+I2): stage 0 now also carries the market-intelligence
 // banner, the 30-day equity curves and the fleet-wide recent-trades feed —
@@ -145,6 +160,33 @@ describe('FleetOverview — restored stage-0 content', () => {
     fireEvent.click(screen.getByRole('button', { name: /Cassure/ }))
     expect(screen.getByTestId('fleet-recent-trades').textContent).toBe(feedBefore)
     expect(screen.getByTestId('fleet-equity-curves').textContent).toBe(curvesBefore)
+  })
+
+  // FIX (re-review, residual 2): FleetOverview used to map `b.perf_daily` in
+  // full into the curve props and let the client component apply the 30-day
+  // cutoff — shipping twelve bots' entire history across the boundary to draw
+  // thirty days of it. Same principle FleetBalance states two files away.
+  it('windows the equity-curve data to 30 days before it crosses the client boundary', () => {
+    const day = (offset: number) =>
+      new Date(Date.now() - offset * 86400_000).toISOString().slice(0, 10)
+    const perf = (dates: string[]): PerfDaily[] =>
+      dates.map((date, i) => ({
+        id: `p${i}`, bot_id: 'b', date, capital: 1000 + i,
+        pnl_day: 0, win_rate: null, profit_factor: null,
+      }))
+    const bot = mkBot({
+      slug: 'long-history',
+      // two rows inside the window, three well outside it
+      perf_daily: perf([day(400), day(200), day(90), day(10), day(1)]),
+    })
+
+    curveProps.length = 0
+    render(
+      <FleetOverview bots={[bot]} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+    )
+
+    const drawn = curveProps.at(-1)!.bots.find(b => b.slug === 'long-history')!
+    expect(drawn.data.map(d => d.date)).toEqual([day(10), day(1)])
   })
 
   it('omits the feed entirely rather than printing an empty table', () => {

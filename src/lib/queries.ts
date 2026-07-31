@@ -229,8 +229,12 @@ export async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
     .order('closed_at', { ascending: false })
     .limit(limit * 5)
   // Degrade to an empty feed rather than taking the whole page down: unlike the
-  // aggregate (where a partial fetch would publish a WRONG total), a short feed
-  // states nothing false — it just shows fewer rows.
+  // aggregate (where a partial fetch would publish a WRONG total), an absent
+  // feed states nothing false. Note what an empty return actually does on the
+  // page — FleetRecentTrades returns null on an empty list, so the section
+  // DISAPPEARS entirely, it does not render with fewer rows. That is the
+  // intended failure mode: no table at all is honest, a table headed « les 0
+  // derniers trades » is not.
   if (error) {
     console.error('[getRecentTrades]', error.message)
     return []
