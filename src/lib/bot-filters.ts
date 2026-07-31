@@ -11,6 +11,12 @@
 //   2. Anything unknown in the URL is dropped, never trusted. A stale link with
 //      a family that no longer exists renders the default view, not a crash.
 import { FAMILY_ORDER, isFamily, familyLabel, type Family, type Venue } from './families'
+// FIX (brief bug, flagged in task-6-report.md): the Task 6 brief's "Interfaces
+// already built" list claims `Venue` is one of the types this module exports,
+// but it was only ever imported for internal use, never re-exported — FleetClient
+// imports `type Venue` from here per the brief's own verbatim code, and `tsc`
+// caught the mismatch (TS2459). Re-exporting is a type-only, zero-behavior addition.
+export type { Venue }
 import { toBaseAsset } from './asset'
 
 export type FleetStatusFilter = 'live' | 'paper' | 'archived'
