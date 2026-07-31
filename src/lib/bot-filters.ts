@@ -4,13 +4,11 @@
 // Two rules drive the design:
 //   1. State lives in the URL so it survives sharing and the back button. It is
 //      NOT there for SEO — Google's faceted-navigation guidance asks that facet
-//      URLs not be crawled. That disallow rule is PLANNED for a later plan's
-//      robots.txt work, not in place yet: src/app/robots.ts is still a plain
-//      `allow: '/'` as of this fix (corrected round 3 — this comment previously
-//      stated the disallow already existed, which nobody should reason from as
-//      a guarantee until it actually does). Parameter order is constant anyway
-//      because that guidance requires it of any facet URL that does get
-//      crawled, and because it makes the round-trip test meaningful now.
+//      URLs not be crawled. That disallow rule is LIVE as of Plan 3 Task 5:
+//      src/app/robots.ts disallows the family/status/venue/asset/tf/sort
+//      parameter space. Parameter order is constant anyway because that
+//      guidance requires it of any facet URL that does get crawled, and
+//      because it makes the round-trip test meaningful.
 //   2. Anything unknown in the URL is dropped, never trusted. A stale link with
 //      a family that no longer exists renders the default view, not a crash.
 import { FAMILY_ORDER, isFamily, familyLabel, type Family, type Venue } from './families'
