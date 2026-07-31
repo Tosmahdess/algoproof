@@ -22,6 +22,20 @@ describe('computeFleetAggregate', () => {
     expect('totalPnl' in a).toBe(false)
   })
 
+  // FIX (final whole-branch review, I7): `totalWr` and `totalPf` survived the
+  // C2 pass. Both were computed across both cohorts, both were rendered by
+  // nothing, and a fleet-wide profit factor mixing real money with simulation
+  // is the most quotable number this page could accidentally hand someone.
+  // Same argument the comment above `FleetAggregate` makes about `totalPnl`.
+  it('exposes no cross-cohort rate or ratio at all', () => {
+    const a = computeFleetAggregate(trades, ['real'])
+    expect('totalWr' in a).toBe(false)
+    expect('totalPf' in a).toBe(false)
+    expect(Object.keys(a).sort()).toEqual(
+      ['rows', 'totalPnlLabo', 'totalPnlReal', 'totalTrades'],
+    )
+  })
+
   it('builds one row per day, newest first', () => {
     const a = computeFleetAggregate(trades, ['real'])
     expect(a.rows.map(r => r.date)).toEqual(['2026-07-03', '2026-07-02', '2026-07-01'])
@@ -50,6 +64,18 @@ describe('computeFleetAggregate', () => {
     }
   })
 
+  // FIX (final whole-branch review, I7): a day row carries no cross-cohort
+  // statistic either — `winners`, `wr` and `pf` were all accumulated over the
+  // whole day regardless of which cohort produced the trade.
+  it('carries no cross-cohort win rate, profit factor or winner count on a day row', () => {
+    const a = computeFleetAggregate(trades, ['real'])
+    for (const row of a.rows) {
+      expect(Object.keys(row).sort()).toEqual(
+        ['date', 'dateFr', 'pnlLabo', 'pnlReal', 'trades'],
+      )
+    }
+  })
+
   it('day cohort P&L sums back to the headline cohort totals', () => {
     const a = computeFleetAggregate(trades, ['real'])
     const sum = (k: 'pnlReal' | 'pnlLabo') =>
@@ -69,21 +95,11 @@ describe('computeFleetAggregate', () => {
     expect(a.rows[0].dateFr).toBe('5/7/2026')
   })
 
-  it('caps profit factor at 99.9 when there are no losses', () => {
-    const a = computeFleetAggregate([t('x', 5, '2026-07-01T00:00:00Z')], [])
-    expect(a.totalPf).toBe(99.9)
-  })
-
-  it('reports a profit factor of 0 when there are no winners', () => {
-    const a = computeFleetAggregate([t('x', -5, '2026-07-01T00:00:00Z')], [])
-    expect(a.totalPf).toBe(0)
-  })
-
-  it('treats a zero-pnl trade as a loser, matching the previous behaviour', () => {
-    const a = computeFleetAggregate([t('x', 0, '2026-07-01T00:00:00Z')], [])
-    expect(a.totalWr).toBe(0)
-    expect(a.rows[0].winners).toBe(0)
-  })
+  // The profit-factor cap and the "a zero-pnl trade counts as a loser"
+  // convention were the only behaviours totalPf/totalWr/winners carried, and
+  // they left with those fields (I7). Nothing else consumed them: profit
+  // factor and win rate are computed per bot in getBotWithStats, over that
+  // bot's own history, which is the only scope where they mean anything.
 
   it('skips trades with no closing date rather than bucketing them under empty string', () => {
     const a = computeFleetAggregate([t('x', 5, ''), t('x', 5, '2026-07-01T00:00:00Z')], [])
@@ -95,8 +111,7 @@ describe('computeFleetAggregate', () => {
   it('returns an empty but well-formed result for no trades', () => {
     const a = computeFleetAggregate([], [])
     expect(a).toEqual({
-      rows: [], totalTrades: 0, totalPnlReal: 0,
-      totalPnlLabo: 0, totalWr: 0, totalPf: 0,
+      rows: [], totalTrades: 0, totalPnlReal: 0, totalPnlLabo: 0,
     })
   })
 })

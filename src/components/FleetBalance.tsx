@@ -21,6 +21,15 @@
 // « argent réel + laboratoire ». The day P&L is now split by cohort like the
 // headline, and there is no cumulative column at all: the cumulative totals
 // live above this table, already split.
+//
+// FIX (final whole-branch review, I7): « Taux de gain » and « F. profit » are
+// gone with them. That fix split the P&L and killed the cumulative, and left
+// these two standing one column to the LEFT, still accumulated across both
+// cohorts — a day where the live bot loses and the laboratory wins printed a
+// profit factor describing neither, directly under the sentence promising the
+// two never fuse. Four columns now, Date · Trades · P&L réel · P&L labo, and
+// each of them is true. Win rate and profit factor still exist where they mean
+// something: on a bot's own fiche, over that bot's whole history.
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import { fmtEur } from '@/lib/display'
 
@@ -54,8 +63,6 @@ export default function FleetBalance({ aggregate }: { aggregate: FleetAggregate 
               <tr className="text-muted uppercase tracking-wider border-b border-border">
                 <th className="px-2 py-2 text-left">Date</th>
                 <th className="px-2 py-2 text-right">Trades</th>
-                <th className="px-2 py-2 text-right">Taux de gain</th>
-                <th className="px-2 py-2 text-right">F. profit</th>
                 <th className="px-2 py-2 text-right">P&amp;L réel</th>
                 <th className="px-2 py-2 text-right">P&amp;L labo</th>
               </tr>
@@ -65,8 +72,6 @@ export default function FleetBalance({ aggregate }: { aggregate: FleetAggregate 
                 <tr key={row.date} className="border-b border-border/40 font-mono">
                   <td className="px-2 py-1.5">{row.dateFr}</td>
                   <td className="px-2 py-1.5 text-right">{row.trades}</td>
-                  <td className="px-2 py-1.5 text-right">{row.wr}%</td>
-                  <td className="px-2 py-1.5 text-right">{row.pf.toFixed(2)}</td>
                   <td className={`px-2 py-1.5 text-right ${row.pnlReal >= 0 ? 'text-positive' : 'text-negative'}`}>
                     {fmtEur(row.pnlReal)}
                   </td>

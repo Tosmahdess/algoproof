@@ -51,20 +51,32 @@ describe('FleetBalance — stage 0', () => {
     expect(within(stage0).getByText('1/7/2026')).toBeTruthy()
 
     const table = within(stage0).getByTestId('fleet-balance-table')
-    // Six columns, same count as before: the cumulative column was replaced by
-    // the cohort split, not added to.
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(6)
-    expect(within(table).getByText('Taux de gain')).toBeTruthy()
-    expect(within(table).getByText('F. profit')).toBeTruthy()
+    // FIX (final whole-branch review, I7): four columns, not six. « Taux de
+    // gain » and « F. profit » were computed across both cohorts and rendered
+    // one column left of the split P&L — on a day where the live bot loses and
+    // the laboratory wins, that profit factor described neither.
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(4)
     expect(within(table).getByText(/P&L réel/)).toBeTruthy()
     expect(within(table).getByText(/P&L labo/)).toBeTruthy()
     expect(within(table).queryByText('Cumul')).toBeNull()
+    expect(within(table).queryByText('Taux de gain')).toBeNull()
+    expect(within(table).queryByText('F. profit')).toBeNull()
 
     // Each day's euros land in the right cohort column: +40 on the real side
     // of 1/7, -60 on the laboratory side of 2/7, and each exactly once.
     const rows = within(table).getAllByRole('row').slice(1) // drop the header row
     const cells = (i: number) => within(rows[i]).getAllByRole('cell').map(c => c.textContent)
-    expect(cells(0)).toEqual(['2/7/2026', '1', '0%', '0.00', '+0.00€', '-60.00€'])
-    expect(cells(1)).toEqual(['1/7/2026', '1', '100%', '99.90', '+40.00€', '+0.00€'])
+    expect(cells(0)).toEqual(['2/7/2026', '1', '+0.00€', '-60.00€'])
+    expect(cells(1)).toEqual(['1/7/2026', '1', '+40.00€', '+0.00€'])
+  })
+
+  // AGG mixes cohorts: one live trade and one laboratory trade, on different
+  // days. Any cross-cohort rate this table printed would be built from exactly
+  // that mixture.
+  it('prints no rate or ratio computed across the two cohorts', () => {
+    render(<FleetBalance aggregate={AGG} />)
+    const stage0 = screen.getByTestId('fleet-balance')
+    expect(stage0.textContent).not.toMatch(/%/)
+    expect(stage0.textContent).not.toMatch(/profit/i)
   })
 })
