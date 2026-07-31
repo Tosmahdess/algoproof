@@ -42,7 +42,7 @@ export default function PreuvePage() {
         <p className="text-sm mb-3">
           Le labo est gratuit aujourd&apos;hui, sans compte et sans limite. Il passera
           au payant un jour, et je préfère dire tout de suite où passera la ligne
-          plutôt que de vous le faire découvrir le jour où ça change.
+          plutôt que de te le faire découvrir le jour où ça change.
         </p>
         <p className="text-sm mb-3">
           Tout ce que mes bots font restera public, gratuitement, pour toujours :
