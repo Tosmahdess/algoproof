@@ -8,9 +8,23 @@ describe('concept pages', () => {
     expect(STRATEGY_FICHES.map(f => ({ concept: f.slug }))).toHaveLength(22)
   })
 
-  it('a fiche with no deployed bot yields an empty incarnation list, not an error', () => {
+  // `Array.isArray` is true for any filter() result — this used to pass
+  // whether or not the join actually matched anything. FIXTURE_FLEET carries
+  // real ema-cross, orb, macd, ichimoku, ema-ribbon and donchian bots, so
+  // assert the split: those fiches get a non-empty list, everything else
+  // stays empty.
+  const COVERED_FICHES = new Set([
+    'ema-cross', 'orb', 'macd', 'ichimoku', 'ema-ribbon', 'donchian',
+  ])
+
+  it('lists incarnations for fiches the fixture fleet actually deploys, and nothing for the rest', () => {
     for (const f of STRATEGY_FICHES) {
-      expect(Array.isArray(incarnationsOf(f, FIXTURE_FLEET))).toBe(true)
+      const count = incarnationsOf(f, FIXTURE_FLEET).length
+      if (COVERED_FICHES.has(f.slug)) {
+        expect(count, f.slug).toBeGreaterThan(0)
+      } else {
+        expect(count, f.slug).toBe(0)
+      }
     }
   })
 

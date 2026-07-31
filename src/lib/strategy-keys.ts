@@ -24,9 +24,12 @@ import type { FicheSlug } from './strategy-library'
 /**
  * Map A — legacy, hand-deployed bots, keyed by bot slug.
  *
- * This set is FROZEN: no bot will ever again be deployed by hand, so this map
- * does not grow. Anything promoted from now on is engine-born and resolves
- * through Map B below.
+ * Frozen at the 27 currently deployed: no bot will ever again be deployed by
+ * hand, so nothing new joins this map by that route. It can still gain a line
+ * the other way — `algoproof_sync.py`'s `decide_status` auto-restores an
+ * archived bot back to paper as well as auto-archiving, and a restored legacy
+ * bot needs an entry here same as a first-time deploy would have. Anything
+ * promoted from now on is engine-born and resolves through Map B below.
  *
  * One line per bot on purpose: a wrong pairing has to be visible in review, and
  * a fiche slug typo fails `tsc` because the values are `FicheSlug | null`.
@@ -117,9 +120,10 @@ export function ficheSlugForBot(
   bot: { slug: string; engine_unit_key: string | null },
 ): FicheSlug | null {
   const base = engineBase(bot.engine_unit_key)
-  if (base !== null) {
-    const fromEngine = FICHE_BY_ENGINE_BASE[base]
-    if (fromEngine !== undefined) return fromEngine
+  if (base !== null && Object.hasOwn(FICHE_BY_ENGINE_BASE, base)) {
+    return FICHE_BY_ENGINE_BASE[base]
   }
-  return FICHE_BY_LEGACY_BOT_SLUG[bot.slug] ?? null
+  return Object.hasOwn(FICHE_BY_LEGACY_BOT_SLUG, bot.slug)
+    ? FICHE_BY_LEGACY_BOT_SLUG[bot.slug]
+    : null
 }

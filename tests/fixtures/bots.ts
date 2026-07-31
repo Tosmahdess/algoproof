@@ -124,6 +124,13 @@ export function mkBot(over: Partial<BotWithStats> = {}): BotWithStats {
  * A bot fixture for a REAL deployed bot: real slug, real `strategy` sentence.
  * Throws on an unknown slug rather than making one up, so a test cannot quietly
  * reintroduce a strategy string that production has never contained.
+ *
+ * `slug` and `strategy` are not overridable: the whole point of `prodBot` is
+ * that both come from the verified table. Overriding `slug` would silently
+ * change which fiche the fixture resolves to while still reading as a test of
+ * the bot named in the call; overriding `strategy` would let an invented
+ * sentence back in through the one door built to keep it out. A test that
+ * needs either to vary uses `mkBot` instead.
  */
 export function prodBot(slug: string, over: Partial<BotWithStats> = {}): BotWithStats {
   const strategy = PROD_STRATEGY[slug]
@@ -134,7 +141,12 @@ export function prodBot(slug: string, over: Partial<BotWithStats> = {}): BotWith
         `does not model a real deployment.`,
     )
   }
-  return mkBot({ slug, strategy, ...over })
+  if ('strategy' in over || 'slug' in over) {
+    throw new Error(
+      `prodBot("${slug}"): cannot override slug or strategy — use mkBot() if you need a synthetic bot`,
+    )
+  }
+  return mkBot({ ...over, slug, strategy })
 }
 
 export const FIXTURE_FLEET: BotWithStats[] = [

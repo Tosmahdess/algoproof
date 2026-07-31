@@ -1,10 +1,9 @@
 // tests/app/strategy-pages.test.tsx
 //
-// FIX (final whole-branch review, I4). `incarnationsOf` matches on the
-// strategy string and has no opinion about status, and its input was the raw
-// fleet — so a retired bot appeared under « Ce qui tourne chez moi » on a
-// concept page and counted towards « N bots » on the index. Both are claims
-// about the present tense.
+// FIX (final whole-branch review, I4). `incarnationsOf` has no opinion about
+// status, and its input was the raw fleet — so a retired bot appeared under
+// « Ce qui tourne chez moi » on a concept page and counted towards « N bots »
+// on the index. Both are claims about the present tense.
 //
 // Asserted at the PAGE level, not by re-testing excludeArchived (cohort.test.ts
 // already covers that): the defect was a missing call at two call sites, so

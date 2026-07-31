@@ -35,6 +35,10 @@ describe('ficheSlugForBot', () => {
     expect(sentences.size).toBe(8)
   })
 
+  it('maps exactly those eight legacy slugs to ema-cross — no ninth entry points at it', () => {
+    expect(Object.values(FICHE_BY_LEGACY_BOT_SLUG).filter(v => v === 'ema-cross')).toHaveLength(8)
+  })
+
   it('resolves the two MA-cross variants to the ma-cross fiche', () => {
     expect(ficheSlugForBot(legacy('hmacross-bf22'))).toBe('ma-cross')
     expect(ficheSlugForBot(legacy('temacross-bf10'))).toBe('ma-cross')
@@ -91,13 +95,32 @@ describe('ficheSlugForBot', () => {
     expect(ficheSlugForBot({ slug: 'orb-bf25', engine_unit_key: 'EMAcross|H4|v1|3' }))
       .toBe('ema-cross')
   })
+
+  // Both maps are plain object literals, so an unguarded index lookup falls
+  // through to Object.prototype for these names and returns a Function
+  // instead of undefined. The inputs here come from production data nobody in
+  // this codebase controls, so a bot slug or engine base that happens to
+  // collide with a prototype member must resolve to null, not a function.
+  it('does not resolve a prototype property name as a fiche slug', () => {
+    expect(ficheSlugForBot({ slug: 'toString', engine_unit_key: null })).toBeNull()
+    expect(ficheSlugForBot({ slug: 'constructor', engine_unit_key: null })).toBeNull()
+    expect(ficheSlugForBot({ slug: 'x', engine_unit_key: 'toString|H4|v1|3' })).toBeNull()
+    expect(ficheSlugForBot({ slug: 'x', engine_unit_key: 'hasOwnProperty|H4|v1|3' })).toBeNull()
+  })
 })
 
 describe('coverage of the library by the deployed fleet', () => {
   it('13 of the 22 fiches have at least one deployed incarnation', () => {
     const claimed = new Set(Object.values(FICHE_BY_LEGACY_BOT_SLUG).filter(v => v !== null))
     expect(STRATEGY_FICHES).toHaveLength(22)
-    expect(claimed.size).toBe(13)
+    // The exact list, not just its size: a size-only assertion survives a
+    // swapped pairing (e.g. donchian-bf17 → keltner) as long as the count of
+    // distinct claimed fiches is unchanged.
+    expect([...claimed].sort()).toEqual([
+      'atr-channel', 'bollinger', 'donchian', 'ema-cross', 'ema-ribbon',
+      'heikin-ashi', 'ichimoku', 'keltner', 'ma-cross', 'macd', 'orb',
+      'tsi', 'ttm-squeeze',
+    ])
   })
 
   it('six deployed bots run something no fiche describes', () => {
@@ -123,5 +146,10 @@ describe('prodBot', () => {
 
   it('leaves mkBot available for bots that model no real deployment', () => {
     expect(() => mkBot({ slug: 'whatever' })).not.toThrow()
+  })
+
+  it('refuses to override strategy or slug, so a fixture cannot masquerade as a different bot', () => {
+    expect(() => prodBot('v1-spot', { strategy: 'INVENTED' })).toThrow(/cannot override slug or strategy/)
+    expect(() => prodBot('v1-spot', { slug: 'fake' })).toThrow(/cannot override slug or strategy/)
   })
 })
