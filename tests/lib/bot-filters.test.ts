@@ -6,7 +6,6 @@ import {
   applyFleetFilters,
   optionCounts,
   activeFilterCount,
-  isDirectionNarrowed,
   describeEmptyResult,
 } from '@/lib/bot-filters'
 import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
@@ -18,7 +17,6 @@ describe('parse and serialize', () => {
       family: ['trend', 'breakout'] as const,
       venue: ['kraken'] as const,
       asset: ['BTC'],
-      direction: 'long' as const,
       sort: 'trades' as const,
       dir: 'asc' as const,
     }
@@ -40,6 +38,16 @@ describe('parse and serialize', () => {
     const s = parseFleetFilters(new URLSearchParams('family=trend&bogus=42&sort=nonsense'))
     expect(s.family).toEqual(['trend'])
     expect(s.sort).toBe('proven')
+  })
+
+  // FIX (final review, I5): `dir_trade` used to round-trip through the URL and
+  // change nothing on screen — no renderer read it, and its doc comment claimed
+  // a recompute-the-stats safety property the code did not have. It is now an
+  // unknown parameter like any other, and must be dropped, not carried.
+  it('treats dir_trade as an unknown parameter now that nothing renders it', () => {
+    const s = parseFleetFilters(new URLSearchParams('family=trend&dir_trade=long'))
+    expect(s).toEqual({ ...EMPTY_FILTERS, family: ['trend'] })
+    expect(serializeFleetFilters(s).toString()).toBe('family=trend')
   })
 
   it('drops values outside the taxonomy rather than trusting the URL', () => {
@@ -102,17 +110,6 @@ describe('applyFleetFilters', () => {
     const wrapped = [mkBot({ slug: 'wbtc-bot', assets: ['WBTC'] })]
     expect(applyFleetFilters(wrapped, { ...EMPTY_FILTERS, asset: ['BTC'] })).toEqual([])
   })
-
-  it('direction never changes WHICH bots are listed', () => {
-    // `direction` is a stats-recomputation switch, not a facet: a bot is not
-    // long or short, its trades are. It stays in the URL because it changes what
-    // the numbers mean, but it must never silently drop a bot from the register.
-    const all = applyFleetFilters(FIXTURE_FLEET, EMPTY_FILTERS).map(b => b.slug)
-    for (const direction of ['long', 'short'] as const) {
-      expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, direction }).map(b => b.slug))
-        .toEqual(all)
-    }
-  })
 })
 
 describe('optionCounts', () => {
@@ -147,19 +144,6 @@ describe('activeFilterCount', () => {
 
   it('does not count sort as a filter', () => {
     expect(activeFilterCount({ ...EMPTY_FILTERS, sort: 'pnl', dir: 'asc' })).toBe(0)
-  })
-
-  it('does not count direction: it recomputes stats, it does not narrow the list', () => {
-    expect(activeFilterCount({ ...EMPTY_FILTERS, direction: 'long' })).toBe(0)
-    expect(activeFilterCount({ ...EMPTY_FILTERS, direction: 'short' })).toBe(0)
-  })
-})
-
-describe('isDirectionNarrowed', () => {
-  it('is false at the default and true otherwise, independently of activeFilterCount', () => {
-    expect(isDirectionNarrowed(EMPTY_FILTERS)).toBe(false)
-    expect(isDirectionNarrowed({ ...EMPTY_FILTERS, direction: 'long' })).toBe(true)
-    expect(isDirectionNarrowed({ ...EMPTY_FILTERS, direction: 'short' })).toBe(true)
   })
 })
 

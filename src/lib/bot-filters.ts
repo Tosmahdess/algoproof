@@ -25,15 +25,16 @@ import { toBaseAsset } from './asset'
 export type FleetStatusFilter = 'live' | 'paper' | 'archived'
 export type SortKey = 'proven' | 'trades' | 'win_rate' | 'profit_factor' | 'max_drawdown' | 'pnl'
 export type SortDir = 'asc' | 'desc'
-/**
- * NOT a facet. A bot is neither long nor short; its trades are. This switch
- * recomputes the displayed stats through `computeBotStats(..., direction, ...)`,
- * exactly as the old OverviewClient did, and never removes a bot from the list.
- * It is therefore absent from PREDICATES and from activeFilterCount, and a test
- * pins that. Putting it in PREDICATES would have been the obvious "fix" and
- * would have quietly hidden every bot with no trade in that direction.
- */
-export type DirectionFilterValue = 'all' | 'long' | 'short'
+// FIX (final review, I5): `direction` / `DirectionFilterValue` /
+// `isDirectionNarrowed` and the `dir_trade` URL parameter used to live here,
+// under a doc comment claiming the switch "recomputes the displayed stats
+// through computeBotStats(..., direction, ...)" and that "the filter bar
+// mentions it separately so a non-default direction is never silently applied".
+// Neither was true: FleetRegister never called computeBotStats, the bar renders
+// only family and venue pills, and isDirectionNarrowed had no caller —
+// ?dir_trade=long round-tripped through the URL and changed nothing on screen.
+// A comment asserting a safety property the code does not have is worse than no
+// comment. It comes back with the UI that uses it.
 
 export const VENUE_ORDER = [
   'binance-spot', 'binance-futures', 'kraken', 'hyperliquid', 'bybit', 'okx',
@@ -61,7 +62,6 @@ export interface FleetFilterState {
   asset: string[]
   timeframe: string[]
   venue: Venue[]
-  direction: DirectionFilterValue
   sort: SortKey
   dir: SortDir
 }
@@ -69,7 +69,7 @@ export interface FleetFilterState {
 /** The default view: no filter, and the only sort that is not a performance ranking. */
 export const EMPTY_FILTERS: FleetFilterState = {
   family: [], status: [], asset: [], timeframe: [], venue: [],
-  direction: 'all', sort: 'proven', dir: 'desc',
+  sort: 'proven', dir: 'desc',
 }
 
 export interface FilterableBot {
@@ -81,7 +81,7 @@ export interface FilterableBot {
 }
 
 // Parameter order is fixed here and nowhere else.
-const PARAM_ORDER = ['family', 'status', 'venue', 'asset', 'tf', 'dir_trade', 'sort', 'dir'] as const
+const PARAM_ORDER = ['family', 'status', 'venue', 'asset', 'tf', 'sort', 'dir'] as const
 
 function readList(sp: URLSearchParams, key: string): string[] {
   const raw = sp.get(key)
@@ -94,7 +94,6 @@ function isVenue(v: unknown): v is Venue {
 }
 
 export function parseFleetFilters(sp: URLSearchParams): FleetFilterState {
-  const direction = sp.get('dir_trade')
   const sort = sp.get('sort')
   const dir = sp.get('dir')
   return {
@@ -104,7 +103,6 @@ export function parseFleetFilters(sp: URLSearchParams): FleetFilterState {
     venue: readList(sp, 'venue').filter(isVenue),
     asset: readList(sp, 'asset').map(a => a.toUpperCase()),
     timeframe: readList(sp, 'tf').map(t => t.toUpperCase()),
-    direction: direction === 'long' || direction === 'short' ? direction : 'all',
     sort: (SORT_VALUES as readonly string[]).includes(sort ?? '') ? (sort as SortKey) : 'proven',
     dir: dir === 'asc' ? 'asc' : 'desc',
   }
@@ -117,7 +115,6 @@ export function serializeFleetFilters(s: FleetFilterState): URLSearchParams {
     venue: s.venue.join(','),
     asset: s.asset.join(','),
     tf: s.timeframe.join(','),
-    dir_trade: s.direction === 'all' ? '' : s.direction,
     sort: s.sort === EMPTY_FILTERS.sort ? '' : s.sort,
     dir: s.dir === EMPTY_FILTERS.dir ? '' : s.dir,
   }
@@ -233,21 +230,10 @@ export function optionCounts<T extends FilterableBot>(bots: T[], s: FleetFilterS
   return { family, status, venue, timeframe }
 }
 
-// `direction` is deliberately excluded: it narrows nothing (see the doc
-// comment on `DirectionFilterValue` above), so counting it here would tell a
-// visitor "1 filtre actif" while the register still lists every bot.
 export function activeFilterCount(s: FleetFilterState): number {
   return s.family.length + s.status.length + s.asset.length + s.timeframe.length + s.venue.length
 }
 
-/**
- * Whether the direction switch is off its default. NOT a filter count: it
- * changes what the numbers mean, not which bots are listed. The filter bar
- * mentions it separately so a non-default direction is never silently applied.
- */
-export function isDirectionNarrowed(s: FleetFilterState): boolean {
-  return s.direction !== 'all'
-}
 
 /**
  * A zero-result view must name the filter responsible and offer its removal.
