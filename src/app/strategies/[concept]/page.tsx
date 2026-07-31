@@ -4,6 +4,7 @@ import { STRATEGY_FICHES, getStrategyFiche } from '@/lib/strategy-library'
 import { familyLabel } from '@/lib/families'
 import { getAllBotsWithStats, getBotSlugs } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
+import { excludeArchived } from '@/lib/cohort'
 import { resolveStrategyRoute } from '@/lib/strategy-routing'
 import StatusBadge from '@/components/StatusBadge'
 
@@ -49,7 +50,14 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
   if (route.kind === 'notFound') notFound()
 
   const fiche = getStrategyFiche(concept)!
-  const bots = await getAllBotsWithStats()
+  // FIX (final whole-branch review, I4): archived bots are dropped BEFORE the
+  // join. `incarnationsOf` matches on the strategy string alone and has no
+  // opinion about status, so a retired bot was listed verbatim under the
+  // heading « Ce qui tourne chez moi » — which is a false statement, not a
+  // presentation choice. excludeArchived() is the existing helper for exactly
+  // this (src/lib/cohort.ts) and is applied at the two call sites rather than
+  // inside incarnationsOf, which stays a pure name-matching function.
+  const bots = excludeArchived(await getAllBotsWithStats())
   const incarnations = incarnationsOf(fiche, bots)
 
   return (

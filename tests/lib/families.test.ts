@@ -50,4 +50,27 @@ describe('family taxonomy', () => {
     for (const c of colors) expect(c).toMatch(/^#[0-9a-f]{6}$/)
     expect(new Set(colors).size).toBe(colors.length)
   })
+
+  // FIX (final whole-branch review, I5): `Family` is a compile-time type and
+  // `bots.family` is a runtime string. A family the DB carries but this file
+  // does not know used to return `undefined`, which React renders as an empty,
+  // colourless badge — silently, on the home page. An unmapped family must
+  // fail as loudly as an unmapped column does everywhere else on this branch.
+  it('throws on a family it does not know, naming the offending string', () => {
+    // Cast: the whole point is a value the type system says cannot arrive and
+    // the database can nonetheless produce.
+    expect(() => familyLabel('scalping' as never)).toThrow(/scalping/)
+    expect(() => familyColor('scalping' as never)).toThrow(/scalping/)
+  })
+
+  it('never returns undefined for any input, mapped or not', () => {
+    for (const f of FAMILY_ORDER) {
+      expect(familyLabel(f)).toBeDefined()
+      expect(familyColor(f)).toBeDefined()
+    }
+    for (const bad of ['', 'grid', 'Trend']) {
+      expect(() => familyLabel(bad as never)).toThrow()
+      expect(() => familyColor(bad as never)).toThrow()
+    }
+  })
 })

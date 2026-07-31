@@ -3,6 +3,7 @@ import { fichesByFamily } from '@/lib/strategy-library'
 import { familyLabel, familyDescription } from '@/lib/families'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
+import { excludeArchived } from '@/lib/cohort'
 
 export const revalidate = 300
 
@@ -14,7 +15,10 @@ export const metadata = {
 }
 
 export default async function StrategiesIndexPage() {
-  const bots = await getAllBotsWithStats()
+  // FIX (final whole-branch review, I4): same rule as the concept page — the
+  // count next to each fiche reads « 2 bots » and the page it leads to heads
+  // that list « Ce qui tourne chez moi ». A retired bot inflated both.
+  const bots = excludeArchived(await getAllBotsWithStats())
   const groups = fichesByFamily()
 
   return (

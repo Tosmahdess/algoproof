@@ -59,12 +59,32 @@ export function isFamily(value: unknown): value is Family {
   return typeof value === 'string' && (FAMILY_ORDER as readonly string[]).includes(value)
 }
 
+// FIX (final whole-branch review, I5): these two used to return `LABELS[f]` /
+// `COLORS[f]` bare. `Family` is a compile-time type, and the values reaching
+// these functions come from the `bots.family` column — so a family the DB
+// carries but this file does not know yielded `undefined`, which React renders
+// as an empty badge with no colour, silently, on the home page (src/app/page.tsx
+// :174 and :218). Every other bad-data path on this branch fails loudly; this
+// one degraded, which is the failure mode that hides.
+//
+// It cannot be verified from this repo which families are live:
+// supabase/migrations/007 still pins three, migration 017 introduces the nine
+// below, and this worktree has no credentials to query the table. Throwing is
+// what makes that gap visible the first time it matters instead of shipping a
+// blank badge to a visitor.
+function unmapped(kind: string, f: unknown): never {
+  throw new Error(
+    `families.ts: no ${kind} for family "${String(f)}". ` +
+    'Adding a family is a migration plus an entry in FAMILY_ORDER, LABELS, COLORS and DESCRIPTIONS.',
+  )
+}
+
 export function familyLabel(f: Family): string {
-  return LABELS[f]
+  return LABELS[f] ?? unmapped('label', f)
 }
 
 export function familyColor(f: Family): string {
-  return COLORS[f]
+  return COLORS[f] ?? unmapped('colour', f)
 }
 
 // Restored from the deleted StrategiesClient.tsx (see git show 65818d1) after
