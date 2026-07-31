@@ -11,7 +11,12 @@ export default function NotFound() {
       </p>
       <div className="flex gap-4 text-sm">
         <Link href="/" className="text-accent hover:underline">Accueil</Link>
-        <Link href="/strategies" className="text-accent hover:underline">Mes bots</Link>
+        {/* FIX (final whole-branch review, I2): this pointed at /strategies,
+            which is now 22 pedagogical concept pages with no trades on them.
+            A visitor arriving from a dead bot URL wants the bots. Labelled
+            « La flotte », the same name /overview carries in the nav and the
+            footer. */}
+        <Link href="/overview" className="text-accent hover:underline">La flotte</Link>
         <Link href="/blog" className="text-accent hover:underline">Apprendre</Link>
       </div>
     </main>

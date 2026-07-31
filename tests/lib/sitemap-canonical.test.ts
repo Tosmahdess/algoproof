@@ -27,4 +27,15 @@ describe('sitemap', () => {
     const urls = (await sitemap()).map(e => e.url)
     expect(urls.some(u => u.endsWith('/performance'))).toBe(false)
   })
+
+  // FIX (final whole-branch review, I3): asserting only that /performance is
+  // GONE let its replacement be absent too, which is what happened — /overview,
+  // the page that absorbed it and carries the FAQ JSON-LD, was the single page
+  // this file did not list. A removal test needs its positive counterpart.
+  it('lists /overview, the route that absorbed /performance', async () => {
+    const entries = await sitemap()
+    const overview = entries.find(e => e.url === 'https://algoproof.fr/overview')
+    expect(overview, 'the fleet page must be indexable').toBeTruthy()
+    expect(overview!.priority).toBe(0.9)
+  })
 })

@@ -51,6 +51,19 @@ export default async function sitemap() {
       changeFrequency: 'hourly' as const,
       priority: 1.0,
     },
+    // FIX (final whole-branch review, I3): /overview was the one page missing
+    // from this list. It absorbed /performance (see next.config.ts redirects),
+    // carries the FAQ JSON-LD, and its own source comment says it is meant to
+    // be indexed — while the 22 concept pages below sit at 0.9. Listed at the
+    // bare path only: the family/status/venue/asset/tf/sort parameter space is
+    // disallowed in robots.ts and must never enter the sitemap (asserted in
+    // tests/lib/sitemap-canonical.test.ts).
+    {
+      url: 'https://algoproof.fr/overview',
+      lastModified: new Date(),
+      changeFrequency: 'hourly' as const,
+      priority: 0.9,
+    },
     {
       url: 'https://algoproof.fr/strategies',
       lastModified: new Date(),

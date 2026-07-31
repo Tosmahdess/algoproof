@@ -87,10 +87,19 @@ export default async function HomePage() {
       {/* Les 4 portes — router by interest, not by skill level */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
         {[
-          { href: '/overview',     emoji: '🤖', title: 'Mes bots',  desc: 'Regarde mes bots trader en vrai, chaque trade horodaté.' },
+          // FIX (final whole-branch review, label drift): /overview is « La
+          // flotte » in the nav and the footer; it was « Mes bots » here and on
+          // /a-propos. One page, one name.
+          { href: '/overview',     emoji: '🤖', title: 'La flotte',  desc: 'Regarde mes bots trader en vrai, chaque trade horodaté.' },
           { href: '/wealth',       emoji: '💰', title: 'Investir',  desc: 'Ma watchlist long terme et mes points d\'entrée.' },
           { href: '/intelligence', emoji: '🌤️', title: 'Météo du marché', desc: 'La météo du marché, en français, chaque jour.' },
-          { href: 'https://lab.algoproof.fr/apprendre', emoji: '📚', title: 'Apprendre', desc: 'Tutoriels pas à pas dans le labo, bibliothèque des 22 stratégies, et les guides du blog.' },
+          // FIX (final whole-branch review, I6): the « bibliothèque des 22
+          // stratégies » pointed at lab.algoproof.fr/apprendre. This branch
+          // moved that library HERE, to /strategies, on the argument that
+          // showcase content belongs on the showcase domain. Until the lab-side
+          // deletion runs, the old link is duplicate content competing with the
+          // page it was copied from; after it runs, it is a dead link.
+          { href: '/strategies', emoji: '📚', title: 'Apprendre', desc: 'La bibliothèque des 22 stratégies expliquées en français, et les guides du blog.' },
         ].map(p => (
           <Link key={p.href} href={p.href} className="bg-card border border-border rounded-xl p-6 hover:border-positive/30 transition-colors group">
             <div className="text-2xl mb-3">{p.emoji}</div>

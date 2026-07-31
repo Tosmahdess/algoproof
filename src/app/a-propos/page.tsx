@@ -7,7 +7,9 @@ export const metadata: Metadata = {
 }
 
 const PIECES = [
-  { href: '/overview',     title: 'Mes bots',   desc: 'Des bots qui tradent en conditions réelles. Chaque trade est public, gains comme pertes.' },
+  // FIX (final whole-branch review, label drift): « La flotte » everywhere,
+  // matching Nav and Footer — /overview had two names across the site.
+  { href: '/overview',     title: 'La flotte',  desc: 'Des bots qui tradent en conditions réelles. Chaque trade est public, gains comme pertes.' },
   { href: 'https://lab.algoproof.fr', title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
   { href: '/wealth',       title: 'Investir',   desc: 'Mon accumulation long terme (DCA) sur la crypto, les ETF et les actions, en transparence.' },
   { href: '/intelligence', title: 'Météo du marché', desc: 'La météo du marché que je calcule chaque jour : risque ON ou OFF, en français.' },

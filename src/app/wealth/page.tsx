@@ -328,8 +328,12 @@ export default function WealthPage() {
           Le trading algo, c&apos;est de l&apos;autre côté : mes 30+ bots publient chaque
           trade, gains comme pertes.
         </p>
-        <Link href="/strategies" className="text-sm text-positive hover:underline flex-shrink-0">
-          Voir mes bots →
+        {/* FIX (final whole-branch review, I2): « mes 30+ bots publient chaque
+            trade » used to link to /strategies, which no longer lists a single
+            trade — it is the concept library now. The sentence is only true of
+            /overview. */}
+        <Link href="/overview" className="text-sm text-positive hover:underline flex-shrink-0">
+          Voir la flotte →
         </Link>
       </section>
 
