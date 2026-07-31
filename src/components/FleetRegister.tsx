@@ -10,14 +10,19 @@
 // server component `FleetBalance`, which renders outside this client
 // boundary entirely. That is what makes "filters cannot reach the balance"
 // a structural fact again instead of only a convention backed by a test:
-// there is no prop path from here to there. The caller (`FleetOverview`)
-// wraps this component in `<Suspense>`, which is required because
-// `useSearchParams()` below opts this subtree into client-side rendering,
-// and Next refuses to build a statically-prerendered route with a
-// searchParams-reading client component that isn't inside a Suspense
-// boundary (`missing-suspense-with-csr-bailout`).
+// there is no prop path from here to there.
+//
+// FIX round 2 (new Important finding): no `useSearchParams()` here at all
+// anymore, and no `<Suspense>` boundary around this component either (see
+// FleetOverview). useSearchParams() forces a client-side-only render of
+// everything inside its nearest Suspense boundary — the CSR bailout — which
+// meant this page served crawlers two empty `animate-pulse` placeholders
+// instead of the register's bot cards and every `/strategies/...` link,
+// undercutting the FAQ JSON-LD this page carries specifically to be indexed.
+// Filter state is now parsed server-side, in `overview/page.tsx`, from the
+// route's `searchParams`, and handed down as `initialState`.
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSearchParams, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import type { BotWithStats } from '@/lib/types'
 import type { Family } from '@/lib/families'
 import {
@@ -35,43 +40,44 @@ import FleetFilterBar from '@/components/FleetFilterBar'
 
 export interface FleetRegisterProps {
   bots: BotWithStats[]
+  initialState: FleetFilterState
 }
 
-export default function FleetRegister({ bots }: FleetRegisterProps) {
+export default function FleetRegister({ bots, initialState }: FleetRegisterProps) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
 
-  // FIX (brief bug, flagged in task-6-report.md): state derived via
-  // `useMemo(..., [searchParams])` never stuck, because `useSearchParams()`
-  // returns a fresh `URLSearchParams` instance on every render under this
-  // test's next/navigation mock (and in some real navigation cases too).
-  // State is local, seeded once from the URL, and pushed back to the URL for
-  // shareability. A separate effect resyncs from the URL when it changes
-  // from OUTSIDE this component (back/forward navigation, a shared link) —
-  // keyed on the STRING, not the object, so an unstable-reference-but-same-
-  // value hook doesn't fight our own optimistic update.
-  const [state, setState] = useState<FleetFilterState>(() =>
-    parseFleetFilters(new URLSearchParams(searchParams.toString())),
-  )
+  // Seeded once from the server-parsed prop — no useSearchParams() read here,
+  // by design (see file header). `state` is this component's own source of
+  // truth from then on: `push()` below updates it directly and synchronously.
+  const [state, setState] = useState<FleetFilterState>(initialState)
 
-  const searchParamsString = searchParams.toString()
+  // FIX round 2: the old string-keyed resync effect (keyed on
+  // searchParams.toString()) is gone along with useSearchParams() itself.
+  // Back/forward navigation still needs to update `state` from OUTSIDE this
+  // component's own `push()` calls, so listen for `popstate` directly and
+  // re-parse the URL ourselves. `push()`'s own `window.history.replaceState`
+  // calls don't fire `popstate` (only real navigation — back/forward,
+  // history.go — does), so this can't fight our own optimistic update the
+  // way the old effect risked doing.
   useEffect(() => {
-    setState(parseFleetFilters(new URLSearchParams(searchParamsString)))
-  }, [searchParamsString])
+    function onPopState() {
+      setState(parseFleetFilters(new URLSearchParams(window.location.search)))
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
   const push = useCallback((next: FleetFilterState) => {
     setState(next)
     const qs = serializeFleetFilters(next).toString()
-    // FIX round 1 (I1+I2, reviewer ruling): `router.replace()` triggered a full
-    // RSC round trip on every single pill click even though no server-rendered
-    // prop here depends on these params, and its async resolution raced the
-    // searchParams-sync effect above — a second click could resolve before the
-    // first, letting the effect clobber an already-applied optimistic toggle
-    // with a stale parsed value. `window.history.replaceState` (supported by
-    // the App Router since Next 14.1 for exactly this shallow-routing case)
-    // updates the URL and, in the real app, `useSearchParams()`'s value,
-    // synchronously and without hitting the server — no round trip, no race
-    // window for the sync effect to land in.
+    // FIX round 1 (I1+I2, reviewer ruling), still the right call in round 2:
+    // `router.replace()` triggered a full RSC round trip on every single pill
+    // click even though no server-rendered prop here depends on these params.
+    // `window.history.replaceState` (supported by the App Router since Next
+    // 14.1 for exactly this shallow-routing case) updates the URL directly,
+    // synchronously, with no round trip — and after round 2 removed the
+    // searchParams-sync effect entirely, there is no longer any counterpart
+    // for it to race against.
     window.history.replaceState(null, '', qs ? `${pathname}?${qs}` : pathname)
   }, [pathname])
 

@@ -1,11 +1,18 @@
 import type { Metadata } from 'next'
 import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBotIds } from '@/lib/queries'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
+import { parseFleetFilters } from '@/lib/bot-filters'
 import FleetOverview from '@/components/FleetOverview'
 import JsonLd from '@/components/JsonLd'
 import { faqJsonLd } from '@/lib/jsonld'
 
-export const revalidate = 1800
+// FIX round 2 (new Important finding): deliberately no `revalidate` export.
+// Reading `searchParams` below opts this route into dynamic (per-request)
+// rendering on its own — that's the correct trade, not a regression to
+// fight: this page shows near-live bot data, and a shared filtered URL
+// (e.g. ?family=carry) now renders its real, filtered content on first
+// paint instead of a client-side spinner. Leaving a `revalidate` value here
+// would be dead code that misstates the caching story to the next reader.
 
 export const metadata: Metadata = {
   title: 'La flotte — ce qui tourne, avec quel argent',
@@ -14,13 +21,45 @@ export const metadata: Metadata = {
   openGraph: { url: 'https://algoproof.fr/overview' },
 }
 
-export default async function OverviewPage() {
-  const [bots, trades, liveBotIds] = await Promise.all([
+interface OverviewPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+// Next's parsed searchParams gives an array for a repeated key, but this
+// app's own URL scheme (serializeFleetFilters) only ever emits ONE
+// occurrence of each key with its values comma-joined — so an array here
+// (a hand-edited or externally-linked URL) is normalised the same way, by
+// joining with a comma, before handing off to parseFleetFilters's own
+// comma-split parsing.
+function toURLSearchParams(sp: Record<string, string | string[] | undefined>): URLSearchParams {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(sp)) {
+    if (value === undefined) continue
+    params.set(key, Array.isArray(value) ? value.join(',') : value)
+  }
+  return params
+}
+
+export default async function OverviewPage({ searchParams }: OverviewPageProps) {
+  const [bots, trades, liveBotIds, resolvedSearchParams] = await Promise.all([
     getAllBotsWithStats(),
     getAllTradesForAggregate(),
     getLiveBotIds(),
+    searchParams,
   ])
   const aggregate = computeFleetAggregate(trades, liveBotIds)
+
+  // FIX round 2 (new Important finding): filter state is seeded HERE, server
+  // side, instead of via useSearchParams() inside the client component.
+  // useSearchParams() forces everything up to its nearest Suspense boundary
+  // to render client-only (the CSR bailout Next performs to keep that hook
+  // usable at all) — which stripped the entire filterable register out of
+  // this page's served HTML: every bot card, every /strategies link, gone,
+  // replaced by two animate-pulse placeholders. That directly undercuts the
+  // FAQ JSON-LD and metadata below, which exist specifically because this
+  // page is meant to be indexed. See FleetRegister for the client side of
+  // this fix (no more useSearchParams, no more Suspense boundary needed).
+  const initialState = parseFleetFilters(toURLSearchParams(resolvedSearchParams))
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-12">
@@ -41,7 +80,7 @@ export default async function OverviewPage() {
         <a href="/lexique#drawdown" className="text-accent">drawdown</a> la pire baisse. Plus de définitions
         dans le <a href="/lexique" className="text-accent">lexique</a>.
       </p>
-      <FleetOverview bots={bots} aggregate={aggregate} />
+      <FleetOverview bots={bots} aggregate={aggregate} initialState={initialState} />
     </main>
   )
 }
