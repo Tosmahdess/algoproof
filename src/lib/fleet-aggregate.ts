@@ -16,6 +16,18 @@ export interface AggregateTradeRow {
   asset: string
 }
 
+// FIX (final review, C2): `pnl` and `cumul` are GONE from this row, and they
+// are not coming back. Both were built from the whole trades array — real money
+// and laboratory simulation added together — and rendered two lines under the
+// sentence « ces deux totaux ne se fusionnent jamais ». Worse, `rows` is
+// reversed (newest first), so the FIRST visible `cumul` cell was exactly
+// totalPnlReal + totalPnlLabo: the fused headline the two-column split exists
+// to prevent, printed on the page.
+//
+// The day P&L is now split by cohort, the same way the headline is. There is no
+// per-day cumulative at all: the cumulative totals already exist above the
+// table, split by cohort, and a second cumulative was both redundant with them
+// and the exact place the fusion surfaced.
 export interface DayRow {
   date: string
   dateFr: string
@@ -23,14 +35,16 @@ export interface DayRow {
   winners: number
   wr: number
   pf: number
-  pnl: number
-  cumul: number
+  pnlReal: number
+  pnlLabo: number
 }
 
+// No `totalPnl` either, for the same reason: nothing rendered it, and leaving a
+// pre-fused number on the interface is leaving a loaded gun for the next
+// renderer that needs "the total".
 export interface FleetAggregate {
   rows: DayRow[]
   totalTrades: number
-  totalPnl: number
   totalPnlReal: number
   totalPnlLabo: number
   totalWr: number
@@ -50,14 +64,24 @@ export function computeFleetAggregate(
   trades: AggregateTradeRow[],
   liveBotIds: string[],
 ): FleetAggregate {
-  const byDay: Record<string, { trades: number; winners: number; pnlWin: number; pnlLoss: number; pnl: number }> = {}
+  // Built BEFORE the byDay loop (it used to be constructed further down, for the
+  // headline only) so each day can be split by cohort as it is accumulated.
+  const liveSet = new Set(liveBotIds)
+
+  const byDay: Record<string, {
+    trades: number; winners: number; pnlWin: number; pnlLoss: number
+    pnlReal: number; pnlLabo: number
+  }> = {}
 
   for (const t of trades) {
     const day = (t.closed_at || '').slice(0, 10)
     if (!day) continue
-    if (!byDay[day]) byDay[day] = { trades: 0, winners: 0, pnlWin: 0, pnlLoss: 0, pnl: 0 }
+    if (!byDay[day]) {
+      byDay[day] = { trades: 0, winners: 0, pnlWin: 0, pnlLoss: 0, pnlReal: 0, pnlLabo: 0 }
+    }
     byDay[day].trades++
-    byDay[day].pnl += t.pnl || 0
+    if (liveSet.has(t.bot_id)) byDay[day].pnlReal += t.pnl || 0
+    else byDay[day].pnlLabo += t.pnl || 0
     if ((t.pnl || 0) > 0) {
       byDay[day].winners++
       byDay[day].pnlWin += t.pnl
@@ -68,9 +92,7 @@ export function computeFleetAggregate(
 
   const sorted = Object.entries(byDay).sort((a, b) => a[0].localeCompare(b[0]))
 
-  let cumul = 0
   const rows: DayRow[] = sorted.map(([date, d]) => {
-    cumul += d.pnl
     const parts = date.split('-')
     return {
       date,
@@ -79,8 +101,8 @@ export function computeFleetAggregate(
       winners: d.winners,
       wr: d.trades > 0 ? Math.round((d.winners / d.trades) * 1000) / 10 : 0,
       pf: pf(d.pnlWin, d.pnlLoss),
-      pnl: round2(d.pnl),
-      cumul: round2(cumul),
+      pnlReal: round2(d.pnlReal),
+      pnlLabo: round2(d.pnlLabo),
     }
   })
 
@@ -91,12 +113,9 @@ export function computeFleetAggregate(
   const losers = trades.filter(t => (t.pnl || 0) <= 0)
   const sumPnl = (rs: AggregateTradeRow[]) => round2(rs.reduce((s, t) => s + (t.pnl || 0), 0))
 
-  const liveSet = new Set(liveBotIds)
-
   return {
     rows,
     totalTrades,
-    totalPnl: sumPnl(trades),
     totalPnlReal: sumPnl(trades.filter(t => liveSet.has(t.bot_id))),
     totalPnlLabo: sumPnl(trades.filter(t => !liveSet.has(t.bot_id))),
     totalWr: totalTrades > 0 ? Math.round((winners.length / totalTrades) * 1000) / 10 : 0,

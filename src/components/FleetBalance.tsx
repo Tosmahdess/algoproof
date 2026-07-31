@@ -10,10 +10,17 @@
 //
 // Absorbing /performance into this page means absorbing its content, not
 // just its totals: the day-by-day table below is the same journal the
-// retired page showed (date, trades, win rate, profit factor, P&L,
-// cumulative), computed once in the server component and rendered here —
-// never serialized to a client component that would otherwise ship the
-// full row set to the browser and use none of it.
+// retired page showed, computed once in the server component and rendered
+// here — never serialized to a client component that would otherwise ship
+// the full row set to the browser and use none of it.
+//
+// FIX (final review, C2): the journal used to carry a single P&L column and a
+// running Cumul column, BOTH fusing real money with laboratory simulation —
+// two lines under the sentence that promises those two totals never fuse. And
+// because the rows are newest-first, the very first Cumul cell was exactly
+// « argent réel + laboratoire ». The day P&L is now split by cohort like the
+// headline, and there is no cumulative column at all: the cumulative totals
+// live above this table, already split.
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import { fmtEur } from '@/lib/display'
 
@@ -39,10 +46,9 @@ export default function FleetBalance({ aggregate }: { aggregate: FleetAggregate 
       {aggregate.rows.length > 0 && (
         <div className="mt-6 -mx-2 overflow-x-auto">
           {/* data-testid added fix round 2 (Minor): the headline totals above
-              and this table's cells can coincide in value (e.g. day 1's P&L
-              equals its own cumulative total on the first day) — tests scope
-              to this table specifically rather than the whole stage-0 section
-              to stay meaningful. */}
+              and this table's cells can coincide in value — tests scope to
+              this table specifically rather than the whole stage-0 section to
+              stay meaningful. */}
           <table data-testid="fleet-balance-table" className="w-full text-xs min-w-[480px]">
             <thead>
               <tr className="text-muted uppercase tracking-wider border-b border-border">
@@ -50,8 +56,8 @@ export default function FleetBalance({ aggregate }: { aggregate: FleetAggregate 
                 <th className="px-2 py-2 text-right">Trades</th>
                 <th className="px-2 py-2 text-right">Taux de gain</th>
                 <th className="px-2 py-2 text-right">F. profit</th>
-                <th className="px-2 py-2 text-right">P&amp;L</th>
-                <th className="px-2 py-2 text-right">Cumul</th>
+                <th className="px-2 py-2 text-right">P&amp;L réel</th>
+                <th className="px-2 py-2 text-right">P&amp;L labo</th>
               </tr>
             </thead>
             <tbody>
@@ -61,11 +67,11 @@ export default function FleetBalance({ aggregate }: { aggregate: FleetAggregate 
                   <td className="px-2 py-1.5 text-right">{row.trades}</td>
                   <td className="px-2 py-1.5 text-right">{row.wr}%</td>
                   <td className="px-2 py-1.5 text-right">{row.pf.toFixed(2)}</td>
-                  <td className={`px-2 py-1.5 text-right ${row.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
-                    {fmtEur(row.pnl)}
+                  <td className={`px-2 py-1.5 text-right ${row.pnlReal >= 0 ? 'text-positive' : 'text-negative'}`}>
+                    {fmtEur(row.pnlReal)}
                   </td>
-                  <td className={`px-2 py-1.5 text-right ${row.cumul >= 0 ? 'text-positive' : 'text-negative'}`}>
-                    {fmtEur(row.cumul)}
+                  <td className={`px-2 py-1.5 text-right ${row.pnlLabo >= 0 ? 'text-positive' : 'text-negative'}`}>
+                    {fmtEur(row.pnlLabo)}
                   </td>
                 </tr>
               ))}

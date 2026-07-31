@@ -16,15 +16,52 @@ describe('computeFleetAggregate', () => {
     const a = computeFleetAggregate(trades, ['real'])
     expect(a.totalPnlReal).toBe(6)
     expect(a.totalPnlLabo).toBe(-14)
-    expect(a.totalPnl).toBe(-8)
+    // FIX (final review, C2): there is no fused `totalPnl` on the interface at
+    // all any more. Nothing rendered it, and leaving it there left a pre-fused
+    // number available for the next renderer that wants "the total".
+    expect('totalPnl' in a).toBe(false)
   })
 
-  it('builds one row per day, newest first, with a running cumulative', () => {
+  it('builds one row per day, newest first', () => {
     const a = computeFleetAggregate(trades, ['real'])
     expect(a.rows.map(r => r.date)).toEqual(['2026-07-03', '2026-07-02', '2026-07-01'])
-    // cumul is computed oldest-to-newest, then the list is reversed
-    expect(a.rows[a.rows.length - 1].cumul).toBe(6)
-    expect(a.rows[0].cumul).toBe(-8)
+  })
+
+  // FIX (final review, C2): the per-day P&L used to be built from the WHOLE
+  // trades array — liveBotIds was only ever consulted for the headline — so
+  // every cell in the day table was real euros plus simulated euros in one
+  // figure, and the first (newest) Cumul cell was exactly
+  // totalPnlReal + totalPnlLabo.
+  it('splits each day P&L by cohort, exactly like the headline', () => {
+    const a = computeFleetAggregate(trades, ['real'])
+    const byDate = Object.fromEntries(a.rows.map(r => [r.date, r]))
+    expect(byDate['2026-07-01'].pnlReal).toBe(6)
+    expect(byDate['2026-07-01'].pnlLabo).toBe(0)
+    expect(byDate['2026-07-02'].pnlReal).toBe(0)
+    expect(byDate['2026-07-02'].pnlLabo).toBe(6)
+    expect(byDate['2026-07-03'].pnlLabo).toBe(-20)
+  })
+
+  it('carries no fused or cumulative P&L field on a day row', () => {
+    const a = computeFleetAggregate(trades, ['real'])
+    for (const row of a.rows) {
+      expect('pnl' in row).toBe(false)
+      expect('cumul' in row).toBe(false)
+    }
+  })
+
+  it('day cohort P&L sums back to the headline cohort totals', () => {
+    const a = computeFleetAggregate(trades, ['real'])
+    const sum = (k: 'pnlReal' | 'pnlLabo') =>
+      Math.round(a.rows.reduce((s, r) => s + r[k], 0) * 100) / 100
+    expect(sum('pnlReal')).toBe(a.totalPnlReal)
+    expect(sum('pnlLabo')).toBe(a.totalPnlLabo)
+  })
+
+  it('attributes a day to the laboratory when no bot is live', () => {
+    const a = computeFleetAggregate(trades, [])
+    expect(a.rows.every(r => r.pnlReal === 0)).toBe(true)
+    expect(a.totalPnlReal).toBe(0)
   })
 
   it('formats the French date without leading zeros', () => {
@@ -58,7 +95,7 @@ describe('computeFleetAggregate', () => {
   it('returns an empty but well-formed result for no trades', () => {
     const a = computeFleetAggregate([], [])
     expect(a).toEqual({
-      rows: [], totalTrades: 0, totalPnl: 0, totalPnlReal: 0,
+      rows: [], totalTrades: 0, totalPnlReal: 0,
       totalPnlLabo: 0, totalWr: 0, totalPf: 0,
     })
   })
