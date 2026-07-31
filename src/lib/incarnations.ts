@@ -9,7 +9,7 @@
 //
 // Matching is exact on the normalised strategy name, never a substring: "ORB"
 // must not swallow "ORB Reversal".
-import type { StrategyFiche } from './strategy-library'
+import { STRATEGY_FICHES, type StrategyFiche } from './strategy-library'
 
 const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, ' ')
 
@@ -78,12 +78,44 @@ const ALIASES: Record<string, string[]> = {
   donchian: ['Donchian'],
 }
 
+/** The set of `bots.strategy` strings a given fiche claims. One definition, two directions. */
+function acceptedStrings(fiche: StrategyFiche): Set<string> {
+  return new Set([...(ALIASES[fiche.slug] ?? []), fiche.title].map(norm))
+}
+
 export function incarnationsOf<T extends { strategy: string }>(
   fiche: StrategyFiche,
   bots: T[],
 ): T[] {
-  const accepted = new Set(
-    [...(ALIASES[fiche.slug] ?? []), fiche.title].map(norm),
-  )
+  const accepted = acceptedStrings(fiche)
   return bots.filter(b => accepted.has(norm(b.strategy)))
+}
+
+/**
+ * The inverse join: which fiche, if any, a bot's `strategy` string belongs to.
+ * Returns null when no fiche claims it — 13 fiches carry no alias yet (see the
+ * evidence table above), and a bot may legitimately run a strategy that has no
+ * fiche at all.
+ *
+ * FIX (final whole-branch review, I8): fleet-grouping.ts promised that plan 3
+ * would make the register's group key the fiche slug and its label the fiche
+ * title. Plan 3 landed and that file was never touched, so /overview showed a
+ * plain-text group header « EMA Cross H4 » while /strategies/ema-cross showed
+ * the same bots, with no link in either direction and no breadcrumb from the
+ * bot fiche to its concept. Three surfaces describing one thing, none of them
+ * joined.
+ *
+ * Deliberately built from `acceptedStrings`, the same helper incarnationsOf
+ * uses, rather than a second copy of the matching rule: the link on /overview
+ * appears exactly when the page it points at would list that bot. Two
+ * independent implementations would eventually disagree, and the visible
+ * symptom would be a header linking to a concept page that does not mention
+ * the bot you clicked from.
+ */
+export function conceptSlugForStrategy(strategy: string): string | null {
+  const s = norm(strategy)
+  for (const fiche of STRATEGY_FICHES) {
+    if (acceptedStrings(fiche).has(s)) return fiche.slug
+  }
+  return null
 }

@@ -3,9 +3,24 @@
 // science. The register groups so a visitor scans a dozen groups instead of
 // hundreds of rows.
 //
-// Keyed on the `strategy` string, which every bot already carries. Plan 3 brings
-// the strategy library onto this domain; when it does, the key becomes the fiche
-// slug and the label the fiche title — a change confined to this file.
+// Keyed on the `strategy` string, which every bot already carries.
+//
+// FIX (final whole-branch review, I8): this used to promise that once plan 3
+// brought the strategy library onto this domain, "the key becomes the fiche
+// slug and the label the fiche title — a change confined to this file". Plan 3
+// landed and this file was not touched, so the promise was stale in both
+// directions: nothing changed here, and nothing needed to. The key stays the
+// strategy string (it is what the fleet actually carries, and 13 fiches have
+// no alias for it yet), and the LABEL stays the operator's own wording rather
+// than the library's display title — « EMA Cross H4 » is what the bot is
+// called, « EMA Cross » is what the concept page is called, and flattening one
+// into the other would lose information the register exists to show.
+//
+// What was actually missing was the link. FleetRegister now resolves each
+// group label through conceptSlugForStrategy (src/lib/incarnations.ts) and
+// renders the header as a link to the concept page when a fiche claims it,
+// plain text when none does. Joining is a rendering concern, not a grouping
+// one, which is why it lives there and not here.
 
 export interface GroupableBot {
   strategy: string

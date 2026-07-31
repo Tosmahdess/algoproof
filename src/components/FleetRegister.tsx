@@ -33,6 +33,7 @@ import {
 } from '@/lib/bot-filters'
 import { sortFleet } from '@/lib/fleet-sort'
 import { groupByStrategy } from '@/lib/fleet-grouping'
+import { conceptSlugForStrategy } from '@/lib/incarnations'
 import { splitCohorts } from '@/lib/cohort'
 import { isLowSample } from '@/lib/display'
 import BotCard from '@/components/BotCard'
@@ -165,8 +166,28 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           <div className="space-y-6">
             {activeGroups.map(group => (
               <details key={group.key} open className="bg-card border border-border rounded-lg">
+                {/* FIX (final whole-branch review, I8): the group header links
+                    to the concept page when a fiche claims this strategy
+                    string, and stays plain text when none does (13 fiches
+                    carry no alias yet). Before this, /overview and
+                    /strategies/<concept> described the same bots with no link
+                    in either direction.
+
+                    stopPropagation because a click on an <a> inside a
+                    <summary> would otherwise also toggle the <details>: the
+                    visitor would navigate away AND collapse the group they
+                    left behind. */}
                 <summary className="cursor-pointer px-4 py-3 text-sm">
-                  {`${group.label} — ${group.bots.length} incarnation(s), dont ${group.promotedCount} promue(s)`}
+                  {conceptSlugForStrategy(group.label) ? (
+                    <Link
+                      href={`/strategies/${conceptSlugForStrategy(group.label)}`}
+                      onClick={e => e.stopPropagation()}
+                      className="hover:text-accent"
+                    >
+                      {group.label}
+                    </Link>
+                  ) : group.label}
+                  {` : ${group.bots.length} incarnation(s), dont ${group.promotedCount} promue(s)`}
                 </summary>
                 <ul className="px-4 pb-4 divide-y divide-border">
                   {group.bots.map(bot => (
@@ -196,7 +217,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
         {archivedVisible.length > 0 && (
           <details data-testid="fleet-archived" className="bg-card border border-border rounded-lg">
             <summary className="cursor-pointer px-4 py-3 text-xs uppercase tracking-wider text-muted">
-              {`Archivés — ${archivedVisible.length}`}
+              {`Archivés (${archivedVisible.length})`}
             </summary>
             <ul className="px-4 pb-4 divide-y divide-border">
               {/*

@@ -1,5 +1,6 @@
 // src/app/strategies/bot/[slug]/page.tsx
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import StatusBadge from '@/components/StatusBadge'
 import StrategyDetail from '@/components/StrategyDetail'
@@ -17,6 +18,7 @@ import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { getProvenanceForBot } from '@/lib/screening'
+import { conceptSlugForStrategy } from '@/lib/incarnations'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -55,6 +57,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   // returns null both when this bot was never screened and when the screening tables
   // don't exist yet in this environment.
   const provenance = await getProvenanceForBot(bot.slug)
+  const conceptSlug = conceptSlugForStrategy(bot.strategy)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -70,6 +73,19 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         </div>
         <h1 className="text-3xl font-bold mb-2">{bot.name}</h1>
         <p className="text-muted">{bot.strategy}</p>
+        {/* FIX (final whole-branch review, I8): the third edge of the graph.
+            /overview groups this bot under its strategy and /strategies/<concept>
+            explains that strategy and lists this bot — and from here there was no
+            way back to either. Absent, not broken, when no fiche claims the
+            strategy string: 13 fiches carry no alias yet, and a bot may run a
+            strategy that has no fiche at all. */}
+        {conceptSlug && (
+          <p className="text-sm mt-1 mb-2">
+            <Link href={`/strategies/${conceptSlug}`} className="text-accent hover:underline">
+              La stratégie derrière ce bot →
+            </Link>
+          </p>
+        )}
         <p className="text-xs text-muted mb-4 max-w-2xl">
           Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
           La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux en argent réel sont marqués « live ».

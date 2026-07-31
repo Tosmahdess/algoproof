@@ -95,10 +95,13 @@ describe('FleetRegister — the sort control', () => {
     }),
   ]
 
+  // Scoped to list items on purpose: since I8 the group HEADER is a link too,
+  // so a bare getAllByRole('link') would fold the strategy name into the row
+  // order and this test would read as passing for the wrong reason.
   const rowOrder = () =>
     within(screen.getByTestId('fleet-register'))
-      .getAllByRole('link')
-      .map(a => a.textContent)
+      .getAllByRole('listitem')
+      .map(li => within(li).getAllByRole('link')[0]?.textContent)
 
   it('defaults to the most-proven-first sort, and says so in the control', () => {
     render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
@@ -135,5 +138,33 @@ describe('FleetRegister — the sort control', () => {
     fireEvent.change(screen.getByLabelText('Trier par'), { target: { value: 'profit_factor' } })
     expect(rowOrder()[0]).toBe('Lucky Bot')
     expect(screen.getByText('trop tôt pour conclure')).toBeTruthy()
+  })
+})
+
+// FIX (final whole-branch review, I8): /overview and /strategies/<concept>
+// described the same bots with no link in either direction, under a
+// fleet-grouping.ts comment still promising plan 3 would join them.
+describe('FleetRegister — the group header joins the register to the concept page', () => {
+  it('links a strategy a fiche claims to that fiche', () => {
+    render(
+      <FleetRegister
+        bots={[mkBot({ name: 'EMA Bot', strategy: 'EMA Cross H4', status: 'paper' })]}
+        initialState={EMPTY_FILTERS}
+      />,
+    )
+    const header = screen.getByRole('link', { name: 'EMA Cross H4' })
+    expect(header.getAttribute('href')).toBe('/strategies/ema-cross')
+  })
+
+  it('leaves the header as plain text when no fiche claims the strategy', () => {
+    render(
+      <FleetRegister
+        bots={[mkBot({ name: 'Mystery Bot', strategy: 'Wavelet Cross', status: 'paper' })]}
+        initialState={EMPTY_FILTERS}
+      />,
+    )
+    // The group is still headed and still counted — it just is not a link.
+    expect(screen.getByText(/Wavelet Cross/)).toBeTruthy()
+    expect(screen.queryByRole('link', { name: 'Wavelet Cross' })).toBeNull()
   })
 })
