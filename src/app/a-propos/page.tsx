@@ -60,9 +60,10 @@ export default function AProposPage() {
       <section>
         <h2 className="text-xl font-bold mb-3">Gratuit ou payant ?</h2>
         <p className="text-muted leading-relaxed">
-          Tout ce que tu vois ici est en accès libre. <a href="https://lab.algoproof.fr" className="text-accent">Le labo</a> sera
-          l&apos;espace où tu pourras tester tes propres stratégies ; il demandera un compte pour sauvegarder ton
-          travail, mais l&apos;exploration restera ouverte. Rien de tout ça n&apos;est un conseil financier.
+          Tout est gratuit aujourd&apos;hui, site et <a href="https://lab.algoproof.fr" className="text-accent">labo</a> compris,
+          et aucune offre payante n&apos;est active. Quand une offre arrivera, elle portera sur la configuration exacte
+          des bots et sur leur dossier de validation — jamais sur leurs résultats, qui resteront publics et gratuits.{' '}
+          <Link href="/preuve" className="text-accent">Où passera la ligne, en détail →</Link>
         </p>
       </section>
     </main>

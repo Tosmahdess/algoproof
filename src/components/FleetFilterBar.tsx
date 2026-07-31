@@ -35,8 +35,13 @@ function Pill({ label, count, active, onClick }: {
   // own worked example (two independently-restrictive facets, e.g. family=carry
   // AND venue=kraken, each narrowing to a different single bot) unreachable
   // through this bar, which defeats the reason that empty-state escape hatch
-  // exists. The zero count still discourages the pick — via dimmed opacity and a
-  // `not-allowed` cursor — but the click itself must go through.
+  // exists. The zero count still discourages the pick — via dimmed opacity —
+  // but the click itself must go through.
+  //
+  // FIX (final review, Minor): `cursor-not-allowed` went with the `disabled`
+  // attribute and should have left with it. The same commit deliberately made
+  // this pill clickable, so a "you can't click this" cursor was simply false.
+  // `opacity-40` stays: dimming says "nothing here", which is true.
   return (
     <button
       type="button"
@@ -45,7 +50,7 @@ function Pill({ label, count, active, onClick }: {
       className={[
         'px-3 py-1.5 text-xs font-mono border rounded transition-colors',
         active ? 'bg-accent text-bg border-accent' : 'bg-bg text-muted border-border hover:text-white',
-        count === 0 && !active ? 'opacity-40 cursor-not-allowed' : '',
+        count === 0 && !active ? 'opacity-40' : '',
       ].join(' ')}
     >
       {label} ({count})

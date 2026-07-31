@@ -37,7 +37,7 @@ export default function PreuvePage() {
         </p>
       </section>
 
-      <section className="mb-10">
+      <section>
         <h2 className="text-lg mb-3">Ce qui est gratuit, ce qui le restera, et ce qui ne le sera pas</h2>
         <p className="text-sm mb-3">
           Le labo est gratuit aujourd&apos;hui, sans compte et sans limite. Il passera
