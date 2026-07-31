@@ -102,8 +102,15 @@ describe('getBotSlugs', () => {
     await expect(getBotSlugs()).rejects.toThrow('slugs error')
   })
 
-  // Same rule as getBots: a backtest candidate must not get a statically
-  // generated /strategies/<slug> page either.
+  // Same rule as getBots: a backtest candidate must not get a
+  // /strategies/bot/<slug> page.
+  //
+  // FIX (final whole-branch review, C1): this used to say "must not get a
+  // STATICALLY GENERATED page", and that qualifier was the hole. All three
+  // slug routes set `dynamicParams = true`, so being absent from
+  // generateStaticParams only means the page is rendered on demand instead of
+  // at build time — it does not mean the URL 404s. The real guard is in
+  // getBotWithStats; see its own describe block below.
   it('excludes frozen AND backtest at the query', async () => {
     const chain = mockChain([])
     vi.mocked(supabase.from).mockReturnValue(chain)
@@ -280,6 +287,29 @@ describe('getBotWithStats', () => {
     const result = await getBotWithStats('v1-spot')
     expect(result!.recent_trades).toHaveLength(20)
     expect(result!.stats.total_trades).toBe(25)
+  })
+
+  // FIX (final whole-branch review, C1): fetching by slug has to enforce the
+  // same visibility rule the listings do. Without this, an engine candidate
+  // that never ran was reachable on three public surfaces by guessing one URL.
+  // Asserted here rather than only per-route because this is the single place
+  // all three routes share.
+  it('returns null for a backtest candidate, so no slug route can render one', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain({ ...MOCK_BOT, status: 'backtest' }))
+    expect(await getBotWithStats('candidate-never-deployed')).toBeNull()
+  })
+
+  it('returns null for a frozen bot, which is hidden on every other surface', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain({ ...MOCK_BOT, status: 'frozen' }))
+    expect(await getBotWithStats('some-frozen-bot')).toBeNull()
+  })
+
+  it('stops before fetching trades for a hidden bot', async () => {
+    // The guard must short-circuit, not filter after the fact: a candidate's
+    // trade history is not something to fetch and then discard.
+    vi.mocked(supabase.from).mockReturnValue(mockChain({ ...MOCK_BOT, status: 'backtest' }))
+    await getBotWithStats('candidate-never-deployed')
+    expect(vi.mocked(supabase.from)).toHaveBeenCalledTimes(1)
   })
 
   it('returns spread bot fields on the result', async () => {

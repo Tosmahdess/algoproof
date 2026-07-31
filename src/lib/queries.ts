@@ -53,7 +53,17 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
     .select('*')
     .eq('slug', slug)
     .single()
-  if (botErr || !bot) return null
+  // FIX (final whole-branch review, C1): the exclusion above (getBots /
+  // getBotSlugs) only governs LISTINGS. This function is fetched by slug, and
+  // all three of its consumers — /strategies/bot/[slug], /(embed)/embed/[slug]
+  // and /api/card/[slug] — declare `dynamicParams = true`, which is what makes
+  // an unlisted slug reach the handler at all instead of 404ing on the static
+  // param set. So a `backtest` candidate that never ran, or a `frozen` bot that
+  // is hidden everywhere else, still got a full indexable fiche, an iframe
+  // embeddable on third-party sites, and a social card — three public surfaces
+  // reached by guessing one URL. The visibility rule has to live where the row
+  // is loaded, not only where lists are built.
+  if (botErr || !bot || bot.status === 'backtest' || bot.status === 'frozen') return null
 
   // Supabase caps a single request at 1000 rows — page through every row, otherwise
   // PF/WR/capital silently reflect only the newest 1000 trades (and, for perf_daily
