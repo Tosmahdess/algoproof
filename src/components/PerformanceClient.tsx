@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import AssetFilterSelect from '@/components/AssetFilterSelect'
 import { assetOptionsFromTrades, toBaseAsset } from '@/lib/asset'
+import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 
 interface TradeRow {
   pnl: number
@@ -14,17 +15,6 @@ interface TradeRow {
 
 type Direction = 'all' | 'long' | 'short'
 type Family = 'all' | 'trend' | 'breakout' | 'mean-reversion' | 'carry' | 'market-neutral'
-
-interface DayRow {
-  date: string
-  dateFr: string
-  trades: number
-  winners: number
-  wr: number
-  pf: number
-  pnl: number
-  cumul: number
-}
 
 const DIRECTION_OPTIONS: { value: Direction; label: string }[] = [
   { value: 'all', label: 'Tous' },
@@ -50,13 +40,6 @@ function signColor(v: number): string {
 function fmtPnl(v: number): string {
   const s = v >= 0 ? '+' : ''
   return `${s}${v.toFixed(2)}`
-}
-
-function fmtPf(wins: number, losses: number): number {
-  // Cap at 99.9: a near-zero-loss day produced a 4-digit ratio (5561.91 live)
-  // that reads as a bug, not transparency.
-  if (losses === 0) return wins > 0 ? 99.9 : 0
-  return Math.min(Math.round((wins / Math.abs(losses)) * 100) / 100, 99.9)
 }
 
 function daysAgo(n: number): string {
@@ -115,80 +98,13 @@ export function PerformanceClient({
 
   const { rows, totalTrades, totalPnl, totalPnlReal, totalPnlLabo, totalWr, totalPf } = useMemo(() => {
     let filtered = trades
-
-    if (direction !== 'all') {
-      filtered = filtered.filter(t => t.side === direction)
-    }
-    if (family !== 'all') {
-      filtered = filtered.filter(t => botFamilyMap[t.bot_id] === family)
-    }
-    if (asset !== 'all') {
-      filtered = filtered.filter(t => toBaseAsset(t.asset) === asset)
-    }
-    if (selectedBots.size > 0) {
-      filtered = filtered.filter(t => selectedBots.has(t.bot_id))
-    }
-    if (dateFrom) {
-      filtered = filtered.filter(t => (t.closed_at || '').slice(0, 10) >= dateFrom)
-    }
-    if (dateTo) {
-      filtered = filtered.filter(t => (t.closed_at || '').slice(0, 10) <= dateTo)
-    }
-
-    const byDay: Record<string, { trades: number; winners: number; pnlWin: number; pnlLoss: number; pnl: number }> = {}
-    for (const t of filtered) {
-      const day = (t.closed_at || '').slice(0, 10)
-      if (!day) continue
-      if (!byDay[day]) byDay[day] = { trades: 0, winners: 0, pnlWin: 0, pnlLoss: 0, pnl: 0 }
-      byDay[day].trades++
-      byDay[day].pnl += t.pnl || 0
-      if ((t.pnl || 0) > 0) {
-        byDay[day].winners++
-        byDay[day].pnlWin += t.pnl
-      } else {
-        byDay[day].pnlLoss += t.pnl
-      }
-    }
-
-    const sorted = Object.entries(byDay).sort((a, b) => a[0].localeCompare(b[0]))
-
-    let cumul = 0
-    const dayRows: DayRow[] = sorted.map(([date, d]) => {
-      cumul += d.pnl
-      const parts = date.split('-')
-      return {
-        date,
-        dateFr: `${parseInt(parts[2])}/${parseInt(parts[1])}/${parts[0]}`,
-        trades: d.trades,
-        winners: d.winners,
-        wr: d.trades > 0 ? Math.round((d.winners / d.trades) * 1000) / 10 : 0,
-        pf: fmtPf(d.pnlWin, d.pnlLoss),
-        pnl: Math.round(d.pnl * 100) / 100,
-        cumul: Math.round(cumul * 100) / 100,
-      }
-    })
-
-    dayRows.reverse()
-
-    const tTrades = filtered.length
-    const tWinners = filtered.filter(t => (t.pnl || 0) > 0).length
-    const tPnlWin = filtered.filter(t => (t.pnl || 0) > 0).reduce((s, t) => s + (t.pnl || 0), 0)
-    const tPnlLoss = filtered.filter(t => (t.pnl || 0) <= 0).reduce((s, t) => s + (t.pnl || 0), 0)
-
-    // Never fuse real-money and laboratory P&L into one headline. Split the total by
-    // cohort: live = my real capital (v1-spot, orb-bf25), everything else = laboratoire.
-    const liveSet = new Set(liveBotIds)
-    const sumPnl = (rows: TradeRow[]) => Math.round(rows.reduce((s, t) => s + (t.pnl || 0), 0) * 100) / 100
-
-    return {
-      rows: dayRows,
-      totalTrades: tTrades,
-      totalPnl: sumPnl(filtered),
-      totalPnlReal: sumPnl(filtered.filter(t => liveSet.has(t.bot_id))),
-      totalPnlLabo: sumPnl(filtered.filter(t => !liveSet.has(t.bot_id))),
-      totalWr: tTrades > 0 ? Math.round((tWinners / tTrades) * 1000) / 10 : 0,
-      totalPf: fmtPf(tPnlWin, tPnlLoss),
-    }
+    if (direction !== 'all') filtered = filtered.filter(t => t.side === direction)
+    if (family !== 'all') filtered = filtered.filter(t => botFamilyMap[t.bot_id] === family)
+    if (asset !== 'all') filtered = filtered.filter(t => toBaseAsset(t.asset) === asset)
+    if (selectedBots.size > 0) filtered = filtered.filter(t => selectedBots.has(t.bot_id))
+    if (dateFrom) filtered = filtered.filter(t => (t.closed_at || '').slice(0, 10) >= dateFrom)
+    if (dateTo) filtered = filtered.filter(t => (t.closed_at || '').slice(0, 10) <= dateTo)
+    return computeFleetAggregate(filtered, liveBotIds)
   }, [trades, botFamilyMap, direction, family, asset, dateFrom, dateTo, selectedBots, liveBotIds])
 
   return (
