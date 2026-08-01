@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import type { ArticleMeta } from '@/app/blog/page'
 import { BLOG_CATEGORIES, CATEGORY_ORDER, type BlogCategory } from '@/lib/blog-categories'
+import { STRATEGY_FICHES } from '@/lib/strategy-library'
 
 const PINNED_SLUGS = [
   '2026-06-25-momentum-crypto-de-grossing',
@@ -44,7 +45,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
           </a>
           <a href="/strategies" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
             <div className="font-bold text-sm mb-1">📚 Les stratégies</div>
-            <p className="text-xs text-muted">Les 22 stratégies expliquées : quand ça marche, quand ça meurt, et les bots qui les incarnent.</p>
+            <p className="text-xs text-muted">Les {STRATEGY_FICHES.length} stratégies expliquées : quand ça marche, quand ça meurt, et les bots qui les incarnent.</p>
           </a>
           <a href="https://lab.algoproof.fr/agents" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
             <div className="font-bold text-sm mb-1">🤖 Pour ton agent IA</div>
