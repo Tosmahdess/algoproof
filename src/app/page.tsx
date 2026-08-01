@@ -10,6 +10,7 @@ import { getAllBotsWithStats } from '@/lib/queries'
 import { getFunnelCounts } from '@/lib/funnel'
 import { familyColor, familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
+import { STRATEGY_FICHES } from '@/lib/strategy-library'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 
 export const revalidate = 1800
@@ -105,7 +106,7 @@ export default async function HomePage() {
           // showcase content belongs on the showcase domain. Until the lab-side
           // deletion runs, the old link is duplicate content competing with the
           // page it was copied from; after it runs, it is a dead link.
-          { href: '/strategies', emoji: '📚', title: 'Apprendre', desc: 'La bibliothèque des 22 stratégies expliquées en français, et les guides du blog.' },
+          { href: '/strategies', emoji: '📚', title: 'Apprendre', desc: `La bibliothèque des ${STRATEGY_FICHES.length} stratégies expliquées en français, et les guides du blog.` },
         ].map(p => (
           <Link key={p.href} href={p.href} className="bg-card border border-border rounded-xl p-6 hover:border-positive/30 transition-colors group">
             <div className="text-2xl mb-3">{p.emoji}</div>

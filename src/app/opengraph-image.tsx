@@ -1,9 +1,24 @@
 import { ImageResponse } from 'next/og'
+import { getFunnelCounts } from '@/lib/funnel'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export default function Image() {
+export default async function Image() {
+  // An OG image route must never throw. A card that fails to render is worse
+  // than a card without a count. getFunnelCounts() already resolves to null on
+  // error rather than throwing, but wrap it anyway and fall back to wording
+  // with no number at all if the fetch fails for any reason.
+  let botLine = 'données live · zéro faux screenshot'
+  try {
+    const funnel = await getFunnelCounts()
+    if (funnel && Number.isFinite(funnel.n_promoted)) {
+      botLine = `${funnel.n_promoted} bots · données live · zéro faux screenshot`
+    }
+  } catch {
+    // keep the numberless fallback
+  }
+
   return new ImageResponse(
     <div
       style={{
@@ -26,7 +41,7 @@ export default function Image() {
         Trading algo vérifié, chaque trade publié
       </span>
       <span style={{ color: '#8b949e', fontSize: '20px', marginTop: '8px' }}>
-        38 bots · données live · zéro faux screenshot
+        {botLine}
       </span>
     </div>,
     { width: 1200, height: 630 }
