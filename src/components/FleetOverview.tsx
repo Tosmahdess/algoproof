@@ -1,5 +1,5 @@
-// « La flotte » — composes stage 0 (server-rendered, unfilterable) with
-// stages 1+2 (client, filterable, but now seeded server-side — see below).
+// « La flotte » — composes stage 0 + stage 1 (server-rendered, unfilterable)
+// with stage 2 (client, filterable, but now seeded server-side — see below).
 // Deliberately NOT `'use client'` and NOT `async`: it is plain, synchronous
 // JSX so it renders inside the server component tree
 // (`src/app/overview/page.tsx`) exactly like any other server component, and
@@ -26,10 +26,21 @@
 // They are restored HERE, in stage 0, alongside the balance sheet: all three
 // are page-level, unfiltered and cohort-safe, and keeping them on this side of
 // the client boundary means none of them can re-enter the filter pipeline.
+//
+// FIX (layout, real-money cards hoisted): stage 1 (the `fleet-real` section,
+// « Argent réel ») used to render INSIDE FleetRegister — the client component
+// that owns the filter state. That made "real money never enters the filter
+// pipeline" a convention held by a `splitCohorts` call inside the filtering
+// component, not a structural fact. It is computed and rendered HERE now, for
+// the same reason the balance sheet lives here: FleetRegister has no prop
+// path to it at all, so there is nothing left inside the client boundary that
+// could accidentally fold it into a sort or a filter.
 import type { BotWithStats } from '@/lib/types'
 import type { TradeWithBot } from '@/lib/types'
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import { serializeFleetFilters, type FleetFilterState } from '@/lib/bot-filters'
+import { splitCohorts } from '@/lib/cohort'
+import BotCard from '@/components/BotCard'
 import FleetBalance from '@/components/FleetBalance'
 import FleetRecentTrades from '@/components/FleetRecentTrades'
 import FleetRegister from '@/components/FleetRegister'
@@ -67,6 +78,12 @@ export default function FleetOverview({
   cutoff.setDate(cutoff.getDate() - CURVE_DAYS)
   const cutoffStr = cutoff.toISOString().slice(0, 10)
 
+  // Stage 1 (real money) split out here, server-side. `paper` and `archived`
+  // recombine into the set FleetRegister filters — it never sees `live` at
+  // all, not even as a value it chooses not to render.
+  const { live, paper, archived } = splitCohorts(bots)
+  const registerBots = [...paper, ...archived]
+
   // Archived bots are excluded from every aggregate on this page, and a dead
   // bot's flat line is noise on a 30-day chart. Same rule as the balance sheet.
   const curveBots = bots
@@ -90,6 +107,14 @@ export default function FleetOverview({
       </section>
 
       <FleetBalance aggregate={aggregate} />
+
+      {/* ---------- Stage 1 : real money ---------- */}
+      <section data-testid="fleet-real" className="space-y-4">
+        <h2 className="text-xs uppercase tracking-wider text-muted">Argent réel</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {live.map(bot => <BotCard key={bot.slug} bot={bot} />)}
+        </div>
+      </section>
 
       {curveBots.length > 0 && (
         <section data-testid="fleet-equity-curves" className="bg-card border border-border rounded-lg p-6">
@@ -122,7 +147,7 @@ export default function FleetOverview({
       */}
       <FleetRegister
         key={serializeFleetFilters(initialState).toString()}
-        bots={bots}
+        bots={registerBots}
         initialState={initialState}
       />
     </div>

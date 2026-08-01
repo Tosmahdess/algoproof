@@ -87,6 +87,50 @@ describe('FleetOverview — stage 0 invariant', () => {
   })
 })
 
+// FIX (layout, real-money cards hoisted): `fleet-real` used to render inside
+// FleetRegister — a descendant of `fleet-register`, fed by a `splitCohorts`
+// call inside the client component that owns the filter state. It now
+// renders in FleetOverview itself, immediately after `fleet-balance`, on the
+// server side of the tree. This is the invariant that move buys: `fleet-real`
+// is a SIBLING of `fleet-register`, not something reachable by walking down
+// into it — a structural fact any future contributor can see just by reading
+// this component's JSX, not something they have to trust a `splitCohorts`
+// call inside a different file to uphold.
+describe('FleetOverview — real-money cards hoisted out of the register', () => {
+  it('renders fleet-real as a sibling of fleet-register, not a descendant of it', () => {
+    const { container } = render(
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+    )
+    const real = screen.getByTestId('fleet-real')
+    const register = screen.getByTestId('fleet-register')
+    expect(register.contains(real)).toBe(false)
+    // Both present, both children of the same top-level container.
+    expect(container.contains(real)).toBe(true)
+    expect(container.contains(register)).toBe(true)
+  })
+
+  it('places fleet-real immediately after fleet-balance in document order', () => {
+    const { container } = render(
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+    )
+    const html = container.innerHTML
+    const balanceIdx = html.indexOf('data-testid="fleet-balance"')
+    const realIdx = html.indexOf('data-testid="fleet-real"')
+    const curvesIdx = html.indexOf('data-testid="fleet-equity-curves"')
+    expect(balanceIdx).toBeGreaterThanOrEqual(0)
+    expect(realIdx).toBeGreaterThanOrEqual(0)
+    expect(balanceIdx).toBeLessThan(realIdx)
+    expect(realIdx).toBeLessThan(curvesIdx)
+  })
+
+  it('still shows the live bots that used to render inside the register', () => {
+    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
+    const real = screen.getByTestId('fleet-real')
+    expect(within(real).getByText('EMA Cross H4 Kraken Spot')).toBeTruthy()
+    expect(within(real).getByText('ORB H1 HL')).toBeTruthy()
+  })
+})
+
 // Fix round 2 (new Important finding): the whole point of seeding filter
 // state server-side is that the register's real content — bot cards,
 // /strategies links — is present in a single synchronous render() with no
@@ -100,11 +144,14 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
     // CSR bailout were still happening, this component tree would contain an
     // animate-pulse fallback instead of this link, and getByRole would fail
     // synchronously rather than resolving after a suspended child settles.
-    // Scoped to the register: since I1+I2 restored the fleet-wide recent-trades
-    // feed into stage 0, the same bot name is also a link up there.
+    // FIX (layout, real-money cards hoisted): the original pick here, ORB H1
+    // HL, is a `live`-status bot — since the hoist it never enters the
+    // register at all (see FleetRegister's file header), so it can no longer
+    // stand in for "a register link". MACD Volume H4 BF is `paper`, the
+    // momentum family's sole member in the fixture, so it is unambiguous.
     const register = screen.getByTestId('fleet-register')
-    const link = within(register).getByRole('link', { name: /ORB H1 HL/ })
-    expect(link.getAttribute('href')).toBe('/strategies/bot/orb-bf25')
+    const link = within(register).getByRole('link', { name: /MACD Volume H4 BF/ })
+    expect(link.getAttribute('href')).toBe('/strategies/bot/macdvolume-bf11')
   })
 
   it('seeds the register from a non-empty initial filter state (server-parsed searchParams)', () => {
@@ -155,7 +202,7 @@ describe('FleetOverview — restored stage-0 content', () => {
       <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
     )
     const register = screen.getByTestId('fleet-register')
-    for (const id of ['fleet-mi', 'fleet-equity-curves', 'fleet-recent-trades', 'fleet-balance']) {
+    for (const id of ['fleet-mi', 'fleet-equity-curves', 'fleet-recent-trades', 'fleet-balance', 'fleet-real']) {
       expect(register.contains(screen.getByTestId(id))).toBe(false)
     }
 

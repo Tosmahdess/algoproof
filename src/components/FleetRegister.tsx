@@ -1,9 +1,6 @@
 'use client'
-// « La flotte » — stages 1 and 2.
-//
-//   Stage 1  real money, in cards, never mixed into the sort or the pagination.
-//   Stage 2  the laboratory register: filterable, grouped by strategy,
-//            archived collapsed at the bottom.
+// « La flotte » — stage 2: the laboratory register. Filterable, grouped by
+// strategy, archived collapsed at the bottom.
 //
 // Renamed from FleetClient (fix round 1, C1): this component no longer
 // receives `aggregate` at all — the balance sheet (stage 0) moved to the
@@ -11,6 +8,16 @@
 // boundary entirely. That is what makes "filters cannot reach the balance"
 // a structural fact again instead of only a convention backed by a test:
 // there is no prop path from here to there.
+//
+// FIX (layout, real-money cards hoisted): stage 1 (real money, `fleet-real`)
+// used to render here too, fed by a `splitCohorts(bots)` call — meaning "real
+// money never enters the filter pipeline" only held because nothing below
+// this comment happened to read `live`. It is gone from this file now.
+// `FleetOverview` computes the split server-side and hands this component
+// only the bots it is actually meant to filter: no `live` cohort, no prop
+// path to it, nothing to accidentally sort or paginate. `bots` below IS the
+// laboratory register set (paper + archived already combined) — not the
+// full fleet.
 //
 // FIX round 2 (new Important finding): no `useSearchParams()` here at all
 // anymore, and no `<Suspense>` boundary around this component either (see
@@ -33,13 +40,14 @@ import {
 } from '@/lib/bot-filters'
 import { sortFleet } from '@/lib/fleet-sort'
 import { groupByStrategy } from '@/lib/fleet-grouping'
-import { splitCohorts } from '@/lib/cohort'
 import { isLowSample } from '@/lib/display'
-import BotCard from '@/components/BotCard'
 import StatusBadge from '@/components/StatusBadge'
 import FleetFilterBar from '@/components/FleetFilterBar'
 
 export interface FleetRegisterProps {
+  /** The laboratory register set only — paper + archived, already combined
+   * by `FleetOverview`. Never includes a `live` bot; there is no `live`
+   * cohort to derive here anymore. */
   bots: BotWithStats[]
   initialState: FleetFilterState
 }
@@ -109,14 +117,12 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
 
   const reset = useCallback(() => push(EMPTY_FILTERS), [push])
 
-  const { live, paper, archived } = useMemo(() => splitCohorts(bots), [bots])
-
-  // Stage 2 only. `live` never enters the filter pipeline.
-  const registerBots = useMemo(() => [...paper, ...archived], [paper, archived])
-  const filtered = useMemo(() => applyFleetFilters(registerBots, state), [registerBots, state])
+  // `bots` IS the register set (see FleetRegisterProps) — no split, no
+  // `live` cohort to exclude here, because FleetOverview never included it.
+  const filtered = useMemo(() => applyFleetFilters(bots, state), [bots, state])
   const sorted = useMemo(() => sortFleet(filtered, state.sort, state.dir), [filtered, state])
-  const counts = useMemo(() => optionCounts(registerBots, state), [registerBots, state])
-  const emptyMessage = useMemo(() => describeEmptyResult(registerBots, state), [registerBots, state])
+  const counts = useMemo(() => optionCounts(bots, state), [bots, state])
+  const emptyMessage = useMemo(() => describeEmptyResult(bots, state), [bots, state])
 
   const activeGroups = useMemo(
     () => groupByStrategy(sorted.filter(b => b.status !== 'archived')),
@@ -131,14 +137,6 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     // is inert to the exact bug that round found (filtering silently doing
     // nothing).
     <div data-testid="fleet-register" className="space-y-12">
-      {/* ---------- Stage 1 : real money ---------- */}
-      <section data-testid="fleet-real" className="space-y-4">
-        <h2 className="text-xs uppercase tracking-wider text-muted">Argent réel</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          {live.map(bot => <BotCard key={bot.slug} bot={bot} />)}
-        </div>
-      </section>
-
       {/* ---------- Stage 2 : the laboratory register ---------- */}
       <section className="space-y-4">
         <h2 className="text-xs uppercase tracking-wider text-muted">Laboratoire · simulation</h2>
