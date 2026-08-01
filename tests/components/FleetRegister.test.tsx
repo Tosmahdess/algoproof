@@ -17,21 +17,36 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => null }))
 })
 
+// FleetRegister now only ever receives the register set — paper + archived,
+// with `live` already excluded by FleetOverview before this component sees
+// a single prop (see FleetOverview.tsx and FleetRegister's own file header).
+// Filtering here mirrors that real contract, so these tests exercise the
+// component the way it is actually used rather than a scenario (a `live` bot
+// reaching the register) that can no longer happen.
+const REGISTER_FIXTURE = FIXTURE_FLEET.filter(b => b.status !== 'live')
+
 describe('FleetRegister', () => {
-  it('pins real-money bots to their own stage, outside the filterable register', () => {
+  // FIX (layout, real-money cards hoisted): the `fleet-real` section used to
+  // render inside this component, fed by its own `splitCohorts` call. It is
+  // gone from FleetRegister's JSX entirely now — moved to FleetOverview,
+  // which sits above FleetBalance instead. Passing the FULL fixture (still
+  // containing `live`-status bots) here is deliberate: it proves the absence
+  // is structural — this component has no code path left that could render a
+  // `fleet-real` section, even if it were handed a `live` bot by mistake.
+  // The equivalent positive assertion (fleet-real IS present, as a sibling of
+  // fleet-balance) lives in FleetOverview.test.tsx, where that section now is.
+  it('never renders a real-money section — that moved to FleetOverview', () => {
     render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
-    const real = screen.getByTestId('fleet-real')
-    expect(within(real).getByText('EMA Cross H4 Kraken Spot')).toBeTruthy()
-    expect(within(real).getByText('ORB H1 HL')).toBeTruthy()
+    expect(screen.queryByTestId('fleet-real')).toBeNull()
   })
 
   it('lists a deployed bot that has never traded', () => {
-    render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
+    render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
     expect(screen.getAllByText(/Ichimoku/).length).toBeGreaterThan(0)
   })
 
   it('collapses archived bots but keeps them present', () => {
-    render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
+    render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
     const archived = screen.getByTestId('fleet-archived')
     expect(archived.tagName.toLowerCase()).toBe('details')
     expect(archived.hasAttribute('open')).toBe(false)
@@ -41,12 +56,12 @@ describe('FleetRegister', () => {
   })
 
   it('shows a count next to every family option', () => {
-    render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
+    render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
     expect(screen.getByRole('button', { name: /Momentum \(1\)/ })).toBeTruthy()
   })
 
   it('names the responsible filter when a combination returns nothing', () => {
-    render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
+    render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
     fireEvent.click(screen.getByRole('button', { name: /Portage/ }))
     fireEvent.click(screen.getByRole('button', { name: /Kraken/ }))
     expect(screen.getByTestId('fleet-empty').textContent).toMatch(/Kraken|Portage/)
@@ -58,7 +73,7 @@ describe('FleetRegister', () => {
   // navigation does) and dispatching `popstate` ourselves, then checking the
   // register re-filters to match.
   it('re-parses filter state from the URL on popstate (back/forward navigation)', () => {
-    render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
+    render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
     // Unfiltered: both the trend-family dormant bot and the carry-family bot show.
     expect(screen.getAllByText(/Ichimoku/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Funding Rate Harvesting/).length).toBeGreaterThan(0)

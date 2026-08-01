@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, fireEvent } from '@testing-library/react'
 import FleetBalance from '@/components/FleetBalance'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { fmtEur } from '@/lib/display'
@@ -14,6 +14,23 @@ const AGG = computeFleetAggregate(
     { bot_id: 'id-1', pnl: 40, closed_at: '2026-07-01T00:00:00Z', side: 'long', asset: 'BTC' },
     { bot_id: 'id-99', pnl: -60, closed_at: '2026-07-02T00:00:00Z', side: 'short', asset: 'ETH' },
   ],
+  ['id-1'],
+)
+
+// FIX (layout, day table pagination): nine distinct trading days, so
+// `aggregate.rows` has more than the 7-row default of FleetDayTable — needed
+// to exercise the « Afficher plus » expand behaviour from FleetBalance's
+// side, and specifically to prove that expanding it does not touch
+// FleetBalance's own headline props (FleetDayTable receives `rows` and
+// nothing else — see FleetDayTable.tsx).
+const MANY_DAYS = computeFleetAggregate(
+  Array.from({ length: 9 }, (_, i) => ({
+    bot_id: i % 2 === 0 ? 'id-1' : 'id-99',
+    pnl: 10,
+    closed_at: `2026-07-${String(i + 1).padStart(2, '0')}T00:00:00Z`,
+    side: 'long',
+    asset: 'BTC',
+  })),
   ['id-1'],
 )
 
@@ -78,5 +95,50 @@ describe('FleetBalance — stage 0', () => {
     const stage0 = screen.getByTestId('fleet-balance')
     expect(stage0.textContent).not.toMatch(/%/)
     expect(stage0.textContent).not.toMatch(/profit/i)
+  })
+})
+
+// FIX (layout, day table pagination): the table used to be rendered
+// inline by FleetBalance itself; it now lives in FleetDayTable, a client
+// component fed `rows` and nothing else. The assertion that matters here is
+// not "the button works" (FleetDayTable.test.tsx covers that in isolation)
+// but that expanding it, from inside FleetBalance, leaves the headline
+// figures — the two numbers this whole component exists to keep unfused and
+// unfilterable — exactly as they were.
+describe('FleetBalance — day-by-day table pagination', () => {
+  it('collapses the journal to 7 rows behind an "Afficher plus" button that names the hidden count', () => {
+    render(<FleetBalance aggregate={MANY_DAYS} />)
+    const table = screen.getByTestId('fleet-balance-table')
+    expect(within(table).getAllByRole('row')).toHaveLength(8) // header + 7
+    expect(
+      screen.getByRole('button', { name: `Afficher plus (${MANY_DAYS.rows.length - 7} jours)` }),
+    ).toBeTruthy()
+  })
+
+  it('leaves the headline balance and totals unchanged after expanding the day table', () => {
+    render(<FleetBalance aggregate={MANY_DAYS} />)
+    const stage0 = screen.getByTestId('fleet-balance')
+    const headlineBefore = within(stage0).getByText(fmtEur(MANY_DAYS.totalPnlReal)).textContent
+    const laboBefore = within(stage0).getByText(fmtEur(MANY_DAYS.totalPnlLabo)).textContent
+    const tradesLineBefore = screen.getByText(/trades depuis le début/).textContent
+
+    fireEvent.click(screen.getByRole('button', { name: /Afficher plus/ }))
+
+    // The table itself did expand — all 9 days now on screen, label flipped.
+    const table = within(stage0).getByTestId('fleet-balance-table')
+    expect(within(table).getAllByRole('row')).toHaveLength(1 + MANY_DAYS.rows.length)
+    expect(screen.getByRole('button', { name: 'Afficher moins' })).toBeTruthy()
+
+    // But the balance sheet above it — the thing FleetBalance actually owns —
+    // never moved.
+    expect(within(stage0).getByText(fmtEur(MANY_DAYS.totalPnlReal)).textContent).toBe(headlineBefore)
+    expect(within(stage0).getByText(fmtEur(MANY_DAYS.totalPnlLabo)).textContent).toBe(laboBefore)
+    expect(screen.getByText(/trades depuis le début/).textContent).toBe(tradesLineBefore)
+  })
+
+  it('renders no button when the fleet has 7 days of history or fewer', () => {
+    render(<FleetBalance aggregate={AGG} />)
+    const stage0 = screen.getByTestId('fleet-balance')
+    expect(within(stage0).queryByRole('button')).toBeNull()
   })
 })
