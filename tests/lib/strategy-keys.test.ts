@@ -123,10 +123,10 @@ describe('coverage of the library by the deployed fleet', () => {
     ])
   })
 
-  it('six deployed bots run something no fiche describes', () => {
+  it('five deployed bots run something no fiche describes', () => {
     const orphans = Object.entries(FICHE_BY_LEGACY_BOT_SLUG).filter(([, v]) => v === null)
     expect(orphans.map(([s]) => s)).toEqual([
-      'breakout-hl-sol', 'combobbrsi-bf9', 'funding-rate-harvest',
+      'combobbrsi-bf9', 'funding-rate-harvest',
       'grid-btc-spot', 'funding-rev-long', 'wvolbreak-bf28',
     ])
   })

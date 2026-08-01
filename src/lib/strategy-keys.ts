@@ -37,7 +37,14 @@ import type { FicheSlug } from './strategy-library'
  * and permanent answer, not a gap waiting to be filled.
  */
 export const FICHE_BY_LEGACY_BOT_SLUG: Record<string, FicheSlug | null> = {
-  'breakout-hl-sol': null,            // Asia session breakout, no fiche
+  // The sync describes this bot's entry as: the range formed during the Asian
+  // night defines the key levels, and the break at the European or American
+  // open generates the entry. That is the `orb` fiche's own claim — "le range
+  // d'ouverture d'une session, puis sa cassure", 5-to-15-minute timeframes —
+  // with one difference: this bot takes the PRIOR session's range rather than
+  // the opening minutes of the traded one. Close enough that they share a page
+  // (owner's call, 2026-07-31).
+  'breakout-hl-sol': 'orb',
   'atrchannel-bf26': 'atr-channel',
   'combobbrsi-bf9': null,             // BB+RSI combo, no single fiche
   'bbsqueeze-bf10': 'bollinger',
