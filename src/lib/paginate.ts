@@ -1,7 +1,7 @@
 // Fetch every row across PostgREST/Supabase pages.
 // Supabase enforces a hard server-side row cap (db-max-rows, 1000 here) that
 // .limit()/.range() cannot exceed in a single request — so callers that need the
-// FULL set (e.g. /performance summing every trade) must page through with .range().
+// FULL set (e.g. /overview summing every trade) must page through with .range().
 export async function paginateAll<T>(
   fetchPage: (from: number, to: number) => Promise<T[]>,
   pageSize = 1000,

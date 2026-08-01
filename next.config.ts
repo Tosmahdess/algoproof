@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
       { source: '/blog/:date(\\d{4}-\\d{2}-\\d{2})-journal', destination: '/blog', permanent: true },
       // Screening dossiers moved to the lab 2026-07-22: this path was live and deployed here first.
       { source: '/strategies/famille/:base', destination: 'https://lab.algoproof.fr/moteur-backtest/:base', permanent: true },
+      // /performance folded into /overview 2026-07-31: the two pages answered the
+      // same question at two scales off the same query. The aggregate now lives as
+      // the unfilterable stage 0 of « La flotte ». Permanent, and note the sitemap
+      // never listed /performance so the SEO cost is nil.
+      { source: '/performance', destination: '/overview', permanent: true },
     ]
   },
 

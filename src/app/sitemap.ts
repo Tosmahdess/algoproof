@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { getBotSlugs } from '@/lib/queries'
 import { getFicheSitemapData } from '@/lib/equity'
+import { STRATEGY_FICHES } from '@/lib/strategy-library'
 
 function getBlogSlugs(): string[] {
   try {
@@ -27,11 +28,20 @@ export default async function sitemap() {
     priority: 0.6,
   }))
 
-  const strategyUrls = slugs.map(slug => ({
-    url: `https://algoproof.fr/strategies/${slug}`,
+  // Bot fiches: real, but they churn as the engine promotes and archives.
+  const botUrls = slugs.map(slug => ({
+    url: `https://algoproof.fr/strategies/bot/${slug}`,
     lastModified: new Date(),
-    changeFrequency: 'hourly' as const,
-    priority: 1.0,
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
+  }))
+
+  // Concept pages: stable URLs that survive bot turnover. This is the SEO surface.
+  const conceptUrls = STRATEGY_FICHES.map(f => ({
+    url: `https://algoproof.fr/strategies/${f.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.9,
   }))
 
   return [
@@ -40,6 +50,19 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: 'hourly' as const,
       priority: 1.0,
+    },
+    // FIX (final whole-branch review, I3): /overview was the one page missing
+    // from this list. It absorbed /performance (see next.config.ts redirects),
+    // carries the FAQ JSON-LD, and its own source comment says it is meant to
+    // be indexed — while the 22 concept pages below sit at 0.9. Listed at the
+    // bare path only: the family/status/venue/asset/tf/sort parameter space is
+    // disallowed in robots.ts and must never enter the sitemap (asserted in
+    // tests/lib/sitemap-canonical.test.ts).
+    {
+      url: 'https://algoproof.fr/overview',
+      lastModified: new Date(),
+      changeFrequency: 'hourly' as const,
+      priority: 0.9,
     },
     {
       url: 'https://algoproof.fr/strategies',
@@ -100,6 +123,7 @@ export default async function sitemap() {
       priority: 0.7,
     })),
     ...ficheUrls,
-    ...strategyUrls,
+    ...botUrls,
+    ...conceptUrls,
   ]
 }

@@ -1,5 +1,7 @@
 # Asset Filter Implementation Plan
 
+> **SUPERSEDED (2026-07-31, refonte frontière).** Do not execute. Tasks below edit `PerformanceClient.tsx`, `OverviewClient.tsx`, `StrategiesClient.tsx` and the `/performance` route, all of which were deleted on this branch (`/performance` is absorbed by `/overview`, `/strategies` is now the concept library). What survives: Task 6 (`StrategyDetail` + `AssetFilterSelect` on a bot fiche) is live, and the fleet-wide filter shipped instead as the `asset` facet of `src/lib/bot-filters.ts` (`?asset=` in the URL, with no dedicated control in `FleetFilterBar` as of today). Kept as a record of the original design.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a per-asset filter (BTC, ETH, SOL…) that recomputes the displayed figures on the four bot/fleet pages of algoproof.fr.

@@ -5,7 +5,10 @@ import TrackedLink from '@/components/TrackedLink'
 import StatusBadge from '@/components/StatusBadge'
 import EmailCapture from '@/components/EmailCapture'
 import TVTickerTapeIsland from '@/components/TVTickerTapeIsland'
+import FunnelCounter from '@/components/FunnelCounter'
 import { getAllBotsWithStats } from '@/lib/queries'
+import { getFunnelCounts } from '@/lib/funnel'
+import { familyColor, familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 
@@ -16,26 +19,17 @@ export const metadata: Metadata = {
   description: 'Je fais tourner des bots de trading en réel et j\'expose chaque trade — gains et pertes. Résultats vérifiables, mis à jour chaque heure. Labo de recherche transparent, en français.',
 }
 
-const FAMILY_COLOR: Record<string, string> = {
-  'trend':           '#ff6b35',
-  'breakout':        '#3fb950',
-  'mean-reversion':  '#7c3aed',
-  'carry':           '#f6c90e',
-  'market-neutral':  '#14b8a6',
-}
-
-const FAMILY_LABEL: Record<string, string> = {
-  'trend':           'Suivi de tendance',
-  'breakout':        'Cassure',
-  'mean-reversion':  'Retour à la moyenne',
-  'carry':           'Portage',
-  'market-neutral':  'Marché neutre',
-}
+// FIX (final review, C1 follow-on): these were two local five-entry maps with
+// `?? '#888'` / `?? '—'` fallbacks, so a momentum, price-action, stat-arb or
+// event bot rendered its family as a grey dash — and this page said « Marché
+// neutre » where families.ts says « Neutre au marché », the exact divergence
+// C1 called out on /strategies. Both now come from the taxonomy itself.
 
 export default async function HomePage() {
   // Archived bots stay listed on /strategies (with a badge) but are excluded from
   // the homepage headline counts and ranking.
-  const bots = excludeArchived(await getAllBotsWithStats())
+  const [allBots, funnel] = await Promise.all([getAllBotsWithStats(), getFunnelCounts()])
+  const bots = excludeArchived(allBots)
   // Live = real money (v1-spot, orb-bf25) ; the rest is the laboratoire (simulation).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
   const { live: liveBots, paper: paperBots } = splitCohorts(bots)
@@ -86,6 +80,9 @@ export default async function HomePage() {
             et un cimetière public de stratégies rejetées
           </a>
         </div>
+        <div className="mt-4 max-w-xl mx-auto text-left">
+          <FunnelCounter counts={funnel} />
+        </div>
       </div>
 
       {/* Ambiance ticker — live crypto prices, purely decorative (no trading signal) */}
@@ -96,10 +93,19 @@ export default async function HomePage() {
       {/* Les 4 portes — router by interest, not by skill level */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
         {[
-          { href: '/overview',     emoji: '🤖', title: 'Mes bots',  desc: 'Regarde mes bots trader en vrai, chaque trade horodaté.' },
+          // FIX (final whole-branch review, label drift): /overview is « La
+          // flotte » in the nav and the footer; it was « Mes bots » here and on
+          // /a-propos. One page, one name.
+          { href: '/overview',     emoji: '🤖', title: 'La flotte',  desc: 'Regarde mes bots trader en vrai, chaque trade horodaté.' },
           { href: '/wealth',       emoji: '💰', title: 'Investir',  desc: 'Ma watchlist long terme et mes points d\'entrée.' },
           { href: '/intelligence', emoji: '🌤️', title: 'Météo du marché', desc: 'La météo du marché, en français, chaque jour.' },
-          { href: 'https://lab.algoproof.fr/apprendre', emoji: '📚', title: 'Apprendre', desc: 'Tutoriels pas à pas dans le labo, bibliothèque des 22 stratégies, et les guides du blog.' },
+          // FIX (final whole-branch review, I6): the « bibliothèque des 22
+          // stratégies » pointed at lab.algoproof.fr/apprendre. This branch
+          // moved that library HERE, to /strategies, on the argument that
+          // showcase content belongs on the showcase domain. Until the lab-side
+          // deletion runs, the old link is duplicate content competing with the
+          // page it was copied from; after it runs, it is a dead link.
+          { href: '/strategies', emoji: '📚', title: 'Apprendre', desc: 'La bibliothèque des 22 stratégies expliquées en français, et les guides du blog.' },
         ].map(p => (
           <Link key={p.href} href={p.href} className="bg-card border border-border rounded-xl p-6 hover:border-positive/30 transition-colors group">
             <div className="text-2xl mb-3">{p.emoji}</div>
@@ -141,12 +147,12 @@ export default async function HomePage() {
       <div className="mb-16">
         <h2 className="text-xl font-bold mb-6">Ce qui travaille en ce moment</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link href="/strategies/orb-bf25" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
+          <Link href="/strategies/bot/orb-bf25" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
             <h3 className="text-lg font-bold mb-2">En argent réel</h3>
             <p className="text-muted text-sm">ORB H1 tourne sur Hyperliquid avec mon capital. Chaque trade, chaque perte, publié à l&apos;heure.</p>
             <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir le bot →</span>
           </Link>
-          <Link href="/strategies/funding-rev-long" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
+          <Link href="/strategies/bot/funding-rev-long" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
             <h3 className="text-lg font-bold mb-2">Le dernier arrivé</h3>
             <p className="text-muted text-sm">Funding Reversal a passé mon gate de validation le 30 juin : contrarien sur les extrêmes de funding, long only. En paper : 40 trades exigés avant le moindre euro réel.</p>
             <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir le bot →</span>
@@ -175,13 +181,13 @@ export default async function HomePage() {
           const eur     = pnlEur(bot.stats.latest_capital, bot.start_capital)
           const pct     = pnlPct(bot.stats.latest_capital, bot.start_capital)
           return (
-            <Link key={bot.id} href={`/strategies/${bot.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
+            <Link key={bot.id} href={`/strategies/bot/${bot.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
               <span className="text-xs text-muted font-mono w-6 flex-shrink-0">#{i + 1}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium truncate">{bot.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] font-semibold uppercase" style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
-                    {FAMILY_LABEL[bot.family ?? ''] ?? '—'}
+                  <span className="text-[10px] font-semibold uppercase" style={{ color: familyColor(bot.family) }}>
+                    {familyLabel(bot.family)}
                   </span>
                   {hasData && <span className="text-[10px] text-muted">{bot.stats.total_trades} trades</span>}
                 </div>
@@ -220,12 +226,12 @@ export default async function HomePage() {
               return (
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/strategies/${bot.slug}`} className="font-medium hover:text-positive transition-colors">{bot.name}</Link>
+                    <Link href={`/strategies/bot/${bot.slug}`} className="font-medium hover:text-positive transition-colors">{bot.name}</Link>
                     <p className="text-muted text-[10px] mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: FAMILY_COLOR[bot.family ?? ''] ?? '#888' }}>
-                      {FAMILY_LABEL[bot.family ?? ''] ?? '—'}
+                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: familyColor(bot.family) }}>
+                      {familyLabel(bot.family)}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
@@ -282,9 +288,9 @@ export default async function HomePage() {
           <p className="text-muted text-sm">Journal de bord, revues hebdo, autopsies de stratégies, fiscalité et MiCA. Tout est documenté.</p>
           <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Lire les articles →</span>
         </Link>
-        <Link href="/performance" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
-          <h2 className="text-xl font-bold mb-2">Performance</h2>
-          <p className="text-muted text-sm">P&amp;L journalier filtrable — direction, famille, période. Les chiffres bruts, sans filtre.</p>
+        <Link href="/overview" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
+          <h2 className="text-xl font-bold mb-2">La flotte</h2>
+          <p className="text-muted text-sm">Ce qui tourne, avec quel argent, et le bilan brut.</p>
           <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir les résultats →</span>
         </Link>
       </div>

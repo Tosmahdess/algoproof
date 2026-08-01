@@ -38,6 +38,41 @@ export default function PreuvePage() {
       </section>
 
       <section>
+        <h2 className="text-lg mb-3">Ce qui est gratuit, ce qui le restera, et ce qui ne le sera pas</h2>
+        <p className="text-sm mb-3">
+          Le labo est gratuit aujourd&apos;hui, sans compte et sans limite. Il passera
+          au payant un jour, et je préfère dire tout de suite où passera la ligne
+          plutôt que de te le faire découvrir le jour où ça change.
+        </p>
+        <p className="text-sm mb-3">
+          Tout ce que mes bots font restera public, gratuitement, pour toujours :
+          leurs trades, leurs pertes, leur historique, et le cimetière des
+          stratégies que j&apos;ai tuées. Tu pourras toujours les voir tourner, avec
+          leurs chiffres.
+        </p>
+        <p className="text-sm mb-3">
+          Ce qui deviendra payant, c&apos;est la configuration exacte d&apos;un bot
+          et son dossier de validation complet : les paramètres, les filtres, et la
+          preuve étape par étape de la façon dont cette configuration a été retenue
+          contre les milliers de voisines qui sont mortes. Dit autrement :{' '}
+          <strong>ce que mes bots font restera gratuit, comment ils ont gagné le
+          droit de tourner se paiera</strong>.
+        </p>
+        <p className="text-sm mb-3">
+          Je ne cacherai aucun résultat. Je ne donnerai pas mes réglages : c&apos;est
+          la seule chose que je vendrai. Le cimetière, lui, restera ouvert à tout le
+          monde : les stratégies qui meurent sont la partie la plus utile de ce
+          site, et personne ne devrait avoir à payer pour savoir ce qui ne marche
+          pas.
+        </p>
+        <p className="text-sm">
+          Un abonnement donnera accès à de la recherche et à un outil. Il ne
+          promettra aucun gain, ne donnera aucun conseil, et ne s&apos;occupera
+          jamais de l&apos;argent de qui que ce soit.
+        </p>
+      </section>
+
+      <section>
         <p className="text-sm">
           <Link href="/blog" className="text-accent">Lis mes autopsies de stratégies sur le blog →</Link>
         </p>

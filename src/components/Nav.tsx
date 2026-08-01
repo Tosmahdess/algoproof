@@ -6,9 +6,8 @@ import { useState } from 'react'
 
 // "Mes bots" hub — dropdown over the live-proof sub-pages
 const MES_BOTS_SUB = [
-  { href: '/overview',    label: 'Vue d\'ensemble' },
+  { href: '/overview',    label: 'La flotte' },
   { href: '/strategies',  label: 'Les stratégies' },
-  { href: '/performance', label: 'Performance' },
   { href: '/journal',     label: 'Ce qui a changé' },
 ]
 const MES_BOTS_PATHS = MES_BOTS_SUB.map(x => x.href)

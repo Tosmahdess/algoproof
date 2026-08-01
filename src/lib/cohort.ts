@@ -2,7 +2,7 @@
 // Cohort helpers for bot listing vs aggregate stats.
 //
 // `archived` bots stay VISIBLE in the bot lists (/strategies) with a badge,
-// but are excluded from every aggregate number (fleet P&L, counters, /performance)
+// but are excluded from every aggregate number (fleet P&L, counters, /overview)
 // and from the stats dashboards. This is the only difference with `frozen`,
 // which is hidden everywhere.
 

@@ -7,6 +7,20 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
+// FIX round 3 (Finding B): getAllBotsWithStats/getAllTradesForAggregate are
+// now wrapped in next/cache's unstable_cache. That cache requires a real
+// Next.js request runtime ("Invariant: incrementalCache missing") — calling
+// it directly from a Vitest process throws. Mocked here as a pass-through
+// identity wrapper, the standard way to unit-test code that uses
+// unstable_cache in isolation: it keeps getAllBotsWithStats/
+// getAllTradesForAggregate behaviourally identical to their *Uncached
+// counterparts for these tests (each test still gets a fresh mock, since
+// there is no actual caching happening), while the real cache only ever
+// activates inside an actual Next.js server request.
+vi.mock('next/cache', () => ({
+  unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
+}))
+
 import { supabase } from '@/lib/supabase'
 import { getBots, getBotSlugs, getTriggerData, getBotWithStats, getAllBotsWithStats } from '@/lib/queries'
 
@@ -18,6 +32,7 @@ const mockChain = (data: unknown, error: unknown = null) => {
     then: (resolve: (v: unknown) => unknown) => Promise.resolve(terminal).then(resolve),
     select: vi.fn().mockReturnThis(),
     neq:    vi.fn().mockReturnThis(),
+    not:    vi.fn().mockReturnThis(),
     eq:     vi.fn().mockReturnThis(),
     // order is chainable (the chain is itself thenable, so awaiting after .order()
     // still resolves) so that paginated fetches can call .range() after .order().
@@ -49,6 +64,22 @@ describe('getBots', () => {
     vi.mocked(supabase.from).mockReturnValue(mockChain(null, { message: 'db error' }))
     await expect(getBots()).rejects.toThrow('db error')
   })
+
+  // FIX (final review, C3): `backtest` bots — engine candidates that were never
+  // deployed — were excluded only inside bot-filters.ts's isPubliclyVisible,
+  // which /overview's register goes through but /strategies and the home page
+  // preview do not (both read getAllBotsWithStats → getBots directly, and
+  // splitCohorts buckets `backtest` into `paper`). A candidate was therefore
+  // hidden on one page out of three. The rule now lives at the query, so no
+  // consumer can forget it.
+  it('excludes frozen AND backtest at the query, not just downstream', async () => {
+    const chain = mockChain([])
+    vi.mocked(supabase.from).mockReturnValue(chain)
+    await getBots()
+    expect(chain.not).toHaveBeenCalledWith('status', 'in', '("frozen","backtest")')
+    // and never the old rule, which let backtest candidates through
+    expect(chain.neq).not.toHaveBeenCalledWith('status', 'frozen')
+  })
 })
 
 describe('getBotSlugs', () => {
@@ -69,6 +100,23 @@ describe('getBotSlugs', () => {
   it('throws on Supabase error', async () => {
     vi.mocked(supabase.from).mockReturnValue(mockChain(null, { message: 'slugs error' }))
     await expect(getBotSlugs()).rejects.toThrow('slugs error')
+  })
+
+  // Same rule as getBots: a backtest candidate must not get a
+  // /strategies/bot/<slug> page.
+  //
+  // FIX (final whole-branch review, C1): this used to say "must not get a
+  // STATICALLY GENERATED page", and that qualifier was the hole. All three
+  // slug routes set `dynamicParams = true`, so being absent from
+  // generateStaticParams only means the page is rendered on demand instead of
+  // at build time — it does not mean the URL 404s. The real guard is in
+  // getBotWithStats; see its own describe block below.
+  it('excludes frozen AND backtest at the query', async () => {
+    const chain = mockChain([])
+    vi.mocked(supabase.from).mockReturnValue(chain)
+    await getBotSlugs()
+    expect(chain.not).toHaveBeenCalledWith('status', 'in', '("frozen","backtest")')
+    expect(chain.neq).not.toHaveBeenCalledWith('status', 'frozen')
   })
 })
 
@@ -241,6 +289,29 @@ describe('getBotWithStats', () => {
     expect(result!.stats.total_trades).toBe(25)
   })
 
+  // FIX (final whole-branch review, C1): fetching by slug has to enforce the
+  // same visibility rule the listings do. Without this, an engine candidate
+  // that never ran was reachable on three public surfaces by guessing one URL.
+  // Asserted here rather than only per-route because this is the single place
+  // all three routes share.
+  it('returns null for a backtest candidate, so no slug route can render one', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain({ ...MOCK_BOT, status: 'backtest' }))
+    expect(await getBotWithStats('candidate-never-deployed')).toBeNull()
+  })
+
+  it('returns null for a frozen bot, which is hidden on every other surface', async () => {
+    vi.mocked(supabase.from).mockReturnValueOnce(mockChain({ ...MOCK_BOT, status: 'frozen' }))
+    expect(await getBotWithStats('some-frozen-bot')).toBeNull()
+  })
+
+  it('stops before fetching trades for a hidden bot', async () => {
+    // The guard must short-circuit, not filter after the fact: a candidate's
+    // trade history is not something to fetch and then discard.
+    vi.mocked(supabase.from).mockReturnValue(mockChain({ ...MOCK_BOT, status: 'backtest' }))
+    await getBotWithStats('candidate-never-deployed')
+    expect(vi.mocked(supabase.from)).toHaveBeenCalledTimes(1)
+  })
+
   it('returns spread bot fields on the result', async () => {
     vi.mocked(supabase.from)
       .mockReturnValueOnce(mockChain(MOCK_BOT))
@@ -260,6 +331,17 @@ describe('getAllBotsWithStats', () => {
     vi.mocked(supabase.from).mockReturnValue(mockChain([]))
     const result = await getAllBotsWithStats()
     expect(result).toEqual([])
+  })
+
+  // getAllBotsWithStats is the single source /strategies (the concept index
+  // and each concept page's incarnations list) and the home page preview both
+  // read. Neither applies isPubliclyVisible, so the exclusion has to be
+  // inherited from getBots — assert it survives the wrapper.
+  it('inherits the backtest exclusion, so /strategies and the home preview cannot show a candidate', async () => {
+    const chain = mockChain([])
+    vi.mocked(supabase.from).mockReturnValue(chain)
+    await getAllBotsWithStats()
+    expect(chain.not).toHaveBeenCalledWith('status', 'in', '("frozen","backtest")')
   })
 
   it('throws when getBotWithStats returns null for a listed bot', async () => {

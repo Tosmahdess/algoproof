@@ -1,5 +1,6 @@
-// src/app/strategies/[slug]/page.tsx
+// src/app/strategies/bot/[slug]/page.tsx
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import StatusBadge from '@/components/StatusBadge'
 import StrategyDetail from '@/components/StrategyDetail'
@@ -13,10 +14,13 @@ import PathToRealCard from '@/components/PathToRealCard'
 import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
+import SampleNote from '@/components/SampleNote'
 import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { getProvenanceForBot } from '@/lib/screening'
+import { ficheSlugForBot } from '@/lib/strategy-keys'
+import { provenanceSentence, dossierHref } from '@/lib/provenance'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -39,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: `${bot.name} — performance live : WR ${(bot.stats.win_rate * 100).toFixed(1)}%, PF ${bot.stats.profit_factor.toFixed(2)}. ${bot.exchange} · ${bot.timeframe}. Chaque trade vérifié sur AlgoProof.`,
     openGraph: {
       type: 'website',
-      url: `https://algoproof.fr/strategies/${slug}`,
+      url: `https://algoproof.fr/strategies/bot/${slug}`,
     },
   }
 }
@@ -55,6 +59,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   // returns null both when this bot was never screened and when the screening tables
   // don't exist yet in this environment.
   const provenance = await getProvenanceForBot(bot.slug)
+  const conceptSlug = ficheSlugForBot(bot)
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-16">
@@ -70,11 +75,38 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         </div>
         <h1 className="text-3xl font-bold mb-2">{bot.name}</h1>
         <p className="text-muted">{bot.strategy}</p>
+        {/* The third edge of the graph. /overview groups this bot under its
+            strategy and /strategies/<concept> explains that strategy and lists
+            this bot — and from here there was no way back to either. Absent,
+            not broken, when no fiche claims this bot: six of the 27 deployed
+            bots run something no fiche describes (grid, delta-neutral carry,
+            funding reversal…). */}
+        {conceptSlug && (
+          <p className="text-sm mt-1 mb-2">
+            <Link href={`/strategies/${conceptSlug}`} className="text-accent hover:underline">
+              La stratégie derrière ce bot →
+            </Link>
+          </p>
+        )}
         <p className="text-xs text-muted mb-4 max-w-2xl">
           Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
           La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux en argent réel sont marqués « live ».
         </p>
       </div>
+
+      {/* Provenance: where this bot came from — engine-born or hand-deployed — and when */}
+      <p className="text-xs text-muted mb-4">
+        {provenanceSentence(bot)}
+        {dossierHref(bot) && (
+          <>
+            {' '}
+            <a href={dossierHref(bot)!} className="text-accent underline"
+               target="_blank" rel="noopener noreferrer">
+              Voir le dossier de validation
+            </a>
+          </>
+        )}
+      </p>
 
       {/* Provenance: which screening campaign this bot came from, and how narrow its margin was */}
       {provenance && (
@@ -86,6 +118,17 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
       {/* Novice layer: plain-FR summary (only for bots with a documented envelope) */}
       {expectations?.threeSentences && <ThreeSentences data={expectations.threeSentences} />}
+
+      {/* Honest dormancy / low-sample note — applies to every bot, documented
+          envelope or not, unlike ConformityCard's dormancyNote below (which only
+          renders for the handful of bots with a pre-registered envelope).
+          `dormancyNote` is NOT passed here: it comes from `expectations`, and
+          whenever `expectations` exists, ConformityCard mounts unconditionally
+          a few lines down and shows the same sentence itself once totalTrades
+          is 0 — passing it to both would print it twice on one page (found in
+          fix round 1, funding-rev-long). SampleNote keeps its own generic
+          "il attend son signal" line either way. */}
+      <SampleNote totalTrades={bot.stats.total_trades} />
 
       {/* Filter + metrics + equity curve + trades — interactive client island */}
       <StrategyDetail bot={bot} />

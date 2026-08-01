@@ -7,7 +7,9 @@ export const metadata: Metadata = {
 }
 
 const PIECES = [
-  { href: '/overview',     title: 'Mes bots',   desc: 'Des bots qui tradent en conditions réelles. Chaque trade est public, gains comme pertes.' },
+  // FIX (final whole-branch review, label drift): « La flotte » everywhere,
+  // matching Nav and Footer — /overview had two names across the site.
+  { href: '/overview',     title: 'La flotte',  desc: 'Des bots qui tradent en conditions réelles. Chaque trade est public, gains comme pertes.' },
   { href: 'https://lab.algoproof.fr', title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
   { href: '/wealth',       title: 'Investir',   desc: 'Mon accumulation long terme (DCA) sur la crypto, les ETF et les actions, en transparence.' },
   { href: '/intelligence', title: 'Météo du marché', desc: 'La météo du marché que je calcule chaque jour : risque ON ou OFF, en français.' },
@@ -60,9 +62,10 @@ export default function AProposPage() {
       <section>
         <h2 className="text-xl font-bold mb-3">Gratuit ou payant ?</h2>
         <p className="text-muted leading-relaxed">
-          Tout ce que tu vois ici est en accès libre. <a href="https://lab.algoproof.fr" className="text-accent">Le labo</a> sera
-          l&apos;espace où tu pourras tester tes propres stratégies ; il demandera un compte pour sauvegarder ton
-          travail, mais l&apos;exploration restera ouverte. Rien de tout ça n&apos;est un conseil financier.
+          Tout est gratuit aujourd&apos;hui, site et <a href="https://lab.algoproof.fr" className="text-accent">labo</a> compris,
+          et aucune offre payante n&apos;est active. Quand une offre arrivera, elle portera sur la configuration exacte
+          des bots et sur leur dossier de validation, jamais sur leurs résultats, qui resteront publics et gratuits.{' '}
+          <Link href="/preuve" className="text-accent">Où passera la ligne, en détail →</Link>
         </p>
       </section>
     </main>
