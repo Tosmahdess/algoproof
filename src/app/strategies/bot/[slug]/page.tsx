@@ -120,9 +120,15 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {expectations?.threeSentences && <ThreeSentences data={expectations.threeSentences} />}
 
       {/* Honest dormancy / low-sample note — applies to every bot, documented
-          envelope or not, unlike ConformityCard's dormancyNote which only
-          renders for the handful of bots with a pre-registered envelope. */}
-      <SampleNote totalTrades={bot.stats.total_trades} dormancyNote={expectations?.dormancyNote} />
+          envelope or not, unlike ConformityCard's dormancyNote below (which only
+          renders for the handful of bots with a pre-registered envelope).
+          `dormancyNote` is NOT passed here: it comes from `expectations`, and
+          whenever `expectations` exists, ConformityCard mounts unconditionally
+          a few lines down and shows the same sentence itself once totalTrades
+          is 0 — passing it to both would print it twice on one page (found in
+          fix round 1, funding-rev-long). SampleNote keeps its own generic
+          "il attend son signal" line either way. */}
+      <SampleNote totalTrades={bot.stats.total_trades} />
 
       {/* Filter + metrics + equity curve + trades — interactive client island */}
       <StrategyDetail bot={bot} />

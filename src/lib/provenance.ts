@@ -49,11 +49,21 @@ export function provenanceSentence(bot: ProvenanceBot): string {
 
 /**
  * Link to the cockpit dossier, when there is one. The engine unit key is
- * `base|tf|dataset_version|kmax`; the dossier is addressed by base alone.
+ * `base|tf|dataset_version|kmax` — four pipe-delimited, non-empty segments,
+ * written by the engine at promotion time. Gated on `origin === 'engine'`
+ * too: migration 019 constrains an engine-born bot to carry a key, but not
+ * the reverse, so a hand-deployed bot could in principle carry one, and
+ * "Déployé à la main… / Voir le dossier de validation" side by side would be
+ * a contradiction on the page.
+ *
+ * A key that isn't four non-empty segments means the producer's format
+ * changed underneath this reader. That must surface as a missing link, not
+ * a link built from a fragment that may not mean "base" any more.
  */
 export function dossierHref(bot: ProvenanceBot): string | null {
-  if (!bot.engine_unit_key) return null
-  const base = bot.engine_unit_key.split('|')[0]?.trim()
-  if (!base) return null
+  if (bot.origin !== 'engine' || !bot.engine_unit_key) return null
+  const segments = bot.engine_unit_key.split('|')
+  if (segments.length !== 4 || segments.some(s => s.trim() === '')) return null
+  const base = segments[0].trim()
   return `https://lab.algoproof.fr/cockpit/dossier/${encodeURIComponent(base)}`
 }
