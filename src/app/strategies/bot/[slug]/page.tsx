@@ -14,6 +14,7 @@ import PathToRealCard from '@/components/PathToRealCard'
 import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
+import SampleNote from '@/components/SampleNote'
 import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -117,6 +118,11 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
       {/* Novice layer: plain-FR summary (only for bots with a documented envelope) */}
       {expectations?.threeSentences && <ThreeSentences data={expectations.threeSentences} />}
+
+      {/* Honest dormancy / low-sample note — applies to every bot, documented
+          envelope or not, unlike ConformityCard's dormancyNote which only
+          renders for the handful of bots with a pre-registered envelope. */}
+      <SampleNote totalTrades={bot.stats.total_trades} dormancyNote={expectations?.dormancyNote} />
 
       {/* Filter + metrics + equity curve + trades — interactive client island */}
       <StrategyDetail bot={bot} />

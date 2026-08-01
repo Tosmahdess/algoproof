@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isCarryFamily, fmtPfForFamily, fmtWinRateForFamily } from '@/lib/display'
+import { isCarryFamily, fmtPfForFamily, fmtWinRateForFamily, fmtPfDisplay, fmtWinRateDisplay, LOW_SAMPLE_TRADES } from '@/lib/display'
 
 describe('isCarryFamily', () => {
   it('returns true only for the carry family', () => {
@@ -34,5 +34,19 @@ describe('fmtWinRateForFamily', () => {
 
   it('renders the formatted win rate for non-carry families', () => {
     expect(fmtWinRateForFamily('trend', 0.5384615384615384)).toBe('53.8%')
+  })
+})
+
+describe('fmtPfDisplay / fmtWinRateDisplay threshold', () => {
+  it('uses the shared threshold, not a copy of it', () => {
+    // Guards against the two functions drifting from isLowSample, which they did
+    // until 2026-07-31.
+    expect(fmtPfDisplay('trend', LOW_SAMPLE_TRADES - 1, 1.5)).toBe('—')
+    expect(fmtPfDisplay('trend', LOW_SAMPLE_TRADES, 1.5)).toBe('1.50')
+  })
+
+  it('applies the same shared threshold to the win-rate display', () => {
+    expect(fmtWinRateDisplay('trend', LOW_SAMPLE_TRADES - 1, 0.5)).toBe('—')
+    expect(fmtWinRateDisplay('trend', LOW_SAMPLE_TRADES, 0.5)).toBe('50.0%')
   })
 })
