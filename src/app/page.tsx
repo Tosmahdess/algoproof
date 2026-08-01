@@ -5,7 +5,9 @@ import TrackedLink from '@/components/TrackedLink'
 import StatusBadge from '@/components/StatusBadge'
 import EmailCapture from '@/components/EmailCapture'
 import TVTickerTapeIsland from '@/components/TVTickerTapeIsland'
+import FunnelCounter from '@/components/FunnelCounter'
 import { getAllBotsWithStats } from '@/lib/queries'
+import { getFunnelCounts } from '@/lib/funnel'
 import { familyColor, familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
@@ -26,7 +28,8 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   // Archived bots stay listed on /strategies (with a badge) but are excluded from
   // the homepage headline counts and ranking.
-  const bots = excludeArchived(await getAllBotsWithStats())
+  const [allBots, funnel] = await Promise.all([getAllBotsWithStats(), getFunnelCounts()])
+  const bots = excludeArchived(allBots)
   // Live = real money (v1-spot, orb-bf25) ; the rest is the laboratoire (simulation).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
   const { live: liveBots, paper: paperBots } = splitCohorts(bots)
@@ -76,6 +79,9 @@ export default async function HomePage() {
           >
             et un cimetière public de stratégies rejetées
           </a>
+        </div>
+        <div className="mt-4 max-w-xl mx-auto text-left">
+          <FunnelCounter counts={funnel} />
         </div>
       </div>
 

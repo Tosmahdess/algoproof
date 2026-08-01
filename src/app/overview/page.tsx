@@ -4,8 +4,10 @@ import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBotIds, getRecent
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { parseFleetFilters } from '@/lib/bot-filters'
 import FleetOverview from '@/components/FleetOverview'
+import FunnelCounter from '@/components/FunnelCounter'
 import JsonLd from '@/components/JsonLd'
 import { faqJsonLd } from '@/lib/jsonld'
+import { getFunnelCounts } from '@/lib/funnel'
 
 // FIX round 2 (new Important finding): deliberately no `revalidate` export.
 // Reading `searchParams` below opts this route into dynamic (per-request)
@@ -52,7 +54,7 @@ function toURLSearchParams(sp: Record<string, string | string[] | undefined>): U
 }
 
 export default async function OverviewPage({ searchParams }: OverviewPageProps) {
-  const [bots, trades, liveBotIds, recentTrades, resolvedSearchParams] = await Promise.all([
+  const [bots, trades, liveBotIds, recentTrades, funnel, resolvedSearchParams] = await Promise.all([
     getAllBotsWithStats(),
     getAllTradesForAggregate(),
     getLiveBotIds(),
@@ -60,6 +62,7 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
     // page carried. Fetched here, in the server component, so it stays inside
     // stage 0 and never reaches the filter pipeline.
     getRecentTrades(20),
+    getFunnelCounts(),
     searchParams,
   ])
   const aggregate = computeFleetAggregate(trades, liveBotIds)
@@ -95,6 +98,9 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
         <Link href="/lexique#drawdown" className="text-accent">drawdown</Link> la pire baisse. Plus de définitions
         dans le <Link href="/lexique" className="text-accent">lexique</Link>.
       </p>
+      <div className="mb-8">
+        <FunnelCounter counts={funnel} />
+      </div>
       <FleetOverview
         bots={bots}
         aggregate={aggregate}
