@@ -19,6 +19,7 @@ import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { getProvenanceForBot } from '@/lib/screening'
 import { ficheSlugForBot } from '@/lib/strategy-keys'
+import { provenanceSentence, dossierHref } from '@/lib/provenance'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -91,6 +92,20 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux en argent réel sont marqués « live ».
         </p>
       </div>
+
+      {/* Provenance: where this bot came from — engine-born or hand-deployed — and when */}
+      <p className="text-xs text-muted mb-4">
+        {provenanceSentence(bot)}
+        {dossierHref(bot) && (
+          <>
+            {' '}
+            <a href={dossierHref(bot)!} className="text-accent underline"
+               target="_blank" rel="noopener noreferrer">
+              Voir le dossier de validation
+            </a>
+          </>
+        )}
+      </p>
 
       {/* Provenance: which screening campaign this bot came from, and how narrow its margin was */}
       {provenance && (

@@ -26,7 +26,7 @@ describe('BotProvenance', () => {
   it('links back to the dossier in the lab', () => {
     render(<BotProvenance campaign={campaign} candidate={candidate} />)
     const link = screen.getByRole('link')
-    expect(link.getAttribute('href')).toBe('https://lab.algoproof.fr/moteur-backtest/EMAcross')
+    expect(link.getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/survivants')
     expect(link.getAttribute('target')).toBe('_blank')
     expect(link.getAttribute('rel')).toBe('noopener noreferrer')
   })

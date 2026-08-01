@@ -19,7 +19,7 @@ export default function BotProvenance({ campaign, candidate }: {
         {' '}Elle est en observation — {candidate.forward_trades} trade{candidate.forward_trades > 1 ? 's' : ''} forward à ce jour.
       </p>
       <a
-        href={`https://lab.algoproof.fr/moteur-backtest/${campaign.base}`}
+        href="https://lab.algoproof.fr/cockpit/survivants"
         target="_blank"
         rel="noopener noreferrer"
         className="text-accent hover:underline"
