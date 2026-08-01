@@ -106,15 +106,16 @@ export default function FleetOverview({
         <MiBanner />
       </section>
 
-      <FleetBalance aggregate={aggregate} />
-
-      {/* ---------- Stage 1 : real money ---------- */}
       <section data-testid="fleet-real" className="space-y-4">
         <h2 className="text-xs uppercase tracking-wider text-muted">Argent réel</h2>
         <div className="grid gap-4 md:grid-cols-2">
           {live.map(bot => <BotCard key={bot.slug} bot={bot} />)}
         </div>
       </section>
+
+      <FleetBalance aggregate={aggregate} />
+
+      {/* ---------- Stage 1 : real money ---------- */}
 
       {curveBots.length > 0 && (
         <section data-testid="fleet-equity-curves" className="bg-card border border-border rounded-lg p-6">

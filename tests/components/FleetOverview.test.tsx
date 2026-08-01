@@ -109,18 +109,23 @@ describe('FleetOverview — real-money cards hoisted out of the register', () =>
     expect(container.contains(register)).toBe(true)
   })
 
-  it('places fleet-real immediately after fleet-balance in document order', () => {
+  it('renders the sections in the owner-specified order', () => {
+    // Owner's call 2026-08-01: real money sits between the market weather and
+    // the balance sheet, so the two live bots are the first thing read after
+    // the regime banner. Asserting the whole sequence rather than one adjacency
+    // means any future reorder has to state its intent here.
     const { container } = render(
       <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
     )
     const html = container.innerHTML
-    const balanceIdx = html.indexOf('data-testid="fleet-balance"')
-    const realIdx = html.indexOf('data-testid="fleet-real"')
-    const curvesIdx = html.indexOf('data-testid="fleet-equity-curves"')
-    expect(balanceIdx).toBeGreaterThanOrEqual(0)
-    expect(realIdx).toBeGreaterThanOrEqual(0)
-    expect(balanceIdx).toBeLessThan(realIdx)
-    expect(realIdx).toBeLessThan(curvesIdx)
+    const order = ['fleet-mi', 'fleet-real', 'fleet-balance', 'fleet-equity-curves', 'fleet-register']
+      .map(id => ({ id, at: html.indexOf(`data-testid="${id}"`) }))
+
+    for (const { id, at } of order) {
+      expect(at, `${id} is absent from the rendered output`).toBeGreaterThanOrEqual(0)
+    }
+    const positions = order.map(o => o.at)
+    expect(positions, order.map(o => o.id).join(' < ')).toEqual([...positions].sort((a, b) => a - b))
   })
 
   it('still shows the live bots that used to render inside the register', () => {
