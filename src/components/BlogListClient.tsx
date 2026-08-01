@@ -41,7 +41,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <a href="https://lab.algoproof.fr/apprendre" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
             <div className="font-bold text-sm mb-1">🎓 Les tutoriels</div>
-            <p className="text-xs text-muted">Cinq pas-à-pas interactifs, de zéro à ton premier verdict, plus le guide du cockpit.</p>
+            <p className="text-xs text-muted">Cinq pas-à-pas interactifs, de zéro à ton premier verdict, plus le guide du Cockpit.</p>
           </a>
           <a href="/strategies" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
             <div className="font-bold text-sm mb-1">📚 Les stratégies</div>
