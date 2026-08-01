@@ -39,7 +39,8 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
     links: [
       { href: LAB_URL, label: 'Backtester', external: true },
       { href: `${LAB_URL}/apprendre`, label: 'Tutoriels', external: true },
-      { href: `${LAB_URL}/bibliotheque`, label: 'Bibliothèque des stratégies', external: true },
+      // "Bibliothèque des stratégies" dropped 2026-07-31: the library moved
+      // here and is already linked as /strategies in the "Mes bots" group.
       { href: `${LAB_URL}/agents`, label: 'Agents IA (MCP)', external: true },
       { href: `${LAB_URL}/membre`, label: 'Mode gratuit & membres', external: true },
     ],

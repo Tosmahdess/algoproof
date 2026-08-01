@@ -42,9 +42,9 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
             <div className="font-bold text-sm mb-1">🎓 Les tutoriels</div>
             <p className="text-xs text-muted">Cinq pas-à-pas interactifs, de zéro à ton premier verdict, plus le guide du cockpit.</p>
           </a>
-          <a href="https://lab.algoproof.fr/bibliotheque" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
-            <div className="font-bold text-sm mb-1">📚 La bibliothèque</div>
-            <p className="text-xs text-muted">Les 22 stratégies du labo expliquées : quand ça marche, quand ça meurt, testables en un clic.</p>
+          <a href="/strategies" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
+            <div className="font-bold text-sm mb-1">📚 Les stratégies</div>
+            <p className="text-xs text-muted">Les 22 stratégies expliquées : quand ça marche, quand ça meurt, et les bots qui les incarnent.</p>
           </a>
           <a href="https://lab.algoproof.fr/agents" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
             <div className="font-bold text-sm mb-1">🤖 Pour ton agent IA</div>

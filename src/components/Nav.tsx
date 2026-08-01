@@ -23,7 +23,9 @@ const HUBS = [
 const LABO_LINKS = [
   { href: 'https://lab.algoproof.fr', label: 'Ouvrir le labo' },
   { href: 'https://lab.algoproof.fr/apprendre', label: 'Tutoriels' },
-  { href: 'https://lab.algoproof.fr/bibliotheque', label: 'Bibliothèque des stratégies' },
+  // "Bibliothèque des stratégies" dropped 2026-07-31: the library now lives
+  // here, and MES_BOTS_SUB already links it at /strategies. Kept off this list
+  // so the lab link does not 308 straight back to this site.
   { href: 'https://lab.algoproof.fr/agents', label: 'Agents IA (MCP)' },
   { href: 'https://lab.algoproof.fr/#vote', label: 'Le vote du labo' },
   { href: 'https://lab.algoproof.fr/membre', label: 'Membres (bientôt)' },
