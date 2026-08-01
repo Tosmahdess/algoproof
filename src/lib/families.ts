@@ -118,6 +118,8 @@ export type Venue =
   | 'hyperliquid'
   | 'bybit'
   | 'okx'
+  | 'oanda'
+  | 'cross-venue'
 
 export type BotOrigin = 'engine' | 'manual'
 export type RejudgeStatus = 'not_needed' | 'queued' | 'done'

@@ -34,8 +34,11 @@ export type SortDir = 'asc' | 'desc'
 // A comment asserting a safety property the code does not have is worse than no
 // comment. It comes back with the UI that uses it.
 
+// `cross-venue` is last, not alphabetical or arbitrary: it is the special
+// case (a bot spanning two venues), not a peer of the others, and the filter
+// bar renders this order left to right.
 export const VENUE_ORDER = [
-  'binance-spot', 'binance-futures', 'kraken', 'hyperliquid', 'bybit', 'okx',
+  'binance-spot', 'binance-futures', 'kraken', 'hyperliquid', 'bybit', 'okx', 'oanda', 'cross-venue',
 ] as const satisfies readonly Venue[]
 
 const VENUE_LABELS: Record<Venue, string> = {
@@ -45,6 +48,8 @@ const VENUE_LABELS: Record<Venue, string> = {
   hyperliquid: 'Hyperliquid',
   bybit: 'Bybit',
   okx: 'OKX',
+  oanda: 'OANDA',
+  'cross-venue': 'Multi-venues',
 }
 
 export function venueLabel(v: Venue): string {

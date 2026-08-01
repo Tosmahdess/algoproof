@@ -164,8 +164,16 @@ export const FIXTURE_FLEET: BotWithStats[] = [
           timeframe: 'M15', venue: 'hyperliquid', assets: ['BTC'] }),
   prodBot('combobbrsi-bf9', { name: 'Combo BB+RSI H4 BF', family: 'mean-reversion',
           timeframe: 'H4', venue: 'bybit', assets: ['ETH'] }),
+  // cross-venue: delta-neutral carry, long spot on Binance, short perp on
+  // Hyperliquid — one bot, two venues. `exchange` is the real production
+  // string; a `%hyperliquid%` or `%binance%` `like` match on it alone
+  // classifies this wrong (see migrations/018_bots_venue.sql).
   prodBot('funding-rate-harvest', { name: 'Funding Rate Harvesting', family: 'carry',
-          timeframe: 'H8', venue: 'hyperliquid', assets: ['BTC'], start_capital: 400 }),
+          timeframe: 'H8', venue: 'cross-venue', exchange: 'HL Perps + Binance Spot',
+          assets: ['BTC'], start_capital: 400 }),
+  // oanda: the one forex bot in production, no crypto exchange involved at all.
+  prodBot('emacross-eur-usd', { name: 'EMA Cross H4 EUR/USD', family: 'trend',
+          timeframe: 'H4', venue: 'oanda', exchange: 'OANDA', assets: ['EUR/USD'] }),
   prodBot('hlperps-xsec-degross', { name: 'Momentum Cross-Sectionnel D1', family: 'market-neutral',
           timeframe: 'D1', venue: 'hyperliquid', assets: ['BTC', 'ETH', 'SOL'] }),
   prodBot('funding-rev-long', { name: 'Funding-Reversal D1 Long-only', family: 'stat-arb',

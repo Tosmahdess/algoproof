@@ -7,6 +7,8 @@ import {
   optionCounts,
   activeFilterCount,
   describeEmptyResult,
+  VENUE_ORDER,
+  venueLabel,
 } from '@/lib/bot-filters'
 import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
 
@@ -109,6 +111,38 @@ describe('applyFleetFilters', () => {
     expect(got.length).toBeGreaterThan(0)
     const wrapped = [mkBot({ slug: 'wbtc-bot', assets: ['WBTC'] })]
     expect(applyFleetFilters(wrapped, { ...EMPTY_FILTERS, asset: ['BTC'] })).toEqual([])
+  })
+
+  // funding-rate-harvest: delta-neutral carry, long spot Binance + short perp
+  // Hyperliquid — one bot, two venues, `venue: 'cross-venue'`. It must not
+  // disappear from any filter it doesn't concern, and must not show up under
+  // a venue filter that names neither of its legs.
+  it('a cross-venue bot survives every filter except a venue filter that does not name it', () => {
+    const crossVenue = FIXTURE_FLEET.find(b => b.venue === 'cross-venue')
+    expect(crossVenue).toBeDefined()
+
+    expect(applyFleetFilters(FIXTURE_FLEET, EMPTY_FILTERS).map(b => b.slug))
+      .toContain(crossVenue!.slug)
+    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, family: [crossVenue!.family] }).map(b => b.slug))
+      .toContain(crossVenue!.slug)
+    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, venue: ['hyperliquid'] }).map(b => b.slug))
+      .not.toContain(crossVenue!.slug)
+    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, venue: ['binance-spot'] }).map(b => b.slug))
+      .not.toContain(crossVenue!.slug)
+    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, venue: ['cross-venue'] }).map(b => b.slug))
+      .toContain(crossVenue!.slug)
+  })
+})
+
+describe('venue taxonomy', () => {
+  it('lists cross-venue last: it is the special case, not a peer venue', () => {
+    expect(VENUE_ORDER[VENUE_ORDER.length - 1]).toBe('cross-venue')
+  })
+
+  it('has a non-empty, unique label for every VENUE_ORDER entry', () => {
+    const labels = VENUE_ORDER.map(v => venueLabel(v))
+    for (const label of labels) expect(label.length).toBeGreaterThan(0)
+    expect(new Set(labels).size).toBe(labels.length)
   })
 })
 
