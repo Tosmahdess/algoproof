@@ -17,9 +17,19 @@ describe('Nav — 4 hubs + Labo CTA', () => {
     render(<Nav />)
     const cta = screen.getAllByRole('link').find(a => a.getAttribute('href') === 'https://lab.algoproof.fr' && /le labo/i.test(a.textContent ?? ''))
     expect(cta).toBeDefined()
-    for (const label of [/tutoriels/i, /bibliothèque/i, /agents ia/i, /vote du labo/i, /membres/i]) {
+    for (const label of [/tutoriels/i, /agents ia/i, /vote du labo/i, /membres/i]) {
       expect(screen.getByText(label)).toBeDefined()
     }
+  })
+
+  // The library moved to this site on 2026-07-31: linking the lab's
+  // /bibliotheque would 308 straight back here.
+  it('no longer links the lab bibliotheque (the library lives here now)', () => {
+    render(<Nav />)
+    expect(screen.queryByText(/bibliothèque/i)).toBeNull()
+    const hrefs = screen.getAllByRole('link').map(a => a.getAttribute('href') ?? '')
+    expect(hrefs.some(h => h.includes('/bibliotheque'))).toBe(false)
+    expect(hrefs).toContain('/strategies')
   })
 
   it('drops the old jargon top-level items', () => {
