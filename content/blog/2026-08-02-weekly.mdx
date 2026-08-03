@@ -1,0 +1,74 @@
+---
+title: "Les shorts sauvent la semaine quand les longs patinent"
+date: "2026-08-02"
+category: "weekly"
+tags: ["weekly", "performance"]
+summary: "Une semaine contrastée : mes bots en réel terminent dans le vert grâce aux positions short, pendant que le laboratoire absorbe le coût d'un marché qui hésite. La leçon est claire : le biais directionnel compte autant que la stratégie elle-même."
+---
+
+## Contexte marché
+
+Le bitcoin termine la semaine environ 12 % sous sa moyenne de prix sur 200 jours. Le régime de tendance est baissier, ce qui signifie que le vent souffle plutôt contre les positions à la hausse. Pourtant, mon tableau de bord du marché affiche un niveau de risque vert, et mes filtres de sécurité n'ont bloqué aucune direction en réel cette semaine : longs et shorts étaient tous les deux autorisés côté argent réel.
+
+En simulation, c'est légèrement différent : l'indicateur de biais a détecté des frais de financement défavorables sur les positions longues, ce qui a conduit à suspendre les longs en veille pour les bots en observation. Ce signal ne se traduit pas encore en action sur les bots live, mais je le note soigneusement.
+
+---
+
+## Mes bots en réel
+
+> Suivi sur une base normalisée de 1 000 EUR pour rendre les deux bots comparables entre eux. Ce n'est pas le solde brut affiché chez le broker.
+
+<StatRow>
+  <Stat label="Trades cette semaine" value="10" />
+  <Stat label="P&L de la semaine" value="+55,35 €" intent="positive" subtext="base 1 000 €" />
+  <Stat label="Taux de réussite" value="40 %" subtext="4 trades gagnants sur 10" />
+  <Stat label="P&L cumulé (all-time)" value="+95,03 €" subtext="253 trades depuis le début" />
+</StatRow>
+
+40 % de trades gagnants pour un résultat positif : ça peut sembler paradoxal, mais c'est exactement ce qu'un bon ratio gain/perte (PF, ou profit factor) est censé produire. Les trades qui gagnent gagnent beaucoup, ceux qui perdent perdent peu.
+
+Le détail directionnel est parlant cette semaine :
+
+<DataCardGroup>
+  <DataCard label="Positions short (à la baisse)" sub="6 trades" metrics="P&L: +88,09 € | Gagnants: 3/6 | Meilleur: TIA-USDC +42,38 €" intent="positive" />
+  <DataCard label="Positions long (à la hausse)" sub="4 trades" metrics="P&L: -32,73 € | Gagnants: 1/4 | Pire: DOGE-USDC -11,37 €" intent="negative" />
+</DataCardGroup>
+
+Les shorts portent la semaine à bout de bras. TIA-USDC en short est la grande réussite avec +42,38 €. À l'inverse, les longs souffrent d'un contexte baissier qui leur coupe l'herbe sous le pied : 1 gagnant sur 4, c'est le plancher. Le pire trade de la semaine, SEI-USDC en short à -11,64 €, rappelle que même le bon côté du marché n'est pas une garantie.
+
+Le cumulé depuis le début du projet, rodage inclus, atteint +95,03 € sur 253 trades. Je m'approche du premier palier symbolique des 100 € de gain net réel.
+
+---
+
+## Laboratoire (simulation)
+
+Cette semaine, le coût de la simulation s'élève à -205,63 € de papier, sur 531 trades. C'est de l'argent qui n'existe pas, dépensé pour apprendre.
+
+<DataCardGroup>
+  <DataCard label="Simulation globale" sub="531 trades" metrics="P&L fictif: -205,63 € | Taux de réussite: 80,2 % | Meilleur: ARB-USDC short +12,90 €" intent="negative" />
+  <DataCard label="Longs simulés" sub="400 trades" metrics="P&L fictif: -220,37 € | Taux de réussite: 82,8 % | Pire: AVAX-USDT -10,01 €" intent="negative" />
+  <DataCard label="Shorts simulés" sub="131 trades" metrics="P&L fictif: +14,74 € | Taux de réussite: 72,5 % | Meilleur: ARB-USDC +12,90 €" intent="positive" />
+</DataCardGroup>
+
+Le chiffre qui saute aux yeux : 80 % de taux de réussite (WR, win rate), et pourtant le résultat global est négatif. C'est le signe que les trades perdants sont structurellement plus lourds que les gagnants en simulation. Ce déséquilibre se concentre sur les longs, qui représentent 75 % des trades et absorbent la quasi-totalité de la perte fictive.
+
+Cette observation confirme ce que le contexte marché signalait déjà : en régime baissier, les longs accumulent des pertes même avec un WR élevé. Les stops (SL, niveaux de coupe des pertes) se font toucher sur des mouvements amplifiés par la tendance dominante.
+
+Ce n'est pas une raison de paniquer. C'est exactement à ça que sert la simulation : observer, mesurer, et décider en connaissance de cause avant de risquer de l'argent réel.
+
+---
+
+## Leçon de la semaine
+
+> Avoir raison 8 fois sur 10 ne suffit pas si les 2 fois où l'on a tort coûtent plus que les 8 victoires ne rapportent. Le marché ne récompense pas le nombre de bonnes décisions, il récompense leur qualité.
+
+Cette semaine illustre les deux faces de cette vérité. En réel, 40 % de réussite suffit à être profitable parce que le sizing et les cibles sont calibrés correctement. En simulation, 80 % de réussite ne suffit pas parce que l'asymétrie gain/perte est inversée. Je continue de travailler sur ce point pour les bots en observation avant toute éventuelle mise en production.
+
+---
+
+## Prochaines étapes
+
+- Analyser pourquoi les longs simulés produisent systématiquement des pertes disproportionnées en régime baissier, et vérifier si un filtre de sécurité supplémentaire sur la direction serait pertinent.
+- Surveiller l'évolution de la distance du bitcoin à sa moyenne de prix sur 200 jours : un retour au-dessus de ce niveau changerait significativement le contexte pour les longs.
+- Continuer le suivi hebdomadaire du cumulé réel, qui s'approche du palier des 100 € net.
+- Documenter les trades TIA-USDC et SEI-USDC pour comprendre ce qui les différencie malgré le même biais directionnel.
