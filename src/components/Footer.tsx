@@ -9,7 +9,6 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
     links: [
       { href: '/overview',    label: 'La flotte' },
       { href: '/strategies',  label: 'Les stratégies' },
-      { href: '/journal',     label: 'Ce qui a changé' },
     ],
   },
   {

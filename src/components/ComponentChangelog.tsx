@@ -7,8 +7,11 @@ function fmtDate(d: string) {
   return new Date(d + 'T12:00:00Z').toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
 }
 
+// `href` is optional since the public /journal page was removed (2026-08-08): the block still
+// shows the latest changes in place, it just has nowhere left to send the reader. Keep the prop
+// so a future destination can be wired back without touching every call site.
 export default function ComponentChangelog(
-  { title, entries, href, initialCount = 5 }: { title: string; entries: BotChangelog[]; href: string; initialCount?: number },
+  { title, entries, href, initialCount = 5 }: { title: string; entries: BotChangelog[]; href?: string; initialCount?: number },
 ) {
   const [expanded, setExpanded] = useState(false)
   if (entries.length === 0) return null
@@ -18,7 +21,7 @@ export default function ComponentChangelog(
     <section className="border border-border rounded-xl p-6 my-8">
       <div className="flex items-baseline justify-between mb-4">
         <h2 className="text-lg font-bold">{title}</h2>
-        <Link href={href} className="text-sm text-accent">Voir tout →</Link>
+        {href && <Link href={href} className="text-sm text-accent">Voir tout →</Link>}
       </div>
       <div className="divide-y divide-border">
         {visible.map(e => (

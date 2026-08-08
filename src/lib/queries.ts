@@ -1,7 +1,7 @@
 // src/lib/queries.ts
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
-import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog, ScopeType } from './types'
+import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog } from './types'
 import { getStartCapital } from './start-capitals'
 import { isCarryFamily } from './display'
 import { fleetEntryAppliesTo } from './changelog'
@@ -375,36 +375,10 @@ export async function getChangelogForBot(bot: Bot): Promise<BotChangelog[]> {
   }
 }
 
-export async function getJournalEntries(scope?: ScopeType): Promise<BotChangelog[]> {
-  try {
-    let q = supabase
-      .from('bot_changelogs')
-      .select(CHANGELOG_COLS)
-      .order('entry_date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(300)
-    if (scope) q = q.eq('scope_type', scope)
-    const { data, error } = await q
-    if (error) {
-      console.error('[getJournalEntries]', error.message)
-      return []
-    }
-    return (data ?? []) as BotChangelog[]
-  } catch (e) {
-    console.error('[getJournalEntries] fetch threw', e)
-    return []
-  }
-}
-
-export async function getLatestPerScope(): Promise<Record<ScopeType, BotChangelog | null>> {
-  const all = await getJournalEntries()
-  const out: Record<ScopeType, BotChangelog | null> =
-    { bot: null, fleet: null, mi: null, wealth: null }
-  for (const e of all) {
-    if (out[e.scope_type] === null) out[e.scope_type] = e
-  }
-  return out
-}
+// getJournalEntries / getLatestPerScope removed 2026-08-08 with the public /journal page and the
+// dead WhatsNew block. The two surviving readers of bot_changelogs are getChangelogForBot (the
+// per-bot tab) and getComponentChangelog (the MI / wealth tabs) — both scoped to what the reader
+// is already looking at, which is the whole point of keeping them.
 
 export async function getComponentChangelog(
   scope: 'mi' | 'wealth', limit = 5,

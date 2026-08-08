@@ -80,10 +80,9 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
       {/* Changelog */}
       {active === 'changelog' && (
         <div className="px-6 py-5">
+          {/* The « Voir tout le journal Intelligence » link died with /journal (2026-08-08).
+              The tab keeps the dated changes in place, where the reader already is. */}
           <ChangelogTab changelogs={changelogs} />
-            <div className="mt-3">
-              <a href="/journal/intelligence" className="text-sm text-accent">Voir tout le journal Intelligence →</a>
-            </div>
         </div>
       )}
 

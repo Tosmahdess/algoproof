@@ -100,21 +100,9 @@ export default async function sitemap() {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
-    {
-      url: 'https://algoproof.fr/journal',
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 0.8,
-    },
     { url: 'https://algoproof.fr/a-propos', lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.7 },
     { url: 'https://algoproof.fr/lexique', lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
     { url: 'https://algoproof.fr/faq', lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.6 },
-    ...['flotte', 'intelligence', 'patrimoine'].map(flux => ({
-      url: `https://algoproof.fr/journal/${flux}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    })),
     ...getBlogSlugs().map(slug => ({
       url: `https://algoproof.fr/blog/${slug}`,
       // Filenames start with the publication date (YYYY-MM-DD-slug).
