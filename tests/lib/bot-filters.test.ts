@@ -7,18 +7,21 @@ import {
   optionCounts,
   activeFilterCount,
   describeEmptyResult,
-  VENUE_ORDER,
-  venueLabel,
 } from '@/lib/bot-filters'
 import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
+
+// 2026-08-08: the venue facet (« Où ça tourne ») was removed entirely — pills,
+// state, URL parameter and predicates. bot-filters.ts's own history says why
+// the plumbing could not stay behind without a control: `direction` was
+// deleted for exactly that. `venue` in a URL is an unknown parameter now.
 
 describe('parse and serialize', () => {
   it('round-trips a populated state', () => {
     const state = {
       ...EMPTY_FILTERS,
       family: ['trend', 'breakout'] as const,
-      venue: ['kraken'] as const,
       asset: ['BTC'],
+      timeframe: ['H4'],
       sort: 'trades' as const,
       dir: 'asc' as const,
     }
@@ -27,8 +30,8 @@ describe('parse and serialize', () => {
   })
 
   it('emits parameters in a constant order regardless of insertion order', () => {
-    const a = serializeFleetFilters({ ...EMPTY_FILTERS, venue: ['kraken'], family: ['trend'] } as never)
-    const b = serializeFleetFilters({ ...EMPTY_FILTERS, family: ['trend'], venue: ['kraken'] } as never)
+    const a = serializeFleetFilters({ ...EMPTY_FILTERS, asset: ['BTC'], family: ['trend'] } as never)
+    const b = serializeFleetFilters({ ...EMPTY_FILTERS, family: ['trend'], asset: ['BTC'] } as never)
     expect(a.toString()).toBe(b.toString())
   })
 
@@ -52,10 +55,18 @@ describe('parse and serialize', () => {
     expect(serializeFleetFilters(s).toString()).toBe('family=trend')
   })
 
+  it('treats venue as an unknown parameter now that the facet is gone', () => {
+    // Old shared URLs carry ?venue=kraken. They must render the default view,
+    // not crash and not resurrect a control-less filter.
+    const s = parseFleetFilters(new URLSearchParams('family=trend&venue=kraken'))
+    expect(s).toEqual({ ...EMPTY_FILTERS, family: ['trend'] })
+    expect(serializeFleetFilters(s).toString()).toBe('family=trend')
+  })
+
   it('drops values outside the taxonomy rather than trusting the URL', () => {
-    const s = parseFleetFilters(new URLSearchParams('family=trend,notafamily&venue=mtgox'))
+    const s = parseFleetFilters(new URLSearchParams('family=trend,notafamily&status=zombie'))
     expect(s.family).toEqual(['trend'])
-    expect(s.venue).toEqual([])
+    expect(s.status).toEqual([])
   })
 })
 
@@ -88,10 +99,12 @@ describe('applyFleetFilters', () => {
     expect(both.length).toBeGreaterThan(
       applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, family: ['trend'] }).length,
     )
+    // momentum ∩ H1 = the MACD bot alone (the H1 momentum backtest candidate
+    // is excluded by visibility, not by a facet).
     const narrowed = applyFleetFilters(FIXTURE_FLEET, {
-      ...EMPTY_FILTERS, family: ['trend'], venue: ['kraken'],
+      ...EMPTY_FILTERS, family: ['momentum'], timeframe: ['H1'],
     })
-    expect(narrowed.map(b => b.slug)).toEqual(['v1-spot'])
+    expect(narrowed.map(b => b.slug)).toEqual(['macdvolume-bf11'])
   })
 
   it('keeps a dormant bot: zero trades is not a reason to hide a deployed bot', () => {
@@ -99,50 +112,11 @@ describe('applyFleetFilters', () => {
     expect(kept.map(b => b.slug)).toContain('ichimoku-bf25')
   })
 
-  it('a bot with an unmapped venue survives every filter except a venue filter', () => {
-    const all = applyFleetFilters(FIXTURE_FLEET, EMPTY_FILTERS)
-    expect(all.map(b => b.slug)).toContain('donchian-bf17')
-    const byVenue = applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, venue: ['hyperliquid'] })
-    expect(byVenue.map(b => b.slug)).not.toContain('donchian-bf17')
-  })
-
   it('matches the base asset exactly, so BTC does not swallow WBTC', () => {
     const got = applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, asset: ['btc'] })
     expect(got.length).toBeGreaterThan(0)
     const wrapped = [mkBot({ slug: 'wbtc-bot', assets: ['WBTC'] })]
     expect(applyFleetFilters(wrapped, { ...EMPTY_FILTERS, asset: ['BTC'] })).toEqual([])
-  })
-
-  // funding-rate-harvest: delta-neutral carry, long spot Binance + short perp
-  // Hyperliquid — one bot, two venues, `venue: 'cross-venue'`. It must not
-  // disappear from any filter it doesn't concern, and must not show up under
-  // a venue filter that names neither of its legs.
-  it('a cross-venue bot survives every filter except a venue filter that does not name it', () => {
-    const crossVenue = FIXTURE_FLEET.find(b => b.venue === 'cross-venue')
-    expect(crossVenue).toBeDefined()
-
-    expect(applyFleetFilters(FIXTURE_FLEET, EMPTY_FILTERS).map(b => b.slug))
-      .toContain(crossVenue!.slug)
-    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, family: [crossVenue!.family] }).map(b => b.slug))
-      .toContain(crossVenue!.slug)
-    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, venue: ['hyperliquid'] }).map(b => b.slug))
-      .not.toContain(crossVenue!.slug)
-    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, venue: ['binance-spot'] }).map(b => b.slug))
-      .not.toContain(crossVenue!.slug)
-    expect(applyFleetFilters(FIXTURE_FLEET, { ...EMPTY_FILTERS, venue: ['cross-venue'] }).map(b => b.slug))
-      .toContain(crossVenue!.slug)
-  })
-})
-
-describe('venue taxonomy', () => {
-  it('lists cross-venue last: it is the special case, not a peer venue', () => {
-    expect(VENUE_ORDER[VENUE_ORDER.length - 1]).toBe('cross-venue')
-  })
-
-  it('has a non-empty, unique label for every VENUE_ORDER entry', () => {
-    const labels = VENUE_ORDER.map(v => venueLabel(v))
-    for (const label of labels) expect(label.length).toBeGreaterThan(0)
-    expect(new Set(labels).size).toBe(labels.length)
   })
 })
 
@@ -173,7 +147,7 @@ describe('optionCounts', () => {
 describe('activeFilterCount', () => {
   it('is zero for a pristine state and counts selected values otherwise', () => {
     expect(activeFilterCount(EMPTY_FILTERS)).toBe(0)
-    expect(activeFilterCount({ ...EMPTY_FILTERS, family: ['trend', 'carry'], venue: ['kraken'] })).toBe(3)
+    expect(activeFilterCount({ ...EMPTY_FILTERS, family: ['trend', 'carry'], timeframe: ['H4'] })).toBe(3)
   })
 
   it('does not count sort as a filter', () => {
@@ -187,15 +161,17 @@ describe('describeEmptyResult', () => {
   })
 
   it('names the single facet that emptied the list', () => {
-    const state = { ...EMPTY_FILTERS, family: ['carry'] as never, venue: ['kraken'] as never }
+    // carry alone leaves the funding bot (H8); M15 then empties the list, so
+    // M15 is the facet to blame.
+    const state = { ...EMPTY_FILTERS, family: ['carry'] as never, timeframe: ['M15'] }
     const msg = describeEmptyResult(FIXTURE_FLEET, state)
     expect(msg).not.toBeNull()
-    expect(msg).toContain('Kraken')
+    expect(msg).toContain('M15')
   })
 
-  it('falls back to a generic message when no single facet is responsible', () => {
-    const lonely = [mkBot({ family: 'trend', venue: 'kraken', timeframe: 'H4' })]
-    const state = { ...EMPTY_FILTERS, family: ['carry'] as never, venue: ['okx'] as never }
+  it('still answers when the very first facet empties the list', () => {
+    const lonely = [mkBot({ family: 'trend', timeframe: 'H4' })]
+    const state = { ...EMPTY_FILTERS, family: ['carry'] as never }
     expect(describeEmptyResult(lonely, state)).toBeTruthy()
   })
 })

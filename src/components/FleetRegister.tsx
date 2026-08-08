@@ -36,13 +36,17 @@ import type { Family } from '@/lib/families'
 import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
-  type Venue, type SortKey,
+  type SortKey,
 } from '@/lib/bot-filters'
 import { sortFleet } from '@/lib/fleet-sort'
 import { groupByStrategy } from '@/lib/fleet-grouping'
-import { isLowSample } from '@/lib/display'
+import { isLowSample, pnlEur, fmtEur, fmtPfDisplay } from '@/lib/display'
 import StatusBadge from '@/components/StatusBadge'
 import FleetFilterBar from '@/components/FleetFilterBar'
+import Sparkline from '@/components/Sparkline'
+
+/** The last 30 daily capital points, for the row thumbnail. */
+const SPARK_DAYS = 30
 
 export interface FleetRegisterProps {
   /** The laboratory register set only — paper + archived, already combined
@@ -97,13 +101,6 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     })
   }, [state, push])
 
-  const toggleVenue = useCallback((v: Venue) => {
-    push({
-      ...state,
-      venue: state.venue.includes(v) ? state.venue.filter(x => x !== v) : [...state.venue, v],
-    })
-  }, [state, push])
-
   // FIX (final whole-branch review, I1): the sort was parsed from the URL,
   // applied by sortFleet and labelled by SORT_LABELS, but no control ever set
   // it — inert state behind a comment claiming a feature. Wired through the
@@ -146,7 +143,6 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           counts={counts}
           activeCount={activeFilterCount(state)}
           onToggleFamily={toggleFamily}
-          onToggleVenue={toggleVenue}
           onSort={setSort}
           onToggleDir={toggleDir}
           onReset={reset}
@@ -186,10 +182,16 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
                       {group.label}
                     </Link>
                   ) : group.label}
-                  {` : ${group.bots.length} incarnation(s), dont ${group.promotedCount} promue(s)`}
+                  {/* The aggregate trade count is the group-level version of the
+                      "most proven first" story: at 100 bots, « 14 incarnations ·
+                      2 431 trades » is what makes a family readable at a glance. */}
+                  {` : ${group.bots.length} incarnation(s), dont ${group.promotedCount} promue(s) · ${group.bots.reduce((n, b) => n + b.stats.total_trades, 0)} trades`}
                 </summary>
                 <ul className="px-4 pb-4 divide-y divide-border">
-                  {group.bots.map(bot => (
+                  {group.bots.map(bot => {
+                    const spark = bot.perf_daily.slice(-SPARK_DAYS).map(p => p.capital)
+                    const pnl = pnlEur(bot.stats.latest_capital, bot.start_capital)
+                    return (
                     <li key={bot.slug} className="py-3 flex items-center justify-between gap-4">
                       {/* FIX (final review, I3): next/link, not a raw <a>. This
                           page is dynamically rendered, so a full document
@@ -200,13 +202,31 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
                         {bot.name}
                       </Link>
                       <span className="flex items-center gap-3 text-xs text-muted font-mono">
+                        {/* The thumbnail inherits currentColor from this span, so
+                            the trend decides the color and Sparkline stays dumb. */}
+                        {spark.length >= 2 && (
+                          <span
+                            className={`hidden sm:inline-flex ${spark[spark.length - 1] >= spark[0] ? 'text-positive' : 'text-negative'}`}
+                          >
+                            <Sparkline values={spark} />
+                          </span>
+                        )}
                         <span>{bot.stats.total_trades} trades</span>
                         {bot.stats.total_trades === 0 && <span>en attente d&apos;un signal</span>}
                         {isLowSample(bot.stats.total_trades) && <span>trop tôt pour conclure</span>}
+                        <span className="hidden sm:inline">
+                          PF <span>{fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor)}</span>
+                        </span>
+                        {bot.stats.total_trades > 0 && (
+                          <span className={pnl >= 0 ? 'text-positive' : 'text-negative'}>
+                            {fmtEur(pnl)}
+                          </span>
+                        )}
                         <StatusBadge status={bot.status} />
                       </span>
                     </li>
-                  ))}
+                    )
+                  })}
                 </ul>
               </details>
             ))}
