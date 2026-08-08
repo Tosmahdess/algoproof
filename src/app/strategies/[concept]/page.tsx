@@ -6,13 +6,7 @@ import { getAllBotsWithStats, getBotSlugs } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
 import { excludeArchived } from '@/lib/cohort'
 import { resolveStrategyRoute } from '@/lib/strategy-routing'
-import {
-  GAUNTLET_EXPLAINER_TITLE,
-  GAUNTLET_FUNNEL,
-  GAUNTLET_TRIALS,
-  GAUNTLET_VERDICTS,
-  GAUNTLET_HONESTY,
-} from '@/lib/gauntlet-explainer'
+import { GAUNTLET_EXPLAINER_TITLE } from '@/lib/gauntlet-explainer'
 import StatusBadge from '@/components/StatusBadge'
 
 export const revalidate = 300
@@ -108,56 +102,17 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
         </ul>
       </section>
 
-      {/* Shared engine-process copy (src/lib/gauntlet-explainer.ts), same on all 22 pages
-          because it describes the engine, not the strategy. Slotted here per
-          2026-08-02-filter-coverage-drilldown-design.md §5, which puts engine content under
-          « Les réglages qui comptent » and above « Ce qui tourne chez moi ». When the
-          « Tous les filtres essayés » table from that spec gets built, it goes BELOW this
-          block: narrative first, then the data it makes readable. */}
-      <section data-testid="concept-gauntlet" className="mb-8">
-        <h2 className="text-xs uppercase tracking-wider text-muted mb-3">
-          {GAUNTLET_EXPLAINER_TITLE}
-        </h2>
-        {GAUNTLET_FUNNEL.map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
-
-        <p className="text-sm mb-3">Le gantelet, c’est quatre épreuves. Il faut tenir les quatre.</p>
-        <ol className="space-y-3 mb-3">
-          {GAUNTLET_TRIALS.map((t, i) => (
-            <li key={t.name} className="text-sm">
-              <span className="text-accent font-mono text-xs mr-2">{i + 1}</span>
-              {t.name}
-              <span className="block text-xs text-muted mt-1">{t.plain}</span>
-            </li>
-          ))}
-        </ol>
-
-        {GAUNTLET_VERDICTS.map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
-        {GAUNTLET_HONESTY.map((p, i) => <p key={i} className="text-xs text-muted mb-3">{p}</p>)}
-
-        <p className="text-xs text-muted">
-          <a
-            href="https://lab.algoproof.fr/cockpit/survivants"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent underline"
-          >
-            Ce que mon moteur a jugé
-          </a>
-          {' · '}
-          <a
-            href="https://lab.algoproof.fr/cockpit/dossier/emacross"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent underline"
-          >
-            Un dossier ouvert en entier
-          </a>
-          {' · '}
-          <Link href="/lexique" className="text-accent underline">Les termes</Link>
-          {' · '}
-          <Link href="/preuve" className="text-accent underline">Ma méthode</Link>
-        </p>
-      </section>
+      {/* The full engine-process block used to render here on all 22 pages
+          (2026-08-02 spec §5). It describes the engine, not the strategy, so it
+          moved to the top of /strategies (2026-08-08, user call) — one read,
+          not twenty-two. This pointer keeps the path for a visitor who lands
+          directly on a fiche. */}
+      <p className="text-xs text-muted mb-8">
+        {GAUNTLET_EXPLAINER_TITLE} : je l’explique une fois, en tête de{' '}
+        <Link href="/strategies#comment-je-decide" className="text-accent underline">
+          la page des stratégies
+        </Link>.
+      </p>
 
       {/* The inverse join. A concept asks the fleet what runs it, so promoting a
           bot never requires editing this page. */}

@@ -4,17 +4,26 @@ const nf = new Intl.NumberFormat('fr-FR')
 
 /**
  * Renders nothing when the denominator is missing or zero. Degrading to "0
- * configurations testées" would turn the site's strongest claim into its weakest.
+ * configurations balayées" would turn the site's strongest claim into its
+ * weakest.
+ *
+ * « balayées » and « jugées » are the same pair, under the same names, as the
+ * cockpit hero on lab.algoproof.fr — that is deliberate: the two sites must
+ * never again disagree about what the engine has done.
  */
 export default function FunnelCounter({ counts }: { counts: FunnelCounts | null }) {
-  if (!counts || counts.n_tested <= 0) return null
+  if (!counts || counts.n_swept <= 0) return null
 
   return (
     <section data-testid="funnel-counter" className="bg-card border border-border rounded-lg p-4">
       <dl className="flex flex-wrap gap-x-8 gap-y-3">
         <div>
-          <dt className="text-xs text-muted">Configurations testées</dt>
-          <dd className="text-lg font-mono">{nf.format(counts.n_tested)}</dd>
+          <dt className="text-xs text-muted">Configurations balayées</dt>
+          <dd className="text-lg font-mono">{nf.format(counts.n_swept)}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted">Jugées au gantelet</dt>
+          <dd className="text-lg font-mono">{nf.format(counts.n_judged)}</dd>
         </div>
         <div>
           <dt className="text-xs text-muted">Promues en bot</dt>
@@ -26,7 +35,7 @@ export default function FunnelCounter({ counts }: { counts: FunnelCounts | null 
         </div>
       </dl>
       <p className="text-xs text-muted mt-3">
-        Le rapport entre ces trois nombres est le seul qui compte. Les plateformes
+        Le rapport entre ces nombres est le seul qui compte. Les plateformes
         qui vendent des stratégies publient leurs gagnantes, jamais le nombre de
         tentatives.{' '}
         <a href="https://lab.algoproof.fr/cockpit/cimetiere"

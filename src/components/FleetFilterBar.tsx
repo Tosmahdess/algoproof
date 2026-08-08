@@ -11,9 +11,7 @@
 // nothing, so `bg-bg`, `bg-card`, `text-muted`, `border-border` and
 // `bg-accent` are the vocabulary; `bg-background` does not exist.
 import { FAMILY_ORDER, familyLabel, type Family } from '@/lib/families'
-import {
-  VENUE_ORDER, venueLabel, type FleetFilterState, type OptionCounts, type SortKey,
-} from '@/lib/bot-filters'
+import type { FleetFilterState, OptionCounts, SortKey } from '@/lib/bot-filters'
 import { SORT_LABELS } from '@/lib/fleet-sort'
 
 interface Props {
@@ -21,7 +19,6 @@ interface Props {
   counts: OptionCounts
   activeCount: number
   onToggleFamily: (f: Family) => void
-  onToggleVenue: (v: (typeof VENUE_ORDER)[number]) => void
   onSort: (key: SortKey) => void
   onToggleDir: () => void
   onReset: () => void
@@ -62,7 +59,7 @@ function Pill({ label, count, active, onClick }: {
 }
 
 export default function FleetFilterBar({
-  state, counts, activeCount, onToggleFamily, onToggleVenue, onSort, onToggleDir, onReset,
+  state, counts, activeCount, onToggleFamily, onSort, onToggleDir, onReset,
 }: Props) {
   return (
     <details data-testid="fleet-filters" className="bg-card border border-border rounded-lg">
@@ -132,20 +129,10 @@ export default function FleetFilterBar({
           </div>
         </div>
 
-        <div>
-          <div className="text-xs uppercase tracking-wider text-muted mb-2">Où ça tourne</div>
-          <div className="flex flex-wrap gap-2">
-            {VENUE_ORDER.map(v => (
-              <Pill
-                key={v}
-                label={venueLabel(v)}
-                count={counts.venue[v] ?? 0}
-                active={state.venue.includes(v)}
-                onClick={() => onToggleVenue(v)}
-              />
-            ))}
-          </div>
-        </div>
+        {/* The « Où ça tourne » (venue) facet lived here until 2026-08-08 —
+            removed on user call, plumbing included (see bot-filters.ts). The
+            venue still shows on each bot's own fiche; it just is not a way to
+            slice the register anymore. */}
 
         {activeCount > 0 && (
           <button type="button" onClick={onReset} className="text-xs text-accent underline">

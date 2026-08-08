@@ -5,6 +5,7 @@ import {
   GAUNTLET_TRIALS,
   GAUNTLET_VERDICTS,
   GAUNTLET_HONESTY,
+  GAUNTLET_ACCESS,
 } from '@/lib/gauntlet-explainer'
 
 const ALL = [
@@ -13,6 +14,9 @@ const ALL = [
   ...GAUNTLET_TRIALS.flatMap(t => [t.name, t.plain]),
   ...GAUNTLET_VERDICTS,
   ...GAUNTLET_HONESTY,
+  GAUNTLET_ACCESS.before,
+  GAUNTLET_ACCESS.linkLabel,
+  GAUNTLET_ACCESS.after,
 ].join('\n')
 
 describe('gauntlet explainer copy', () => {
@@ -72,5 +76,16 @@ describe('gauntlet explainer copy', () => {
 
   it('never claims the candidates are winners', () => {
     expect(ALL).toMatch(/n’est pas une gagnante/)
+  })
+
+  it('sends the reader to the membership page instead of a vague paywall allusion', () => {
+    // The old closing line said « avant qu'il y ait quoi que ce soit à payer » —
+    // an allusion to a paywall with no door. The access sentence now names what
+    // the subscription unlocks and links the two real options (0 € / 29 €).
+    expect(ALL).not.toMatch(/quoi que ce soit à payer/)
+    expect(GAUNTLET_ACCESS.href).toBe('https://lab.algoproof.fr/membre')
+    expect(GAUNTLET_ACCESS.linkLabel.length).toBeGreaterThan(0)
+    expect(ALL).toMatch(/gratuit/i)
+    expect(ALL).toMatch(/29\s*€/)
   })
 })

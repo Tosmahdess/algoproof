@@ -5,19 +5,15 @@
 //   1. State lives in the URL so it survives sharing and the back button. It is
 //      NOT there for SEO — Google's faceted-navigation guidance asks that facet
 //      URLs not be crawled. That disallow rule is LIVE as of Plan 3 Task 5:
-//      src/app/robots.ts disallows the family/status/venue/asset/tf/sort
-//      parameter space. Parameter order is constant anyway because that
+//      src/app/robots.ts disallows the family/status/asset/tf/sort parameter
+//      space (plus the retired `venue` parameter — the facet was removed
+//      2026-08-08, but shared URLs carrying it still exist in the wild, so the
+//      disallow line stays). Parameter order is constant anyway because that
 //      guidance requires it of any facet URL that does get crawled, and
 //      because it makes the round-trip test meaningful.
 //   2. Anything unknown in the URL is dropped, never trusted. A stale link with
 //      a family that no longer exists renders the default view, not a crash.
-import { FAMILY_ORDER, isFamily, familyLabel, type Family, type Venue } from './families'
-// FIX (brief bug, flagged in task-6-report.md): the Task 6 brief's "Interfaces
-// already built" list claims `Venue` is one of the types this module exports,
-// but it was only ever imported for internal use, never re-exported — FleetClient
-// imports `type Venue` from here per the brief's own verbatim code, and `tsc`
-// caught the mismatch (TS2459). Re-exporting is a type-only, zero-behavior addition.
-export type { Venue }
+import { FAMILY_ORDER, isFamily, familyLabel, type Family } from './families'
 import { toBaseAsset } from './asset'
 
 export type FleetStatusFilter = 'live' | 'paper' | 'archived'
@@ -34,28 +30,6 @@ export type SortDir = 'asc' | 'desc'
 // A comment asserting a safety property the code does not have is worse than no
 // comment. It comes back with the UI that uses it.
 
-// `cross-venue` is last, not alphabetical or arbitrary: it is the special
-// case (a bot spanning two venues), not a peer of the others, and the filter
-// bar renders this order left to right.
-export const VENUE_ORDER = [
-  'binance-spot', 'binance-futures', 'kraken', 'hyperliquid', 'bybit', 'okx', 'oanda', 'cross-venue',
-] as const satisfies readonly Venue[]
-
-const VENUE_LABELS: Record<Venue, string> = {
-  'binance-spot': 'Binance Spot',
-  'binance-futures': 'Binance Futures',
-  kraken: 'Kraken',
-  hyperliquid: 'Hyperliquid',
-  bybit: 'Bybit',
-  okx: 'OKX',
-  oanda: 'OANDA',
-  'cross-venue': 'Multi-venues',
-}
-
-export function venueLabel(v: Venue): string {
-  return VENUE_LABELS[v]
-}
-
 const STATUS_VALUES: readonly FleetStatusFilter[] = ['live', 'paper', 'archived']
 const SORT_VALUES: readonly SortKey[] = ['proven', 'trades', 'win_rate', 'profit_factor', 'max_drawdown', 'pnl']
 
@@ -64,14 +38,13 @@ export interface FleetFilterState {
   status: FleetStatusFilter[]
   asset: string[]
   timeframe: string[]
-  venue: Venue[]
   sort: SortKey
   dir: SortDir
 }
 
 /** The default view: no filter, and the only sort that is not a performance ranking. */
 export const EMPTY_FILTERS: FleetFilterState = {
-  family: [], status: [], asset: [], timeframe: [], venue: [],
+  family: [], status: [], asset: [], timeframe: [],
   sort: 'proven', dir: 'desc',
 }
 
@@ -80,23 +53,18 @@ export interface FilterableBot {
   status: string
   assets: string[]
   timeframe: string
-  venue: Venue | null
 }
 
 // Parameter order is fixed here and nowhere else. Exported (fix round 1) so
 // tests/lib/robots-facets.test.ts can assert every entry here has a matching
 // /*?<name>= line in robots.ts's disallow list — adding a facet must not be
 // able to outrun the disallow list silently.
-export const PARAM_ORDER = ['family', 'status', 'venue', 'asset', 'tf', 'sort', 'dir'] as const
+export const PARAM_ORDER = ['family', 'status', 'asset', 'tf', 'sort', 'dir'] as const
 
 function readList(sp: URLSearchParams, key: string): string[] {
   const raw = sp.get(key)
   if (!raw) return []
   return raw.split(',').map(s => s.trim()).filter(Boolean)
-}
-
-function isVenue(v: unknown): v is Venue {
-  return typeof v === 'string' && (VENUE_ORDER as readonly string[]).includes(v)
 }
 
 export function parseFleetFilters(sp: URLSearchParams): FleetFilterState {
@@ -106,7 +74,6 @@ export function parseFleetFilters(sp: URLSearchParams): FleetFilterState {
     family: readList(sp, 'family').filter(isFamily),
     status: readList(sp, 'status').filter((s): s is FleetStatusFilter =>
       (STATUS_VALUES as readonly string[]).includes(s)),
-    venue: readList(sp, 'venue').filter(isVenue),
     asset: readList(sp, 'asset').map(a => a.toUpperCase()),
     timeframe: readList(sp, 'tf').map(t => t.toUpperCase()),
     sort: (SORT_VALUES as readonly string[]).includes(sort ?? '') ? (sort as SortKey) : 'proven',
@@ -118,7 +85,6 @@ export function serializeFleetFilters(s: FleetFilterState): URLSearchParams {
   const values: Record<(typeof PARAM_ORDER)[number], string> = {
     family: s.family.join(','),
     status: s.status.join(','),
-    venue: s.venue.join(','),
     asset: s.asset.join(','),
     tf: s.timeframe.join(','),
     sort: s.sort === EMPTY_FILTERS.sort ? '' : s.sort,
@@ -155,11 +121,6 @@ function matchesAsset(bot: FilterableBot, selected: string[]): boolean {
 const PREDICATES = {
   family: (b: FilterableBot, s: FleetFilterState) => s.family.length === 0 || s.family.includes(b.family),
   status: (b: FilterableBot, s: FleetFilterState) => matchesStatus(b, s.status),
-  // A bot whose venue is not yet mapped stays visible everywhere except under a
-  // venue filter. Hiding it would make an unmapped exchange look like a missing
-  // bot instead of a missing mapping.
-  venue: (b: FilterableBot, s: FleetFilterState) =>
-    s.venue.length === 0 || (b.venue !== null && s.venue.includes(b.venue)),
   asset: (b: FilterableBot, s: FleetFilterState) => matchesAsset(b, s.asset),
   timeframe: (b: FilterableBot, s: FleetFilterState) =>
     s.timeframe.length === 0 || s.timeframe.includes(b.timeframe.toUpperCase()),
@@ -201,7 +162,6 @@ function applyExcept<T extends FilterableBot>(bots: T[], s: FleetFilterState, sk
 export interface OptionCounts {
   family: Record<string, number>
   status: Record<string, number>
-  venue: Record<string, number>
   timeframe: Record<string, number>
 }
 
@@ -221,23 +181,17 @@ export function optionCounts<T extends FilterableBot>(bots: T[], s: FleetFilterS
     status[bucket] += 1
   }
 
-  const venue: Record<string, number> = {}
-  for (const v of VENUE_ORDER) venue[v] = 0
-  for (const b of applyExcept(bots, s, 'venue')) {
-    if (b.venue) venue[b.venue] = (venue[b.venue] ?? 0) + 1
-  }
-
   const timeframe: Record<string, number> = {}
   for (const b of applyExcept(bots, s, 'timeframe')) {
     const tf = b.timeframe.toUpperCase()
     timeframe[tf] = (timeframe[tf] ?? 0) + 1
   }
 
-  return { family, status, venue, timeframe }
+  return { family, status, timeframe }
 }
 
 export function activeFilterCount(s: FleetFilterState): number {
-  return s.family.length + s.status.length + s.asset.length + s.timeframe.length + s.venue.length
+  return s.family.length + s.status.length + s.asset.length + s.timeframe.length
 }
 
 
@@ -250,7 +204,7 @@ export function activeFilterCount(s: FleetFilterState): number {
  * that already-narrowed set is what drives the count to zero. This is not the
  * same as "the first facet that would unblock the list if removed alone":
  * with two independently-restrictive facets (e.g. family=carry AND
- * venue=kraken, each matching a different single bot), removing EITHER one
+ * tf=M15, each matching a different single bot), removing EITHER one
  * alone reopens the list, so that check cannot tell them apart. Sequential
  * narrowing can, because it mirrors how the predicates actually combine
  * (AND across facets) and names whichever facet's constraint had no bot left
@@ -261,7 +215,6 @@ export function describeEmptyResult(bots: FilterableBot[], s: FleetFilterState):
 
   const facets: { key: FacetKey; describe: () => string }[] = [
     { key: 'family', describe: () => s.family.map(f => familyLabel(f)).join(', ') },
-    { key: 'venue', describe: () => s.venue.map(v => venueLabel(v)).join(', ') },
     { key: 'timeframe', describe: () => s.timeframe.join(', ') },
     { key: 'asset', describe: () => s.asset.join(', ') },
     { key: 'status', describe: () => s.status.join(', ') },

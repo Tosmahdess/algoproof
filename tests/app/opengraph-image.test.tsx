@@ -23,7 +23,7 @@ vi.mock('next/og', () => ({
 }))
 
 const funnel = vi.hoisted(() => ({
-  impl: async () => ({ n_tested: 100, n_promoted: 40, n_live: 5 }),
+  impl: async () => ({ n_swept: 100, n_judged: 80, n_promoted: 40, n_live: 5 }),
 }))
 vi.mock('@/lib/funnel', () => ({
   getFunnelCounts: () => funnel.impl(),
@@ -37,7 +37,7 @@ describe('/opengraph-image', () => {
   })
 
   it('renders the live promoted-bot count from getFunnelCounts', async () => {
-    funnel.impl = async () => ({ n_tested: 100, n_promoted: 40, n_live: 5 })
+    funnel.impl = async () => ({ n_swept: 100, n_judged: 80, n_promoted: 40, n_live: 5 })
     await Image()
     const html = renderToStaticMarkup(captured.element!)
     expect(html).toContain('40 bots')

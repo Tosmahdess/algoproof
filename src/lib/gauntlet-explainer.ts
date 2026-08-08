@@ -62,5 +62,18 @@ export const GAUNTLET_VERDICTS: readonly string[] = [
 
 export const GAUNTLET_HONESTY: readonly string[] = [
   'Reste une limite que je préfère écrire noir sur blanc plutôt que de la laisser se découvrir. Après autant d’essais, prouver qu’une configuration ne doit rien à la chance demanderait une barre statistique plus haute que ce que mon test sait mesurer. Je te montre donc des candidates, et je publie combien j’en ai essayé. Les plateformes qui vendent des stratégies publient leurs gagnantes, jamais leur nombre de tentatives.',
-  'Toutes les stratégies de cette bibliothèque ne sont pas encore passées par là : le moteur avance stratégie par stratégie, horizon par horizon, et publie au fil de l’eau. Ce qu’il a jugé jusqu’ici est public, et l’EMA cross est ouverte en entier pour que tu voies à quoi ressemble un dossier complet avant qu’il y ait quoi que ce soit à payer.',
+  'Toutes les stratégies de cette bibliothèque ne sont pas encore passées par là : le moteur avance stratégie par stratégie, horizon par horizon, et publie au fil de l’eau. Ce qu’il a jugé jusqu’ici est public, et l’EMA cross est ouverte en entier pour que tu voies à quoi ressemble un dossier complet.',
 ]
+
+// The access sentence closes the explainer. Structured (before / link / after)
+// so the component can make the middle segment clickable while the copy tests
+// keep asserting on the full sentence. The price mirrors what
+// lab.algoproof.fr/membre actually displays (0 € / 29 € per month) — if the
+// offer changes there, this label changes with it.
+export const GAUNTLET_ACCESS = {
+  before:
+    'Les autres dossiers complets, réglages compris, se débloquent avec l’abonnement du labo : ',
+  linkLabel: 'compare le compte gratuit (0 €) et l’offre membre (29 € par mois)',
+  href: 'https://lab.algoproof.fr/membre',
+  after: ' et prends ce qui te suffit.',
+} as const
