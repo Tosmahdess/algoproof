@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
       // the unfilterable stage 0 of « La flotte ». Permanent, and note the sitemap
       // never listed /performance so the SEO cost is nil.
       { source: '/performance', destination: '/overview', permanent: true },
+      // Public /journal removed 2026-08-08 (user decision): a firehose of dated changes is
+      // developer-facing noise for a visitor who came to judge the bots. The per-bot and
+      // per-component changelog tabs survive, in context, where the reader already is.
+      // Covers the index, the 3 flux sub-pages and the RSS feed so no inbound link 404s.
+      { source: '/journal', destination: '/', permanent: true },
+      { source: '/journal/:path*', destination: '/', permanent: true },
     ]
   },
 

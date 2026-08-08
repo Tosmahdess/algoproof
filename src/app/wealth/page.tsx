@@ -209,7 +209,7 @@ export default function WealthPage() {
         </p>
       </div>
 
-      <ComponentChangelog title="Dernier changement" entries={wealthChanges.slice(0, 1)} href="/journal/patrimoine" initialCount={1} />
+      <ComponentChangelog title="Dernier changement" entries={wealthChanges.slice(0, 1)} initialCount={1} />
 
       {/* Latest analyses — the hero: freshness from the real analysis rhythm */}
       <section>

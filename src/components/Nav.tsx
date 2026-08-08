@@ -8,7 +8,6 @@ import { useState } from 'react'
 const MES_BOTS_SUB = [
   { href: '/overview',    label: 'La flotte' },
   { href: '/strategies',  label: 'Les stratégies' },
-  { href: '/journal',     label: 'Ce qui a changé' },
 ]
 const MES_BOTS_PATHS = MES_BOTS_SUB.map(x => x.href)
 
