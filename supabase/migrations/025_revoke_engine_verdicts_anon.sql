@@ -1,0 +1,96 @@
+-- Migration 025: revoke anon SELECT on engine_verdicts — the last surface
+-- Run in Supabase dashboard: https://supabase.com/dashboard/project/avdegocswrhzdnvsyiui/sql/new
+--
+-- ⚠️ ORDER IS LOAD-BEARING. DO NOT RUN THIS FILE UNTIL THE THREE CHECKS BELOW
+-- PASS IN PRODUCTION. Running it early does not corrupt anything, but it blanks
+-- the lab's paid dossier route (/cockpit/dossier/[base]) until it is undone.
+--
+-- ─────────────────────────────────────────────────────────────────────────────
+-- PRECONDITIONS
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 1. algolab web/lib/engine-survivors.ts reads engine_verdicts with a SERVER-ONLY
+--    service-role client (createSupabaseAdmin, guarded by `import 'server-only'`),
+--    not with createSupabaseServer, which is the anon key despite its name.
+-- 2. SUPABASE_SERVICE_ROLE_KEY is set in the algolab Vercel project, for
+--    Production — WITHOUT the NEXT_PUBLIC_ prefix. A NEXT_PUBLIC_ prefix would
+--    inline the key into the browser bundle and hand every visitor full write
+--    access to the whole database, which is strictly worse than the leak this
+--    chantier closes.
+-- 3. That deploy is LIVE and verified in production — the dossier page renders
+--    its recipes with the new code path. Verified against the deployed site, not
+--    against localhost: the env var only exists where it was set.
+--
+-- Check 3 the way it will actually be believed:
+--
+--   curl -s https://lab.algoproof.fr/cockpit/dossier/emacross | grep -c 'ema_fast'
+--   # non-zero means the page is still rendering recipes AFTER the deploy,
+--   # i.e. the service-role path works. Run it BEFORE the revoke, as a baseline,
+--   # and again AFTER — the number must not move.
+--
+-- Taking the photo before writing is the discipline that was missing on
+-- 2026-07-28, when a counter was declared "now live" that the site had never read.
+--
+-- ─────────────────────────────────────────────────────────────────────────────
+-- WHAT THIS CLOSES, AND WHAT WAS ALREADY CLOSED
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Surface 1 — engine_verdicts.survivors: the complete configuration (params,
+--   exit, filter settings) of every survivor. 15 108 configurations over 30 rows
+--   as measured on 2026-08-08. CLOSED BY THIS FILE.
+-- Surface 2 — engine_verdicts_public.top_finalists: 599 complete recipes leaking
+--   through the "survivor-free" view itself. Closed by migration 024.
+-- Surface 3 — engine_verdict_history: a column-for-column mirror carrying 347
+--   survivors + 287 finalists. Closed by migration 024.
+--
+-- Only after ALL THREE may anything be written that says the exposure is closed.
+-- Until then the honest sentence is "one of three surfaces is closed".
+--
+-- ─────────────────────────────────────────────────────────────────────────────
+-- WHAT KEEPS WORKING, AND WHY
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Every view over engine_verdicts runs with its OWNER's rights — none of them is
+-- declared security_invoker, which was a deliberate choice in each file precisely
+-- so that this revoke would be survivable:
+--   - 020 funnel_counts              (sum of n_behaviors)
+--   - 022 filter_survivor_presence   (filter KEYS only)
+--   - 022 survivor_counts            (counts only)
+--   - 024 engine_verdicts_public     (identity, counts, redacted finalists)
+-- The engine itself is unaffected: the publisher on the compute box writes with
+-- the service-role key, which ignores grants.
+
+begin;
+
+revoke select on public.engine_verdicts from anon, authenticated;
+
+commit;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- VERIFICATION — from outside, with the publishable key
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 1) The base table is shut:
+--      curl -s -o /dev/null -w '%{http_code}\n' -H "apikey: $ANON" \
+--        -H "Authorization: Bearer $ANON" \
+--        "$URL/rest/v1/engine_verdicts?select=survivors&limit=1"
+--      # expect 401 (or 404), NOT 200
+--
+-- 2) Every view still answers — run all four, do not sample one and assume:
+--      for v in funnel_counts survivor_counts filter_survivor_presence \
+--               engine_verdicts_public; do
+--        printf '%-28s ' "$v"
+--        curl -s -o /dev/null -w '%{http_code}\n' -H "apikey: $ANON" \
+--          -H "Authorization: Bearer $ANON" "$URL/rest/v1/$v?select=*&limit=1"
+--      done
+--      # expect 200 on all four
+--
+-- 3) Both sites still render their counters, checked on the deployed pages:
+--      lab.algoproof.fr/cockpit            (hero: judged / swept)
+--      lab.algoproof.fr/cockpit/survivants
+--      lab.algoproof.fr/cockpit/cimetiere  (cause tally — the top_finalists path)
+--      lab.algoproof.fr/cockpit/dossier/emacross  (the service-role path)
+--      algoproof.fr/overview               (the swept/judged pair)
+--
+-- ─────────────────────────────────────────────────────────────────────────────
+-- ROLLBACK
+-- ─────────────────────────────────────────────────────────────────────────────
+--   grant select on public.engine_verdicts to anon, authenticated;
+-- One line, immediate. It re-opens surface 1, so it is a stopgap while the
+-- service-role path is fixed, never a resting state.
