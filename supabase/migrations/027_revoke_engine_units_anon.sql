@@ -6,11 +6,21 @@
 -- whole cockpit degrades to "donnée indisponible" until it is undone — the units
 -- fetcher feeds the coverage grid, the hero and every unit list.
 --
--- PRECONDITION, checked the way it will actually be believed:
+-- PRECONDITION, checked the way it will actually be believed. The first marker
+-- written here was 'premier tamis|second tamis', and measuring it BEFORE the
+-- revoke is what killed it: those strings are already 0 in the served HTML, so
+-- the check would have read "0 before, 0 after — nothing broke" no matter what
+-- happened. A control that is zero on both sides discriminates nothing. Use the
+-- coverage grid instead, which getEngineUnits actually feeds:
 --
---   curl -s https://lab.algoproof.fr/cockpit | grep -c 'premier tamis\|second tamis'
---   # non-zero BEFORE and AFTER the revoke. Take the photo first: without a
---   # baseline, the check cannot tell "still working" from "was already empty".
+--   curl -s https://lab.algoproof.fr/cockpit/survivants > /tmp/s.html
+--   grep -c 'pas encore explor' /tmp/s.html   # baseline 2
+--   grep -c 'EMAcross'          /tmp/s.html   # baseline 38
+--   grep -c 'ATRChannel'        /tmp/s.html   # baseline 19
+--   grep -ci 'donnée indisponible' /tmp/s.html  # baseline 0
+--
+-- Byte count is NOT a usable marker on these pages: the drain publishes
+-- continuously, so it drifts between two requests taken a minute apart.
 --
 -- Note the trap this pairs with, met on 2026-08-08 while closing engine_verdicts:
 -- a page that renders is NOT proof that the new code path is live, because the old
@@ -18,8 +28,24 @@
 -- response was rendered after the revoke; on a HIT it may predate it entirely.
 --
 -- WHAT KEEPS WORKING: public.engine_units_public (migration 026) runs with its
--- owner's rights. The engine keeps writing through the service-role key on the
--- compute box, which ignores grants.
+-- owner's rights, so it is unaffected by a revoke on the base table.
+--
+-- The engine keeps writing. An earlier version of this comment said that was
+-- because "the publisher writes with the service-role key, which ignores grants".
+-- Wrong, and checked rather than assumed on 2026-08-09 — the grant listing for
+-- this table names the real writer:
+--
+--   engine_telemetry  ->  INSERT, SELECT, UPDATE
+--   service_role      ->  ALL
+--   postgres          ->  ALL
+--   anon              ->  SELECT      <- the only thing this file removes
+--   authenticated     ->  SELECT      <- and this
+--
+-- So the publisher runs under a DEDICATED role, engine_telemetry, with exactly
+-- the three privileges it needs. The conclusion was right for the wrong reason:
+-- revoking from anon and authenticated touches neither writer. Worth naming
+-- precisely, because "service_role ignores grants" would have made a future
+-- reader believe a revoke on service_role would be harmless. It would not.
 
 begin;
 
