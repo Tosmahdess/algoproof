@@ -7,8 +7,7 @@ import { faqJsonLd } from '@/lib/jsonld'
 import ExplainerBox from '@/components/ExplainerBox'
 import { TopPicks, type FicheLite } from '@/components/TopPicks'
 import { LatestAnalyses } from '@/components/LatestAnalyses'
-import type { BotChangelog, GrowthAsset, Verdict } from '@/lib/types'
-import ComponentChangelog from '@/components/ComponentChangelog'
+import type { GrowthAsset, Verdict } from '@/lib/types'
 import AnalysesClient from '@/components/AnalysesClient'
 import type { FicheIndexRow } from '@/lib/equity'
 
@@ -147,7 +146,6 @@ export default function WealthPage() {
   const [fiches, setFiches]             = useState<CoveredFiche[]>([])
   const [fichesIndex, setFichesIndex]   = useState<FicheIndexRow[]>([])
   const [loading, setLoading]           = useState(true)
-  const [wealthChanges, setWealthChanges] = useState<BotChangelog[]>([])
 
   useEffect(() => {
     fetch('/api/growth-universe')
@@ -170,13 +168,6 @@ export default function WealthPage() {
       .then((r) => r.json())
       .then((list: CoveredFiche[]) => setFiches(Array.isArray(list) ? list : []))
       .catch(() => {})
-  }, [])
-
-  useEffect(() => {
-    fetch('/api/changelog?scope=wealth')
-      .then(r => r.ok ? r.json() : [])
-      .then((d: BotChangelog[]) => setWealthChanges(Array.isArray(d) ? d : []))
-      .catch(() => setWealthChanges([]))
   }, [])
 
   // Derived: fiche-lite map (Top 5: verdict + live price)
@@ -209,7 +200,8 @@ export default function WealthPage() {
         </p>
       </div>
 
-      <ComponentChangelog title="Dernier changement" entries={wealthChanges.slice(0, 1)} initialCount={1} />
+      {/* « Dernier changement » removed 2026-08-09: last changelog surface outside /intelligence.
+          A visitor here wants the analyses, not a log of how the page evolved. */}
 
       {/* Latest analyses — the hero: freshness from the real analysis rhythm */}
       <section>

@@ -350,15 +350,18 @@ export async function getTriggerData(slug: string): Promise<TriggerData | null> 
 const CHANGELOG_COLS =
   'id,created_at,scope_type,bot_slug,applies_to,entry_date,category,summary,detail,session_ref'
 
-// getJournalEntries, getLatestPerScope and getChangelogForBot were all removed on 2026-08-08 with
-// the public /journal page, the dead WhatsNew block and the per-bot « Historique » tab. The ONLY
-// remaining reader of bot_changelogs is getComponentChangelog, which feeds the MI tab on
-// /intelligence and the « Dernier changement » block on /wealth. Consequence for the publishing
-// pipeline, spelled out because it is easy to miss: `[bot-slug]` and `[flotte]` changelog entries
-// no longer have any public surface at all — only `[mi]` and `[patrimoine]` reach a page.
-
+// ⚠️ LAST READER OF bot_changelogs ON THE WHOLE SITE. Removed in three steps: the public /journal
+// page and the dead WhatsNew block (08/08), the per-bot « Historique » tab (09/08), the /wealth
+// « Dernier changement » block and the /api/changelog route (09/08). What survives is this one
+// call, from the MI tab on /intelligence, scope `mi` only.
+//
+// Consequence for the publishing pipeline, spelled out because it is exactly the kind of thing
+// that rots unnoticed: `[bot-slug]`, `[flotte]` AND `[patrimoine]` entries are still written to
+// CHANGELOG.md and still pushed into this table by push_changelog.py, and NOTHING RENDERS THEM.
+// Only `[mi]` reaches a reader. If this last call ever goes, the pusher becomes pure dead weight
+// and should go with it — do not leave a pipeline feeding an output nobody reads.
 export async function getComponentChangelog(
-  scope: 'mi' | 'wealth', limit = 5,
+  scope: 'mi', limit = 5,
 ): Promise<BotChangelog[]> {
   try {
     const { data, error } = await supabase
