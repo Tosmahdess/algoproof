@@ -46,6 +46,16 @@ describe('ExplainerBox', () => {
   })
 })
 
+// The « 📋 Historique » tab was removed on 2026-08-08. Guarded rather than merely deleted: the
+// tab was driven by an optional prop, so re-adding one at a call site would silently bring the
+// whole surface back. There is no prop that can produce it now, and this asserts the absence.
+describe('ExplainerBox — no changelog tab', () => {
+  it('never renders an Historique tab', () => {
+    render(<ExplainerBox functional="F" technical="T" discussionSlug="v1-spot" />)
+    expect(screen.queryByRole('button', { name: /historique/i })).toBeNull()
+  })
+})
+
 // Tests for the optional Discussion tab
 describe('ExplainerBox — Discussion tab', () => {
   it('does not render Discussion tab when discussionSlug is absent', () => {

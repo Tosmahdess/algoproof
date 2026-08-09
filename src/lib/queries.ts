@@ -4,7 +4,6 @@ import { supabase } from './supabase'
 import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog } from './types'
 import { getStartCapital } from './start-capitals'
 import { isCarryFamily } from './display'
-import { fleetEntryAppliesTo } from './changelog'
 import { paginateAll } from './paginate'
 import type { AggregateTradeRow } from './fleet-aggregate'
 
@@ -351,34 +350,12 @@ export async function getTriggerData(slug: string): Promise<TriggerData | null> 
 const CHANGELOG_COLS =
   'id,created_at,scope_type,bot_slug,applies_to,entry_date,category,summary,detail,session_ref'
 
-export async function getChangelogForBot(bot: Bot): Promise<BotChangelog[]> {
-  // bot.slug is a trusted DB value (from the bots table, kebab/snake-case alnum),
-  // never a raw route param — safe to interpolate into the PostgREST .or() filter.
-  try {
-    const { data, error } = await supabase
-      .from('bot_changelogs')
-      .select(CHANGELOG_COLS)
-      .or(`and(scope_type.eq.bot,bot_slug.eq.${bot.slug}),scope_type.eq.fleet`)
-      .order('entry_date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(200)
-    if (error) {
-      console.error('[getChangelogForBot]', error.message)
-      return []
-    }
-    const rows = (data ?? []) as BotChangelog[]
-    return rows.filter(r => r.scope_type === 'bot' || fleetEntryAppliesTo(r, bot))
-  } catch (e) {
-    // build-time network error (Supabase unreachable) — degrade gracefully
-    console.error('[getChangelogForBot] fetch threw', e)
-    return []
-  }
-}
-
-// getJournalEntries / getLatestPerScope removed 2026-08-08 with the public /journal page and the
-// dead WhatsNew block. The two surviving readers of bot_changelogs are getChangelogForBot (the
-// per-bot tab) and getComponentChangelog (the MI / wealth tabs) — both scoped to what the reader
-// is already looking at, which is the whole point of keeping them.
+// getJournalEntries, getLatestPerScope and getChangelogForBot were all removed on 2026-08-08 with
+// the public /journal page, the dead WhatsNew block and the per-bot « Historique » tab. The ONLY
+// remaining reader of bot_changelogs is getComponentChangelog, which feeds the MI tab on
+// /intelligence and the « Dernier changement » block on /wealth. Consequence for the publishing
+// pipeline, spelled out because it is easy to miss: `[bot-slug]` and `[flotte]` changelog entries
+// no longer have any public surface at all — only `[mi]` and `[patrimoine]` reach a page.
 
 export async function getComponentChangelog(
   scope: 'mi' | 'wealth', limit = 5,

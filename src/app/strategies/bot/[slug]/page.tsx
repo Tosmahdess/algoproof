@@ -15,7 +15,7 @@ import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
 import SampleNote from '@/components/SampleNote'
-import { getBotSlugs, getBotWithStats, getChangelogForBot } from '@/lib/queries'
+import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { getProvenanceForBot } from '@/lib/screening'
@@ -53,7 +53,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
 
-  const changelogs = await getChangelogForBot(bot)
   const expectations = getBotExpectations(slug)
   // Resolved by bot_slug directly (see getProvenanceForBot) — never breaks the page: it
   // returns null both when this bot was never screened and when the screening tables
@@ -168,7 +167,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             )
             return <BotParamsSection params={params} />
           })()}
-          changelogs={changelogs}
         />
       </section>
 
