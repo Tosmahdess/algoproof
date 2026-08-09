@@ -6,7 +6,9 @@ import { faqJsonLd } from '@/lib/jsonld'
 import MiRegimeBadge from '@/components/MiRegimeBadge'
 import MiHistoryChart from '@/components/MiHistoryChart'
 import MiPillarsSection from '@/components/MiPillarsSection'
+import { MiFleetImpactSection } from '@/components/MiFleetImpact'
 import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib/queries'
+import { getFleetImpact } from '@/lib/mi-fleet-impact'
 
 export const metadata: Metadata = {
   title: 'La météo du marché — régime, risque ON/OFF, en français',
@@ -68,10 +70,16 @@ const PILLARS = [
 export const revalidate = 1800
 
 export default async function IntelligencePage() {
-  const [report, miHistory, miChangelogs] = await Promise.all([
+  // getFleetImpact() is deliberately NOT wrapped in unstable_cache the way src/lib/queries.ts
+  // wraps its readers: freshness on this page is already governed by the route segment's
+  // `revalidate = 1800` above, so the query runs at most once per half hour anyway, and the
+  // source row only moves once a week. A second cache layer would buy nothing and add one
+  // more place where a withdrawn figure could survive its withdrawal.
+  const [report, miHistory, miChangelogs, fleetImpact] = await Promise.all([
     getLatestMacroReport(),
     getMiHistory(7),
     getComponentChangelog('mi'),
+    getFleetImpact(),
   ])
 
   let reportContent: React.ReactElement | null = null
@@ -208,6 +216,10 @@ export default async function IntelligencePage() {
           }
         />
       </section>
+
+      {/* Does it work? The same register as the Layer 4 line above: publish the result
+          that does not flatter the machinery, control included. */}
+      <MiFleetImpactSection impact={fleetImpact} />
 
       {/* Pillars + changelog — tabbed */}
       <section>
