@@ -1,6 +1,9 @@
 /**
  * The shared "how a configuration reaches the gauntlet, and what the gauntlet does" copy,
- * rendered on all 22 concept pages by src/app/strategies/[concept]/page.tsx.
+ * rendered ONCE, at the top of src/app/strategies/page.tsx (the library index). It used
+ * to repeat on all 22 concept pages; it moved on 2026-08-08 because repeating it punished
+ * exactly the visitor who browses several fiches. The concept pages now import only
+ * GAUNTLET_EXPLAINER_TITLE and link to #comment-je-decide.
  *
  * Shared, not per-fiche, on purpose: this describes the ENGINE's process, which is identical
  * whatever the strategy. Writing it 22 times would guarantee 22 divergent explanations of the

@@ -6,7 +6,9 @@ import { faqJsonLd } from '@/lib/jsonld'
 import MiRegimeBadge from '@/components/MiRegimeBadge'
 import MiHistoryChart from '@/components/MiHistoryChart'
 import MiPillarsSection from '@/components/MiPillarsSection'
+import { MiFleetImpactSection } from '@/components/MiFleetImpact'
 import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib/queries'
+import { getFleetImpact } from '@/lib/mi-fleet-impact'
 
 export const metadata: Metadata = {
   title: 'La météo du marché — régime, risque ON/OFF, en français',
@@ -68,10 +70,16 @@ const PILLARS = [
 export const revalidate = 1800
 
 export default async function IntelligencePage() {
-  const [report, miHistory, miChangelogs] = await Promise.all([
+  // getFleetImpact() is deliberately NOT wrapped in unstable_cache the way src/lib/queries.ts
+  // wraps its readers: freshness on this page is already governed by the route segment's
+  // `revalidate = 1800` above, so the query runs at most once per half hour anyway, and the
+  // source row only moves once a week. A second cache layer would buy nothing and add one
+  // more place where a withdrawn figure could survive its withdrawal.
+  const [report, miHistory, miChangelogs, fleetImpact] = await Promise.all([
     getLatestMacroReport(),
     getMiHistory(7),
     getComponentChangelog('mi'),
+    getFleetImpact(),
   ])
 
   let reportContent: React.ReactElement | null = null
@@ -112,10 +120,10 @@ export default async function IntelligencePage() {
           Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège volatilité, sentiment, dérivés et macro en un seul indicateur lisible.
         </p>
         <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
-          Pourquoi ça compte : quand le risque passe à OFF, mes bots se font plus prudents (positions réduites, défense active). La météo du marché n&apos;est pas décorative — elle pilote des décisions. Termes expliqués dans le <a href="/lexique" className="text-accent">lexique</a>.
+          Pourquoi ça compte : quand le risque passe à OFF, mes bots se font plus prudents (positions réduites, défense active). La météo du marché n&apos;est pas décorative, elle pilote des décisions. Termes expliqués dans le <a href="/lexique" className="text-accent">lexique</a>.
         </p>
         <p className="text-sm text-muted max-w-2xl leading-relaxed">
-          Chaque bot AlgoProof est filtré par une couche d&apos;intelligence de marché en temps réel. Avant chaque trade, le service MI consulte 4 sources de données et décide si le marché est sûr. Sinon, aucun bot ne trade — sans exception.
+          Chaque bot passe par cette couche avant d&apos;entrer en position. Elle réduit la taille quand le contexte se dégrade, et coupe les entrées quand il devient franchement mauvais. Le blocage total, lui, est une sécurité de dernier recours et pas le régime de tous les jours. Ce qu&apos;elle a réellement changé sur mes bots, et ce qu&apos;elle n&apos;a pas changé, est mesuré plus bas sur cette page.
         </p>
       </div>
 
@@ -208,6 +216,10 @@ export default async function IntelligencePage() {
           }
         />
       </section>
+
+      {/* Does it work? The same register as the Layer 4 line above: publish the result
+          that does not flatter the machinery, control included. */}
+      <MiFleetImpactSection impact={fleetImpact} />
 
       {/* Pillars + changelog — tabbed */}
       <section>
