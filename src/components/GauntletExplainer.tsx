@@ -6,14 +6,17 @@
 import Link from 'next/link'
 import {
   GAUNTLET_EXPLAINER_TITLE,
-  GAUNTLET_FUNNEL,
+  gauntletFunnel,
   GAUNTLET_TRIALS,
   GAUNTLET_VERDICTS,
   GAUNTLET_HONESTY,
   GAUNTLET_ACCESS,
 } from '@/lib/gauntlet-explainer'
+import type { SearchSpace } from '@/lib/engine-search-space'
 
-export default function GauntletExplainer() {
+// `space` comes from the page, which reads it server-side. Passed in rather than fetched
+// here so this file stays markup-only and the copy guards keep a single target.
+export default function GauntletExplainer({ space = null }: { space?: SearchSpace | null }) {
   return (
     <section
       id="comment-je-decide"
@@ -23,7 +26,7 @@ export default function GauntletExplainer() {
       <h2 className="text-xs uppercase tracking-wider text-muted mb-3">
         {GAUNTLET_EXPLAINER_TITLE}
       </h2>
-      {GAUNTLET_FUNNEL.map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
+      {gauntletFunnel(space).map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
 
       <p className="text-sm mb-3">Le gantelet, c’est quatre épreuves. Il faut tenir les quatre.</p>
       <ol className="space-y-3 mb-3">

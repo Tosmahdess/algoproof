@@ -5,6 +5,7 @@ import { getAllBotsWithStats } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
 import { excludeArchived } from '@/lib/cohort'
 import GauntletExplainer from '@/components/GauntletExplainer'
+import { getSearchSpace } from '@/lib/engine-search-space'
 import StrategiesRegister, { type FicheGroup } from '@/components/StrategiesRegister'
 
 export const revalidate = 300
@@ -20,7 +21,13 @@ export default async function StrategiesIndexPage() {
   // FIX (final whole-branch review, I4): same rule as the concept page — the
   // count next to each fiche reads « 2 bots » and the page it leads to heads
   // that list « Ce qui tourne chez moi ». A retired bot inflated both.
-  const bots = excludeArchived(await getAllBotsWithStats())
+  // Read alongside the bots: the explainer's figures are the engine's own counts now,
+  // not literals. Null (unbackfilled unit or a failed read) renders the sentences without
+  // the numbers rather than with a constant that has stopped matching the engine.
+  const [bots, searchSpace] = await Promise.all([
+    getAllBotsWithStats().then(excludeArchived),
+    getSearchSpace(),
+  ])
 
   // Serializable projection for the client register: the fiche objects carry
   // readonly tuples and functions live in the libs, so only what the rows
@@ -49,7 +56,7 @@ export default async function StrategiesIndexPage() {
       {/* The engine-process explainer, once for the whole library — it used to
           repeat on all 22 concept pages, which punished exactly the visitor who
           browses several fiches. Concept pages point at #comment-je-decide. */}
-      <GauntletExplainer />
+      <GauntletExplainer space={searchSpace} />
 
       <StrategiesRegister groups={groups} />
     </main>
