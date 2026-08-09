@@ -129,11 +129,48 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
   }
 }
 
+/** Next's data cache silently REFUSES any entry over 2 MB. It does not throw where you
+ *  can catch it and it does not degrade loudly: the write just never happens, so the
+ *  cache reads as configured while storing nothing. That is how one aggregate entry of
+ *  3 492 901 B made `unstable_cache` a no-op on four pages for as long as it existed.
+ *
+ *  Measured 2026-08-09: ~0.386 KB per serialised trade row, so a single bot stops being
+ *  cacheable somewhere around 5 300 trades. The largest today is funding-rate-harvest at
+ *  3 375 trades / 1 290 KB — under the ceiling, with headroom that shrinks every time it
+ *  trades. Warn well before, because the breach itself is invisible. */
+export const CACHE_TRADE_WARN = 4000
+
+export function cacheSizeWarning(slug: string, tradeCount: number): string | null {
+  if (tradeCount <= CACHE_TRADE_WARN) return null
+  return `[queries] ${slug} carries ${tradeCount} trades — approaching the 2 MB Next data-cache ceiling (~5300 rows). Its cache entry will start failing SILENTLY: no error, no log, just a cache that stores nothing. Slim the projection before that.`
+}
+
+/** Cached PER SLUG, not as one aggregate blob.
+ *
+ *  The aggregate serialises to ~3.5 MB, over the 2 MB ceiling documented above, so the
+ *  `unstable_cache` that used to wrap `getAllBotsWithStatsUncached` never stored a byte:
+ *  every request re-ran a paginated `select('*')` over trades AND perf_daily for all 40
+ *  bots, on `/`, `/overview`, `/strategies` and `/strategies/[concept]`. In dev it also
+ *  surfaced as an unhandledRejection that killed the server on the home route.
+ *
+ *  Per-slug entries are ~90 KB each (largest 1 290 KB), so they actually persist. The
+ *  `fleet-bots` tag is kept on every entry, so one `revalidateTag('fleet-bots')` still
+ *  clears the whole fleet; the per-slug tag allows clearing one bot alone. */
+function getBotWithStatsCached(slug: string): Promise<BotWithStats | null> {
+  return unstable_cache(
+    () => getBotWithStats(slug),
+    ['bot-stats', slug],
+    { revalidate: 1800, tags: ['fleet-bots', `bot-stats:${slug}`] },
+  )()
+}
+
 async function getAllBotsWithStatsUncached(): Promise<BotWithStats[]> {
   const bots = await getBots()
   return Promise.all(bots.map(async b => {
-    const result = await getBotWithStats(b.slug)
+    const result = await getBotWithStatsCached(b.slug)
     if (!result) throw new Error(`getBotWithStats returned null for slug: ${b.slug}`)
+    const warning = cacheSizeWarning(b.slug, result.all_trades.length)
+    if (warning) console.warn(warning)
     return result
   }))
 }
@@ -151,11 +188,13 @@ async function getAllBotsWithStatsUncached(): Promise<BotWithStats[]> {
 // separately from getAllTradesForAggregate's cache below so either can be
 // revalidated on its own (`revalidateTag('fleet-bots')`) without invalidating
 // the other's still-fresh data.
-export const getAllBotsWithStats = unstable_cache(
-  getAllBotsWithStatsUncached,
-  ['fleet-bots'],
-  { revalidate: 1800, tags: ['fleet-bots'] },
-)
+// NO `unstable_cache` HERE ANY MORE — that is the fix, not an omission. Wrapping this
+// composition meant asking the data cache to store ~3.5 MB in one entry, which it refuses
+// above 2 MB without raising anything you can catch. The amortisation the comment above
+// describes is real and still wanted; it now lives one level down, in
+// getBotWithStatsCached, where each entry is small enough to actually be written.
+// Re-wrapping this function would silently undo the fix and look like an improvement.
+export const getAllBotsWithStats = getAllBotsWithStatsUncached
 
 // Lifted from the old /performance page (folded into /overview 2026-07-31, see
 // next.config.ts redirects). Feeds computeFleetAggregate() for stage 0 of « La
