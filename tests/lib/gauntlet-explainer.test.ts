@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   GAUNTLET_EXPLAINER_TITLE,
-  GAUNTLET_FUNNEL,
+  gauntletFunnel,
   GAUNTLET_TRIALS,
   GAUNTLET_VERDICTS,
   GAUNTLET_HONESTY,
@@ -10,7 +10,14 @@ import {
 
 const ALL = [
   GAUNTLET_EXPLAINER_TITLE,
-  ...GAUNTLET_FUNNEL,
+  // The funnel copy is a function of the engine's counts since 2026-08-09. These guards are
+  // about VOICE and vocabulary, which must hold whatever the figures are, so they run against
+  // the worked-example shape rather than a fixture-free variant.
+  ...gauntletFunnel({
+    base: 'EMAcross', tf: 'D1',
+    nParams: 66, nFilterConfigs: 17780, nExits: 31,
+    nBehaviors: 2782865, nJudged: 20000,
+  }),
   ...GAUNTLET_TRIALS.flatMap(t => [t.name, t.plain]),
   ...GAUNTLET_VERDICTS,
   ...GAUNTLET_HONESTY,
@@ -63,7 +70,10 @@ describe('gauntlet explainer copy', () => {
     // D-APX-GATE-4: the 20 000 cap is an economy, disclosed, not a verdict. Losing this
     // distinction would turn a compute budget into a claim about the strategies.
     expect(ALL).toMatch(/non jugées/)
-    expect(ALL).toMatch(/20 000/)
+    // Separator-agnostic since the figure is derived: count() groups with a narrow no-break
+    // space (U+202F), while the old hand-typed literal used a plain ASCII space. Pinning one
+    // of the two would make this guard fail on correct copy.
+    expect(ALL).toMatch(/20[\s  ]000/)
   })
 
   it('keeps the paid product out of the free explanation', () => {
