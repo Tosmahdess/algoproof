@@ -2,18 +2,18 @@
 
 import { useState, ReactNode } from 'react'
 import DiscussionTab from './DiscussionTab'
-import ChangelogTab from './ChangelogTab'
-import type { BotChangelog } from '@/lib/types'
 
+// The « 📋 Historique » tab was removed on 2026-08-08 along with the public /journal page: a
+// visitor judging a bot does not read its change log, and this was the last surface feeding it.
+// ChangelogTab itself still exists — /intelligence mounts it directly for the MI pillars.
 interface ExplainerBoxProps {
   functional:      ReactNode
   technical:       ReactNode
   stacked?:        boolean
   discussionSlug?: string
-  changelogs?:     BotChangelog[]
 }
 
-type Tab = 'functional' | 'technical' | 'discussion' | 'changelog'
+type Tab = 'functional' | 'technical' | 'discussion'
 
 const TAB_STYLE = (active: boolean) =>
   `px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
@@ -27,7 +27,6 @@ export default function ExplainerBox({
   technical,
   stacked = false,
   discussionSlug,
-  changelogs,
 }: ExplainerBoxProps) {
   const [active, setActive] = useState<Tab>('functional')
 
@@ -44,7 +43,6 @@ export default function ExplainerBox({
     )
   }
 
-  const showChangelog = changelogs !== undefined
   const showDiscussion = !!discussionSlug
 
   return (
@@ -56,11 +54,6 @@ export default function ExplainerBox({
         <button data-tab="technical" onClick={() => setActive('technical')} className={TAB_STYLE(active === 'technical')}>
           ⚙️ Technique
         </button>
-        {showChangelog && (
-          <button data-tab="changelog" onClick={() => setActive('changelog')} className={TAB_STYLE(active === 'changelog')}>
-            📋 Historique
-          </button>
-        )}
         {showDiscussion && (
           <button data-tab="discussion" onClick={() => setActive('discussion')} className={TAB_STYLE(active === 'discussion')}>
             💬 Discussion
@@ -74,11 +67,6 @@ export default function ExplainerBox({
         )}
         {active === 'technical' && (
           <div data-section="technical" className="text-sm">{technical}</div>
-        )}
-        {active === 'changelog' && showChangelog && (
-          <div data-section="changelog" className="text-sm">
-            <ChangelogTab changelogs={changelogs!} />
-          </div>
         )}
         {active === 'discussion' && showDiscussion && (
           <div data-section="discussion" className="text-sm">
