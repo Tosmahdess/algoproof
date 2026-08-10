@@ -1,0 +1,60 @@
+---
+title: "Quand le marché hésite, la simulation absorbe le coût à ma place"
+date: "2026-08-09"
+category: "weekly"
+tags: ["weekly", "performance"]
+summary: "Aucun trade réel cette semaine : le contexte baissier m'a maintenu en attente. Le laboratoire, lui, a brassé 440 trades et m'a offert une leçon précieuse sur les shorts en période de tension."
+---
+
+## Mes bots en réel
+
+Cette semaine, mes deux bots actifs en argent réel - le bot spot sur Kraken et le bot de cassure - n'ont généré aucun trade. Zéro signal, zéro position ouverte. Ce n'est pas un bug : c'est le filtre de sécurité qui fait son travail.
+
+<StatRow>
+  <Stat label="Trades réels" value="0" subtext="semaine du 3 au 9 août" />
+  <Stat label="P&L de la semaine" value="0,00 €" subtext="base de suivi 1 000 €" />
+  <Stat label="Cumulé all-time" value="+95,03 €" subtext="depuis le début, rodage inclus" />
+</StatRow>
+
+Le suivi se fait sur une base normalisée de 1 000 €, pour rendre les deux bots comparables entre eux, quelle que soit la taille réelle du capital déployé chez le broker. Le chiffre affiché n'est donc pas un solde de compte brut.
+
+Pourquoi aucun trade ? Le marché est en régime baissier cette semaine : Bitcoin navigue environ 9,6 % sous sa moyenne de prix sur 200 jours, ce qui est un signal clair de faiblesse structurelle. Le tableau de bord du marché affiche un score global négatif (-9,14), et mon indicateur de biais donne un signal prudent des deux côtés, avec une pression particulièrement marquée sur les positions acheteuses (long) financées via les marchés dérivés. Le filtre de sécurité a donc maintenu les bots en observation : ils voient le marché, mais n'agissent pas. C'est exactement le comportement attendu.
+
+Le niveau de risque global reste classé "vert" au sens de la stabilité technique du système, mais "vert" ne signifie pas "favorable aux trades" : cela signifie que les conditions ne sont pas assez dégradées pour déclencher un arrêt d'urgence. La nuance est importante.
+
+---
+
+## Laboratoire (simulation)
+
+Le reste de ma flotte tourne en simulation pure. Cette semaine, 440 trades ont été exécutés en paper trading, c'est-à-dire avec de l'argent fictif, dans des conditions de marché réelles. Le coût de cette simulation : -241,61 €. De l'argent qui n'existe pas, dépensé pour apprendre.
+
+<DataCardGroup>
+  <DataCard label="Longs simulés" sub="374 trades" metrics="P&L: -55,89 € | WR: 90,6 % | Meilleur: XAU-USDC +2,96 € | Pire: INJ-USDT -6,26 €" intent="neutral" />
+  <DataCard label="Shorts simulés" sub="66 trades" metrics="P&L: -185,73 € | WR: 37,9 % | Meilleur: STX-USDT +5,63 € | Pire: OP-USDT -10,00 €" intent="negative" />
+</DataCardGroup>
+
+Le WR (taux de trades gagnants) des longs est remarquable : 90,6 %. Pourtant le P&L reste négatif. Cela s'explique par le ratio gain/perte : les trades perdants sont plus lourds que les gagnants, ce qui est souvent le signe d'un marché en consolidation où les positions favorables se referment trop vite.
+
+Les shorts, eux, racontent une autre histoire. 37,9 % de trades gagnants sur 66 positions, et presque toute la perte de la semaine concentrée là : -185,73 €. En régime baissier, vendre à découvert (shorter) semble intuitif. Mais si le marché baisse de façon désordonnée, les rebonds violents et imprévisibles cassent les stops (SL, le niveau auquel la position est fermée en perte automatiquement) avant que la tendance reprenne. C'est exactement ce que j'observe ici.
+
+<CompactTable cols="Direction | Trades | WR | P&L simulé">
+  <Row values="Long | 374 | 90,6 % | -55,89 €" />
+  <Row values="Short | 66 | 37,9 % | -185,73 €" />
+</CompactTable>
+
+La dissymétrie est frappante. Je vais approfondir la question du sizing et du placement de SL sur les stratégies short dans les prochains backtests (tests sur données historiques).
+
+---
+
+## Leçon de la semaine
+
+> Un marché baissier ne rend pas les shorts faciles : il les rend dangereux d'une façon différente. La simulation est là pour absorber ce genre de surprise sans que mon compte réel en souffre.
+
+---
+
+## Prochaines étapes
+
+- Analyser le comportement des shorts en période de régime baissier agité : est-ce un problème de timing d'entrée, de placement de SL, ou de sélection d'actifs ? INJ-USDT et OP-USDT méritent une relecture trade par trade.
+- Surveiller si Bitcoin se rapproche ou s'éloigne de sa moyenne sur 200 jours : c'est le principal déclencheur qui permettrait à mes bots réels de retrouver des conditions favorables.
+- Continuer à laisser le filtre de sécurité décider : forcer un trade parce que "la semaine est calme" serait exactement le genre d'erreur que ce système est conçu à éviter.
+- Documenter la différence de comportement entre longs à WR élevé et P&L négatif : c'est un cas d'école sur le rapport gain/risque qui mérite un article dédié.
