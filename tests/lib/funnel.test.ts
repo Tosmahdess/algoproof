@@ -21,6 +21,19 @@ describe('verdictTotals — swept vs judged (top-K finalize, 2026-08-06)', () =>
   it('returns zeros on an empty corpus', () => {
     expect(verdictTotals([])).toEqual({ n_swept: 0, n_judged: 0 })
   })
+
+  // D-APX-KLAD-4 (2026-08-15): a ladder row (greedy K4-5 extension, kmax=4/5,
+  // search_mode='ladder') carries configs DISJOINT from the K<=3 corpus, and its
+  // n_behaviors is the judged-candidate count, never the combinatorial space. Both
+  // surfaces sum it the same way — twin fixture: algolab
+  // web/lib/__tests__/engine-aggregate.test.ts, ladder case.
+  it('adds ladder rows to the same totals — disjoint configs, additive by construction', () => {
+    const rows = [
+      { n_behaviors: 20_000, n_go: 1, n_marginal: 4, n_no_go: 19_995, published_at: FRESH },
+      { n_behaviors: 180, n_go: 1, n_marginal: 0, n_no_go: 179, published_at: FRESH },
+    ]
+    expect(verdictTotals(rows)).toEqual({ n_swept: 20_180, n_judged: 20_180 })
+  })
 })
 
 describe('freshness — the flotte must count what the cockpit counts', () => {
