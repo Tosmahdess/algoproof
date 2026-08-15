@@ -35,11 +35,35 @@ export interface VerdictCountRow {
   n_go: number
   n_marginal: number
   n_no_go: number
+  published_at?: string | null
+}
+
+// 2026-08-12 19:38 UTC — the moment the corrected engine started producing, after
+// pandas 3.0 had silently turned the entry de-duplication idiom into a no-op for
+// three weeks (an entry EVENT degrading into an entry STATE). Verdicts judged
+// before it are not displayed anywhere.
+//
+// Twin of algolab `web/lib/engine-freshness.ts::CORRECTED_ENGINE_SINCE`. Two repos,
+// two deployments, so the constant is duplicated on purpose — and pinned by a test
+// on both sides, because the failure this file's header describes ("same table, two
+// semantics") is exactly what happens when the two surfaces drift apart. They did,
+// again, on 2026-08-15: the cockpit filtered and this one did not, so the flotte
+// over-counted by 151 359 on BOTH swept and judged.
+export const CORRECTED_ENGINE_SINCE = '2026-08-12T19:38:00Z'
+
+const CUTOFF = Date.parse(CORRECTED_ENGINE_SINCE)
+
+/** A row counts only if we know it was judged after the fix. An absent or
+ *  unparseable timestamp reads as stale — "we cannot tell" must never pass. */
+function judgedByCorrectedEngine(row: VerdictCountRow): boolean {
+  if (!row.published_at) return false
+  const t = Date.parse(row.published_at)
+  return Number.isFinite(t) && t >= CUTOFF
 }
 
 /** Pure aggregation, so the swept/judged split is testable without Supabase. */
 export function verdictTotals(rows: VerdictCountRow[]): { n_swept: number; n_judged: number } {
-  return rows.reduce(
+  return rows.filter(judgedByCorrectedEngine).reduce(
     (acc, r) => ({
       n_swept: acc.n_swept + r.n_behaviors,
       n_judged: acc.n_judged + r.n_go + r.n_marginal + r.n_no_go,
@@ -57,7 +81,7 @@ export async function getFunnelCounts(): Promise<FunnelCounts | null> {
       paginateAll<VerdictCountRow>(async (from, to) => {
         const { data, error } = await supabase
           .from('engine_verdicts_public')
-          .select('n_behaviors,n_go,n_marginal,n_no_go')
+          .select('n_behaviors,n_go,n_marginal,n_no_go,published_at')
           .range(from, to)
         if (error) throw new Error(error.message)
         return data ?? []
