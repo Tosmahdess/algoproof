@@ -1,0 +1,115 @@
+import { describe, it, expect } from 'vitest'
+import { BOT_PARAMS } from '@/lib/bot-params'
+import { getStrategyFiche } from '@/lib/strategy-library'
+
+// A published performance figure must describe the parameters the bot is
+// actually running. The gold bot's figure came from a run at SL 1.5xATR /
+// TP 3xATR (Wilder-EWM ATR) while the deployed bot runs SL 2xATR / TP 4xATR
+// (rolling-mean ATR), measured on the VPS on 2026-08-17. Until it is
+// requalified, its fiche must carry no performance figure at all.
+function allText(slug: string): string {
+  const entry = BOT_PARAMS[slug]
+  if (!entry) throw new Error(`no BOT_PARAMS entry for ${slug}`)
+  return JSON.stringify(entry)
+}
+
+describe('gold bot fiche carries no unbacked performance figure', () => {
+  it('still describes the strategy at all', () => {
+    // Guard: every not.toMatch below passes vacuously on an emptied entry, so
+    // pin the copy that must survive the removal of the figure.
+    const text = allText('keltner-xau-hl')
+    expect(text).toMatch(/Keltner/)
+    expect(text).toMatch(/XAU/)
+  })
+
+  it('mentions no profit factor, trade count or Sharpe', () => {
+    const text = allText('keltner-xau-hl')
+    expect(text).not.toMatch(/Profit Factor/i)
+    expect(text).not.toMatch(/Sharpe/i)
+    expect(text).not.toMatch(/1[.,]31/)
+    expect(text).not.toMatch(/1[.,]94/)
+    expect(text).not.toMatch(/262\s*trades/i)
+  })
+
+  it('says instead that the bot is not qualified yet', () => {
+    expect(allText('keltner-xau-hl')).toMatch(/pas encore qualifi/i)
+  })
+})
+
+// vps_sync.py publishes keltner-xau-hl as {"status": "paper"} against a
+// paper_state.db, so no public surface may present it as trading real money.
+// This is the same defect class as the figure above (a claim the bot does not
+// back) and the more severe one: a wrong PF misstates how well a bot did,
+// "en réel" misstates whether the money exists at all.
+//
+// The regexes end on \b deliberately. "réel" + word char must NOT match, so
+// legitimate copy like "taux réels" stays green while "en réel" fails.
+const REAL_MONEY = /en (capital |argent )?r[eé]el\b/i
+
+function ficheText(slug: string): string {
+  const fiche = getStrategyFiche(slug)
+  if (!fiche) throw new Error(`no strategy fiche for ${slug}`)
+  return JSON.stringify(fiche)
+}
+
+describe('gold bot is never described as trading real money', () => {
+  it('still points the Keltner fiche at the gold bot', () => {
+    // Guard: the assertion below also passes on a fiche that stopped
+    // mentioning the bot, which would "fix" the claim by deleting the link.
+    const text = ficheText('keltner')
+    expect(text).toMatch(/bot or/i)
+    expect(text).toMatch(/XAU/)
+  })
+
+  it('does not claim real money on the Keltner strategy fiche', () => {
+    expect(ficheText('keltner')).not.toMatch(REAL_MONEY)
+  })
+
+  it('labels the gold bot as running in simulation', () => {
+    expect(ficheText('keltner')).toMatch(/simulation/i)
+  })
+
+  it('does not claim real money on the gold bot params fiche', () => {
+    expect(allText('keltner-xau-hl')).not.toMatch(REAL_MONEY)
+  })
+})
+
+// Of the market-intelligence service's four pillars, only macro transposes to
+// EUR/USD: it is VIX plus the 5-day DXY move, both asset-agnostic and in fact
+// more direct on forex than on crypto. Sentiment is a crypto Fear & Greed
+// index (alternative.me) with a disabled Reddit feed, derivatives are funding /
+// long-short / OI delta / liquidations computed on BTCUSDT-ETHUSDT-SOLUSDT
+// with no forex equivalent, and the news keyword dictionary is crypto-oriented
+// on top of half-geopolitical feeds. Measured against
+// docs/market-intelligence/technique-expert.md sections 5.1-5.4.
+describe('EUR/USD fiche does not claim all four MI pillars apply', () => {
+  it('drops the four-pillars claim', () => {
+    const text = allText('emacross-eur-usd')
+    // Wide gap: the live text puts a ~75-char parenthetical between the two
+    // phrases, so a tight bound would pass without the claim being gone.
+    // No /s flag: this repo's tsconfig target predates es2018, and it is not
+    // needed anyway. JSON.stringify escapes every real newline, so the text
+    // under test is one physical line and `.` already spans all of it.
+    expect(text).not.toMatch(/4 piliers.{0,200}restent pertinents/)
+  })
+
+  it('says one single pillar carries the information, and names macro', () => {
+    // /macro/i alone was near-vacuous: the untouched surrounding copy already
+    // says "macro" three times, so the assertion held even with the false
+    // claim in place. Pin the shape of the corrected claim instead.
+    const text = allText('emacross-eur-usd')
+    expect(text).toMatch(/un seul[^.]{0,60}pilier/i)
+    expect(text).toMatch(/macro/i)
+  })
+
+  it('never pairs a plural "piliers" with a relevance claim', () => {
+    // The deleted sentence's SHAPE, not its exact words, so a reworded
+    // comeback ("les piliers restent valables", "les 4 piliers sont
+    // transposables") fails too. Only the plural is targeted: the corrected
+    // copy legitimately says one single pillar out of several carries the
+    // information, and that phrase must stay green.
+    expect(allText('emacross-eur-usd')).not.toMatch(
+      /piliers.{0,200}(pertinent|valable|transposable|s'appliquent)/i,
+    )
+  })
+})
