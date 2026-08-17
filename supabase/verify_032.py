@@ -14,6 +14,9 @@ import urllib.request
 
 RECIPE_KEYS = {"params", "filters", "exit"}
 TEASER_KEYS = {"k", "dd", "pf", "wf", "n_trades", "eligible", "cause"}
+CONTROL_KEYS = {"n_behaviors", "bonferroni_bar", "resolution_ceiling", "bonferroni_expressible"}
+# Engine prose that lives in the same jsonb column and must never reach a page.
+CONTROL_FORBIDDEN = {"note", "alpha", "corrected", "n_null_ran"}
 
 
 def load_env(path="env.local"):
@@ -87,6 +90,21 @@ def main():
     # consumer is green whatever the producer emits (vault lesson 2026-08-16).
     ok &= check_over("every survivor carries a numeric dd", entries,
                      all(isinstance(e.get("dd"), (int, float)) for e in entries))
+
+    # HonestyNote is fed from here and must never be starved: the key is always present,
+    # null only when the unit was judged before the measurement existed.
+    units = payload.get("units", [])
+    ok &= check_over("every unit carries selection_control (possibly null)", units,
+                     all("selection_control" in u for u in units))
+    controls = [u["selection_control"] for u in units if u.get("selection_control")]
+    if controls:
+        shapes = {frozenset(c) for c in controls}
+        ok &= check("selection_control is the 4-key allow-list",
+                    shapes == {frozenset(CONTROL_KEYS)}, str(shapes))
+        ok &= check("no engine prose in selection_control",
+                    not ({k for c in controls for k in c} & CONTROL_FORBIDDEN))
+    else:
+        print("  note  no non-null selection_control in this base — shape unexercised")
 
     print("2. service-role key -> teaser (auth.uid() is NULL, fail closed)")
     payload = rpc(url, svc, base)

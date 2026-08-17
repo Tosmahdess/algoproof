@@ -78,6 +78,23 @@ begin
                'n_go', v.n_go,
                'n_marginal', v.n_marginal,
                'published_at', v.published_at,
+               -- TEASER-SIDE, never paid. This feeds HonestyNote, the permanent caveat
+               -- that says what these verdicts do NOT prove. Its own header states it must
+               -- never render nothing — "a page of 152 recipes with no caveat is exactly
+               -- what this note exists to prevent" — so hiding it behind the paywall would
+               -- put the sales screen in the one state the component was written to forbid.
+               -- Four named fields, never `v.selection_control` whole: the column is jsonb
+               -- and carries engine prose (`note`, `alpha`, `corrected`, `n_null_ran`) that
+               -- reached the served HTML once already through a spread.
+               'selection_control', case
+                 when v.selection_control is null then null
+                 else pg_catalog.jsonb_build_object(
+                   'n_behaviors',            v.selection_control -> 'n_behaviors',
+                   'bonferroni_bar',         v.selection_control -> 'bonferroni_bar',
+                   'resolution_ceiling',     v.selection_control -> 'resolution_ceiling',
+                   'bonferroni_expressible', v.selection_control -> 'bonferroni_expressible'
+                 )
+               end,
                'survivors', (
                  select pg_catalog.coalesce(
                           pg_catalog.jsonb_agg(
