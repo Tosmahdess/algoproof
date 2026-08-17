@@ -18,7 +18,7 @@ export interface BotParams {
   technicalArticle?: TechnicalSection[]
 }
 
-const BOT_PARAMS: Record<string, BotParams> = {
+export const BOT_PARAMS: Record<string, BotParams> = {
   "v1-spot": {
     groups: [
       {
@@ -950,7 +950,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
     ],
   },
 
-  "emacross-oanda-eurusd": {
+  "emacross-eur-usd": {
     groups: [
       {
         title: "Signal",
@@ -1280,7 +1280,7 @@ const BOT_PARAMS: Record<string, BotParams> = {
     ],
   },
 
-  "keltner-hlperps-xau": {
+  "keltner-xau-hl": {
     groups: [
       {
         title: "Signal",
