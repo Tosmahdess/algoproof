@@ -47,12 +47,12 @@ def _bf_n(n: int) -> list: return [f"{n} actifs Binance Futures"]
 BOTS = [
     {
         "slug": "v1-spot",
-        "name": "EMA Cross H4 Binance Spot",
+        "name": "EMA Cross H4 Kraken Spot",
         "family": "trend",
         "strategy": "EMA Cross H4 (21/55/200)",
         "status": "live",
-        "exchange": "Binance Spot",
-        "assets": ["BTC/USDT", "SOL/USDT", "LINK/USDT", "DOGE/USDT", "ADA/USDT"],
+        "exchange": "Kraken Spot",  # cutover Binance -> Kraken 2026-06-30 (MiCA)
+        "assets": ["BTC/USDC", "SOL/USDC", "LINK/USDC", "ADA/USDC", "XRP/USDC", "DOGE/USDC"],
         "timeframe": "H4",
         "description": (
             "Ce bot applique un système de suivi de tendance à trois EMA sur l'unité de temps H4. "
@@ -463,6 +463,33 @@ BOTS = [
         "paper_state_name": "",
         "start_capital": 1000.0,
     },
+    {
+        "slug": "funding-rev-long",
+        "name": "Funding-Reversal D1 Long-only",
+        "family": "mean-reversion",
+        "strategy": "Reversal contrarian sur extrême de funding + capitulation — long-only, gross 0.35",
+        "status": "paper",
+        "exchange": "Hyperliquid perps (proxy BinFut)",
+        "assets": ["~100 perps les plus liquides (tous listés sur Hyperliquid)"],
+        "timeframe": "D1",
+        "description": (
+            "Stratégie contrarian : le bot achète (long uniquement) quand le funding atteint un extrême "
+            "relatif négatif (z-score glissant, jamais une valeur absolue) ET que le prix est en capitulation "
+            "sous sa moyenne — le pari que l'excès de levier baissier va se dégonfler et que le prix rebondit, "
+            "en encaissant le funding pendant l'attente. Univers : les ~100 perpetuals les plus liquides, "
+            "sélectionnés par volume (jamais par rentabilité passée) et tous tradeables sur Hyperliquid. "
+            "Le risque est capé au niveau du portefeuille : le book n'engage jamais plus de 35% du capital "
+            "(« gross 0.35 »), les entrées les plus fortes (funding le plus extrême) sont servies en premier. "
+            "Sorties : stop ATR, retour du prix à sa moyenne, funding normalisé, ou durée max. Pas de jambe "
+            "short — le côté short combat la tendance de fond et n'a pas d'edge net (prouvé sur 2022-26). "
+            "Garde-fou : un symbole indisponible/halté est ignoré, un flux de données incomplet fait sauter "
+            "le tick. Bot en paper trading — track record forward démarré à 1000€."
+        ),
+        "schema": "funding_rev",
+        "db_path": os.path.expanduser("~/apex_funding_reversal_long/db/funding_rev_trades.db"),
+        "paper_state_name": "",
+        "start_capital": 1000.0,
+    },
 ]
 
 WEALTH_CALLS_DB   = os.path.expanduser("~/apex_wealth/db/wealth_calls.db")
@@ -480,7 +507,13 @@ def supabase_upsert(table: str, rows: list, on_conflict: str) -> None:
     headers = {**BASE_HEADERS, "Prefer": f"resolution=merge-duplicates,return=minimal"}
     params = {"on_conflict": on_conflict} if on_conflict else {}
     r = requests.post(f"{SUPABASE_URL}/rest/v1/{table}", headers=headers, params=params, json=rows)
-    r.raise_for_status()
+    if not r.ok:
+        # PostgREST puts the code, the constraint name and the failing row in the BODY.
+        # raise_for_status() alone prints "400 Bad Request" and nothing else — that is
+        # how a check-constraint break went unnoticed on both real-money bots from
+        # 2026-08-01 to 2026-08-13. Never swallow the body again.
+        raise requests.HTTPError(
+            f"{r.status_code} on {table}: {r.text[:500]}", response=r)
 
 
 def supabase_delete(table: str, bot_id: str) -> None:
@@ -525,7 +558,8 @@ def load_trades_from_db(db_path: str) -> list[dict]:
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("""
-        SELECT timestamp, closed_at, symbol, direction, pnl, exit_reason
+        SELECT timestamp, closed_at, symbol, direction, pnl, exit_reason,
+               entry_price, exit_price
         FROM trades
         WHERE status = 'closed'
           AND pnl IS NOT NULL
@@ -578,7 +612,9 @@ def load_trades_new_schema(db_path: str) -> list[dict]:
                symbol,
                direction,
                pnl_usdt    AS pnl,
-               exit_reason
+               exit_reason,
+               entry_price,
+               exit_price
         FROM trades
         WHERE closed_at IS NOT NULL
           AND paper = 1
@@ -609,7 +645,9 @@ def load_trades_breakout_schema(db_path: str) -> list[dict]:
                symbol,
                direction,
                net_usdc    AS pnl,
-               exit_reason
+               exit_reason,
+               entry_price,
+               exit_price
         FROM trades
         WHERE status = 'closed'
           AND exit_time IS NOT NULL
@@ -748,6 +786,37 @@ def get_xsec_balance(db_path: str, start_capital: float) -> float:
         return start_capital
 
 
+def load_trades_funding_rev_schema(db_path: str) -> list[dict]:
+    """Load closed trades from the funding-reversal long-only paper bot. Each row is one
+    symbol's contrarian trade (entry on a funding extreme + capitulation, exit on stop /
+    mean-revert / funding-norm / max-hold). The engine stores pnl_net as a per-trade RETURN
+    fraction; multiply by the entry notional to get the $ P&L build_perf_daily expects."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute(
+            "SELECT entry_dt, exit_dt, symbol, side, pnl_net, notional "
+            "FROM closed_trades ORDER BY exit_dt ASC"
+        ).fetchall()
+    except Exception:
+        conn.close()
+        return []
+    conn.close()
+    trades = []
+    for r in rows:
+        r = dict(r)
+        pnl_usd = float(r["pnl_net"]) * abs(float(r["notional"] or 0.0))
+        trades.append({
+            "timestamp":   r["entry_dt"],
+            "closed_at":   r["exit_dt"],
+            "symbol":      clean_asset(r["symbol"]),
+            "direction":   r["side"],           # already "long"/"short" (long-only here)
+            "pnl":         round(pnl_usd, 6),
+            "exit_reason": "exit",
+        })
+    return trades
+
+
 def build_perf_daily(trades: list[dict], start_capital: float, paper_balance: float) -> list[dict]:
     """
     Build daily equity rows from closed trades.
@@ -850,6 +919,12 @@ def get_bot_status(slug: str) -> str | None:
     return data[0]["status"] if data else None
 
 
+def get_bot_live_since(slug: str) -> str | None:
+    """Existing live_since of a bot, or None if unset / bot unknown."""
+    data = supabase_get("bots", {"slug": f"eq.{slug}", "select": "live_since"})
+    return data[0]["live_since"] if data else None
+
+
 def sync_bot(bot_cfg: dict) -> None:
     slug = bot_cfg["slug"]
     db_path = bot_cfg["db_path"]
@@ -874,6 +949,8 @@ def sync_bot(bot_cfg: dict) -> None:
             trades = load_trades_grid_schema(db_path)
         elif schema == "xsec":
             trades = load_trades_xsec_schema(db_path)
+        elif schema == "funding_rev":
+            trades = load_trades_funding_rev_schema(db_path)
         else:
             trades = load_trades_from_db(db_path)
 
@@ -904,6 +981,17 @@ def sync_bot(bot_cfg: dict) -> None:
         "description": bot_cfg["description"],
         "last_sync_at": datetime.now(timezone.utc).isoformat(),
     }
+    if status == "live":
+        # `bots_live_since_check` requires live_since when status is 'live'. Postgres
+        # evaluates CHECK constraints on the candidate INSERT row BEFORE arbitrating
+        # on_conflict, so leaving the column out of the payload fails the whole upsert
+        # even when the stored row already has a date. Carry the existing one through.
+        live_since = get_bot_live_since(slug)
+        if live_since is None:
+            live_since = datetime.now(timezone.utc).isoformat()
+            print(f"[{slug}] WARNING: status=live sans live_since en base — "
+                  f"initialise a maintenant ({live_since})")
+        bot_row["live_since"] = live_since
     supabase_upsert("bots", [bot_row], "slug")
     bot_id = get_bot_id(slug)
 
@@ -925,6 +1013,8 @@ def sync_bot(bot_cfg: dict) -> None:
                 "pnl":        round(float(t["pnl"]), 4),
                 "reason":     t["exit_reason"],
                 "is_paper":   True,
+                "entry_price": t.get("entry_price"),
+                "exit_price":  t.get("exit_price"),
             }
             for t in trades
         ]
@@ -942,6 +1032,8 @@ def sync_bot(bot_cfg: dict) -> None:
         paper_balance = get_grid_balance(db_path, start_capital)
     elif schema == "xsec":
         paper_balance = get_xsec_balance(db_path, start_capital)
+    elif schema == "funding_rev":
+        paper_balance = get_xsec_balance(db_path, start_capital)  # same kv 'equity' structure
     else:
         paper_balance = get_paper_balance(db_path, paper_name)
     perf = build_perf_daily(trades, start_capital, paper_balance)
@@ -1197,8 +1289,21 @@ def sync_mi_snapshot() -> None:
                 "is_macro_safe":             record.get("is_macro_safe"),
                 "derivatives_score":         temporal.get("derivatives_score_ema_24h"),
                 "composite_score":           hb.get("global_score"),
+                "vix_value":                 hb.get("vix"),
+                "risk_reasons":              hb.get("risk_reasons") or [],
             }
-            supabase_upsert("hard_gate_events", [_hg_row], "")
+            try:
+                supabase_upsert("hard_gate_events", [_hg_row], "")
+            except Exception as _col_e:
+                # DDL-tolerant fallback (2026-07-23): vix_value/risk_reasons
+                # columns may not exist yet — never lose the base row for it.
+                if "column" in str(_col_e).lower() or "42703" in str(_col_e):
+                    _hg_row.pop("vix_value", None)
+                    _hg_row.pop("risk_reasons", None)
+                    supabase_upsert("hard_gate_events", [_hg_row], "")
+                    print("  [hard_gate_events] WARN: vix columns missing — pushed without (run DDL)")
+                else:
+                    raise
             print("  [hard_gate_events] pushed (live_enforced=" + str(_hg.get("live_enforced")) + ")")
     except Exception as _hg_e:
         print("  [hard_gate_events] push failed (non-blocking): " + str(_hg_e))
