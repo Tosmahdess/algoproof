@@ -1,0 +1,73 @@
+---
+title: "Un marché hésitant qui coûte plus cher en simulation qu'en réel"
+date: "2026-08-16"
+category: "weekly"
+tags: ["weekly", "performance"]
+summary: "Cette semaine, mes bots réels limitent la casse malgré un contexte difficile, pendant que la simulation encaisse les coups et me donne des leçons que l'argent réel n'a pas eu à payer."
+---
+
+## Mes bots en réel
+
+*Suivi sur une base de 1 000 €, pour que les deux bots soient comparables. Ce n'est pas le solde brut chez mon broker.*
+
+<StatRow>
+  <Stat label="Trades réels" value="14" subtext="semaine du 10 au 16 août" />
+  <Stat label="P&L semaine" value="-20,26 €" subtext="base 1 000 €" />
+  <Stat label="Taux de réussite" value="42,9 %" subtext="6 gagnants / 14" />
+  <Stat label="P&L cumulé (all-time)" value="+11,60 €" subtext="sur 291 trades depuis le début" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Meilleur trade de la semaine" sub="LINK-USDC, côté acheteur (long)" metrics="P&L: +24,27 € | Direction: long" intent="positive" />
+  <DataCard label="Pire trade de la semaine" sub="ETH-USDC, côté acheteur (long)" metrics="P&L: -17,19 € | Direction: long" intent="negative" />
+  <DataCard label="Côté vendeur (short) - bilan" sub="10 trades, 4 gagnants" metrics="P&L: -36,09 € | Taux de réussite: 40 %" intent="negative" />
+  <DataCard label="Côté acheteur (long) - bilan" sub="4 trades, 2 gagnants" metrics="P&L: +15,83 € | Taux de réussite: 50 %" intent="neutral" />
+</DataCardGroup>
+
+La semaine est rouge, c'est une réalité. Mais je garde une perspective : depuis le tout début du projet, rodage compris, mes bots réels affichent +11,60 € cumulés sur 291 trades. Ce n'est pas une performance spectaculaire, c'est une preuve de robustesse dans un marché qui n'a pas été tendre.
+
+Ce qui me frappe cette semaine, c'est le contraste entre les deux côtés. Les shorts (paris à la baisse) ont pesé lourd : -36,09 € pour 10 trades avec un taux de réussite (WR, proportion de trades gagnants) de seulement 40 %. Les longs, eux, s'en sortent mieux en proportion, grâce surtout au trade LINK-USDC qui a bien fonctionné. Un seul trade peut changer la lecture d'une semaine entière.
+
+---
+
+## Laboratoire (simulation)
+
+Le coût de la simulation cette semaine : -179,57 € de monnaie qui n'existe pas, dépensée pour apprendre.
+
+<StatRow>
+  <Stat label="Trades simulés" value="480" subtext="semaine du 10 au 16 août" />
+  <Stat label="Taux de réussite global" value="82,9 %" subtext="398 gagnants / 480" />
+  <Stat label="Meilleur actif" value="DOT-USDT" subtext="+7,46 € simulés, short" />
+  <Stat label="Pire actif" value="TIA-USDT" subtext="-12,02 € simulés, short" />
+</StatRow>
+
+480 trades simulés avec un WR de 82,9 %, et pourtant le P&L global est négatif. C'est le paradoxe classique des stratégies à fort taux de réussite : quand les pertes arrivent, elles sont suffisamment larges pour effacer beaucoup de petits gains. Cette semaine, les shorts simulés ont particulièrement souffert : 85 trades pour -108,23 €, avec un WR de 61,2 % qui reste correct mais des pertes sur les mauvais trades trop importantes.
+
+Ce que j'observe sur les longs simulés est différent : 395 trades, WR de 87,6 %, mais -71,34 €. Les marchés hésitants punissent les entrées en tendance. Le contexte de la semaine explique en grande partie ce résultat.
+
+Le laboratoire, c'est précisément fait pour ça : encaisser ces observations sans mettre de capital réel en danger.
+
+---
+
+## Contexte de marché
+
+Le marché est en configuration baissière cette semaine. Bitcoin se situe environ 7,7 % sous sa moyenne de prix sur 200 jours (un indicateur technique long terme très suivi), ce qui place le contexte dans un régime clairement défavorable aux achats impulsifs. Pourtant, mon filtre de sécurité reste au vert et autorise les deux directions, achat comme vente.
+
+Nuance importante : en simulation, le filtre a bloqué les nouveaux longs à cause d'un signal lié au coût de financement des positions longues sur les marchés dérivés. Autrement dit, les bots en observation restent en retrait côté acheteur, ce qui est cohérent avec ce que le marché montre.
+
+L'indicateur de biais de marché pointe dans les deux sens sans conviction marquée, ce qui traduit une indécision générale. Dans ce genre de semaine, les stratégies de tendance souffrent, et les chiffres ci-dessus le confirment.
+
+---
+
+## Leçon de la semaine
+
+> Un marché sans conviction claire ne récompense pas la patience, il la teste. La simulation paie la facture de l'apprentissage. Le réel, lui, reste à l'équilibre depuis le début, ce qui est déjà une victoire dans ce contexte.
+
+---
+
+## Prochaines étapes
+
+- Analyser les 10 shorts réels de la semaine pour comprendre si les stop-loss (seuils de perte maximale acceptée) sont bien calibrés ou si les sorties ont été prématurées.
+- Observer si le signal de blocage des longs en simulation se lève la semaine prochaine, ce serait un signe que le marché reprend une direction plus lisible.
+- Comparer la performance du bot de cassure versus le bot spot Kraken sur ce type de semaine hésitante, je ne l'ai pas encore quantifié proprement sur les données récentes.
+- Continuer à documenter chaque semaine, même les semaines rouges : la régularité du suivi est ce qui donne de la valeur aux données sur le long terme.
