@@ -123,6 +123,25 @@ begin
                                  'filters', e -> 'filters',
                                  'exit',    e -> 'exit'
                                ) else '{}'::jsonb end
+                            -- NEUTRAL ORDER, DECIDED HERE AND NOT IN THE CLIENT.
+                            --
+                            -- The engine stores survivors in its own (-null_pct, -pf) order and
+                            -- jsonb_agg preserves input order, so without this the anonymous,
+                            -- indexable half of the conversion screen renders a profit-factor
+                            -- leaderboard. That is the exact thing neutral-order.ts was written
+                            -- to kill and the 31/07 note forbids by name: a default ranking by
+                            -- performance is an implicit recommendation, and the top of such a
+                            -- ranking is mechanically the small-sample lucky tail. The client
+                            -- cannot fix it on the teaser arm — its hash needs `filters`, which
+                            -- a teaser entry does not carry, so it ties and falls back to input
+                            -- order.
+                            --
+                            -- ⚠️ DO NOT "improve" this by publishing the hash as a row id.
+                            -- One unit's space is ~36 million enumerable configurations, so a
+                            -- published hash of the entry is brute-forceable offline and hands
+                            -- over the whole paid corpus. The ordering is computed here and
+                            -- never leaves the database; that is the point.
+                            order by pg_catalog.md5(e::text)
                           ),
                           '[]'::jsonb)
                    from pg_catalog.jsonb_array_elements(

@@ -90,6 +90,17 @@ def main():
     # consumer is green whatever the producer emits (vault lesson 2026-08-16).
     ok &= check_over("every survivor carries a numeric dd", entries,
                      all(isinstance(e.get("dd"), (int, float)) for e in entries))
+    # The engine stores survivors in (-null_pct, -pf) order and jsonb_agg preserves input
+    # order, so the default row order on a public page would be a profit-factor
+    # leaderboard. The function re-orders by md5. On a base with thousands of survivors the
+    # chance that a hash order comes out pf-descending is nil, so this is decisive there;
+    # on a 5-row base it is not, hence the explicit skip rather than a free PASS.
+    pfs = [e["pf"] for e in entries if isinstance(e.get("pf"), (int, float))]
+    if len(pfs) >= 50:
+        ok &= check("survivors are not served in pf-descending order",
+                    not all(a >= b for a, b in zip(pfs, pfs[1:])), f"n={len(pfs)}")
+    else:
+        print(f"  note  only {len(pfs)} survivors — order check not decisive, skipped")
 
     # HonestyNote is fed from here and must never be starved: the key is always present,
     # null only when the unit was judged before the measurement existed.
