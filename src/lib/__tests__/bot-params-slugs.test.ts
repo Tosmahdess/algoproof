@@ -6,8 +6,15 @@ import { BOT_PARAMS } from '@/lib/bot-params'
 // The producer side of the invariant. BOT_PARAMS is consumed by a strict
 // lookup (getBotParams -> BOT_PARAMS[slug] ?? null), so a key that does not
 // match a published slug silently renders nothing. A fixture written here by
-// hand would stay green whatever vps_sync.py publishes, so we read the
-// publisher itself: it is the authority on bots.slug.
+// hand would stay green whatever the publisher emits, so we read the
+// publisher instead.
+//
+// Caveat, measured 2026-08-17: this reads THE REPO'S COPY of the publisher,
+// which is known to have diverged from the file that actually runs in
+// production (~/algoproof_sync.py on the server). The two carry different
+// slug sets and different code, so this file is the authority on what this
+// repo intends to publish, not on what the live database currently holds.
+// Reconciling the two is a separate job, recorded in the vault.
 function publishedSlugs(): string[] {
   const src = readFileSync(join(process.cwd(), 'scripts', 'vps_sync.py'), 'utf8')
   const out = new Set<string>()
@@ -19,13 +26,31 @@ describe('BOT_PARAMS keys vs published bot slugs', () => {
   it('reads a non-trivial number of slugs from the publisher', () => {
     // Guard: if the regex ever stops matching, every assertion below would
     // pass vacuously. This is the fixture-produces-nothing failure mode.
-    expect(publishedSlugs().length).toBeGreaterThan(20)
+    // A count threshold alone is weak (a regex matching the wrong literal
+    // could still clear 20), so pin one slug that must be in the set.
+    const published = publishedSlugs()
+    expect(published.length).toBeGreaterThan(20)
+    expect(published).toContain('v1-spot')
   })
 
   it('has no BOT_PARAMS key that is not a published slug', () => {
     const published = new Set(publishedSlugs())
     const orphans = Object.keys(BOT_PARAMS).filter((k) => !published.has(k))
     expect(orphans).toEqual([])
+  })
+
+  it('has a BOT_PARAMS entry for every published slug', () => {
+    // The other direction, and the one the two dead keys were hiding. An
+    // orphan key renders nothing extra; a MISSING key makes the fiche fall
+    // back to "Paramètres techniques en cours de documentation" with no
+    // signal that an entry was ever meant to exist.
+    //
+    // Keys are enumerated through Object.keys rather than by grepping the
+    // source, so both quoting styles used in bot-params.ts (double-quoted
+    // "v1-spot", single-quoted 'grid-btc-spot') are covered identically.
+    const keys = new Set(Object.keys(BOT_PARAMS))
+    const undocumented = publishedSlugs().filter((s) => !keys.has(s))
+    expect(undocumented).toEqual([])
   })
 
   it('resolves the two non-crypto bots by their published slug', () => {

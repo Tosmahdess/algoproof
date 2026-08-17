@@ -87,10 +87,29 @@ describe('EUR/USD fiche does not claim all four MI pillars apply', () => {
     const text = allText('emacross-eur-usd')
     // Wide gap: the live text puts a ~75-char parenthetical between the two
     // phrases, so a tight bound would pass without the claim being gone.
-    expect(text).not.toMatch(/4 piliers.{0,200}restent pertinents/s)
+    // No /s flag: this repo's tsconfig target predates es2018, and it is not
+    // needed anyway. JSON.stringify escapes every real newline, so the text
+    // under test is one physical line and `.` already spans all of it.
+    expect(text).not.toMatch(/4 piliers.{0,200}restent pertinents/)
   })
 
-  it('still explains that the macro pillar is the relevant one', () => {
-    expect(allText('emacross-eur-usd')).toMatch(/macro/i)
+  it('says one single pillar carries the information, and names macro', () => {
+    // /macro/i alone was near-vacuous: the untouched surrounding copy already
+    // says "macro" three times, so the assertion held even with the false
+    // claim in place. Pin the shape of the corrected claim instead.
+    const text = allText('emacross-eur-usd')
+    expect(text).toMatch(/un seul[^.]{0,60}pilier/i)
+    expect(text).toMatch(/macro/i)
+  })
+
+  it('never pairs a plural "piliers" with a relevance claim', () => {
+    // The deleted sentence's SHAPE, not its exact words, so a reworded
+    // comeback ("les piliers restent valables", "les 4 piliers sont
+    // transposables") fails too. Only the plural is targeted: the corrected
+    // copy legitimately says one single pillar out of several carries the
+    // information, and that phrase must stay green.
+    expect(allText('emacross-eur-usd')).not.toMatch(
+      /piliers.{0,200}(pertinent|valable|transposable|s'appliquent)/i,
+    )
   })
 })

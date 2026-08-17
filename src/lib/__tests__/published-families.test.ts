@@ -5,8 +5,14 @@ import { isFamily, familyLabel, familyColor } from '@/lib/families'
 
 // familyLabel/familyColor throw on a family this repo does not know. That is
 // deliberate (a silent undefined shipped a blank badge once). So every family
-// the publisher writes must be one of the nine, or a page crashes on the
-// first visit after a sync.
+// written by THE REPO'S COPY of the publisher must be one of the nine, or a
+// page crashes on the first visit after a sync.
+//
+// Measured 2026-08-17: the repo's copy has diverged from the file that
+// actually runs in production (~/algoproof_sync.py on the server). Green here
+// means this repo cannot ship an unrenderable family; it does not prove the
+// live publisher never writes one. Reconciling the two is a separate job,
+// recorded in the vault.
 function publishedFamilies(): string[] {
   const src = readFileSync(join(process.cwd(), 'scripts', 'vps_sync.py'), 'utf8')
   const out = new Set<string>()
