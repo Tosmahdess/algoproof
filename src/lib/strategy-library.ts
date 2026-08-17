@@ -471,7 +471,7 @@ const FICHES = [
       "Un canal centré sur une EMA, aux bords en ATR : la sortie du canal signale l'anomalie qui commence.",
     logic: [
       "Le canal de Keltner entoure une EMA centrale de deux bandes distantes d'un multiple d'ATR. Tant que le prix vit dans le canal, il est « normal » ; quand il en sort, il fait statistiquement mieux que sa volatilité récente, et c'est ce déséquilibre qu'on trade.",
-      "À la différence des Bollinger (écart-type), les bandes ATR réagissent plus doucement aux chocs isolés : le canal est plus stable, les sorties plus rares et plus franches. C'est la stratégie de mon bot or (XAU) sur Hyperliquid, en réel.",
+      "À la différence des Bollinger (écart-type), les bandes ATR réagissent plus doucement aux chocs isolés : le canal est plus stable, les sorties plus rares et plus franches. C'est la stratégie de mon bot or (XAU) sur Hyperliquid, qui tourne en simulation pour l'instant.",
     ],
     worksWhen: [
       "Les départs de mouvement après compression : la sortie du canal est un excellent détecteur d'accélération.",
