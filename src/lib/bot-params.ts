@@ -983,20 +983,20 @@ export const BOT_PARAMS: Record<string, BotParams> = {
         title: "Costs",
         items: [
           { label: "Broker", value: "OANDA" },
-          { label: "Spread", value: "~0.01%" },
-          { label: "Round-trip cost", value: "~0.03%" },
+          { label: "Spread", value: "~0.01%", note: "per side" },
+          { label: "Round-trip cost", value: "~0.02%" },
         ],
       },
     ],
     technicalArticle: [
       {
         title: "Signal — EMA Cross sur EUR/USD",
-        body: "Croisement EMA(9) × EMA(50) sur H4, appliqué à un seul actif : la paire EUR/USD via OANDA. Backtest 2024-2026 : Profit Factor 1.73, Win Rate 47.1%. Le forex porte une corrélation avec le sentiment risk-on/risk-off mais ses drivers structurels (taux directeurs Fed/BCE, balance commerciale, flux de capitaux) sont distincts du crypto. Cela fait d'EUR/USD un actif intéressant pour diversifier un portefeuille de bots crypto. La config 9/50 (rapide) est calibrée pour le rythme intraday du forex H4, qui produit des retournements plus fréquents que le crypto sur cet horizon. Long sur cross haussier, short sur cross baissier.",
+        body: "Croisement EMA(9) × EMA(50) sur H4, appliqué à un seul actif : la paire EUR/USD via OANDA. Backtest 2024-2026 : Profit Factor 1.73 sur 68 trades, Win Rate 47.1%. Sur la partie que je n'avais pas utilisée pour choisir les réglages, il retombe à 1.53, et c'est ce chiffre-là que je regarde. Le forex porte une corrélation avec le sentiment risk-on/risk-off mais ses drivers structurels (taux directeurs Fed/BCE, balance commerciale, flux de capitaux) sont distincts du crypto. Cela fait d'EUR/USD un actif intéressant pour diversifier un portefeuille de bots crypto. La config 9/50 est plus rapide que celle des bots crypto ; c'est simplement celle qui est ressortie de mon balayage sur cette paire, je n'ai pas d'explication mesurée à donner au-delà de ça. Long sur cross haussier, short sur cross baissier.",
         code: "ema_fast = close.ewm(span=9).mean()\nema_slow = close.ewm(span=50).mean()\n\ncross_up = ema_fast.iloc[-1] > ema_slow.iloc[-1] and ema_fast.iloc[-2] <= ema_slow.iloc[-2]\ncross_dn = ema_fast.iloc[-1] < ema_slow.iloc[-1] and ema_fast.iloc[-2] >= ema_slow.iloc[-2]",
       },
       {
         title: "Gestion du risque",
-        body: "Stop loss à ATR(14)×2.0, take profit en R:R 1:2. Risque 1% par trade, maximum 2 positions simultanées sur EUR/USD (vs 8 pour les bots multi-actifs), daily cap 3%. Coûts OANDA très inférieurs aux frais crypto : spread typique ~0.01% par côté, soit un round-trip ~0.03% (vs ~0.20% sur Binance Futures). Cet écart de coûts permet d'exploiter des edges plus fins que sur le crypto.",
+        body: "Stop loss à ATR(14)×2.0, take profit en R:R 1:2. Risque 1% par trade, maximum 2 positions simultanées sur EUR/USD (vs 8 pour les bots multi-actifs), daily cap 3%. Coûts OANDA très inférieurs aux frais crypto : spread typique ~0.01% par côté, soit un round-trip ~0.02% (vs ~0.20% sur Binance Futures). Cet écart de coûts permet d'exploiter des edges plus fins que sur le crypto.",
       },
       {
         title: "Filtre de sécurité — veille de marché sur forex",
@@ -1304,7 +1304,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Defense mesh",
         items: [
-          { label: "MI gate", value: "Active", note: "Fed/CPI events critical for XAU" },
+          { label: "MI gate", value: "Active", note: "blocks entries on a RED regime" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
         ],
@@ -1322,16 +1322,16 @@ export const BOT_PARAMS: Record<string, BotParams> = {
     technicalArticle: [
       {
         title: "Signal — Keltner Breakout sur XAU",
-        body: "Le bot trade le Keltner Channel(period=20, multiplicateur=1.5×ATR) sur H4, appliqué à un seul actif : le perp XAU-USDC sur Hyperliquid. Une entrée long se déclenche quand le close casse au-dessus de la borne supérieure (EMA 20 + 1.5×ATR), un short quand il casse sous la borne inférieure (EMA 20 - 1.5×ATR). L'or réagit à des drivers macro distincts du crypto — dollar (DXY), taux réels US, sentiment risk-off — ce qui en fait un actif décorrélé intéressant pour diversifier un portefeuille de bots. Ce bot n'est pas encore qualifié. Le seul backtest que j'ai sous la main a tourné avec un stop à 1,5×ATR, un take profit à 3×ATR et un ATR calculé autrement, alors que le bot déployé travaille à 2×ATR et 4×ATR. Il mesure donc une autre stratégie que celle qui passe les ordres. Les chiffres de performance qui figuraient ici en venaient, je les ai retirés le 17 août après avoir comparé cette fiche au code qui tourne. Tant que je ne l'ai pas repassé en entier, validation hors échantillon incluse, je n'affiche rien à leur place.",
+        body: "Le bot trade le Keltner Channel(period=20, multiplicateur=1.5×ATR) sur H4, appliqué à un seul actif : le perp XAU-USDC sur Hyperliquid. Une entrée long se déclenche quand le close casse au-dessus de la borne supérieure (EMA 20 + 1.5×ATR), un short quand il casse sous la borne inférieure (EMA 20 - 1.5×ATR). L'or réagit à des drivers macro distincts du crypto — dollar (DXY), taux réels US, sentiment risk-off — ce qui en fait un actif décorrélé intéressant pour diversifier un portefeuille de bots. Ce bot n'est pas encore qualifié. Le backtest d'origine a tourné avec un stop à 1,5×ATR, un take profit à 3×ATR et un ATR calculé autrement, alors que le bot déployé travaille à 2×ATR et 4×ATR. Il mesure donc une autre stratégie que celle qui passe les ordres. Le chiffre de performance que j'avais noté pour ce bot sort de ce run-là, donc je n'en publie aucun. Tant que je ne l'ai pas repassé en entier, validation hors échantillon incluse, il n'y a rien de mesuré à montrer.",
         code: "ema20 = close.ewm(span=20).mean()\natr   = compute_atr(high, low, close, 14)\nupper = ema20 + 1.5 * atr\nlower = ema20 - 1.5 * atr\n\nlong_  = close.iloc[-1] > upper.iloc[-1]\nshort_ = close.iloc[-1] < lower.iloc[-1]",
       },
       {
         title: "Gestion du risque",
-        body: "Stop loss à ATR(14)×2.0, take profit en R:R 1:2. Risque 1% par trade, max 3 positions simultanées (single-asset cap), daily cap 3%. Hyperliquid taker fee 0.065%, slippage estimé 0.02%, round-trip ~0.15% — significativement moins cher qu'un broker traditionnel sur l'or.",
+        body: "Stop loss à ATR(14)×2.0, take profit en R:R 1:2. Risque 1% par trade, max 3 positions simultanées (single-asset cap), daily cap 3%. Hyperliquid taker fee 0.065%, slippage estimé 0.02%, round-trip ~0.15%.",
       },
       {
-        title: "Filtre de sécurité — veille de marché critique pour XAU",
-        body: "Le service de veille de marché est particulièrement pertinent pour l'or : les événements macro (décisions Fed, CPI, données emploi US) ont un impact direct et souvent brutal sur XAU via le canal taux réels et DXY. Le pilier macro de la veille de marché (calendrier 134 événements) suit ces releases à titre informatif ; les fenêtres de blocage pré-annonce ont été retirées le 23/07/2026 (contre-productives sur un replay de 2 ans, y compris sur ce bot). La veille de marché bloque toute entrée en régime RED, kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
+        title: "Filtre de sécurité — veille de marché sur l'or",
+        body: "Le service de veille de marché est celui des bots crypto, et sur l'or c'est son volet macro qui porte l'information. Ce volet lit le VIX et la variation du dollar sur cinq jours, deux choses qui déplacent XAU directement par le canal des taux réels. Le sentiment (indice Fear & Greed) et les dérivés (financement, ratio long/short et liquidations sur BTC, ETH et SOL) décrivent le marché crypto et n'ont pas d'équivalent sur l'or. C'est une limite assumée, je n'ai pas de veille taillée pour le métal. Le calendrier macro (Fed, CPI, emploi US) est bien collecté de son côté, mais depuis le 23/07/2026 il ne bloque plus rien, un replay de 2 ans ayant montré que les fenêtres d'attente avant annonce coûtaient plus qu'elles ne protégeaient. Ce qui reste actif : la veille bloque toute entrée en régime RED, kill switch -3%/jour, circuit breaker 5 pertes → 4h.",
       },
     ],
   },
