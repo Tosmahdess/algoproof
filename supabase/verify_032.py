@@ -49,30 +49,46 @@ def load_env(path="env.local"):
             os.environ.setdefault(k.strip(), v.strip())
 
 
-def rpc(url, anon, token, base, dataset=None):
-    """POST the RPC as `token`'s identity.
+# TWO CALLERS, TWO HEADER SHAPES. DO NOT "SIMPLIFY" THESE INTO ONE HELPER.
+#
+# MEASURED 2026-08-17 against the live project, same body, same not-yet-created function:
+#
+#   apikey=<service>  Authorization=Bearer <service>  ->  PGRST202  (reaches the lookup)
+#   apikey=<anon>     Authorization=Bearer <service>  ->  PGRST301  "Expected 3 parts in JWT"
+#
+# Changing ONLY `apikey` flips 202 into 301, which settles what each header does. The gateway
+# resolves the role from `apikey`; once `apikey` is the anon publishable key, `Authorization`
+# is read as a USER access token, and this project's keys are the new `sb_…` format — one
+# part, not three — so a non-JWT there is a parse error before the function is ever looked up.
+#
+# Hence the split, and it is conditional, not global:
+#
+#   rpc()          key-based callers (anon, service-role). The SAME key in both headers.
+#                  Checks 1, 2, 3, 4, 5, 6 and 7.
+#   rpc_as_user()  a real signed-in identity. anon publishable key in `apikey`, the user's
+#                  access token in `Authorization`. GoTrue access tokens are three-part JWTs,
+#                  so this shape is correct there and only there. Check 8.
+#
+# The earlier version of this file sent one token in both headers for everyone, which was
+# right; a round of review then globalised the anon-in-apikey rule to protect check 8 and
+# thereby guaranteed the DDL-time traceback it was written to prevent. The measurement above
+# is the record of that being wrong.
 
-    TWO DIFFERENT HEADERS, TWO DIFFERENT JOBS — do not collapse them back into one.
-    `apikey` is the PROJECT key and Supabase's gateway validates it against the project's
-    API keys (anon / service_role) before the request ever reaches PostgREST. A user JWT is
-    not a project key, so sending one there gets the call rejected at the gateway — which is
-    check 8, the only test of a REAL signed-in identity in the whole lot, aborting instead of
-    answering.
-    `Authorization` is the IDENTITY under test: the anon key, the service-role key, or a
-    real user JWT. PostgREST reads the role and the claims from that one.
 
-    A transport failure returns a marked payload instead of raising: this script is run at
-    DDL time with nobody watching, and a traceback halfway through prints no verdict at all
-    for the checks that had already passed. `units: []` makes every check_over below fail
-    closed on top of the named FAIL.
+def _post(url, apikey, bearer, base, dataset):
+    """The one request. Errors come back MARKED, never raised.
+
+    This script is run at DDL time with nobody watching, and a traceback halfway through
+    prints no verdict at all for the checks that had already passed. `units: []` makes every
+    check_over below fail closed on top of the named FAIL.
     """
     body = json.dumps({"p_base": base, "p_dataset": dataset}).encode()
     req = urllib.request.Request(
         f"{url}/rest/v1/rpc/dossier_payload",
         data=body,
         headers={
-            "apikey": anon,
-            "Authorization": f"Bearer {token}",
+            "apikey": apikey,
+            "Authorization": f"Bearer {bearer}",
             "Content-Type": "application/json",
         },
         method="POST",
@@ -85,6 +101,20 @@ def rpc(url, anon, token, base, dataset=None):
         return {"__error__": f"HTTP {e.code}: {detail}", "access": None, "units": []}
     except Exception as e:  # noqa: BLE001 — any transport problem is a named FAIL, not a crash
         return {"__error__": f"{type(e).__name__}: {e}", "access": None, "units": []}
+
+
+def rpc(url, key, base, dataset=None):
+    """A PROJECT KEY calling as itself: anon or service-role. Same key in both headers."""
+    return _post(url, key, key, base, dataset)
+
+
+def rpc_as_user(url, anon, token, base, dataset=None):
+    """A REAL SIGNED-IN IDENTITY: anon key in `apikey`, the user's access token as bearer.
+
+    The only shape that reaches auth.uid() with a value, and the only one that exercises the
+    subscriptions lookup — every other caller in this file lands on auth.uid() IS NULL.
+    """
+    return _post(url, anon, token, base, dataset)
 
 
 def transport(name, payload):
@@ -143,7 +173,7 @@ def main():
         ok &= check("migration file is readable", False, str(e))
 
     print("1. anon key -> teaser (on a base that is not the free sample)")
-    payload = rpc(url, anon, anon, base)
+    payload = rpc(url, anon, base)
     ok &= transport("anon", payload)
     ok &= check("access == teaser", payload.get("access") == "teaser", payload.get("access"))
     entries = [e for u in payload.get("units", []) for e in u.get("survivors", [])]
@@ -188,7 +218,7 @@ def main():
         print("  note  no non-null selection_control in this base — shape unexercised")
 
     print("2. service-role key -> teaser (auth.uid() is NULL, fail closed)")
-    payload = rpc(url, anon, svc, base)
+    payload = rpc(url, svc, base)
     ok &= transport("service-role", payload)
     ok &= check("access == teaser", payload.get("access") == "teaser", payload.get("access"))
     entries = [e for u in payload.get("units", []) for e in u.get("survivors", [])]
@@ -203,12 +233,12 @@ def main():
                      all((u.get("published_at") or "") >= CUTOFF[:-1] for u in units))
 
     print("4. unknown base -> empty, not an error")
-    payload = rpc(url, anon, anon, "NoSuchBase")
+    payload = rpc(url, anon, "NoSuchBase")
     ok &= transport("unknown base", payload)
     ok &= check("units == []", payload.get("units") == [])
 
     print("5. one dataset only")
-    payload = rpc(url, anon, anon, base)
+    payload = rpc(url, anon, base)
     ok &= transport("one dataset", payload)
     units = payload.get("units", [])
     datasets = {u.get("dataset_version") for u in units}
@@ -223,8 +253,8 @@ def main():
     # both when lowercase returns nothing AND if a future rewrite made the two spellings
     # resolve to different corpora. check_over so it cannot pass on zero units either way.
     print("6. lowercase URL segments resolve (the case the site actually calls with)")
-    given = rpc(url, anon, anon, base)
-    lowered = rpc(url, anon, anon, base.lower())
+    given = rpc(url, anon, base)
+    lowered = rpc(url, anon, base.lower())
     ok &= transport("base as given", given)
     ok &= transport("base lowercased", lowered)
     units_given = given.get("units", [])
@@ -249,7 +279,7 @@ def main():
     # exists, which is why it is worth having: check 8 needs three minted JWTs and gets
     # SKIPped far more often than anyone would like.
     print("7. the free-sample base is fully public, and only that base")
-    fs = rpc(url, anon, anon, FREE_SAMPLE)
+    fs = rpc(url, anon, FREE_SAMPLE)
     ok &= transport("free sample", fs)
     ok &= check(f"{FREE_SAMPLE} -> full for the anon key", fs.get("access") == "full",
                 fs.get("access"))
@@ -258,7 +288,7 @@ def main():
                      {k for e in fs_entries for k in e} >= RECIPE_KEYS)
     # Lowercase too: this is the spelling every link, the sitemap and the canonical use, so
     # the product rule is worth nothing if it only fires on the camelCase form.
-    fs_low = rpc(url, anon, anon, FREE_SAMPLE.lower())
+    fs_low = rpc(url, anon, FREE_SAMPLE.lower())
     ok &= transport("free sample lowercased", fs_low)
     ok &= check(f"{FREE_SAMPLE.lower()} -> full as well", fs_low.get("access") == "full",
                 fs_low.get("access"))
@@ -269,7 +299,7 @@ def main():
         ok &= check("VERIFY_BASE differs from the free sample", False,
                     f"VERIFY_BASE={base}: nothing to contrast, pick a non-sample base")
     else:
-        other = rpc(url, anon, anon, base)
+        other = rpc(url, anon, base)
         ok &= transport("non-sample base", other)
         ok &= check(f"{base} -> teaser for the same anon key",
                     other.get("access") == "teaser", other.get("access"))
@@ -298,7 +328,7 @@ def main():
         for label, jwt in jwts.items():
             # anon key in `apikey` (the project key the gateway validates), the user JWT in
             # `Authorization` (the identity PostgREST reads auth.uid() from).
-            payload = rpc(url, anon, jwt, base)
+            payload = rpc_as_user(url, anon, jwt, base)
             ok &= transport(label, payload)
             entries = [e for u in payload.get("units", []) for e in u.get("survivors", [])]
             leaked = {k for e in entries for k in e} & RECIPE_KEYS
