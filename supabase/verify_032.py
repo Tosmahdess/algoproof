@@ -49,6 +49,18 @@ def check(name, cond, detail=""):
     return cond
 
 
+def check_over(name, seq, cond, detail=""):
+    """A check over a collection must FAIL on an empty collection.
+
+    `all([])` is True and `set()` is falsy, so every assertion below would print PASS
+    against zero survivors — a paywall verifier reporting green while testing nothing.
+    That failure mode has already cost this project twice (a 200 with `[]` read as
+    proof of a working read; a `*/0` read as proof of a closed table). Emptiness is
+    part of the condition, never an implicit precondition.
+    """
+    return check(name, len(seq) > 0 and cond, detail or f"n={len(seq)}")
+
+
 def main():
     load_env()
     url = os.environ["SUPABASE_URL"] if "SUPABASE_URL" in os.environ \
@@ -64,29 +76,30 @@ def main():
     entries = [e for u in payload.get("units", []) for e in u.get("survivors", [])]
     ok &= check("at least one survivor returned", len(entries) > 0, f"n={len(entries)}")
     leaked = {k for e in entries for k in e} & RECIPE_KEYS
-    ok &= check("no recipe key in teaser", not leaked, str(leaked))
+    ok &= check_over("no recipe key in teaser", entries, not leaked, str(leaked))
     shapes = {frozenset(e) for e in entries}
-    ok &= check("teaser keys are exactly the allow-list",
-                shapes == {frozenset(TEASER_KEYS)}, str(shapes))
-    ok &= check("no threshold in cause",
-                all(" " not in (e.get("cause") or "") for e in entries))
+    ok &= check_over("teaser keys are exactly the allow-list", entries,
+                     shapes == {frozenset(TEASER_KEYS)}, str(shapes))
+    ok &= check_over("no threshold in cause", entries,
+                     all(" " not in (e.get("cause") or "") for e in entries))
     # Spec §3.4: no survivor is ever served without its drawdown. Asserted on the
     # function's REAL output, not on a literal written here — a fixture written by the
     # consumer is green whatever the producer emits (vault lesson 2026-08-16).
-    ok &= check("every survivor carries a numeric dd",
-                all(isinstance(e.get("dd"), (int, float)) for e in entries))
+    ok &= check_over("every survivor carries a numeric dd", entries,
+                     all(isinstance(e.get("dd"), (int, float)) for e in entries))
 
     print("2. service-role key -> teaser (auth.uid() is NULL, fail closed)")
     payload = rpc(url, svc, base)
     ok &= check("access == teaser", payload.get("access") == "teaser", payload.get("access"))
     entries = [e for u in payload.get("units", []) for e in u.get("survivors", [])]
     leaked = {k for e in entries for k in e} & RECIPE_KEYS
-    ok &= check("no recipe key for service-role", not leaked, str(leaked))
+    ok &= check_over("no recipe key for service-role", entries, not leaked, str(leaked))
 
     print("3. stale units are not served")
-    ok &= check("every unit is post-cutoff",
-                all((u.get("published_at") or "") >= "2026-08-12T19:38:00"
-                    for u in payload.get("units", [])))
+    units = payload.get("units", [])
+    ok &= check_over("every unit is post-cutoff", units,
+                     all((u.get("published_at") or "") >= "2026-08-12T19:38:00"
+                         for u in units))
 
     print("4. unknown base -> empty, not an error")
     payload = rpc(url, anon, "NoSuchBase")
@@ -94,8 +107,11 @@ def main():
 
     print("5. one dataset only")
     payload = rpc(url, anon, base)
-    datasets = {u.get("dataset_version") for u in payload.get("units", [])}
-    ok &= check("a single dataset_version is served", len(datasets) <= 1, str(datasets))
+    units = payload.get("units", [])
+    datasets = {u.get("dataset_version") for u in units}
+    # `<= 1` would pass on zero units. Exactly one, over a non-empty set of units.
+    ok &= check_over("a single dataset_version is served", units,
+                     len(datasets) == 1, str(datasets))
 
     # ── The assertions that actually decide whether the paywall works ──────────────
     # Everything above runs with a key, not with a user. A key is not an identity: anon
@@ -120,12 +136,13 @@ def main():
             if label == "active account":
                 ok &= check(f"{label} -> full", payload.get("access") == "full",
                             payload.get("access"))
-                ok &= check(f"{label} receives the recipe", leaked == RECIPE_KEYS, str(leaked))
+                ok &= check_over(f"{label} receives the recipe", entries,
+                                 leaked == RECIPE_KEYS, str(leaked))
             else:
                 # trialing is deliberately NOT entitled to the corpus (spec §3.3/§4.6).
                 ok &= check(f"{label} -> teaser", payload.get("access") == "teaser",
                             payload.get("access"))
-                ok &= check(f"{label} gets no recipe", not leaked, str(leaked))
+                ok &= check_over(f"{label} gets no recipe", entries, not leaked, str(leaked))
 
     print("\nRESULT:", "PASS" if ok else "FAIL")
     sys.exit(0 if ok else 1)
