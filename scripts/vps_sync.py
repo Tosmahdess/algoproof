@@ -382,7 +382,7 @@ BOTS = [
         "paper_state_name": "apex_emacross_oanda_eurusd", "start_capital": 1000.0,
     },
     {
-        "slug": "keltner-xau-hl", "name": "Keltner Gold HL Perps", "family": "trend",
+        "slug": "keltner-xau-hl", "name": "Keltner Gold HL Perps", "family": "breakout",
         "schema": "new", "strategy": "Keltner H4 — XAU-USDC", "status": "paper",
         "exchange": "Hyperliquid", "assets": ["XAU-USDC"], "timeframe": "H4",
         "description": "Canal Keltner H4 sur l'or (XAU-USDC) via perpetuals Hyperliquid. L'or comme actif de diversification non-crypto avec un système de cassure de volatilité. Corrélé négativement au dollar, réagit différemment des cryptos.",
