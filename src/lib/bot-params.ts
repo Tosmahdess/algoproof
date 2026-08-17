@@ -1000,7 +1000,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité — veille de marché sur forex",
-        body: "Le service de veille de marché utilisé est le même que pour les bots crypto — les 4 piliers (Fear & Greed, dérivés Binance, news RSS, calendrier macro 134 événements) restent pertinents pour EUR/USD. Le pilier macro (VIX, DXY, calendrier Fed/BCE/CPI) est même particulièrement direct sur le forex : un FOMC ou un NFP impacte EUR/USD au même titre que les cryptos via le DXY. Kill switch -3%/jour, circuit breaker 5 pertes → 4h. (Les fenêtres de blocage pré-annonce ont été retirées le 23/07/2026 : un replay de 2 ans les a montrées contre-productives.)",
+        body: "Le service de veille de marché est celui des bots crypto, et sur EUR/USD un seul de ses piliers porte vraiment l'information : le macro, parce que le VIX et le dollar bougent cette paire directement. Un FOMC ou un NFP déplace EUR/USD via le DXY au même titre qu'une crypto. Le sentiment (indice Fear & Greed) et les dérivés (financement, ratio long/short et liquidations sur BTC, ETH et SOL) n'ont pas d'équivalent sur le forex, et le fil de news est à moitié géopolitique, à moitié crypto. C'est une limite assumée, pas encore un filtre taillé pour le forex. Kill switch -3%/jour, circuit breaker 5 pertes → 4h. (Les fenêtres de blocage pré-annonce ont été retirées le 23/07/2026 : un replay de 2 ans les a montrées contre-productives.)",
       },
     ],
   },

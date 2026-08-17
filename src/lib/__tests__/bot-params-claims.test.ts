@@ -73,3 +73,24 @@ describe('gold bot is never described as trading real money', () => {
     expect(allText('keltner-xau-hl')).not.toMatch(REAL_MONEY)
   })
 })
+
+// Of the market-intelligence service's four pillars, only macro transposes to
+// EUR/USD: it is VIX plus the 5-day DXY move, both asset-agnostic and in fact
+// more direct on forex than on crypto. Sentiment is a crypto Fear & Greed
+// index (alternative.me) with a disabled Reddit feed, derivatives are funding /
+// long-short / OI delta / liquidations computed on BTCUSDT-ETHUSDT-SOLUSDT
+// with no forex equivalent, and the news keyword dictionary is crypto-oriented
+// on top of half-geopolitical feeds. Measured against
+// docs/market-intelligence/technique-expert.md sections 5.1-5.4.
+describe('EUR/USD fiche does not claim all four MI pillars apply', () => {
+  it('drops the four-pillars claim', () => {
+    const text = allText('emacross-eur-usd')
+    // Wide gap: the live text puts a ~75-char parenthetical between the two
+    // phrases, so a tight bound would pass without the claim being gone.
+    expect(text).not.toMatch(/4 piliers.{0,200}restent pertinents/s)
+  })
+
+  it('still explains that the macro pillar is the relevant one', () => {
+    expect(allText('emacross-eur-usd')).toMatch(/macro/i)
+  })
+})
