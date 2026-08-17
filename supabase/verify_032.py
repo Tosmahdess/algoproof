@@ -23,6 +23,13 @@ MIGRATION = os.path.join(
 # copy against this one, so all three move together or the verifier says which file lags.
 CUTOFF = "2026-08-12T19:38:00Z"
 
+# The base the product rule makes permanently public: one complete dossier anyone can read,
+# so the format of the proof can be judged before paying for the other nine. Mirrors
+# c_free_sample in the migration, and check 0 pins the two together the same way it pins
+# CUTOFF — which base plays this part is an open question deferred to a later lot, so it is
+# expected to move and must move in both files at once.
+FREE_SAMPLE = "EMAcross"
+
 RECIPE_KEYS = {"params", "filters", "exit"}
 TEASER_KEYS = {"k", "dd", "pf", "wf", "n_trades", "eligible", "cause"}
 CONTROL_KEYS = {"n_behaviors", "bonferroni_bar", "resolution_ceiling", "bonferroni_expressible"}
@@ -48,8 +55,9 @@ def rpc(url, anon, token, base, dataset=None):
     TWO DIFFERENT HEADERS, TWO DIFFERENT JOBS — do not collapse them back into one.
     `apikey` is the PROJECT key and Supabase's gateway validates it against the project's
     API keys (anon / service_role) before the request ever reaches PostgREST. A user JWT is
-    not a project key, so sending one there gets the call rejected at the gateway — which
-    is check 6, the only entitlement test in the whole lot, aborting instead of answering.
+    not a project key, so sending one there gets the call rejected at the gateway — which is
+    check 8, the only test of a REAL signed-in identity in the whole lot, aborting instead of
+    answering.
     `Authorization` is the IDENTITY under test: the anon key, the service-role key, or a
     real user JWT. PostgREST reads the role and the claims from that one.
 
@@ -127,10 +135,14 @@ def main():
         if found:
             ok &= check("c_cutoff == CUTOFF", found.group(1) == CUTOFF,
                         f"sql={found.group(1)} py={CUTOFF}")
+        # Same pinning, for the free-sample base. Which base it is will change; this makes
+        # the two files change together instead of the verifier quietly testing the wrong one.
+        marker = f"c_free_sample constant text := '{FREE_SAMPLE}';"
+        ok &= check("c_free_sample == FREE_SAMPLE", marker in sql, FREE_SAMPLE)
     except OSError as e:
         ok &= check("migration file is readable", False, str(e))
 
-    print("1. anon key -> teaser")
+    print("1. anon key -> teaser (on a base that is not the free sample)")
     payload = rpc(url, anon, anon, base)
     ok &= transport("anon", payload)
     ok &= check("access == teaser", payload.get("access") == "teaser", payload.get("access"))
@@ -222,13 +234,58 @@ def main():
                      len(units_lower) == len(units_given),
                      f"given={len(units_given)} lower={len(units_lower)}")
 
+    # THE ONLY CHECK IN THIS FILE THAT TELLS THE TWO ARMS APART WITHOUT A USER JWT.
+    #
+    # Everything above runs the anon key against a paid base and confirms it is refused.
+    # That is a one-sided test: a function that returned 'teaser' unconditionally — because
+    # it is broken, because v_paid got wired to a constant false, because the recipe
+    # concatenation was dropped — would pass every one of those checks. This is the other
+    # side. The same anon key, the same absence of any identity, one base public by product
+    # rule and one not: 'full' with the recipe on the first, 'teaser' without it on the
+    # second. If the two answers are ever the same, either the free sample has been
+    # withdrawn from the public or the paywall is not closing, and the pair says which.
+    #
+    # It is also the first assertion in the whole lot that can be run before any account
+    # exists, which is why it is worth having: check 8 needs three minted JWTs and gets
+    # SKIPped far more often than anyone would like.
+    print("7. the free-sample base is fully public, and only that base")
+    fs = rpc(url, anon, anon, FREE_SAMPLE)
+    ok &= transport("free sample", fs)
+    ok &= check(f"{FREE_SAMPLE} -> full for the anon key", fs.get("access") == "full",
+                fs.get("access"))
+    fs_entries = [e for u in fs.get("units", []) for e in u.get("survivors", [])]
+    ok &= check_over(f"{FREE_SAMPLE} carries the recipe", fs_entries,
+                     {k for e in fs_entries for k in e} >= RECIPE_KEYS)
+    # Lowercase too: this is the spelling every link, the sitemap and the canonical use, so
+    # the product rule is worth nothing if it only fires on the camelCase form.
+    fs_low = rpc(url, anon, anon, FREE_SAMPLE.lower())
+    ok &= transport("free sample lowercased", fs_low)
+    ok &= check(f"{FREE_SAMPLE.lower()} -> full as well", fs_low.get("access") == "full",
+                fs_low.get("access"))
+    # The other side of the pair, on the same key. `base` defaults to a non-free base; if
+    # VERIFY_BASE was pointed at the sample there is no contrast left to measure, and this
+    # says so instead of printing a PASS that compares a thing with itself.
+    if base.lower() == FREE_SAMPLE.lower():
+        ok &= check("VERIFY_BASE differs from the free sample", False,
+                    f"VERIFY_BASE={base}: nothing to contrast, pick a non-sample base")
+    else:
+        other = rpc(url, anon, anon, base)
+        ok &= transport("non-sample base", other)
+        ok &= check(f"{base} -> teaser for the same anon key",
+                    other.get("access") == "teaser", other.get("access"))
+        other_entries = [e for u in other.get("units", []) for e in u.get("survivors", [])]
+        ok &= check_over(f"{base} carries no recipe", other_entries,
+                         not ({k for e in other_entries for k in e} & RECIPE_KEYS))
+
     # ── The assertions that actually decide whether the paywall works ──────────────
     # Everything above runs with a key, not with a user. A key is not an identity: anon
-    # and service-role both land on auth.uid() IS NULL, so they exercise the SAME branch.
-    # The branch that matters — a real signed-in account, entitled or not — is only
+    # and service-role both land on auth.uid() IS NULL. Check 7 proves the function can
+    # still emit both arms from there — but it does so through the free-sample rule, which
+    # bypasses the subscription lookup entirely. The branch that matters — a real signed-in
+    # account, entitled or not, actually resolved against `subscriptions` — is only
     # reachable with a user JWT. Set the three env vars below (see Step 3b for how to
     # mint them on the dev project) or this verifier proves nothing about entitlement.
-    print("7. real user identities")
+    print("8. real user identities")
     jwts = {
         "free account": os.environ.get("VERIFY_JWT_FREE"),
         "trialing account": os.environ.get("VERIFY_JWT_TRIALING"),

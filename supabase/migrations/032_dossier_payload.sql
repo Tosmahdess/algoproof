@@ -34,6 +34,10 @@
 -- walk-forward, CSV and robustness — compute cannot be stolen. The corpus can: one
 -- throwaway email, one 7-day trial, ~10 RPC calls and the whole product is out for
 -- zero euro. The asymmetry is the design (spec §4.6). Do not align them.
+--
+-- The one exception to all of the above is the FREE SAMPLE base, which is fully public to
+-- everyone on purpose — see c_free_sample in the body for why that is a product rule and
+-- not a hole.
 
 create or replace function public.dossier_payload(
   p_base text,
@@ -53,6 +57,29 @@ declare
   -- Verdicts produced before the pandas 3.0 fix are not publishable. The two
   -- constants are pinned together by a test in that repo.
   c_cutoff constant timestamptz := '2026-08-12T19:38:00Z';
+  -- THE FREE SAMPLE. A PRODUCT RULE, NOT A HOLE IN THE GATE.
+  --
+  -- One base is a permanent free sample: its dossier is complete and open to everyone,
+  -- before the paywall flips and after it. That is the whole point of it. This site sells
+  -- the CONTENT of a proof, so a reader has to be able to read one entire proof — the
+  -- parameters, the filters, the exit, the cause, the shape of the whole thing — and judge
+  -- the FORMAT for themselves before paying for the other nine. A locked corpus with no
+  -- readable specimen is "trust me", which is the one thing this site exists to refuse.
+  --
+  -- The old page implemented this implicitly, by only ever existing for this one base. When
+  -- the dossier became /cockpit/dossier/[base] over the whole corpus, the rule was left
+  -- behind and the gate started treating all ten bases identically — so the sample would
+  -- have been withdrawn from the public the day this migration applied, while /membre still
+  -- advertised it. Nothing published is withdrawn now; the other nine become teasers, which
+  -- costs no reader anything, because until the case-insensitive fix above they resolved to
+  -- 404 for everybody.
+  --
+  -- WHY A CONSTANT AND NOT A LITERAL IN THE PREDICATE. Which base plays this part is an
+  -- OPEN QUESTION, deferred to a later lot: EMAcross is the incumbent because /membre has
+  -- always named it, and its corpus is being re-swept as this ships. The value is therefore
+  -- expected to change. Naming it once, here, is what makes that a one-line edit instead of
+  -- a hunt through the predicates.
+  c_free_sample constant text := 'EMAcross';
   v_uid uuid := auth.uid();
   v_paid boolean := false;
   v_units jsonb;
@@ -64,6 +91,16 @@ begin
      where s.user_id = v_uid
        and s.status = 'active'
        and (s.current_period_end is null or s.current_period_end > pg_catalog.now());
+  end if;
+
+  -- The second way to be entitled, and the only one that does not involve an identity.
+  -- Scoped to THIS CALL's p_base, never to a row: one invocation asks about one base, every
+  -- row the select below returns is that base, so a request for the free sample cannot
+  -- widen anything past the sample itself. Same case-insensitive comparison as the row
+  -- predicate below, and for the same reason — the URL is `/cockpit/dossier/emacross` and
+  -- the corpus says `EMAcross`.
+  if pg_catalog.lower(p_base) = pg_catalog.lower(c_free_sample) then
+    v_paid := true;
   end if;
 
   select pg_catalog.coalesce(
@@ -199,9 +236,10 @@ comment on function public.dossier_payload(text, text) is
   'Cockpit dossier payload. Decides entitlement itself from auth.uid() and never '
   'from an argument. Returns the teaser allow-list for anon, for a free account and '
   'for a service-role caller (auth.uid() is NULL -> fail closed); returns the recipe '
-  'only for status=active with a live period. p_base is matched case-insensitively: the '
-  'corpus is camelCase and every URL the site produces is lowercase. '
-  'See spec 2026-08-17 §4.2.';
+  'only for status=active with a live period — OR for the free-sample base, which is fully '
+  'public to everyone by product rule (c_free_sample in the body). p_base is matched '
+  'case-insensitively: the corpus is camelCase and every URL the site produces is '
+  'lowercase. See spec 2026-08-17 §4.2.';
 
 -- Postgres grants EXECUTE to PUBLIC by default on every new function — the same
 -- default-open trap the table migrations have been closing since July. Revoke first,
