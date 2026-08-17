@@ -103,7 +103,7 @@ begin
     v_paid := true;
   end if;
 
-  select pg_catalog.coalesce(
+  select coalesce(
            pg_catalog.jsonb_agg(
              pg_catalog.jsonb_build_object(
                'base', v.base,
@@ -133,7 +133,7 @@ begin
                  )
                end,
                'survivors', (
-                 select pg_catalog.coalesce(
+                 select coalesce(
                           pg_catalog.jsonb_agg(
                             -- Allow-list. The seven teaser keys, plus the recipe only
                             -- when v_paid. `dd` is NOT optional: no survivor is ever
@@ -150,7 +150,7 @@ begin
                               -- and so does this.
                               'cause', case
                                 when pg_catalog.jsonb_array_length(
-                                       pg_catalog.coalesce(e -> 'reasons', '[]'::jsonb)) > 0
+                                       coalesce(e -> 'reasons', '[]'::jsonb)) > 0
                                 then pg_catalog.split_part(e -> 'reasons' ->> 0, ' ', 1)
                                 else null
                               end
@@ -182,7 +182,7 @@ begin
                           ),
                           '[]'::jsonb)
                    from pg_catalog.jsonb_array_elements(
-                          pg_catalog.coalesce(v.survivors, '[]'::jsonb)) e
+                          coalesce(v.survivors, '[]'::jsonb)) e
                )
              )
            ),
@@ -214,7 +214,7 @@ begin
      -- on different data side by side under one heading. With no dataset asked for, the
      -- freshest one this base has. This replaces latestDataset()/onlyDataset(), which
      -- did the same thing in the page — moved into the gate so it cannot be skipped.
-     and v.dataset_version = pg_catalog.coalesce(
+     and v.dataset_version = coalesce(
            p_dataset,
            (select pg_catalog.max(w.dataset_version)
               from public.engine_verdicts w
