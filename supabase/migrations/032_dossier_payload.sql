@@ -152,7 +152,24 @@ begin
            '[]'::jsonb)
     into v_units
     from public.engine_verdicts v
-   where v.base = p_base
+   -- CASE-INSENSITIVE ON PURPOSE. DO NOT "OPTIMISE" THIS BACK TO `v.base = p_base`.
+   --
+   -- The corpus stores base names in camelCase (EMAcross, WilliamsVolBreak,
+   -- DonchianBreakout, KeltnerBreak, TEMAcross, ATRChannel, HMAcross, ORB, KAMAcross,
+   -- HeikinAshiTrend) while every URL the site produces is LOWERCASE by construction:
+   -- the links on /cockpit/survivants, the entries in sitemap.ts and the page's own
+   -- canonical all call .toLowerCase(), and the route hands its raw segment straight to
+   -- this function. A case-sensitive comparison therefore matched NOTHING for every real
+   -- visitor: dossier_payload('emacross') returned units=[] and the page 404'd — all ten
+   -- dossiers, on every URL the site itself advertises.
+   --
+   -- Lowercasing in the application instead would not do: the mapping lowercase ->
+   -- camelCase is not derivable (TEMAcross vs KeltnerBreak vs ORB), so the join has to
+   -- happen where the stored spelling lives. Both predicates below need it — the
+   -- max(dataset_version) sub-select filters on `base` independently, and a
+   -- case-sensitive sub-select would return NULL and eliminate every row through the
+   -- coalesce even with the main predicate fixed.
+   where pg_catalog.lower(v.base) = pg_catalog.lower(p_base)
      and v.published_at is not null
      and v.published_at >= c_cutoff
      -- One dataset at a time, always. Three datasets coexist (data_20260710,
@@ -164,7 +181,9 @@ begin
            p_dataset,
            (select pg_catalog.max(w.dataset_version)
               from public.engine_verdicts w
-             where w.base = p_base
+             -- Same case-insensitive rule as the main predicate above, and for the same
+             -- reason: this sub-select filters on `base` on its own.
+             where pg_catalog.lower(w.base) = pg_catalog.lower(p_base)
                and w.published_at is not null
                and w.published_at >= c_cutoff)
          );
@@ -180,7 +199,9 @@ comment on function public.dossier_payload(text, text) is
   'Cockpit dossier payload. Decides entitlement itself from auth.uid() and never '
   'from an argument. Returns the teaser allow-list for anon, for a free account and '
   'for a service-role caller (auth.uid() is NULL -> fail closed); returns the recipe '
-  'only for status=active with a live period. See spec 2026-08-17 §4.2.';
+  'only for status=active with a live period. p_base is matched case-insensitively: the '
+  'corpus is camelCase and every URL the site produces is lowercase. '
+  'See spec 2026-08-17 §4.2.';
 
 -- Postgres grants EXECUTE to PUBLIC by default on every new function — the same
 -- default-open trap the table migrations have been closing since July. Revoke first,

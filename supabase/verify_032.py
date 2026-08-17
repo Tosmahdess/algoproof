@@ -9,8 +9,19 @@ answering correctly (migration 030's banner). This asserts the answers.
 """
 import json
 import os
+import re
 import sys
+import urllib.error
 import urllib.request
+
+MIGRATION = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "migrations", "032_dossier_payload.sql"
+)
+
+# Mirrors CORRECTED_ENGINE_SINCE in algolab web/lib/engine-freshness.ts:31 and c_cutoff in
+# the migration. The TS copy is pinned by a test in that repo; check 0 below pins the SQL
+# copy against this one, so all three move together or the verifier says which file lags.
+CUTOFF = "2026-08-12T19:38:00Z"
 
 RECIPE_KEYS = {"params", "filters", "exit"}
 TEASER_KEYS = {"k", "dd", "pf", "wf", "n_trades", "eligible", "cause"}
@@ -31,20 +42,50 @@ def load_env(path="env.local"):
             os.environ.setdefault(k.strip(), v.strip())
 
 
-def rpc(url, key, base, dataset=None):
+def rpc(url, anon, token, base, dataset=None):
+    """POST the RPC as `token`'s identity.
+
+    TWO DIFFERENT HEADERS, TWO DIFFERENT JOBS — do not collapse them back into one.
+    `apikey` is the PROJECT key and Supabase's gateway validates it against the project's
+    API keys (anon / service_role) before the request ever reaches PostgREST. A user JWT is
+    not a project key, so sending one there gets the call rejected at the gateway — which
+    is check 6, the only entitlement test in the whole lot, aborting instead of answering.
+    `Authorization` is the IDENTITY under test: the anon key, the service-role key, or a
+    real user JWT. PostgREST reads the role and the claims from that one.
+
+    A transport failure returns a marked payload instead of raising: this script is run at
+    DDL time with nobody watching, and a traceback halfway through prints no verdict at all
+    for the checks that had already passed. `units: []` makes every check_over below fail
+    closed on top of the named FAIL.
+    """
     body = json.dumps({"p_base": base, "p_dataset": dataset}).encode()
     req = urllib.request.Request(
         f"{url}/rest/v1/rpc/dossier_payload",
         data=body,
         headers={
-            "apikey": key,
-            "Authorization": f"Bearer {key}",
+            "apikey": anon,
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
         },
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read())
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", "replace")[:200]
+        return {"__error__": f"HTTP {e.code}: {detail}", "access": None, "units": []}
+    except Exception as e:  # noqa: BLE001 — any transport problem is a named FAIL, not a crash
+        return {"__error__": f"{type(e).__name__}: {e}", "access": None, "units": []}
+
+
+def transport(name, payload):
+    """Name a transport failure as a FAIL of its own, before its checks read `[]`."""
+    if "__error__" in payload:
+        # ASCII only in anything PRINTED: this is run over ssh on the VPS and from a
+        # Windows shell, where a cp1252 stdout turns a stray em dash into mojibake.
+        return check(f"{name}: RPC reached the function", False, payload["__error__"])
+    return True
 
 
 def check(name, cond, detail=""):
@@ -73,8 +114,25 @@ def main():
     base = os.environ.get("VERIFY_BASE", "WilliamsVolBreak")
 
     ok = True
+    # Check 0 needs no network: it compares two files. The cutoff lives in three places
+    # (this constant, c_cutoff in the migration, CORRECTED_ENGINE_SINCE in algolab). The TS
+    # copy is pinned by a test over there; nothing pinned the SQL copy, so a drift would
+    # only ever show up as units silently missing from a page. Now it names the file.
+    print("0. the cutoff constant agrees with the migration")
+    try:
+        with open(MIGRATION, encoding="utf-8") as fh:
+            sql = fh.read()
+        found = re.search(r"c_cutoff\s+constant\s+timestamptz\s*:=\s*'([^']+)'", sql)
+        ok &= check("c_cutoff is present in 032_dossier_payload.sql", found is not None)
+        if found:
+            ok &= check("c_cutoff == CUTOFF", found.group(1) == CUTOFF,
+                        f"sql={found.group(1)} py={CUTOFF}")
+    except OSError as e:
+        ok &= check("migration file is readable", False, str(e))
+
     print("1. anon key -> teaser")
-    payload = rpc(url, anon, base)
+    payload = rpc(url, anon, anon, base)
+    ok &= transport("anon", payload)
     ok &= check("access == teaser", payload.get("access") == "teaser", payload.get("access"))
     entries = [e for u in payload.get("units", []) for e in u.get("survivors", [])]
     ok &= check("at least one survivor returned", len(entries) > 0, f"n={len(entries)}")
@@ -118,7 +176,8 @@ def main():
         print("  note  no non-null selection_control in this base — shape unexercised")
 
     print("2. service-role key -> teaser (auth.uid() is NULL, fail closed)")
-    payload = rpc(url, svc, base)
+    payload = rpc(url, anon, svc, base)
+    ok &= transport("service-role", payload)
     ok &= check("access == teaser", payload.get("access") == "teaser", payload.get("access"))
     entries = [e for u in payload.get("units", []) for e in u.get("survivors", [])]
     leaked = {k for e in entries for k in e} & RECIPE_KEYS
@@ -126,21 +185,42 @@ def main():
 
     print("3. stale units are not served")
     units = payload.get("units", [])
+    # CUTOFF minus its trailing Z: published_at arrives from PostgREST as
+    # '2026-08-14T10:00:00+00:00', and this is a lexicographic comparison.
     ok &= check_over("every unit is post-cutoff", units,
-                     all((u.get("published_at") or "") >= "2026-08-12T19:38:00"
-                         for u in units))
+                     all((u.get("published_at") or "") >= CUTOFF[:-1] for u in units))
 
     print("4. unknown base -> empty, not an error")
-    payload = rpc(url, anon, "NoSuchBase")
+    payload = rpc(url, anon, anon, "NoSuchBase")
+    ok &= transport("unknown base", payload)
     ok &= check("units == []", payload.get("units") == [])
 
     print("5. one dataset only")
-    payload = rpc(url, anon, base)
+    payload = rpc(url, anon, anon, base)
+    ok &= transport("one dataset", payload)
     units = payload.get("units", [])
     datasets = {u.get("dataset_version") for u in units}
     # `<= 1` would pass on zero units. Exactly one, over a non-empty set of units.
     ok &= check_over("a single dataset_version is served", units,
                      len(datasets) == 1, str(datasets))
+
+    # The corpus stores camelCase base names; every URL the site builds is lowercase
+    # (links, sitemap, canonical). A case-sensitive `v.base = p_base` therefore matched
+    # nothing for every real visitor and every dossier 404'd. Asserting on the SAME COUNT
+    # rather than on "lowercase returns something" is what makes this decisive: it fails
+    # both when lowercase returns nothing AND if a future rewrite made the two spellings
+    # resolve to different corpora. check_over so it cannot pass on zero units either way.
+    print("6. lowercase URL segments resolve (the case the site actually calls with)")
+    given = rpc(url, anon, anon, base)
+    lowered = rpc(url, anon, anon, base.lower())
+    ok &= transport("base as given", given)
+    ok &= transport("base lowercased", lowered)
+    units_given = given.get("units", [])
+    units_lower = lowered.get("units", [])
+    ok &= check_over(f"{base} returns units", units_given, True)
+    ok &= check_over(f"{base.lower()} returns the same number of units", units_lower,
+                     len(units_lower) == len(units_given),
+                     f"given={len(units_given)} lower={len(units_lower)}")
 
     # ── The assertions that actually decide whether the paywall works ──────────────
     # Everything above runs with a key, not with a user. A key is not an identity: anon
@@ -148,7 +228,7 @@ def main():
     # The branch that matters — a real signed-in account, entitled or not — is only
     # reachable with a user JWT. Set the three env vars below (see Step 3b for how to
     # mint them on the dev project) or this verifier proves nothing about entitlement.
-    print("6. real user identities")
+    print("7. real user identities")
     jwts = {
         "free account": os.environ.get("VERIFY_JWT_FREE"),
         "trialing account": os.environ.get("VERIFY_JWT_TRIALING"),
@@ -159,7 +239,10 @@ def main():
         ok = False
     else:
         for label, jwt in jwts.items():
-            payload = rpc(url, jwt, base)
+            # anon key in `apikey` (the project key the gateway validates), the user JWT in
+            # `Authorization` (the identity PostgREST reads auth.uid() from).
+            payload = rpc(url, anon, jwt, base)
+            ok &= transport(label, payload)
             entries = [e for u in payload.get("units", []) for e in u.get("survivors", [])]
             leaked = {k for e in entries for k in e} & RECIPE_KEYS
             if label == "active account":
