@@ -163,7 +163,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
             {timeframeGroups.map(group => (
               <section key={group.tf} data-testid={`fleet-tf-${group.tf}`}>
                 <h3 className="text-xs uppercase tracking-wider text-muted mb-3">
-                  {`${group.tf} — ${group.bots.length} stratégies`}
+                  {`${group.tf} — ${group.bots.length} stratégie${group.bots.length > 1 ? 's' : ''}`}
                 </h3>
                 <BotTable bots={group.bots} showTf={false} />
               </section>

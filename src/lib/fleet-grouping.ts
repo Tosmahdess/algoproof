@@ -83,16 +83,22 @@ export function groupByStrategy<T extends GroupableBot>(bots: T[]): StrategyGrou
 // because a new TF shows up.
 const TF_ORDER = ['H4', 'D1', 'H1']
 
+// Shared by groupByTimeframe below AND /strategies/[concept] (which sorts a
+// fiche's incarnations, not a timeframe-grouped table, but wants the SAME
+// canonical order — H4, D1, H1 — rather than the alphabetical accident that
+// order happens to differ from (D1, H1, H4). Exported so both call sites read
+// off one source of truth instead of two copies drifting apart.
+export function tfRank(tf: string): number {
+  const i = TF_ORDER.indexOf(tf)
+  return i === -1 ? TF_ORDER.length : i
+}
+
 export interface TimeframeGroup {
   tf: string
   bots: BotWithStats[]
 }
 
 export function groupByTimeframe(bots: BotWithStats[]): TimeframeGroup[] {
-  const rank = (tf: string) => {
-    const i = TF_ORDER.indexOf(tf)
-    return i === -1 ? TF_ORDER.length : i
-  }
   const byTf = new Map<string, BotWithStats[]>()
   for (const b of bots) {
     const list = byTf.get(b.timeframe) ?? []
@@ -100,7 +106,7 @@ export function groupByTimeframe(bots: BotWithStats[]): TimeframeGroup[] {
     byTf.set(b.timeframe, list)
   }
   return [...byTf.entries()]
-    .sort(([a], [z]) => rank(a) - rank(z) || a.localeCompare(z))
+    .sort(([a], [z]) => tfRank(a) - tfRank(z) || a.localeCompare(z))
     .map(([tf, list]) => ({
       tf,
       bots: list.sort((a, z) =>

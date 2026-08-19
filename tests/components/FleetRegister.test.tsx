@@ -127,7 +127,7 @@ describe('FleetRegister — no sort control', () => {
 // (src/components/__tests__/BotTable.test.tsx) covers the em-dash/low-sample
 // masking rule at the row level. These two tests pin the FleetRegister-level
 // contract on top of that: the register groups by TIMEFRAME, one <BotTable>
-// per group, headed `{tf} — {n} stratégies`.
+// per group, headed `{tf} — {n} stratégie(s)`.
 describe('FleetRegister — one table per timeframe', () => {
   const MIXED = [
     prodBot('v1-spot', { name: 'H4 Bot', status: 'paper', timeframe: 'H4' }),
@@ -138,8 +138,8 @@ describe('FleetRegister — one table per timeframe', () => {
     render(<FleetRegister bots={MIXED} initialState={EMPTY_FILTERS} />)
     expect(screen.getByTestId('fleet-tf-H4')).toBeTruthy()
     expect(screen.getByTestId('fleet-tf-H1')).toBeTruthy()
-    expect(within(screen.getByTestId('fleet-tf-H4')).getByText('H4 — 1 stratégies')).toBeTruthy()
-    expect(within(screen.getByTestId('fleet-tf-H1')).getByText('H1 — 1 stratégies')).toBeTruthy()
+    expect(within(screen.getByTestId('fleet-tf-H4')).getByText('H4 — 1 stratégie')).toBeTruthy()
+    expect(within(screen.getByTestId('fleet-tf-H1')).getByText('H1 — 1 stratégie')).toBeTruthy()
   })
 
   it('orders the H4 section before the H1 section (canonical TF order)', () => {

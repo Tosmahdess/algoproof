@@ -4,6 +4,7 @@ import { STRATEGY_FICHES, getStrategyFiche } from '@/lib/strategy-library'
 import { familyLabel } from '@/lib/families'
 import { getAllBotsWithStats, getBotSlugs } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
+import { tfRank } from '@/lib/fleet-grouping'
 import { excludeArchived } from '@/lib/cohort'
 import { resolveStrategyRoute } from '@/lib/strategy-routing'
 import { GAUNTLET_EXPLAINER_TITLE } from '@/lib/gauntlet-explainer'
@@ -127,7 +128,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
         ) : (
           <BotTable
             bots={[...incarnations].sort((a, z) =>
-              a.timeframe.localeCompare(z.timeframe) || a.name.localeCompare(z.name))}
+              tfRank(a.timeframe) - tfRank(z.timeframe) || a.name.localeCompare(z.name))}
             showTf
           />
         )}

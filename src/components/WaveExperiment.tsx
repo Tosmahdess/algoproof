@@ -56,7 +56,9 @@ export default function WaveExperiment({ waveBotCount, measure }: WaveExperiment
         listées ci-dessous comme n&apos;importe quel bot du labo, sans tri par résultat. À côté,{' '}
         {MEASUREMENT_CONTROLS} instruments de mesure tournent volontairement hors de cette liste,
         des témoins médians et un groupe frontière, pour vérifier si le classement du moteur tient
-        une fois sorti du backtest (le winner&apos;s curse), pas pour gagner de l&apos;argent.
+        une fois sorti du backtest (la malédiction du vainqueur : la meilleure configuration
+        d&apos;un groupe est souvent la plus chanceuse, pas la meilleure), pas pour gagner de
+        l&apos;argent.
       </p>
       <p className="text-sm">
         {gap ? (
