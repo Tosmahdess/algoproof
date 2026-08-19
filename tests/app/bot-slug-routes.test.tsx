@@ -98,3 +98,19 @@ describe('slug routes never publish a bot the listings exclude', () => {
     expect(res.status).toBe(404)
   })
 })
+
+// I1: the named no-route-for-controls test. A median/marginal control never
+// gets a `bots` row in the first place — armada_bot_entries only yields
+// go_head slugs (pinned publisher-side by test_controls_never_become_entries
+// in scripts/test_armada_entries.py). This test pins the site half of that
+// seal: guessing a control slug hits the same notFound path as any unknown
+// slug, because getBotWithStats's `.single()` finds no row at all — there is
+// no bots row to filter by status, no route no matter what URL is guessed.
+describe('a control-cohort slug has no bots row, so its fiche 404s too', () => {
+  it('/strategies/bot/[slug] 404s for a control slug (no bots row by design)', async () => {
+    mockBotRow(null)
+    await expect(
+      BotFichePage({ params: Promise.resolve({ slug: 'arm-hmacross-h4-median00' }) }),
+    ).rejects.toBe(NOT_FOUND)
+  })
+})

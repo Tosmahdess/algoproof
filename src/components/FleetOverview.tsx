@@ -35,7 +35,7 @@
 // the same reason the balance sheet lives here: FleetRegister has no prop
 // path to it at all, so there is nothing left inside the client boundary that
 // could accidentally fold it into a sort or a filter.
-import type { BotWithStats } from '@/lib/types'
+import type { BotWithStats, WaveMeasure } from '@/lib/types'
 import type { TradeWithBot } from '@/lib/types'
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import { serializeFleetFilters, type FleetFilterState } from '@/lib/bot-filters'
@@ -46,12 +46,20 @@ import FleetRecentTrades from '@/components/FleetRecentTrades'
 import FleetRegister from '@/components/FleetRegister'
 import GlobalEquityCurve from '@/components/GlobalEquityCurve'
 import MiBanner from '@/components/MiBanner'
+import WaveExperiment from '@/components/WaveExperiment'
 
 export interface FleetOverviewProps {
   bots: BotWithStats[]
   aggregate: FleetAggregate
   recentTrades: TradeWithBot[]
   initialState: FleetFilterState
+  // Task 7 (armada-wave-visibility): the « expérience en cours » encart's
+  // inputs. Computed/fetched server-side in overview/page.tsx (same fetch
+  // wave and caching pattern as `bots` itself) and threaded through here
+  // rather than re-derived from `bots`, so FleetOverview stays plain
+  // synchronous JSX — no data fetching, props in, markup out (see file header).
+  waveBotCount: number
+  waveMeasure: WaveMeasure | null
 }
 
 // Same palette the retired page used, so a returning visitor recognises the
@@ -64,7 +72,7 @@ const CURVE_COLORS = [
 const CURVE_DAYS = 30
 
 export default function FleetOverview({
-  bots, aggregate, recentTrades, initialState,
+  bots, aggregate, recentTrades, initialState, waveBotCount, waveMeasure,
 }: FleetOverviewProps) {
   // FIX (re-review, residual 2): the 30-day cutoff is applied HERE, before the
   // prop is built, not inside GlobalEquityCurve — which is `'use client'`, so
@@ -146,6 +154,12 @@ export default function FleetOverview({
         from scratch. One line, can't go stale (it's derived from the exact
         value being seeded, not tracked separately), needs no effect.
       */}
+      {/* Task 7 (armada-wave-visibility): sits above the laboratory register's
+          per-timeframe tables, not inside FleetRegister — it is server data
+          (no filter state, nothing client-side to seed) and belongs to stage
+          1 alongside the balance sheet, not to the client filter boundary. */}
+      <WaveExperiment waveBotCount={waveBotCount} measure={waveMeasure} />
+
       <FleetRegister
         key={serializeFleetFilters(initialState).toString()}
         bots={registerBots}

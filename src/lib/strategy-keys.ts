@@ -81,11 +81,18 @@ export const FICHE_BY_LEGACY_BOT_SLUG: Record<string, FicheSlug | null> = {
  * identifier: `EMAcross`, `ATRChannel`, … It is stable across timeframes,
  * dataset versions and K, which is exactly what a join key should be.
  *
- * Seeded with the one base that is evidenced rather than guessed: the lab's own
+ * Seeded with the one base that was evidenced rather than guessed: the lab's own
  * `SCREENING_BASE_BY_STRATEGY_ID` (web/lib/strategy-incarnations.ts) maps
- * `ema_cross → "EMAcross"`. Nothing else is listed, deliberately — a guessed
- * base would silently claim bots for the wrong concept page, which is the class
- * of bug this module exists to end.
+ * `ema_cross → "EMAcross"`. Every entry below EMAcross is held to the same bar —
+ * a guessed base would silently claim bots for the wrong concept page, which is
+ * the class of bug this module exists to end.
+ *
+ * Wave-1 (task 9, 2026-08-19): eight more bases, evidenced against the wave-1
+ * armada spec, added below. `WilliamsVolBreak` is DELIBERATELY OMITTED — no
+ * fiche exists for it among the 22 concept pages. Omission here is not a gap
+ * waiting to be filled: it renders as "no concept page" on /strategies, and its
+ * bots simply stay visible on /overview only. A `williams-vol-break` fiche
+ * would be a separate editorial task, not a join-key fix.
  *
  * TO ADD A BASE (the whole procedure):
  *   1. Take a bot the engine has promoted and read its `engine_unit_key`.
@@ -99,6 +106,15 @@ export const FICHE_BY_LEGACY_BOT_SLUG: Record<string, FicheSlug | null> = {
  */
 export const FICHE_BY_ENGINE_BASE: Record<string, FicheSlug> = {
   EMAcross: 'ema-cross',
+  HMAcross: 'ma-cross',
+  TEMAcross: 'ma-cross',
+  KAMAcross: 'kama-cross',
+  DonchianBreakout: 'donchian',
+  KeltnerBreak: 'keltner',
+  ATRChannel: 'atr-channel',
+  HeikinAshiTrend: 'heikin-ashi',
+  ORB: 'orb',
+  // WilliamsVolBreak: deliberately absent — see the wave-1 note above.
 }
 
 /** The `base` segment of an `engine_unit_key`, or null when there isn't one. */

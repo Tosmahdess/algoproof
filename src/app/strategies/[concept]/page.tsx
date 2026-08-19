@@ -4,10 +4,11 @@ import { STRATEGY_FICHES, getStrategyFiche } from '@/lib/strategy-library'
 import { familyLabel } from '@/lib/families'
 import { getAllBotsWithStats, getBotSlugs } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
+import { tfRank } from '@/lib/fleet-grouping'
 import { excludeArchived } from '@/lib/cohort'
 import { resolveStrategyRoute } from '@/lib/strategy-routing'
 import { GAUNTLET_EXPLAINER_TITLE } from '@/lib/gauntlet-explainer'
-import StatusBadge from '@/components/StatusBadge'
+import BotTable from '@/components/BotTable'
 
 export const revalidate = 300
 export const dynamicParams = true // NOT false: unknown slugs must reach this handler
@@ -125,23 +126,11 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
             Aucun bot ne fait tourner cette stratégie en ce moment.
           </p>
         ) : (
-          <ul className="space-y-2">
-            {incarnations.map(bot => (
-              <li key={bot.slug}>
-                <Link
-                  href={`/strategies/bot/${bot.slug}`}
-                  className="flex items-center justify-between gap-4 bg-card border border-border rounded-lg p-3 hover:border-accent transition-colors"
-                >
-                  <span className="text-sm">{bot.name}</span>
-                  <span className="flex items-center gap-3 text-xs text-muted font-mono">
-                    <span>{bot.timeframe}</span>
-                    <span>{bot.stats.total_trades} trades</span>
-                    <StatusBadge status={bot.status} />
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <BotTable
+            bots={[...incarnations].sort((a, z) =>
+              tfRank(a.timeframe) - tfRank(z.timeframe) || a.name.localeCompare(z.name))}
+            showTf
+          />
         )}
       </section>
 

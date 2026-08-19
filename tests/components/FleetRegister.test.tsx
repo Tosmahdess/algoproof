@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, within, act } from '@testing-library/react'
 import FleetRegister from '@/components/FleetRegister'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
-import { SORT_LABELS } from '@/lib/fleet-sort'
 import { FIXTURE_FLEET, mkBot, prodBot } from '../fixtures/bots'
 
 // FIX round 2: no more useSearchParams() in FleetRegister at all (it now
@@ -110,147 +109,68 @@ describe('FleetRegister', () => {
   })
 })
 
-// FIX (final whole-branch review, I1): SORT_LABELS and FleetFilterState.sort
-// existed, sortFleet applied them, and nothing on screen could set them. The
-// register is grouped by strategy, so these two bots deliberately land in ONE
-// group: two of the eight real EMA Cross incarnations, which carry two
-// different `strategy` sentences in production and are joined by the fiche key
-// rather than by that sentence. Group ORDER is decided by groupByStrategy
-// (incarnation count, then label) and is not a function of the sort — the sort
-// orders the rows.
-describe('FleetRegister — the sort control', () => {
-  const SORTABLE = [
-    prodBot('v1-spot', {
-      name: 'Seasoned Bot', status: 'paper',
-      stats: { total_trades: 400, profit_factor: 1.1, win_rate: 0.5, max_drawdown: 0.1, latest_capital: 1100 },
-    }),
-    prodBot('v1-hl', {
-      name: 'Lucky Bot', status: 'paper',
-      stats: { total_trades: 3, profit_factor: 9, win_rate: 1, max_drawdown: 0, latest_capital: 3000 },
-    }),
-  ]
-
-  // Scoped to list items on purpose: since I8 the group HEADER is a link too,
-  // so a bare getAllByRole('link') would fold the strategy name into the row
-  // order and this test would read as passing for the wrong reason.
-  const rowOrder = () =>
-    within(screen.getByTestId('fleet-register'))
-      .getAllByRole('listitem')
-      .map(li => within(li).getAllByRole('link')[0]?.textContent)
-
-  it('defaults to the most-proven-first sort, and says so in the control', () => {
-    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
-    const select = screen.getByLabelText('Trier par') as HTMLSelectElement
-    expect(select.value).toBe('proven')
-    expect(rowOrder()).toEqual(['Seasoned Bot', 'Lucky Bot'])
-  })
-
-  it('offers every sort key, labelled from SORT_LABELS', () => {
-    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
-    for (const label of Object.values(SORT_LABELS)) {
-      expect(screen.getByRole('option', { name: label })).toBeTruthy()
-    }
-  })
-
-  it('reorders the register when a performance sort is picked', () => {
-    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
-    fireEvent.change(screen.getByLabelText('Trier par'), { target: { value: 'profit_factor' } })
-    expect(rowOrder()).toEqual(['Lucky Bot', 'Seasoned Bot'])
-  })
-
-  it('flips the order with the direction toggle', () => {
-    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
-    fireEvent.change(screen.getByLabelText('Trier par'), { target: { value: 'profit_factor' } })
-    fireEvent.click(screen.getByRole('button', { name: /Décroissant|Croissant/ }))
-    expect(rowOrder()).toEqual(['Seasoned Bot', 'Lucky Bot'])
-  })
-
-  // This is what makes offering the sort defensible: the 3-trade bot that a
-  // profit-factor ranking hoists to the top says on its own row that its
-  // sample is too small to conclude from.
-  it('keeps the low-sample note on a bot a performance sort promotes to the top', () => {
-    render(<FleetRegister bots={SORTABLE} initialState={EMPTY_FILTERS} />)
-    fireEvent.change(screen.getByLabelText('Trier par'), { target: { value: 'profit_factor' } })
-    expect(rowOrder()[0]).toBe('Lucky Bot')
-    expect(screen.getByText('trop tôt pour conclure')).toBeTruthy()
+// FIX (per-timeframe rebuild, task 6): the sort control (SORT_LABELS,
+// FleetFilterState.sort/dir wired through a <select> + direction toggle) is
+// gone. It reordered rows WITHIN a strategy group; the register has no
+// strategy groups left to reorder — groupByTimeframe fixes each table's row
+// order to family-then-name, so a sort control here would change nothing on
+// screen (see FleetFilterBar's own comment on why that would be dishonest).
+describe('FleetRegister — no sort control', () => {
+  it('does not offer a sort control', () => {
+    render(<FleetRegister bots={[prodBot('v1-spot', { status: 'paper' })]} initialState={EMPTY_FILTERS} />)
+    expect(screen.queryByLabelText('Trier par')).toBeNull()
+    expect(screen.queryByText(/Décroissant|Croissant/)).toBeNull()
   })
 })
 
-// 2026-08-08: the register is about to grow from ~25 to a much larger paper
-// fleet, so each row carries the at-a-glance numbers (trades, PF, P&L) and a
-// 30-day sparkline, and each group header carries its aggregate trade count —
-// the "most proven first" story at both levels.
-describe('FleetRegister — dense rows for a growing fleet', () => {
-  const DENSE = [
-    prodBot('v1-spot', {
-      name: 'Seasoned Bot', status: 'paper', start_capital: 1000,
-      stats: { total_trades: 400, profit_factor: 1.42, win_rate: 0.5, max_drawdown: 0.1, latest_capital: 1100 },
-      perf_daily: [1000, 1050, 1100].map((capital, i) => ({
-        id: `p${i}`, bot_id: 'b1', date: `2026-08-0${i + 1}`, capital,
-        pnl_day: 0, win_rate: 0.5, profit_factor: 1.2,
-      })),
-    }),
-    prodBot('v1-hl', {
-      name: 'Fresh Bot', status: 'paper', start_capital: 1000,
-      stats: { total_trades: 3, profit_factor: 9, win_rate: 1, max_drawdown: 0, latest_capital: 1010 },
-    }),
+// Rows are rendered by BotTable now (Task 5) — its own test file
+// (src/components/__tests__/BotTable.test.tsx) covers the em-dash/low-sample
+// masking rule at the row level. These two tests pin the FleetRegister-level
+// contract on top of that: the register groups by TIMEFRAME, one <BotTable>
+// per group, headed `{tf} — {n} stratégie(s)`.
+describe('FleetRegister — one table per timeframe', () => {
+  const MIXED = [
+    prodBot('v1-spot', { name: 'H4 Bot', status: 'paper', timeframe: 'H4' }),
+    prodBot('orb-bf25', { name: 'H1 Bot', status: 'paper', timeframe: 'H1' }),
   ]
 
-  it('shows PF and P&L on the row, not just the trade count', () => {
-    render(<FleetRegister bots={DENSE} initialState={EMPTY_FILTERS} />)
-    const row = screen.getByText('Seasoned Bot').closest('li')!
+  it('renders one section per timeframe present, headed with the strategy count', () => {
+    render(<FleetRegister bots={MIXED} initialState={EMPTY_FILTERS} />)
+    expect(screen.getByTestId('fleet-tf-H4')).toBeTruthy()
+    expect(screen.getByTestId('fleet-tf-H1')).toBeTruthy()
+    expect(within(screen.getByTestId('fleet-tf-H4')).getByText('H4 — 1 stratégie')).toBeTruthy()
+    expect(within(screen.getByTestId('fleet-tf-H1')).getByText('H1 — 1 stratégie')).toBeTruthy()
+  })
+
+  it('orders the H4 section before the H1 section (canonical TF order)', () => {
+    const { container } = render(<FleetRegister bots={MIXED} initialState={EMPTY_FILTERS} />)
+    const html = container.innerHTML
+    expect(html.indexOf('data-testid="fleet-tf-H4"'))
+      .toBeLessThan(html.indexOf('data-testid="fleet-tf-H1"'))
+  })
+
+  it('shows PF and P&L on the row via BotTable, not just the trade count', () => {
+    const bot = prodBot('v1-spot', {
+      name: 'Seasoned Bot', status: 'paper', start_capital: 1000, timeframe: 'H4',
+      stats: { total_trades: 400, profit_factor: 1.42, win_rate: 0.5, max_drawdown: 0.1, latest_capital: 1100 },
+    })
+    render(<FleetRegister bots={[bot]} initialState={EMPTY_FILTERS} />)
+    // BotTable always renders both the mobile list and the desktop table
+    // (CSS-toggled, not conditional in jsdom) — the desktop <tr> is the one
+    // that carries the PF column, so pick that instance specifically.
+    const row = screen.getAllByText('Seasoned Bot')
+      .map(el => el.closest('tr'))
+      .find((el): el is HTMLTableRowElement => el !== null)!
     expect(within(row).getByText(/1\.42/)).toBeTruthy()
     expect(within(row).getByText(/\+100/)).toBeTruthy()
   })
 
   it('masks PF on a low-sample row — same honesty rule as everywhere else', () => {
-    render(<FleetRegister bots={DENSE} initialState={EMPTY_FILTERS} />)
-    const row = screen.getByText('Fresh Bot').closest('li')!
-    expect(within(row).getByText('—')).toBeTruthy()
-    expect(within(row).getByText('trop tôt pour conclure')).toBeTruthy()
-  })
-
-  it('draws a sparkline when the bot has daily history, and none when it has none', () => {
-    render(<FleetRegister bots={DENSE} initialState={EMPTY_FILTERS} />)
-    const seasoned = screen.getByText('Seasoned Bot').closest('li')!
-    expect(seasoned.querySelector('svg polyline')).toBeTruthy()
-    const fresh = screen.getByText('Fresh Bot').closest('li')!
-    expect(fresh.querySelector('svg')).toBeNull()
-  })
-
-  it('sums the group trades in the group header', () => {
-    render(<FleetRegister bots={DENSE} initialState={EMPTY_FILTERS} />)
-    // Both bots are EMA Cross incarnations → one group, 403 trades in all.
-    expect(screen.getByText(/403\s+trades/)).toBeTruthy()
-  })
-})
-
-// /overview and /strategies/<concept> described the same bots with no link in
-// either direction. The header is now titled from the fiche, not from the bot's
-// own deployment sentence — « EMA Cross », not « EMA Cross H4 (21/55/200) ».
-describe('FleetRegister — the group header joins the register to the concept page', () => {
-  it('links a group a fiche claims to that fiche', () => {
-    render(
-      <FleetRegister
-        bots={[prodBot('v1-spot', { name: 'EMA Bot', status: 'paper' })]}
-        initialState={EMPTY_FILTERS}
-      />,
-    )
-    const header = screen.getByRole('link', { name: 'EMA Cross' })
-    expect(header.getAttribute('href')).toBe('/strategies/ema-cross')
-  })
-
-  it('leaves the header as plain text when no fiche claims the group', () => {
-    const grid = 'Grille arithmétique ±8% — BTC/USDT Binance Spot'
-    render(
-      <FleetRegister
-        bots={[prodBot('grid-btc-spot', { name: 'Grid BTC Spot', status: 'paper' })]}
-        initialState={EMPTY_FILTERS}
-      />,
-    )
-    // The group is still headed, under the operator's own wording, and still
-    // counted — it just is not a link.
-    expect(screen.getByText(new RegExp(grid.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))).toBeTruthy()
-    expect(screen.queryByRole('link', { name: grid })).toBeNull()
+    const bot = prodBot('v1-hl', {
+      name: 'Fresh Bot', status: 'paper', start_capital: 1000, timeframe: 'H4',
+      stats: { total_trades: 3, profit_factor: 9, win_rate: 1, max_drawdown: 0, latest_capital: 1010 },
+    })
+    render(<FleetRegister bots={[bot]} initialState={EMPTY_FILTERS} />)
+    expect(screen.getAllByText('—').length).toBeGreaterThan(0)
   })
 })

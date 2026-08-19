@@ -1,6 +1,7 @@
 'use client'
-// « La flotte » — stage 2: the laboratory register. Filterable, grouped by
-// strategy, archived collapsed at the bottom.
+// « La flotte » — stage 2: the laboratory register. Filterable (family only —
+// see below), grouped by TIMEFRAME (one table per H4/D1/H1/…), archived
+// collapsed at the bottom.
 //
 // Renamed from FleetClient (fix round 1, C1): this component no longer
 // receives `aggregate` at all — the balance sheet (stage 0) moved to the
@@ -28,6 +29,17 @@
 // undercutting the FAQ JSON-LD this page carries specifically to be indexed.
 // Filter state is now parsed server-side, in `overview/page.tsx`, from the
 // route's `searchParams`, and handed down as `initialState`.
+//
+// FIX (per-timeframe rebuild, task 6): the card register — grouped by
+// strategy via groupByStrategy, one <details> per fiche, dense rows with a
+// sparkline — is gone. Replaced by one <BotTable> per timeframe
+// (groupByTimeframe), the same table component the home page and the concept
+// pages use. The sort control is gone with it (see FleetFilterBar's own
+// comment): it reordered rows within a strategy group, and groupByTimeframe's
+// order (family, then name) is fixed, so a sort `<select>` here would change
+// nothing on screen. The family filter survives — filtering by family before
+// grouping by timeframe is a clean composition, unlike sort — as does the
+// archived section, which was never grouped by strategy in the first place.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -36,17 +48,10 @@ import type { Family } from '@/lib/families'
 import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
-  type SortKey,
 } from '@/lib/bot-filters'
-import { sortFleet } from '@/lib/fleet-sort'
-import { groupByStrategy } from '@/lib/fleet-grouping'
-import { isLowSample, pnlEur, fmtEur, fmtPfDisplay } from '@/lib/display'
-import StatusBadge from '@/components/StatusBadge'
+import { groupByTimeframe } from '@/lib/fleet-grouping'
 import FleetFilterBar from '@/components/FleetFilterBar'
-import Sparkline from '@/components/Sparkline'
-
-/** The last 30 daily capital points, for the row thumbnail. */
-const SPARK_DAYS = 30
+import BotTable from '@/components/BotTable'
 
 export interface FleetRegisterProps {
   /** The laboratory register set only — paper + archived, already combined
@@ -101,31 +106,31 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     })
   }, [state, push])
 
-  // FIX (final whole-branch review, I1): the sort was parsed from the URL,
-  // applied by sortFleet and labelled by SORT_LABELS, but no control ever set
-  // it — inert state behind a comment claiming a feature. Wired through the
-  // same `push()` as the pills, so a chosen sort survives sharing and the back
-  // button exactly like a filter does.
-  const setSort = useCallback((sort: SortKey) => push({ ...state, sort }), [state, push])
-  const toggleDir = useCallback(
-    () => push({ ...state, dir: state.dir === 'desc' ? 'asc' : 'desc' }),
-    [state, push],
-  )
-
   const reset = useCallback(() => push(EMPTY_FILTERS), [push])
 
   // `bots` IS the register set (see FleetRegisterProps) — no split, no
   // `live` cohort to exclude here, because FleetOverview never included it.
+  // `state.sort` / `state.dir` still round-trip in `filtered` via
+  // applyFleetFilters's type (FleetFilterState carries them) but are never
+  // read by anything below — see the file header and FleetFilterBar.
   const filtered = useMemo(() => applyFleetFilters(bots, state), [bots, state])
-  const sorted = useMemo(() => sortFleet(filtered, state.sort, state.dir), [filtered, state])
   const counts = useMemo(() => optionCounts(bots, state), [bots, state])
   const emptyMessage = useMemo(() => describeEmptyResult(bots, state), [bots, state])
 
-  const activeGroups = useMemo(
-    () => groupByStrategy(sorted.filter(b => b.status !== 'archived')),
-    [sorted],
+  const timeframeGroups = useMemo(
+    () => groupByTimeframe(filtered.filter(b => b.status !== 'archived')),
+    [filtered],
   )
-  const archivedVisible = useMemo(() => sorted.filter(b => b.status === 'archived'), [sorted])
+  // The archived section was always flat, never grouped by strategy — it
+  // stays flat here too, just re-sorted the same way groupByTimeframe orders
+  // within a group (family, then name), so a visitor scanning down the page
+  // sees one consistent ordering rule everywhere.
+  const archivedVisible = useMemo(
+    () => filtered
+      .filter(b => b.status === 'archived')
+      .sort((a, z) => a.family.localeCompare(z.family) || a.name.localeCompare(z.name)),
+    [filtered],
+  )
 
   return (
     // data-testid added in fix round 1 (I3): the stage-0 invariant test needs
@@ -143,8 +148,6 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           counts={counts}
           activeCount={activeFilterCount(state)}
           onToggleFamily={toggleFamily}
-          onSort={setSort}
-          onToggleDir={toggleDir}
           onReset={reset}
         />
 
@@ -156,79 +159,14 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
             </button>
           </div>
         ) : (
-          <div className="space-y-6">
-            {activeGroups.map(group => (
-              <details key={group.key} open className="bg-card border border-border rounded-lg">
-                {/* The group header links to the concept page when a fiche
-                    claims this group, and stays plain text when none does (a
-                    grid bot, a delta-neutral carry bot). `group.ficheSlug` is
-                    decided by groupByStrategy through ficheSlugForBot — the
-                    same call that decided the grouping — so the header can only
-                    link to a page that lists the bots underneath it. Resolving
-                    it a second time here, from the label, is what used to make
-                    that guarantee a coincidence.
-
-                    stopPropagation because a click on an <a> inside a
-                    <summary> would otherwise also toggle the <details>: the
-                    visitor would navigate away AND collapse the group they
-                    left behind. */}
-                <summary className="cursor-pointer px-4 py-3 text-sm">
-                  {group.ficheSlug ? (
-                    <Link
-                      href={`/strategies/${group.ficheSlug}`}
-                      onClick={e => e.stopPropagation()}
-                      className="hover:text-accent"
-                    >
-                      {group.label}
-                    </Link>
-                  ) : group.label}
-                  {/* The aggregate trade count is the group-level version of the
-                      "most proven first" story: at 100 bots, « 14 incarnations ·
-                      2 431 trades » is what makes a family readable at a glance. */}
-                  {` : ${group.bots.length} incarnation(s), dont ${group.promotedCount} promue(s) · ${group.bots.reduce((n, b) => n + b.stats.total_trades, 0)} trades`}
-                </summary>
-                <ul className="px-4 pb-4 divide-y divide-border">
-                  {group.bots.map(bot => {
-                    const spark = bot.perf_daily.slice(-SPARK_DAYS).map(p => p.capital)
-                    const pnl = pnlEur(bot.stats.latest_capital, bot.start_capital)
-                    return (
-                    <li key={bot.slug} className="py-3 flex items-center justify-between gap-4">
-                      {/* FIX (final review, I3): next/link, not a raw <a>. This
-                          page is dynamically rendered, so a full document
-                          reload on Back pays a fresh server render of the whole
-                          fan-out. Link is unrelated to the round-2 CSR bailout,
-                          which was about useSearchParams. */}
-                      <Link href={`/strategies/bot/${bot.slug}`} className="text-sm hover:text-accent">
-                        {bot.name}
-                      </Link>
-                      <span className="flex items-center gap-3 text-xs text-muted font-mono">
-                        {/* The thumbnail inherits currentColor from this span, so
-                            the trend decides the color and Sparkline stays dumb. */}
-                        {spark.length >= 2 && (
-                          <span
-                            className={`hidden sm:inline-flex ${spark[spark.length - 1] >= spark[0] ? 'text-positive' : 'text-negative'}`}
-                          >
-                            <Sparkline values={spark} />
-                          </span>
-                        )}
-                        <span>{bot.stats.total_trades} trades</span>
-                        {bot.stats.total_trades === 0 && <span>en attente d&apos;un signal</span>}
-                        {isLowSample(bot.stats.total_trades) && <span>trop tôt pour conclure</span>}
-                        <span className="hidden sm:inline">
-                          PF <span>{fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor)}</span>
-                        </span>
-                        {bot.stats.total_trades > 0 && (
-                          <span className={pnl >= 0 ? 'text-positive' : 'text-negative'}>
-                            {fmtEur(pnl)}
-                          </span>
-                        )}
-                        <StatusBadge status={bot.status} />
-                      </span>
-                    </li>
-                    )
-                  })}
-                </ul>
-              </details>
+          <div className="space-y-8">
+            {timeframeGroups.map(group => (
+              <section key={group.tf} data-testid={`fleet-tf-${group.tf}`}>
+                <h3 className="text-xs uppercase tracking-wider text-muted mb-3">
+                  {`${group.tf} — ${group.bots.length} stratégie${group.bots.length > 1 ? 's' : ''}`}
+                </h3>
+                <BotTable bots={group.bots} showTf={false} />
+              </section>
             ))}
           </div>
         )}
@@ -242,10 +180,9 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
               {/*
                 FIX (brief bug, flagged in task-6-report.md): the brief's verbatim
                 archived row rendered only `bot.name`. The archived section is
-                intentionally flat (not grouped by strategy like the active
-                register above), so the strategy label — the thing that lets a
-                visitor recognise a retired bot's family of trading logic — is
-                otherwise nowhere in this row.
+                intentionally flat (not grouped), so the strategy label — the
+                thing that lets a visitor recognise a retired bot's family of
+                trading logic — is otherwise nowhere in this row.
               */}
               {archivedVisible.map(bot => (
                 <li key={bot.slug} className="py-3 text-sm opacity-60 flex items-center justify-between gap-4">

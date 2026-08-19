@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { groupByStrategy } from '@/lib/fleet-grouping'
+import { groupByStrategy, groupByTimeframe } from '@/lib/fleet-grouping'
 import { EMA_CROSS_SLUGS, prodBot, mkBot } from '../fixtures/bots'
 
 describe('groupByStrategy', () => {
@@ -85,5 +85,38 @@ describe('groupByStrategy', () => {
     expect(groups).toHaveLength(1)
     expect(groups[0].label).toBe('Non classées')
     expect(groups[0].bots).toHaveLength(1)
+  })
+})
+
+// /overview stopped grouping by strategy (groupByStrategy above, retired from
+// that page in the per-timeframe rebuild — it stays wired to nothing else in
+// this file's own tests) and groups by timeframe instead: a visitor scans one
+// H4 table, one D1 table, one H1 table, instead of one dense list of a hundred
+// rows in an arbitrary order.
+describe('groupByTimeframe', () => {
+  const b = (tf: string, name: string, family = 'trend') =>
+    mkBot({ slug: name.toLowerCase(), timeframe: tf, name, family: family as never })
+
+  it('groups in canonical TF order, unknown TFs last, sorted family then name', () => {
+    const groups = groupByTimeframe([
+      b('H1', 'Zeta'), b('H4', 'Beta', 'breakout'), b('H4', 'Alpha', 'trend'), b('M15', 'Scalp'),
+    ])
+    expect(groups.map(g => g.tf)).toEqual(['H4', 'H1', 'M15'])
+    // within H4: family asc (breakout < trend), then name
+    expect(groups[0].bots.map(x => x.name)).toEqual(['Beta', 'Alpha'])
+  })
+
+  it('an empty TF yields no group', () => {
+    expect(groupByTimeframe([b('H4', 'A')]).map(g => g.tf)).toEqual(['H4'])
+  })
+
+  it('orders D1 between H4 and H1 per the canonical TF_ORDER', () => {
+    const groups = groupByTimeframe([b('H1', 'A'), b('D1', 'B'), b('H4', 'C')])
+    expect(groups.map(g => g.tf)).toEqual(['H4', 'D1', 'H1'])
+  })
+
+  it('sorts two unknown TFs alphabetically after the canonical ones', () => {
+    const groups = groupByTimeframe([b('M15', 'A'), b('W1', 'B'), b('H4', 'C')])
+    expect(groups.map(g => g.tf)).toEqual(['H4', 'M15', 'W1'])
   })
 })

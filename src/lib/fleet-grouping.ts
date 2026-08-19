@@ -20,6 +20,7 @@
 import { ficheSlugForBot } from './strategy-keys'
 import { getStrategyFiche } from './strategy-library'
 import type { FicheSlug } from './strategy-library'
+import type { BotWithStats } from './types'
 
 export interface GroupableBot {
   slug: string
@@ -72,4 +73,43 @@ export function groupByStrategy<T extends GroupableBot>(bots: T[]): StrategyGrou
     if (b.bots.length !== a.bots.length) return b.bots.length - a.bots.length
     return a.label.localeCompare(b.label, 'fr')
   })
+}
+
+// /overview (the per-timeframe rebuild) groups the fleet by timeframe instead
+// of by strategy: one H4 table, one D1 table, one H1 table, rather than a
+// single dense list. Canonical order first (the site's three actual production
+// timeframes, most-populated first), then any other timeframe a future bot
+// might carry, alphabetically, so the function never has to change just
+// because a new TF shows up.
+const TF_ORDER = ['H4', 'D1', 'H1']
+
+// Shared by groupByTimeframe below AND /strategies/[concept] (which sorts a
+// fiche's incarnations, not a timeframe-grouped table, but wants the SAME
+// canonical order — H4, D1, H1 — rather than the alphabetical accident that
+// order happens to differ from (D1, H1, H4). Exported so both call sites read
+// off one source of truth instead of two copies drifting apart.
+export function tfRank(tf: string): number {
+  const i = TF_ORDER.indexOf(tf)
+  return i === -1 ? TF_ORDER.length : i
+}
+
+export interface TimeframeGroup {
+  tf: string
+  bots: BotWithStats[]
+}
+
+export function groupByTimeframe(bots: BotWithStats[]): TimeframeGroup[] {
+  const byTf = new Map<string, BotWithStats[]>()
+  for (const b of bots) {
+    const list = byTf.get(b.timeframe) ?? []
+    list.push(b)
+    byTf.set(b.timeframe, list)
+  }
+  return [...byTf.entries()]
+    .sort(([a], [z]) => tfRank(a) - tfRank(z) || a.localeCompare(z))
+    .map(([tf, list]) => ({
+      tf,
+      bots: list.sort((a, z) =>
+        a.family.localeCompare(z.family) || a.name.localeCompare(z.name)),
+    }))
 }

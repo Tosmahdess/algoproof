@@ -2098,6 +2098,39 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       },
     ],
   },
+
+  // Free-sample fiche for the armada wave engine (task 10). Published ahead of
+  // this bot going live on the site — see PENDING_PUBLISH in
+  // bot-params-slugs.test.ts. Real recipe values, vault
+  // armada/recipes/h4/arm-emacross-h4-head00.yaml.
+  "arm-emacross-h4-head00": {
+    groups: [
+      {
+        title: "Signal",
+        items: [
+          { label: "Entry", value: "EMA 21 × EMA 55", note: "H4 candles" },
+          { label: "Timeframe", value: "H4" },
+          { label: "Direction", value: "Long/short" },
+          { label: "Assets", value: "6", note: "ATOM, ETH, GALA, HBAR, OP, SEI" },
+        ],
+      },
+      {
+        title: "Filters",
+        items: [
+          { label: "ATR ratio", value: "≥ 1.2" },
+          { label: "Slope filter", value: "EMA 200 slope > 0", note: "lookback = 5 bars" },
+          { label: "Range filter", value: "≥ 1%", note: "minimum candle range" },
+        ],
+      },
+      {
+        title: "Exit",
+        items: [
+          { label: "Stop loss", value: "ATR × 3.0" },
+          { label: "Min R:R", value: "1 : 1.5" },
+        ],
+      },
+    ],
+  },
 }
 
 export function getBotParams(slug: string): BotParams | null {

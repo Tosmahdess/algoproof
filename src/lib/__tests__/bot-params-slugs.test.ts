@@ -33,10 +33,38 @@ describe('BOT_PARAMS keys vs published bot slugs', () => {
     expect(published).toContain('v1-spot')
   })
 
-  it('has no BOT_PARAMS key that is not a published slug', () => {
+  // Documented ahead of publication (task 10, 2026-08-19): the armada wave
+  // engine's free-sample fiche (arm-emacross-h4-head00) needs a real
+  // BOT_PARAMS entry for the gated-block demo to have something to point at,
+  // and this repo's copy of scripts/vps_sync.py has no reason to know about a
+  // bot the engine hasn't promoted to the live sync config yet. This is the
+  // mirror image of PENDING_FICHE below (a slug published without a fiche);
+  // here the fiche exists before the slug is published.
+  const PENDING_PUBLISH = new Set(['arm-emacross-h4-head00'])
+
+  it('carries the free-sample entry for the wave engine', () => {
+    // Leak-check lesson, 2026-08-18: pin the entry's existence explicitly, not
+    // just its absence from the orphan-key list below — a key that silently
+    // stopped existing would pass every other assertion in this file
+    // vacuously.
+    expect(BOT_PARAMS['arm-emacross-h4-head00']).toBeDefined()
+  })
+
+  it('has no BOT_PARAMS key that is not a published slug or a pending publish', () => {
     const published = new Set(publishedSlugs())
-    const orphans = Object.keys(BOT_PARAMS).filter((k) => !published.has(k))
+    const orphans = Object.keys(BOT_PARAMS).filter(
+      (k) => !published.has(k) && !PENDING_PUBLISH.has(k),
+    )
     expect(orphans).toEqual([])
+  })
+
+  it('does not carry a stale pending-publish exemption', () => {
+    // Same expiry discipline as PENDING_FICHE below, mirrored: once
+    // scripts/vps_sync.py picks the slug up, this entry becomes dead weight
+    // that would mask the next real orphan key.
+    const published = new Set(publishedSlugs())
+    const stale = [...PENDING_PUBLISH].filter((s) => published.has(s))
+    expect(stale).toEqual([])
   })
 
   // Bots that are published without a fiche, knowingly. The page degrades
