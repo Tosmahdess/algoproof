@@ -82,6 +82,17 @@ describe('ficheSlugForBot', () => {
       .toBeNull()
     expect(ficheSlugForBot({ slug: 'wvolbreak-k3', engine_unit_key: 'WilliamsVolBreak|H4|v1|3' }))
       .toBeNull()
+
+    // The WilliamsVolBreak case above is null in BOTH maps, so it cannot by
+    // itself prove the fallback branch runs — it would read the same if
+    // ficheSlugForBot short-circuited to null the moment the base were
+    // missing from Map B, without ever consulting Map A. Pair an unlisted,
+    // fictional base with a slug whose Map A entry is a REAL fiche
+    // ('hmacross-bf22' → 'ma-cross') to force a non-null result that only
+    // the fallback into Map A can produce.
+    expect(FICHE_BY_ENGINE_BASE['NovaBase']).toBeUndefined()
+    expect(ficheSlugForBot({ slug: 'hmacross-bf22', engine_unit_key: 'NovaBase|H4|data|base|3' }))
+      .toBe('ma-cross')
   })
 
   // Wave-1 (task 9, 2026-08-19): the eight engine bases the spec evidenced,
