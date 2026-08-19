@@ -1,7 +1,7 @@
 // src/lib/queries.ts
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
-import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog } from './types'
+import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog, WaveMeasure } from './types'
 import { getStartCapital } from './start-capitals'
 import { isCarryFamily } from './display'
 import { paginateAll } from './paginate'
@@ -241,6 +241,43 @@ export const getAllTradesForAggregate = unstable_cache(
   getAllTradesForAggregateUncached,
   ['fleet-trades'],
   { revalidate: 1800, tags: ['fleet-trades'] },
+)
+
+// Backs the /overview « expérience en cours » encart (wave 1 of the engine's
+// paired-cluster measurement protocol). Single row, id=1 — unlike
+// getAllBotsWithStats above, this is small enough to wrap in `unstable_cache`
+// directly (the 2 MB entry-size ceiling documented there does not apply to
+// one tiny row), and it carries the `fleet-bots` tag so it revalidates on the
+// same clock and the same `revalidateTag('fleet-bots')` as the bots fetch it
+// sits next to on the page.
+//
+// Table `armada_wave_measure` may not exist yet in prod (migration 033 is
+// pending, deliberately left untracked/uncommitted here) — degrade to null on
+// ANY failure, including a thrown error from a missing relation, not just a
+// Supabase-reported `error`. The page must never break because this one
+// experimental row isn't there yet.
+async function getWaveMeasureUncached(): Promise<WaveMeasure | null> {
+  try {
+    const { data, error } = await supabase
+      .from('armada_wave_measure')
+      .select('computed_at,paired_clusters,head_trades,median_trades,marginal_trades,head_pf,median_pf,marginal_pf')
+      .eq('id', 1)
+      .maybeSingle()
+    if (error) {
+      console.error('[getWaveMeasure]', error.message)
+      return null
+    }
+    return data as WaveMeasure | null
+  } catch (e) {
+    console.error('[getWaveMeasure] fetch threw', e)
+    return null
+  }
+}
+
+export const getWaveMeasure = unstable_cache(
+  getWaveMeasureUncached,
+  ['wave-measure'],
+  { revalidate: 1800, tags: ['fleet-bots'] },
 )
 
 // Live cohort = real money (v1-spot, orb-bf25). Passed down so the P&L headline

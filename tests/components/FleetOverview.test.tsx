@@ -61,7 +61,7 @@ beforeEach(() => {
 // change, so the test can't go green while filtering is broken.
 describe('FleetOverview — stage 0 invariant', () => {
   it('does not move the balance sheet when a filter is applied, and the register does', () => {
-    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
+    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />)
     const balanceBefore = screen.getByTestId('fleet-balance').textContent
     const registerBefore = screen.getByTestId('fleet-register').textContent
 
@@ -76,7 +76,7 @@ describe('FleetOverview — stage 0 invariant', () => {
   // Assert both testids are actually present (index >= 0) before comparing.
   it('renders the balance sheet before the filter controls in document order', () => {
     const { container } = render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />,
     )
     const html = container.innerHTML
     const balanceIdx = html.indexOf('data-testid="fleet-balance"')
@@ -99,7 +99,7 @@ describe('FleetOverview — stage 0 invariant', () => {
 describe('FleetOverview — real-money cards hoisted out of the register', () => {
   it('renders fleet-real as a sibling of fleet-register, not a descendant of it', () => {
     const { container } = render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />,
     )
     const real = screen.getByTestId('fleet-real')
     const register = screen.getByTestId('fleet-register')
@@ -115,7 +115,7 @@ describe('FleetOverview — real-money cards hoisted out of the register', () =>
     // the regime banner. Asserting the whole sequence rather than one adjacency
     // means any future reorder has to state its intent here.
     const { container } = render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />,
     )
     const html = container.innerHTML
     const order = ['fleet-mi', 'fleet-real', 'fleet-balance', 'fleet-equity-curves', 'fleet-register']
@@ -129,7 +129,7 @@ describe('FleetOverview — real-money cards hoisted out of the register', () =>
   })
 
   it('still shows the live bots that used to render inside the register', () => {
-    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
+    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />)
     const real = screen.getByTestId('fleet-real')
     expect(within(real).getByText('EMA Cross H4 Kraken Spot')).toBeTruthy()
     expect(within(real).getByText('ORB H1 HL')).toBeTruthy()
@@ -144,7 +144,7 @@ describe('FleetOverview — real-money cards hoisted out of the register', () =>
 // build` check (which can't run against real Supabase in this environment).
 describe('FleetOverview — server-rendered register (fix round 2)', () => {
   it('renders the register\'s bot links in a single synchronous render, no Suspense involved', () => {
-    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
+    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />)
     // A representative /strategies link from the filterable register — if the
     // CSR bailout were still happening, this component tree would contain an
     // animate-pulse fallback instead of this link, and getByRole would fail
@@ -169,7 +169,7 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
         bots={FIXTURE_FLEET}
         aggregate={AGG}
         recentTrades={RECENT}
-        initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }}
+        initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }} waveBotCount={0} waveMeasure={null}
       />,
     )
     const register = screen.getByTestId('fleet-register')
@@ -193,7 +193,7 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
 describe('FleetOverview — restored stage-0 content', () => {
   it('renders the market-intelligence banner, the equity curves and the recent-trades feed', () => {
     render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />,
     )
     expect(screen.getByTestId('fleet-mi')).toBeTruthy()
     expect(screen.getByTestId('fleet-equity-curves')).toBeTruthy()
@@ -205,7 +205,7 @@ describe('FleetOverview — restored stage-0 content', () => {
 
   it('keeps all three outside the register, so no filter can reach them', () => {
     render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />,
     )
     const register = screen.getByTestId('fleet-register')
     for (const id of ['fleet-mi', 'fleet-equity-curves', 'fleet-recent-trades', 'fleet-balance', 'fleet-real']) {
@@ -239,7 +239,7 @@ describe('FleetOverview — restored stage-0 content', () => {
 
     curveProps.length = 0
     render(
-      <FleetOverview bots={[bot]} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
+      <FleetOverview bots={[bot]} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />,
     )
 
     const drawn = curveProps.at(-1)!.bots.find(b => b.slug === 'long-history')!
@@ -248,7 +248,7 @@ describe('FleetOverview — restored stage-0 content', () => {
 
   it('omits the feed entirely rather than printing an empty table', () => {
     render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={[]} initialState={EMPTY_FILTERS} />,
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={[]} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />,
     )
     expect(screen.queryByTestId('fleet-recent-trades')).toBeNull()
   })
@@ -275,13 +275,13 @@ describe('FleetOverview — remounts on a new server-sent filter state (fix roun
         bots={FIXTURE_FLEET}
         aggregate={AGG}
         recentTrades={RECENT}
-        initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }}
+        initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }} waveBotCount={0} waveMeasure={null}
       />,
     )
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
     expect(within(screen.getByTestId('fleet-register')).queryAllByText(/Ichimoku/)).toHaveLength(0)
 
-    rerender(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
+    rerender(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />)
 
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'false')
     expect(within(screen.getByTestId('fleet-register')).getAllByText(/Ichimoku/).length)

@@ -3,8 +3,15 @@
 // groupByTimeframe helper — this is the page-level smoke test the brief asks
 // for: page.tsx itself carries no new logic (grouping is fleet-grouping.ts's
 // job, rendering is FleetRegister's), so this just pins that the real
-// component tree — encart slot aside (Task 7, not yet wired) — renders the
-// per-TF sections and the archived section when the page runs end to end.
+// component tree renders the per-TF sections and the archived section when
+// the page runs end to end.
+//
+// Task 7: page.tsx now also calls getWaveMeasure() — mocked below to null so
+// this smoke test stays about the timeframe/archived structure, not the
+// encart (that's WaveExperiment.test.tsx's job). Two FIXTURE_FLEET bots
+// (atrchannel-k3, candidate-never-deployed) do carry an engine_unit_key, so
+// the encart does render here (withheld-PF branch, null measure) — none of
+// these assertions query for it, so its presence is incidental, not pinned.
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import { FIXTURE_FLEET } from '../../../tests/fixtures/bots'
@@ -24,6 +31,7 @@ vi.mock('@/lib/queries', () => ({
   getAllTradesForAggregate: async () => [],
   getLiveBotIds: async () => FIXTURE_FLEET.filter(b => b.status === 'live').map(b => b.id),
   getRecentTrades: async () => [],
+  getWaveMeasure: async () => null,
 }))
 vi.mock('@/lib/funnel', () => ({
   getFunnelCounts: async () => null,

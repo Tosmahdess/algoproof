@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBotIds, getRecentTrades } from '@/lib/queries'
+import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBotIds, getRecentTrades, getWaveMeasure } from '@/lib/queries'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { parseFleetFilters } from '@/lib/bot-filters'
 import FleetOverview from '@/components/FleetOverview'
@@ -54,7 +54,7 @@ function toURLSearchParams(sp: Record<string, string | string[] | undefined>): U
 }
 
 export default async function OverviewPage({ searchParams }: OverviewPageProps) {
-  const [bots, trades, liveBotIds, recentTrades, funnel, resolvedSearchParams] = await Promise.all([
+  const [bots, trades, liveBotIds, recentTrades, funnel, waveMeasure, resolvedSearchParams] = await Promise.all([
     getAllBotsWithStats(),
     getAllTradesForAggregate(),
     getLiveBotIds(),
@@ -63,9 +63,21 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
     // stage 0 and never reaches the filter pipeline.
     getRecentTrades(20),
     getFunnelCounts(),
+    // Task 7 (armada-wave-visibility): backs the « expérience en cours »
+    // encart. Fetched alongside `bots` in the same Promise.all, and cached
+    // in queries.ts under the `fleet-bots` tag — same fetch wave, same
+    // revalidation clock as the bots fetch it sits next to on the page.
+    // Degrades to null on any failure (including the table not existing yet,
+    // migration 033 pending) — see getWaveMeasure's own comment.
+    getWaveMeasure(),
     searchParams,
   ])
   const aggregate = computeFleetAggregate(trades, liveBotIds)
+  // Wave-1 cohort = engine-originated bots carrying an engine_unit_key.
+  // Computed here, where the page already holds the full `bots` array,
+  // rather than inside FleetOverview/WaveExperiment (both stay plain
+  // props-in/markup-out with no knowledge of the wave-1 tagging rule).
+  const waveBotCount = bots.filter(b => b.engine_unit_key?.length).length
 
   // FIX round 2 (new Important finding): filter state is seeded HERE, server
   // side, instead of via useSearchParams() inside the client component.
@@ -106,6 +118,8 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
         aggregate={aggregate}
         recentTrades={recentTrades}
         initialState={initialState}
+        waveBotCount={waveBotCount}
+        waveMeasure={waveMeasure}
       />
     </main>
   )

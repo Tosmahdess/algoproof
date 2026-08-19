@@ -236,3 +236,18 @@ export interface BotChangelog {
   detail: string | null
   session_ref: string | null
 }
+
+// Single row (id=1), table `armada_wave_measure` — the wave-1 measurement
+// cohorts (head/median/marginal) behind the /overview « expérience en cours »
+// encart. May not exist yet in prod (migration 033 pending) — see
+// getWaveMeasure in queries.ts, which degrades to null on any error.
+export interface WaveMeasure {
+  computed_at: string | null
+  paired_clusters: number | null
+  head_trades: number | null
+  median_trades: number | null
+  marginal_trades: number | null
+  head_pf: number | null
+  median_pf: number | null
+  marginal_pf: number | null
+}
