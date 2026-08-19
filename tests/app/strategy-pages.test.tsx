@@ -40,7 +40,9 @@ describe('/strategies/[concept] — « Ce qui tourne chez moi »', () => {
     bots.current = [RUNNING, RETIRED]
     render(await ConceptPage({ params: Promise.resolve({ concept: 'ema-cross' }) }))
     const section = screen.getByTestId('concept-incarnations')
-    expect(within(section).getByText('EMA Cross Running')).toBeTruthy()
+    // BotTable renders both the mobile list and the desktop table (task 8),
+    // so the bot's name legitimately appears twice.
+    expect(within(section).getAllByText('EMA Cross Running').length).toBeGreaterThan(0)
     expect(within(section).queryByText('EMA Cross Retired')).toBeNull()
   })
 
@@ -49,6 +51,14 @@ describe('/strategies/[concept] — « Ce qui tourne chez moi »', () => {
     render(await ConceptPage({ params: Promise.resolve({ concept: 'ema-cross' }) }))
     const section = screen.getByTestId('concept-incarnations')
     expect(within(section).getByText(/Aucun bot ne fait tourner cette stratégie/)).toBeTruthy()
+  })
+
+  it('renders the incarnations as the fleet table, with a TF column', async () => {
+    bots.current = [RUNNING]
+    render(await ConceptPage({ params: Promise.resolve({ concept: 'ema-cross' }) }))
+    const section = screen.getByTestId('concept-incarnations')
+    expect(within(section).getByRole('table')).toBeTruthy()
+    expect(within(section).getByRole('columnheader', { name: 'TF' })).toBeTruthy()
   })
 })
 
