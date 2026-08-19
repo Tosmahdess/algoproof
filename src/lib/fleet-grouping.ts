@@ -20,6 +20,7 @@
 import { ficheSlugForBot } from './strategy-keys'
 import { getStrategyFiche } from './strategy-library'
 import type { FicheSlug } from './strategy-library'
+import type { BotWithStats } from './types'
 
 export interface GroupableBot {
   slug: string
@@ -72,4 +73,37 @@ export function groupByStrategy<T extends GroupableBot>(bots: T[]): StrategyGrou
     if (b.bots.length !== a.bots.length) return b.bots.length - a.bots.length
     return a.label.localeCompare(b.label, 'fr')
   })
+}
+
+// /overview (the per-timeframe rebuild) groups the fleet by timeframe instead
+// of by strategy: one H4 table, one D1 table, one H1 table, rather than a
+// single dense list. Canonical order first (the site's three actual production
+// timeframes, most-populated first), then any other timeframe a future bot
+// might carry, alphabetically, so the function never has to change just
+// because a new TF shows up.
+const TF_ORDER = ['H4', 'D1', 'H1']
+
+export interface TimeframeGroup {
+  tf: string
+  bots: BotWithStats[]
+}
+
+export function groupByTimeframe(bots: BotWithStats[]): TimeframeGroup[] {
+  const rank = (tf: string) => {
+    const i = TF_ORDER.indexOf(tf)
+    return i === -1 ? TF_ORDER.length : i
+  }
+  const byTf = new Map<string, BotWithStats[]>()
+  for (const b of bots) {
+    const list = byTf.get(b.timeframe) ?? []
+    list.push(b)
+    byTf.set(b.timeframe, list)
+  }
+  return [...byTf.entries()]
+    .sort(([a], [z]) => rank(a) - rank(z) || a.localeCompare(z))
+    .map(([tf, list]) => ({
+      tf,
+      bots: list.sort((a, z) =>
+        a.family.localeCompare(z.family) || a.name.localeCompare(z.name)),
+    }))
 }

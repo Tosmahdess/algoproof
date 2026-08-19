@@ -154,9 +154,13 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
     // register at all (see FleetRegister's file header), so it can no longer
     // stand in for "a register link". MACD Volume H4 BF is `paper`, the
     // momentum family's sole member in the fixture, so it is unambiguous.
+    // getAllByRole, not getByRole: BotTable (per-timeframe rebuild, task 6)
+    // always renders both the mobile list and the desktop table — toggled by
+    // CSS media queries jsdom does not evaluate — so the link exists twice.
     const register = screen.getByTestId('fleet-register')
-    const link = within(register).getByRole('link', { name: /MACD Volume H4 BF/ })
-    expect(link.getAttribute('href')).toBe('/strategies/bot/macdvolume-bf11')
+    const links = within(register).getAllByRole('link', { name: /MACD Volume H4 BF/ })
+    expect(links.length).toBeGreaterThan(0)
+    expect(links.every(l => l.getAttribute('href') === '/strategies/bot/macdvolume-bf11')).toBe(true)
   })
 
   it('seeds the register from a non-empty initial filter state (server-parsed searchParams)', () => {
@@ -169,16 +173,13 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
       />,
     )
     const register = screen.getByTestId('fleet-register')
-    // Only breakout-family register bots (atrchannel-k3, donchian-bf17) — no
-    // trend/momentum/etc. group headers (Ichimoku is trend, and would be
-    // present in the register unfiltered — see FleetRegister.test.tsx), and
-    // the filter pill itself reads active. getAllByText for Donchian: since the
-    // register groups on the fiche, the group header (« Donchian Breakout », a
-    // link to the concept page) and the bot row both carry the word.
-    expect(within(register).getByText(/ATR Channel/)).toBeTruthy()
+    // Only breakout-family register bots (atrchannel-k3, donchian-bf17) —
+    // the timeframe-table rebuild (task 6) dropped the fiche group headers
+    // (« Donchian Breakout » linking to /strategies/donchian) along with the
+    // strategy grouping itself: each row now links straight to its own bot
+    // fiche, and the section heading names the timeframe, not the strategy.
+    expect(within(register).getAllByText(/ATR Channel K3/).length).toBeGreaterThan(0)
     expect(within(register).getAllByText(/Donchian/).length).toBeGreaterThan(0)
-    expect(within(register).getByRole('link', { name: 'Donchian Breakout' })
-      .getAttribute('href')).toBe('/strategies/donchian')
     expect(within(register).queryByText(/Ichimoku/)).toBeNull()
     expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
   })
