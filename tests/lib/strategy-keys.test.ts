@@ -72,12 +72,35 @@ describe('ficheSlugForBot', () => {
   })
 
   it('falls back to the legacy map when the engine base is not evidenced yet', () => {
-    // ATRChannel is deliberately absent from FICHE_BY_ENGINE_BASE (only bases
-    // backed by the lab's SCREENING_BASE_BY_STRATEGY_ID are listed).
-    expect(FICHE_BY_ENGINE_BASE['ATRChannel']).toBeUndefined()
-    expect(ficheSlugForBot({ slug: 'atrchannel-bf26', engine_unit_key: 'ATRChannel|H4|v1|3' }))
-      .toBe('atr-channel')
-    expect(ficheSlugForBot({ slug: 'atrchannel-k3', engine_unit_key: 'ATRChannel|H4|v1|3' }))
+    // WilliamsVolBreak is deliberately absent from FICHE_BY_ENGINE_BASE (no
+    // fiche exists for it among the 22 — see the 2026-08-19 comment in
+    // strategy-keys.ts). ATRChannel used to be the example here, but wave-1
+    // (task 9, 2026-08-19) evidenced it, so it now resolves through the
+    // engine base instead — see the test.each block below.
+    expect(FICHE_BY_ENGINE_BASE['WilliamsVolBreak']).toBeUndefined()
+    expect(ficheSlugForBot({ slug: 'wvolbreak-bf28', engine_unit_key: 'WilliamsVolBreak|H4|v1|3' }))
+      .toBeNull()
+    expect(ficheSlugForBot({ slug: 'wvolbreak-k3', engine_unit_key: 'WilliamsVolBreak|H4|v1|3' }))
+      .toBeNull()
+  })
+
+  // Wave-1 (task 9, 2026-08-19): the eight engine bases the spec evidenced,
+  // added to FICHE_BY_ENGINE_BASE alongside the pre-existing EMAcross.
+  it.each([
+    ['HMAcross|H4|data_20260802|base|3', 'ma-cross'],
+    ['TEMAcross|H4|data_20260802|base|3', 'ma-cross'],
+    ['KAMAcross|H4|data_20260802|base|3', 'kama-cross'],
+    ['DonchianBreakout|D1|data_20260802|base|3', 'donchian'],
+    ['KeltnerBreak|H1|data_20260802|base|3', 'keltner'],
+    ['ATRChannel|H4|data_20260802|base|3', 'atr-channel'],
+    ['HeikinAshiTrend|D1|data_20260802|base|3', 'heikin-ashi'],
+    ['ORB|H1|data_20260802|base|3', 'orb'],
+  ])('%s → %s', (key, fiche) => {
+    expect(ficheSlugForBot({ slug: 'x', engine_unit_key: key })).toBe(fiche)
+  })
+
+  it('WilliamsVolBreak stays deliberately unmapped — /overview only', () => {
+    expect(ficheSlugForBot({ slug: 'x', engine_unit_key: 'WilliamsVolBreak|D1|data_20260802|base|3' }))
       .toBeNull()
   })
 

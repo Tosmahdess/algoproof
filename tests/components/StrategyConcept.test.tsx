@@ -13,8 +13,13 @@ describe('concept pages', () => {
   // real ema-cross, orb, macd, ichimoku, ema-ribbon and donchian bots, so
   // assert the split: those fiches get a non-empty list, everything else
   // stays empty.
+  //
+  // atr-channel joined the covered set on 2026-08-19 (task 9): FIXTURE_FLEET's
+  // `atrchannel-k3` is engine-born and deliberately absent from the legacy slug
+  // map (see its comment in tests/fixtures/bots.ts) so that it resolves only
+  // once ATRChannel is evidenced in FICHE_BY_ENGINE_BASE — which wave-1 did.
   const COVERED_FICHES = new Set([
-    'ema-cross', 'orb', 'macd', 'ichimoku', 'ema-ribbon', 'donchian',
+    'ema-cross', 'orb', 'macd', 'ichimoku', 'ema-ribbon', 'donchian', 'atr-channel',
   ])
 
   it('lists incarnations for fiches the fixture fleet actually deploys, and nothing for the rest', () => {
