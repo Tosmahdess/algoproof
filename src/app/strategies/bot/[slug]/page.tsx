@@ -166,7 +166,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             // undocumented gap. Say so instead of the generic fallback below,
             // which would read as "not written yet" on a config withheld on
             // purpose. dossier slug: engine_unit_key's `base` segment,
-            // lowercased (e.g. 'HMAcross|H4|data_20260802|base|3' -> 'hmacross').
+            // lowercased (e.g. 'HMAcross|H4|data_20260802|3' -> 'hmacross').
             if (bot.engine_unit_key) {
               const dossier = bot.engine_unit_key.split('|')[0].toLowerCase()
               return (

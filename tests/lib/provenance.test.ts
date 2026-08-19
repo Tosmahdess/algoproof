@@ -103,4 +103,18 @@ describe('dossierHref', () => {
       origin: 'engine', found_at: '2026-01-01T00:00:00Z', engine_unit_key: 'ATRChannel|H4|data_20260701|3',
     }))).toBe('https://lab.algoproof.fr/cockpit/dossier/ATRChannel')
   })
+
+  // Cross-repo format contract (2026-08-19): the vault's armada publisher
+  // (projects/algoproof/scripts/algoproof_sync.py, armada_bot_entries) emits
+  // engine_unit_key as f"{base}|{tf}|{dataset}|3" — four segments, no "base"
+  // literal in the middle. It used to copy the orchestrator ledger key
+  // verbatim (five segments, {base}|{tf}|{dataset}|base|3), which this
+  // reader's four-segment gate silently rejected. Pinning the publisher's
+  // actual emitted shape here so a future drift on either side of the
+  // pipe/format contract fails a test instead of shipping a dead link.
+  it('accepts the publisher-emitted shape (armada wave bots)', () => {
+    expect(dossierHref(mkBot({
+      origin: 'engine', found_at: '2026-08-19T00:00:00Z', engine_unit_key: 'HMAcross|H4|data_20260802|3',
+    }))).toBe('https://lab.algoproof.fr/cockpit/dossier/HMAcross')
+  })
 })

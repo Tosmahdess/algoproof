@@ -91,27 +91,27 @@ describe('ficheSlugForBot', () => {
     // ('hmacross-bf22' → 'ma-cross') to force a non-null result that only
     // the fallback into Map A can produce.
     expect(FICHE_BY_ENGINE_BASE['NovaBase']).toBeUndefined()
-    expect(ficheSlugForBot({ slug: 'hmacross-bf22', engine_unit_key: 'NovaBase|H4|data|base|3' }))
+    expect(ficheSlugForBot({ slug: 'hmacross-bf22', engine_unit_key: 'NovaBase|H4|data|3' }))
       .toBe('ma-cross')
   })
 
   // Wave-1 (task 9, 2026-08-19): the eight engine bases the spec evidenced,
   // added to FICHE_BY_ENGINE_BASE alongside the pre-existing EMAcross.
   it.each([
-    ['HMAcross|H4|data_20260802|base|3', 'ma-cross'],
-    ['TEMAcross|H4|data_20260802|base|3', 'ma-cross'],
-    ['KAMAcross|H4|data_20260802|base|3', 'kama-cross'],
-    ['DonchianBreakout|D1|data_20260802|base|3', 'donchian'],
-    ['KeltnerBreak|H1|data_20260802|base|3', 'keltner'],
-    ['ATRChannel|H4|data_20260802|base|3', 'atr-channel'],
-    ['HeikinAshiTrend|D1|data_20260802|base|3', 'heikin-ashi'],
-    ['ORB|H1|data_20260802|base|3', 'orb'],
+    ['HMAcross|H4|data_20260802|3', 'ma-cross'],
+    ['TEMAcross|H4|data_20260802|3', 'ma-cross'],
+    ['KAMAcross|H4|data_20260802|3', 'kama-cross'],
+    ['DonchianBreakout|D1|data_20260802|3', 'donchian'],
+    ['KeltnerBreak|H1|data_20260802|3', 'keltner'],
+    ['ATRChannel|H4|data_20260802|3', 'atr-channel'],
+    ['HeikinAshiTrend|D1|data_20260802|3', 'heikin-ashi'],
+    ['ORB|H1|data_20260802|3', 'orb'],
   ])('%s → %s', (key, fiche) => {
     expect(ficheSlugForBot({ slug: 'x', engine_unit_key: key })).toBe(fiche)
   })
 
   it('WilliamsVolBreak stays deliberately unmapped — /overview only', () => {
-    expect(ficheSlugForBot({ slug: 'x', engine_unit_key: 'WilliamsVolBreak|D1|data_20260802|base|3' }))
+    expect(ficheSlugForBot({ slug: 'x', engine_unit_key: 'WilliamsVolBreak|D1|data_20260802|3' }))
       .toBeNull()
   })
 

@@ -16,15 +16,18 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => null }))
 })
 
-// engine_unit_key shape per task brief: 'HMAcross|H4|data_20260802|base|3' —
-// 5 pipe-delimited segments, not the 4-segment shape provenance.ts's
-// dossierHref requires, so the top-of-page "Voir le dossier de validation"
-// link stays absent and doesn't collide with the gated block's own link.
+// engine_unit_key shape (cross-repo contract, 2026-08-19): the vault's armada
+// publisher emits 'HMAcross|H4|data_20260802|3' — the 4-segment shape
+// provenance.ts's dossierHref requires, so the top-of-page "Voir le dossier
+// de validation" link now resolves too, alongside the gated block's own
+// "Voir le dossier de la stratégie" link — both point at the same dossier,
+// which is why the assertion below targets the gated block's link by its
+// own text rather than any link matching /dossier/i.
 const waveBot = mkBot({
   slug: 'hmacross-wave-head03',
   name: 'HMA Cross Wave Head 03',
   origin: 'engine',
-  engine_unit_key: 'HMAcross|H4|data_20260802|base|3',
+  engine_unit_key: 'HMAcross|H4|data_20260802|3',
 })
 
 vi.mock('@/lib/queries', () => ({
@@ -45,7 +48,7 @@ describe('bot fiche — gated params block for wave bots', () => {
 
     expect(screen.queryByText(/en cours de documentation/)).toBeNull()
     expect(screen.getByText(/réservée aux membres du labo/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /dossier/i }))
+    expect(screen.getByRole('link', { name: /Voir le dossier de la stratégie/i }))
       .toHaveAttribute('href', expect.stringContaining('lab.algoproof.fr/cockpit/dossier/hmacross'))
   })
 })
