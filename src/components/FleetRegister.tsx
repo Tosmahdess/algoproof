@@ -17,7 +17,7 @@
 // `FleetOverview` computes the split server-side and hands this component
 // only the bots it is actually meant to filter: no `live` cohort, no prop
 // path to it, nothing to accidentally sort or paginate. `bots` below IS the
-// laboratory register set (paper + archived already combined) — not the
+// register set — the whole fleet since 2026-08-20, live included — not the
 // full fleet.
 //
 // FIX round 2 (new Important finding): no `useSearchParams()` here at all
@@ -36,7 +36,7 @@
 // (groupByTimeframe), the same table component the home page and the concept
 // pages use. The sort control is gone with it (see FleetFilterBar's own
 // comment): it reordered rows within a strategy group, and groupByTimeframe's
-// order (family, then name) is fixed, so a sort `<select>` here would change
+// order is fixed -- biggest gain first since 2026-08-20 -- so a sort `<select>` would change
 // nothing on screen. The family filter survives — filtering by family before
 // grouping by timeframe is a clean composition, unlike sort — as does the
 // archived section, which was never grouped by strategy in the first place.
@@ -49,7 +49,7 @@ import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
 } from '@/lib/bot-filters'
-import { groupByTimeframe } from '@/lib/fleet-grouping'
+import { byGainDesc, groupByTimeframe } from '@/lib/fleet-grouping'
 import FleetFilterBar from '@/components/FleetFilterBar'
 import BotTable from '@/components/BotTable'
 
@@ -123,12 +123,12 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
   )
   // The archived section was always flat, never grouped by strategy — it
   // stays flat here too, just re-sorted the same way groupByTimeframe orders
-  // within a group (family, then name), so a visitor scanning down the page
+  // within a group (biggest gain first, untraded last), so a visitor scanning down the page
   // sees one consistent ordering rule everywhere.
   const archivedVisible = useMemo(
     () => filtered
       .filter(b => b.status === 'archived')
-      .sort((a, z) => a.family.localeCompare(z.family) || a.name.localeCompare(z.name)),
+      .sort(byGainDesc),
     [filtered],
   )
 

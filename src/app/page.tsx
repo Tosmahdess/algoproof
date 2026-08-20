@@ -12,6 +12,7 @@ import { familyColor, familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
+import { byGainDesc } from '@/lib/fleet-grouping'
 
 export const revalidate = 1800
 
@@ -34,10 +35,12 @@ export default async function HomePage() {
   // Live = real money (v1-spot, orb-bf25) ; the rest is the laboratoire (simulation).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
   const { live: liveBots, paper: paperBots } = splitCohorts(bots)
-  // Sort by realized P&L (€), not absolute capital — bots have different start capitals.
-  const sorted = [...bots].sort((a, b) =>
-    (b.stats.latest_capital - b.start_capital) - (a.stats.latest_capital - a.start_capital)
-  )
+  // Sort by realized P&L (€), not absolute capital — bots have different start
+  // capitals. One shared, tested comparator with /overview's register (2026-08-20):
+  // this used to be an inline copy that treated a bot with ZERO trades as a zero
+  // gain, so a dormant bot outranked every losing one and took a top-10 slot with
+  // a "0 €" that was the absence of a result, not a result.
+  const sorted = [...bots].sort(byGainDesc)
   const preview = sorted.slice(0, 10)
 
   return (
