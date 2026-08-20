@@ -20,6 +20,7 @@
 import { ficheSlugForBot } from './strategy-keys'
 import { getStrategyFiche } from './strategy-library'
 import type { FicheSlug } from './strategy-library'
+import { pnlEur } from './display'
 import type { BotWithStats } from './types'
 
 export interface GroupableBot {
@@ -93,6 +94,33 @@ export function tfRank(tf: string): number {
   return i === -1 ? TF_ORDER.length : i
 }
 
+/** Register row order: biggest gain first.
+ *
+ * Until 2026-08-20 this was (family, then name) — an alphabet, which tells a reader
+ * nothing they came for and buries the best and the worst performers in the middle of
+ * the table. The owner could not find a bot he knows by heart; a visitor had no chance.
+ *
+ * A bot that has never traded is NOT a zero gain — it is an absent measurement, and
+ * ranking it alongside real results reads as a flat performance it never had. Those sort
+ * to the bottom of their table as a block, by name.
+ *
+ * The gain is the P&L, `latest_capital - start_capital`, NOT the capital held: the fleet
+ * mixes start capitals, so the biggest balance is not the biggest gain. Same figure the
+ * table renders in bold (`pnlEur`, one source of truth), so the order a reader sees always
+ * matches the column they are reading it from.
+ */
+export function byGainDesc(a: BotWithStats, z: BotWithStats): number {
+  const aTraded = a.stats.total_trades > 0
+  const zTraded = z.stats.total_trades > 0
+  if (aTraded !== zTraded) return aTraded ? -1 : 1
+  if (aTraded) {
+    const diff = pnlEur(z.stats.latest_capital, z.start_capital)
+      - pnlEur(a.stats.latest_capital, a.start_capital)
+    if (diff !== 0) return diff
+  }
+  return a.name.localeCompare(z.name)
+}
+
 export interface TimeframeGroup {
   tf: string
   bots: BotWithStats[]
@@ -107,9 +135,5 @@ export function groupByTimeframe(bots: BotWithStats[]): TimeframeGroup[] {
   }
   return [...byTf.entries()]
     .sort(([a], [z]) => tfRank(a) - tfRank(z) || a.localeCompare(z))
-    .map(([tf, list]) => ({
-      tf,
-      bots: list.sort((a, z) =>
-        a.family.localeCompare(z.family) || a.name.localeCompare(z.name)),
-    }))
+    .map(([tf, list]) => ({ tf, bots: [...list].sort(byGainDesc) }))
 }

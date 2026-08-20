@@ -73,7 +73,8 @@ export default function FleetFilterBar({
         {/* FIX (per-timeframe rebuild, task 6): the sort control is GONE, not
             hidden. It reordered rows within a strategy group; the register no
             longer has one — each timeframe table is ordered by
-            groupByTimeframe (family, then name), a fixed order the tables
+            groupByTimeframe (biggest gain first, untraded last -- 2026-08-20)
+            -- the order a reader actually came for, and one the tables
             share with every other per-TF view on the site. A `<select>` that
             changed nothing on screen would be the exact defect `direction`
             was deleted for in bot-filters.ts. `state.sort` / `state.dir`

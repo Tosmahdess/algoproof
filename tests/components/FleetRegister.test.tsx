@@ -39,6 +39,28 @@ describe('FleetRegister', () => {
     expect(screen.queryByTestId('fleet-real')).toBeNull()
   })
 
+  // The archived list promises, in FleetRegister's own comment, the SAME order as
+  // the timeframe tables. When that order became "biggest gain first" (2026-08-20)
+  // the promise had to follow, or a reader scanning down the page would meet two
+  // different rankings without being told.
+  it('orders archived bots by gain too, biggest first, untraded last', () => {
+    const arch = (name: string, latest: number, trades = 40, family = 'trend') =>
+      mkBot({
+        slug: name.toLowerCase(), name, status: 'archived',
+        family: family as never, start_capital: 1000,
+        stats: { win_rate: 0.5, profit_factor: 1.1, max_drawdown: 0.1,
+                 total_trades: trades, latest_capital: latest },
+      })
+    // Families and names chosen so the OLD (family, then name) order would answer
+    // Aardvark, Zulu, Middling -- this test cannot pass by alphabetical accident.
+    render(<FleetRegister
+      bots={[arch('Aardvark', 1000, 0, 'breakout'), arch('Zulu', 1500), arch('Middling', 1100)]}
+      initialState={EMPTY_FILTERS} />)
+
+    const rows = within(screen.getByTestId('fleet-archived')).getAllByRole('link')
+    expect(rows.map(r => r.textContent)).toEqual(['Zulu', 'Middling', 'Aardvark'])
+  })
+
   it('lists a deployed bot that has never traded', () => {
     render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
     expect(screen.getAllByText(/Ichimoku/).length).toBeGreaterThan(0)
