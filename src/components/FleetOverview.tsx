@@ -86,11 +86,22 @@ export default function FleetOverview({
   cutoff.setDate(cutoff.getDate() - CURVE_DAYS)
   const cutoffStr = cutoff.toISOString().slice(0, 10)
 
-  // Stage 1 (real money) split out here, server-side. `paper` and `archived`
-  // recombine into the set FleetRegister filters — it never sees `live` at
-  // all, not even as a value it chooses not to render.
+  // Stage 1 (real money) is split out here, server-side, to render as its own
+  // cards above the balance sheet.
+  //
+  // The register below receives the WHOLE fleet, live included (owner decision
+  // 2026-08-20). It used to receive `[...paper, ...archived]` only, so a
+  // real-money bot was a card and nothing else — and since ORB is the fleet's
+  // only H1 bot, the register had no H1 table at all. A register that reads as
+  // "every bot I run" while omitting the two that run real money is worse than
+  // one that lists them twice.
+  //
+  // The cost, taken knowingly: `live` now enters the filter pipeline, so a
+  // family filter can remove ORB from its table. It cannot remove it from the
+  // page — the cards above are outside the filter boundary and stay put, which
+  // is the property the old split existed to protect.
   const { live, paper, archived } = splitCohorts(bots)
-  const registerBots = [...paper, ...archived]
+  const registerBots = [...live, ...paper, ...archived]
 
   // Archived bots are excluded from every aggregate on this page, and a dead
   // bot's flat line is noise on a 30-day chart. Same rule as the balance sheet.

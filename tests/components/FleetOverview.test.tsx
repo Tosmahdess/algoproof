@@ -134,6 +134,20 @@ describe('FleetOverview — real-money cards hoisted out of the register', () =>
     expect(within(real).getByText('EMA Cross H4 Kraken Spot')).toBeTruthy()
     expect(within(real).getByText('ORB H1 HL')).toBeTruthy()
   })
+
+  // Owner decision 2026-08-20. A real-money bot used to be a CARD and nothing
+  // else: the register below never received it, so the fleet's only H1 bot had
+  // no H1 table to appear in and the register — the thing that reads as "every
+  // bot I run" — silently omitted the two that matter most.
+  it('also lists a real-money bot in its timeframe table, not only as a card', () => {
+    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />)
+
+    // BotTable renders each row twice (a mobile card and a desktop row), so the
+    // assertion is on presence, not on a single node.
+    expect(within(screen.getByTestId('fleet-tf-H1')).getAllByText('ORB H1 HL').length).toBeGreaterThan(0)
+    // and STILL a card up top: the two placements are not alternatives
+    expect(within(screen.getByTestId('fleet-real')).getAllByText('ORB H1 HL').length).toBeGreaterThan(0)
+  })
 })
 
 // Fix round 2 (new Important finding): the whole point of seeding filter
@@ -173,15 +187,18 @@ describe('FleetOverview — server-rendered register (fix round 2)', () => {
       />,
     )
     const register = screen.getByTestId('fleet-register')
-    // Only breakout-family register bots (atrchannel-k3, donchian-bf17) —
-    // the timeframe-table rebuild (task 6) dropped the fiche group headers
+    // Breakout-family register bots: atrchannel-k3, donchian-bf17 — and ORB
+    // since 2026-08-20, when real-money bots joined the register. That is why
+    // the family count below reads 3, not the 2 it read before: the counter is
+    // over the register set, and the register set grew by the live cohort.
+    // The timeframe-table rebuild (task 6) dropped the fiche group headers
     // (« Donchian Breakout » linking to /strategies/donchian) along with the
     // strategy grouping itself: each row now links straight to its own bot
     // fiche, and the section heading names the timeframe, not the strategy.
     expect(within(register).getAllByText(/ATR Channel K3/).length).toBeGreaterThan(0)
     expect(within(register).getAllByText(/Donchian/).length).toBeGreaterThan(0)
     expect(within(register).queryByText(/Ichimoku/)).toBeNull()
-    expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /Cassure \(3\)/ })).toHaveAttribute('aria-pressed', 'true')
   })
 })
 
@@ -278,12 +295,12 @@ describe('FleetOverview — remounts on a new server-sent filter state (fix roun
         initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }} waveBotCount={0} waveMeasure={null}
       />,
     )
-    expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /Cassure \(3\)/ })).toHaveAttribute('aria-pressed', 'true')
     expect(within(screen.getByTestId('fleet-register')).queryAllByText(/Ichimoku/)).toHaveLength(0)
 
     rerender(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} waveBotCount={0} waveMeasure={null} />)
 
-    expect(screen.getByRole('button', { name: /Cassure \(2\)/ })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: /Cassure \(3\)/ })).toHaveAttribute('aria-pressed', 'false')
     expect(within(screen.getByTestId('fleet-register')).getAllByText(/Ichimoku/).length)
       .toBeGreaterThan(0)
   })

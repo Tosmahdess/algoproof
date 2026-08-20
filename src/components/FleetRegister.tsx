@@ -17,7 +17,7 @@
 // `FleetOverview` computes the split server-side and hands this component
 // only the bots it is actually meant to filter: no `live` cohort, no prop
 // path to it, nothing to accidentally sort or paginate. `bots` below IS the
-// laboratory register set (paper + archived already combined) — not the
+// register set — the whole fleet since 2026-08-20, live included — not the
 // full fleet.
 //
 // FIX round 2 (new Important finding): no `useSearchParams()` here at all
