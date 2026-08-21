@@ -45,7 +45,7 @@ export default function StartPage() {
             <li>✓ API compatible avec mes bots</li>
           </ul>
           <div className="space-y-2 text-xs text-muted">
-            <p className="font-medium text-text">3 étapes pour démarrer :</p>
+            <p className="font-medium text-foreground">3 étapes pour démarrer :</p>
             <ol className="list-decimal list-inside space-y-1">
               <li>Créer un compte et passer le KYC</li>
               <li>Déposer des USDT (virement SEPA ou carte)</li>
@@ -81,7 +81,7 @@ export default function StartPage() {
             <li>✓ Agent wallet isolé (sécurité renforcée)</li>
           </ul>
           <div className="space-y-2 text-xs text-muted">
-            <p className="font-medium text-text">3 étapes pour démarrer :</p>
+            <p className="font-medium text-foreground">3 étapes pour démarrer :</p>
             <ol className="list-decimal list-inside space-y-1">
               <li>Installer MetaMask et acheter de l&apos;USDC</li>
               <li>Bridger l&apos;USDC vers Arbitrum et déposer sur HL</li>
@@ -95,7 +95,7 @@ export default function StartPage() {
             location="start"
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-text transition-colors hover:border-muted"
+            className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-foreground transition-colors hover:border-muted"
           >
             Découvrir Hyperliquid →
           </TrackedLink>
@@ -117,7 +117,7 @@ export default function StartPage() {
             <li>✓ C&apos;est ici que mon bot EMA Cross live tourne depuis le 30 juin 2026</li>
           </ul>
           <div className="space-y-2 text-xs text-muted">
-            <p className="font-medium text-text">3 étapes pour démarrer :</p>
+            <p className="font-medium text-foreground">3 étapes pour démarrer :</p>
             <ol className="list-decimal list-inside space-y-1">
               <li>Créer un compte et passer le KYC</li>
               <li>Déposer des EUR (virement SEPA) ou de l&apos;USDC</li>
@@ -131,7 +131,7 @@ export default function StartPage() {
             location="start"
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-text transition-colors hover:border-positive hover:text-positive"
+            className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-foreground transition-colors hover:border-positive hover:text-positive"
           >
             Découvrir Kraken →
           </TrackedLink>
@@ -170,9 +170,9 @@ export default function StartPage() {
               ].map(([label, bybit, hl, kraken]) => (
                 <tr key={label} className="hover:bg-card/30 transition-colors">
                   <td className="px-4 py-3 font-medium text-muted">{label}</td>
-                  <td className="px-4 py-3 text-text">{bybit}</td>
-                  <td className="px-4 py-3 text-text">{hl}</td>
-                  <td className="px-4 py-3 text-text">{kraken}</td>
+                  <td className="px-4 py-3 text-foreground">{bybit}</td>
+                  <td className="px-4 py-3 text-foreground">{hl}</td>
+                  <td className="px-4 py-3 text-foreground">{kraken}</td>
                 </tr>
               ))}
             </tbody>
@@ -192,7 +192,7 @@ export default function StartPage() {
           2026, sans changer de stratégie.
         </p>
         <p className="text-sm text-muted leading-relaxed">
-          <strong className="text-text">À ne pas faire :</strong> utiliser un VPN pour contourner la restriction
+          <strong className="text-foreground">À ne pas faire :</strong> utiliser un VPN pour contourner la restriction
           expose votre compte au freeze et vous engage juridiquement.
         </p>
       </div>
@@ -201,7 +201,7 @@ export default function StartPage() {
       <div className="text-center">
         <Link
           href="/strategies"
-          className="inline-block rounded-lg border border-border px-6 py-3 text-sm font-medium text-text transition-colors hover:border-positive hover:text-positive"
+          className="inline-block rounded-lg border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-positive hover:text-positive"
         >
           Voir toutes les stratégies →
         </Link>

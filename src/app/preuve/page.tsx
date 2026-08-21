@@ -40,9 +40,10 @@ export default function PreuvePage() {
       <section>
         <h2 className="text-lg mb-3">Ce qui est gratuit, ce qui le restera, et ce qui ne le sera pas</h2>
         <p className="text-sm mb-3">
-          Le labo est gratuit aujourd&apos;hui, sans compte et sans limite. Il passera
-          au payant un jour, et je préfère dire tout de suite où passera la ligne
-          plutôt que de te le faire découvrir le jour où ça change.
+          Le labo est gratuit aujourd&apos;hui, sans compte. Seule la recette exacte
+          des bots sortis du moteur (valeurs des paramètres et filtres) est réservée
+          aux membres. Il passera au payant un jour, et je préfère dire tout de suite
+          où passera la ligne plutôt que de te le faire découvrir le jour où ça change.
         </p>
         <p className="text-sm mb-3">
           Tout ce que mes bots font restera public, gratuitement, pour toujours :

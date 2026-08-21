@@ -46,7 +46,7 @@ export default function Nav() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3" style={{ minHeight: 'var(--nav-h)' }}>
 
         {/* Logo */}
         <Link href="/" className="text-sm font-bold tracking-widest flex-shrink-0" onClick={() => setMobileOpen(false)}>
@@ -58,7 +58,7 @@ export default function Nav() {
 
           {/* MES BOTS dropdown */}
           <div className="relative group">
-            <button type="button" className={`text-xs font-semibold tracking-widest transition-colors flex items-center gap-1 ${mesBotsActive ? 'text-text' : 'text-muted hover:text-text'}`}>
+            <button type="button" className={`text-xs font-semibold tracking-widest transition-colors flex items-center gap-1 ${mesBotsActive ? 'text-foreground' : 'text-muted hover:text-foreground'}`}>
               MES BOTS
               <svg className="w-2.5 h-2.5 opacity-50 group-hover:opacity-100" viewBox="0 0 10 6" fill="currentColor">
                 <path d="M0 0l5 6 5-6H0z"/>
@@ -67,7 +67,7 @@ export default function Nav() {
             <div className="absolute left-0 top-full mt-1 w-52 rounded border border-border bg-bg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
               {MES_BOTS_SUB.map(({ href, label }) => (
                 <Link key={href} href={href}
-                  className={`block px-4 py-2.5 text-xs transition-colors hover:text-positive ${path === href ? 'text-text font-semibold' : 'text-muted'}`}>
+                  className={`block px-4 py-2.5 text-xs transition-colors hover:text-positive ${path === href ? 'text-foreground font-semibold' : 'text-muted'}`}>
                   {label}
                 </Link>
               ))}
@@ -79,7 +79,7 @@ export default function Nav() {
             const active = path === href || path.startsWith(href + '/')
             return (
               <Link key={href} href={href}
-                className={`text-xs font-semibold tracking-widest transition-colors ${active ? 'text-text' : 'text-muted hover:text-text'}`}>
+                className={`text-xs font-semibold tracking-widest transition-colors ${active ? 'text-foreground' : 'text-muted hover:text-foreground'}`}>
                 {label}
               </Link>
             )
@@ -96,7 +96,7 @@ export default function Nav() {
           {/* Compte : l'auth vit sur le lab */}
           <a
             href={ACCOUNT_URL}
-            className="text-xs font-semibold tracking-widest transition-colors text-muted hover:text-text"
+            className="text-xs font-semibold tracking-widest transition-colors text-muted hover:text-foreground"
           >
             COMPTE
           </a>
@@ -104,7 +104,7 @@ export default function Nav() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden p-2 text-muted hover:text-text transition-colors"
+          className="md:hidden p-2 text-muted hover:text-foreground transition-colors"
           onClick={() => setMobileOpen(o => !o)}
           aria-label="Menu"
         >
@@ -139,7 +139,7 @@ export default function Nav() {
                       target={external ? '_blank' : undefined}
                       rel={external ? 'noopener noreferrer' : undefined}
                       onClick={() => setMobileOpen(false)}
-                      className={`block pl-7 pr-4 py-2.5 text-sm border-t border-border/30 transition-colors ${active ? 'text-text font-semibold' : 'text-muted hover:text-text'}`}>
+                      className={`block pl-7 pr-4 py-2.5 text-sm border-t border-border/30 transition-colors ${active ? 'text-foreground font-semibold' : 'text-muted hover:text-foreground'}`}>
                       {label}{external ? ' ↗' : ''}
                     </Link>
                   )

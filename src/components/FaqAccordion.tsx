@@ -17,7 +17,7 @@ export default function FaqAccordion({ items }: { items: FaqItem[] }) {
           <button
             onClick={() => setOpenIndex(openIndex === i ? null : i)}
             aria-expanded={openIndex === i}
-            className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-text transition-colors hover:text-positive"
+            className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-foreground transition-colors hover:text-positive"
           >
             <span>{item.question}</span>
             <svg

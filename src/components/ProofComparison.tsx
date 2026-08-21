@@ -28,7 +28,7 @@ export default function ProofComparison() {
         <tbody className="divide-y divide-border">
           {ROWS.map(r => (
             <tr key={r.label} className="hover:bg-card/30">
-              <td className="px-4 py-3 text-text">{r.label}</td>
+              <td className="px-4 py-3 text-foreground">{r.label}</td>
               <td className="px-4 py-3 text-center"><Cell ok={r.algoproof} /></td>
               <td className="px-4 py-3 text-center"><Cell ok={r.botshop} /></td>
             </tr>

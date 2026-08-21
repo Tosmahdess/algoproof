@@ -13,9 +13,11 @@ const config: Config = {
         positive: '#4ade80',
         negative: '#f87171',
         accent: '#818cf8',
+        foreground: '#f5f5f5',
+        warning: '#f59e0b',
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        mono: ['var(--font-mono)', 'JetBrains Mono', 'Fira Code', 'ui-monospace', 'monospace'],
       },
     },
   },

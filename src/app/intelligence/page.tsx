@@ -12,7 +12,7 @@ import { getFleetImpact } from '@/lib/mi-fleet-impact'
 
 export const metadata: Metadata = {
   title: 'La météo du marché — régime, risque ON/OFF, en français',
-  description: 'Chaque jour, l\'état du marché résumé en clair : risque ON ou OFF. Un régime qui agrège volatilité, sentiment, dérivés et macro en un indicateur lisible.',
+  description: 'Chaque jour, l\'état du marché résumé en clair : risque ON ou OFF. Un régime qui agrège sentiment, dérivés, actualités et macro en un indicateur lisible.',
   openGraph: { url: 'https://algoproof.fr/intelligence' },
 }
 
@@ -111,13 +111,13 @@ export default async function IntelligencePage() {
       {/* Hero */}
       <div>
         <p className="text-xs font-semibold tracking-widest uppercase text-positive mb-2">
-          Service d&apos;Intelligence de Marché
+          Météo du marché
         </p>
         <h1 className="text-2xl font-bold tracking-tight">
           Le gardien qui ne dort jamais.
         </h1>
         <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
-          Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège volatilité, sentiment, dérivés et macro en un seul indicateur lisible.
+          Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège sentiment, dérivés, actualités et macro en un seul indicateur lisible.
         </p>
         <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
           Pourquoi ça compte : quand le risque passe à OFF, mes bots se font plus prudents (positions réduites, défense active). La météo du marché n&apos;est pas décorative, elle pilote des décisions. Termes expliqués dans le <a href="/lexique" className="text-accent">lexique</a>.

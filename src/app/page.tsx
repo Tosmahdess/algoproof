@@ -156,14 +156,14 @@ export default async function HomePage() {
             <p className="text-muted text-sm">ORB H1 tourne sur Hyperliquid avec mon capital. Chaque trade, chaque perte, publié à l&apos;heure.</p>
             <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir le bot →</span>
           </Link>
-          <Link href="/strategies/bot/funding-rev-long" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
-            <h3 className="text-lg font-bold mb-2">Le dernier arrivé</h3>
-            <p className="text-muted text-sm">Funding Reversal a passé mon gate de validation le 30 juin : contrarien sur les extrêmes de funding, long only. En paper : 40 trades exigés avant le moindre euro réel.</p>
-            <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir le bot →</span>
+          <Link href="/overview" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
+            <h3 className="text-lg font-bold mb-2">Les derniers arrivés</h3>
+            <p className="text-muted text-sm">Le 21 août, 75 stratégies sorties de mon moteur de recherche sont entrées en simulation. Chacune devra aligner ses trades, et tenir, avant le moindre euro réel.</p>
+            <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir la flotte →</span>
           </Link>
           <Link href="/blog/2026-07-02-pourquoi-mes-bots-ne-tradent-pas" className="bg-card border border-border rounded-xl p-8 text-center hover:border-muted/50 transition-colors group">
             <h3 className="text-lg font-bold mb-2">Ceux qui dorment</h3>
-            <p className="text-muted text-sm">Mes bots de tendance n&apos;ont presque pas tradé depuis deux mois. C&apos;est voulu : pas de tendance, pas de trade. J&apos;ai vérifié, les forcer serait perdant.</p>
+            <p className="text-muted text-sm">Mes bots de tendance n&apos;ont presque pas tradé de mai à juillet. C&apos;est voulu : pas de tendance, pas de trade. J&apos;ai vérifié, les forcer serait perdant.</p>
             <span className="inline-block mt-4 text-sm text-white group-hover:underline">Lire l&apos;enquête →</span>
           </Link>
         </div>

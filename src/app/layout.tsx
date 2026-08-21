@@ -1,10 +1,18 @@
 import type { Metadata } from 'next'
+import { JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { Analytics } from '@vercel/analytics/react'
 import JsonLd from '@/components/JsonLd'
 import { organizationJsonLd } from '@/lib/jsonld'
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-mono',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: { template: '%s | AlgoProof', default: 'AlgoProof' },
@@ -24,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className="bg-bg text-white">
+    <html lang="fr" className={`bg-bg text-white ${jetbrainsMono.variable}`}>
       <body className="min-h-screen flex flex-col">
         <JsonLd data={organizationJsonLd()} />
         <Nav />

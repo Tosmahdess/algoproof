@@ -26,7 +26,7 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-2 mb-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
           {[
             { label: 'T. gain',   value: hasData ? fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate) : '—' },
             { label: 'F. profit', value: hasData ? fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor) : '—' },

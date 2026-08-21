@@ -9,13 +9,13 @@ import { MICA_EXCHANGES } from '@/lib/mica-exchanges'
 export const metadata: Metadata = {
   title: 'Crypto en règle : MiCA + fiscalité (France 2026) | AlgoProof',
   description:
-    "MiCA s'applique le 1er juillet 2026. Ce qui change pour toi, les exchanges agréés, et un calculateur d'impôt sur tes plus-values crypto (flat tax 31,4 % ou barème).",
+    "MiCA s'applique depuis le 1er juillet 2026. Ce qui change pour toi, les exchanges agréés, et un calculateur d'impôt sur tes plus-values crypto (flat tax 31,4 % ou barème).",
   openGraph: { url: 'https://algoproof.fr/mica' },
 }
 
 const MICA_POINTS = [
   ['Protection renforcée', "Livre blanc obligatoire, droit de rétractation, règles sur la publicité et les conflits d'intérêts."],
-  ['Exchanges agréés', "Les plateformes doivent obtenir un agrément CASP pour opérer dans l'UE. Les non-agréés devront partir."],
+  ['Exchanges agréés', "Les plateformes doivent obtenir un agrément CASP pour opérer dans l'UE. Les non-agréés ont dû partir."],
   ['Stablecoins encadrés', "Les émetteurs de stablecoins doivent respecter des exigences de réserves et de transparence."],
   ['Ce qui ne change PAS', "La fiscalité reste française (art. 150 VH bis). MiCA ne touche pas tes impôts. Vois le calculateur plus bas."],
 ]
@@ -47,7 +47,7 @@ export default function MicaPage() {
         </span>
         <h1 className="mt-4 text-3xl font-bold tracking-tight">Crypto en règle : ce que MiCA change pour toi</h1>
         <p className="mt-3 text-muted leading-relaxed">
-          Le règlement européen MiCA s&apos;applique pleinement le 1er juillet 2026. Voici ce qui change concrètement,
+          Le règlement européen MiCA s&apos;applique pleinement depuis le 1er juillet 2026. Voici ce qui change concrètement,
           comment rester en règle depuis la France, et combien tu paieras d&apos;impôts sur tes plus-values.
         </p>
       </div>
@@ -58,7 +58,7 @@ export default function MicaPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           {MICA_POINTS.map(([title, body]) => (
             <div key={title} className="rounded-xl border border-border bg-card p-5">
-              <h3 className="text-sm font-semibold text-text mb-1">{title}</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
               <p className="text-sm text-muted leading-relaxed">{body}</p>
             </div>
           ))}
@@ -91,12 +91,12 @@ export default function MicaPage() {
             <tbody className="divide-y divide-border">
               {MICA_EXCHANGES.map(e => (
                 <tr key={e.name} className="hover:bg-card/30">
-                  <td className="px-4 py-3 font-medium text-text">
+                  <td className="px-4 py-3 font-medium text-foreground">
                     {e.url ? <a href={e.url} target="_blank" rel="noopener noreferrer" className="hover:text-positive">{e.name} →</a> : e.name}
                   </td>
                   <td className="px-4 py-3 text-muted">{e.type}</td>
                   <td className="px-4 py-3 text-muted">{e.status}</td>
-                  <td className="px-4 py-3 text-text">{e.franceOk}</td>
+                  <td className="px-4 py-3 text-foreground">{e.franceOk}</td>
                 </tr>
               ))}
             </tbody>
@@ -121,7 +121,7 @@ export default function MicaPage() {
       {/* CTA */}
       <div className="flex flex-wrap gap-3">
         <Link href="/start" className="rounded-lg bg-positive px-5 py-2.5 text-sm font-semibold text-black hover:opacity-90">Ouvrir un compte en règle →</Link>
-        <Link href="/strategies" className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-text hover:border-positive hover:text-positive">Voir les stratégies →</Link>
+        <Link href="/strategies" className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:border-positive hover:text-positive">Voir les stratégies →</Link>
       </div>
     </main>
   )
