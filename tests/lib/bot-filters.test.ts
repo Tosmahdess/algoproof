@@ -7,6 +7,7 @@ import {
   optionCounts,
   activeFilterCount,
   describeEmptyResult,
+  PARAM_ORDER,
 } from '@/lib/bot-filters'
 import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
 
@@ -173,5 +174,64 @@ describe('describeEmptyResult', () => {
     const lonely = [mkBot({ family: 'trend', timeframe: 'H4' })]
     const state = { ...EMPTY_FILTERS, family: ['carry'] as never }
     expect(describeEmptyResult(lonely, state)).toBeTruthy()
+  })
+})
+
+describe('side facet (slice, not predicate)', () => {
+  const t = (side: 'long' | 'short') => ({
+    id: `t-${side}`, bot_id: 'x', opened_at: '2026-05-01T00:00:00Z', closed_at: '2026-05-01T01:00:00Z',
+    asset: 'BTC/USDT', side, pnl: 1, reason: null, is_paper: true, entry_price: null, exit_price: null,
+  })
+
+  it('defaults to all and parses long / short', () => {
+    expect(EMPTY_FILTERS.side).toBe('all')
+    expect(parseFleetFilters(new URLSearchParams('side=short')).side).toBe('short')
+    expect(parseFleetFilters(new URLSearchParams('side=long')).side).toBe('long')
+  })
+
+  it('drops an unknown side value instead of trusting it', () => {
+    expect(parseFleetFilters(new URLSearchParams('side=sideways')).side).toBe('all')
+  })
+
+  it('round-trips and never serialises the default', () => {
+    const s = { ...EMPTY_FILTERS, side: 'short' as const, asset: ['BTC'] }
+    const qs = serializeFleetFilters(s).toString()
+    expect(qs).toBe('asset=BTC&side=short')
+    expect(parseFleetFilters(new URLSearchParams(qs))).toEqual(s)
+    expect(serializeFleetFilters({ ...EMPTY_FILTERS, side: 'all' }).toString()).toBe('')
+  })
+
+  it('sits between asset and tf in PARAM_ORDER', () => {
+    expect([...PARAM_ORDER]).toEqual(['family', 'status', 'asset', 'side', 'tf', 'sort', 'dir'])
+  })
+
+  it('counts as one active filter', () => {
+    expect(activeFilterCount({ ...EMPTY_FILTERS, side: 'long' })).toBe(1)
+    expect(activeFilterCount(EMPTY_FILTERS)).toBe(0)
+  })
+
+  it('does NOT remove bots from the list — a bot with no short keeps its row', () => {
+    const longsOnly = mkBot({ all_trades: [] })
+    expect(applyFleetFilters([longsOnly], { ...EMPTY_FILTERS, side: 'short' })).toHaveLength(1)
+  })
+
+  it('counts bots by the presence of trades on that side, not by existence', () => {
+    const both = mkBot({ all_trades: [t('long'), t('short')] })
+    const longOnly = mkBot({ all_trades: [t('long')] })
+    const none = mkBot({ all_trades: [] })
+    const counts = optionCounts([both, longOnly, none], EMPTY_FILTERS)
+    expect(counts.side).toEqual({ long: 2, short: 1 })
+  })
+
+  it('a bot without all_trades counts for neither side (no vacuous count)', () => {
+    const bare = { family: 'trend' as const, status: 'paper', assets: ['BTC'], timeframe: 'H4' }
+    expect(optionCounts([bare], EMPTY_FILTERS).side).toEqual({ long: 0, short: 0 })
+  })
+
+  it('side counts respect the OTHER facets (family narrows them)', () => {
+    const trend = mkBot({ family: 'trend', all_trades: [t('short')] })
+    const breakout = mkBot({ family: 'breakout', all_trades: [t('short')] })
+    const counts = optionCounts([trend, breakout], { ...EMPTY_FILTERS, family: ['trend'] })
+    expect(counts.side.short).toBe(1)
   })
 })
