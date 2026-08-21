@@ -1,7 +1,7 @@
 # Register slice by side and asset, thin fiche for engine bots — design
 
 **Date:** 2026-08-21
-**Status:** approved in conversation (owner), awaiting implementation plan
+**Status:** implemented on `session/register-slice-0821` (2026-08-21), awaiting owner GO to merge (= deploy)
 **Context:** the 75-bot armada wave (engine-originated, `engine_unit_key` set) is about to
 be published. Two product decisions taken with the owner on 2026-08-21:
 
@@ -37,7 +37,8 @@ Sort behaviour is **not** changed: default and keys stay exactly as today (owner
   `parseFleetFilters` reads `side` (anything but `long`/`short` → `'all'`);
   `serializeFleetFilters` emits `side` **only** when not `'all'`.
 - `activeFilterCount` counts `side !== 'all'` as one active filter.
-- `describeEmptyResult` names the side in its explanation ("… en short").
+- `describeEmptyResult` is unchanged: side is a slice, never a predicate, so it can never
+  empty the list and can never be blamed for an empty one.
 - `optionCounts` gains `side: { long: number; short: number }`, computed with the side
   facet left out (same `applyExcept` pattern) and counting bots with **≥ 1 trade of that
   side** in `all_trades` — not bots that exist. `FilterableBot` therefore gains an optional
