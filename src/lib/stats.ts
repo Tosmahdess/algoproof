@@ -8,6 +8,10 @@ import { toBaseAsset, type AssetFilter } from './asset'
 
 export type DirectionFilter = 'all' | 'long' | 'short'
 
+/** The register's side facet. Same three values as the fiche's direction
+ *  switch — one vocabulary for "which side of the trades are we looking at". */
+export type SideFilter = DirectionFilter
+
 export interface DirectionBreakdown {
   total: number
   long: number
@@ -108,6 +112,44 @@ export function computeBotStats(
     total_trades: trades.length,
     latest_capital,
   }
+}
+
+/**
+ * The register's slice: a bot's stats recomputed on its trades of one side
+ * and/or one or more assets. Wraps computeBotStats so the fiche's selector
+ * and the register's pills compute the same numbers from the same trades.
+ *
+ * - No slice (`side === 'all'`, no asset) returns `bot.stats` ITSELF — the
+ *   server-computed stats, by reference. The default view must stay
+ *   bit-identical to what the page rendered before the slice existed; a test
+ *   pins the identity, not just equality.
+ * - Several assets are a UNION. computeBotStats only knows one asset, so the
+ *   asset pre-filter happens here and `'all'` is passed down for that axis;
+ *   the side still goes through computeBotStats so the drawdown/capital
+ *   reconstruction path ("isFiltered") is taken whenever anything is sliced.
+ * - An empty slice yields total_trades 0 / latest_capital = start_capital /
+ *   PF 0 — which BotTable renders as « — », never as a zero performance.
+ */
+export function sliceBotStats(
+  bot: { stats: BotStats; all_trades: Trade[]; perf_daily: PerfDaily[]; start_capital: number },
+  side: SideFilter,
+  assets: readonly string[],
+): BotStats {
+  if (side === 'all' && assets.length === 0) return bot.stats
+  const wanted = new Set(assets.map(a => toBaseAsset(a)))
+  const pool = wanted.size === 0
+    ? bot.all_trades
+    : bot.all_trades.filter(t => wanted.has(toBaseAsset(t.asset)))
+  // Passing an EMPTY perf_daily forces computeBotStats onto its
+  // reconstruct-from-trades path for capital (start + Σ pnl) even when
+  // `side === 'all'`; drawdown on that path comes from the trade sequence
+  // (computeDrawdownFromTrades) only when computeBotStats sees a filter, so
+  // apply the side there and, for the side-'all'-with-asset case, recompute
+  // the drawdown from the pool explicitly. The global perf_daily curve is
+  // never a baseline for a subset of trades (same reasoning as above).
+  const stats = computeBotStats(pool, [], side, bot.start_capital, 'all')
+  if (side !== 'all') return stats
+  return { ...stats, max_drawdown: computeDrawdownFromTrades(pool) }
 }
 
 export function sideLabel(side: TradeSide): string {

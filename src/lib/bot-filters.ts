@@ -15,20 +15,22 @@
 //      a family that no longer exists renders the default view, not a crash.
 import { FAMILY_ORDER, isFamily, familyLabel, type Family } from './families'
 import { toBaseAsset } from './asset'
+import type { SideFilter } from './stats'
 
 export type FleetStatusFilter = 'live' | 'paper' | 'archived'
 export type SortKey = 'proven' | 'trades' | 'win_rate' | 'profit_factor' | 'max_drawdown' | 'pnl'
 export type SortDir = 'asc' | 'desc'
-// FIX (final review, I5): `direction` / `DirectionFilterValue` /
-// `isDirectionNarrowed` and the `dir_trade` URL parameter used to live here,
-// under a doc comment claiming the switch "recomputes the displayed stats
-// through computeBotStats(..., direction, ...)" and that "the filter bar
-// mentions it separately so a non-default direction is never silently applied".
-// Neither was true: FleetRegister never called computeBotStats, the bar renders
-// only family and venue pills, and isDirectionNarrowed had no caller —
-// ?dir_trade=long round-tripped through the URL and changed nothing on screen.
-// A comment asserting a safety property the code does not have is worse than no
-// comment. It comes back with the UI that uses it.
+// The side facet is a SLICE, not a predicate. Choosing « short » keeps every
+// bot in the register and recomputes each row's stats on its short trades
+// (FleetRegister → sliceBotStats); a bot with no short shows « — ». That is
+// why `side` is absent from PREDICATES and from describeEmptyResult: it can
+// never empty the list, so it can never be blamed for an empty one. Its
+// option counts, by contrast, DO depend on trades — a pill says how many bots
+// have at least one trade on that side, against the other facets.
+//
+// History (final review, I5): an earlier `direction` / `dir_trade` parameter
+// lived here with a comment promising a recompute that FleetRegister never
+// did. It was deleted for that reason; this is the version that does it.
 
 const STATUS_VALUES: readonly FleetStatusFilter[] = ['live', 'paper', 'archived']
 const SORT_VALUES: readonly SortKey[] = ['proven', 'trades', 'win_rate', 'profit_factor', 'max_drawdown', 'pnl']
@@ -37,6 +39,7 @@ export interface FleetFilterState {
   family: Family[]
   status: FleetStatusFilter[]
   asset: string[]
+  side: SideFilter
   timeframe: string[]
   sort: SortKey
   dir: SortDir
@@ -44,7 +47,7 @@ export interface FleetFilterState {
 
 /** The default view: no filter, and the only sort that is not a performance ranking. */
 export const EMPTY_FILTERS: FleetFilterState = {
-  family: [], status: [], asset: [], timeframe: [],
+  family: [], status: [], asset: [], side: 'all', timeframe: [],
   sort: 'proven', dir: 'desc',
 }
 
@@ -53,13 +56,15 @@ export interface FilterableBot {
   status: string
   assets: string[]
   timeframe: string
+  /** Present on register bots (BotWithStats). Used only by optionCounts.side. */
+  all_trades?: ReadonlyArray<{ side: 'long' | 'short' }>
 }
 
 // Parameter order is fixed here and nowhere else. Exported (fix round 1) so
 // tests/lib/robots-facets.test.ts can assert every entry here has a matching
 // /*?<name>= line in robots.ts's disallow list — adding a facet must not be
 // able to outrun the disallow list silently.
-export const PARAM_ORDER = ['family', 'status', 'asset', 'tf', 'sort', 'dir'] as const
+export const PARAM_ORDER = ['family', 'status', 'asset', 'side', 'tf', 'sort', 'dir'] as const
 
 function readList(sp: URLSearchParams, key: string): string[] {
   const raw = sp.get(key)
@@ -75,6 +80,7 @@ export function parseFleetFilters(sp: URLSearchParams): FleetFilterState {
     status: readList(sp, 'status').filter((s): s is FleetStatusFilter =>
       (STATUS_VALUES as readonly string[]).includes(s)),
     asset: readList(sp, 'asset').map(a => a.toUpperCase()),
+    side: (() => { const v = sp.get('side'); return v === 'long' || v === 'short' ? v : 'all' })(),
     timeframe: readList(sp, 'tf').map(t => t.toUpperCase()),
     sort: (SORT_VALUES as readonly string[]).includes(sort ?? '') ? (sort as SortKey) : 'proven',
     dir: dir === 'asc' ? 'asc' : 'desc',
@@ -86,6 +92,7 @@ export function serializeFleetFilters(s: FleetFilterState): URLSearchParams {
     family: s.family.join(','),
     status: s.status.join(','),
     asset: s.asset.join(','),
+    side: s.side === EMPTY_FILTERS.side ? '' : s.side,
     tf: s.timeframe.join(','),
     sort: s.sort === EMPTY_FILTERS.sort ? '' : s.sort,
     dir: s.dir === EMPTY_FILTERS.dir ? '' : s.dir,
@@ -163,6 +170,7 @@ export interface OptionCounts {
   family: Record<string, number>
   status: Record<string, number>
   timeframe: Record<string, number>
+  side: { long: number; short: number }
 }
 
 /**
@@ -187,11 +195,23 @@ export function optionCounts<T extends FilterableBot>(bots: T[], s: FleetFilterS
     timeframe[tf] = (timeframe[tf] ?? 0) + 1
   }
 
-  return { family, status, timeframe }
+  // Side counts: bots with at least one trade on that side, against the other
+  // facets. `side` is not a PREDICATE (see header), so there is nothing to
+  // skip — `applyFleetFilters` is the right base. A bot without `all_trades`
+  // (a caller that built a bare FilterableBot) contributes to neither.
+  const side = { long: 0, short: 0 }
+  for (const b of applyFleetFilters(bots, s)) {
+    const ts = b.all_trades ?? []
+    if (ts.some(t => t.side === 'long')) side.long += 1
+    if (ts.some(t => t.side === 'short')) side.short += 1
+  }
+
+  return { family, status, timeframe, side }
 }
 
 export function activeFilterCount(s: FleetFilterState): number {
   return s.family.length + s.status.length + s.asset.length + s.timeframe.length
+    + (s.side === 'all' ? 0 : 1)
 }
 
 

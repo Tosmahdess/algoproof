@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeBotStats, countByDirection, filterTrades } from '@/lib/stats'
+import { computeBotStats, countByDirection, filterTrades, sliceBotStats } from '@/lib/stats'
 import { toBaseAsset } from '@/lib/asset'
 import type { PerfDaily, Trade } from '@/lib/types'
 
@@ -170,5 +170,79 @@ describe('computeBotStats — empty perf_daily fallback (carry bots without equi
     const perf: PerfDaily[] = [{ id: 'p1', bot_id: 'bot1', date: '2026-06-01', capital: 1005, pnl_day: 5, win_rate: null, profit_factor: null }]
     const s = computeBotStats(trades, perf, 'all', 1000)
     expect(s.latest_capital).toBe(1005)
+  })
+})
+
+describe('sliceBotStats', () => {
+  const bot = {
+    stats: { win_rate: 0.6, profit_factor: 2.0, max_drawdown: 0.05, total_trades: 5, latest_capital: 1040 },
+    all_trades: trades,
+    perf_daily: perfDaily,
+    start_capital: 1000,
+  }
+
+  it('returns the SAME stats object when nothing is sliced — the default view is bit-identical', () => {
+    expect(sliceBotStats(bot, 'all', [])).toBe(bot.stats)
+  })
+
+  it('recomputes on the short side only', () => {
+    const s = sliceBotStats(bot, 'short', [])
+    // shorts: +20, -15
+    expect(s.total_trades).toBe(2)
+    expect(s.win_rate).toBeCloseTo(0.5)
+    expect(s.profit_factor).toBeCloseTo(20 / 15)
+    expect(s.latest_capital).toBeCloseTo(1005)
+  })
+
+  it('recomputes on one asset, matching through toBaseAsset on both sides', () => {
+    const mixed = {
+      ...bot,
+      all_trades: [
+        makeAssetTrade('a', 'BTC/USDT:USDT', +10),
+        makeAssetTrade('b', 'ETH/USDT', -4),
+        makeAssetTrade('c', 'BTC-USDT', +6),
+      ],
+    }
+    const s = sliceBotStats(mixed, 'all', ['btc'])
+    expect(s.total_trades).toBe(2)
+    expect(s.latest_capital).toBeCloseTo(1016)
+  })
+
+  it('takes the UNION of several assets', () => {
+    const mixed = {
+      ...bot,
+      all_trades: [
+        makeAssetTrade('a', 'BTC/USDT', +10),
+        makeAssetTrade('b', 'ETH/USDT', -4),
+        makeAssetTrade('c', 'SOL/USDT', +6),
+      ],
+    }
+    const s = sliceBotStats(mixed, 'all', ['BTC', 'SOL'])
+    expect(s.total_trades).toBe(2)
+    expect(s.latest_capital).toBeCloseTo(1016)
+  })
+
+  it('combines side and asset', () => {
+    const mixed = {
+      ...bot,
+      all_trades: [
+        { ...makeAssetTrade('a', 'BTC/USDT', +10), side: 'short' as const },
+        { ...makeAssetTrade('b', 'BTC/USDT', -4), side: 'long' as const },
+        { ...makeAssetTrade('c', 'ETH/USDT', +6), side: 'short' as const },
+      ],
+    }
+    const s = sliceBotStats(mixed, 'short', ['BTC'])
+    expect(s.total_trades).toBe(1)
+    expect(s.latest_capital).toBeCloseTo(1010)
+  })
+
+  it('an empty slice is an empty slice: 0 trades, capital untouched, never a fake PF', () => {
+    const longsOnly = { ...bot, all_trades: trades.filter(t => t.side === 'long') }
+    const s = sliceBotStats(longsOnly, 'short', [])
+    expect(s.total_trades).toBe(0)
+    expect(s.latest_capital).toBe(1000)
+    expect(s.profit_factor).toBe(0)
+    expect(s.win_rate).toBe(0)
+    expect(s.max_drawdown).toBe(0)
   })
 })

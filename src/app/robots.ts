@@ -24,6 +24,7 @@ export default function robots(): MetadataRoute.Robots {
         '/*?status=',
         '/*?venue=',
         '/*?asset=',
+        '/*?side=',
         '/*?tf=',
         '/*?sort=',
         '/*?dir=',
