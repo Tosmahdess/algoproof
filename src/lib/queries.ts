@@ -5,6 +5,7 @@ import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, WealthCall, AssetPri
 import { getStartCapital } from './start-capitals'
 import { isCarryFamily } from './display'
 import { paginateAll } from './paginate'
+import { mapWithConcurrency } from './concurrency'
 import type { AggregateTradeRow } from './fleet-aggregate'
 
 function withStartCapital<T extends { slug: string }>(row: T): T & { start_capital: number } {
@@ -164,15 +165,25 @@ function getBotWithStatsCached(slug: string): Promise<BotWithStats | null> {
   )()
 }
 
+/** How many per-bot fetches the fleet pages run at once on a cold cache.
+ *
+ *  Each getBotWithStats is 3+ Supabase requests; a bare Promise.all over the
+ *  whole fleet was ~120 requests in one tick at 40 bots and would be ~350 at
+ *  the 115 the armada wave brings (pre-registered as a launch blocker,
+ *  FUTURE_CHECKS § armada, 2026-08-19). 8 keeps a cold /overview under a
+ *  second while never putting more than ~24 requests in flight. Warm-cache
+ *  requests never reach this path: the per-slug entries below answer first. */
+export const FLEET_FETCH_CONCURRENCY = 8
+
 async function getAllBotsWithStatsUncached(): Promise<BotWithStats[]> {
   const bots = await getBots()
-  return Promise.all(bots.map(async b => {
+  return mapWithConcurrency(bots, FLEET_FETCH_CONCURRENCY, async b => {
     const result = await getBotWithStatsCached(b.slug)
     if (!result) throw new Error(`getBotWithStats returned null for slug: ${b.slug}`)
     const warning = cacheSizeWarning(b.slug, result.all_trades.length)
     if (warning) console.warn(warning)
     return result
-  }))
+  })
 }
 
 // FIX round 3 (Finding B): /overview used to carry `export const revalidate =
