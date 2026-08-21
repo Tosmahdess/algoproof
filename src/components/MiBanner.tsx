@@ -12,7 +12,7 @@ const REGIME_COLOR: Record<string, string> = {
 }
 
 const REGIME_FR: Record<string, string> = {
-  GREEN:  'NEUTRE — SAFE',
+  GREEN:  'NEUTRE',
   YELLOW: 'ATTENTION',
   ORANGE: 'STRESS',
   RED:    'DANGER',
@@ -43,7 +43,7 @@ export default function MiBanner() {
   }
 
   const color  = REGIME_COLOR[snap.regime ?? ''] ?? '#888'
-  const label  = REGIME_FR[snap.regime ?? ''] ?? snap.regime ?? '—'
+  const label  = REGIME_FR[snap.regime ?? ''] ?? '—'
   const ageMin = Math.round((Date.now() - new Date(snap.snapshot_at).getTime()) / 60000)
 
   const PILLARS = [

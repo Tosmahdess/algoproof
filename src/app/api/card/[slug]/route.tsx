@@ -62,7 +62,7 @@ export async function GET(
 
         {/* Footer */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32 }}>
-          <span style={{ fontSize: 13, color: '#8b949e' }}>algoproof.fr — données vérifiées</span>
+          <span style={{ fontSize: 13, color: '#8b949e' }}>algoproof.fr, données vérifiées</span>
         </div>
       </div>
     ),

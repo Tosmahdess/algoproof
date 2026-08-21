@@ -26,11 +26,11 @@ const SIGNAL_LABEL: Record<string, string> = {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  crypto_alt:       'Crypto Alternatif',
-  btc_proxy:        'BTC Proxy',
+  crypto_alt:       'Crypto alternatives',
+  btc_proxy:        'Proxy BTC',
   semiconductors:   'Semiconducteurs',
-  tech_platform:    'Tech Platform / Cloud AI',
-  tech_us_growth:   'Tech US Growth',
+  tech_platform:    'Tech, plateformes et IA',
+  tech_us_growth:   'Tech US croissance',
   cloud_ai:         'Cloud / IA',
   gaming:           'Gaming',
   auto_ev:          'Auto / EV',
@@ -39,12 +39,12 @@ const CATEGORY_LABELS: Record<string, string> = {
   pharma_defensive: 'Pharma Défensif',
   pharma_biotech:   'Pharma / Biotech',
   defense_aerospace:'Défense / Aérospatial',
-  energy_oil:       'Énergie Oil & Gas',
+  energy_oil:       'Énergie, pétrole et gaz',
   energy_transition:'Énergie Transition',
   commodities_metal:'Métaux & Ressources',
   cybersecurity:    'Cybersécurité',
   fintech_payment:  'Fintech / Paiement',
-  consumer_premium: 'Conso Premium',
+  consumer_premium: 'Consommation premium',
 }
 
 function formatDate(iso: string | undefined): string {
@@ -158,7 +158,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
       <td className="py-2.5 px-3 text-xs">
         {asset.signal_level && asset.suggested_min && asset.suggested_max ? (
           <span className="text-zinc-300 font-mono">
-            {asset.suggested_min}–{asset.suggested_max}€
+            {asset.suggested_min} à {asset.suggested_max}€
           </span>
         ) : (
           <span className="text-zinc-700">—</span>

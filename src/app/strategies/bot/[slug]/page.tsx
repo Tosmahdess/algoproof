@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!bot) return {}
   return {
     title: bot.name,
-    description: `${bot.name} — performance live : WR ${(bot.stats.win_rate * 100).toFixed(1)}%, PF ${bot.stats.profit_factor.toFixed(2)}. ${bot.exchange} · ${bot.timeframe}. Chaque trade vérifié sur AlgoProof.`,
+    description: `${bot.name} : performance live, WR ${(bot.stats.win_rate * 100).toFixed(1)}%, PF ${bot.stats.profit_factor.toFixed(2)}. ${bot.exchange} · ${bot.timeframe}. Chaque trade vérifié sur AlgoProof.`,
     openGraph: {
       type: 'website',
       url: `https://algoproof.fr/strategies/bot/${slug}`,
@@ -191,8 +191,8 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
               return (
                 <div className="text-xs">
                   <p className="text-muted mb-2">
-                    La configuration exacte de ce bot — valeurs des paramètres et combinaison
-                    de filtres retenues par le gantelet — est réservée aux membres du labo.
+                    La configuration exacte de ce bot (valeurs des paramètres et combinaison
+                    de filtres retenues par le gantelet) est réservée aux membres du labo.
                   </p>
                   <a href={`https://lab.algoproof.fr/cockpit/dossier/${dossier}`}
                      className="text-accent underline">

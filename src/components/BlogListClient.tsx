@@ -105,7 +105,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
 
       {filter === null && (counts['journal'] || 0) > 0 && (
         <p className="text-xs text-muted -mt-6 mb-8">
-          Les journaux de bord quotidiens ({counts['journal']}) ne sont plus mis en avant — la synthèse
+          Les journaux de bord quotidiens ({counts['journal']}) ne sont plus mis en avant : la synthèse
           se fait dans la revue hebdo. Ils restent consultables via le filtre « Journal de bord ».
         </p>
       )}

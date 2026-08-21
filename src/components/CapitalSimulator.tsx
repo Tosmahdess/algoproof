@@ -35,7 +35,7 @@ export default function CapitalSimulator({
       <h2 className="font-semibold mb-1">Et sur mon capital ?</h2>
       <p className="text-xs text-muted mb-4">
         Le même historique observé ({result.firstDate} → {result.lastDate}), relu à l’échelle
-        d’un capital de départ que vous choisissez. C’est une lecture du passé, pas une
+        d’un capital de départ que tu choisis. C’est une lecture du passé, pas une
         projection : les résultats passés ne préjugent pas des résultats futurs.
       </p>
 

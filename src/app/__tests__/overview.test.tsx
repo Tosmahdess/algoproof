@@ -45,7 +45,7 @@ describe('/overview — one table per timeframe', () => {
     // FIXTURE_FLEET's register bots (paper, non-archived) are all H4 — see
     // tests/fixtures/bots.ts. One H4 section, headed with its strategy count.
     const h4 = screen.getByTestId('fleet-tf-H4')
-    expect(within(h4).getByText(/^H4 — \d+ stratégies$/)).toBeTruthy()
+    expect(within(h4).getByText(/^H4 : \d+ stratégies$/)).toBeTruthy()
   })
 
   it('keeps the archived section below the timeframe tables', async () => {

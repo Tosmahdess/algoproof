@@ -3,13 +3,13 @@
 // for the fiche page and the /wealth/analyses directory.
 export const CATEGORY_LABELS: Record<string, string> = {
   semiconductors: 'Semiconducteurs',
-  tech_platform: 'Tech Platform / Cloud AI',
-  tech_us_growth: 'Tech US Growth',
+  tech_platform: 'Tech, plateformes et IA',
+  tech_us_growth: 'Tech US croissance',
   luxury_eu: 'Luxe EU',
   pharma_growth: 'Pharma Croissance',
   pharma_defensive: 'Pharma Défensif',
   defense_aerospace: 'Défense / Aérospatial',
-  energy_oil: 'Énergie Oil & Gas',
+  energy_oil: 'Énergie, pétrole et gaz',
   energy_transition: 'Énergie Transition',
   commodities_metal: 'Métaux & Ressources',
   crypto_alt: 'Crypto',

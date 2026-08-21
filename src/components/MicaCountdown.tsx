@@ -10,6 +10,6 @@ export default function MicaCountdown() {
     setDays(Math.ceil(ms / 86_400_000))
   }, [])
   if (days === null) return <span>application le 1er juillet 2026</span>
-  if (days > 0) return <span>dans {days} jour{days > 1 ? 's' : ''} — le 1er juillet 2026</span>
+  if (days > 0) return <span>dans {days} jour{days > 1 ? 's' : ''} (le 1er juillet 2026)</span>
   return <span>en vigueur depuis le 1er juillet 2026</span>
 }

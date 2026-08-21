@@ -42,7 +42,7 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
 
         {hasData && isLowSample(stats.total_trades) && (
           <p className="text-xs text-yellow-400/90 mb-3 -mt-1">
-            ⚠ Échantillon faible (&lt;20 trades) — métriques peu fiables
+            ⚠ Échantillon faible (&lt;20 trades) : métriques peu fiables
           </p>
         )}
 

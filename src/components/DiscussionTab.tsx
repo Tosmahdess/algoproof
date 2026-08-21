@@ -64,7 +64,7 @@ export default function DiscussionTab({ slug }: Props) {
     <div className="space-y-6">
       {comments.length === 0 ? (
         <p className="text-xs text-muted italic">
-          Aucune discussion pour l&apos;instant. Soyez le premier.
+          Aucune discussion pour l&apos;instant. Sois le premier.
         </p>
       ) : (
         <div className="space-y-4">
@@ -82,7 +82,7 @@ export default function DiscussionTab({ slug }: Props) {
 
       {submitted ? (
         <p className="text-xs text-positive">
-          Message publié — merci !
+          Message publié, merci !
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3 border-t border-border pt-4">
@@ -110,7 +110,7 @@ export default function DiscussionTab({ slug }: Props) {
             className="w-full bg-background border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-[#ff6b35]"
           />
           <textarea
-            placeholder="Votre question ou commentaire..."
+            placeholder="Ta question ou ton commentaire…"
             value={message}
             onChange={e => setMessage(e.target.value)}
             maxLength={1000}

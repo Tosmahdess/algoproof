@@ -9,9 +9,10 @@ import MiPillarsSection from '@/components/MiPillarsSection'
 import { MiFleetImpactSection } from '@/components/MiFleetImpact'
 import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib/queries'
 import { getFleetImpact } from '@/lib/mi-fleet-impact'
+import { trendFr } from '@/lib/regime-labels'
 
 export const metadata: Metadata = {
-  title: 'La météo du marché — régime, risque ON/OFF, en français',
+  title: 'La météo du marché : régime, risque ON/OFF, en français',
   description: 'Chaque jour, l\'état du marché résumé en clair : risque ON ou OFF. Un régime qui agrège sentiment, dérivés, actualités et macro en un indicateur lisible.',
   openGraph: { url: 'https://algoproof.fr/intelligence' },
 }
@@ -31,7 +32,7 @@ const PILLARS = [
     functional:
       "Suit la peur et la cupidité du marché en temps réel. Quand les traders sont dans la peur extrême, c'est souvent un signal d'alarme. Quand ils sont euphoriques, le risque augmente. Ce pilier mesure l'état émotionnel de la foule.",
     technical:
-      'Indice Fear & Greed (0–100), normalisé sur [−100, +100]. Actualisé toutes les 30 min. Produit le régime : EXTREME_FEAR / FEAR / NEUTRAL / GREED / EXTREME_GREED.',
+      'Indice Fear & Greed (0 à 100), normalisé sur [−100, +100]. Actualisé toutes les 30 min. Produit le régime : EXTREME_FEAR / FEAR / NEUTRAL / GREED / EXTREME_GREED.',
   },
   {
     id: 'derivatives',
@@ -39,7 +40,7 @@ const PILLARS = [
     weight: '40%',
     color: '#d2a8ff',
     functional:
-      'Surveille le marché des futures crypto en temps réel. Les taux de financement, l\'open interest et les liquidations révèlent quand l\'effet de levier est dangereusement élevé — précurseur classique des corrections violentes.',
+      'Surveille le marché des futures crypto en temps réel. Les taux de financement, l\'open interest et les liquidations révèlent quand l\'effet de levier est dangereusement élevé, précurseur classique des corrections violentes.',
     technical:
       'Binance Futures : taux de financement (8h) × 40% + ratio Long/Short contrariant × 35% + delta OI × 25%. Flux WebSocket liquidations (60s) : ajustements ±20 pts si >10M$/h. Symboles : BTC/ETH/SOL.',
   },
@@ -104,7 +105,7 @@ export default async function IntelligencePage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
       <JsonLd data={faqJsonLd([
-        { question: 'C\'est quoi un régime de marché ?', answer: 'Une lecture d\'ensemble de l\'humeur du marché — calme, tendu ou en stress — calculée à partir de plusieurs signaux agrégés.' },
+        { question: 'C\'est quoi un régime de marché ?', answer: 'Une lecture d\'ensemble de l\'humeur du marché (calme, tendu ou en stress) calculée à partir de plusieurs signaux agrégés.' },
         { question: 'À quelle fréquence est-ce mis à jour ?', answer: 'Le rapport macro est régénéré chaque jour, et les signaux live plusieurs fois par heure.' },
         { question: 'Ça sert à quoi ?', answer: 'À savoir quand le contexte est porteur ou risqué, pour les bots comme pour les décisions d\'investissement.' },
       ])} />
@@ -164,7 +165,7 @@ export default async function IntelligencePage() {
                 <> · score <span className={report.score >= 0 ? 'text-positive' : 'text-negative'}>{report.score.toFixed(1)}</span></>
               )}
               {report.regime && (
-                <> · <span style={{ color: regimeColor }}>{report.regime}</span></>
+                <> · <span style={{ color: regimeColor }}>{trendFr(report.regime)}</span></>
               )}
             </span>
           )}
@@ -180,7 +181,7 @@ export default async function IntelligencePage() {
           </div>
         ) : (
           <div className="rounded border border-dashed border-border px-6 py-8 text-center">
-            <p className="text-xs text-muted">Rapport non disponible — généré chaque jour à 9h UTC.</p>
+            <p className="text-xs text-muted">Rapport non disponible : généré chaque jour à 9h UTC.</p>
           </div>
         )}
       </section>
@@ -191,18 +192,18 @@ export default async function IntelligencePage() {
         <ExplainerBox stacked
           functional={
             <p>
-              Le bouclier défensif est un filet de protection à cinq couches autour de chaque bot. Chaque couche peut arrêter le trading indépendamment en cas de danger — une couche défaillante ne fait pas tomber le système. Même si le service MI est hors ligne, les bots basculent sur des valeurs prudentes par défaut.
+              Le bouclier défensif est un filet de protection à cinq couches autour de chaque bot. Chaque couche peut arrêter le trading indépendamment en cas de danger : une couche défaillante ne fait pas tomber le système. Même si le service MI est hors ligne, les bots basculent sur des valeurs prudentes par défaut.
             </p>
           }
           technical={
             <div className="space-y-1 text-xs font-mono">
               <div className="grid grid-cols-[5rem_1fr] gap-x-4 gap-y-1">
                 <span className="font-semibold">Layer 1</span>
-                <span className="text-muted">Taille de position — ajustée selon le score MI</span>
+                <span className="text-muted">Taille de position, ajustée selon le score MI</span>
                 <span className="font-semibold">Layer 2</span>
-                <span className="text-muted">is_safe_to_trade() — verrou strict, toutes les conditions doivent être remplies</span>
+                <span className="text-muted">is_safe_to_trade() : verrou strict, toutes les conditions doivent être remplies</span>
                 <span className="font-semibold">Layer 3</span>
-                <span className="text-muted">VIX &gt; 30 — arrêt complet inconditionnel</span>
+                <span className="text-muted">VIX &gt; 30 : arrêt complet inconditionnel</span>
                 <span className="font-semibold">Layer 4</span>
                 <span className="text-muted">Blackouts événements : retirés le 23/07/2026 (un replay de 2 ans a montré qu'ils coûtaient du P&L sans réduire le drawdown)</span>
                 <span className="font-semibold">Layer 5</span>

@@ -24,7 +24,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: `${fiche.asset_name} — mon analyse DCA`,
+    headline: `${fiche.asset_name} : mon analyse DCA`,
     inLanguage: 'fr',
     datePublished: fiche.generated_at,
     author: { '@type': 'Organization', name: 'AlgoProof' },

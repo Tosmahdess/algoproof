@@ -40,7 +40,7 @@ describe('MiRegimeBadge', () => {
   it('shows regime name after data loads', async () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    await waitFor(() => expect(screen.getByText('GREEN')).toBeDefined())
+    await waitFor(() => expect(screen.getByText('calme')).toBeDefined())
   })
 
   it('shows score after data loads', async () => {
@@ -67,7 +67,7 @@ describe('MiRegimeBadge', () => {
     // even though the snapshot type/mock still carries the (unused) field.
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    await waitFor(() => expect(screen.getByText('GREEN')).toBeDefined())
+    await waitFor(() => expect(screen.getByText('calme')).toBeDefined())
     expect(screen.queryByText('Institutionnel')).toBeNull()
   })
 })

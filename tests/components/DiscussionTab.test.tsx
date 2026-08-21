@@ -31,7 +31,7 @@ describe('DiscussionTab', () => {
     vi.mocked(fetch).mockResolvedValueOnce({ ok: true, json: async () => [] } as Response)
     render(<DiscussionTab slug="v1-spot" />)
     await waitFor(() => expect(screen.getByPlaceholderText('Pseudo')).toBeDefined())
-    expect(screen.getByPlaceholderText('Votre question ou commentaire...')).toBeDefined()
+    expect(screen.getByPlaceholderText('Ta question ou ton commentaire…')).toBeDefined()
   })
 
   it('submit button is disabled when fields are empty', async () => {

@@ -27,7 +27,7 @@ export default function MetricsRow({ stats, family }: { stats: BotStats; family?
       </div>
       {isLowSample(stats.total_trades) && (
         <p className="text-xs text-yellow-400/90 mt-2">
-          ⚠ Échantillon faible ({stats.total_trades} trades, &lt;20) — taux de gain et facteur de profit encore peu fiables.
+          ⚠ Échantillon faible ({stats.total_trades} trades, &lt;20) : taux de gain et facteur de profit encore peu fiables.
         </p>
       )}
     </div>

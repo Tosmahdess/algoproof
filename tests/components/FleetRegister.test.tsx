@@ -160,8 +160,8 @@ describe('FleetRegister — one table per timeframe', () => {
     render(<FleetRegister bots={MIXED} initialState={EMPTY_FILTERS} />)
     expect(screen.getByTestId('fleet-tf-H4')).toBeTruthy()
     expect(screen.getByTestId('fleet-tf-H1')).toBeTruthy()
-    expect(within(screen.getByTestId('fleet-tf-H4')).getByText('H4 — 1 stratégie')).toBeTruthy()
-    expect(within(screen.getByTestId('fleet-tf-H1')).getByText('H1 — 1 stratégie')).toBeTruthy()
+    expect(within(screen.getByTestId('fleet-tf-H4')).getByText('H4 : 1 stratégie')).toBeTruthy()
+    expect(within(screen.getByTestId('fleet-tf-H1')).getByText('H1 : 1 stratégie')).toBeTruthy()
   })
 
   it('orders the H4 section before the H1 section (canonical TF order)', () => {
