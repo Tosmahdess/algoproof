@@ -29,7 +29,7 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
     links: [
       { href: '/blog',   label: 'Blog' },
       { href: '/preuve', label: 'Ma méthode' },
-      { href: '/mica',   label: 'En règle — MiCA & fiscalité' },
+      { href: '/mica',   label: 'En règle : MiCA & fiscalité' },
       { href: '/start',  label: 'Démarrer' },
     ],
   },
@@ -79,12 +79,12 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <span className="text-sm text-muted">AlgoProof — Mon labo de trading algo, en public. Chaque trade, chaque perte.</span>
+          <span className="text-sm text-muted">AlgoProof : mon labo de trading algo, en public. Chaque trade, chaque perte.</span>
           <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-muted hover:text-white transition-colors">X / Twitter</a>
         </div>
         <p className="mt-4 text-xs text-muted/50">
           Ceci n&apos;est pas un conseil financier. Toutes les performances sont en paper trading sauf mention contraire.
-          Je ne touche jamais à vos fonds : pas de dépôt, pas de clé d&apos;exchange, tout est en lecture seule.
+          Je ne touche jamais à ton argent : pas de dépôt, pas de clé d&apos;exchange, tout est en lecture seule.
         </p>
       </div>
     </footer>

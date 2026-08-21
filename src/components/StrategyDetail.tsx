@@ -118,10 +118,10 @@ export default function StrategyDetail({ bot }: Props) {
             Courbe d&apos;équité
             {!unfiltered && (
               <span className="text-xs text-muted font-normal ml-2">
-                — reconstruite sur {[
+                (reconstruite sur {[
                   asset !== 'all' ? asset : null,
                   direction === 'long' ? 'longs' : direction === 'short' ? 'shorts' : null,
-                ].filter(Boolean).join(' · ')} uniquement
+                ].filter(Boolean).join(' · ')} uniquement)
               </span>
             )}
           </h2>
@@ -139,7 +139,7 @@ export default function StrategyDetail({ bot }: Props) {
         )}
         {bot.status === 'paper' && (
           <p className="text-xs text-muted/60 mt-3 text-center">
-            ⚠ Paper trading — exécution simulée, aucun capital réel exposé
+            ⚠ Paper trading : exécution simulée, aucun capital réel exposé
           </p>
         )}
       </div>
@@ -150,10 +150,10 @@ export default function StrategyDetail({ bot }: Props) {
           Trades récents
           <span className="text-muted text-sm font-normal ml-2">
             ({tradesShown.length} affiché{tradesShown.length > 1 ? 's' : ''}
-            {!unfiltered && ` — ${[
+            {!unfiltered && ` (${[
               asset !== 'all' ? asset : null,
               direction === 'long' ? 'longs' : direction === 'short' ? 'shorts' : null,
-            ].filter(Boolean).join(' · ')} uniquement`})
+            ].filter(Boolean).join(' · ')} uniquement)`})
           </span>
         </h2>
         <TradesTable trades={tradesShown} />

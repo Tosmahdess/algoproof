@@ -4,8 +4,8 @@ import { BYBIT_AFFILIATE_URL, HL_AFFILIATE_URL } from '@/lib/affiliates'
 import TrackedLink from '@/components/TrackedLink'
 
 export const metadata: Metadata = {
-  title: 'Démarrer — Trader les bots depuis la France',
-  description: 'Binance a cessé de servir les résidents français (MiCA, juillet 2026). Découvrez Bybit, Hyperliquid et Kraken, les exchanges compatibles pour trader les stratégies AlgoProof depuis la France.',
+  title: 'Démarrer : trader les bots depuis la France',
+  description: 'Binance a cessé de servir les résidents français (MiCA, juillet 2026). Bybit, Hyperliquid et Kraken : les exchanges que j\'utilise pour trader depuis la France.',
   openGraph: { url: 'https://algoproof.fr/start' },
 }
 
@@ -38,7 +38,7 @@ export default function StartPage() {
             </span>
           </div>
           <ul className="space-y-1.5 text-sm text-muted">
-            <li>✓ Exchange centralisé (CEX) — interface familière</li>
+            <li>✓ Exchange centralisé (CEX), interface familière</li>
             <li>✓ Dépôt fiat (virement, carte bancaire)</li>
             <li>✓ KYC standard, disponible en France</li>
             <li>✓ Frais taker compétitifs</li>
@@ -74,7 +74,7 @@ export default function StartPage() {
             </span>
           </div>
           <ul className="space-y-1.5 text-sm text-muted">
-            <li>✓ Exchange décentralisé (DEX) — non-custodial</li>
+            <li>✓ Exchange décentralisé (DEX), non-custodial</li>
             <li>✓ Dépôt USDC via Arbitrum</li>
             <li>✓ Frais taker 0.065%, maker rebate</li>
             <li>✓ 150+ paires perps disponibles</li>
@@ -193,7 +193,7 @@ export default function StartPage() {
         </p>
         <p className="text-sm text-muted leading-relaxed">
           <strong className="text-foreground">À ne pas faire :</strong> utiliser un VPN pour contourner la restriction
-          expose votre compte au freeze et vous engage juridiquement.
+          expose ton compte au gel et t\'engage juridiquement.
         </p>
       </div>
 

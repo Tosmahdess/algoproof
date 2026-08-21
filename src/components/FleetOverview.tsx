@@ -139,7 +139,7 @@ export default function FleetOverview({
       {curveBots.length > 0 && (
         <section data-testid="fleet-equity-curves" className="bg-card border border-border rounded-lg p-6">
           <div className="flex items-baseline gap-3 mb-4">
-            <h2 className="text-xs uppercase tracking-wider text-muted">Courbes d&apos;équité — 30 jours</h2>
+            <h2 className="text-xs uppercase tracking-wider text-muted">Courbes d&apos;équité : 30 jours</h2>
             <span className="text-xs text-muted">{curveBots.length} bots les plus actifs</span>
           </div>
           <GlobalEquityCurve bots={curveBots} days={CURVE_DAYS} />

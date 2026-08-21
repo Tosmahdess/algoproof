@@ -43,7 +43,7 @@ const _SECTORS_REF = [
     { ticker: 'MU',    name: 'Micron',   tier: 2 },
     { ticker: 'ARM',   name: 'ARM',      tier: 2 },
   ]},
-  { label: 'Tech Platform / Cloud', color: '#667eea', assets: [
+  { label: 'Tech, plateformes et IA', color: '#667eea', assets: [
     { ticker: 'META',  name: 'Meta Platforms', tier: 1, trigger: 20 },
     { ticker: 'PLTR',  name: 'Palantir',       tier: 1, trigger: 25 },
     { ticker: 'GOOGL', name: 'Alphabet',       tier: 1, trigger: 25 },
@@ -87,7 +87,7 @@ const _SECTORS_REF = [
     { ticker: 'RTX',    name: 'RTX',            tier: 2 },
     { ticker: 'AM.PA',  name: 'Airbus',         tier: 2 },
   ]},
-  { label: 'Énergie Oil & Gas', color: '#d29922', assets: [
+  { label: 'Énergie, pétrole et gaz', color: '#d29922', assets: [
     { ticker: 'XOM', name: 'ExxonMobil',     tier: 1, trigger: 20 },
     { ticker: 'CVX', name: 'Chevron',        tier: 1, trigger: 20 },
     { ticker: 'LNG', name: 'Cheniere',       tier: 1, trigger: 25 },
@@ -125,7 +125,7 @@ const _SECTORS_REF = [
     { ticker: 'CDR.WA', name: 'CD Projekt', tier: 2 },
     { ticker: 'NTDOY',  name: 'Nintendo',  tier: 2 },
   ]},
-  { label: 'Conso Premium', color: '#ff6b35', assets: [
+  { label: 'Consommation premium', color: '#ff6b35', assets: [
     { ticker: 'LULU',    name: 'Lululemon',      tier: 2 },
     { ticker: 'EL',      name: 'Estée Lauder',   tier: 2 },
     { ticker: 'MCD',     name: "McDonald's",     tier: 2 },

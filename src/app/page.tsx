@@ -17,8 +17,8 @@ import { byGainDesc } from '@/lib/fleet-grouping'
 export const revalidate = 1800
 
 export const metadata: Metadata = {
-  title: 'AlgoProof — Mon labo de trading algorithmique, en public',
-  description: 'Je fais tourner des bots de trading en réel et j\'expose chaque trade — gains et pertes. Résultats vérifiables, mis à jour chaque heure. Labo de recherche transparent, en français.',
+  title: 'AlgoProof : mon labo de trading algorithmique, en public',
+  description: 'Je fais tourner des bots de trading en réel et j\'expose chaque trade, gains et pertes. Résultats vérifiables, mis à jour chaque heure. Labo de recherche transparent, en français.',
 }
 
 // FIX (final review, C1 follow-on): these were two local five-entry maps with
@@ -123,7 +123,7 @@ export default async function HomePage() {
       <div className="border border-border rounded-xl p-8 mb-16 text-center bg-card/40">
         <h2 className="text-xl font-bold mb-2">Pourquoi je montre chaque trade perdant</h2>
         <p className="text-muted text-sm max-w-2xl mx-auto mb-4">
-          Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel — drawdowns, mauvaises semaines et erreurs compris. Alors j&apos;expose tout, sans filtre.
+          Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel : drawdowns, mauvaises semaines et erreurs compris. Alors j&apos;expose tout, sans filtre.
         </p>
         <Link href="/preuve" className="text-sm text-positive hover:underline">Lire le manifeste →</Link>
       </div>
@@ -173,7 +173,7 @@ export default async function HomePage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Stratégies actives</h2>
-          <p className="text-sm text-muted mt-0.5">{bots.length} expériences actives — {bots.filter(b => b.stats.total_trades > 0).length} avec des trades</p>
+          <p className="text-sm text-muted mt-0.5">{bots.length} expériences actives, {bots.filter(b => b.stats.total_trades > 0).length} avec des trades</p>
         </div>
         <Link href="/overview" className="text-sm text-muted hover:text-white transition-colors">Voir tout →</Link>
       </div>
@@ -241,7 +241,7 @@ export default async function HomePage() {
                   <td className="px-4 py-3 text-right font-mono">
                     {hasData ? (
                       <span className={isLowSample(bot.stats.total_trades) ? 'text-yellow-400/90' : ''}
-                        title={isLowSample(bot.stats.total_trades) ? 'Échantillon faible (<20 trades) — métriques peu fiables' : undefined}>
+                        title={isLowSample(bot.stats.total_trades) ? 'Échantillon faible (<20 trades) : métriques peu fiables' : undefined}>
                         {bot.stats.total_trades}{isLowSample(bot.stats.total_trades) && ' ⚠'}
                       </span>
                     ) : <span className="text-muted">—</span>}

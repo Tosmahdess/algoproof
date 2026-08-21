@@ -5,6 +5,7 @@ import {
   ResponsiveContainer, ReferenceLine, Legend,
 } from 'recharts'
 import type { MiSnapshot } from '@/lib/types'
+import { sentimentFr, biasFr } from '@/lib/regime-labels'
 
 interface Props {
   data: MiSnapshot[]
@@ -51,11 +52,11 @@ function CustomTooltip({ active, payload, label }: any) {
       </div>
       {d?.sentiment_regime && (
         <p className="text-muted text-[10px] pt-1 border-t border-border">
-          Régime sentiment : {d.sentiment_regime}
+          Régime sentiment : {sentimentFr(d.sentiment_regime)}
         </p>
       )}
       {d?.market_bias && (
-        <p className="text-muted text-[10px]">Biais : {d.market_bias}</p>
+        <p className="text-muted text-[10px]">Biais : {biasFr(d.market_bias)}</p>
       )}
     </div>
   )

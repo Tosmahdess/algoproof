@@ -1,4 +1,5 @@
 import { Trade } from '@/lib/types'
+import { reasonFr } from '@/lib/regime-labels'
 
 const REASON_MAP: Record<string, { label: string; cls: string }> = {
   take_profit_1:     { label: 'TP1',   cls: 'bg-positive/15 text-positive' },
@@ -12,7 +13,7 @@ const REASON_MAP: Record<string, { label: string; cls: string }> = {
 
 function ReasonBadge({ reason }: { reason: string | null }) {
   const r = reason ? REASON_MAP[reason] : null
-  if (!r) return <span className="text-muted text-xs">{reason ?? '—'}</span>
+  if (!r) return <span className="text-muted text-xs">{reasonFr(reason)}</span>
   return (
     <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${r.cls}`}>
       {r.label}

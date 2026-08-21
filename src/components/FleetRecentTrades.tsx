@@ -15,6 +15,7 @@
 import Link from 'next/link'
 import type { TradeWithBot } from '@/lib/types'
 import { fmtEur } from '@/lib/display'
+import { reasonFr } from '@/lib/regime-labels'
 
 export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }) {
   if (trades.length === 0) return null
@@ -56,7 +57,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
                 <td className={`px-2 py-1.5 text-right font-mono ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
                   {fmtEur(t.pnl)}
                 </td>
-                <td className="px-2 py-1.5 text-muted hidden md:table-cell">{t.reason ?? '—'}</td>
+                <td className="px-2 py-1.5 text-muted hidden md:table-cell">{reasonFr(t.reason)}</td>
               </tr>
             ))}
           </tbody>

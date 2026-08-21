@@ -185,7 +185,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     ],
     threeSentences: {
       entry:
-        'Il entre sur un croisement de moyennes mobiles simples — long quand la SMA 10 passe au-dessus de la SMA 30, short quand elle passe en dessous — en H4 sur 10 perpétuels.',
+        'Il entre sur un croisement de moyennes mobiles simples (long quand la SMA 10 passe au-dessus de la SMA 30, short quand elle passe en dessous) en H4 sur 10 perpétuels.',
       exit:
         'Stop initial à ATR × 2 depuis l’entrée, take profit au double de la distance du stop (R:R 1:2).',
       risk:
@@ -227,7 +227,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     ],
     threeSentences: {
       entry:
-        'Il lisse les bougies H4 en HeikinAshi et entre après 3 bougies consécutives dans le même sens — long après 3 haussières, short après 3 baissières — sur 28 perpétuels.',
+        'Il lisse les bougies H4 en HeikinAshi et entre après 3 bougies consécutives dans le même sens (long après 3 haussières, short après 3 baissières) sur 28 perpétuels.',
       exit:
         'Stop initial à ATR × 2 depuis l’entrée, take profit au double de la distance du stop (R:R 1:2).',
       risk:

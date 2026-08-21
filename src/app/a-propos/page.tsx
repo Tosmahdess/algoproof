@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'À propos — AlgoProof, mon labo de trading en public',
+  title: 'À propos : AlgoProof, mon labo de trading en public',
   description: 'AlgoProof, c\'est quoi : un labo de trading algorithmique transparent, solo, en français. Pourquoi je montre tout, et comment les bots, le labo, le patrimoine et la météo du marché s\'articulent.',
 }
 
@@ -13,7 +13,7 @@ const PIECES = [
   { href: 'https://lab.algoproof.fr', title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
   { href: '/wealth',       title: 'Investir',   desc: 'Mon accumulation long terme (DCA) sur la crypto, les ETF et les actions, en transparence.' },
   { href: '/intelligence', title: 'Météo du marché', desc: 'La météo du marché que je calcule chaque jour : risque ON ou OFF, en français.' },
-  { href: '/blog',         title: 'Apprendre',  desc: 'Mon journal, ma méthode, la fiscalité et la conformité MiCA — tout est documenté.' },
+  { href: '/blog',         title: 'Apprendre',  desc: 'Mon journal, ma méthode, la fiscalité et la conformité MiCA : tout est documenté.' },
 ]
 
 export default function AProposPage() {
@@ -23,7 +23,7 @@ export default function AProposPage() {
         <h1 className="text-3xl font-bold tracking-tight mb-3">AlgoProof, c&apos;est quoi ?</h1>
         <p className="text-muted leading-relaxed">
           Un labo de trading algorithmique <strong>transparent</strong>, en français, que je mène en solo et en public.
-          Je fais tourner des bots, je teste des stratégies, j&apos;investis sur le long terme — et j&apos;expose tout,
+          Je fais tourner des bots, je teste des stratégies, j&apos;investis sur le long terme, et j&apos;expose tout,
           gains comme pertes. Pas de promesse de gain, pas de faux screenshots : juste ma recherche, en clair.
         </p>
       </header>
@@ -53,7 +53,7 @@ export default function AProposPage() {
         <h2 className="text-xl font-bold mb-3">Paper ou argent réel ?</h2>
         <p className="text-muted leading-relaxed">
           La plupart de mes bots tournent en <strong>paper trading</strong> (simulation fidèle sur de vraies données,
-          sans argent réel) — c&apos;est ainsi qu&apos;on valide une stratégie sans risque. Les bots qui passent en
+          sans argent réel) : c&apos;est ainsi qu&apos;on valide une stratégie sans risque. Les bots qui passent en
           argent réel sont clairement marqués « live ». Le statut de chaque bot est toujours affiché. Pour le
           vocabulaire, vois le <Link href="/lexique" className="text-accent">lexique</Link>.
         </p>

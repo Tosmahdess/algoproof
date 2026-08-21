@@ -15,8 +15,8 @@ export default function BotProvenance({ campaign, candidate }: {
       <p>
         Issu de la campagne {campaign.base} {campaign.tf}, close le {frDate(campaign.judged_on)} :
         {' '}{count(campaign.n_behaviors)} configurations jugées, {count(campaign.n_candidates)} retenues.
-        {margin ? ` Celle-ci tient sa barre de hasard à ${margin.text}${margin.tight ? ' — un souffle' : ''}.` : ''}
-        {' '}Elle est en observation — {candidate.forward_trades} trade{candidate.forward_trades > 1 ? 's' : ''} forward à ce jour.
+        {margin ? ` Celle-ci tient sa barre de hasard à ${margin.text}${margin.tight ? ' (un souffle)' : ''}.` : ''}
+        {' '}Elle est en observation : {candidate.forward_trades} trade{candidate.forward_trades > 1 ? 's' : ''} forward à ce jour.
       </p>
       <a
         href="https://lab.algoproof.fr/cockpit/survivants"

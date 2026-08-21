@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { getLatestMiSnapshot } from '@/lib/queries'
 import type { MiSnapshot } from '@/lib/types'
+import { regimeFr, sentimentFr, biasFr, trendFr } from '@/lib/regime-labels'
 
 const RISK_COLOR: Record<string, string> = {
   GREEN:  '#3fb950',
@@ -57,7 +58,7 @@ export default function MiRegimeBadge() {
   if (snap === null) {
     return (
       <div className="rounded border border-border p-6 text-center">
-        <p className="text-xs text-muted">Pas encore de données — synchronisation VPS toutes les heures.</p>
+        <p className="text-xs text-muted">Pas encore de données : synchronisation VPS toutes les heures.</p>
       </div>
     )
   }
@@ -75,12 +76,12 @@ export default function MiRegimeBadge() {
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ background: riskColor }} />
           <span className="text-xs font-bold tracking-widest uppercase" style={{ color: riskColor }}>
-            {snap.regime ?? '—'}
+            {regimeFr(snap.regime)}
           </span>
         </div>
         <span className="text-muted text-xs">·</span>
         <span className="text-xs font-semibold tracking-wide" style={{ color: sentimentColor }}>
-          {snap.sentiment_regime ?? '—'}
+          {sentimentFr(snap.sentiment_regime)}
         </span>
         <span className="text-xs text-muted font-mono">
           score {snap.composite_score?.toFixed(1) ?? '—'}
@@ -91,7 +92,7 @@ export default function MiRegimeBadge() {
       {/* Row 2 — Trading status */}
       <p className="text-xs text-muted">
         {snap.is_safe ? '✅ Trading autorisé' : '🔴 Trading bloqué'}
-        {snap.is_macro_safe === false && ' — Filtre macro actif'}
+        {snap.is_macro_safe === false && ' (filtre macro actif)'}
       </p>
 
       {/* Row 3 — 4 pillar scores */}
@@ -112,12 +113,12 @@ export default function MiRegimeBadge() {
           <div className="flex items-center gap-1.5">
             <span className="text-muted">Biais</span>
             <span className="font-bold tracking-wide" style={{ color: biasColor }}>
-              {snap.market_bias}
+              {biasFr(snap.market_bias)}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-muted">Tendance</span>
-            <span className="font-mono">{snap.trend_regime ?? '—'}</span>
+            <span className="font-mono">{trendFr(snap.trend_regime)}</span>
             {snap.btc_vs_ema200_pct != null && (
               <span className={`font-mono text-[10px] ${snap.btc_vs_ema200_pct >= 0 ? 'text-positive' : 'text-negative'}`}>
                 ({snap.btc_vs_ema200_pct > 0 ? '+' : ''}{snap.btc_vs_ema200_pct.toFixed(1)}% vs moyenne 200 j)

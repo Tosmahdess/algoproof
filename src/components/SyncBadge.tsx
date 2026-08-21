@@ -14,7 +14,7 @@ export default function SyncBadge({ lastSyncAt, className = '' }: Props) {
     return (
       <span className={`inline-flex items-center gap-1 text-[10px] text-muted ${className}`}>
         <span className="w-1.5 h-1.5 rounded-full bg-muted" />
-        Jamais synchro
+        Jamais synchronisé
       </span>
     )
   }
@@ -29,10 +29,10 @@ export default function SyncBadge({ lastSyncAt, className = '' }: Props) {
     label = age < 2 ? 'Actif' : `il y a ${Math.round(age)}min`
   } else if (age < 720) {
     dot = 'bg-yellow-500'
-    label = `Sync ${Math.round(age / 60)}h ago`
+    label = `Synchro il y a ${Math.round(age / 60)} h`
   } else {
     dot = 'bg-negative'
-    label = `Inactif ${Math.round(age / 60)}h`
+    label = `Inactif depuis ${Math.round(age / 60)} h`
   }
 
   return (

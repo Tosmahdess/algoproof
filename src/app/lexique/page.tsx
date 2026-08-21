@@ -4,7 +4,7 @@ import { definedTermSetJsonLd } from '@/lib/jsonld'
 import { GLOSSARY } from '@/lib/glossary'
 
 export const metadata: Metadata = {
-  title: 'Lexique du trading algo — tous les termes en clair',
+  title: 'Lexique du trading algo : tous les termes en clair',
   description: 'Profit factor, drawdown, walk-forward, DCA, régime de marché… tous les termes que j\'utilise, expliqués simplement, en français.',
 }
 

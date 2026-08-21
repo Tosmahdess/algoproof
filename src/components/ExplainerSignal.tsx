@@ -71,7 +71,7 @@ export function ExplainerSignal() {
         </p>
         <p>
           📊 <strong className="text-zinc-400">Régime MI ajuste le sizing</strong> :
-          Bull (MI &gt; −15) → 150–600€ · Uncertain → 100–400€ · Bear (&lt; −50) → 50–300€
+          Bull (MI &gt; −15) → 150 à 600€ · Uncertain → 100 à 400€ · Bear (&lt; −50) → 50 à 300€
         </p>
         <p>
           🔼 <strong className="text-zinc-400">Upgrade ATH</strong> : les compounders long terme

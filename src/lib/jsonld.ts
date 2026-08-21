@@ -22,7 +22,7 @@ export function organizationJsonLd() {
     name: 'AlgoProof',
     url: 'https://algoproof.fr',
     description:
-      'Labo de trading algorithmique transparent, en français. Chaque trade — gains et pertes — est public.',
+      'Labo de trading algorithmique transparent, en français. Chaque trade (gains et pertes) est public.',
     sameAs: ['https://x.com/AlgoProof'],
   }
 }
@@ -31,7 +31,7 @@ export function definedTermSetJsonLd(terms: { id: string; term: string; definiti
   return {
     '@context': 'https://schema.org',
     '@type': 'DefinedTermSet',
-    name: 'Lexique du trading algorithmique — AlgoProof',
+    name: 'Lexique du trading algorithmique : AlgoProof',
     hasDefinedTerm: terms.map((t) => ({
       '@type': 'DefinedTerm',
       '@id': `https://algoproof.fr/lexique#${t.id}`,

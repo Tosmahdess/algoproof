@@ -11,7 +11,7 @@ import { faqJsonLd } from '@/lib/jsonld'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Apprendre le trading algo — guides, méthode, fiscalité, MiCA',
+  title: 'Apprendre le trading algo : guides, méthode, fiscalité, MiCA',
   description: 'Des articles pour comprendre comment je travaille : débuter, ma méthode de recherche, la fiscalité crypto 2026 et la conformité MiCA en France.',
 }
 
@@ -43,7 +43,7 @@ export default function BlogPage() {
       <JsonLd data={faqJsonLd([
         { question: 'Pour qui sont ces articles ?', answer: 'Pour les curieux qui débutent comme pour les traders qui veulent voir la méthode en détail.' },
         { question: 'Faut-il un compte pour lire ?', answer: 'Non, tout le blog est en accès libre.' },
-        { question: 'Parlez-vous de fiscalité et de MiCA ?', answer: 'Oui, des guides dédiés expliquent la fiscalité crypto 2026 et le règlement MiCA pour les particuliers en France.' },
+        { question: 'Parles-tu de fiscalité et de MiCA ?', answer: 'Oui, des guides dédiés expliquent la fiscalité crypto 2026 et le règlement MiCA pour les particuliers en France.' },
       ])} />
       <BlogListClient articles={articles} />
     </>
