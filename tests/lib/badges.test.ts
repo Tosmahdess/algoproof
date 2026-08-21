@@ -17,14 +17,14 @@ describe('computeBadges', () => {
 
   it('gives 100-trades badge when total_trades >= 100 (not 50)', () => {
     const b = computeBadges({ ...BASE, total_trades: 100 })
-    expect(b.some(x => x.label === '100 trades live')).toBe(true)
-    expect(b.some(x => x.label === '50 trades live')).toBe(false)
+    expect(b.some(x => x.label === '100 trades')).toBe(true)
+    expect(b.some(x => x.label === '50 trades')).toBe(false)
   })
 
   it('gives 50-trades badge when total_trades in [50, 99]', () => {
     const b = computeBadges({ ...BASE, total_trades: 75 })
-    expect(b.some(x => x.label === '50 trades live')).toBe(true)
-    expect(b.some(x => x.label === '100 trades live')).toBe(false)
+    expect(b.some(x => x.label === '50 trades')).toBe(true)
+    expect(b.some(x => x.label === '100 trades')).toBe(false)
   })
 
   it('gives no trades badge when total_trades < 50', () => {

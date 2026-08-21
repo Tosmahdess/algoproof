@@ -1,5 +1,5 @@
 ---
-title: "J'ai perdu 368 USDT en 5 jours. Voici comment j'ai trouvé les 4 cellules mortelles de ma matrice MI"
+title: "J'ai perdu 368 USDT en simulation en 9 jours. Voici comment j'ai trouvé les 4 cellules mortelles de ma matrice MI"
 date: "2026-05-26"
 category: "methode"
 tags: ["méthode", "transparence", "MI", "walk-forward"]
@@ -10,7 +10,7 @@ Entre le 6 avril et le 17 mai, ma flotte de bots APEX faisait **+945 USDT** net 
 
 Puis le 17 mai, quelque chose a basculé.
 
-Sur les 9 jours suivants (17 → 26 mai), 200 nouveaux trades fermés. **P&L net : −368 USDT.** Pas un crash, pas un bug — un retournement de régime que mon filtre n'avait pas anticipé. Les shorts continuaient de saigner, les longs prenaient des SL gros et des TP serrés. La matrice MI v1 voyait bien le régime BEAR mais ne bloquait rien — elle réduisait le sizing, c'est tout.
+Sur les 9 jours suivants (17 → 26 mai), 200 nouveaux trades fermés. **P&L net : −368 USDT en simulation.** Pas un crash, pas un bug — un retournement de régime que mon filtre n'avait pas anticipé. Les shorts continuaient de saigner, les longs prenaient des SL gros et des TP serrés. La matrice MI v1 voyait bien le régime BEAR mais ne bloquait rien — elle réduisait le sizing, c'est tout.
 
 Cette session, j'ai passé une journée à comprendre exactement **où** se trouvaient les fuites, et à construire un filtre qui les ferme dur. Le résultat : un module que j'ai déployé en mode shadow sur le VPS, baptisé **Hard-Gate v1**. Si je l'avais eu en place le 17 mai, le backtest dit que j'aurais fait **+59 USDT** sur la fenêtre au lieu de **−368** — un delta de **+427 USDT** en 5 jours, que je n'ai pas mesuré sur du live mais sur un re-jeu walk-forward de chaque trade existant.
 
@@ -68,7 +68,7 @@ Découpage différent : pour chaque trade, qu'est-ce qui s'est passé sur le tra
   <DataCard label="Après ≥ 4 pertes consécutives" metrics="n:102 | WR:23 % | P&L:−428 | avg:−4.20" />
 </DataCardGroup>
 
-Surprise. Indépendamment du régime de marché, **un bot qui vient de prendre 3 SL d'affilée a 26 % de chances de gagner le 4ème**, contre 50 % pour un bot "frais". C'est massif : sur les 147 occurrences observées, ce 4ème trade a coûté en moyenne −3.24 €. Cumul : **−476 USDT**, soit autant que la cellule TRANSITION du bucket MI.
+Surprise. Indépendamment du régime de marché, **un bot qui vient de prendre 3 SL d'affilée a 26 % de chances de gagner le 4ème**, contre 50 % pour un bot "frais". C'est massif : sur les 147 occurrences observées, ce 4ème trade a coûté en moyenne −3.24 €. Cumul : **−476 USDT** en simulation, soit autant que la cellule TRANSITION du bucket MI.
 
 C'est cohérent avec ce que je retrouve dans la littérature quant (papiers Mulvey sur les CTAs) : un bot qui a perdu plusieurs fois indique probablement que ses paramètres ne matchent plus le régime courant — mieux vaut le mettre en pause que de lui donner une 4ème chance.
 
@@ -171,7 +171,7 @@ Décomposé par layer (cumul) :
 - L2 LONG TRANSITION : 8 trades bloqués, −58 € évités
 - L3 streak ≥ 3 : 66 trades bloqués, −53 € évités (plus marginal mais préventif)
 
-Le gate sauve l'écosystème surtout sur la fenêtre la plus récente. Sur les 5 derniers jours (mon **OOS true** dans le walk-forward 70/30) : baseline −368 USDT → gate **+59 USDT**. Sans cherry-picking ni look-ahead.
+Le gate sauve l'écosystème surtout sur la fenêtre la plus récente. Sur les 5 derniers jours (mon **OOS true** dans le walk-forward 70/30) : baseline −368 USDT en simulation → gate **+59 USDT**. Sans cherry-picking ni look-ahead.
 
 ### Déploiement shadow
 

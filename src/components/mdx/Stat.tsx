@@ -11,15 +11,19 @@
 //     <Stat label="Trades" value="216" />
 //     <Stat label="Configs GO_COND" value="5" subtext="sur 135 testées" />
 //     <Stat label="OOS holding" value="0/5" change="−100 %" />
+//     <Stat label="P&L" value="−77.97 USDT" intent="negative" />
 //   </StatRow>
 
 import type { ReactNode } from 'react'
+import { detectSign, valueColor, type Intent } from './statColor'
 
 interface StatProps {
   label: string
   value: string | number
   change?: string
   subtext?: string
+  intent?: Intent
+  trend?: 'up' | 'down' | 'neutral'
 }
 
 function detectChangeColor(s: string | undefined): string {
@@ -30,15 +34,34 @@ function detectChangeColor(s: string | undefined): string {
   return 'text-muted'
 }
 
-export function Stat({ label, value, change, subtext }: StatProps) {
+const trendIntent: Record<'up' | 'down' | 'neutral', Intent> = {
+  up: 'positive',
+  down: 'negative',
+  neutral: 'neutral',
+}
+
+function resolveValueIntent(
+  value: string | number,
+  intent: Intent | undefined,
+  trend: 'up' | 'down' | 'neutral' | undefined
+): Intent {
+  if (intent) return intent
+  if (trend) return trendIntent[trend]
+  return detectSign(String(value))
+}
+
+export function Stat({ label, value, change, subtext, intent, trend }: StatProps) {
   const changeColor = detectChangeColor(change)
+  const valueIntent = resolveValueIntent(value, intent, trend)
   return (
     <div className="not-prose flex-1 min-w-[140px] border-l-2 border-border pl-4 py-1">
       <div className="text-[10px] uppercase tracking-[0.18em] text-muted font-semibold mb-1">
         {label}
       </div>
       <div className="flex items-baseline gap-2 flex-wrap">
-        <span className="font-mono tabular-nums text-2xl sm:text-3xl font-semibold text-foreground">
+        <span
+          className={`font-mono tabular-nums text-2xl sm:text-3xl font-semibold ${valueColor[valueIntent]}`}
+        >
           {value}
         </span>
         {change && (

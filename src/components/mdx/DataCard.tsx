@@ -1,11 +1,5 @@
 import type { ReactNode } from 'react'
-
-function detectSign(s: string): 'positive' | 'negative' | 'neutral' {
-  const trimmed = s.trim()
-  if (/^[+]/.test(trimmed)) return 'positive'
-  if (/^[−–-]\s*\d/.test(trimmed)) return 'negative'
-  return 'neutral'
-}
+import { detectSign, intentStyles, valueColor } from './statColor'
 
 function parseMetrics(raw: string): Array<{ label: string; value: string }> {
   return raw.split('|').map(segment => {
@@ -32,18 +26,6 @@ function parseLabel(label: string): ReactNode[] {
       <span key={i}>{part}</span>
     )
   )
-}
-
-const intentStyles = {
-  positive: { border: 'border-l-positive/60', bg: 'bg-positive/[0.03]' },
-  negative: { border: 'border-l-negative/60', bg: 'bg-negative/[0.03]' },
-  neutral:  { border: 'border-l-muted/40',    bg: 'bg-card/40' },
-}
-
-const valueColor = {
-  positive: 'text-positive',
-  negative: 'text-negative',
-  neutral:  'text-foreground',
 }
 
 interface DataCardProps {
