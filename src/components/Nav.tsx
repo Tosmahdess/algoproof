@@ -18,17 +18,11 @@ const HUBS = [
   { href: '/blog',         label: 'APPRENDRE' },
 ]
 
-// Le labo — shared by the desktop dropdown and the mobile group
-const LABO_LINKS = [
-  { href: 'https://lab.algoproof.fr', label: 'Ouvrir le labo' },
-  { href: 'https://lab.algoproof.fr/apprendre', label: 'Tutoriels' },
-  // "Bibliothèque des stratégies" dropped 2026-07-31: the library now lives
-  // here, and MES_BOTS_SUB already links it at /strategies. Kept off this list
-  // so the lab link does not 308 straight back to this site.
-  { href: 'https://lab.algoproof.fr/agents', label: 'Agents IA (MCP)' },
-  { href: 'https://lab.algoproof.fr/#vote', label: 'Le vote du labo' },
-  { href: 'https://lab.algoproof.fr/membre', label: 'Membres (bientôt)' },
-]
+// Le labo : un seul lien vers le cockpit du lab (dropdown retiré le 2026-08-21,
+// décision user). Le compte vit sur le lab (magic link + état d'abonnement) :
+// algoproof.fr n'a pas d'auth propre, donc COMPTE pointe là-bas.
+const LAB_URL = 'https://lab.algoproof.fr'
+const ACCOUNT_URL = `${LAB_URL}/account`
 
 // Mobile menu, grouped to mirror the desktop hierarchy
 const MOBILE_GROUPS: { title: string; links: { href: string; label: string; external?: boolean }[] }[] = [
@@ -39,7 +33,8 @@ const MOBILE_GROUPS: { title: string; links: { href: string; label: string; exte
     { href: '/blog',         label: 'Apprendre' },
   ]},
   { title: 'Le labo', links: [
-    ...LABO_LINKS.map(l => ({ ...l, external: true })),
+    { href: LAB_URL,     label: 'Ouvrir le labo', external: true },
+    { href: ACCOUNT_URL, label: 'Compte',         external: true },
   ]},
 ]
 
@@ -90,26 +85,21 @@ export default function Nav() {
             )
           })}
 
-          {/* Le labo : CTA + dropdown miroir de MES BOTS */}
-          <div className="relative group">
-            <a
-              href="https://lab.algoproof.fr"
-              className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black inline-flex items-center gap-1.5"
-            >
-              LE LABO
-              <svg className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100" viewBox="0 0 10 6" fill="currentColor">
-                <path d="M0 0l5 6 5-6H0z"/>
-              </svg>
-            </a>
-            <div className="absolute right-0 top-full mt-1 w-56 rounded border border-border bg-bg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
-              {LABO_LINKS.map(({ href, label }) => (
-                <a key={href} href={href} target="_blank" rel="noopener noreferrer"
-                  className="block px-4 py-2.5 text-xs text-muted transition-colors hover:text-positive">
-                  {label} ↗
-                </a>
-              ))}
-            </div>
-          </div>
+          {/* Le labo : lien simple vers le cockpit */}
+          <a
+            href={LAB_URL}
+            className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black"
+          >
+            LE LABO
+          </a>
+
+          {/* Compte : l'auth vit sur le lab */}
+          <a
+            href={ACCOUNT_URL}
+            className="text-xs font-semibold tracking-widest transition-colors text-muted hover:text-text"
+          >
+            COMPTE
+          </a>
         </div>
 
         {/* Mobile hamburger */}
