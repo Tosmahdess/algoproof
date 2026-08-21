@@ -58,7 +58,7 @@ export default function MicaPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           {MICA_POINTS.map(([title, body]) => (
             <div key={title} className="rounded-xl border border-border bg-card p-5">
-              <h3 className="text-sm font-semibold text-text mb-1">{title}</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
               <p className="text-sm text-muted leading-relaxed">{body}</p>
             </div>
           ))}
@@ -91,12 +91,12 @@ export default function MicaPage() {
             <tbody className="divide-y divide-border">
               {MICA_EXCHANGES.map(e => (
                 <tr key={e.name} className="hover:bg-card/30">
-                  <td className="px-4 py-3 font-medium text-text">
+                  <td className="px-4 py-3 font-medium text-foreground">
                     {e.url ? <a href={e.url} target="_blank" rel="noopener noreferrer" className="hover:text-positive">{e.name} →</a> : e.name}
                   </td>
                   <td className="px-4 py-3 text-muted">{e.type}</td>
                   <td className="px-4 py-3 text-muted">{e.status}</td>
-                  <td className="px-4 py-3 text-text">{e.franceOk}</td>
+                  <td className="px-4 py-3 text-foreground">{e.franceOk}</td>
                 </tr>
               ))}
             </tbody>
@@ -121,7 +121,7 @@ export default function MicaPage() {
       {/* CTA */}
       <div className="flex flex-wrap gap-3">
         <Link href="/start" className="rounded-lg bg-positive px-5 py-2.5 text-sm font-semibold text-black hover:opacity-90">Ouvrir un compte en règle →</Link>
-        <Link href="/strategies" className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-text hover:border-positive hover:text-positive">Voir les stratégies →</Link>
+        <Link href="/strategies" className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:border-positive hover:text-positive">Voir les stratégies →</Link>
       </div>
     </main>
   )

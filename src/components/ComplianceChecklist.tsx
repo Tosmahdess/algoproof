@@ -19,7 +19,7 @@ export default function ComplianceChecklist() {
           <label className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm cursor-pointer hover:border-muted">
             <input type="checkbox" checked={checked[i]} onChange={() => toggle(i)}
               className="mt-0.5 accent-positive" />
-            <span className={checked[i] ? 'text-muted line-through' : 'text-text'}>{label}</span>
+            <span className={checked[i] ? 'text-muted line-through' : 'text-foreground'}>{label}</span>
           </label>
         </li>
       ))}

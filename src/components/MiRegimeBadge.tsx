@@ -95,7 +95,7 @@ export default function MiRegimeBadge() {
       </p>
 
       {/* Row 3 — 4 pillar scores */}
-      <div className="grid grid-cols-4 gap-2 text-xs font-mono">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono">
         {PILLARS.map(p => (
           <div key={p.key} className="text-center">
             <p className="text-[9px] text-muted uppercase tracking-wider leading-tight">{p.label}</p>

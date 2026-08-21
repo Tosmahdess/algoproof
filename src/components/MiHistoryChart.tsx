@@ -121,7 +121,7 @@ export default function MiHistoryChart({ data }: Props) {
       </div>
 
       {/* Pilier weights note */}
-      <div className="grid grid-cols-4 gap-2 text-center text-[10px] font-mono">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-[10px] font-mono">
         {[
           { label: 'Sentiment', weight: '30%', color: PILLAR_COLORS.sentiment_score },
           { label: 'Dérivés',   weight: '40%', color: PILLAR_COLORS.derivatives_score },
