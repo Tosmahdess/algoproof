@@ -46,7 +46,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
       'Drawdown journalier ≥ 5 % → kill switch automatique, aucune entrée jusqu’au lendemain.',
       '3 pertes consécutives → pause forcée de 4 h (circuit breaker).',
       'Drawdown mensuel > 10 % → arrêt du trading pour le mois.',
-      'Hors enveloppe (DD > 15 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Hors enveloppe (DD > 15 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
     ],
     threeSentences: {
       entry:
@@ -112,7 +112,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     pfFloor: 1.3,
     maxDrawdown: 0.2,
     killCriteria: [
-      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
       'Levier plafonné à ×2 et 6 positions simultanées maximum ; tout dépassement est une anomalie qui déclenche un arrêt immédiat.',
       'Chaque changement de configuration passe un checkpoint public (dernier : sortie 4R, verdict KEEP le 2026-06-25).',
     ],
@@ -137,7 +137,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     pfFloor: 1.3,
     maxDrawdown: 0.2,
     killCriteria: [
-      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
       'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
       '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
     ],
@@ -158,7 +158,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     pfFloor: 1.3,
     maxDrawdown: 0.2,
     killCriteria: [
-      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
       'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
       '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
     ],
@@ -179,7 +179,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     pfFloor: 1.3,
     maxDrawdown: 0.2,
     killCriteria: [
-      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
       'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
       '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
     ],
@@ -200,7 +200,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     pfFloor: 1.3,
     maxDrawdown: 0.2,
     killCriteria: [
-      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
       'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
       '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
     ],
@@ -221,7 +221,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     pfFloor: 1.3,
     maxDrawdown: 0.2,
     killCriteria: [
-      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée au journal.',
+      'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
       'Kill switch automatique à −3 % sur une journée ; 5 pertes consécutives → pause forcée de 4 h.',
       '40 trades paper minimum et PF ≥ 1.30 avant toute considération de passage en réel.',
     ],

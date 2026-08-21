@@ -9,13 +9,13 @@ import { MICA_EXCHANGES } from '@/lib/mica-exchanges'
 export const metadata: Metadata = {
   title: 'Crypto en règle : MiCA + fiscalité (France 2026) | AlgoProof',
   description:
-    "MiCA s'applique le 1er juillet 2026. Ce qui change pour toi, les exchanges agréés, et un calculateur d'impôt sur tes plus-values crypto (flat tax 31,4 % ou barème).",
+    "MiCA s'applique depuis le 1er juillet 2026. Ce qui change pour toi, les exchanges agréés, et un calculateur d'impôt sur tes plus-values crypto (flat tax 31,4 % ou barème).",
   openGraph: { url: 'https://algoproof.fr/mica' },
 }
 
 const MICA_POINTS = [
   ['Protection renforcée', "Livre blanc obligatoire, droit de rétractation, règles sur la publicité et les conflits d'intérêts."],
-  ['Exchanges agréés', "Les plateformes doivent obtenir un agrément CASP pour opérer dans l'UE. Les non-agréés devront partir."],
+  ['Exchanges agréés', "Les plateformes doivent obtenir un agrément CASP pour opérer dans l'UE. Les non-agréés ont dû partir."],
   ['Stablecoins encadrés', "Les émetteurs de stablecoins doivent respecter des exigences de réserves et de transparence."],
   ['Ce qui ne change PAS', "La fiscalité reste française (art. 150 VH bis). MiCA ne touche pas tes impôts. Vois le calculateur plus bas."],
 ]
@@ -47,7 +47,7 @@ export default function MicaPage() {
         </span>
         <h1 className="mt-4 text-3xl font-bold tracking-tight">Crypto en règle : ce que MiCA change pour toi</h1>
         <p className="mt-3 text-muted leading-relaxed">
-          Le règlement européen MiCA s&apos;applique pleinement le 1er juillet 2026. Voici ce qui change concrètement,
+          Le règlement européen MiCA s&apos;applique pleinement depuis le 1er juillet 2026. Voici ce qui change concrètement,
           comment rester en règle depuis la France, et combien tu paieras d&apos;impôts sur tes plus-values.
         </p>
       </div>

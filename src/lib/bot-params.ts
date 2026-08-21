@@ -112,7 +112,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Spot" },
+          { label: "Exchange", value: "Binance Spot (simulation, données Binance)" },
           { label: "Taker fee", value: "0.10%" },
           { label: "Round-trip cost", value: "~0.40%" },
         ],
@@ -221,7 +221,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -276,7 +276,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -331,7 +331,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -386,7 +386,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures" },
+          { label: "Exchange", value: "Binance Futures (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.10%" },
         ],
@@ -431,7 +431,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Spot" },
+          { label: "Exchange", value: "Binance Spot (simulation, données Binance)" },
           { label: "Taker fee", value: "0.10%" },
           { label: "Round-trip cost", value: "~0.20%" },
         ],
@@ -473,7 +473,6 @@ export const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "checked at each session open" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
@@ -498,7 +497,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité — veille de marché à chaque ouverture de session",
-        body: "Le service de veille de marché est interrogé à chaque ouverture de session avant le calcul du range et avant chaque entrée potentielle. Si le régime est RED — VIX > 30, événement macro Tier 1 imminent, ou squeeze de liquidations en cours — aucun range n'est tracé pour la journée. Cette vérification au plus près de l'entrée est critique en intraday : un FOMC à 14:00 UTC peut transformer un range asiatique parfaitement valide en piège. Kill switch -3%/jour, circuit breaker 5 pertes → pause 4h, blackout news ±30min.",
+        body: "Le service de veille de marché est interrogé à chaque ouverture de session avant le calcul du range et avant chaque entrée potentielle. Si le régime est RED — VIX > 30, événement macro Tier 1 imminent, ou squeeze de liquidations en cours — aucun range n'est tracé pour la journée. Cette vérification au plus près de l'entrée est critique en intraday : un FOMC à 14:00 UTC peut transformer un range asiatique parfaitement valide en piège. Kill switch -3%/jour, circuit breaker 5 pertes → pause 4h.",
       },
     ],
   },
@@ -529,13 +528,12 @@ export const BOT_PARAMS: Record<string, BotParams> = {
           { label: "MI gate", value: "Active", note: "blocks when regime = RED" },
           { label: "Kill switch", value: "−3% / day" },
           { label: "Circuit breaker", value: "5 losses → 4h pause" },
-          { label: "News blackout", value: "±30 min" },
         ],
       },
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -554,7 +552,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Filtre de sécurité",
-        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause, blackout ±30min news.",
+        body: "La veille de marché (4 piliers) bloque les entrées en régime RED. Kill switch -3%/jour, circuit breaker 5 pertes → 4h pause.",
       },
     ],
   },
@@ -590,7 +588,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -645,7 +643,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -700,7 +698,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -755,7 +753,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -810,7 +808,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -865,7 +863,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -925,7 +923,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1036,7 +1034,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1091,7 +1089,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1146,7 +1144,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1201,7 +1199,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1256,7 +1254,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1367,7 +1365,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1422,7 +1420,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1477,7 +1475,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1508,7 +1506,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
         items: [
           { label: "Entry", value: "Opening Range Breakout (H1)" },
           { label: "Timeframe", value: "H1" },
-          { label: "Assets", value: "25 (HL perps)" },
+          { label: "Assets", value: "~24 perpétuels Hyperliquid" },
         ],
       },
       {
@@ -1516,8 +1514,8 @@ export const BOT_PARAMS: Record<string, BotParams> = {
         items: [
           { label: "Risk per trade", value: "1%" },
           { label: "Stop loss", value: "ATR(14) × 2.0" },
-          { label: "Take profit", value: "R:R 1:2", note: "TP = 2 × SL distance" },
-          { label: "Max positions", value: "8 concurrent" },
+          { label: "Take profit", value: "sortie à 4R" },
+          { label: "Max positions", value: "6 simultanées" },
           { label: "Max daily risk", value: "3%" },
         ],
       },
@@ -1547,7 +1545,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Gestion du risque",
-        body: "Stop loss à ATR(14)×2.0 calculé sur H1, take profit R:R 1:2. Risque 1% par trade, max 8 positions, daily cap 3%. Frais Hyperliquid : taker 0.065%, slippage 0.05%, round-trip ~0.23%.",
+        body: "Stop loss à ATR(14)×2.0 calculé sur H1, take profit R:R 1:2. Risque 1% par trade, max 6 positions, daily cap 3%. Frais Hyperliquid : taker 0.065%, slippage 0.05%, round-trip ~0.23%.",
       },
       {
         title: "Filtre de sécurité",
@@ -1587,7 +1585,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1642,7 +1640,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1697,7 +1695,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1752,7 +1750,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1807,7 +1805,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1862,7 +1860,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1917,7 +1915,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
@@ -1972,7 +1970,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Costs",
         items: [
-          { label: "Exchange", value: "Binance Futures Perps" },
+          { label: "Exchange", value: "Binance Futures Perps (simulation, données Binance)" },
           { label: "Taker fee", value: "0.05%" },
           { label: "Slippage est.", value: "0.05%" },
           { label: "Round-trip cost", value: "~0.20%" },
