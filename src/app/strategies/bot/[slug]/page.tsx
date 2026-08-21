@@ -20,6 +20,7 @@ import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { getProvenanceForBot } from '@/lib/screening'
 import { ficheSlugForBot } from '@/lib/strategy-keys'
+import { getStrategyFiche } from '@/lib/strategy-library'
 import { provenanceSentence, dossierHref } from '@/lib/provenance'
 
 export const revalidate = 1800
@@ -151,13 +152,31 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Explanation: plain overview → technical params */}
       <section className="mb-8">
         <ExplainerBox
-          functional={
-            bot.description ? (
+          functional={(() => {
+            // An engine bot's `description` is one generic sentence per base,
+            // identical on every bot of that base (publisher: ARMADA_BASE_DESC_FR).
+            // The strategy page already explains how it works, when it works
+            // and when it dies — so point there instead of repeating the line
+            // 75 times. Legacy bots keep their hand-written text; an engine
+            // base with no concept page yet (WilliamsVolBreak) falls back too,
+            // because an empty slot would read as "nothing to say".
+            const fiche = bot.engine_unit_key && conceptSlug ? getStrategyFiche(conceptSlug) : null
+            if (fiche) {
+              return (
+                <p>
+                  Ce bot fait tourner <strong>{fiche.title}</strong>.{' '}
+                  <Link href={`/strategies/${conceptSlug}`} className="text-accent underline">
+                    Ce que fait cette stratégie, quand elle marche et quand elle meurt →
+                  </Link>
+                </p>
+              )
+            }
+            return bot.description ? (
               <p>{bot.description}</p>
             ) : (
               <p className="text-muted italic">Description disponible prochainement.</p>
             )
-          }
+          })()}
           technical={(() => {
             const params = getBotParams(slug)
             if (params) return <BotParamsSection params={params} />
