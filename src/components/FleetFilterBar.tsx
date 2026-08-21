@@ -18,6 +18,7 @@ interface Props {
   counts: OptionCounts
   activeCount: number
   onToggleFamily: (f: Family) => void
+  onToggleSide: (side: 'long' | 'short') => void
   onReset: () => void
 }
 
@@ -56,7 +57,7 @@ function Pill({ label, count, active, onClick }: {
 }
 
 export default function FleetFilterBar({
-  state, counts, activeCount, onToggleFamily, onReset,
+  state, counts, activeCount, onToggleFamily, onToggleSide, onReset,
 }: Props) {
   return (
     <details data-testid="fleet-filters" className="bg-card border border-border rounded-lg">
@@ -91,6 +92,26 @@ export default function FleetFilterBar({
                 count={counts.family[f] ?? 0}
                 active={state.family.includes(f)}
                 onClick={() => onToggleFamily(f)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Side is a SLICE (bot-filters.ts header): every row stays, its
+            stats are recomputed on that side. The count is "bots with at
+            least one trade on this side", so a 0 means the pill would turn
+            every row to « — ». Two pills, mutually exclusive; clicking the
+            active one returns to all. */}
+        <div>
+          <div className="text-xs uppercase tracking-wider text-muted mb-2">Sens des trades</div>
+          <div className="flex flex-wrap gap-2">
+            {(['long', 'short'] as const).map(side => (
+              <Pill
+                key={side}
+                label={side === 'long' ? 'Long' : 'Short'}
+                count={counts.side[side]}
+                active={state.side === side}
+                onClick={() => onToggleSide(side)}
               />
             ))}
           </div>

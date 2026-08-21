@@ -1,6 +1,6 @@
 'use client'
-// « La flotte » — stage 2: the laboratory register. Filterable (family only —
-// see below), grouped by TIMEFRAME (one table per H4/D1/H1/…), archived
+// « La flotte » — stage 2: the laboratory register. Filterable (family, and a
+// side slice — see below), grouped by TIMEFRAME (one table per H4/D1/H1/…), archived
 // collapsed at the bottom.
 //
 // Renamed from FleetClient (fix round 1, C1): this component no longer
@@ -50,6 +50,7 @@ import {
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
 } from '@/lib/bot-filters'
 import { byGainDesc, groupByTimeframe } from '@/lib/fleet-grouping'
+import { sliceBotStats } from '@/lib/stats'
 import FleetFilterBar from '@/components/FleetFilterBar'
 import BotTable from '@/components/BotTable'
 
@@ -106,6 +107,10 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     })
   }, [state, push])
 
+  const toggleSide = useCallback((side: 'long' | 'short') => {
+    push({ ...state, side: state.side === side ? 'all' : side })
+  }, [state, push])
+
   const reset = useCallback(() => push(EMPTY_FILTERS), [push])
 
   // `bots` IS the register set (see FleetRegisterProps) — no split, no
@@ -117,19 +122,30 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
   const counts = useMemo(() => optionCounts(bots, state), [bots, state])
   const emptyMessage = useMemo(() => describeEmptyResult(bots, state), [bots, state])
 
+  // The slice. `filtered` decides WHICH bots are rows; `viewBots` decides
+  // what each row SHOWS. With no side and no asset this is `filtered` with
+  // the same stats objects (sliceBotStats returns bot.stats by reference), so
+  // the default render is unchanged. BotTable is not told about any of this:
+  // it renders the stats it is given, and its `total_trades === 0` → « — »
+  // rule is what makes an empty slice honest.
+  const viewBots = useMemo(
+    () => filtered.map(b => ({ ...b, stats: sliceBotStats(b, state.side, state.asset) })),
+    [filtered, state.side, state.asset],
+  )
+
   const timeframeGroups = useMemo(
-    () => groupByTimeframe(filtered.filter(b => b.status !== 'archived')),
-    [filtered],
+    () => groupByTimeframe(viewBots.filter(b => b.status !== 'archived')),
+    [viewBots],
   )
   // The archived section was always flat, never grouped by strategy — it
   // stays flat here too, just re-sorted the same way groupByTimeframe orders
   // within a group (biggest gain first, untraded last), so a visitor scanning down the page
   // sees one consistent ordering rule everywhere.
   const archivedVisible = useMemo(
-    () => filtered
+    () => viewBots
       .filter(b => b.status === 'archived')
       .sort(byGainDesc),
-    [filtered],
+    [viewBots],
   )
 
   return (
@@ -148,6 +164,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           counts={counts}
           activeCount={activeFilterCount(state)}
           onToggleFamily={toggleFamily}
+          onToggleSide={toggleSide}
           onReset={reset}
         />
 
