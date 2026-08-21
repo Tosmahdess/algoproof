@@ -26,7 +26,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
         items: [
           { label: "Entrée", value: "EMA 21 × EMA 55", note: "direction confirmée par l'EMA 200" },
           { label: "Unité de temps", value: "H4", note: "bougies H4" },
-          { label: "ADX filter", value: "par actif", note: "BTC ≥20 · SOL ≥12 · LINK/DOGE ≥15 · ADA ≥18" },
+          { label: "Filtre ADX", value: "par actif", note: "BTC ≥20 · SOL ≥12 · LINK/DOGE ≥15 · ADA ≥18" },
           { label: "Direction", value: "Long uniquement", note: "Kraken Spot, sans vente à découvert" },
         ],
       },
@@ -84,7 +84,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
         items: [
           { label: "Entrée", value: "EMA 21 × EMA 55", note: "direction confirmée par l'EMA 200" },
           { label: "Unité de temps", value: "H4", note: "bougies H4" },
-          { label: "ADX filter", value: "par actif", note: "BTC ≥20 · SOL ≥12 · LINK/DOGE ≥15 · ADA ≥18" },
+          { label: "Filtre ADX", value: "par actif", note: "BTC ≥20 · SOL ≥12 · LINK/DOGE ≥15 · ADA ≥18" },
           { label: "Direction", value: "Long uniquement", note: "Binance Spot, sans vente à découvert" },
         ],
       },
@@ -139,7 +139,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
         items: [
           { label: "Entrée", value: "EMA 21 × EMA 55", note: "direction confirmée par l'EMA 200" },
           { label: "Unité de temps", value: "H4", note: "bougies H4" },
-          { label: "ADX filter", value: "par actif", note: "BTC/ETH ≥20 · SOL ≥12 · LINK/DOGE/XRP ≥15 · ADA ≥18" },
+          { label: "Filtre ADX", value: "par actif", note: "BTC/ETH ≥20 · SOL ≥12 · LINK/DOGE/XRP ≥15 · ADA ≥18" },
           { label: "Direction", value: "Long + Short", note: "ADA : long uniquement (shorts NO-GO en backtest)" },
         ],
       },
@@ -361,7 +361,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
         title: "Signal",
         items: [
           { label: "Entrée", value: "EMA 21 × EMA 55", note: "direction confirmée par l'EMA 200" },
-          { label: "Slope filter", value: "EMA55 slope > 0", note: "lookback=5 bars, rejette les tendances plates ou déclinantes" },
+          { label: "Filtre de pente", value: "EMA55 slope > 0", note: "lookback=5 bars, rejette les tendances plates ou déclinantes" },
           { label: "Unité de temps", value: "H4" },
           { label: "Actifs", value: "6 (BF futures)" },
           { label: "Direction", value: "Long uniquement" },
@@ -454,7 +454,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
           { label: "Entrée", value: "Asia Session Breakout" },
           { label: "Unité de temps", value: "M5", note: "bougies M5" },
           { label: "Asset", value: "SOL-USDC", note: "Perp Hyperliquid" },
-          { label: "Range window", value: "00:00-08:00 UTC" },
+          { label: "Fenêtre du range", value: "00:00-08:00 UTC" },
         ],
       },
       {
@@ -464,7 +464,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
           { label: "Stop loss", value: "ATR(14) × 2.0", note: "calculé sur M5" },
           { label: "Take profit", value: "R:R 1:2" },
           { label: "Positions max", value: "1 simultanée", note: "intraday sur un seul actif" },
-          { label: "Session close", value: "Fin de journée", note: "aucune position gardée la nuit" },
+          { label: "Clôture de session", value: "Fin de journée", note: "aucune position gardée la nuit" },
         ],
       },
       {
@@ -901,7 +901,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       {
         title: "Gestion du risque",
         items: [
-          { label: "Base risk", value: "0,5 %", note: "modulé par la veille de marché" },
+          { label: "Risque de base", value: "0,5 %", note: "modulé par la veille de marché" },
           { label: "MI ×5 GREEN", value: "2,5 % par trade" },
           { label: "MI ×3 YELLOW", value: "1,5 % par trade" },
           { label: "MI ×2 ORANGE", value: "1,0 % par trade" },
@@ -2082,7 +2082,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
         title: "Gestion du risque",
         items: [
           { label: "Stop loss", value: "Aucun", note: "un stop casse la neutralité (prouvé contre-productif)" },
-          { label: "Risk control", value: "le de-gross 0,35", note: "la taille EST le contrôle du risque" },
+          { label: "Contrôle du risque", value: "le de-gross 0,35", note: "la taille EST le contrôle du risque" },
           { label: "Garde-fou data", value: "skip si fetch < 20 actifs", note: "ne jamais flatter le book sur un glitch" },
           { label: "Min-notional", value: "10 USD / jambe", note: "plancher HL" },
         ],
@@ -2116,8 +2116,8 @@ export const BOT_PARAMS: Record<string, BotParams> = {
         title: "Filtres",
         items: [
           { label: "ATR ratio", value: "≥ 1.2" },
-          { label: "Slope filter", value: "EMA 200 slope > 0", note: "lookback = 5 bars" },
-          { label: "Range filter", value: "≥ 1 %", note: "amplitude minimale de bougie" },
+          { label: "Filtre de pente", value: "EMA 200 slope > 0", note: "lookback = 5 bars" },
+          { label: "Filtre de range", value: "≥ 1 %", note: "amplitude minimale de bougie" },
         ],
       },
       {
