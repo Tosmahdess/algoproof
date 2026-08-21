@@ -13,13 +13,24 @@ describe('Nav — 4 hubs + Labo CTA', () => {
     expect(screen.getByText(/apprendre/i)).toBeDefined()
   })
 
-  it('renders the Labo CTA with its dropdown (lab surfaces + vote + membres)', () => {
+  // 2026-08-21 (user decision): LE LABO is a plain link, no dropdown. The old
+  // sub-links (tutoriels, agents, vote, membres) are gone from the nav.
+  it('renders the Labo CTA as a plain link, without the old dropdown', () => {
     render(<Nav />)
     const cta = screen.getAllByRole('link').find(a => a.getAttribute('href') === 'https://lab.algoproof.fr' && /le labo/i.test(a.textContent ?? ''))
     expect(cta).toBeDefined()
     for (const label of [/tutoriels/i, /agents ia/i, /vote du labo/i, /membres/i]) {
-      expect(screen.getByText(label)).toBeDefined()
+      expect(screen.queryByText(label)).toBeNull()
     }
+  })
+
+  // The account lives on the lab (magic link + subscription state); this site
+  // has no auth of its own, so COMPTE must point at lab.algoproof.fr/account.
+  it('links COMPTE to the lab account page', () => {
+    render(<Nav />)
+    const compte = screen.getAllByRole('link').find(a => /^compte$/i.test(a.textContent ?? ''))
+    expect(compte).toBeDefined()
+    expect(compte!.getAttribute('href')).toBe('https://lab.algoproof.fr/account')
   })
 
   // The library moved to this site on 2026-07-31: linking the lab's
