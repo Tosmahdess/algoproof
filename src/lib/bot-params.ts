@@ -1545,7 +1545,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Gestion du risque",
-        body: "Stop loss à ATR(14)×2.0 calculé sur H1, take profit R:R 1:2. Risque 1% par trade, max 6 positions, daily cap 3%. Frais Hyperliquid : taker 0.065%, slippage 0.05%, round-trip ~0.23%.",
+        body: "Stop loss à ATR(14)×2.0 calculé sur H1, sortie à 4R. Risque 1% par trade, max 6 positions, daily cap 3%. Frais Hyperliquid : taker 0.065%, slippage 0.05%, round-trip ~0.23%.",
       },
       {
         title: "Filtre de sécurité",
