@@ -6,6 +6,10 @@ tags: ["weekly", "performance"]
 summary: "Cette semaine, mes bots réels limitent la casse malgré un contexte difficile, pendant que la simulation encaisse les coups et me donne des leçons que l'argent réel n'a pas eu à payer."
 ---
 
+<Callout type="warning" title="Correction du 22 août 2026">
+Le cumul « argent réel » annoncé dans ce billet ne correspondait pas à la base de trades : il était saisi à la main et ne se raccordait ni à la semaine précédente, ni au total réel. Recalculé depuis la table des trades : **+6,42 €** sur 290 trades, au lieu de +11,60 € annoncé ici. Les chiffres de la semaine, eux, étaient bons. Depuis, la page « La flotte » et ces billets lisent le même calcul, et un contrôle automatique compare les deux.
+</Callout>
+
 ## Mes bots en réel
 
 *Suivi sur une base de 1 000 €, pour que les deux bots soient comparables. Ce n'est pas le solde brut chez mon broker.*
@@ -14,7 +18,7 @@ summary: "Cette semaine, mes bots réels limitent la casse malgré un contexte d
   <Stat label="Trades réels" value="14" subtext="semaine du 10 au 16 août" />
   <Stat label="P&L semaine" value="-20,26 €" subtext="base 1 000 €" />
   <Stat label="Taux de réussite" value="42,9 %" subtext="6 gagnants / 14" />
-  <Stat label="P&L cumulé (all-time)" value="+11,60 €" subtext="sur 291 trades depuis le début" />
+  <Stat label="P&L cumulé (argent réel)" value="+6,42 €" subtext="sur 290 trades depuis le début" />
 </StatRow>
 
 <DataCardGroup>
@@ -24,7 +28,7 @@ summary: "Cette semaine, mes bots réels limitent la casse malgré un contexte d
   <DataCard label="Côté acheteur (long) - bilan" sub="4 trades, 2 gagnants" metrics="P&L: +15,83 € | Taux de réussite: 50 %" intent="neutral" />
 </DataCardGroup>
 
-La semaine est rouge, c'est une réalité. Mais je garde une perspective : depuis le tout début du projet, rodage compris, mes bots réels affichent +11,60 € cumulés sur 291 trades. Ce n'est pas une performance spectaculaire, c'est une preuve de robustesse dans un marché qui n'a pas été tendre.
+La semaine est rouge, c'est une réalité. Et elle ramène le cumul à presque rien : depuis le tout début du projet, rodage compris, mes bots réels sont à +6,42 € sur 290 trades. Autant dire à l'équilibre. Ce n'est pas une performance, c'est un capital qui a survécu à un marché peu tendre.
 
 Ce qui me frappe cette semaine, c'est le contraste entre les deux côtés. Les shorts (paris à la baisse) ont pesé lourd : -36,09 € pour 10 trades avec un taux de réussite (WR, proportion de trades gagnants) de seulement 40 %. Les longs, eux, s'en sortent mieux en proportion, grâce surtout au trade LINK-USDC qui a bien fonctionné. Un seul trade peut changer la lecture d'une semaine entière.
 

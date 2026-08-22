@@ -29,7 +29,11 @@ beforeEach(() => {
 vi.mock('@/lib/queries', () => ({
   getAllBotsWithStats: async () => FIXTURE_FLEET,
   getAllTradesForAggregate: async () => [],
-  getLiveBotIds: async () => FIXTURE_FLEET.filter(b => b.status === 'live').map(b => b.id),
+  // Real money is a date rule, not a status rule (see computeFleetAggregate):
+  // the fixture's live bots get a live_since well before any fixture trade, so
+  // this page test keeps asserting layout rather than the cohort arithmetic.
+  getLiveBots: async () => FIXTURE_FLEET.filter(b => b.status === 'live')
+    .map(b => ({ id: b.id, live_since: '2026-01-01T00:00:00Z' })),
   getRecentTrades: async () => [],
   getWaveMeasure: async () => null,
 }))

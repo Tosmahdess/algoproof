@@ -6,6 +6,10 @@ tags: ["weekly", "performance"]
 summary: "Une semaine contrastée : mes bots en réel terminent dans le vert grâce aux positions short, pendant que le laboratoire absorbe le coût d'un marché qui hésite. La leçon est claire : le biais directionnel compte autant que la stratégie elle-même."
 ---
 
+<Callout type="warning" title="Correction du 22 août 2026">
+Le cumul « argent réel » annoncé dans ce billet ne correspondait pas à la base de trades : il était saisi à la main et ne se raccordait ni à la semaine précédente, ni au total réel. Recalculé depuis la table des trades : **+132,94 €** sur 257 trades, au lieu de +95,03 € annoncé ici. Les chiffres de la semaine, eux, étaient bons. Depuis, la page « La flotte » et ces billets lisent le même calcul, et un contrôle automatique compare les deux.
+</Callout>
+
 ## Contexte marché
 
 Le bitcoin termine la semaine environ 12 % sous sa moyenne de prix sur 200 jours. Le régime de tendance est baissier, ce qui signifie que le vent souffle plutôt contre les positions à la hausse. Pourtant, mon tableau de bord du marché affiche un niveau de risque vert, et mes filtres de sécurité n'ont bloqué aucune direction en réel cette semaine : longs et shorts étaient tous les deux autorisés côté argent réel.
@@ -22,7 +26,7 @@ En simulation, c'est légèrement différent : l'indicateur de biais a détecté
   <Stat label="Trades cette semaine" value="10" />
   <Stat label="P&L de la semaine" value="+55,35 €" intent="positive" subtext="base 1 000 €" />
   <Stat label="Taux de réussite" value="40 %" subtext="4 trades gagnants sur 10" />
-  <Stat label="P&L cumulé (all-time)" value="+95,03 €" subtext="253 trades depuis le début" />
+  <Stat label="P&L cumulé (argent réel)" value="+132,94 €" subtext="sur 257 trades depuis le début" />
 </StatRow>
 
 40 % de trades gagnants pour un résultat positif : ça peut sembler paradoxal, mais c'est exactement ce qu'un bon ratio gain/perte (PF, ou profit factor) est censé produire. Les trades qui gagnent gagnent beaucoup, ceux qui perdent perdent peu.
@@ -36,7 +40,7 @@ Le détail directionnel est parlant cette semaine :
 
 Les shorts portent la semaine à bout de bras. TIA-USDC en short est la grande réussite avec +42,38 €. À l'inverse, les longs souffrent d'un contexte baissier qui leur coupe l'herbe sous le pied : 1 gagnant sur 4, c'est le plancher. Le pire trade de la semaine, SEI-USDC en short à -11,64 €, rappelle que même le bon côté du marché n'est pas une garantie.
 
-Le cumulé depuis le début du projet, rodage inclus, atteint +95,03 € sur 253 trades. Je m'approche du premier palier symbolique des 100 € de gain net réel.
+Le cumulé depuis le début du projet, rodage inclus, atteint +132,94 € sur 257 trades. Le premier palier symbolique des 100 € de gain net réel est passé.
 
 ---
 
@@ -70,5 +74,5 @@ Cette semaine illustre les deux faces de cette vérité. En réel, 40 % de réus
 
 - Analyser pourquoi les longs simulés produisent systématiquement des pertes disproportionnées en régime baissier, et vérifier si un filtre de sécurité supplémentaire sur la direction serait pertinent.
 - Surveiller l'évolution de la distance du bitcoin à sa moyenne de prix sur 200 jours : un retour au-dessus de ce niveau changerait significativement le contexte pour les longs.
-- Continuer le suivi hebdomadaire du cumulé réel, qui s'approche du palier des 100 € net.
+- Continuer le suivi hebdomadaire du cumulé réel, désormais au-dessus du palier des 100 € net.
 - Documenter les trades TIA-USDC et SEI-USDC pour comprendre ce qui les différencie malgré le même biais directionnel.

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBotIds, getRecentTrades, getWaveMeasure } from '@/lib/queries'
+import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBots, getRecentTrades, getWaveMeasure } from '@/lib/queries'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { parseFleetFilters } from '@/lib/bot-filters'
 import FleetOverview from '@/components/FleetOverview'
@@ -54,10 +54,10 @@ function toURLSearchParams(sp: Record<string, string | string[] | undefined>): U
 }
 
 export default async function OverviewPage({ searchParams }: OverviewPageProps) {
-  const [bots, trades, liveBotIds, recentTrades, funnel, waveMeasure, resolvedSearchParams] = await Promise.all([
+  const [bots, trades, liveBots, recentTrades, funnel, waveMeasure, resolvedSearchParams] = await Promise.all([
     getAllBotsWithStats(),
     getAllTradesForAggregate(),
-    getLiveBotIds(),
+    getLiveBots(),
     // FIX (final review, I1+I2): the fleet-wide recent-trades feed the retired
     // page carried. Fetched here, in the server component, so it stays inside
     // stage 0 and never reaches the filter pipeline.
@@ -72,7 +72,7 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
     getWaveMeasure(),
     searchParams,
   ])
-  const aggregate = computeFleetAggregate(trades, liveBotIds)
+  const aggregate = computeFleetAggregate(trades, liveBots)
   // Wave-1 cohort = engine-originated bots carrying an engine_unit_key.
   // Computed here, where the page already holds the full `bots` array,
   // rather than inside FleetOverview/WaveExperiment (both stay plain

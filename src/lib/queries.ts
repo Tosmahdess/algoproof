@@ -1,4 +1,5 @@
 // src/lib/queries.ts
+import type { LiveBot } from '@/lib/fleet-aggregate'
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
 import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog, WaveMeasure } from './types'
@@ -294,13 +295,16 @@ export const getWaveMeasure = unstable_cache(
 // Live cohort = real money (v1-spot, orb-bf25). Passed down so the P&L headline
 // can separate real from laboratoire (simulation) instead of fusing them into
 // one total. Mirrors the cohort split in splitCohorts()/cohort.ts.
-export async function getLiveBotIds(): Promise<string[]> {
+export async function getLiveBots(): Promise<LiveBot[]> {
+  // `live_since` comes along because a bot's real-money history starts that day,
+  // not at its first trade: promoting a paper bot must not turn its simulated
+  // past into real money on /overview. See computeFleetAggregate.
   const { data, error } = await supabase
     .from('bots')
-    .select('id')
+    .select('id, live_since')
     .eq('status', 'live')
   if (error) throw new Error(`/overview live bots fetch failed: ${error.message}`)
-  return (data ?? []).map(b => b.id)
+  return (data ?? []).map(b => ({ id: b.id, live_since: b.live_since ?? null }))
 }
 
 // FIX (final review, I1+I2): restored. The fleet-wide recent-trades feed

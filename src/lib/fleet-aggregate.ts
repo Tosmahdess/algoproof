@@ -68,13 +68,41 @@ export interface FleetAggregate {
 
 const round2 = (n: number) => Math.round(n * 100) / 100
 
+/** A bot that trades real money, and the day it started doing so. */
+export interface LiveBot {
+  id: string
+  /** ISO timestamp from bots.live_since. A bot with no date has no real-money history. */
+  live_since: string | null
+}
+
+// FIX (figures reconciliation, 2026-08-22): the split used to be « does this bot
+// have status 'live' TODAY », applied to the bot's WHOLE history. Every bot in
+// this fleet starts in paper and is promoted later, so the day one was promoted,
+// its entire simulated past turned into « argent réel » on this page. Measured on
+// production the day this was found: 300 trades and +157,98 € announced as real
+// money, against 292 trades and +112,46 € actually traded with real money. The
+// 8 extra trades were v1-spot's paper period (17/04 to 07/05), worth +45,52 €,
+// counted as real ever since its promotion on 08/05.
+//
+// A trade is real money when its bot has a live_since AND the trade closed on or
+// after that day. Everything else is laboratory, including a live bot's own past.
+// The per-trade `is_paper` column would be the better source, but the writer never
+// sets it: all 7 033 rows carry `true`, the two real-money bots included.
 export function computeFleetAggregate(
   trades: AggregateTradeRow[],
-  liveBotIds: string[],
+  liveBots: LiveBot[],
 ): FleetAggregate {
-  // Built BEFORE the byDay loop (it used to be constructed further down, for the
-  // headline only) so each day can be split by cohort as it is accumulated.
-  const liveSet = new Set(liveBotIds)
+  const liveFrom = new Map(
+    liveBots
+      .filter(b => b.live_since)
+      .map(b => [b.id, (b.live_since as string).slice(0, 10)]),
+  )
+  const isRealMoney = (t: AggregateTradeRow): boolean => {
+    const from = liveFrom.get(t.bot_id)
+    if (!from) return false
+    const day = (t.closed_at || '').slice(0, 10)
+    return day >= from
+  }
 
   const byDay: Record<string, {
     trades: number; pnlReal: number; pnlLabo: number
@@ -87,7 +115,7 @@ export function computeFleetAggregate(
       byDay[day] = { trades: 0, pnlReal: 0, pnlLabo: 0 }
     }
     byDay[day].trades++
-    if (liveSet.has(t.bot_id)) byDay[day].pnlReal += t.pnl || 0
+    if (isRealMoney(t)) byDay[day].pnlReal += t.pnl || 0
     else byDay[day].pnlLabo += t.pnl || 0
   }
 
@@ -111,7 +139,7 @@ export function computeFleetAggregate(
   return {
     rows,
     totalTrades: trades.length,
-    totalPnlReal: sumPnl(trades.filter(t => liveSet.has(t.bot_id))),
-    totalPnlLabo: sumPnl(trades.filter(t => !liveSet.has(t.bot_id))),
+    totalPnlReal: sumPnl(trades.filter(isRealMoney)),
+    totalPnlLabo: sumPnl(trades.filter(t => !isRealMoney(t))),
   }
 }
