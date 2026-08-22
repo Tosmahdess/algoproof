@@ -130,12 +130,12 @@ export default async function HomePage() {
 
       {/* L'IA genere. AlgoLab verifie. */}
       <div className="border border-border rounded-lg p-8 mb-16 bg-card/40">
-        <h2 className="text-xl font-semibold mb-3 text-center">L&apos;IA génère. AlgoLab vérifie.</h2>
+        <h2 className="text-xl font-semibold mb-3 text-center">Faire vérifier une stratégie écrite par une IA</h2>
         <p className="text-muted text-sm max-w-2xl mx-auto mb-5 text-center">
-          Les IA produisent des stratégies de trading en dix secondes, et la plupart sont des
-          illusions statistiques. Le labo fait le travail que personne ne fait : la vérification.
-          J&apos;ai passé 10 stratégies générées par un LLM au bulletin anti-overfit : zéro
-          profitable aux frais réels. Ton agent IA peut faire pareil avec les siennes, gratuitement.
+          Demande dix stratégies de trading à une IA, tu les as en dix secondes. J&apos;ai passé
+          ces dix-là au bulletin anti-overfit du labo : aucune ne reste profitable une fois les
+          vrais frais payés. Ton agent IA peut faire passer les siennes au même contrôle,
+          gratuitement.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Link href="/blog/2026-07-11-10-strategies-ia-au-bulletin" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">

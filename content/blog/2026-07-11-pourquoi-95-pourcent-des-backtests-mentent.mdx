@@ -10,7 +10,7 @@ Un backtest gagnant est l'objet le plus facile à fabriquer du monde. Il suffit 
 
 ## Mensonge n°1 : le survivant
 
-Tu backtestes sur le BTC de 2020 à 2026 et ça gagne. Évidemment : tu as choisi, en 2026, un actif dont tu SAIS qu'il a survécu et monté. Les centaines de tokens morts en route, personne ne les backteste : ils ont disparu des listes. C'est le biais du survivant : ton univers de test est déjà trié par le futur.
+Tu backtestes sur le BTC de 2020 à 2026 et ça gagne. Forcément, tu as choisi en 2026 un actif dont tu sais qu'il a survécu et monté. Les centaines de tokens morts en route, personne ne les backteste : ils ont disparu des listes. C'est le biais du survivant : ton univers de test est déjà trié par le futur.
 
 Le même biais existe en version stratégie : tu ne testes que les idées qui « ont l'air de marcher », c'est-à-dire celles que le marché récent a récompensées. Le tri est fait avant que tu ouvres le backtest.
 
@@ -18,7 +18,7 @@ Le même biais existe en version stratégie : tu ne testes que les idées qui «
 
 Le look-ahead, c'est utiliser une information qui n'existait pas au moment de la décision : une clôture pas encore imprimée, un indicateur recalculé sur toute l'histoire, des données révisées après coup. Un seul octet de futur suffit à rendre un backtest imbattable et faux.
 
-C'est pour ça que le Lab revendique des données point-in-time : la stratégie ne voit jamais rien de plus que ce qu'un bot aurait vu ce jour-là. Un indicateur recalculé sur toute l'histoire suffit à rendre un backtest imbattable, et faux.
+C'est pour ça que le labo travaille en données point-in-time : la stratégie ne voit jamais rien de plus que ce qu'un bot aurait vu ce jour-là.
 
 ## Mensonge n°3 : le sur-ajustement (l'overfit)
 
