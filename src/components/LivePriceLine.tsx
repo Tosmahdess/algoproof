@@ -15,17 +15,17 @@ export function LivePriceLine({ tickerYf, priceAtGeneration, fallback }: { ticke
     return () => { alive = false }
   }, [tickerYf, fallback])
 
-  if (price == null) return <span className="text-[11px] text-zinc-600">cours…</span>
+  if (price == null) return <span className="text-[11px] text-muted">cours…</span>
 
   const pct = priceAtGeneration ? ((price - priceAtGeneration) / priceAtGeneration) * 100 : null
-  const color = pct == null ? '#71717a' : pct >= 0 ? '#3fb950' : '#ff4444'
+  const color = pct == null ? '#71717a' : pct >= 0 ? 'var(--positive)' : 'var(--negative)'
   return (
-    <span className="text-[11px] font-mono text-zinc-400">
+    <span className="text-[11px] font-mono text-muted">
       {price.toFixed(2)}
       {pct != null && (
         <span style={{ color }} className="ml-1.5 font-semibold">
           {pct >= 0 ? '+' : ''}{pct.toFixed(1)}%
-          <span className="text-zinc-600 font-normal"> depuis l&apos;analyse</span>
+          <span className="text-muted font-normal"> depuis l&apos;analyse</span>
         </span>
       )}
     </span>

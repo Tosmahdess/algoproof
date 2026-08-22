@@ -14,10 +14,10 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
 
   return (
     <Link href={`/strategies/bot/${bot.slug}`} className="block group">
-      <div className="bg-card border border-border rounded-xl p-5 hover:border-muted/50 transition-colors">
+      <div className="bg-card border border-border rounded-lg p-5 hover:border-muted/50 transition-colors">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="font-semibold text-white group-hover:text-positive transition-colors">{bot.name}</h3>
+            <h3 className="text-base font-semibold text-white group-hover:text-positive transition-colors">{bot.name}</h3>
             <p className="text-xs text-muted mt-0.5">{bot.strategy}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -41,7 +41,7 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
         </div>
 
         {hasData && isLowSample(stats.total_trades) && (
-          <p className="text-xs text-yellow-400/90 mb-3 -mt-1">
+          <p className="text-xs text-warning/90 mb-3 -mt-1">
             ⚠ Échantillon faible (&lt;20 trades) : métriques peu fiables
           </p>
         )}

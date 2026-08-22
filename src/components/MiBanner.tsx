@@ -5,10 +5,10 @@ import { useEffect, useState } from 'react'
 import type { MiSnapshot } from '@/lib/types'
 
 const REGIME_COLOR: Record<string, string> = {
-  GREEN:  '#3fb950',
-  YELLOW: '#f6c90e',
-  ORANGE: '#ff6b35',
-  RED:    '#ff4444',
+  GREEN:  'var(--positive)',
+  YELLOW: 'var(--warning)',
+  ORANGE: 'var(--severe)',
+  RED:    'var(--negative)',
 }
 
 const REGIME_FR: Record<string, string> = {
@@ -46,11 +46,12 @@ export default function MiBanner() {
   const label  = REGIME_FR[snap.regime ?? ''] ?? '—'
   const ageMin = Math.round((Date.now() - new Date(snap.snapshot_at).getTime()) / 60000)
 
+  // Same 4-way categorical palette as MiRegimeBadge.PILLARS — see its comment.
   const PILLARS = [
-    { key: 'sentiment_score'   as keyof MiSnapshot, label: 'Sentiment',   color: '#ff6b35', weight: '30%' },
-    { key: 'derivatives_score' as keyof MiSnapshot, label: 'Dérivés',     color: '#d2a8ff', weight: '40%' },
-    { key: 'news_score'        as keyof MiSnapshot, label: 'Actualités',  color: '#3fb950', weight: '5%' },
-    { key: 'macro_score'       as keyof MiSnapshot, label: 'Macro',       color: '#40c4ff', weight: '25%' },
+    { key: 'sentiment_score'   as keyof MiSnapshot, label: 'Sentiment',   color: 'var(--severe)', weight: '30%' },
+    { key: 'derivatives_score' as keyof MiSnapshot, label: 'Dérivés',     color: 'var(--accent)', weight: '40%' },
+    { key: 'news_score'        as keyof MiSnapshot, label: 'Actualités',  color: 'var(--positive)', weight: '5%' },
+    { key: 'macro_score'       as keyof MiSnapshot, label: 'Macro',       color: 'var(--accent)', weight: '25%' },
   ]
 
   return (

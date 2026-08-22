@@ -32,7 +32,7 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
 
   return (
     <section>
-      <h2 className="text-base font-bold tracking-tight mb-4">Est-ce que ça marche ?</h2>
+      <h2 className="text-xl font-semibold mb-3">Est-ce que ça marche ?</h2>
       <div className="border border-border rounded-lg p-6 space-y-3 text-sm text-muted leading-relaxed">
         <p>
           Chaque semaine, je rejoue mes {impact.nPresets} configurations de flotte sur la

@@ -7,8 +7,8 @@ import type { ScopeType } from './types'
 // SCOPE_META survives because ScopeBadge still colours the MI entries on /intelligence.
 // Restoring per-bot changelogs means restoring all three together — they are one mechanism.
 export const SCOPE_META: Record<ScopeType, { label: string; color: string }> = {
-  bot:    { label: 'Bot',          color: '#8b949e' },
-  fleet:  { label: 'Flotte',       color: '#818cf8' },
+  bot:    { label: 'Bot',          color: 'var(--muted)' },
+  fleet:  { label: 'Flotte',       color: 'var(--accent)' },
   mi:     { label: 'Intelligence', color: '#39c5cf' },
-  wealth: { label: 'Patrimoine',   color: '#f6c90e' },
+  wealth: { label: 'Patrimoine',   color: 'var(--warning)' },
 }

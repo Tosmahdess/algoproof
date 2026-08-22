@@ -31,8 +31,8 @@ export default function CapitalSimulator({
   if (!result) return null
 
   return (
-    <section className="bg-card border border-border rounded-xl p-6 mb-8">
-      <h2 className="font-semibold mb-1">Et sur mon capital ?</h2>
+    <section className="bg-card border border-border rounded-lg p-6 mb-8">
+      <h2 className="text-xl font-semibold mb-3">Et sur mon capital ?</h2>
       <p className="text-xs text-muted mb-4">
         Le même historique observé ({result.firstDate} → {result.lastDate}), relu à l’échelle
         d’un capital de départ que tu choisis. C’est une lecture du passé, pas une

@@ -9,9 +9,9 @@ import SearchInput from './SearchInput'
 import { matchesQuery } from '@/lib/search'
 
 const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
-  renforcer: { label: 'RENFORCER', color: '#3fb950' },
-  maintenir: { label: 'MAINTENIR', color: '#f6c90e' },
-  skip:      { label: 'PASSER',    color: '#ff4444' },
+  renforcer: { label: 'RENFORCER', color: 'var(--positive)' },
+  maintenir: { label: 'MAINTENIR', color: 'var(--warning)' },
+  skip:      { label: 'PASSER',    color: 'var(--negative)' },
 }
 const FILTERS: { key: Verdict | 'all'; label: string }[] = [
   { key: 'all', label: 'Tous' }, { key: 'renforcer', label: 'Renforcer' },
@@ -67,7 +67,7 @@ export default function AnalysesClient({ fiches }: { fiches: FicheIndexRow[] }) 
         <p className="text-sm text-muted italic py-8">Aucune analyse pour ce filtre.</p>
       ) : sections.map(({ cat, rows }) => (
         <section key={cat} className="mb-8">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-accent border-b border-border pb-1 mb-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-accent border-b border-border pb-1 mb-3">
             {categoryLabel(cat === 'autres' ? null : cat)}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -77,7 +77,7 @@ export default function AnalysesClient({ fiches }: { fiches: FicheIndexRow[] }) 
                 <Link
                   key={f.ticker}
                   href={`/wealth/${encodeURIComponent(f.ticker)}`}
-                  className="block rounded-lg border bg-card px-3 py-2.5 transition-colors hover:bg-zinc-900/60"
+                  className="block rounded-lg border bg-card px-3 py-2.5 transition-colors hover:bg-card/60"
                   style={{ borderColor: v.color + '40' }}
                 >
                   <div className="flex items-center justify-between gap-1">

@@ -16,7 +16,7 @@ function Cell({ ok }: { ok: boolean }) {
 
 export default function ProofComparison() {
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
+    <div className="overflow-x-auto rounded-lg border border-border">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border bg-card/50 text-left">

@@ -1,7 +1,7 @@
 import { BotStatus } from '@/lib/types'
 
 const config: Record<BotStatus, { label: string; classes: string }> = {
-  paper:    { label: 'Paper trading', classes: 'bg-yellow-900/40 text-yellow-300 border-yellow-700/50' },
+  paper:    { label: 'Paper trading', classes: 'bg-warning/10 text-warning border-warning/30' },
   live:     { label: 'Live',           classes: 'bg-positive/10 text-positive border-positive/30' },
   backtest: { label: 'Backtest',      classes: 'bg-accent/10 text-accent border-accent/30' },
   frozen:   { label: 'Gelé',          classes: 'bg-muted/10 text-muted border-muted/30' },

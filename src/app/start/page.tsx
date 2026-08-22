@@ -11,11 +11,11 @@ export const metadata: Metadata = {
 
 export default function StartPage() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-16 space-y-12">
+    <main className="mx-auto max-w-3xl px-6 py-16 space-y-12">
 
       {/* Hero */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-3">
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">
           Trader les bots depuis la France
         </h1>
         <p className="text-muted leading-relaxed">
@@ -30,7 +30,7 @@ export default function StartPage() {
       <div className="grid gap-6 sm:grid-cols-2">
 
         {/* Bybit */}
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+        <div className="rounded-lg border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Bybit</h2>
             <span className="rounded-full bg-positive/10 border border-positive/30 px-2.5 py-0.5 text-xs font-medium text-positive">
@@ -66,7 +66,7 @@ export default function StartPage() {
         </div>
 
         {/* Hyperliquid */}
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+        <div className="rounded-lg border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Hyperliquid</h2>
             <span className="rounded-full bg-muted/10 border border-border px-2.5 py-0.5 text-xs font-medium text-muted">
@@ -102,7 +102,7 @@ export default function StartPage() {
         </div>
 
         {/* Kraken */}
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+        <div className="rounded-lg border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Kraken</h2>
             <span className="rounded-full bg-positive/10 border border-positive/30 px-2.5 py-0.5 text-xs font-medium text-positive">
@@ -148,7 +148,7 @@ export default function StartPage() {
       {/* Comparison table */}
       <div>
         <h2 className="text-lg font-semibold mb-4">Comparatif</h2>
-        <div className="overflow-x-auto rounded-xl border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-card/50">
@@ -182,7 +182,7 @@ export default function StartPage() {
       </div>
 
       {/* Why not Binance */}
-      <div className="rounded-xl border border-border bg-card p-6 space-y-3">
+      <div className="rounded-lg border border-border bg-card p-6 space-y-3">
         <h2 className="text-base font-semibold">Pourquoi pas Binance ?</h2>
         <p className="text-sm text-muted leading-relaxed">
           Depuis 2023, l&apos;AMF (Autorité des Marchés Financiers) a demandé aux plateformes de dérivés crypto

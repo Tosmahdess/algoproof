@@ -18,7 +18,7 @@ type Tab = 'functional' | 'technical' | 'discussion'
 const TAB_STYLE = (active: boolean) =>
   `px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
     active
-      ? 'text-[#ff6b35] border-[#ff6b35]'
+      ? 'text-severe border-severe'
       : 'text-muted border-transparent hover:text-foreground'
   }`
 

@@ -62,13 +62,13 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
   const incarnations = incarnationsOf(fiche, bots)
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12">
+    <main className="mx-auto max-w-3xl px-6 py-12">
       <nav className="text-xs text-muted mb-6">
         <Link href="/strategies" className="hover:text-white">Les stratégies</Link>
         {' / '}{familyLabel(fiche.family)}
       </nav>
 
-      <h1 className="text-2xl mb-2">{fiche.title}</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-3">{fiche.title}</h1>
       <p className="text-sm text-muted mb-8">{fiche.oneLiner}</p>
 
       <section className="mb-8">

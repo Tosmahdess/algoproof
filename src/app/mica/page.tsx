@@ -37,7 +37,7 @@ export default function MicaPage() {
     })),
   }
   return (
-    <main className="mx-auto max-w-3xl px-4 py-16 space-y-14">
+    <main className="mx-auto max-w-3xl px-6 py-16 space-y-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
       {/* Hero */}
@@ -45,7 +45,7 @@ export default function MicaPage() {
         <span className="inline-block rounded-full bg-accent/10 border border-accent/30 px-3 py-1 text-xs font-medium text-accent">
           MiCA : <MicaCountdown />
         </span>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight">Crypto en règle : ce que MiCA change pour toi</h1>
+        <h1 className="mt-4 text-3xl font-semibold tracking-tight mb-3">Crypto en règle : ce que MiCA change pour toi</h1>
         <p className="mt-3 text-muted leading-relaxed">
           Le règlement européen MiCA s&apos;applique pleinement depuis le 1er juillet 2026. Voici ce qui change concrètement,
           comment rester en règle depuis la France, et combien tu paieras d&apos;impôts sur tes plus-values.
@@ -54,11 +54,11 @@ export default function MicaPage() {
 
       {/* Ce que MiCA change */}
       <section>
-        <h2 className="text-lg font-semibold mb-4">Ce que MiCA change pour toi</h2>
+        <h2 className="text-lg font-semibold mb-2">Ce que MiCA change pour toi</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {MICA_POINTS.map(([title, body]) => (
-            <div key={title} className="rounded-xl border border-border bg-card p-5">
-              <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
+            <div key={title} className="rounded-lg border border-border bg-card p-5">
+              <h3 className="text-base font-semibold text-foreground mb-1">{title}</h3>
               <p className="text-sm text-muted leading-relaxed">{body}</p>
             </div>
           ))}
@@ -67,7 +67,7 @@ export default function MicaPage() {
 
       {/* Checklist */}
       <section>
-        <h2 className="text-lg font-semibold mb-4">Es-tu en règle ?</h2>
+        <h2 className="text-lg font-semibold mb-2">Es-tu en règle ?</h2>
         <ComplianceChecklist />
       </section>
 
@@ -78,7 +78,7 @@ export default function MicaPage() {
           Statut indicatif, vérifie sur le{' '}
           <a href="https://www.amf-france.org" target="_blank" rel="noopener noreferrer" className="text-accent">registre AMF/ESMA</a>.
         </p>
-        <div className="overflow-x-auto rounded-xl border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-card/50 text-left text-muted">
@@ -114,7 +114,7 @@ export default function MicaPage() {
 
       {/* FAQ */}
       <section>
-        <h2 className="text-lg font-semibold mb-4">Questions fréquentes</h2>
+        <h2 className="text-lg font-semibold mb-2">Questions fréquentes</h2>
         <FaqAccordion items={FAQ} />
       </section>
 

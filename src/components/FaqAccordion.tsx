@@ -11,7 +11,7 @@ export default function FaqAccordion({ items }: { items: FaqItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <div className="divide-y divide-border rounded-xl border border-border">
+    <div className="divide-y divide-border rounded-lg border border-border">
       {items.map((item, i) => (
         <div key={i}>
           <button

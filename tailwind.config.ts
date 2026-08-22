@@ -15,6 +15,12 @@ const config: Config = {
         accent: '#818cf8',
         foreground: '#f5f5f5',
         warning: '#f59e0b',
+        // Escalation tier between `warning` and `negative` (risk regime STRESS,
+        // dip-signal MAJEUR, "major" severity elsewhere) — named for what it
+        // means, not its orange hue. Added while unifying the design system
+        // (2026-08-22): the one new token task 4 allowed for the three
+        // theme-less hexes found in src/.
+        severe: '#ff6b35',
       },
       fontFamily: {
         mono: ['var(--font-mono)', 'JetBrains Mono', 'Fira Code', 'ui-monospace', 'monospace'],

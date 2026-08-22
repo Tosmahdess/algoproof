@@ -4,8 +4,8 @@ export default function ExchangeAlert({ exchange }: { exchange: string }) {
   if (!exchange.includes('Binance Futures')) return null
 
   return (
-    <div className="mb-8 flex flex-wrap items-center gap-3 rounded-lg border border-yellow-800/40 bg-yellow-950/30 px-4 py-3 text-sm">
-      <span className="text-yellow-200/80">
+    <div className="mb-8 flex flex-wrap items-center gap-3 rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+      <span className="text-warning/80">
         🇫🇷 En France, Binance Futures n&apos;est pas accessible (AMF 2023).
       </span>
       <div className="flex flex-wrap gap-2">
@@ -13,7 +13,7 @@ export default function ExchangeAlert({ exchange }: { exchange: string }) {
           href={BYBIT_AFFILIATE_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded border border-yellow-700/50 bg-yellow-900/40 px-3 py-1 text-xs font-medium text-yellow-200 transition-colors hover:bg-yellow-800/50"
+          className="rounded border border-warning/50 bg-warning/20 px-3 py-1 text-xs font-medium text-warning transition-colors hover:bg-warning/30"
         >
           Bybit ↗
         </a>
@@ -21,13 +21,13 @@ export default function ExchangeAlert({ exchange }: { exchange: string }) {
           href={HL_AFFILIATE_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded border border-yellow-700/30 px-3 py-1 text-xs font-medium text-yellow-200/70 transition-colors hover:text-yellow-200"
+          className="rounded border border-warning/30 px-3 py-1 text-xs font-medium text-warning/70 transition-colors hover:text-warning"
         >
           Hyperliquid ↗
         </a>
         <a
           href="/start"
-          className="text-xs text-yellow-400/70 underline underline-offset-2 hover:text-yellow-400"
+          className="text-xs text-warning/70 underline underline-offset-2 hover:text-warning"
         >
           Guide complet →
         </a>

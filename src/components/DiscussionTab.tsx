@@ -107,7 +107,7 @@ export default function DiscussionTab({ slug }: Props) {
             onChange={e => setPseudo(e.target.value)}
             maxLength={50}
             required
-            className="w-full bg-background border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-[#ff6b35]"
+            className="w-full bg-background border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-severe"
           />
           <textarea
             placeholder="Ta question ou ton commentaire…"
@@ -116,13 +116,13 @@ export default function DiscussionTab({ slug }: Props) {
             maxLength={1000}
             required
             rows={3}
-            className="w-full bg-background border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-[#ff6b35] resize-none"
+            className="w-full bg-background border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-severe resize-none"
           />
           {error && <p className="text-xs text-negative">{error}</p>}
           <button
             type="submit"
             disabled={submitting || !pseudo.trim() || !message.trim()}
-            className="px-4 py-2 text-xs font-semibold bg-[#ff6b35]/10 text-[#ff6b35] border border-[#ff6b35]/30 rounded hover:bg-[#ff6b35]/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-xs font-semibold bg-severe/10 text-severe border border-severe/30 rounded hover:bg-severe/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {submitting ? 'Envoi...' : 'Envoyer'}
           </button>

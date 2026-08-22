@@ -50,7 +50,7 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
         <button
           onClick={() => setActive('changelog')}
           className={TAB_STYLE(active === 'changelog')}
-          style={active === 'changelog' ? { color: '#ff6b35' } : undefined}
+          style={active === 'changelog' ? { color: 'var(--severe)' } : undefined}
         >
           Historique
           {changelogs.length > 0 && (

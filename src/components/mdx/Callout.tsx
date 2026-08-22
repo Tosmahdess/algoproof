@@ -25,7 +25,7 @@ const styles: Record<CalloutType, {
   label: string
 }> = {
   info:    { border: 'border-accent/40',   bg: 'bg-accent/[0.04]',   accent: 'text-accent',   label: 'INFO' },
-  warning: { border: 'border-amber-500/40', bg: 'bg-amber-500/[0.04]', accent: 'text-amber-400', label: 'ATTENTION' },
+  warning: { border: 'border-warning/40', bg: 'bg-warning/[0.04]', accent: 'text-warning', label: 'ATTENTION' },
   insight: { border: 'border-positive/40', bg: 'bg-positive/[0.04]', accent: 'text-positive', label: 'INSIGHT' },
   note:    { border: 'border-border',      bg: 'bg-card/40',         accent: 'text-muted',    label: 'NOTE' },
 }

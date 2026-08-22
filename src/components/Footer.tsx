@@ -86,6 +86,22 @@ export default function Footer() {
           Ceci n&apos;est pas un conseil financier. Toutes les performances sont en paper trading sauf mention contraire.
           Je ne touche jamais à ton argent : pas de dépôt, pas de clé d&apos;exchange, tout est en lecture seule.
         </p>
+
+        {/* Legal links point at lab.algoproof.fr: same publisher, one set of legal
+            pages for both sites, and algoproof.fr has none of its own yet. */}
+        <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+          <a href="https://lab.algoproof.fr/mentions-legales" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+            Mentions légales
+          </a>
+          <span>·</span>
+          <a href="https://lab.algoproof.fr/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+            Confidentialité
+          </a>
+          <span>·</span>
+          <a href="https://lab.algoproof.fr/terms" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+            Conditions
+          </a>
+        </div>
       </div>
     </footer>
   )

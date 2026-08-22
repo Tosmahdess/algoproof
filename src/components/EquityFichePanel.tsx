@@ -7,7 +7,7 @@ import { sanitizeProse } from '@/lib/prose'
 export function EquityFichePanel({ fiche, market }: { fiche: EquityFiche; market: EquityMarketRow | null }) {
   const refPrice = fiche.price_at_generation
   return (
-    <section className="rounded-xl border border-border bg-card p-5">
+    <section className="rounded-lg border border-border bg-card p-5">
       <div className="flex flex-wrap items-center gap-4">
         <VerdictBadge verdict={fiche.verdict} />
         <LivePerf

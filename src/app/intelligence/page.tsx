@@ -18,17 +18,19 @@ export const metadata: Metadata = {
 }
 
 const REGIME_COLORS: Record<string, string> = {
-  NEUTRAL: '#d2a8ff',
-  BULL:    '#3fb950',
-  BEAR:    '#ff4444',
+  NEUTRAL: 'var(--muted)',
+  BULL:    'var(--positive)',
+  BEAR:    'var(--negative)',
 }
 
+// Same 4-way categorical palette as MiRegimeBadge.PILLARS — see its comment
+// (sentiment=severe, news=positive, derivatives/macro both map to accent).
 const PILLARS = [
   {
     id: 'sentiment',
     label: 'Sentiment',
     weight: '30%',
-    color: '#ff6b35',
+    color: 'var(--severe)',
     functional:
       "Suit la peur et la cupidité du marché en temps réel. Quand les traders sont dans la peur extrême, c'est souvent un signal d'alarme. Quand ils sont euphoriques, le risque augmente. Ce pilier mesure l'état émotionnel de la foule.",
     technical:
@@ -38,7 +40,7 @@ const PILLARS = [
     id: 'derivatives',
     label: 'Produits dérivés',
     weight: '40%',
-    color: '#d2a8ff',
+    color: 'var(--accent)',
     functional:
       'Surveille le marché des futures crypto en temps réel. Les taux de financement, l\'open interest et les liquidations révèlent quand l\'effet de levier est dangereusement élevé, précurseur classique des corrections violentes.',
     technical:
@@ -48,7 +50,7 @@ const PILLARS = [
     id: 'news',
     label: 'Actualités',
     weight: '5%',
-    color: '#3fb950',
+    color: 'var(--positive)',
     functional:
       "Analyse les titres financiers en continu. Un événement négatif majeur (hack d'exchange, répression réglementaire, choc macro) peut bouger les marchés plus vite que n'importe quel indicateur. Je surveille les news pour que les bots n'entrent pas dans la tempête.",
     technical:
@@ -58,7 +60,7 @@ const PILLARS = [
     id: 'macro',
     label: 'Macro',
     weight: '25%',
-    color: '#40c4ff',
+    color: 'var(--accent)',
     functional:
       "Surveille les conditions macroéconomiques : volatilité des marchés actions (VIX), force du dollar américain (DXY), et événements à venir comme les décisions de la Fed ou le CPI. La crypto n'existe pas en vase clos.",
     technical:
@@ -91,7 +93,7 @@ export default async function IntelligencePage() {
         // The generated report carries its own h1 title: demote it so the page
         // keeps a single h1 (it was rendering 3, near-duplicated back to back).
         components: {
-          h1: (props: React.ComponentProps<'h2'>) => <h2 className="text-lg font-bold mt-6 mb-2" {...props} />,
+          h1: (props: React.ComponentProps<'h2'>) => <h2 className="text-lg font-semibold mt-6 mb-2" {...props} />,
         },
       })
       reportContent = content
@@ -103,7 +105,7 @@ export default async function IntelligencePage() {
   const regimeColor = report?.regime ? (REGIME_COLORS[report.regime] ?? '#888') : '#888'
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
+    <main className="mx-auto max-w-4xl px-6 py-12 space-y-16">
       <JsonLd data={faqJsonLd([
         { question: 'C\'est quoi un régime de marché ?', answer: 'Une lecture d\'ensemble de l\'humeur du marché (calme, tendu ou en stress) calculée à partir de plusieurs signaux agrégés.' },
         { question: 'À quelle fréquence est-ce mis à jour ?', answer: 'Le rapport macro est régénéré chaque jour, et les signaux live plusieurs fois par heure.' },
@@ -114,7 +116,7 @@ export default async function IntelligencePage() {
         <p className="text-xs font-semibold tracking-widest uppercase text-positive mb-2">
           Météo du marché
         </p>
-        <h1 className="text-2xl font-bold tracking-tight">
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">
           Le gardien qui ne dort jamais.
         </h1>
         <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
@@ -142,7 +144,7 @@ export default async function IntelligencePage() {
       {/* Historical scores — 7 days */}
       <section>
         <div className="flex items-baseline gap-3 mb-4">
-          <h2 className="text-base font-bold tracking-tight">Historique des scores</h2>
+          <h2 className="text-xl font-semibold">Historique des scores</h2>
           <span className="text-xs text-muted">7 derniers jours · synchronisation toutes les 30 min</span>
         </div>
         <div className="rounded border border-border bg-card px-6 py-5">
@@ -157,7 +159,7 @@ export default async function IntelligencePage() {
       {/* Daily macro report */}
       <section>
         <div className="flex items-baseline gap-3 mb-4">
-          <h2 className="text-base font-bold tracking-tight">Analyse macro du jour</h2>
+          <h2 className="text-xl font-semibold">Analyse macro du jour</h2>
           {report && (
             <span className="text-xs text-muted font-mono">
               {report.date}
@@ -188,7 +190,7 @@ export default async function IntelligencePage() {
 
       {/* Defense Mesh */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-4">Bouclier défensif</h2>
+        <h2 className="text-xl font-semibold mb-3">Bouclier défensif</h2>
         <ExplainerBox stacked
           functional={
             <p>
@@ -224,14 +226,14 @@ export default async function IntelligencePage() {
 
       {/* Pillars + changelog — tabbed */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-4">Les piliers</h2>
+        <h2 className="text-xl font-semibold mb-3">Les piliers</h2>
         <MiPillarsSection pillars={PILLARS} changelogs={miChangelogs} />
       </section>
 
       {/* CTA: test météo on own strategy */}
       <section>
         <a href="https://lab.algoproof.fr/lab" className="block border border-border rounded-lg p-8 bg-card/40 hover:border-positive/30 transition-colors group text-center">
-          <h2 className="text-base font-bold tracking-tight mb-2">Teste la météo sur ta stratégie</h2>
+          <h2 className="text-xl font-semibold mb-3">Teste la météo sur ta stratégie</h2>
           <p className="text-sm text-muted max-w-2xl mx-auto">
             Le labo rejoue mes règles réelles sur ton backtest, avec et sans la météo.
           </p>

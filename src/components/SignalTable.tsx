@@ -13,13 +13,13 @@ interface Props {
 }
 
 const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
-  renforcer: { label: 'RENFORCER', color: '#3fb950' },
-  maintenir: { label: 'MAINTENIR', color: '#f6c90e' },
-  skip:      { label: 'PASSER',    color: '#ff4444' },
+  renforcer: { label: 'RENFORCER', color: 'var(--positive)' },
+  maintenir: { label: 'MAINTENIR', color: 'var(--warning)' },
+  skip:      { label: 'PASSER',    color: 'var(--negative)' },
 }
 
 const SIGNAL_COLOR: Record<string, string> = {
-  minor: '#f6c90e', major: '#ff6b35', crash: '#ff4444',
+  minor: 'var(--warning)', major: 'var(--severe)', crash: 'var(--negative)',
 }
 const SIGNAL_LABEL: Record<string, string> = {
   minor: 'MINEUR', major: 'MAJEUR', crash: 'KRACH',
@@ -70,7 +70,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
   const covered = verdict != null
 
   const distanceEl = (() => {
-    if (!asset.dip_trigger_pct) return <span className="text-zinc-600 text-xs">N/D</span>
+    if (!asset.dip_trigger_pct) return <span className="text-muted text-xs">N/D</span>
     if (asset.signal_level && ddPct !== null) {
       return (
         <span className="text-xs font-mono" style={{ color: sigColor }}>
@@ -81,17 +81,17 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
     if (ddPct !== null) {
       const remaining = asset.dip_trigger_pct - ddPct
       return (
-        <span className="text-zinc-500 text-[11px]">
+        <span className="text-muted text-[11px]">
           encore {remaining.toFixed(1)}%
         </span>
       )
     }
-    return <span className="text-zinc-600 text-xs">—</span>
+    return <span className="text-muted text-xs">—</span>
   })()
 
   return (
     <tr
-      className="border-b border-zinc-900 hover:bg-zinc-900/40 transition-colors"
+      className="border-b border-zinc-900 hover:bg-card/40 transition-colors"
       style={{ borderLeft: sigColor ? `2px solid ${sigColor}` : '2px solid transparent' }}
     >
       <td className="py-2.5 px-3 min-w-[150px]">
@@ -99,17 +99,17 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
           <Link
             href={`/wealth/${encodeURIComponent(asset.ticker)}`}
             title={`Voir mon analyse de ${asset.asset_name}`}
-            className="group block -mx-1 px-1 rounded hover:bg-zinc-800/40 transition-colors"
+            className="group block -mx-1 px-1 rounded hover:bg-card/40 transition-colors"
           >
             <div className="flex items-center gap-1.5">
               <span
                 className="text-xs font-mono font-bold group-hover:underline"
-                style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
+                style={{ color: asset.tier === 1 ? 'var(--positive)' : '#888' }}
               >
                 {asset.ticker} <span aria-hidden>↗</span>
               </span>
               {asset.tier === 2 && (
-                <span className="text-[10px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
+                <span className="text-[10px] px-1 py-0.5 rounded bg-card text-muted">T2</span>
               )}
               {verdict && <VerdictChip verdict={verdict} />}
             </div>
@@ -120,15 +120,15 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
             <div className="flex items-center gap-1.5">
               <span
                 className="text-xs font-mono font-bold"
-                style={{ color: asset.tier === 1 ? '#3fb950' : '#888' }}
+                style={{ color: asset.tier === 1 ? 'var(--positive)' : '#888' }}
               >
                 {asset.ticker}
               </span>
               {asset.tier === 2 && (
-                <span className="text-[10px] px-1 py-0.5 rounded bg-zinc-800 text-zinc-500">T2</span>
+                <span className="text-[10px] px-1 py-0.5 rounded bg-card text-muted">T2</span>
               )}
             </div>
-            <div className="text-xs text-zinc-400 leading-tight mt-0.5">{asset.asset_name}</div>
+            <div className="text-xs text-muted leading-tight mt-0.5">{asset.asset_name}</div>
           </>
         )}
       </td>
@@ -142,7 +142,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
             {SIGNAL_LABEL[asset.signal_level]}
           </span>
         ) : (
-          <span className="text-zinc-700 text-xs">—</span>
+          <span className="text-muted text-xs">—</span>
         )}
       </td>
 
@@ -157,11 +157,11 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
 
       <td className="py-2.5 px-3 text-xs">
         {asset.signal_level && asset.suggested_min && asset.suggested_max ? (
-          <span className="text-zinc-300 font-mono">
+          <span className="text-foreground font-mono">
             {asset.suggested_min} à {asset.suggested_max}€
           </span>
         ) : (
-          <span className="text-zinc-700">—</span>
+          <span className="text-muted">—</span>
         )}
       </td>
 
@@ -171,16 +171,16 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
       >
         {(() => {
           const lines = sellPlanLines(asset)
-          if (lines.length === 0) return <span className="text-zinc-700 text-xs">—</span>
+          if (lines.length === 0) return <span className="text-muted text-xs">—</span>
           return (
-            <div className="flex flex-col gap-0.5 text-[11px] text-zinc-400">
+            <div className="flex flex-col gap-0.5 text-[11px] text-muted">
               {lines.map((l, i) => <span key={i}>{l}</span>)}
             </div>
           )
         })()}
       </td>
 
-      <td className="py-2.5 px-3 text-xs text-zinc-500 whitespace-nowrap">
+      <td className="py-2.5 px-3 text-xs text-muted whitespace-nowrap">
         {formatDate(lastAlerts[asset.ticker])}
       </td>
     </tr>
@@ -194,7 +194,7 @@ function SignalView({ assets, lastAlerts, verdictByTicker }: Props) {
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b border-zinc-800 text-zinc-500 text-[11px] uppercase tracking-wider">
+        <tr className="border-b border-zinc-800 text-muted text-[11px] uppercase tracking-wider">
           <th className="py-2.5 px-3 text-left font-medium">Actif</th>
           <th className="py-2.5 px-3 text-left font-medium">Signal</th>
           <th className="py-2.5 px-3 text-left font-medium">vs pic 180j</th>
@@ -207,8 +207,8 @@ function SignalView({ assets, lastAlerts, verdictByTicker }: Props) {
       <tbody>
         {alerted.length > 0 && (
           <>
-            <tr className="bg-zinc-900/60">
-              <td colSpan={7} className="py-1.5 px-3 text-xs text-zinc-400">
+            <tr className="bg-card/60">
+              <td colSpan={7} className="py-1.5 px-3 text-xs text-muted">
                 🔴 En alerte · {alerted.length} actif{alerted.length > 1 ? 's' : ''}
               </td>
             </tr>
@@ -217,8 +217,8 @@ function SignalView({ assets, lastAlerts, verdictByTicker }: Props) {
             ))}
           </>
         )}
-        <tr className="bg-zinc-900/30">
-          <td colSpan={7} className="py-1.5 px-3 text-xs text-zinc-600">
+        <tr className="bg-card/30">
+          <td colSpan={7} className="py-1.5 px-3 text-xs text-muted">
             En surveillance · {surveillance.length} actifs
           </td>
         </tr>
@@ -255,21 +255,21 @@ function SecteurView({ assets, lastAlerts, verdictByTicker }: Props) {
       {entries.map(([cat, catAssets]) => (
         <div key={cat}>
           <div className="flex items-center gap-2 mb-2 px-1">
-            <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider">
               {CATEGORY_LABELS[cat] ?? cat}
             </span>
-            <span className="text-zinc-600 text-[10px] font-normal">
+            <span className="text-muted text-[10px] font-normal">
               {catAssets.filter(a => a.tier === 1).length}T1 · {catAssets.filter(a => a.tier === 2).length}T2
             </span>
             {catAssets.some(a => a.signal_level) && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-red-400">
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-card text-red-400">
                 {catAssets.filter(a => a.signal_level).length} en alerte
               </span>
             )}
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-900 text-zinc-600 text-[9px] uppercase tracking-wider">
+              <tr className="border-b border-zinc-900 text-muted text-[9px] uppercase tracking-wider">
                 <th className="py-1.5 px-3 text-left font-medium">Actif</th>
                 <th className="py-1.5 px-3 text-left font-medium">Signal</th>
                 <th className="py-1.5 px-3 text-left font-medium">vs pic 180j</th>
@@ -296,9 +296,9 @@ export function SignalTable({ assets, lastAlerts, verdictByTicker }: Props) {
 
   return (
     <div>
-      <p className="text-[11px] text-zinc-500 mb-3 leading-relaxed">
-        🟢 <span className="text-zinc-300">MINEUR / MAJEUR / KRACH</span> = quand &amp; combien <span className="font-bold text-zinc-300">acheter sur repli</span> ·{' '}
-        🎯 <span className="text-zinc-300">Plan de vente</span> = quand &amp; combien <span className="font-bold text-zinc-300">vendre en plus-value</span>
+      <p className="text-[11px] text-muted mb-3 leading-relaxed">
+        🟢 <span className="text-foreground">MINEUR / MAJEUR / KRACH</span> = quand &amp; combien <span className="font-bold text-foreground">acheter sur repli</span> ·{' '}
+        🎯 <span className="text-foreground">Plan de vente</span> = quand &amp; combien <span className="font-bold text-foreground">vendre en plus-value</span>
       </p>
       <div className="flex gap-2 mb-4">
         {([['signal', '⚡ Par signal'], ['secteur', '📂 Par secteur']] as const).map(([key, label]) => (
@@ -307,8 +307,8 @@ export function SignalTable({ assets, lastAlerts, verdictByTicker }: Props) {
             onClick={() => setTab(key)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               tab === key
-                ? 'bg-zinc-800 text-zinc-200'
-                : 'text-zinc-500 hover:text-zinc-300'
+                ? 'bg-card text-zinc-200'
+                : 'text-muted hover:text-foreground'
             }`}
           >
             {label}
@@ -316,7 +316,7 @@ export function SignalTable({ assets, lastAlerts, verdictByTicker }: Props) {
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-900">
+      <div className="overflow-x-auto rounded-lg border border-zinc-900">
         {tab === 'signal'
           ? <SignalView assets={assets} lastAlerts={lastAlerts} verdictByTicker={verdictByTicker} />
           : <SecteurView assets={assets} lastAlerts={lastAlerts} verdictByTicker={verdictByTicker} />

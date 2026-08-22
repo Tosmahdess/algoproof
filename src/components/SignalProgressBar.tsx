@@ -7,9 +7,9 @@ interface Props {
 
 const SIGNAL_COLORS = {
   none:  '#444',
-  minor: '#f6c90e',
-  major: '#ff6b35',
-  crash: '#ff4444',
+  minor: 'var(--warning)',
+  major: 'var(--severe)',
+  crash: 'var(--negative)',
 }
 
 export function SignalProgressBar({ triggerPct, drawdownPct }: Props) {
@@ -42,7 +42,7 @@ export function SignalProgressBar({ triggerPct, drawdownPct }: Props) {
 
   return (
     <div className="w-full">
-      <div className="relative h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+      <div className="relative h-1.5 rounded-full bg-card overflow-hidden">
         <div
           data-testid="bar-fill"
           className="absolute left-0 top-0 h-full rounded-full transition-all"
@@ -63,7 +63,7 @@ export function SignalProgressBar({ triggerPct, drawdownPct }: Props) {
         {labels.map(({ pct, label }) => (
           <span
             key={pct}
-            className="absolute text-[9px] text-zinc-500 transform -translate-x-1/2"
+            className="absolute text-[9px] text-muted transform -translate-x-1/2"
             style={{ left: `${pct}%` }}
           >
             {label}

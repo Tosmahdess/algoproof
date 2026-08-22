@@ -9,7 +9,7 @@ export default function Error({
   reset: () => void
 }) {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-32 text-center">
+    <div className="max-w-3xl mx-auto px-6 py-32 text-center">
       <p className="text-muted mb-4">Page temporairement indisponible.</p>
       <p className="text-xs text-muted/60 mb-8">{error.digest}</p>
       <button

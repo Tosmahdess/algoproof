@@ -84,7 +84,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                   )}
                   <td className="px-4 py-3 text-right font-mono">
                     {hasData ? (
-                      <span className={isLowSample(bot.stats.total_trades) ? 'text-yellow-400/90' : ''}
+                      <span className={isLowSample(bot.stats.total_trades) ? 'text-warning/90' : ''}
                         title={isLowSample(bot.stats.total_trades) ? 'Échantillon faible (<20 trades) : métriques peu fiables' : undefined}>
                         {bot.stats.total_trades}{isLowSample(bot.stats.total_trades) && ' ⚠'}
                       </span>

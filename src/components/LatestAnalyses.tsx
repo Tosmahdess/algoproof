@@ -23,12 +23,12 @@ export function LatestAnalyses({ fiches }: { fiches: FicheIndexRow[] }) {
           key={f.ticker}
           href={`/wealth/${encodeURIComponent(f.ticker)}`}
           title={`Voir mon analyse de ${f.asset_name}`}
-          className="block rounded-lg border border-border bg-card px-4 py-3 transition-colors hover:bg-zinc-900/60"
+          className="block rounded-lg border border-border bg-card px-4 py-3 transition-colors hover:bg-card/60"
         >
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <span className="text-sm font-mono font-bold">{f.ticker}</span>
-              <div className="text-[11px] text-zinc-400 truncate">{f.asset_name}</div>
+              <div className="text-[11px] text-muted truncate">{f.asset_name}</div>
             </div>
             <VerdictBadge verdict={f.verdict} />
           </div>
@@ -39,7 +39,7 @@ export function LatestAnalyses({ fiches }: { fiches: FicheIndexRow[] }) {
             {f.ticker_yf
               ? <LivePriceLine tickerYf={f.ticker_yf} priceAtGeneration={f.price_at_generation} fallback={f.price_at_generation} />
               : <span />}
-            <span className="text-[10px] text-zinc-500">{relativeDaysFr(f.generated_at)}</span>
+            <span className="text-[10px] text-muted">{relativeDaysFr(f.generated_at)}</span>
           </div>
         </Link>
       ))}

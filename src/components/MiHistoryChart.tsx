@@ -13,19 +13,24 @@ interface Props {
 
 // The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
 // 2026-06-26 — institutional_score is always null since. Only the 4 live pillars remain.
+// Same 4-way categorical palette as MiRegimeBadge.PILLARS — see its comment
+// (sentiment=severe, news=positive, derivatives/macro both map to accent).
 const PILLAR_COLORS = {
   composite_score:     '#ffffff',
-  sentiment_score:     '#ff6b35',
-  derivatives_score:   '#d2a8ff',
-  news_score:          '#3fb950',
-  macro_score:         '#40c4ff',
+  sentiment_score:     'var(--severe)',
+  derivatives_score:   'var(--accent)',
+  news_score:          'var(--positive)',
+  macro_score:         'var(--accent)',
 }
 
+// rgba mirrors of the positive/warning/severe/negative tokens: a CSS variable
+// can't carry a hex alpha suffix (`var(--positive)18` isn't valid CSS), so the
+// tinted regime background keeps the token's RGB spelled out at ~9% opacity.
 const REGIME_BG: Record<string, string> = {
-  GREEN:  '#3fb95018',
-  YELLOW: '#f6c90e18',
-  ORANGE: '#ff6b3518',
-  RED:    '#ff444418',
+  GREEN:  'rgba(74,222,128,0.09)',
+  YELLOW: 'rgba(245,158,11,0.09)',
+  ORANGE: 'rgba(255,107,53,0.09)',
+  RED:    'rgba(248,113,113,0.09)',
 }
 
 function fmt(snap: MiSnapshot) {
@@ -89,21 +94,21 @@ export default function MiHistoryChart({ data }: Props) {
           <ComposedChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 9, fill: '#8b949e' }}
+              tick={{ fontSize: 9, fill: 'var(--muted)' }}
               interval={tickInterval}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={[-50, 50]}
-              tick={{ fontSize: 9, fill: '#8b949e' }}
+              tick={{ fontSize: 9, fill: 'var(--muted)' }}
               axisLine={false}
               tickLine={false}
             />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine y={0} stroke="#30363d" strokeDasharray="3 3" />
-            <ReferenceLine y={30}  stroke="#f6c90e22" strokeWidth={1} />
-            <ReferenceLine y={-30} stroke="#f6c90e22" strokeWidth={1} />
+            <ReferenceLine y={30}  stroke="rgba(245,158,11,0.13)" strokeWidth={1} />
+            <ReferenceLine y={-30} stroke="rgba(245,158,11,0.13)" strokeWidth={1} />
 
             {/* Pillar lines (thin, semi-transparent) */}
             <Line dataKey="sentiment_score"   name="Sentiment"      stroke={PILLAR_COLORS.sentiment_score}   strokeWidth={1} dot={false} strokeOpacity={0.6} />
@@ -114,7 +119,7 @@ export default function MiHistoryChart({ data }: Props) {
             <Line dataKey="composite_score" name="Global" stroke="#ffffff" strokeWidth={2} dot={false} />
 
             <Legend
-              wrapperStyle={{ fontSize: '9px', color: '#8b949e', paddingTop: '8px' }}
+              wrapperStyle={{ fontSize: '9px', color: 'var(--muted)', paddingTop: '8px' }}
               iconSize={6}
             />
           </ComposedChart>

@@ -22,8 +22,8 @@ const WEALTH_ASSETS = [
   { name: 'Ethereum (ETH)',   pct: 14,   color: '#627eea', assetClass: 'Crypto' },
   { name: 'MSCI World (CW8)', pct: 17.5, color: '#4299e1', assetClass: 'ETF' },
   { name: 'Nasdaq-100 (CL2)', pct: 11.9, color: '#667eea', assetClass: 'ETF' },
-  { name: 'Gold (XAU)',       pct: 5.6,  color: '#f6c90e', assetClass: 'Commodity' },
-  { name: 'GROWTH tactical',  pct: 30,   color: '#3fb950', assetClass: 'Tactical' },
+  { name: 'Gold (XAU)',       pct: 5.6,  color: 'var(--warning)', assetClass: 'Commodity' },
+  { name: 'GROWTH tactical',  pct: 30,   color: 'var(--positive)', assetClass: 'Tactical' },
 ]
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for reference only
@@ -33,7 +33,7 @@ const _SECTORS_REF = [
     { ticker: 'MSTR', name: 'MicroStrategy',  tier: 1, trigger: 45 },
     { ticker: 'COIN', name: 'Coinbase',       tier: 1, trigger: 35 },
   ]},
-  { label: 'Semiconducteurs', color: '#40c4ff', assets: [
+  { label: 'Semiconducteurs', color: 'var(--accent)', assets: [
     { ticker: 'NVDA',  name: 'NVIDIA',    tier: 1, trigger: 25 },
     { ticker: 'ASML',  name: 'ASML',     tier: 1, trigger: 30 },
     { ticker: 'TSM',   name: 'TSMC',     tier: 1, trigger: 30 },
@@ -53,7 +53,7 @@ const _SECTORS_REF = [
     { ticker: 'MDB',   name: 'MongoDB',        tier: 2 },
     { ticker: 'NET',   name: 'Cloudflare',     tier: 2 },
   ]},
-  { label: 'Auto / EV', color: '#3fb950', assets: [
+  { label: 'Auto / EV', color: 'var(--positive)', assets: [
     { ticker: 'TSLA',    name: 'Tesla',      tier: 1, trigger: 25 },
     { ticker: '1810.HK', name: 'Xiaomi EV', tier: 2 },
     { ticker: 'BYDDY',   name: 'BYD',       tier: 2 },
@@ -62,12 +62,12 @@ const _SECTORS_REF = [
     { ticker: 'LCID',    name: 'Lucid',     tier: 2 },
     { ticker: 'RACE',    name: 'Ferrari',   tier: 2 },
   ]},
-  { label: 'Luxe EU', color: '#ff6b35', assets: [
+  { label: 'Luxe EU', color: 'var(--severe)', assets: [
     { ticker: 'MC.PA',  name: 'LVMH',   tier: 1, trigger: 25 },
     { ticker: 'RMS.PA', name: 'Hermès', tier: 1, trigger: 25 },
     { ticker: 'KER.PA', name: 'Kering', tier: 2 },
   ]},
-  { label: 'Pharma Growth', color: '#ff4444', assets: [
+  { label: 'Pharma Growth', color: 'var(--negative)', assets: [
     { ticker: 'LLY',  name: 'Eli Lilly',    tier: 1, trigger: 30 },
     { ticker: 'NVO',  name: 'Novo Nordisk', tier: 1, trigger: 30 },
     { ticker: 'VRTX', name: 'Vertex',       tier: 2 },
@@ -93,7 +93,7 @@ const _SECTORS_REF = [
     { ticker: 'LNG', name: 'Cheniere',       tier: 1, trigger: 25 },
     { ticker: 'GEV', name: 'GE Vernova',     tier: 1, trigger: 25 },
   ]},
-  { label: 'Énergie Transition', color: '#3fb950', assets: [
+  { label: 'Énergie Transition', color: 'var(--positive)', assets: [
     { ticker: 'FSLR',   name: 'First Solar', tier: 2 },
     { ticker: 'ENPH',   name: 'Enphase',     tier: 2 },
     { ticker: 'NEE',    name: 'NextEra',     tier: 2 },
@@ -104,7 +104,7 @@ const _SECTORS_REF = [
     { ticker: 'FCX', name: 'Freeport-McMoRan', tier: 1, trigger: 30 },
     { ticker: 'MP',  name: 'MP Materials',     tier: 1, trigger: 35 },
   ]},
-  { label: 'Cybersécurité', color: '#ff4444', assets: [
+  { label: 'Cybersécurité', color: 'var(--negative)', assets: [
     { ticker: 'PANW', name: 'Palo Alto', tier: 2 },
     { ticker: 'FTNT', name: 'Fortinet',  tier: 2 },
     { ticker: 'ZS',   name: 'Zscaler',  tier: 2 },
@@ -125,7 +125,7 @@ const _SECTORS_REF = [
     { ticker: 'CDR.WA', name: 'CD Projekt', tier: 2 },
     { ticker: 'NTDOY',  name: 'Nintendo',  tier: 2 },
   ]},
-  { label: 'Consommation premium', color: '#ff6b35', assets: [
+  { label: 'Consommation premium', color: 'var(--severe)', assets: [
     { ticker: 'LULU',    name: 'Lululemon',      tier: 2 },
     { ticker: 'EL',      name: 'Estée Lauder',   tier: 2 },
     { ticker: 'MCD',     name: "McDonald's",     tier: 2 },
@@ -135,9 +135,9 @@ const _SECTORS_REF = [
 ]
 
 const AMPLIFICATION = [
-  { label: 'Marché normal',          multiplier: '1.0×',            condition: 'Score MI > −30',  color: '#3fb950' },
-  { label: 'Baisse mineure',         multiplier: '1.5×',            condition: 'Score MI < −30',  color: '#f6c90e' },
-  { label: 'Baisse majeure / krach', multiplier: '2.5×',            condition: 'Score MI < −50',  color: '#ff6b35' },
+  { label: 'Marché normal',          multiplier: '1.0×',            condition: 'Score MI > −30',  color: 'var(--positive)' },
+  { label: 'Baisse mineure',         multiplier: '1.5×',            condition: 'Score MI < −30',  color: 'var(--warning)' },
+  { label: 'Baisse majeure / krach', multiplier: '2.5×',            condition: 'Score MI < −50',  color: 'var(--severe)' },
   { label: 'ETF',                    multiplier: 'jamais amplifié', condition: 'Cadence fixe',    color: '#4299e1' },
 ]
 
@@ -177,7 +177,7 @@ export default function WealthPage() {
   }, {} as Record<string, FicheLite>)
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-12 space-y-16">
+    <main className="mx-auto max-w-4xl px-6 py-12 space-y-16">
       <JsonLd data={faqJsonLd([
         { question: 'C\'est quoi cette page ?', answer: 'Mon cadre d\'investissement long terme : une allocation cible en pourcentages et mes analyses par société (verdict, thèse, creux d\'achat). Un modèle publié en transparence, pas un journal d\'achats.' },
         { question: 'Comment sont choisis les points d\'entrée ?', answer: 'À partir du repli depuis les plus hauts (drawdown) sur 180 jours et des plus hauts historiques, pour renforcer dans les creux sans attraper un couteau qui tombe.' },
@@ -189,7 +189,7 @@ export default function WealthPage() {
         <p className="text-xs font-semibold tracking-widest uppercase text-positive mb-2">
           APEX Wealth
         </p>
-        <h1 className="text-2xl font-bold tracking-tight">
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">
           Mon allocation cible et mes analyses long terme.
         </h1>
         <p className="text-sm text-muted max-w-2xl mt-3 leading-relaxed">
@@ -206,7 +206,7 @@ export default function WealthPage() {
       {/* Latest analyses — the hero: freshness from the real analysis rhythm */}
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-base font-bold tracking-tight">Dernières analyses</h2>
+          <h2 className="text-xl font-semibold">Dernières analyses</h2>
           <span className="text-xs text-muted">verdict + thèse, les plus récentes d&apos;abord</span>
         </div>
         <LatestAnalyses fiches={fichesIndex} />
@@ -218,7 +218,7 @@ export default function WealthPage() {
       {/* Active dip signals only (0..5) — honest empty state otherwise */}
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-base font-bold tracking-tight">Creux d&apos;achat actifs</h2>
+          <h2 className="text-xl font-semibold">Creux d&apos;achat actifs</h2>
           <span className="text-xs text-muted">mis à jour toutes les 4h (= mes alertes Telegram)</span>
         </div>
         <p className="text-xs text-muted mb-5 max-w-2xl leading-relaxed">
@@ -235,7 +235,7 @@ export default function WealthPage() {
 
       {/* GROWTH — analyses par secteur (moved up: the fiches are the product) */}
       <section id="analyses">
-        <h2 className="text-base font-bold tracking-tight mb-2">GROWTH · mes analyses par secteur</h2>
+        <h2 className="text-xl font-semibold mb-3">GROWTH · mes analyses par secteur</h2>
         <p className="text-xs text-muted mb-6 max-w-2xl leading-relaxed">
           Tout mon univers d&apos;investissement, classé par secteur, avec mon verdict par société
           (renforcer / maintenir / passer). Clique une société pour mon analyse complète.
@@ -250,7 +250,7 @@ export default function WealthPage() {
 
       {/* Allocation */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-6">Allocation du portefeuille</h2>
+        <h2 className="text-xl font-semibold mb-3">Allocation du portefeuille</h2>
         <ExplainerBox stacked
           functional={
             <p>
@@ -288,7 +288,7 @@ export default function WealthPage() {
 
       {/* Amplification */}
       <section>
-        <h2 className="text-base font-bold tracking-tight mb-6">Amplification intelligente</h2>
+        <h2 className="text-xl font-semibold mb-3">Amplification intelligente</h2>
         <ExplainerBox stacked
           functional={
             <p>
@@ -315,7 +315,7 @@ export default function WealthPage() {
 
       {/* Bridge to the trading side — no bot cards here on purpose: long-term
           investing and algo trading are two different products/risk levels. */}
-      <section className="rounded-xl border border-border bg-card px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+      <section className="rounded-lg border border-border bg-card px-5 py-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           Le trading algo, c&apos;est de l&apos;autre côté : mes bots publient chaque
           trade, gains comme pertes.
