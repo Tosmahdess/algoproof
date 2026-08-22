@@ -61,7 +61,10 @@ export default async function HomePage() {
           <span className="text-positive">algorithmique, en public.</span>
         </h1>
         <p className="text-lg text-muted max-w-2xl mx-auto mb-8">
-          Je fais tourner {liveBots.length} bots en argent réel et le reste en laboratoire (simulation). J&apos;expose chaque trade, gains comme pertes, et je te donne les outils pour tester par toi-même.
+          {/* {' '} after the expression: RSC drops the ambient leading space of a text
+              node that follows an expression when the element mixes text and expression
+              children — the page rendered « 2bots ». The explicit space survives. */}
+          Je fais tourner {liveBots.length}{' '}bots en argent réel et le reste en laboratoire (simulation). J&apos;expose chaque trade, gains comme pertes, et je te donne les outils pour tester par toi-même.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
           <TrackedLink href="https://lab.algoproof.fr" event="cta_lab" location="home-hero" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">

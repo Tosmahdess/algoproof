@@ -58,9 +58,11 @@ export default function WaveExperiment({ waveBotCount, measure }: WaveExperiment
     <section data-testid="wave-experiment" className="bg-card border border-border rounded-lg p-6 space-y-2">
       <h2 className="text-xs uppercase tracking-wider text-muted">Expérience en cours</h2>
       <p className="text-sm">
-        Je fais tourner {waveBotCount} configurations issues du gantelet du moteur, en paper,
+        {/* {' '} after each expression: RSC drops the ambient leading space of the text
+            that follows it (« 75configurations », « 39instruments » in production). */}
+        Je fais tourner {waveBotCount}{' '}configurations issues du gantelet du moteur, en paper,
         listées ci-dessous comme n&apos;importe quel bot du labo, sans tri par résultat. À côté,{' '}
-        {MEASUREMENT_CONTROLS} instruments de mesure, fixés au lancement de la vague, tournent
+        {MEASUREMENT_CONTROLS}{' '}instruments de mesure, fixés au lancement de la vague, tournent
         volontairement hors de cette liste,
         des témoins médians et un groupe frontière, pour vérifier si le classement du moteur tient
         une fois sorti du backtest (la malédiction du vainqueur : la meilleure configuration
