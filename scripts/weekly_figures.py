@@ -188,6 +188,31 @@ def report_week(trades, live_ids, name_by_id, end: dt.date) -> None:
 PUBLISHED = re.compile(r'label="[^"]*cumul[^"]*"\s+value="([^"]+)"', re.IGNORECASE)
 
 
+def check_dates(trades: list[dict], live_ids: dict[str, str], names: dict[str, str]) -> None:
+    """A real-money bot that traded BEFORE its live_since is a data question, not a detail.
+
+    Either those trades were simulation (and the date is right), or the bot was
+    already trading real money and `live_since` is late. It happened: v1-spot
+    carried 2026-05-08 while its first 8 real trades ran from 17/04, so the site
+    silently disagreed with the blog by 45,52 EUR. Whichever way it is resolved,
+    somebody has to answer the question, so the script asks it out loud.
+    """
+    flagged = []
+    for bot_id, start in live_ids.items():
+        early = [t for t in trades
+                 if t["bot_id"] == bot_id and (trade_day(t) or "9") < start]
+        if early:
+            total = sum(float(t.get("pnl") or 0) for t in early)
+            first = min(trade_day(t) for t in early if trade_day(t))
+            flagged.append((names.get(bot_id, bot_id), start, len(early), first, total))
+    if not flagged:
+        return
+    print(chr(10) + "ATTENTION, trades anterieurs au passage en argent reel :")
+    for slug, start, n, first, total in flagged:
+        print(f"  {slug}: live_since={start} mais {n} trades des le {first} "
+              f"({eur(total)}). Simulation, ou live_since en retard ?")
+
+
 def audit(trades, live_ids) -> None:
     """Compare every weekly's published all-time figure to the canonical one."""
     print(f"\n{'weekly':<12} {'publié':>14} {'calculé':>14} {'écart':>12}")
@@ -222,6 +247,7 @@ def main() -> None:
 
     if args.audit:
         audit(trades, live_ids)
+        check_dates(trades, live_ids, name_by_id)
         return
 
     end = dt.date.fromisoformat(args.week) if args.week else dt.date.today()

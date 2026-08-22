@@ -7,7 +7,7 @@ summary: "Une semaine difficile sur mes bots en réel avec un biais short massiv
 ---
 
 <Callout type="warning" title="Correction du 22 août 2026">
-Le cumul « argent réel » publié dans ce billet était faux. Deux erreurs : il comptait comme argent réel des trades faits en simulation, avant que le bot concerné passe en réel, et il ne se raccordait pas à la semaine précédente. Recalculé depuis la base de trades, avec la règle « un trade est réel à partir du jour où son bot est passé en réel » : **+3,44 €** sur 221 trades, au lieu de +36,02 € annoncé ici. Les chiffres de la semaine, eux, étaient bons. Le calcul du site a été corrigé le même jour.
+Le cumul « argent réel » annoncé dans ce billet ne correspondait pas à la base de trades : il était saisi à la main et ne se raccordait ni à la semaine précédente, ni au total réel. Recalculé depuis la table des trades : **+48,96 €** sur 229 trades, au lieu de +36,02 € annoncé ici. Les chiffres de la semaine, eux, étaient bons. Depuis, la page « La flotte » et ces billets lisent le même calcul, et un contrôle automatique compare les deux.
 </Callout>
 
 ## Mes bots en réel
@@ -18,7 +18,7 @@ Le cumul « argent réel » publié dans ce billet était faux. Deux erreurs : i
   <Stat label="Trades réels" value="26" subtext="semaine du 13 au 19 juillet" />
   <Stat label="P&L semaine" value="-141,19 €" subtext="sur base 1000 €" intent="negative" />
   <Stat label="Taux de réussite" value="26,9 %" subtext="7 trades gagnants sur 26" />
-  <Stat label="P&L cumulé (argent réel)" value="+3,44 €" subtext="depuis le début, rodage inclus" />
+  <Stat label="P&L cumulé (argent réel)" value="+48,96 €" subtext="sur 229 trades depuis le début" />
 </StatRow>
 
 <DataCardGroup>
@@ -30,7 +30,7 @@ C'est la direction short qui plombe la semaine. 18 trades ouverts à la baisse p
 
 L'explication tient probablement dans la mécanique du marché lui-même : en tendance baissière déjà bien installée, les rebonds violents sont fréquents. Les prix descendent par escaliers, avec des sursauts brusques qui déclenchent mes ordres de protection (SL : le stop-loss, seuil de sortie automatique pour limiter les pertes) avant que la direction ne reprenne. C'est coûteux, et c'est exactement ce que les données de la semaine illustrent.
 
-Le cumulé depuis le début (rodage compris) tient à +3,44 €, c'est-à-dire à rien du tout : une semaine comme celle-ci l'efface. Une mauvaise semaine ne remet pas en cause une stratégie, elle l'interroge.
+Le cumulé reste positif à +48,96 € depuis le début (rodage compris), ce qui me rappelle que cette semaine difficile s'inscrit dans une série plus longue. Une mauvaise semaine ne remet pas en cause une stratégie, elle l'interroge.
 
 ---
 
@@ -66,4 +66,4 @@ Côté tableau de bord du marché, un filtre de sécurité côté funding rate (
 - **Analyser le ratio gain/perte des shorts** : avec 22,2 % de réussite, la stratégie ne peut tenir que si les trades gagnants sont significativement plus grands que les perdants. Je vais vérifier ce rapport sur les dernières semaines.
 - **Réduire le volume de shorts en période de rebond** : le filtre de sécurité sur le funding rate est un signal à intégrer plus tôt, pas seulement en observation mais potentiellement en réel.
 - **Observer LINK-USDC** : c'est le meilleur trade de la semaine en réel avec +21,72 €. Comprendre pourquoi celui-là a fonctionné quand les autres échouaient mérite une analyse séparée.
-- **Tenir le cap sur le cumulé** : +3,44 € depuis le début, autant dire zéro. La priorité reste de ne pas laisser une mauvaise semaine déclencher des ajustements précipités.
+- **Tenir le cap sur le cumulé** : +48,96 € depuis le début, c'est fragile mais c'est positif. La priorité reste de ne pas laisser une mauvaise semaine déclencher des ajustements précipités.
