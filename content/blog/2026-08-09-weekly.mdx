@@ -6,6 +6,10 @@ tags: ["weekly", "performance"]
 summary: "Aucun trade réel cette semaine : le contexte baissier m'a maintenu en attente. Le laboratoire, lui, a brassé 440 trades et m'a offert une leçon précieuse sur les shorts en période de tension."
 ---
 
+<Callout type="warning" title="Correction du 22 août 2026">
+Le cumul « argent réel » publié dans ce billet était faux. Deux erreurs : il comptait comme argent réel des trades faits en simulation, avant que le bot concerné passe en réel, et il ne se raccordait pas à la semaine précédente. Recalculé depuis la base de trades, avec la règle « un trade est réel à partir du jour où son bot est passé en réel » : **−18,84 €** sur 268 trades, au lieu de +95,03 € annoncé ici. Les chiffres de la semaine, eux, étaient bons. Le calcul du site a été corrigé le même jour.
+</Callout>
+
 ## Mes bots en réel
 
 Cette semaine, mes deux bots actifs en argent réel - le bot spot sur Kraken et le bot de cassure - n'ont généré aucun trade. Zéro signal, zéro position ouverte. Ce n'est pas un bug : c'est le filtre de sécurité qui fait son travail.
@@ -13,7 +17,7 @@ Cette semaine, mes deux bots actifs en argent réel - le bot spot sur Kraken et 
 <StatRow>
   <Stat label="Trades réels" value="0" subtext="semaine du 3 au 9 août" />
   <Stat label="P&L de la semaine" value="0,00 €" subtext="base de suivi 1 000 €" />
-  <Stat label="Cumulé all-time" value="+95,03 €" subtext="depuis le début, rodage inclus" />
+  <Stat label="P&L cumulé (argent réel)" value="−18,84 €" subtext="depuis le début, rodage inclus" />
 </StatRow>
 
 Le suivi se fait sur une base normalisée de 1 000 €, pour rendre les deux bots comparables entre eux, quelle que soit la taille réelle du capital déployé chez le broker. Le chiffre affiché n'est donc pas un solde de compte brut.

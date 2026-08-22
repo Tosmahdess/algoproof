@@ -14,7 +14,7 @@ const AGG = computeFleetAggregate(
     { bot_id: 'id-1', pnl: 40, closed_at: '2026-07-01T00:00:00Z', side: 'long', asset: 'BTC' },
     { bot_id: 'id-99', pnl: -60, closed_at: '2026-07-02T00:00:00Z', side: 'short', asset: 'ETH' },
   ],
-  ['id-1'],
+  [{ id: 'id-1', live_since: '2026-01-01T00:00:00Z' }],
 )
 
 // FIX (layout, day table pagination): nine distinct trading days, so
@@ -31,7 +31,7 @@ const MANY_DAYS = computeFleetAggregate(
     side: 'long',
     asset: 'BTC',
   })),
-  ['id-1'],
+  [{ id: 'id-1', live_since: '2026-01-01T00:00:00Z' }],
 )
 
 describe('FleetBalance — stage 0', () => {

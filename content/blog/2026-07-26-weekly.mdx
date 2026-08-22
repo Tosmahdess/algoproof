@@ -6,6 +6,10 @@ tags: ["weekly", "performance"]
 summary: "Semaine en territoire négatif pour mes bots en réel, mais les positions short ont limité la casse. En simulation, 514 trades révèlent une asymétrie inquiétante entre longs et shorts."
 ---
 
+<Callout type="warning" title="Correction du 22 août 2026">
+Le cumul « argent réel » publié dans ce billet était faux. Deux erreurs : il comptait comme argent réel des trades faits en simulation, avant que le bot concerné passe en réel, et il ne se raccordait pas à la semaine précédente. Recalculé depuis la base de trades, avec la règle « un trade est réel à partir du jour où son bot est passé en réel » : **−5,85 €** sur 235 trades, au lieu de +57,09 € annoncé ici. Les chiffres de la semaine, eux, étaient bons. Le calcul du site a été corrigé le même jour.
+</Callout>
+
 ## Mes bots en réel
 
 > Suivi sur une base normalisée de 1 000 €, pour comparer mes deux bots sur un pied d'égalité. Ce n'est pas un solde broker brut.
@@ -14,7 +18,7 @@ summary: "Semaine en territoire négatif pour mes bots en réel, mais les positi
   <Stat label="Trades (semaine)" value="14" />
   <Stat label="P&L (semaine)" value="-9,29 €" subtext="base 1 000 €" />
   <Stat label="Taux de réussite" value="57,1 %" subtext="8 gagnants / 14" />
-  <Stat label="P&L cumulé (all-time)" value="+57,09 €" subtext="depuis le début, rodage inclus" />
+  <Stat label="P&L cumulé (argent réel)" value="−5,85 €" subtext="depuis le début, rodage inclus" />
 </StatRow>
 
 <DataCardGroup>
@@ -28,7 +32,7 @@ La semaine est dans le rouge, avec -9,29 € sur base 1 000 €. Pourtant, il y 
 
 Le contexte marché explique beaucoup. Bitcoin se situe environ 10 % en dessous de sa moyenne de prix sur 200 jours, ce qui place le marché en régime baissier. Mon tableau de bord global affiche un score négatif. Dans ce contexte, les longs subissent une pression structurelle, ce qui colle exactement à ce que je vois dans les chiffres : 50 % de réussite côté long, contre 66,7 % côté short.
 
-Le cumulé depuis le début reste positif à +57,09 € sur base 1 000 €. C'est modeste, mais c'est réel.
+Le cumulé depuis le début est repassé sous zéro, à −5,85 € sur base 1 000 €. Deux semaines de suite dans le rouge suffisent à effacer le rodage.
 
 ---
 

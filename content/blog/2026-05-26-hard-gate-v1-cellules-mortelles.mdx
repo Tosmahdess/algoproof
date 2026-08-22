@@ -12,7 +12,7 @@ Puis le 17 mai, quelque chose a basculé.
 
 Sur les 9 jours suivants (17 → 26 mai), 200 nouveaux trades fermés. **P&L net : −368 USDT en simulation.** Pas un crash, pas un bug — un retournement de régime que mon filtre n'avait pas anticipé. Les shorts continuaient de saigner, les longs prenaient des SL gros et des TP serrés. La matrice MI v1 voyait bien le régime BEAR mais ne bloquait rien — elle réduisait le sizing, c'est tout.
 
-Cette session, j'ai passé une journée à comprendre exactement **où** se trouvaient les fuites, et à construire un filtre qui les ferme dur. Le résultat : un module que j'ai déployé en mode shadow sur le VPS, baptisé **Hard-Gate v1**. Si je l'avais eu en place le 17 mai, le backtest dit que j'aurais fait **+59 USDT** sur la fenêtre au lieu de **−368** — un delta de **+427 USDT** en 5 jours, que je n'ai pas mesuré sur du live mais sur un re-jeu walk-forward de chaque trade existant.
+Cette session, j'ai passé une journée à comprendre exactement **où** se trouvaient les fuites, et à construire un filtre qui les ferme dur. Le résultat : un module que j'ai déployé en observation, sans qu'il puisse encore bloquer quoi que ce soit, baptisé **Hard-Gate v1**. Si je l'avais eu en place le 17 mai, le backtest dit que j'aurais fait **+59 USDT** sur la fenêtre au lieu de **−368** — un delta de **+427 USDT** sur la même fenêtre de 9 jours, que je n'ai pas mesuré sur du live mais sur un re-jeu walk-forward de chaque trade existant.
 
 Voici comment j'en suis arrivé là.
 

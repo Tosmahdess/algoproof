@@ -32,6 +32,10 @@ export default async function HomePage() {
   // the homepage headline counts and ranking.
   const [allBots, funnel] = await Promise.all([getAllBotsWithStats(), getFunnelCounts()])
   const bots = excludeArchived(allBots)
+  // Wave-1 cohort, counted from the data rather than typed into the copy: the
+  // sentence below used to carry a literal 75 and would have aged in silence the
+  // day one of them is archived. Same tagging rule as /overview's waveBotCount.
+  const waveCount = bots.filter(b => b.engine_unit_key?.length).length
   // Live = real money (v1-spot, orb-bf25) ; the rest is the laboratoire (simulation).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
   const { live: liveBots, paper: paperBots } = splitCohorts(bots)
@@ -158,7 +162,7 @@ export default async function HomePage() {
           </Link>
           <Link href="/overview" className="bg-card border border-border rounded-lg p-8 text-center hover:border-accent/30 transition-colors group">
             <h3 className="text-base font-semibold mb-2">Les derniers arrivés</h3>
-            <p className="text-muted text-sm">Le 21 août, 75 stratégies sorties de mon moteur de recherche sont entrées en simulation. Chacune devra aligner ses trades, et tenir, avant le moindre euro réel.</p>
+            <p className="text-muted text-sm">Le 21 août, {waveCount} stratégies sorties de mon moteur de recherche sont entrées en simulation. Chacune devra aligner ses trades, et tenir, avant le moindre euro réel.</p>
             <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir la flotte →</span>
           </Link>
           <Link href="/blog/2026-07-02-pourquoi-mes-bots-ne-tradent-pas" className="bg-card border border-border rounded-lg p-8 text-center hover:border-muted/50 transition-colors group">

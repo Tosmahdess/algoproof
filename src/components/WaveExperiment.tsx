@@ -21,6 +21,12 @@ export interface WaveExperimentProps {
 const MIN_TRADES_PER_COHORT = 30
 
 // Named so the copy below and this constant can't drift apart silently.
+//
+// This one is a DESIGN PARAMETER of the wave, fixed when it launched on
+// 2026-08-21, not a live count: the controls run outside the bots table (median
+// witnesses and a frontier group), so there is nothing to read them back from.
+// The copy says « fixés au lancement » for that reason. Everything that CAN be
+// counted from the data is counted (waveBotCount, paired clusters).
 const MEASUREMENT_CONTROLS = 39
 
 function fmtPf(n: number): string {
@@ -54,7 +60,8 @@ export default function WaveExperiment({ waveBotCount, measure }: WaveExperiment
       <p className="text-sm">
         Je fais tourner {waveBotCount} configurations issues du gantelet du moteur, en paper,
         listées ci-dessous comme n&apos;importe quel bot du labo, sans tri par résultat. À côté,{' '}
-        {MEASUREMENT_CONTROLS} instruments de mesure tournent volontairement hors de cette liste,
+        {MEASUREMENT_CONTROLS} instruments de mesure, fixés au lancement de la vague, tournent
+        volontairement hors de cette liste,
         des témoins médians et un groupe frontière, pour vérifier si le classement du moteur tient
         une fois sorti du backtest (la malédiction du vainqueur : la meilleure configuration
         d&apos;un groupe est souvent la plus chanceuse, pas la meilleure), pas pour gagner de
