@@ -28,7 +28,7 @@ export default function SyncBadge({ lastSyncAt, className = '' }: Props) {
     dot = 'bg-positive'
     label = age < 2 ? 'Actif' : `il y a ${Math.round(age)}min`
   } else if (age < 720) {
-    dot = 'bg-yellow-500'
+    dot = 'bg-warning'
     label = `Synchro il y a ${Math.round(age / 60)} h`
   } else {
     dot = 'bg-negative'

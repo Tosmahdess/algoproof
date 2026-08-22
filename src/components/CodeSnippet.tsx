@@ -10,7 +10,7 @@ function highlight(raw: string): string {
 
   return escaped
     // comments — must run before other rules
-    .replace(/(#[^\n]*)/g, '<span style="color:#8b949e">$1</span>')
+    .replace(/(#[^\n]*)/g, '<span style="color:var(--muted)">$1</span>')
     // single-quoted strings
     .replace(/('(?:[^'\\]|\\.)*')/g, '<span style="color:#a5d6ff">$1</span>')
     // double-quoted strings

@@ -10,8 +10,8 @@ const ROWS: { key: keyof ThreeSentencesData; label: string }[] = [
 
 export default function ThreeSentences({ data }: { data: ThreeSentencesData }) {
   return (
-    <section className="bg-card border border-border rounded-xl p-6 mb-8">
-      <h2 className="font-semibold mb-3">Ce bot en 3 phrases</h2>
+    <section className="bg-card border border-border rounded-lg p-6 mb-8">
+      <h2 className="text-xl font-semibold mb-3">Ce bot en 3 phrases</h2>
       <dl className="space-y-2.5">
         {ROWS.map(({ key, label }) => (
           <div key={key} className="flex flex-col sm:flex-row sm:gap-3">

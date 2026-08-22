@@ -18,9 +18,9 @@ const PIECES = [
 
 export default function AProposPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12 space-y-12">
+    <main className="max-w-3xl mx-auto px-6 py-12 space-y-12">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight mb-3">AlgoProof, c&apos;est quoi ?</h1>
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">AlgoProof, c&apos;est quoi ?</h1>
         <p className="text-muted leading-relaxed">
           Un labo de trading algorithmique <strong>transparent</strong>, en français, que je mène en solo et en public.
           Je fais tourner des bots, je teste des stratégies, j&apos;investis sur le long terme, et j&apos;expose tout,
@@ -29,7 +29,7 @@ export default function AProposPage() {
       </header>
 
       <section>
-        <h2 className="text-xl font-bold mb-3">Pourquoi en public</h2>
+        <h2 className="text-xl font-semibold mb-3">Pourquoi en public</h2>
         <p className="text-muted leading-relaxed">
           La plupart des gens ne montrent que leurs réussites. Moi je montre aussi mes pertes, mes mauvaises semaines
           et les stratégies que je rejette. C&apos;est plus utile et plus honnête : une méthode qui tient se prouve
@@ -38,11 +38,11 @@ export default function AProposPage() {
       </section>
 
       <section>
-        <h2 className="text-xl font-bold mb-4">Comment les pièces s&apos;articulent</h2>
+        <h2 className="text-xl font-semibold mb-3">Comment les pièces s&apos;articulent</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {PIECES.map((p) => (
-            <Link key={p.href} href={p.href} className="block bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors group">
-              <h3 className="font-bold mb-1 group-hover:text-positive transition-colors">{p.title}</h3>
+            <Link key={p.href} href={p.href} className="block bg-card border border-border rounded-lg p-4 hover:border-positive/30 transition-colors group">
+              <h3 className="text-base font-semibold mb-1 group-hover:text-positive transition-colors">{p.title}</h3>
               <p className="text-sm text-muted">{p.desc}</p>
             </Link>
           ))}
@@ -50,7 +50,7 @@ export default function AProposPage() {
       </section>
 
       <section>
-        <h2 className="text-xl font-bold mb-3">Paper ou argent réel ?</h2>
+        <h2 className="text-xl font-semibold mb-3">Paper ou argent réel ?</h2>
         <p className="text-muted leading-relaxed">
           La plupart de mes bots tournent en <strong>paper trading</strong> (simulation fidèle sur de vraies données,
           sans argent réel) : c&apos;est ainsi qu&apos;on valide une stratégie sans risque. Les bots qui passent en
@@ -60,7 +60,7 @@ export default function AProposPage() {
       </section>
 
       <section>
-        <h2 className="text-xl font-bold mb-3">Gratuit ou payant ?</h2>
+        <h2 className="text-xl font-semibold mb-3">Gratuit ou payant ?</h2>
         <p className="text-muted leading-relaxed">
           Tout est gratuit aujourd&apos;hui, site et <a href="https://lab.algoproof.fr" className="text-accent">labo</a> compris,
           et aucune offre payante n&apos;est active. Quand une offre arrivera, elle portera sur la configuration exacte

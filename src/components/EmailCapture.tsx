@@ -44,7 +44,7 @@ export default function EmailCapture({
   }
 
   return (
-    <div className="border border-border rounded-xl p-6 bg-card/40">
+    <div className="border border-border rounded-lg p-6 bg-card/40">
       <p className="text-sm font-bold mb-1">{title}</p>
       <p className="text-xs text-muted leading-relaxed mb-4">{description}</p>
       {submitted ? (

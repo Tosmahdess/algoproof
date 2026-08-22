@@ -36,7 +36,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
   })
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-16">
+    <div className="max-w-3xl mx-auto px-6 py-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -55,7 +55,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
         <time>Mon analyse du {date}</time>
       </div>
 
-      <h1 className="text-3xl font-bold mb-8">
+      <h1 className="text-3xl font-semibold tracking-tight mb-3">
         {fiche.asset_name}{' '}
         <span className="font-mono text-muted text-2xl">{fiche.ticker}</span>
       </h1>
@@ -77,7 +77,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
           <div className="flex flex-wrap gap-2">
             {related.map(r => (
               <Link key={r.ticker} href={`/wealth/${encodeURIComponent(r.ticker)}`}
-                className="text-sm rounded border border-border px-3 py-1 hover:bg-zinc-900/60 transition-colors">
+                className="text-sm rounded border border-border px-3 py-1 hover:bg-card/60 transition-colors">
                 <span className="font-mono font-bold">{r.ticker}</span>
                 <span className="text-muted ml-2">{r.asset_name}</span>
               </Link>

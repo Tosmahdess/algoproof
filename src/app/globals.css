@@ -6,6 +6,24 @@
   --background: #0a0a0a;
   --foreground: #f5f5f5;
   --nav-h: 44px;
+
+  /* Design tokens, mirroring tailwind.config.ts theme.extend.colors — kept in
+     sync by hand (see that file's comment). Exist as CSS variables so inline
+     style={{ color: ... }} usages (charts, lib data files) can reference the
+     same tokens as the Tailwind utility classes, instead of duplicating hex. */
+  --bg: #0a0a0a;
+  --card: #111111;
+  --border: #1e1e1e;
+  --muted: #888888;
+  --positive: #4ade80;
+  --negative: #f87171;
+  --accent: #818cf8;
+  --warning: #f59e0b;
+  /* Categorical colour for the 4th market-weather pillar. The pillar palette is
+     categorical, not semantic: macro needs to stay distinguishable from derivatives
+     on the 4-line chart, so it gets its own value instead of reusing --accent. */
+  --pillar-macro: #40c4ff;
+  --severe: #ff6b35;
 }
 
 body {

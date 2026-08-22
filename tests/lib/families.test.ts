@@ -45,9 +45,15 @@ describe('family taxonomy', () => {
   // FIX (final review, C1 follow-on): /strategies and the home page each held a
   // five-entry colour map with a grey `#888` fallback, so four of the nine
   // families were painted as "unknown". The colour is part of the taxonomy now.
-  it('gives every family a distinct hex colour', () => {
+  //
+  // UPDATED (design-token pass, 2026-08-22): family colours are now either a
+  // literal hex or a `var(--token)` reference into the design system (see
+  // families.ts COLORS) — both are valid, resolvable CSS colours. The format
+  // check accepts either shape; the distinctness check is unchanged and is
+  // still the point of this test.
+  it('gives every family a distinct colour', () => {
     const colors = FAMILY_ORDER.map(familyColor)
-    for (const c of colors) expect(c).toMatch(/^#[0-9a-f]{6}$/)
+    for (const c of colors) expect(c).toMatch(/^#[0-9a-f]{6}$|^var\(--[a-z]+\)$/)
     expect(new Set(colors).size).toBe(colors.length)
   })
 

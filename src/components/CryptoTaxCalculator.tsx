@@ -17,7 +17,7 @@ export default function CryptoTaxCalculator() {
   const isLoss = hasInput && num(sold) < num(invested)
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+    <div className="rounded-lg border border-border bg-card p-6 space-y-4">
       <div className="grid gap-4 sm:grid-cols-3">
         <label className="block text-sm">
           <span className="text-muted">Total investi</span>

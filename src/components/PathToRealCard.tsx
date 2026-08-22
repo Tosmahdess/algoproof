@@ -25,7 +25,7 @@ export default function PathToRealCard({ status, stats, liveGate, liveSince }: P
     if (!liveSince) return null
     const d = new Date(liveSince).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
     return (
-      <div className="bg-card border border-border rounded-xl p-4 mb-8 text-sm">
+      <div className="bg-card border border-border rounded-lg p-4 mb-8 text-sm">
         <span className="inline-flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-negative animate-pulse" />
           En argent réel depuis le {d}.
@@ -39,7 +39,7 @@ export default function PathToRealCard({ status, stats, liveGate, liveSince }: P
   const { criteria, met, allMet } = evaluatePathToReal(stats, gate)
 
   return (
-    <div className="bg-card border border-border rounded-xl p-6 mb-8">
+    <div className="bg-card border border-border rounded-lg p-6 mb-8">
       <div className="flex items-center gap-3 mb-5">
         <span className="text-xl">{allMet ? '🔓' : '🔒'}</span>
         <div>
@@ -57,7 +57,7 @@ export default function PathToRealCard({ status, stats, liveGate, liveSince }: P
               </span>
             </div>
             <div className="h-1.5 bg-border rounded-full overflow-hidden">
-              <div data-testid="ptr-bar" className={`h-full rounded-full ${c.met ? 'bg-positive' : 'bg-[#ff6b35]'}`} style={{ width: `${width(c)}%` }} />
+              <div data-testid="ptr-bar" className={`h-full rounded-full ${c.met ? 'bg-positive' : 'bg-severe'}`} style={{ width: `${width(c)}%` }} />
             </div>
           </div>
         ))}

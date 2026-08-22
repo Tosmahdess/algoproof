@@ -11,8 +11,8 @@ const STATUS_CONFIG: Record<ConformityStatus, { label: string; classes: string; 
   },
   watch: {
     label: 'À surveiller',
-    classes: 'bg-yellow-900/40 text-yellow-300 border-yellow-700/50',
-    dot: 'bg-yellow-300',
+    classes: 'bg-warning/10 text-warning border-warning/30',
+    dot: 'bg-warning',
   },
   breach: {
     label: 'Hors enveloppe',
@@ -37,9 +37,9 @@ export default function ConformityCard({
   const { label, classes, dot } = STATUS_CONFIG[result.status]
 
   return (
-    <section className="bg-card border border-border rounded-xl p-6 mb-8">
+    <section className="bg-card border border-border rounded-lg p-6 mb-8">
       <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
-        <h2 className="font-semibold">📏 Conformité au backtest</h2>
+        <h2 className="text-xl font-semibold">📏 Conformité au backtest</h2>
         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${classes}`}>
           <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${dot}`} />
           {label}
@@ -70,7 +70,7 @@ export default function ConformityCard({
                   <td className="py-2 pr-4 font-mono">{check.expected}</td>
                   <td className={`py-2 font-mono ${
                     check.status === 'breach' ? 'text-negative'
-                    : check.status === 'watch' ? 'text-yellow-300'
+                    : check.status === 'watch' ? 'text-warning'
                     : 'text-positive'
                   }`}>
                     {check.realized}
@@ -86,7 +86,7 @@ export default function ConformityCard({
         <p className="text-sm text-muted mb-5">{expectations.dormancyNote}</p>
       )}
 
-      <h3 className="text-sm font-semibold mb-2">Quand ce bot sera coupé</h3>
+      <h3 className="text-base font-semibold mb-2">Quand ce bot sera coupé</h3>
       <ul className="space-y-1.5 mb-3">
         {expectations.killCriteria.map(rule => (
           <li key={rule} className="text-sm text-muted flex gap-2">

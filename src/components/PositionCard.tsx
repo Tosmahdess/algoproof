@@ -12,9 +12,9 @@ function fmt(n: number, decimals = 0) {
 }
 
 const SIGNAL_COLOR: Record<string, string> = {
-  minor_dip: '#f6c90e',
-  major_dip: '#ff6b35',
-  crash:     '#ff4444',
+  minor_dip: 'var(--warning)',
+  major_dip: 'var(--severe)',
+  crash:     'var(--negative)',
   none:      '#666',
 }
 
@@ -32,15 +32,15 @@ export function PositionCard({ call, asset }: PositionCardProps) {
   })
 
   const pnlColor = pnlPct === null ? '#888'
-    : pnlPct >= 0 ? '#3fb950' : '#ff4444'
+    : pnlPct >= 0 ? 'var(--positive)' : 'var(--negative)'
 
   const sigColor = SIGNAL_COLOR[call.signal_level] ?? '#666'
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+    <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
       <div className="flex items-start justify-between mb-1.5">
         <div>
-          <div className="text-[10px] font-mono text-zinc-500">{call.asset}</div>
+          <div className="text-[10px] font-mono text-muted">{call.asset}</div>
           <div className="text-sm font-semibold text-zinc-200 leading-tight">
             {asset?.asset_name ?? call.asset}
           </div>
@@ -53,33 +53,33 @@ export function PositionCard({ call, asset }: PositionCardProps) {
         </span>
       </div>
 
-      <div className="text-[10px] text-zinc-600 mb-2">
+      <div className="text-[10px] text-muted mb-2">
         {dateStr} · {fmt(call.amount_eur)}€
       </div>
 
       <div className="flex items-center justify-between text-xs mb-2.5">
-        <span className="text-zinc-600 text-[10px]">
-          Entrée <span className="text-zinc-400">{fmt(entry, 2)}€</span>
+        <span className="text-muted text-[10px]">
+          Entrée <span className="text-muted">{fmt(entry, 2)}€</span>
         </span>
         {current !== null ? (
           <span className="text-[10px] font-medium" style={{ color: pnlColor }}>
             {fmt(current, 2)}€{pnlPct !== null ? ` (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)` : ''}
           </span>
         ) : (
-          <span className="text-zinc-700 text-[10px]">prix N/D</span>
+          <span className="text-muted text-[10px]">prix N/D</span>
         )}
       </div>
 
       <div className="space-y-1 text-[10px]">
         {tp1Price && (
           <div className="flex justify-between">
-            <span className="text-zinc-600">
+            <span className="text-muted">
               TP1 +{asset?.tp1_pct}% · 25%
             </span>
-            <span className="text-zinc-400 font-mono">
+            <span className="text-muted font-mono">
               {fmt(tp1Price, 0)}€
               {tp1Gap !== null && (
-                <span className="text-zinc-600 ml-1">
+                <span className="text-muted ml-1">
                   ({tp1Gap > 0 ? '+' : ''}{tp1Gap.toFixed(1)}%)
                 </span>
               )}
@@ -88,13 +88,13 @@ export function PositionCard({ call, asset }: PositionCardProps) {
         )}
         {tp2Price && (
           <div className="flex justify-between">
-            <span className="text-zinc-600">
+            <span className="text-muted">
               TP2 +{asset?.tp2_pct}% · 25%
             </span>
-            <span className="text-zinc-400 font-mono">
+            <span className="text-muted font-mono">
               {fmt(tp2Price, 0)}€
               {tp2Gap !== null && (
-                <span className="text-zinc-600 ml-1">
+                <span className="text-muted ml-1">
                   ({tp2Gap > 0 ? '+' : ''}{tp2Gap.toFixed(1)}%)
                 </span>
               )}
@@ -102,7 +102,7 @@ export function PositionCard({ call, asset }: PositionCardProps) {
           </div>
         )}
         {asset?.residual_pct !== null && asset?.residual_pct !== undefined && (
-          <div className="text-zinc-700 pt-0.5">
+          <div className="text-muted pt-0.5">
             {asset.residual_pct > 0
               ? `Résiduel hold : ${asset.residual_pct}%`
               : 'Sortie complète à TP2'}
@@ -115,8 +115,8 @@ export function PositionCard({ call, asset }: PositionCardProps) {
 
 export function EmptySlotCard() {
   return (
-    <div className="rounded-xl border border-dashed border-zinc-800 bg-zinc-950/30 p-3 flex items-center justify-center min-h-[110px]">
-      <span className="text-zinc-700 text-xs">slot libre</span>
+    <div className="rounded-lg border border-dashed border-zinc-800 bg-zinc-950/30 p-3 flex items-center justify-center min-h-[110px]">
+      <span className="text-muted text-xs">slot libre</span>
     </div>
   )
 }

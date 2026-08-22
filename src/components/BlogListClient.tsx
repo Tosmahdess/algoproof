@@ -29,8 +29,8 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
     .filter((a): a is ArticleMeta => a !== undefined)
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold mb-6">Articles</h1>
+    <div className="max-w-3xl mx-auto px-6 py-16">
+      <h1 className="text-3xl font-semibold tracking-tight mb-3">Articles</h1>
       <p className="text-sm text-muted max-w-2xl mb-6">
         Des articles pour comprendre comment je travaille : débuter, ma méthode de recherche, la fiscalité crypto et la conformité <strong>MiCA</strong> en France.
       </p>
@@ -39,15 +39,15 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
       <div className="mb-10">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">Apprendre en pratique, dans le labo</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <a href="https://lab.algoproof.fr/apprendre" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
+          <a href="https://lab.algoproof.fr/apprendre" className="bg-card border border-border rounded-lg p-4 hover:border-positive/30 transition-colors">
             <div className="font-bold text-sm mb-1">🎓 Les tutoriels</div>
             <p className="text-xs text-muted">Cinq pas-à-pas interactifs, de zéro à ton premier verdict, plus le guide du Cockpit.</p>
           </a>
-          <a href="/strategies" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
+          <a href="/strategies" className="bg-card border border-border rounded-lg p-4 hover:border-positive/30 transition-colors">
             <div className="font-bold text-sm mb-1">📚 Les stratégies</div>
             <p className="text-xs text-muted">Les {STRATEGY_FICHES.length} stratégies expliquées : quand ça marche, quand ça meurt, et les bots qui les incarnent.</p>
           </a>
-          <a href="https://lab.algoproof.fr/agents" className="bg-card border border-border rounded-xl p-4 hover:border-positive/30 transition-colors">
+          <a href="https://lab.algoproof.fr/agents" className="bg-card border border-border rounded-lg p-4 hover:border-positive/30 transition-colors">
             <div className="font-bold text-sm mb-1">🤖 Pour ton agent IA</div>
             <p className="text-xs text-muted">Le serveur MCP public : ton agent backteste et reçoit le bulletin anti-overfit.</p>
           </a>
@@ -63,9 +63,9 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
               <Link
                 key={a.slug}
                 href={`/blog/${a.slug}`}
-                className="bg-card border border-border rounded-xl p-5 hover:border-positive/30 transition-colors group"
+                className="bg-card border border-border rounded-lg p-5 hover:border-positive/30 transition-colors group"
               >
-                <h3 className="font-semibold group-hover:text-positive transition-colors mb-1.5">{a.title}</h3>
+                <h3 className="text-base font-semibold group-hover:text-positive transition-colors mb-1.5">{a.title}</h3>
                 <p className="text-muted text-xs">{a.summary}</p>
               </Link>
             ))}
@@ -122,7 +122,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
                 </span>
                 <time>{new Date(a.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
               </div>
-              <h2 className="text-xl font-semibold mb-2">
+              <h2 className="text-xl font-semibold mb-3">
                 <Link href={`/blog/${a.slug}`} className="hover:text-positive transition-colors">{a.title}</Link>
               </h2>
               <p className="text-muted text-sm">{a.summary}</p>

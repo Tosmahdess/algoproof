@@ -43,13 +43,20 @@ const LABELS: Record<Family, string> = {
 // family badge, and two local maps drift (both held five entries and fell back
 // to a grey `#888` for the other four, which is how a momentum bot ended up
 // painted as "unknown family" on the home page).
+// Nine entries, nine DISTINCT colours (enforced by tests/lib/families.test.ts
+// "gives every family a distinct hex colour" — the whole reason this map
+// exists, see the FIX comment there). `price-action` maps to the `accent`
+// token; `stat-arb` keeps its literal hex rather than reusing the same token,
+// which would make two of the nine families collide on /overview's family
+// badges — the one deliberate raw-hex holdout from the 2026-08-22 design-token
+// pass, kept for that reason.
 const COLORS: Record<Family, string> = {
-  trend: '#ff6b35',
+  trend: 'var(--severe)',
   momentum: '#58a6ff',
-  breakout: '#3fb950',
+  breakout: 'var(--positive)',
   'mean-reversion': '#7c3aed',
-  'price-action': '#d2a8ff',
-  carry: '#f6c90e',
+  'price-action': 'var(--accent)',
+  carry: 'var(--warning)',
   'market-neutral': '#14b8a6',
   'stat-arb': '#40c4ff',
   event: '#fb923c',

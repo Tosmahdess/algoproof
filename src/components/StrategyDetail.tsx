@@ -112,9 +112,9 @@ export default function StrategyDetail({ bot }: Props) {
       </div>
 
       {/* Equity curve */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-8">
+      <div className="bg-card border border-border rounded-lg p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">
+          <h2 className="text-xl font-semibold">
             Courbe d&apos;équité
             {!unfiltered && (
               <span className="text-xs text-muted font-normal ml-2">
@@ -145,8 +145,8 @@ export default function StrategyDetail({ bot }: Props) {
       </div>
 
       {/* Recent trades */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-8">
-        <h2 className="font-semibold mb-4">
+      <div className="bg-card border border-border rounded-lg p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-3">
           Trades récents
           <span className="text-muted text-sm font-normal ml-2">
             ({tradesShown.length} affiché{tradesShown.length > 1 ? 's' : ''}

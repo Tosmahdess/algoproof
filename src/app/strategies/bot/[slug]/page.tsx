@@ -62,7 +62,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const conceptSlug = ficheSlugForBot(bot)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-16">
+    <div className="max-w-5xl mx-auto px-6 py-16">
 
       {/* Analytics: view_bot on mount (client leaf, keeps the page server-rendered) */}
       <TrackView slug={slug} />
@@ -73,7 +73,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           <StatusBadge status={bot.status} />
           <span className="text-muted text-sm">{bot.exchange} · {bot.timeframe} · {bot.assets.join(', ')}</span>
         </div>
-        <h1 className="text-3xl font-bold mb-2">{bot.name}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">{bot.name}</h1>
         <p className="text-muted">{bot.strategy}</p>
         {/* The third edge of the graph. /overview groups this bot under its
             strategy and /strategies/<concept> explains that strategy and lists
@@ -211,7 +211,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       </section>
 
       {/* Bridge to the lab */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-8 text-center">
+      <div className="bg-card border border-border rounded-lg p-6 mb-8 text-center">
         <p className="text-sm text-muted mb-3">
           Envie de tester une idée avec la même rigueur ? Le labo applique mes contrôles anti-overfit à tes propres backtests.
         </p>
@@ -226,14 +226,14 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Discussion */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-8">
-        <h2 className="font-semibold mb-4">💬 Discussion</h2>
+      <div className="bg-card border border-border rounded-lg p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-3">💬 Discussion</h2>
         <DiscussionTab slug={slug} />
       </div>
 
       {/* Partager */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <h2 className="font-semibold mb-4">🔗 Partager ce bot</h2>
+      <div className="bg-card border border-border rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-3">🔗 Partager ce bot</h2>
         <div className="space-y-3">
           <div>
             <p className="text-xs text-muted mb-1.5">Intégrer (iframe)</p>

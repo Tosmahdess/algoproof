@@ -20,7 +20,7 @@ interface VerdictProps {
 
 const styles: Record<VerdictStatus, { badge: string; border: string; bg: string }> = {
   'go':       { badge: 'bg-positive/15 text-positive border border-positive/40', border: 'border-l-positive/60', bg: 'bg-positive/[0.03]' },
-  'go-cond':  { badge: 'bg-amber-500/15 text-amber-400 border border-amber-500/40', border: 'border-l-amber-500/60', bg: 'bg-amber-500/[0.03]' },
+  'go-cond':  { badge: 'bg-warning/15 text-warning border border-warning/40', border: 'border-l-warning/60', bg: 'bg-warning/[0.03]' },
   'no-go':    { badge: 'bg-negative/15 text-negative border border-negative/40', border: 'border-l-negative/60', bg: 'bg-negative/[0.03]' },
   'overfit':  { badge: 'bg-negative/15 text-negative border border-negative/40', border: 'border-l-negative/60', bg: 'bg-negative/[0.03]' },
   'pending':  { badge: 'bg-muted/15 text-muted border border-muted/30', border: 'border-l-muted/40', bg: 'bg-card/40' },

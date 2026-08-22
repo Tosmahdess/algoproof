@@ -44,7 +44,7 @@ export default async function HomePage() {
   const preview = sorted.slice(0, 10)
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-20">
+    <div className="max-w-6xl mx-auto px-6 py-20">
 
       {/* Hero */}
       <div className="text-center mb-16">
@@ -52,7 +52,7 @@ export default async function HomePage() {
           <span className="w-1.5 h-1.5 rounded-full bg-positive animate-pulse" />
           Labo de trading algo transparent, en français
         </div>
-        <h1 className="text-5xl font-bold tracking-tight mb-6">
+        <h1 className="text-5xl font-semibold tracking-tight mb-6">
           Mon labo de trading<br />
           <span className="text-positive">algorithmique, en public.</span>
         </h1>
@@ -111,17 +111,17 @@ export default async function HomePage() {
           // page it was copied from; after it runs, it is a dead link.
           { href: '/strategies', emoji: '📚', title: 'Apprendre', desc: `La bibliothèque des ${STRATEGY_FICHES.length} stratégies expliquées en français, et les guides du blog.` },
         ].map(p => (
-          <Link key={p.href} href={p.href} className="bg-card border border-border rounded-xl p-6 hover:border-positive/30 transition-colors group">
+          <Link key={p.href} href={p.href} className="bg-card border border-border rounded-lg p-6 hover:border-positive/30 transition-colors group">
             <div className="text-2xl mb-3">{p.emoji}</div>
-            <h2 className="font-bold mb-1 group-hover:text-positive transition-colors">{p.title}</h2>
+            <h2 className="text-xl font-semibold mb-3 group-hover:text-positive transition-colors">{p.title}</h2>
             <p className="text-sm text-muted">{p.desc}</p>
           </Link>
         ))}
       </div>
 
       {/* Manifeste transparence (absorbs /preuve intent) */}
-      <div className="border border-border rounded-xl p-8 mb-16 text-center bg-card/40">
-        <h2 className="text-xl font-bold mb-2">Pourquoi je montre chaque trade perdant</h2>
+      <div className="border border-border rounded-lg p-8 mb-16 text-center bg-card/40">
+        <h2 className="text-xl font-semibold mb-3">Pourquoi je montre chaque trade perdant</h2>
         <p className="text-muted text-sm max-w-2xl mx-auto mb-4">
           Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel : drawdowns, mauvaises semaines et erreurs compris. Alors j&apos;expose tout, sans filtre.
         </p>
@@ -129,8 +129,8 @@ export default async function HomePage() {
       </div>
 
       {/* L'IA genere. AlgoLab verifie. */}
-      <div className="border border-border rounded-xl p-8 mb-16 bg-card/40">
-        <h2 className="text-xl font-bold mb-2 text-center">L&apos;IA génère. AlgoLab vérifie.</h2>
+      <div className="border border-border rounded-lg p-8 mb-16 bg-card/40">
+        <h2 className="text-xl font-semibold mb-3 text-center">L&apos;IA génère. AlgoLab vérifie.</h2>
         <p className="text-muted text-sm max-w-2xl mx-auto mb-5 text-center">
           Les IA produisent des stratégies de trading en dix secondes, et la plupart sont des
           illusions statistiques. Le labo fait le travail que personne ne fait : la vérification.
@@ -149,20 +149,20 @@ export default async function HomePage() {
 
       {/* Ce qui travaille en ce moment */}
       <div className="mb-16">
-        <h2 className="text-xl font-bold mb-6">Ce qui travaille en ce moment</h2>
+        <h2 className="text-xl font-semibold mb-3">Ce qui travaille en ce moment</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link href="/strategies/bot/orb-bf25" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
-            <h3 className="text-lg font-bold mb-2">En argent réel</h3>
+          <Link href="/strategies/bot/orb-bf25" className="bg-card border border-border rounded-lg p-8 text-center hover:border-positive/30 transition-colors group">
+            <h3 className="text-base font-semibold mb-2">En argent réel</h3>
             <p className="text-muted text-sm">ORB H1 tourne sur Hyperliquid avec mon capital. Chaque trade, chaque perte, publié à l&apos;heure.</p>
             <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir le bot →</span>
           </Link>
-          <Link href="/overview" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
-            <h3 className="text-lg font-bold mb-2">Les derniers arrivés</h3>
+          <Link href="/overview" className="bg-card border border-border rounded-lg p-8 text-center hover:border-accent/30 transition-colors group">
+            <h3 className="text-base font-semibold mb-2">Les derniers arrivés</h3>
             <p className="text-muted text-sm">Le 21 août, 75 stratégies sorties de mon moteur de recherche sont entrées en simulation. Chacune devra aligner ses trades, et tenir, avant le moindre euro réel.</p>
             <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir la flotte →</span>
           </Link>
-          <Link href="/blog/2026-07-02-pourquoi-mes-bots-ne-tradent-pas" className="bg-card border border-border rounded-xl p-8 text-center hover:border-muted/50 transition-colors group">
-            <h3 className="text-lg font-bold mb-2">Ceux qui dorment</h3>
+          <Link href="/blog/2026-07-02-pourquoi-mes-bots-ne-tradent-pas" className="bg-card border border-border rounded-lg p-8 text-center hover:border-muted/50 transition-colors group">
+            <h3 className="text-base font-semibold mb-2">Ceux qui dorment</h3>
             <p className="text-muted text-sm">Mes bots de tendance n&apos;ont presque pas tradé de mai à juillet. C&apos;est voulu : pas de tendance, pas de trade. J&apos;ai vérifié, les forcer serait perdant.</p>
             <span className="inline-block mt-4 text-sm text-white group-hover:underline">Lire l&apos;enquête →</span>
           </Link>
@@ -172,7 +172,7 @@ export default async function HomePage() {
       {/* Tableau comparatif — top 10 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Stratégies actives</h2>
+          <h2 className="text-xl font-semibold">Stratégies actives</h2>
           <p className="text-sm text-muted mt-0.5">{bots.length} expériences actives, {bots.filter(b => b.stats.total_trades > 0).length} avec des trades</p>
         </div>
         <Link href="/overview" className="text-sm text-muted hover:text-white transition-colors">Voir tout →</Link>
@@ -240,7 +240,7 @@ export default async function HomePage() {
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
                     {hasData ? (
-                      <span className={isLowSample(bot.stats.total_trades) ? 'text-yellow-400/90' : ''}
+                      <span className={isLowSample(bot.stats.total_trades) ? 'text-warning/90' : ''}
                         title={isLowSample(bot.stats.total_trades) ? 'Échantillon faible (<20 trades) : métriques peu fiables' : undefined}>
                         {bot.stats.total_trades}{isLowSample(bot.stats.total_trades) && ' ⚠'}
                       </span>
@@ -287,13 +287,13 @@ export default async function HomePage() {
 
       {/* Teaser Apprendre + Performance */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-        <Link href="/blog" className="bg-card border border-border rounded-xl p-8 text-center hover:border-accent/30 transition-colors group">
-          <h2 className="text-xl font-bold mb-2">Apprendre</h2>
+        <Link href="/blog" className="bg-card border border-border rounded-lg p-8 text-center hover:border-accent/30 transition-colors group">
+          <h2 className="text-xl font-semibold mb-3">Apprendre</h2>
           <p className="text-muted text-sm">Journal de bord, revues hebdo, autopsies de stratégies, fiscalité et MiCA. Tout est documenté.</p>
           <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Lire les articles →</span>
         </Link>
-        <Link href="/overview" className="bg-card border border-border rounded-xl p-8 text-center hover:border-positive/30 transition-colors group">
-          <h2 className="text-xl font-bold mb-2">La flotte</h2>
+        <Link href="/overview" className="bg-card border border-border rounded-lg p-8 text-center hover:border-positive/30 transition-colors group">
+          <h2 className="text-xl font-semibold mb-3">La flotte</h2>
           <p className="text-muted text-sm">Ce qui tourne, avec quel argent, et le bilan brut.</p>
           <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir les résultats →</span>
         </Link>

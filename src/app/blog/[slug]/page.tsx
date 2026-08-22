@@ -52,7 +52,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   if (!article) notFound()
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-16">
+    <div className="max-w-3xl mx-auto px-6 py-16">
       <div className="flex items-center gap-2 text-xs text-muted mb-6">
         {article.meta.category && (() => {
           const cat = BLOG_CATEGORIES[article.meta.category as BlogCategory]
@@ -67,7 +67,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <span key={t} className="px-1.5 py-0.5 rounded bg-card border border-border">{t}</span>
         ))}
       </div>
-      <h1 className="text-3xl font-bold mb-8">{article.meta.title as string}</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-3">{article.meta.title as string}</h1>
       <div className="prose prose-invert prose-base max-w-none prose-headings:font-semibold prose-p:text-foreground/70 prose-p:leading-relaxed prose-li:text-foreground/70 prose-li:my-1 prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground/90">
         <MDXRemote source={article.content} components={mdxComponents} />
       </div>

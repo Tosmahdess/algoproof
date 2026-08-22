@@ -21,7 +21,7 @@ export function LivePerf({ tickerYf, priceAtGeneration, fallbackPrice }: Props) 
 
   const pct = priceAtGeneration ? ((price - priceAtGeneration) / priceAtGeneration) * 100 : null
   const sign = pct != null && pct >= 0 ? '+' : ''
-  const color = pct == null ? '#8b949e' : pct >= 0 ? '#3fb950' : '#ff4444'
+  const color = pct == null ? 'var(--muted)' : pct >= 0 ? 'var(--positive)' : 'var(--negative)'
 
   return (
     <span>

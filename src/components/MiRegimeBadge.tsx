@@ -6,34 +6,38 @@ import type { MiSnapshot } from '@/lib/types'
 import { regimeFr, sentimentFr, biasFr, trendFr } from '@/lib/regime-labels'
 
 const RISK_COLOR: Record<string, string> = {
-  GREEN:  '#3fb950',
-  YELLOW: '#f6c90e',
-  ORANGE: '#ff6b35',
-  RED:    '#ff4444',
+  GREEN:  'var(--positive)',
+  YELLOW: 'var(--warning)',
+  ORANGE: 'var(--severe)',
+  RED:    'var(--negative)',
 }
 
 const SENTIMENT_COLOR: Record<string, string> = {
   EXTREME_GREED: '#00d4aa',
-  GREED:         '#3fb950',
-  NEUTRAL:       '#d2a8ff',
-  FEAR:          '#f6c90e',
-  EXTREME_FEAR:  '#ff4444',
+  GREED:         'var(--positive)',
+  NEUTRAL:       'var(--muted)',
+  FEAR:          'var(--warning)',
+  EXTREME_FEAR:  'var(--negative)',
 }
 
 const BIAS_COLOR: Record<string, string> = {
-  LONG_ONLY:  '#3fb950',
-  SHORT_ONLY: '#ff4444',
-  BOTH:       '#d2a8ff',
+  LONG_ONLY:  'var(--positive)',
+  SHORT_ONLY: 'var(--negative)',
+  BOTH:       'var(--muted)',
   BLOCKED:    '#666',
 }
 
 // The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
 // 2026-06-26 — institutional_score is always null since. Keep only the 4 live pillars.
+// Pillar colors are a 4-way categorical set (all 4 render simultaneously below), not a
+// semantic ramp — sentiment gets the new `severe` token, news reuses `positive`, and
+// derivatives/macro both map to `accent` per the design-unification color mapping
+// (2026-08-22): the two least-frequent orphan hexes share the closest existing token.
 const PILLARS: { key: keyof MiSnapshot; label: string; color: string }[] = [
-  { key: 'sentiment_score',     label: 'Sentiment',      color: '#ff6b35' },
-  { key: 'derivatives_score',   label: 'Dérivés',        color: '#d2a8ff' },
-  { key: 'news_score',          label: 'News',           color: '#3fb950' },
-  { key: 'macro_score',         label: 'Macro',          color: '#40c4ff' },
+  { key: 'sentiment_score',     label: 'Sentiment',      color: 'var(--severe)' },
+  { key: 'derivatives_score',   label: 'Dérivés',        color: 'var(--accent)' },
+  { key: 'news_score',          label: 'News',           color: 'var(--positive)' },
+  { key: 'macro_score',         label: 'Macro',          color: 'var(--pillar-macro)' },
 ]
 
 export default function MiRegimeBadge() {

@@ -45,8 +45,8 @@ export default async function StrategiesIndexPage() {
   }))
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-2xl mb-2">Les stratégies</h1>
+    <main className="mx-auto max-w-4xl px-6 py-12">
+      <h1 className="text-3xl font-semibold tracking-tight mb-3">Les stratégies</h1>
       <p className="text-sm text-muted mb-8">
         Comment marche chaque stratégie que je teste, et lesquelles tournent
         vraiment chez moi. Pour voir les bots en direct, va sur{' '}
