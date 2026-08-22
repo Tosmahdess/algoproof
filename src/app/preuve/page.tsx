@@ -30,10 +30,10 @@ export default function PreuvePage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Pourquoi je montre chaque perte</h2>
         <p className="text-muted leading-relaxed">
-          Montrer uniquement ses gains, c&apos;est facile et ça ne prouve rien. J&apos;expose les drawdowns, les
-          mauvaises semaines et les stratégies abandonnées parce que c&apos;est la seule façon honnête de juger une
-          méthode. La transparence n&apos;est pas un argument marketing : c&apos;est l&apos;outil qui me force à rester
-          rigoureux.
+          Montrer uniquement ses gains, c&apos;est facile et ça ne prouve rien. J&apos;expose donc les drawdowns,
+          les mauvaises semaines et les stratégies que j&apos;ai abandonnées. Accessoirement, ça me sert autant
+          qu&apos;à toi : quand je sais qu&apos;une perte sera publiée, je me discipline mieux que quand elle reste
+          dans un fichier chez moi.
         </p>
       </section>
 

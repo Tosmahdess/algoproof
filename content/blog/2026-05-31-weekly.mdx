@@ -1,15 +1,15 @@
 ---
-title: "Semaine du 25 mai — Stratégies de shorts sous pression"
+title: "Semaine du 26 au 31 mai : 79 % de trades gagnants, et je perds quand même"
 date: "2026-05-31"
 category: "weekly"
 tags: ["weekly", "performance", "MI"]
-summary: "Semaine difficile avec -77.97 USDT de PnL en simulation, révélant la faiblesse de mes stratégies de shorts dans un marché baissier complexe."
+summary: "499 trades simulés, 79,4 % de gagnants, et la semaine finit à −77,97 USDT. Tout est parti de 76 shorts."
 ---
 
 ## La semaine en chiffres
 
 <StatRow>
-  <Stat label="P&L total (simulation)" value="-77.97 USDT" trend="down" />
+  <Stat label="P&L total (simulation)" value="-77,97 USDT" trend="down" />
   <Stat label="Trades exécutés" value="499" trend="neutral" />
   <Stat label="Taux de réussite" value="79,4 %" trend="up" />
   <Stat label="Bots actifs" value="38 bots" trend="neutral" />
@@ -17,21 +17,21 @@ summary: "Semaine difficile avec -77.97 USDT de PnL en simulation, révélant la
 
 ## Ce qui s'est passé
 
-Cette semaine a été marquée par une performance négative significative, avec un PnL de -77.97 USDT en simulation malgré un win rate solide de 79.4%. L'analyse des données révèle un problème structurel dans mes stratégies de shorts : alors que mes positions longues (423 trades) n'ont perdu que -17.85 USDT avec un excellent win rate de 85.6%, mes positions courtes (76 trades) ont essuyé -60.12 USDT de pertes avec un win rate catastrophique de 44.7%.
+Quatre trades sur cinq sont gagnants et la semaine finit à −77,97 USDT. C'est de l'argent qui n'existe pas, 37 de mes 38 bots tournent en simulation, mais la leçon, elle, est gratuite et je la prends.
 
-Le contexte marché explique en partie cette difficulté. Mon système de hard gate a désactivé les shorts en cours de semaine suite au déclenchement de la couche "L1_short_very_bear_oversold", confirmant que le régime baissier (BTC à -10.05% vs EMA200) crée des conditions particulièrement piégeuses pour les stratégies courtes. Le trend regime "BEAR" avec un market bias "BOTH" indique un environnement où les rebounds techniques sont fréquents et violents.
+Le détail dit tout. Mes 423 positions longues perdent 17,85 USDT avec 85,6 % de réussite : elles gagnent souvent et petit, elles perdent rarement. Mes 76 positions courtes perdent 60,12 USDT avec 44,7 % de réussite. Soixante-seize trades sur quatre cent quatre-vingt-dix-neuf, et c'est là que part l'argent. Le pire est ICP-USDT, à lui seul −23,14 USDT.
 
-La volatilité quotidienne illustre parfaitement cette complexité : après trois jours difficiles (-48.98, -21.93, puis +4.43), j'ai connu deux journées de récupération (+8.62 le 28 mai), avant une nouvelle chute (-45.09 le 29 mai) et une forte remontée finale (+40.62 le 31 mai). Cette alternance rapide entre phases baissières et rebonds techniques pénalise particulièrement les stratégies de momentum court.
+Pourquoi les shorts se font démolir ? BTC était 10,05 % sous sa moyenne mobile 200 jours. Sur le papier, c'est une tendance baissière, donc un terrain à vendeurs. Dans les faits, un marché aussi survendu rebondit sans prévenir, et un rebond en marché baissier est brutal : il liquide les vendeurs avant que la chute reprenne. Mes bots ouvrent des shorts pile au moment où le marché reprend son souffle.
 
-Le DED shadow scoring à 0.42 en mode "BOTH_RED" confirme l'environnement dégradé, avec un score dérivés à 7.11 signalant des conditions de stress persistantes. Mon fleet de 38 bots (1 live, 37 paper) continue de tester différentes configurations, mais la protection des capitaux reste prioritaire dans ce contexte.
+Mon filtre de sécurité a fini par couper les shorts en cours de semaine, tout seul, sur cette raison exacte : tendance baissière plus marché survendu. Il a eu raison. Il aurait dû se déclencher deux jours plus tôt.
 
-## Leçon de la semaine
+Le relevé jour par jour ressemble à un électrocardiogramme : −48,98, puis −21,93, puis +4,43, +8,62 le 28, −45,09 le 29, et +40,62 le 31. Une alternance à ce rythme est le pire environnement possible pour des stratégies qui suivent le mouvement, puisque le mouvement change de sens tous les deux jours.
 
-> Dans un marché baissier oversold, les stratégies de shorts deviennent contre-productives : les rebounds techniques sont plus fréquents et violents que les continuations baissières, créant un biais structurel défavorable aux positions courtes.
+Ce que je ne sais pas encore : est-ce que je durcis le filtre, ou est-ce que mes stratégies de shorts sont simplement mauvaises et le filtre ne fait que masquer le problème. Les deux réponses ont l'air vraies cette semaine, et elles n'appellent pas le même correctif.
 
-## Prochaines étapes
+## La suite
 
-• **Révision des paramètres de shorts** — Analyser les 76 trades courts pour identifier les patterns d'échec récurrents, particulièrement sur ICP-USDT (-23.14 USDT)
-• **Optimisation du hard gate** — Ajuster les seuils de déclenchement pour mieux capturer les phases de rebounds techniques dans les marchés oversold
-• **Extension du shadow testing** — Déployer des configurations spécifiques aux régimes baissiers avec des stratégies de mean reversion plutôt que de momentum
-• **Monitoring renforcé début juin** — Surveillance rapprochée du score DED et des métriques dérivés pour anticiper les changements de régime
+- Éplucher les 76 shorts un par un pour voir si l'échec a une forme récurrente, en commençant par ICP.
+- Déclencher le filtre plus tôt quand le marché est survendu. Reste à trouver le seuil sans le rendre inutile.
+- Tester du retour à la moyenne plutôt que du suivi de tendance sur les régimes baissiers, en simulation d'abord.
+- Regarder de près le début juin : si le régime change, cette semaine ne prouve rien.

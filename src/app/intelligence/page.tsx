@@ -117,7 +117,7 @@ export default async function IntelligencePage() {
           Météo du marché
         </p>
         <h1 className="text-3xl font-semibold tracking-tight mb-3">
-          Le gardien qui ne dort jamais.
+          Risque ON ou risque OFF, tous les jours
         </h1>
         <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
           Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège sentiment, dérivés, actualités et macro en un seul indicateur lisible.
@@ -134,7 +134,7 @@ export default async function IntelligencePage() {
       <div>
         <MiRegimeBadge />
         <p className="text-xs text-muted mt-3">
-          Tu peux regarder le gardien travailler : chaque signal accepté ou rejeté, en direct.{' '}
+          Tu peux suivre chaque signal accepté ou rejeté, en direct.{' '}
           <a href="https://lab.algoproof.fr/terminal" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
             Voir le terminal →
           </a>
