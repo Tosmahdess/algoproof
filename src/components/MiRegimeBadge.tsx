@@ -37,7 +37,7 @@ const PILLARS: { key: keyof MiSnapshot; label: string; color: string }[] = [
   { key: 'sentiment_score',     label: 'Sentiment',      color: 'var(--severe)' },
   { key: 'derivatives_score',   label: 'Dérivés',        color: 'var(--accent)' },
   { key: 'news_score',          label: 'News',           color: 'var(--positive)' },
-  { key: 'macro_score',         label: 'Macro',          color: 'var(--accent)' },
+  { key: 'macro_score',         label: 'Macro',          color: 'var(--pillar-macro)' },
 ]
 
 export default function MiRegimeBadge() {

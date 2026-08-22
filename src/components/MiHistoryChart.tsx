@@ -14,13 +14,13 @@ interface Props {
 // The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
 // 2026-06-26 — institutional_score is always null since. Only the 4 live pillars remain.
 // Same 4-way categorical palette as MiRegimeBadge.PILLARS — see its comment
-// (sentiment=severe, news=positive, derivatives/macro both map to accent).
+// (sentiment=severe, derivatives=accent, news=positive, macro=pillar-macro).
 const PILLAR_COLORS = {
   composite_score:     '#ffffff',
   sentiment_score:     'var(--severe)',
   derivatives_score:   'var(--accent)',
   news_score:          'var(--positive)',
-  macro_score:         'var(--accent)',
+  macro_score:         'var(--pillar-macro)',
 }
 
 // rgba mirrors of the positive/warning/severe/negative tokens: a CSS variable
