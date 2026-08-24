@@ -35,8 +35,16 @@ import sys
 import urllib.error
 import urllib.request
 
-REPO = r"D:\code\algoproof"
-ENV_LOCAL = os.path.join(REPO, ".env.local")
+# Derived from this file, never hardcoded. The two PCs check the repo out on
+# different drives, and the env file is spelled with a leading dot on one and
+# without it on the other -- a hardcoded pair made this script unrunnable on the
+# machine that happened to have the GO.
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ENV_LOCAL = next(
+    (c for c in (os.path.join(REPO, ".env.local"), os.path.join(REPO, "env.local"))
+     if os.path.isfile(c)),
+    os.path.join(REPO, ".env.local"),
+)
 
 USERS = [
     ("verify-free@example.test", None),
