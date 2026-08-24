@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isCarryFamily, fmtPfForFamily, fmtWinRateForFamily, fmtPfDisplay, fmtWinRateDisplay, LOW_SAMPLE_TRADES } from '@/lib/display'
+import { isCarryFamily, fmtPfForFamily, fmtWinRateForFamily, fmtPfDisplay, fmtWinRateDisplay, isLowSample, LOW_SAMPLE_TRADES } from '@/lib/display'
 
 describe('isCarryFamily', () => {
   it('returns true only for the carry family', () => {
@@ -37,16 +37,43 @@ describe('fmtWinRateForFamily', () => {
   })
 })
 
-describe('fmtPfDisplay / fmtWinRateDisplay threshold', () => {
-  it('uses the shared threshold, not a copy of it', () => {
-    // Guards against the two functions drifting from isLowSample, which they did
-    // until 2026-07-31.
-    expect(fmtPfDisplay('trend', LOW_SAMPLE_TRADES - 1, 1.5)).toBe('—')
+describe('fmtPfDisplay / fmtWinRateDisplay and the low-sample threshold', () => {
+  // These two assertions ran the other way until 2026-08-24 ("a low sample shows
+  // '—'"). Inverted rather than deleted, because the behaviour is a deliberate
+  // product decision and the next reader would otherwise "restore" the mask: on a
+  // bot page filtered to long-only or short-only, blanking both figures removed
+  // the answer to the exact question that had just been asked, and read as
+  // missing data rather than as a judgement. The caveat did not disappear — it
+  // moved to isLowSample, which still marks the trade count — so the reader gets
+  // the figure AND the warning, where before they got neither.
+  it('shows the profit factor even below the threshold', () => {
+    expect(fmtPfDisplay('trend', LOW_SAMPLE_TRADES - 1, 1.5)).toBe('1.50')
+    expect(fmtPfDisplay('trend', 1, 1.5)).toBe('1.50')
     expect(fmtPfDisplay('trend', LOW_SAMPLE_TRADES, 1.5)).toBe('1.50')
   })
 
-  it('applies the same shared threshold to the win-rate display', () => {
-    expect(fmtWinRateDisplay('trend', LOW_SAMPLE_TRADES - 1, 0.5)).toBe('—')
+  it('shows the win rate even below the threshold', () => {
+    expect(fmtWinRateDisplay('trend', LOW_SAMPLE_TRADES - 1, 0.5)).toBe('50.0%')
+    expect(fmtWinRateDisplay('trend', 1, 0.5)).toBe('50.0%')
     expect(fmtWinRateDisplay('trend', LOW_SAMPLE_TRADES, 0.5)).toBe('50.0%')
+  })
+
+  // The guards that DID survive, pinned so that lifting the sample gate is not
+  // mistaken for having lifted all of them.
+  it('still hides both figures for a carry bot, at any sample size', () => {
+    expect(fmtPfDisplay('carry', 500, 1.5)).toBe('—')
+    expect(fmtWinRateDisplay('carry', 500, 0.5)).toBe('—')
+  })
+
+  it('still renders a loss-free profit factor as infinity, not as a number', () => {
+    expect(fmtPfDisplay('trend', 3, 1000)).toBe('∞')
+  })
+
+  // isLowSample is now the ONLY carrier of the caveat, so its bounds matter more
+  // than they did when it merely echoed a mask that was applied elsewhere too.
+  it('keeps isLowSample as the marker the figures now rely on', () => {
+    expect(isLowSample(LOW_SAMPLE_TRADES - 1)).toBe(true)
+    expect(isLowSample(LOW_SAMPLE_TRADES)).toBe(false)
+    expect(isLowSample(0)).toBe(false)
   })
 })

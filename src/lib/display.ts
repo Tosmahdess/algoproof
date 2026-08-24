@@ -46,16 +46,27 @@ export function fmtWinRateForFamily(family: string | null | undefined, winRate: 
   return isCarryFamily(family) ? '—' : `${(winRate * 100).toFixed(1)}%`
 }
 
-// Unified display rule (site-wide honesty): PF/WR are meaningless for carry
-// bots AND for low samples (n<20 — the same rule the lab enforces), and a PF
-// that only exists because losses are ~0 reads as a broken metric.
+// Unified display rule: PF/WR are meaningless for carry bots (no win/loss
+// structure to summarise), and a PF that only exists because losses are ~0 reads
+// as a broken metric.
+//
+// A LOW SAMPLE NO LONGER HIDES THE NUMBER (user, 2026-08-24). Both helpers used
+// to return '—' under LOW_SAMPLE_TRADES, which on a filtered bot page — long
+// only, short only — blanked the two figures exactly when the reader had asked a
+// sharper question, and read as missing data rather than as a judgement.
+//
+// The caveat is not dropped, it MOVES: isLowSample() still marks the trade count
+// (⚠ + tooltip in the tables, a line under MetricsRow), so the reader now gets
+// the figure AND the warning that the sample is thin, where before they got
+// neither. LOW_SAMPLE_TRADES therefore stays the site's threshold — it is simply
+// no longer a gate on these two strings.
 export function fmtPfDisplay(family: string | null | undefined, totalTrades: number, pf: number): string {
-  if (isCarryFamily(family) || totalTrades < LOW_SAMPLE_TRADES) return '—'
+  if (isCarryFamily(family)) return '—'
   if (pf >= 999) return '∞'
   return pf.toFixed(2)
 }
 
 export function fmtWinRateDisplay(family: string | null | undefined, totalTrades: number, winRate: number): string {
-  if (isCarryFamily(family) || totalTrades < LOW_SAMPLE_TRADES) return '—'
+  if (isCarryFamily(family)) return '—'
   return `${(winRate * 100).toFixed(1)}%`
 }
