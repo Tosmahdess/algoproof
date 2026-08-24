@@ -1,0 +1,83 @@
+---
+title: "Les shorts en simulation saignent : quand le marché te force à regarder en face"
+date: "2026-08-23"
+category: "weekly"
+tags: ["weekly", "performance"]
+summary: "Une semaine solide en réel, portée par un biais long dans un marché haussier. En simulation, les positions short ont absorbé la quasi-totalité des gains long, et c'est précisément ce que je devais observer."
+---
+
+## Semaine du 17 au 23 août
+
+Le marché est clairement en territoire haussier cette semaine. Bitcoin navigue environ 15 % au-dessus de sa moyenne de prix sur 200 jours, le signal de risque global est au vert, et mes filtres de sécurité autorisent aussi bien les positions à la hausse (long) qu'à la baisse (short) pour la flotte active. En coulisses, la simulation détecte un indicateur de biais un peu plus prudent, ce qui explique certaines divergences entre ce que je teste et ce que je déploie en réel.
+
+---
+
+## Mes bots en réel
+
+> Suivi sur une base normalisée de 1 000 EUR, pas un solde broker brut. Ces chiffres permettent de comparer les deux bots sur un pied d'égalité.
+
+<StatRow>
+  <Stat label="Trades (semaine)" value="10" />
+  <Stat label="P&L semaine" value="+150,90 €" subtext="base 1 000 €" />
+  <Stat label="Taux de réussite" value="70 %" subtext="7 gagnants sur 10" />
+  <Stat label="P&L cumulé (all-time)" value="+147,39 €" subtext="sur 300 trades depuis le début" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Meilleur trade de la semaine" sub="ICP-USDC, position long" metrics="P&L: +38,50 € | Côté: long" intent="positive" />
+  <DataCard label="Trade le plus douloureux" sub="DOGE-USDC, position long" metrics="P&L: -12,55 € | Côté: long" intent="negative" />
+  <DataCard label="Seul short de la semaine" sub="STX-USDC" metrics="P&L: +5,18 € | Résultat: gagnant" intent="positive" />
+</DataCardGroup>
+
+C'est une belle semaine en réel. Neuf positions à la hausse pour 145,72 EUR de gain net, un unique short sur STX-USDC rentable à 100 %, et une seule vraie entaille : DOGE-USDC qui a mordu à -12,55 EUR. Le taux de réussite (WR, soit le pourcentage de trades gagnants) à 70 % est au-dessus de ce que j'attends en régime normal.
+
+Ce qui me plaît ici : le biais long est cohérent avec le contexte de marché. Mes bots n'ont pas surjoué, ils ont simplement accompagné la tendance sans chercher à anticiper un retournement.
+
+Le cumulé depuis le lancement, rodage inclus, atteint +147,39 EUR sur 300 trades. Ce n'est pas spectaculaire, mais c'est honnête : les premières semaines de rodage pèsent encore sur la moyenne.
+
+---
+
+## Laboratoire (simulation)
+
+> En simulation, l'argent n'existe pas. Une perte paper n'est pas une perte : c'est le coût de l'apprentissage, payé en monnaie fictive.
+
+Le coût de la simulation cette semaine : -74,83 EUR qui n'existent pas, dépensés pour apprendre quelque chose d'important.
+
+<StatRow>
+  <Stat label="Trades simulés" value="606" />
+  <Stat label="P&L paper" value="-74,83 €" subtext="monnaie fictive uniquement" />
+  <Stat label="WR global" value="84,8 %" subtext="514 gagnants sur 606" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Longs simulés" sub="475 trades" metrics="P&L: +286,05 € | WR: 96,6 %" intent="positive" />
+  <DataCard label="Shorts simulés" sub="131 trades" metrics="P&L: -360,88 € | WR: 42,0 %" intent="negative" />
+  <DataCard label="Meilleur trade paper" sub="SUI-USDC, long" metrics="P&L: +21,63 €" intent="positive" />
+  <DataCard label="Pire trade paper" sub="GALA-USDT, short" metrics="P&L: -12,12 €" intent="negative" />
+</DataCardGroup>
+
+Le chiffre qui saute aux yeux : 96,6 % de taux de réussite sur les longs simulés, contre seulement 42 % sur les shorts. Et ce n'est pas une anomalie statistique sur un petit échantillon : 131 trades short, c'est suffisant pour que le signal soit clair.
+
+Les longs génèrent +286 EUR fictifs. Les shorts engloutissent -360 EUR fictifs. Le marché est haussier, et mes stratégies short en simulation souffrent exactement comme on pouvait s'y attendre dans ce régime.
+
+C'est précisément pour ça que cette asymétrie existe en simulation et pas encore en réel : mes filtres de sécurité en production sont plus conservateurs sur les shorts dans un contexte comme celui-ci. La simulation, elle, teste des configurations plus agressives pour que je comprenne où sont les limites.
+
+<CompactTable cols="Côté | Trades | WR | P&L paper">
+  <Row values="Long | 475 | 96,6 % | +286,05 €" />
+  <Row values="Short | 131 | 42,0 % | -360,88 €" />
+</CompactTable>
+
+---
+
+## Leçon de la semaine
+
+> Un marché haussier ne punit pas les longs, il punit les shorts impatients. Cette semaine, la simulation m'a montré en 131 trades ce que l'intuition aurait mis des mois à formuler.
+
+---
+
+## Prochaines étapes
+
+- Je vais examiner plus finement les 131 shorts simulés perdants : est-ce un problème de timing, de sélection d'actifs, ou de gestion du stop-loss (niveau de prix auquel la position est fermée automatiquement pour limiter la perte) ?
+- Le seul short réel de la semaine (STX-USDC, +5,18 EUR) est gagnant, ce qui suggère que mes filtres de sécurité font bien leur travail en réel, même si la simulation reste plus permissive.
+- Je surveille l'indicateur de biais en simulation : il signale une configuration prudente sur les deux sens, ce qui pourrait m'amener à réduire la proportion de shorts testés la semaine prochaine.
+- ICP-USDC mérite un regard attentif : +38,50 EUR sur un seul trade en réel, c'est le genre de signal qui justifie d'analyser si cet actif est correctement dimensionné dans ma flotte.
