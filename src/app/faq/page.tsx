@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 const FAQ = [
-  { question: 'Est-ce payant ?', answer: 'Tout est gratuit sur le site, y compris un compte labo (lien magique, sans mot de passe) déjà disponible pour sauvegarder ton travail. Seule l\'adhésion payante n\'est pas encore ouverte.' },
+  { question: 'Est-ce payant ?', answer: 'Regarder est gratuit et le restera : trades, pertes, historique, verdicts, stratégies recalées. Le compte labo (lien magique, sans mot de passe) est gratuit lui aussi et permet de lancer des backtests, avec des quotas. L\'adhésion à 29 € par mois ou 290 € par an lève ces quotas et ouvre la recette exacte des bots sortis du moteur. Pas de période d\'essai : le premier paiement est prélevé à la souscription, et je le rembourse intégralement sur simple demande dans les 14 jours.' },
   { question: 'Quel est le risque ?', answer: 'Le trading comporte un risque de perte. C\'est exactement pourquoi je montre aussi mes pertes et mes drawdowns. Rien ici n\'est un conseil financier : c\'est ma recherche, partagée en transparence.' },
   { question: 'Les bots sont-ils en argent réel ?', answer: 'La plupart tournent en paper trading (simulation fidèle sur de vraies données, sans argent réel). Les bots en argent réel sont marqués « live ». Le statut est toujours affiché.' },
   { question: 'Touches-tu à mon argent ?', answer: 'Jamais. Le site ne demande ni dépôt, ni clé d\'exchange, ni accès à un compte de trading : il n\'y a rien à connecter, rien à confier. Tout est en lecture seule. Si un jour une offre demande davantage, elle sera annoncée ici noir sur blanc, jamais par surprise.' },
