@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import TrackedLink from '@/components/TrackedLink'
 import StatusBadge from '@/components/StatusBadge'
-import EmailCapture from '@/components/EmailCapture'
 import TVTickerTapeIsland from '@/components/TVTickerTapeIsland'
 import FunnelCounter from '@/components/FunnelCounter'
 import { getAllBotsWithStats } from '@/lib/queries'
@@ -307,7 +306,6 @@ export default async function HomePage() {
       </div>
 
       <div className="mb-12">
-        <EmailCapture source="home" />
       </div>
 
       {/* CTA final — distinct from hero (onboarding, not the lab) */}
