@@ -63,7 +63,7 @@ export function assessConformity(exp: BotExpectations, stats: RealizedStats): Co
       : stats.profit_factor < exp.pfFloor ? 'watch'
       : 'ok'
     checks.push({
-      label: 'Rentabilité (profit factor)',
+      label: 'Rentabilité (facteur de profit)',
       expected: `≥ ${exp.pfFloor}`,
       realized: stats.profit_factor.toFixed(2),
       status,

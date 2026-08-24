@@ -21,7 +21,7 @@ export interface PathCriterion {
 
 export function evaluatePathToReal(stats: BotStats, gate: LiveGate = DEFAULT_LIVE_GATE) {
   const criteria: PathCriterion[] = [
-    { label: `Profit Factor ≥ ${gate.minPf}`, value: stats.profit_factor ?? 0, target: gate.minPf, direction: 'gte', met: (stats.profit_factor ?? 0) >= gate.minPf, format: 'ratio' },
+    { label: `Facteur de profit ≥ ${gate.minPf}`, value: stats.profit_factor ?? 0, target: gate.minPf, direction: 'gte', met: (stats.profit_factor ?? 0) >= gate.minPf, format: 'ratio' },
     { label: `Taux de gain ≥ ${Math.round(gate.minWinRate * 100)} %`, value: stats.win_rate ?? 0, target: gate.minWinRate, direction: 'gte', met: (stats.win_rate ?? 0) >= gate.minWinRate, format: 'pct' },
     { label: `Trades ≥ ${gate.minTrades}`, value: stats.total_trades ?? 0, target: gate.minTrades, direction: 'gte', met: (stats.total_trades ?? 0) >= gate.minTrades, format: 'count' },
     { label: `Drawdown ≤ ${Math.round(gate.maxDrawdown * 100)} %`, value: stats.max_drawdown ?? 0, target: gate.maxDrawdown, direction: 'lte', met: (stats.max_drawdown ?? 0) <= gate.maxDrawdown, format: 'pct' },

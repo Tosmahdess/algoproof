@@ -187,12 +187,21 @@ describe('FleetRegister — one table per timeframe', () => {
     expect(within(row).getByText(/\+100/)).toBeTruthy()
   })
 
-  it('masks PF on a low-sample row — same honesty rule as everywhere else', () => {
+  it('shows PF and win rate on a low-sample row, and marks the sample instead', () => {
+    // Was "masks PF on a low-sample row" until 2026-08-24. The mask is gone by
+    // product decision (tests/lib/display.test.ts carries the reasoning); what
+    // must NOT disappear with it is the thin-sample marker. Showing the figure
+    // and dropping the flag is the regression this now guards.
     const bot = prodBot('v1-hl', {
       name: 'Fresh Bot', status: 'paper', start_capital: 1000, timeframe: 'H4',
       stats: { total_trades: 3, profit_factor: 9, win_rate: 1, max_drawdown: 0, latest_capital: 1010 },
     })
     render(<FleetRegister bots={[bot]} initialState={EMPTY_FILTERS} />)
-    expect(screen.getAllByText('—').length).toBeGreaterThan(0)
+    const row = screen.getAllByText('Fresh Bot')
+      .map(el => el.closest('tr'))
+      .find((el): el is HTMLTableRowElement => el !== null)!
+    expect(within(row).getByText(/9\.00/)).toBeTruthy()
+    expect(within(row).getByText(/100\.0%/)).toBeTruthy()
+    expect(within(row).getByText(/⚠/)).toBeTruthy()
   })
 })
