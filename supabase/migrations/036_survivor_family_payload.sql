@@ -371,6 +371,19 @@ begin
            coalesce((recipe ->> 'verdict') = 'GO_PAPER', false) as eligible,
            coalesce((recipe ->> 'n_trades')::integer >= 20, false) as sample_sufficient
       from corpus
+  ), ranked as (
+    select *,
+           pg_catalog.row_number() over (
+             partition by family_id
+             order by eligible desc,
+                      sample_sufficient desc,
+                      (recipe ->> 'pf')::numeric desc nulls last,
+                      (recipe ->> 'dd')::numeric asc nulls last,
+                      (recipe ->> 'n_trades')::integer desc,
+                      timeframe,
+                      ordinality
+           ) as representative_rank
+      from identified
   ), grouped as (
     select family_id,
            pg_catalog.min(base) as strategy,
@@ -385,6 +398,11 @@ begin
              else 'probation'
            end as robustness,
            pg_catalog.jsonb_agg(distinct timeframe order by timeframe) as timeframes,
+           pg_catalog.jsonb_build_object(
+             'pf', pg_catalog.max((recipe ->> 'pf')::numeric) filter (where representative_rank = 1),
+             'dd', pg_catalog.max((recipe ->> 'dd')::numeric) filter (where representative_rank = 1),
+             'n_trades', pg_catalog.max((recipe ->> 'n_trades')::integer) filter (where representative_rank = 1)
+           ) as representative,
            pg_catalog.jsonb_agg(
              pg_catalog.jsonb_build_object(
                'survivor_id', 'surv_' || pg_catalog.substr(
@@ -408,7 +426,7 @@ begin
                       (recipe ->> 'n_trades')::integer desc,
                       ordinality
            ) as variants
-      from identified
+      from ranked
      group by family_id, signature
   )
   select coalesce(
@@ -434,6 +452,7 @@ begin
                ),
                'survivor_count', survivor_count,
                'isolated', isolated,
+               'representative', representative,
                'variants', variants
              )
              order by strategy, family_id
