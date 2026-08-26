@@ -32,6 +32,7 @@ except ImportError:  # pragma: no cover - the harness is only useful with a driv
 MIGRATIONS = [
     Path(__file__).resolve().parents[1] / "migrations" / "037_survivor_family_index.sql",
     Path(__file__).resolve().parents[1] / "migrations" / "038_survivor_family_preview.sql",
+    Path(__file__).resolve().parents[1] / "migrations" / "039_survivor_lab_preset.sql",
 ]
 
 # The anon role carries statement_timeout=3s and authenticated 8s. The budgets below
@@ -97,7 +98,7 @@ def main() -> int:
     cur.execute("set statement_timeout = '600s'")
     cur.execute("set lock_timeout = '15s'")
 
-    print("=== applying 037 + 038 in a transaction that will be rolled back ===")
+    print("=== applying 037 + 038 + 039 in a transaction that will be rolled back ===")
     t0 = time.time()
     for migration in MIGRATIONS:
         cur.execute(migration.read_text(encoding="utf-8"))
@@ -295,15 +296,68 @@ def main() -> int:
         check("an active subscription exists to exercise the paid branch with", False,
               "none found in this database")
 
+    # ---------------------------------------------------------- survivor Lab preset
+    print()
+    print("=== one survivor resolves without leaking across the paid boundary ===")
+    cur.execute("""
+      select survivor_id, recipe,
+             case when pg_catalog.jsonb_typeof(recipe -> 'per_asset') = 'object'
+                  then 'survivor' else 'unit_champion' end
+        from public.survivor_family_member
+       where published_at is not null
+       order by published_at desc, survivor_id
+       limit 1
+    """)
+    survivor_id, expected_recipe, expected_scope = cur.fetchone()
+
+    cur.execute("select set_config('request.jwt.claims', '', true)")
+    cur.execute("select public.survivor_lab_preset(%s)", (survivor_id,))
+    locked = cur.fetchone()[0]
+    check("anonymous receives only the locked discriminant",
+          locked == {"access": "locked"}, str(locked))
+
+    cur.execute("select set_config('request.jwt.claims', "
+                "'{\"sub\":\"00000000-0000-0000-0000-000000000001\"}', true)")
+    cur.execute("select public.survivor_lab_preset(%s)", (survivor_id,))
+    inactive = cur.fetchone()[0]
+    check("a non-active user receives only the locked discriminant",
+          inactive == {"access": "locked"}, str(inactive))
+
+    cur.execute("select public.survivor_lab_preset('surv_0000000000000000')")
+    check("an unknown survivor receives only the missing discriminant",
+          cur.fetchone()[0] == {"access": "missing"})
+
+    protected = ("params", "filters", "exit", "per_asset", "pf", "dd")
+    locked_text = str(locked) + str(inactive)
+    check("locked payloads contain no protected recipe key",
+          not any(key in locked_text for key in protected), locked_text)
+
+    if row:
+        cur.execute("select set_config('request.jwt.claims', "
+                    "'{\"sub\":\"' || %s || '\"}', true)", (str(row[0]),))
+        cur.execute("select public.survivor_lab_preset(%s)", (survivor_id,))
+        full = cur.fetchone()[0]
+        check("an active member receives the exact survivor recipe",
+              full.get("access") == "full" and full.get("recipe") == expected_recipe)
+        check("the resolver labels the available metric scope",
+              full.get("metric_scope") == expected_scope,
+              "actual=%s expected=%s" % (full.get("metric_scope"), expected_scope))
+        cur.execute("select set_config('request.jwt.claims', '', true)")
+
     # ------------------------------------------------------------------ the closure
     print()
     print("=== the index table holds paid recipes, so it stays shut ===")
     for role in ("anon", "authenticated"):
         cur.execute("select has_table_privilege(%s, 'public.survivor_family_member', 'select')", (role,))
         check("%s cannot select survivor_family_member" % role, cur.fetchone()[0] is False)
+        cur.execute("select has_table_privilege(%s, 'public.engine_verdicts', 'select')", (role,))
+        check("%s cannot select engine_verdicts" % role, cur.fetchone()[0] is False)
         cur.execute("select has_function_privilege(%s, "
                     "'public.survivor_family_preview(text,text,text,integer)', 'execute')", (role,))
         check("%s can execute survivor_family_preview" % role, cur.fetchone()[0] is True)
+        cur.execute("select has_function_privilege(%s, "
+                    "'public.survivor_lab_preset(text)', 'execute')", (role,))
+        check("%s can execute survivor_lab_preset" % role, cur.fetchone()[0] is True)
     cur.execute("select relrowsecurity from pg_class where oid = 'public.survivor_family_member'::regclass")
     check("row level security is on", cur.fetchone()[0] is True)
     cur.execute("select count(*) from pg_policies where tablename = 'survivor_family_member'")
