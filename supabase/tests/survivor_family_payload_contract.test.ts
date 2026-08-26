@@ -18,6 +18,7 @@ const read = (file: string) =>
 
 const sql036 = read('036_survivor_family_payload.sql')
 const sql037 = read('037_survivor_family_index.sql')
+const sql038 = read('038_survivor_family_preview.sql')
 
 describe('survivor family SQL boundary (static shape checks only)', () => {
   it('derives entitlement from auth.uid and never accepts an entitlement argument', () => {
@@ -35,6 +36,33 @@ describe('survivor family SQL boundary (static shape checks only)', () => {
   it('builds teaser entries with explicit JSON objects instead of survivor spreading', () => {
     expect(sql037).toContain("'access', v_access")
     expect(sql037).not.toMatch(/teaser[^;]*\|\|[^;]*survivor/is)
+  })
+})
+
+describe('038 exposes only a bounded family preview', () => {
+  it('defines a bounded allowlisted preview RPC', () => {
+    const previewBody = sql038.match(
+      /create or replace function public\.survivor_family_preview[\s\S]*?\$\$;/i,
+    )?.[0] ?? ''
+
+    expect(sql038).toMatch(
+      /create or replace function public\.survivor_family_preview\([\s\S]*p_limit integer default 5/i,
+    )
+    expect(previewBody).toMatch(/security definer[\s\S]*set search_path = ''/i)
+    expect(previewBody).toMatch(/p_limit < 1 or p_limit > 20/i)
+    expect(sql038).toMatch(
+      /grant execute on function public\.survivor_family_preview\(text, text, text, integer\) to anon, authenticated/i,
+    )
+    for (const paid of ["'recipe'", "'signature'", "'params'", "'variants'"]) {
+      expect(previewBody).not.toContain(paid)
+    }
+  })
+
+  it('keeps global robustness while filtering before preview ranking', () => {
+    expect(sql038).toMatch(/(?:pg_catalog\.)?lower\(m\.base\) = (?:pg_catalog\.)?lower\(p_strategy\)/i)
+    expect(sql038).toMatch(/p_timeframe is null or timeframes \? p_timeframe/i)
+    expect(sql038).toMatch(/'total',[\s\S]*(?:pg_catalog\.)?count\(\*\)/i)
+    expect(sql038).toMatch(/preview_rank <= p_limit/i)
   })
 })
 
