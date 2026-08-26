@@ -29,7 +29,10 @@ except ImportError:  # pragma: no cover - the harness is only useful with a driv
     print("psycopg2 is required to run the live SQL gate")
     raise
 
-MIGRATION = Path(__file__).resolve().parents[1] / "migrations" / "037_survivor_family_index.sql"
+MIGRATIONS = [
+    Path(__file__).resolve().parents[1] / "migrations" / "037_survivor_family_index.sql",
+    Path(__file__).resolve().parents[1] / "migrations" / "038_survivor_family_preview.sql",
+]
 
 # The anon role carries statement_timeout=3s and authenticated 8s. The budgets below
 # are deliberately far tighter: a gate that only just passes on today's corpus is a
@@ -74,6 +77,19 @@ def timed(cur, label: str, sql: str, args=None, runs: int = 3):
     return med, out
 
 
+def expect_sqlstate(cur, label: str, sql: str, state: str) -> None:
+    cur.execute("savepoint expected_error")
+    try:
+        cur.execute(sql)
+    except psycopg2.Error as exc:
+        check(label, exc.pgcode == state, "sqlstate=%s" % exc.pgcode)
+        cur.execute("rollback to savepoint expected_error")
+    else:
+        check(label, False, "query did not raise")
+    finally:
+        cur.execute("release savepoint expected_error")
+
+
 def main() -> int:
     conn = psycopg2.connect(dsn())
     conn.autocommit = False
@@ -81,9 +97,10 @@ def main() -> int:
     cur.execute("set statement_timeout = '600s'")
     cur.execute("set lock_timeout = '15s'")
 
-    print("=== applying 037 in a transaction that will be rolled back ===")
+    print("=== applying 037 + 038 in a transaction that will be rolled back ===")
     t0 = time.time()
-    cur.execute(MIGRATION.read_text(encoding="utf-8"))
+    for migration in MIGRATIONS:
+        cur.execute(migration.read_text(encoding="utf-8"))
     print("   applied in %.2fs" % (time.time() - t0))
 
     # ---------------------------------------------------------------- reconciliation
@@ -112,6 +129,64 @@ def main() -> int:
           total == corpus, "families sum=%s corpus=%s" % (total, corpus))
     check("no family id is served twice", families == ids,
           "%d families, %d distinct ids" % (families, ids))
+
+    # -------------------------------------------------------------- bounded preview
+    print()
+    print("=== bounded preview: global rank, scoped count, no paid fields ===")
+    cur.execute("select public.survivor_family_preview(null, 'EMAcross', null, 5)")
+    preview = cur.fetchone()[0]
+    preview_families = preview["families"]
+    check("preview contains at most five families", len(preview_families) <= 5,
+          str(len(preview_families)))
+    check("preview total is not truncated", preview["total"] >= len(preview_families),
+          "total=%s shown=%s" % (preview["total"], len(preview_families)))
+    check("preview strategy is normalized from the corpus",
+          preview["strategy"].lower() == "emacross", preview["strategy"])
+    check("every preview family belongs to EMAcross",
+          all(f["strategy"].lower() == "emacross" for f in preview_families))
+
+    cur.execute("""
+      select count(*) from pg_catalog.jsonb_array_elements(
+        public.survivor_family_catalog() -> 'families') f
+       where pg_catalog.lower(f ->> 'strategy') = 'emacross'
+    """)
+    ema_total = cur.fetchone()[0]
+    check("preview total reconciles with the full catalogue", preview["total"] == ema_total,
+          "preview=%s catalog=%s" % (preview["total"], ema_total))
+
+    cur.execute("""
+      select pg_catalog.array_agg(id order by ordinality) from (
+        select f ->> 'id' as id, ordinality
+          from pg_catalog.jsonb_array_elements(
+            public.survivor_family_catalog() -> 'families') with ordinality x(f, ordinality)
+         where pg_catalog.lower(f ->> 'strategy') = 'emacross'
+         order by ordinality limit 5
+      ) first_five
+    """)
+    expected_ids = cur.fetchone()[0] or []
+    check("preview keeps the catalogue's global family order",
+          [f["id"] for f in preview_families] == expected_ids,
+          "preview=%s catalog=%s" % ([f["id"] for f in preview_families], expected_ids))
+
+    cur.execute("select public.survivor_family_preview(null, 'EMAcross', 'H4', 5)")
+    h4 = cur.fetchone()[0]
+    check("timeframe is echoed", h4["timeframe"] == "H4", str(h4["timeframe"]))
+    check("every H4 preview family covers H4",
+          all("H4" in f["timeframes"] for f in h4["families"]))
+    cur.execute("""
+      select count(*) from pg_catalog.jsonb_array_elements(
+        public.survivor_family_catalog() -> 'families') f
+       where pg_catalog.lower(f ->> 'strategy') = 'emacross'
+         and (f -> 'timeframes') ? 'H4'
+    """)
+    check("H4 total reconciles with the full catalogue", h4["total"] == cur.fetchone()[0])
+    check("preview exposes no paid key",
+          all(not any(k in f for k in ("params", "filters", "exit", "variants", "recipe", "signature"))
+              for f in preview_families))
+    expect_sqlstate(cur, "preview refuses limit zero",
+                    "select public.survivor_family_preview(null, 'EMAcross', null, 0)", "22023")
+    expect_sqlstate(cur, "preview refuses limit above twenty",
+                    "select public.survivor_family_preview(null, 'EMAcross', null, 21)", "22023")
 
     cur.execute("""
       select count(*) from (
@@ -226,6 +301,9 @@ def main() -> int:
     for role in ("anon", "authenticated"):
         cur.execute("select has_table_privilege(%s, 'public.survivor_family_member', 'select')", (role,))
         check("%s cannot select survivor_family_member" % role, cur.fetchone()[0] is False)
+        cur.execute("select has_function_privilege(%s, "
+                    "'public.survivor_family_preview(text,text,text,integer)', 'execute')", (role,))
+        check("%s can execute survivor_family_preview" % role, cur.fetchone()[0] is True)
     cur.execute("select relrowsecurity from pg_class where oid = 'public.survivor_family_member'::regclass")
     check("row level security is on", cur.fetchone()[0] is True)
     cur.execute("select count(*) from pg_policies where tablename = 'survivor_family_member'")
