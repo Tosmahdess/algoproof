@@ -1,15 +1,40 @@
 import { supabaseServer } from '@/lib/supabase-server'
 import type { EquityFiche, EquityMarketRow, Verdict } from '@/lib/types'
 
-export async function getLatestFiche(ticker: string): Promise<EquityFiche | null> {
+export type FicheSummary = Omit<
+  EquityFiche, 'fondamentaux' | 'valorisation' | 'momentum' | 'risques'
+>
+
+// The four prose columns ARE the paid product. They are named in one place so
+// the two readers below cannot drift apart.
+const PROSE_COLUMNS = 'fondamentaux,valorisation,momentum,risques'
+const SUMMARY_COLUMNS =
+  'ticker,ticker_yf,asset_name,category,generated_at,thesis_version,price_at_generation,verdict,verdict_reason,is_featured'
+
+/** Everything a locked page may show. Deliberately not select('*'): a
+ *  conditional render still ships whatever was fetched into the RSC payload,
+ *  so the lock has to live in the column list. */
+export async function getFicheSummary(ticker: string): Promise<FicheSummary | null> {
   const { data, error } = await supabaseServer
     .from('equity_fiches')
-    .select('*')
+    .select(SUMMARY_COLUMNS)
     .eq('ticker', ticker)
     .order('thesis_version', { ascending: false })
     .limit(1)
   if (error || !data || data.length === 0) return null
-  return data[0] as EquityFiche
+  return data[0] as unknown as FicheSummary
+}
+
+/** The complete analysis. Call only after checking entitlement. */
+export async function getFicheFull(ticker: string): Promise<EquityFiche | null> {
+  const { data, error } = await supabaseServer
+    .from('equity_fiches')
+    .select(`${SUMMARY_COLUMNS},${PROSE_COLUMNS}`)
+    .eq('ticker', ticker)
+    .order('thesis_version', { ascending: false })
+    .limit(1)
+  if (error || !data || data.length === 0) return null
+  return data[0] as unknown as EquityFiche
 }
 
 export async function getGrowthRow(ticker: string): Promise<EquityMarketRow | null> {

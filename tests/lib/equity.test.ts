@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockFrom = vi.fn()
 vi.mock('@/lib/supabase-server', () => ({ supabaseServer: { from: (...a: unknown[]) => mockFrom(...a) } }))
 
-import { getLatestFiche, getCoveredFiches, getGrowthRow, getAllFiches } from '@/lib/equity'
+import { getFicheFull, getCoveredFiches, getGrowthRow, getAllFiches } from '@/lib/equity'
 
 // helper to build a chainable thenable returning {data,error}
 function chain(result: unknown) {
@@ -15,12 +15,12 @@ function chain(result: unknown) {
 
 beforeEach(() => mockFrom.mockReset())
 
-describe('getLatestFiche', () => {
+describe('getFicheFull', () => {
   it('returns the single latest fiche row or null', async () => {
     mockFrom.mockReturnValue(chain([{ ticker: 'NVDA', verdict: 'renforcer' }]))
-    expect((await getLatestFiche('NVDA'))?.verdict).toBe('renforcer')
+    expect((await getFicheFull('NVDA'))?.verdict).toBe('renforcer')
     mockFrom.mockReturnValue(chain([]))
-    expect(await getLatestFiche('ZZZ')).toBeNull()
+    expect(await getFicheFull('ZZZ')).toBeNull()
   })
 })
 

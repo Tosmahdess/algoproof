@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { getLatestFiche, getGrowthRow, getFichesByCategory } from '@/lib/equity'
+import { getFicheFull, getGrowthRow, getFichesByCategory } from '@/lib/equity'
 import { EquityFichePanel } from '@/components/EquityFichePanel'
 import { sanitizeProse } from '@/lib/prose'
 import { categoryLabel } from '@/lib/fiche-categories'
@@ -17,7 +17,7 @@ const SECTIONS: { title: string; key: 'fondamentaux' | 'valorisation' | 'momentu
 
 export default async function FichePage({ params }: { params: Promise<{ ticker: string }> }) {
   const { ticker } = await params
-  const fiche = await getLatestFiche(decodeURIComponent(ticker))
+  const fiche = await getFicheFull(decodeURIComponent(ticker))
   if (!fiche) notFound()
   const market = await getGrowthRow(fiche.ticker)
   const related = fiche.category ? await getFichesByCategory(fiche.category, fiche.ticker, 3) : []
