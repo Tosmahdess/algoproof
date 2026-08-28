@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const createServerClient = vi.fn(() => ({ auth: {} }))
-const createBrowserClient = vi.fn(() => ({ auth: {} }))
+const createServerClient = vi.fn((..._args: unknown[]) => ({ auth: {} }))
+const createBrowserClient = vi.fn((..._args: unknown[]) => ({ auth: {} }))
 vi.mock('@supabase/ssr', () => ({ createServerClient, createBrowserClient }))
 vi.mock('next/headers', () => ({ cookies: async () => ({ getAll: () => [] }) }))
 
@@ -27,7 +27,7 @@ describe('identity client', () => {
   it('names the cookie so it cannot collide with the lab cookie', async () => {
     const { createSupabaseAuthServer } = await import('@/lib/supabase-auth')
     await createSupabaseAuthServer()
-    const opts = createServerClient.mock.calls[0][2]
+    const opts = createServerClient.mock.calls[0][2] as { cookieOptions: { name: string } }
     expect(opts.cookieOptions.name).toBe('sb-algoproof-auth')
   })
 
@@ -37,6 +37,6 @@ describe('identity client', () => {
     const [url, key, opts] = createBrowserClient.mock.calls[0]
     expect(url).toBe('https://identity.example')
     expect(key).toBe('identity-anon')
-    expect(opts.cookieOptions.name).toBe('sb-algoproof-auth')
+    expect((opts as { cookieOptions: { name: string } }).cookieOptions.name).toBe('sb-algoproof-auth')
   })
 })
