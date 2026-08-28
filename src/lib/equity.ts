@@ -24,7 +24,7 @@ export async function getGrowthRow(ticker: string): Promise<EquityMarketRow | nu
 
 export type CoveredFiche = {
   ticker: string
-  verdict: string
+  verdict: Verdict | null
   generated_at: string
   price_at_generation: number | null
   ticker_yf: string
@@ -56,7 +56,7 @@ export type FicheIndexRow = {
   ticker: string
   asset_name: string
   category: string | null
-  verdict: Verdict
+  verdict: Verdict | null
   generated_at: string
   verdict_reason: string | null
   price_at_generation: number | null

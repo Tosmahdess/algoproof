@@ -12,7 +12,8 @@ import AnalysesClient from '@/components/AnalysesClient'
 import type { FicheIndexRow } from '@/lib/equity'
 
 // Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
-type CoveredFiche = { ticker: string; verdict: Verdict; generated_at: string; price_at_generation: number | null; ticker_yf: string }
+// verdict is null once Task 7 gates it outside the free five.
+type CoveredFiche = { ticker: string; verdict: Verdict | null; generated_at: string; price_at_generation: number | null; ticker_yf: string }
 
 // Source: apex-wealth/portfolios.py WEALTH_ALLOCATION.
 // Target allocation, percentages only (2026-07-04: the monthly DCA is a published

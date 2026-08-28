@@ -13,7 +13,7 @@ const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
 }
 
 export type FicheLite = {
-  verdict: Verdict
+  verdict: Verdict | null  // null once Task 7 gates it outside the free five
   price_at_generation: number | null
   ticker_yf: string
 }
@@ -27,6 +27,11 @@ interface Props {
 // Sélection "du moment" : un nom de qualité (verdict=renforcer) en solde maintenant
 // (signal d'achat actif). Classé par force du signal puis profondeur du recul.
 // Real dips only: no "watching" backfill (it froze the block all month).
+//
+// No rule change for Task 7: the API already blanks verdict to null for every
+// ticker outside the free five, so this filter naturally keeps only the five
+// names the server opened — the agreement with getFreeTickers' ranking is
+// deliberate, not accidental.
 export function selectTopPicks(assets: GrowthAsset[], fiches: Record<string, FicheLite>): GrowthAsset[] {
   const isRenforcer = (a: GrowthAsset) => fiches[a.ticker]?.verdict === 'renforcer'
   const cmp = (a: GrowthAsset, b: GrowthAsset) => {

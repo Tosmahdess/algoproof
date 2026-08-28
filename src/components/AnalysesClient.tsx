@@ -13,6 +13,8 @@ const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
   maintenir: { label: 'MAINTENIR', color: 'var(--warning)' },
   skip:      { label: 'PASSER',    color: 'var(--negative)' },
 }
+// null = gated behind the membership outside the free five (Task 7).
+const GATED_META = { label: 'MEMBRES', color: 'var(--muted)' }
 const FILTERS: { key: Verdict | 'all'; label: string }[] = [
   { key: 'all', label: 'Tous' }, { key: 'renforcer', label: 'Renforcer' },
   { key: 'maintenir', label: 'Maintenir' }, { key: 'skip', label: 'Passer' },
@@ -72,7 +74,7 @@ export default function AnalysesClient({ fiches }: { fiches: FicheIndexRow[] }) 
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {rows.map(f => {
-              const v = VERDICT_META[f.verdict]
+              const v = f.verdict ? VERDICT_META[f.verdict] : GATED_META
               return (
                 <Link
                   key={f.ticker}
