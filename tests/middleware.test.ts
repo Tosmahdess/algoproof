@@ -1,5 +1,24 @@
-import { describe, it, expect } from 'vitest'
-import { REFRESH_PATHS, config } from '@/middleware'
+import { describe, it, expect, vi } from 'vitest'
+
+vi.mock('@supabase/ssr', () => ({
+  createServerClient: () => ({
+    auth: {
+      getUser: async () => { throw new Error('corrupt cookie chunk') },
+    },
+  }),
+}))
+
+import { NextRequest } from 'next/server'
+import { REFRESH_PATHS, config, middleware } from '@/middleware'
+
+describe('middleware getUser guard', () => {
+  it('returns a response instead of throwing when getUser() throws', async () => {
+    const req = new NextRequest('http://localhost/wealth/AAPL')
+    const res = await middleware(req)
+    expect(res).toBeDefined()
+    expect(res.status).toBe(200)
+  })
+})
 
 describe('middleware matcher', () => {
   it('covers every refresh path, in both bare and nested form', () => {

@@ -28,8 +28,7 @@ export default async function ComptePage() {
         <div className="space-y-4">
           <p className="text-sm">Tu es connecté, sans abonnement en cours.</p>
           <p className="text-sm text-muted">
-            L&apos;abonnement ouvre les analyses complètes, les catalyseurs et l&apos;historique
-            des changements, sur tout l&apos;univers suivi.
+            L&apos;abonnement ouvre les analyses complètes, sur tout l&apos;univers que je suis.
           </p>
           <a href="https://lab.algoproof.fr/membre" className="inline-block rounded-lg bg-positive px-4 py-2 text-sm font-semibold text-bg">
             Voir l&apos;abonnement

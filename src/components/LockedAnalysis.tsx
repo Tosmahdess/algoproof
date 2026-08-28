@@ -2,8 +2,12 @@ import Link from 'next/link'
 
 /** What replaces the four analysis sections when the visitor is not entitled.
  *  It names what is missing rather than teasing it: the reader should be able
- *  to tell what they would get. */
-export function LockedAnalysis({ assetName }: { assetName: string }) {
+ *  to tell what they would get.
+ *
+ *  `verdictVisible` says whether this same visitor already sees the verdict
+ *  and its reason above this block (true on a free-five ticker, false on a
+ *  locked one) so the copy stays true in both cases. */
+export function LockedAnalysis({ assetName, verdictVisible }: { assetName: string; verdictVisible: boolean }) {
   return (
     <div className="mt-10 rounded-lg border border-border bg-card/40 p-6">
       <p className="text-sm font-semibold mb-3">
@@ -11,12 +15,13 @@ export function LockedAnalysis({ assetName }: { assetName: string }) {
       </p>
       <ul className="text-sm text-muted space-y-1 mb-5">
         <li>Fondamentaux, valorisation, momentum et risques, en détail</li>
-        <li>Les catalyseurs à venir et l&apos;historique des changements de thèse</li>
         <li>Le même niveau de détail sur tout l&apos;univers que je suis</li>
       </ul>
       <p className="text-xs text-muted mb-5">
         Cinq sociétés restent ouvertes en permanence, choisies par la même règle que le reste.
-        Au-dessus, tu vois déjà mon verdict et la raison en une ligne.
+        {verdictVisible
+          ? ' Au-dessus, tu vois déjà mon verdict et sa raison en une ligne.'
+          : ' Le verdict de ce titre est lui aussi réservé aux membres.'}
       </p>
       <div className="flex flex-wrap gap-3">
         <a

@@ -104,4 +104,11 @@ describe('getEntitlement', () => {
   it('free when the only row has a status outside active/trialing', async () => {
     expect(await getEntitlement(client({ id: 'u1' }, { status: 'canceled' }))).toBe('free')
   })
+  it('guest when the client throws (corrupt cookie chunk, env misconfiguration)', async () => {
+    const throwingSupabase = {
+      auth: { getUser: async () => { throw new Error('bad cookie chunk') } },
+      from: () => { throw new Error('should not be reached') },
+    } as never
+    expect(await getEntitlement(throwingSupabase)).toBe('guest')
+  })
 })

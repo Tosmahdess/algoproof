@@ -31,7 +31,15 @@ export async function middleware(req: NextRequest) {
     },
   )
   // The call itself is the refresh: getUser() rotates the cookie through setAll.
-  await supabase.auth.getUser()
+  // supabase-js re-throws anything that is not an AuthError (corrupt cookie
+  // chunks, env misconfiguration) — an unenumerable class sitting in front of
+  // a PUBLIC page that needs nothing from the identity project. A refresh
+  // that fails must not take the page down with it.
+  try {
+    await supabase.auth.getUser()
+  } catch {
+    return res
+  }
   return res
 }
 

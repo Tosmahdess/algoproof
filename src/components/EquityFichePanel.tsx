@@ -1,4 +1,4 @@
-import type { EquityMarketRow } from '@/lib/types'
+import type { EquityMarketRow, Verdict } from '@/lib/types'
 import type { FicheSummary } from '@/lib/equity'
 import { VerdictBadge } from './VerdictBadge'
 import { LivePerf } from './LivePerf'
@@ -8,7 +8,17 @@ import { sanitizeProse } from '@/lib/prose'
 // fiche is FicheSummary, not the full EquityFiche: this panel renders only
 // the verdict and the price, never the prose, so it never needs the four
 // paid columns.
-export function EquityFichePanel({ fiche, market }: { fiche: FicheSummary; market: EquityMarketRow | null }) {
+//
+// verdict/verdict_reason are widened to `| null` here: the page passes a
+// copy with both fields nulled out when the visitor has no access to the
+// verdict (locked ticker, not a member). VerdictBadge already renders a
+// neutral chip for a null verdict.
+type GatableFicheSummary = Omit<FicheSummary, 'verdict' | 'verdict_reason'> & {
+  verdict: Verdict | null
+  verdict_reason: string | null
+}
+
+export function EquityFichePanel({ fiche, market }: { fiche: GatableFicheSummary; market: EquityMarketRow | null }) {
   const refPrice = fiche.price_at_generation
   return (
     <section className="rounded-lg border border-border bg-card p-5">
@@ -39,7 +49,9 @@ export function EquityFichePanel({ fiche, market }: { fiche: FicheSummary; marke
           </div>
         </div>
       </div>
-      <p className="mt-4 border-l-2 border-accent pl-3 text-foreground/80 italic">{sanitizeProse(fiche.verdict_reason)}</p>
+      {fiche.verdict_reason && (
+        <p className="mt-4 border-l-2 border-accent pl-3 text-foreground/80 italic">{sanitizeProse(fiche.verdict_reason)}</p>
+      )}
     </section>
   )
 }

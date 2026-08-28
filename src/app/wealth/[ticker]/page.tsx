@@ -33,12 +33,21 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
   if (!summary) notFound()
 
   const entitlement = await getEntitlement(supabase)
-  const unlocked = entitlement === 'paid' || freeTickers.includes(summary.ticker)
-  // Fetched only when unlocked. A conditional render would still ship the
+  const isFree = freeTickers.includes(summary.ticker)
+  const paid = entitlement === 'paid'
+  // Two independent gates (spec 17.1): the free five are PARTIAL fiches.
+  // Verdict + reason open on the free five OR for a paying member; the four
+  // analysis sections open for a paying member only.
+  const showVerdict = isFree || paid
+  const showProse = paid
+  // Fetched only when showProse. A conditional render would still ship the
   // prose in the RSC payload; not fetching it is what actually locks it.
-  const full = unlocked ? await getFicheFull(summary.ticker) : null
+  const full = showProse ? await getFicheFull(summary.ticker) : null
 
   const fiche = summary
+  // The panel never sees the ungated verdict/reason unless showVerdict: a
+  // guest on a locked ticker gets a copy with both fields nulled out.
+  const panelFiche = showVerdict ? fiche : { ...fiche, verdict: null, verdict_reason: null }
   const market = await getGrowthRow(fiche.ticker)
   const related = fiche.category ? await getFichesByCategory(fiche.category, fiche.ticker, 3) : []
   const jsonLd = {
@@ -80,7 +89,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
         <span className="font-mono text-muted text-2xl">{fiche.ticker}</span>
       </h1>
 
-      <EquityFichePanel fiche={fiche} market={market} />
+      <EquityFichePanel fiche={panelFiche} market={market} />
 
       {full ? (
         <div className="prose prose-invert prose-base max-w-none mt-10 prose-headings:font-semibold prose-p:text-foreground/70 prose-p:leading-relaxed prose-strong:text-foreground/90">
@@ -92,7 +101,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
           ))}
         </div>
       ) : (
-        <LockedAnalysis assetName={fiche.asset_name} />
+        <LockedAnalysis assetName={fiche.asset_name} verdictVisible={showVerdict} />
       )}
 
       {related.length > 0 && (
