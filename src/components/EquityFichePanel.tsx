@@ -1,10 +1,14 @@
-import type { EquityFiche, EquityMarketRow } from '@/lib/types'
+import type { EquityMarketRow } from '@/lib/types'
+import type { FicheSummary } from '@/lib/equity'
 import { VerdictBadge } from './VerdictBadge'
 import { LivePerf } from './LivePerf'
 import { sellPlanLines } from '@/lib/sell-plan'
 import { sanitizeProse } from '@/lib/prose'
 
-export function EquityFichePanel({ fiche, market }: { fiche: EquityFiche; market: EquityMarketRow | null }) {
+// fiche is FicheSummary, not the full EquityFiche: this panel renders only
+// the verdict and the price, never the prose, so it never needs the four
+// paid columns.
+export function EquityFichePanel({ fiche, market }: { fiche: FicheSummary; market: EquityMarketRow | null }) {
   const refPrice = fiche.price_at_generation
   return (
     <section className="rounded-lg border border-border bg-card p-5">

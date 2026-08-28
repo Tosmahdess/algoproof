@@ -1,12 +1,18 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { getFicheFull, getGrowthRow, getFichesByCategory } from '@/lib/equity'
+import { getFicheSummary, getFicheFull, getGrowthRow, getFichesByCategory } from '@/lib/equity'
+import { getFreeTickers } from '@/lib/free-tier'
+import { getEntitlement } from '@/lib/entitlement'
+import { createSupabaseAuthServer } from '@/lib/supabase-auth'
+import { LockedAnalysis } from '@/components/LockedAnalysis'
 import { EquityFichePanel } from '@/components/EquityFichePanel'
 import { sanitizeProse } from '@/lib/prose'
 import { categoryLabel } from '@/lib/fiche-categories'
 
 export const runtime = 'nodejs'
-export const revalidate = 3600
+// force-dynamic replaces `revalidate = 3600`: what this page renders now
+// depends on who is asking.
+export const dynamic = 'force-dynamic'
 
 const SECTIONS: { title: string; key: 'fondamentaux' | 'valorisation' | 'momentum' | 'risques' }[] = [
   { title: 'Fondamentaux', key: 'fondamentaux' },
@@ -17,8 +23,22 @@ const SECTIONS: { title: string; key: 'fondamentaux' | 'valorisation' | 'momentu
 
 export default async function FichePage({ params }: { params: Promise<{ ticker: string }> }) {
   const { ticker } = await params
-  const fiche = await getFicheFull(decodeURIComponent(ticker))
-  if (!fiche) notFound()
+  const decoded = decodeURIComponent(ticker)
+
+  const [summary, freeTickers, supabase] = await Promise.all([
+    getFicheSummary(decoded),
+    getFreeTickers(),
+    createSupabaseAuthServer(),
+  ])
+  if (!summary) notFound()
+
+  const entitlement = await getEntitlement(supabase)
+  const unlocked = entitlement === 'paid' || freeTickers.includes(summary.ticker)
+  // Fetched only when unlocked. A conditional render would still ship the
+  // prose in the RSC payload; not fetching it is what actually locks it.
+  const full = unlocked ? await getFicheFull(summary.ticker) : null
+
+  const fiche = summary
   const market = await getGrowthRow(fiche.ticker)
   const related = fiche.category ? await getFichesByCategory(fiche.category, fiche.ticker, 3) : []
   const jsonLd = {
@@ -62,14 +82,18 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
 
       <EquityFichePanel fiche={fiche} market={market} />
 
-      <div className="prose prose-invert prose-base max-w-none mt-10 prose-headings:font-semibold prose-p:text-foreground/70 prose-p:leading-relaxed prose-strong:text-foreground/90">
-        {SECTIONS.map(({ title, key }) => (
-          <section key={key}>
-            <h2>{title}</h2>
-            <p>{sanitizeProse(fiche[key])}</p>
-          </section>
-        ))}
-      </div>
+      {full ? (
+        <div className="prose prose-invert prose-base max-w-none mt-10 prose-headings:font-semibold prose-p:text-foreground/70 prose-p:leading-relaxed prose-strong:text-foreground/90">
+          {SECTIONS.map(({ title, key }) => (
+            <section key={key}>
+              <h2>{title}</h2>
+              <p>{sanitizeProse(full[key])}</p>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <LockedAnalysis assetName={fiche.asset_name} />
+      )}
 
       {related.length > 0 && (
         <div className="mt-12 border-t border-border pt-6">
