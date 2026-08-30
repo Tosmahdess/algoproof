@@ -35,7 +35,9 @@ describe('survivor family SQL boundary (static shape checks only)', () => {
 
   it('builds teaser entries with explicit JSON objects instead of survivor spreading', () => {
     expect(sql037).toContain("'access', v_access")
-    expect(sql037).not.toMatch(/teaser[^;]*\|\|[^;]*survivor/is)
+    // No `s` flag: the pattern has no `.`, so dotAll was inert, and it costs a
+    // TS1501 under this project's ES2017 target — which fails `next build`.
+    expect(sql037).not.toMatch(/teaser[^;]*\|\|[^;]*survivor/i)
   })
 })
 

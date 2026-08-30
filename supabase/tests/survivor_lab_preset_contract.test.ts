@@ -25,7 +25,9 @@ describe('survivor Lab preset SQL boundary (static checks only)', () => {
   it('keeps paid fields out of locked and missing responses', () => {
     expect(sql).toMatch(/return pg_catalog\.jsonb_build_object\('access', 'missing'\)/i)
     expect(sql).toMatch(/return pg_catalog\.jsonb_build_object\('access', 'locked'\)/i)
-    expect(sql).not.toMatch(/'locked'[^;]*\|\|/is)
+    // No `s` flag: the pattern has no `.`, so dotAll was inert, and it costs a
+    // TS1501 under this project's ES2017 target — which fails `next build`.
+    expect(sql).not.toMatch(/'locked'[^;]*\|\|/i)
   })
 
   it('returns full data through an explicit allowlist', () => {
