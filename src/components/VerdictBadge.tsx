@@ -6,8 +6,12 @@ const MAP: Record<Verdict, { label: string; color: string; bg: string }> = {
   skip:      { label: 'PASSER',    color: 'var(--negative)', bg: 'rgba(255,68,68,0.12)' },
 }
 
-export function VerdictBadge({ verdict }: { verdict: Verdict }) {
-  const v = MAP[verdict]
+// null = the verdict is gated behind the membership for this visitor (Task 7).
+// Neutral chip, never a crash, never a blank box.
+const GATED = { label: 'MEMBRES', color: 'var(--muted)', bg: 'rgba(136,136,136,0.12)' }
+
+export function VerdictBadge({ verdict }: { verdict: Verdict | null }) {
+  const v = verdict ? MAP[verdict] : GATED
   return (
     <span
       style={{ color: v.color, background: v.bg, border: `1px solid ${v.color}` }}

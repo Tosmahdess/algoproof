@@ -9,7 +9,8 @@ import { sellPlanLines } from '@/lib/sell-plan'
 interface Props {
   assets: GrowthAsset[]
   lastAlerts: Record<string, string>  // ticker → ISO date
-  verdictByTicker: Record<string, Verdict>  // ticker → verdict (covered names only)
+  // ticker → verdict (covered names only); null = gated outside the free five (Task 7)
+  verdictByTicker: Record<string, Verdict | null>
 }
 
 const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
@@ -17,6 +18,8 @@ const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
   maintenir: { label: 'MAINTENIR', color: 'var(--warning)' },
   skip:      { label: 'PASSER',    color: 'var(--negative)' },
 }
+// null = gated behind the membership (Task 7): neutral chip, not a blank cell.
+const GATED_META = { label: 'MEMBRES', color: 'var(--muted)' }
 
 const SIGNAL_COLOR: Record<string, string> = {
   minor: 'var(--warning)', major: 'var(--severe)', crash: 'var(--negative)',
@@ -52,8 +55,8 @@ function formatDate(iso: string | undefined): string {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
 
-function VerdictChip({ verdict }: { verdict: Verdict }) {
-  const v = VERDICT_META[verdict]
+function VerdictChip({ verdict }: { verdict: Verdict | null }) {
+  const v = verdict ? VERDICT_META[verdict] : GATED_META
   return (
     <span
       className="text-[9px] font-bold px-1 py-0.5 rounded"
@@ -64,10 +67,12 @@ function VerdictChip({ verdict }: { verdict: Verdict }) {
   )
 }
 
-function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAlerts: Record<string, string>; verdict?: Verdict }) {
+function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAlerts: Record<string, string>; verdict?: Verdict | null }) {
   const sigColor = asset.signal_level ? SIGNAL_COLOR[asset.signal_level] : undefined
   const ddPct = asset.drawdown_pct !== null ? asset.drawdown_pct * 100 : null
-  const covered = verdict != null
+  // undefined = ticker isn't covered by a fiche at all; null = covered but the
+  // verdict is gated for this visitor (Task 7) — still a link, just no verdict yet.
+  const covered = verdict !== undefined
 
   const distanceEl = (() => {
     if (!asset.dip_trigger_pct) return <span className="text-muted text-xs">N/D</span>
@@ -111,7 +116,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
               {asset.tier === 2 && (
                 <span className="text-[10px] px-1 py-0.5 rounded bg-card text-muted">T2</span>
               )}
-              {verdict && <VerdictChip verdict={verdict} />}
+              {covered && <VerdictChip verdict={verdict ?? null} />}
             </div>
             <div className="text-xs text-zinc-200 leading-tight mt-0.5 group-hover:underline">{asset.asset_name}</div>
           </Link>
