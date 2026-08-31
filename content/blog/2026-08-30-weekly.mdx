@@ -1,0 +1,74 @@
+---
+title: "Un taux de réussite à 50 % peut tout de même être rentable"
+date: "2026-08-30"
+category: "weekly"
+tags: ["weekly", "performance"]
+summary: "Cette semaine, mes bots en réel terminent dans le vert malgré un win rate de seulement 50 %. Le laboratoire, lui, encaisse les coûts d'une semaine difficile pour les shorts et les longues positions sur altcoins."
+---
+
+## Mes bots en réel
+
+Suivi sur une base normalisée de 1 000 €, pour rendre mes deux bots comparables entre eux indépendamment du capital réellement déployé chez le broker.
+
+<StatRow>
+  <Stat label="Trades réels" value="8" subtext="semaine du 24 au 30 août" />
+  <Stat label="P&L de la semaine" value="+6,06 €" subtext="sur base 1 000 €" change="positive" />
+  <Stat label="Win rate" value="50 %" subtext="4 gagnants sur 8" />
+  <Stat label="P&L cumulé all-time" value="+153,45 €" subtext="depuis le début, rodage inclus" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Meilleur trade de la semaine" sub="SOL-USDC, position longue" metrics="P&L: +38,24 € | Direction: long" intent="positive" />
+  <DataCard label="Pire trade de la semaine" sub="BCH-USDC, position longue" metrics="P&L: -12,41 € | Direction: long" intent="negative" />
+</DataCardGroup>
+
+La semaine illustre parfaitement une chose que je répète souvent : le taux de réussite (win rate, soit le pourcentage de trades gagnants) n'est pas le seul indicateur qui compte. Avec exactement une victoire sur deux, on pourrait croire à une semaine médiocre. Pourtant, le solde est positif, parce que le meilleur trade, SOL-USDC à +38,24 €, compense largement les pertes, dont la plus sévère reste BCH-USDC à -12,41 €. C'est le ratio gain/perte moyen qui fait la différence, pas le pourcentage de trades gagnants pris isolément.
+
+À noter : cette semaine, tous les trades réels étaient en direction longue (achat en anticipation de hausse). Aucun short (vente à découvert) n'a été déclenché sur le réel, ce qui est cohérent avec le contexte de marché décrit plus bas.
+
+Le cumulé all-time s'établit à +153,45 € sur base 1 000 €, rodage des premiers mois compris. Ce chiffre reflète l'ensemble de l'historique, pas seulement la semaine en cours.
+
+---
+
+## Laboratoire (simulation)
+
+Le reste de ma flotte tourne en simulation : aucun euro réel n'est en jeu, c'est un espace d'observation et d'apprentissage.
+
+<StatRow>
+  <Stat label="Trades simulés" value="412" subtext="semaine du 24 au 30 août" />
+  <Stat label="Coût de la simulation" value="-126,47 €" subtext="argent fictif, pas une perte réelle" />
+  <Stat label="Win rate" value="91 %" subtext="375 trades gagnants sur 412" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Longs simulés" sub="394 trades" metrics="P&L: -92,57 € | WR: 93,1 % | Meilleur: INJ-USDT +9,91 €" intent="negative" />
+  <DataCard label="Shorts simulés" sub="18 trades" metrics="P&L: -33,90 € | WR: 44,4 % | Meilleur: OP-USDC +4,22 €" intent="negative" />
+</DataCardGroup>
+
+Le coût de la simulation cette semaine : -126,47 € d'argent qui n'existe pas, dépensé pour apprendre. Ce chiffre mérite d'être décortiqué plutôt que déploré.
+
+Le win rate global de 91 % est spectaculaire, mais la plupart des gains individuels sont modestes, et quelques trades très négatifs plombent le résultat global. C'est le problème classique d'une stratégie à haute fréquence de victoire mais à ratio gain/perte déséquilibré : FIL-USDT en short à -11,96 € ou SEI-USDT en long à -11,62 € suffisent à annuler beaucoup de petits gains.
+
+Les shorts simulés, en particulier, affichent un win rate de seulement 44 %, ce qui est révélateur. Le marché cette semaine n'était pas favorable aux positions vendeuses, et c'est précisément ce que le contexte macromarché confirmait en amont.
+
+---
+
+## Contexte marché de la semaine
+
+Le marché était en configuration globalement haussière cette semaine. Bitcoin se maintient environ 15 % au-dessus de sa moyenne de prix sur 200 jours, ce qui est un signal de tendance longue favorable. Le niveau de risque global restait vert, et mes filtres de sécurité n'ont bloqué aucune direction sur le réel.
+
+En revanche, mon indicateur de biais, qui mesure la dynamique récente des prix et des marchés dérivés, signalait une prudence accrue. Le bilan des trois derniers jours avant la semaine était négatif sur la flotte simulée, et le score des marchés à terme penchait légèrement dans le rouge. Résultat : en simulation, les signaux de shorts et certaines configurations longues étaient mis en veille. C'est ce qui explique pourquoi les 18 shorts simulés déclenchés malgré tout ont surtout servi à confirmer que cette direction était risquée dans ce contexte.
+
+---
+
+## Leçon de la semaine
+
+> Un win rate de 50 % sur le réel peut générer un P&L positif si les trades gagnants sont significativement plus grands que les perdants. Ce n'est pas le nombre de victoires qui compte, c'est la taille de chacune.
+
+---
+
+## Prochaines étapes
+
+- Je vais analyser pourquoi BCH-USDC a déclenché un trade long dans un contexte où l'actif sous-performait, et vérifier si le filtre de sécurité aurait dû intervenir plus tôt.
+- Les shorts en simulation ont un win rate de 44 % cette semaine : je vais étudier les conditions d'entrée de FIL-USDT pour comprendre si c'est une anomalie ou un signal structurel sur cet actif.
+- Le cumulé all-time dépasse 150 €, ce qui marque un seuil symbolique. Je vais mettre à jour le tableau de bord de suivi pour intégrer une courbe de capital normalisée visible sur le blog.
