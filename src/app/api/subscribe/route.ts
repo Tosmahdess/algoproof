@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
 import { normalizeEmail, normalizeSource } from '@/lib/subscribe'
+import { recentWriteVerdict } from '@/lib/write-guard'
 
 export const runtime = 'nodejs'
 
@@ -55,6 +56,17 @@ export async function POST(request: NextRequest) {
   }
   const source = normalizeSource(body.source)
 
+  // An address is stored, never published, so an uncountable window does NOT
+  // cost a legitimate subscriber their place: the row goes in and only the
+  // Telegram notification is suppressed. A counted flood is still refused.
+  const verdict = await recentWriteVerdict('email_subscribers')
+  if (verdict === 'over') {
+    return NextResponse.json(
+      { error: "Trop d'inscriptions viennent d'arriver. Réessaie dans quelques minutes." },
+      { status: 429, headers },
+    )
+  }
+
   // Plain insert: ON CONFLICT under RLS trips the anon policy (42501), so
   // duplicates are handled via the unique-violation code instead.
   const { error } = await supabaseServer
@@ -67,7 +79,7 @@ export async function POST(request: NextRequest) {
   }
   if (isDuplicate) return NextResponse.json({ ok: true }, { status: 200, headers })
 
-  notifyTelegram(email, source)
+  if (verdict === 'ok') notifyTelegram(email, source)
 
   return NextResponse.json({ ok: true }, { status: 201, headers })
 }

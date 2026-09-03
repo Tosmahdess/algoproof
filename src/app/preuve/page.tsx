@@ -38,7 +38,7 @@ export default function PreuvePage() {
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-3">Ce qui est gratuit, ce qui le restera, et ce qui ne le sera pas</h2>
+        <h2 className="text-xl font-semibold mb-3">Ce qui est gratuit, ce qui le reste, et ce qui ne l&apos;est pas</h2>
         <p className="text-sm mb-3">
           Le labo s&apos;ouvre sans compte, et un compte gratuit permet de lancer des
           backtests avec des quotas. L&apos;adhésion lève ces quotas et ouvre la recette
@@ -52,12 +52,12 @@ export default function PreuvePage() {
           leurs chiffres.
         </p>
         <p className="text-sm mb-3">
-          Ce qui deviendra payant, c&apos;est la configuration exacte d&apos;un bot
+          Ce qui est payant, c&apos;est la configuration exacte d&apos;un bot
           et son dossier de validation complet : les paramètres, les filtres, et la
           preuve étape par étape de la façon dont cette configuration a été retenue
           contre les milliers de voisines qui sont mortes. Dit autrement :{' '}
-          <strong>ce que mes bots font restera gratuit, comment ils ont gagné le
-          droit de tourner se paiera</strong>.
+          <strong>ce que mes bots font reste gratuit, comment ils ont gagné le
+          droit de tourner se paie</strong>.
         </p>
         <p className="text-sm mb-3">
           Je ne cacherai aucun résultat. Je ne donnerai pas mes réglages : c&apos;est
@@ -67,8 +67,8 @@ export default function PreuvePage() {
           pas.
         </p>
         <p className="text-sm">
-          Un abonnement donnera accès à de la recherche et à un outil. Il ne
-          promettra aucun gain, ne donnera aucun conseil, et ne s&apos;occupera
+          L&apos;adhésion donne accès à de la recherche et à un outil. Elle ne
+          promet aucun gain, ne donne aucun conseil, et ne s&apos;occupe
           jamais de l&apos;argent de qui que ce soit.
         </p>
       </section>
