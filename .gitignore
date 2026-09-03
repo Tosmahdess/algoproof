@@ -50,3 +50,10 @@ supabase/.temp
 __pycache__/
 *.pyc
 env.local
+
+# Session scratch: superpowers task reports and captured test logs. These are
+# per-session working notes, not repository content -- a `git add -A` swept nine
+# of them into a commit on 2026-09-03.
+.superpowers-*.md
+vitest-full.log
+vitest*.log
