@@ -50,6 +50,27 @@ const CATEGORY_LABELS: Record<string, string> = {
   consumer_premium: 'Consommation premium',
 }
 
+/**
+ * A section title for a category, never the raw key.
+ *
+ * The map above is hand-written and the data is not: a category added upstream
+ * lands here unknown, and `?? cat` printed it as an H2 — `pharma_biotech` in
+ * 24px, on the page the membership pays for. A visitor reading that learns that
+ * nobody looked at the page.
+ *
+ * The fallback is deliberately dumb and deliberately French-blind: it makes an
+ * unknown key READABLE without pretending to translate it, so a missing entry
+ * still looks slightly off to me and gets a real label, while never looking
+ * broken to a reader.
+ */
+export function categoryLabel(cat: string): string {
+  const known = CATEGORY_LABELS[cat]
+  if (known) return known
+  if (cat === 'other') return 'Autres'
+  const words = cat.replace(/[_-]+/g, ' ').trim()
+  return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
 function formatDate(iso: string | undefined): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
@@ -261,7 +282,7 @@ function SecteurView({ assets, lastAlerts, verdictByTicker }: Props) {
         <div key={cat}>
           <div className="flex items-center gap-2 mb-2 px-1">
             <span className="text-xs font-semibold text-muted uppercase tracking-wider">
-              {CATEGORY_LABELS[cat] ?? cat}
+              {categoryLabel(cat)}
             </span>
             <span className="text-muted text-[10px] font-normal">
               {catAssets.filter(a => a.tier === 1).length}T1 · {catAssets.filter(a => a.tier === 2).length}T2

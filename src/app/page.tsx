@@ -11,7 +11,7 @@ import { familyColor, familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
-import { byGainDesc } from '@/lib/fleet-grouping'
+import { sortFleet } from '@/lib/fleet-sort'
 
 export const revalidate = 1800
 
@@ -38,13 +38,13 @@ export default async function HomePage() {
   // Live = real money (v1-spot, orb-bf25) ; the rest is the laboratoire (simulation).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
   const { live: liveBots, paper: paperBots } = splitCohorts(bots)
-  // Sort by realized P&L (€), not absolute capital — bots have different start
-  // capitals. One shared, tested comparator with /overview's register (2026-08-20):
-  // this used to be an inline copy that treated a bot with ZERO trades as a zero
-  // gain, so a dormant bot outranked every losing one and took a top-10 slot with
-  // a "0 €" that was the absence of a result, not a result.
-  const sorted = [...bots].sort(byGainDesc)
-  const preview = sorted.slice(0, 10)
+  // Ordered by track record, not by profit — the same default /overview uses,
+  // and for the reasons written at the top of lib/fleet-sort.ts: the top of a
+  // performance ranking is mechanically populated by small-sample luck, and this
+  // site exists to demonstrate exactly that. Ordering the FIRST screen by P&L
+  // contradicted the product on the most visible page there is, and put bots
+  // with three trades in the first rows.
+  const preview = sortFleet(bots, 'proven', 'desc').slice(0, 10)
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-20">
@@ -179,20 +179,22 @@ export default async function HomePage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Stratégies actives</h2>
-          <p className="text-sm text-muted mt-0.5">{bots.length} expériences actives, {bots.filter(b => b.stats.total_trades > 0).length} avec des trades</p>
+          <p className="text-sm text-muted mt-0.5">
+            {bots.length} expériences actives, {bots.filter(b => b.stats.total_trades > 0).length} avec des trades.
+            Les dix ci-dessous sont celles qui ont le plus d&apos;historique, pas celles qui gagnent le plus.
+          </p>
         </div>
         <Link href="/overview" className="text-sm text-muted hover:text-white transition-colors">Voir tout →</Link>
       </div>
 
       {/* Mobile : liste classement rapide */}
       <div className="md:hidden rounded border border-border overflow-hidden divide-y divide-border mb-6">
-        {preview.map((bot, i) => {
+        {preview.map((bot) => {
           const hasData = bot.stats.total_trades > 0
           const eur     = pnlEur(bot.stats.latest_capital, bot.start_capital)
           const pct     = pnlPct(bot.stats.latest_capital, bot.start_capital)
           return (
             <Link key={bot.id} href={`/strategies/bot/${bot.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
-              <span className="text-xs text-muted font-mono w-6 flex-shrink-0">#{i + 1}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium truncate">{bot.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
