@@ -14,6 +14,9 @@ function chain() {
   return c
 }
 vi.mock('@/lib/supabase-server', () => ({ supabaseServer: { from: () => chain() } }))
+// The prose reader holds the privileged client since SEC-02; it must still be
+// observable here, because this file is what pins that it asks for the prose.
+vi.mock('@/lib/supabase-admin', () => ({ getSupabaseAdmin: () => ({ from: () => chain() }) }))
 
 const PROSE = ['fondamentaux', 'valorisation', 'momentum', 'risques']
 

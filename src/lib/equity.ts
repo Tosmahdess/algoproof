@@ -1,5 +1,15 @@
 import { supabaseServer } from '@/lib/supabase-server'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import type { EquityFiche, EquityMarketRow, Verdict } from '@/lib/types'
+
+// SEC-02. Identity and content are ONE Supabase project, so the publishable key
+// that ships in the browser bundle (MiRegimeBadge -> queries -> supabase) can
+// read anything anon can read. `equity_fiches` therefore stops being anon-
+// readable; everything a guest can reach comes from a view that simply does not
+// carry the prose. Redaction in SQL, not in the application: an application-side
+// column list filters the tap while the valve stays open beside it.
+const PUBLIC_FICHE_VIEW = 'equity_fiches_public'
+const PAID_FICHE_TABLE = 'equity_fiches'
 
 export type FicheSummary = Omit<
   EquityFiche, 'fondamentaux' | 'valorisation' | 'momentum' | 'risques'
@@ -16,7 +26,7 @@ const SUMMARY_COLUMNS =
  *  so the lock has to live in the column list. */
 export async function getFicheSummary(ticker: string): Promise<FicheSummary | null> {
   const { data, error } = await supabaseServer
-    .from('equity_fiches')
+    .from(PUBLIC_FICHE_VIEW)
     .select(SUMMARY_COLUMNS)
     .eq('ticker', ticker)
     .order('thesis_version', { ascending: false })
@@ -25,10 +35,27 @@ export async function getFicheSummary(ticker: string): Promise<FicheSummary | nu
   return data[0] as unknown as FicheSummary
 }
 
-/** The complete analysis. Call only after checking entitlement. */
+/** The complete analysis. Call only after checking entitlement.
+ *
+ *  Returns null rather than throwing when the privileged client cannot be built:
+ *  a throw here 500s the whole fiche page for the one visitor who paid, and the
+ *  page already renders a correct locked state for null. The console.error is
+ *  the loud half — the vault's rule is that a caught failure gets journalled,
+ *  never swallowed, because silence was the shape of the 30/08 blockage. */
 export async function getFicheFull(ticker: string): Promise<EquityFiche | null> {
-  const { data, error } = await supabaseServer
-    .from('equity_fiches')
+  let admin
+  try {
+    admin = getSupabaseAdmin()
+  } catch (e) {
+    console.error(
+      `getFicheFull(${ticker}): no privileged client — the paid columns cannot be read, ` +
+        `serving the locked page instead. Set SUPABASE_SERVICE_ROLE_KEY on this project. ` +
+        `Cause: ${e instanceof Error ? e.message : String(e)}`,
+    )
+    return null
+  }
+  const { data, error } = await admin
+    .from(PAID_FICHE_TABLE)
     .select(`${SUMMARY_COLUMNS},${PROSE_COLUMNS}`)
     .eq('ticker', ticker)
     .order('thesis_version', { ascending: false })
@@ -58,7 +85,7 @@ export type CoveredFiche = {
 export async function getCoveredFiches(): Promise<CoveredFiche[]> {
   // latest row per ticker; price_at_generation + ticker_yf feed the live "% depuis l'analyse"
   const { data, error } = await supabaseServer
-    .from('equity_fiches')
+    .from(PUBLIC_FICHE_VIEW)
     .select('ticker,verdict,generated_at,thesis_version,price_at_generation,ticker_yf')
     .order('thesis_version', { ascending: false })
   if (error || !data) return []
@@ -92,7 +119,7 @@ export async function getAllFiches(): Promise<FicheIndexRow[]> {
   // latest thesis_version per ticker
   try {
     const { data, error } = await supabaseServer
-      .from('equity_fiches')
+      .from(PUBLIC_FICHE_VIEW)
       .select('ticker,asset_name,category,verdict,thesis_version,generated_at,verdict_reason,price_at_generation,ticker_yf')
       .order('thesis_version', { ascending: false })
     if (error || !data) return []
@@ -123,7 +150,7 @@ export async function getFichesByCategory(
 export async function getFicheSitemapData(): Promise<{ ticker: string; generated_at: string }[]> {
   try {
     const { data, error } = await supabaseServer
-      .from('equity_fiches')
+      .from(PUBLIC_FICHE_VIEW)
       .select('ticker,generated_at,thesis_version')
       .order('thesis_version', { ascending: false })
     if (error || !data) return []

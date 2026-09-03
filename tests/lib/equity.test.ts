@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockFrom = vi.fn()
 vi.mock('@/lib/supabase-server', () => ({ supabaseServer: { from: (...a: unknown[]) => mockFrom(...a) } }))
+// getFicheFull moved to the privileged client when equity_fiches stopped being
+// anon-readable (SEC-02). Both clients land on the same spy: these tests are
+// about the rows each reader returns, and tests/lib/equity-fiche-source.test.ts
+// is what pins WHICH client and WHICH source each one is allowed to use.
+vi.mock('@/lib/supabase-admin', () => ({ getSupabaseAdmin: () => ({ from: (...a: unknown[]) => mockFrom(...a) }) }))
 
 import { getFicheFull, getCoveredFiches, getGrowthRow, getAllFiches } from '@/lib/equity'
 

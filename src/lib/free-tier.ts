@@ -30,13 +30,15 @@ export function selectFreeTickers(input: FreeTierInput, limit = 5): string[] {
   return candidates.slice(0, limit).map((c) => c.ticker)
 }
 
-/** Server-side reader. Uses the CONTENT client: both tables live in this
- *  site's own Supabase project, not in the identity one. */
+/** Server-side reader. Reads the REDACTED view, not `equity_fiches`: this runs
+ *  for guests, and since 2026-09-03 the base table is no longer anon-readable
+ *  (SEC-02 — the content project's key ships in the browser bundle). The view
+ *  carries ticker + verdict, which is all the ranking needs. */
 export async function getFreeTickers(limit = 5): Promise<string[]> {
   const { supabaseServer } = await import('@/lib/supabase-server')
   const [fichesRes, universeRes] = await Promise.all([
     supabaseServer
-      .from('equity_fiches')
+      .from('equity_fiches_public')
       .select('ticker,verdict,thesis_version')
       .order('thesis_version', { ascending: false }),
     supabaseServer.from('growth_universe').select('ticker,signal_level,drawdown_pct'),
