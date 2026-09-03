@@ -32,7 +32,14 @@ export async function getEntitlement(
       .limit(1)
       .maybeSingle()
     return data ? 'paid' : 'free'
-  } catch {
+  } catch (e) {
+    // 'guest' is the safe direction and it stays. What must not stay is the
+    // SILENCE: this catch is the shape that downgraded every visitor on
+    // 2026-08-30, members included, while the site looked perfectly healthy and
+    // nothing anywhere said a word. A wrong answer that logs is a bug you find
+    // in minutes; a wrong answer that says nothing is one you find from a
+    // customer e-mail.
+    console.error('[entitlement] read failed, treating the visitor as a guest:', e)
     return 'guest'
   }
 }
