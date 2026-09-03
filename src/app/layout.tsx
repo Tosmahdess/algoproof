@@ -35,8 +35,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`bg-bg text-white ${jetbrainsMono.variable}`}>
       <body className="min-h-screen flex flex-col">
         <JsonLd data={organizationJsonLd()} />
+        {/* First focusable element on every page. Invisible until focused (see
+            .skip-link in globals.css), so a keyboard user reaches the content
+            without tabbing through the whole nav on each navigation. */}
+        <a href="#contenu" className="skip-link">Aller au contenu</a>
         <Nav />
-        <main className="flex-1">{children}</main>
+        <main id="contenu" className="flex-1">{children}</main>
         <Footer />
         <Analytics />
       </body>

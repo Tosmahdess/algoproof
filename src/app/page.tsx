@@ -82,12 +82,12 @@ export default async function HomePage() {
           <span>données mises à jour chaque heure</span>
           <span className="text-border">·</span>
           <a
-            href="https://lab.algoproof.fr/galerie"
+            href="https://lab.algoproof.fr/cockpit/cimetiere"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white transition-colors"
           >
-            et un cimetière public de stratégies rejetées
+            et un registre public de mes verdicts, recalés compris
           </a>
         </div>
         <div className="mt-4 max-w-xl mx-auto text-left">
