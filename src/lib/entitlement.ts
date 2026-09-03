@@ -2,10 +2,29 @@ import type { createServerClient } from '@supabase/ssr'
 
 export type Entitlement = 'guest' | 'free' | 'paid'
 
+/**
+ * Statuses that count as paying, here and everywhere else.
+ *
+ * This list used to be `['active', 'trialing']` while the lab API said
+ * `active, trialing, past_due` and the dossier SQL said `active` only. A member
+ * whose renewal was failing therefore kept the lab, lost the dossiers, and read
+ * "free" on this site: three products, one customer, and no sentence that could
+ * describe it truthfully in the terms.
+ *
+ * The rule, decided 2026-09-03: a failing renewal KEEPS its access for as long
+ * as Stripe is retrying. `past_due` means a card expired, not a refusal to pay,
+ * and the retry window is short and bounded. `unpaid` and `canceled` end
+ * access — Stripe draws that line, not us.
+ *
+ * Mirrors api/entitlement_status.py PAID_STATUSES, web/lib/entitlement.ts and
+ * public.has_live_subscription() in migration 040.
+ */
+export const PAID_STATUSES = ['active', 'trialing', 'past_due'] as const
+
 // The single source of truth for gating on this site.
 //   guest = no session
 //   free  = signed in, no active subscription
-//   paid  = subscription active or trialing
+//   paid  = subscription in PAID_STATUSES (a failing renewal still pays)
 // `subscriptions` lives in the IDENTITY project; pass a client from
 // lib/supabase-auth.ts, never the content client.
 export async function getEntitlement(
@@ -28,7 +47,7 @@ export async function getEntitlement(
       .from('subscriptions')
       .select('status')
       .eq('user_id', user.id)
-      .in('status', ['active', 'trialing'])
+      .in('status', PAID_STATUSES as unknown as string[])
       .limit(1)
       .maybeSingle()
     return data ? 'paid' : 'free'
