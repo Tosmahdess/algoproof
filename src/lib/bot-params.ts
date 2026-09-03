@@ -2053,7 +2053,7 @@ export const BOT_PARAMS: Record<string, BotParams> = {
       },
       {
         title: "Rendement observé (30j)",
-        body: "Données du 12 avril au 12 mai 2026 : SOL positif 64 % du temps (+2,7 %/an annualisé), BTC positif 34 % (−2,0 %/an), ETH 37 % (−1,2 %/an). Taux au 12 mai : SOL +6,1 %/an, BTC +5,4 %/an. Rendement réaliste sur cycle complet : 2 à 5 %/an en conditions normales.",
+        body: "Données du 12 avril au 12 mai 2026 : SOL positif 64 % du temps (+2,7 %/an annualisé), BTC positif 34 % (−2,0 %/an), ETH 37 % (−1,2 %/an). Taux au 12 mai : SOL +6,1 %/an, BTC +5,4 %/an.",
       },
     ],
   },

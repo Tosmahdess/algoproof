@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
+import { recentWriteVerdict } from '@/lib/write-guard'
 
 export const runtime = 'nodejs'
 
@@ -51,6 +52,17 @@ export async function POST(request: NextRequest) {
   }
   if (pseudo.trim().length > 50 || message.trim().length > 1000) {
     return NextResponse.json({ error: 'Content too long' }, { status: 400 })
+  }
+
+  // A comment is PUBLISHED the moment it is inserted, unmoderated, on a public
+  // bot page. So an uncountable window fails closed here: refusing a legitimate
+  // message for a few minutes is cheaper than letting a flood go live.
+  const verdict = await recentWriteVerdict('comments')
+  if (verdict !== 'ok') {
+    return NextResponse.json(
+      { error: "Trop de messages viennent d'être postés. Réessaie dans quelques minutes." },
+      { status: 429 },
+    )
   }
 
   const { error } = await supabaseServer

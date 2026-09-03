@@ -62,9 +62,11 @@ export default function AProposPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Gratuit ou payant ?</h2>
         <p className="text-muted leading-relaxed">
-          Tout est gratuit aujourd&apos;hui, site et <a href="https://lab.algoproof.fr" className="text-accent">labo</a> compris,
-          et aucune offre payante n&apos;est active. Quand une offre arrivera, elle portera sur la configuration exacte
-          des bots et sur leur dossier de validation, jamais sur leurs résultats, qui resteront publics et gratuits.{' '}
+          Regarder est gratuit : trades, pertes, courbes, historique et cimetière. Le{' '}
+          <a href="https://lab.algoproof.fr" className="text-accent">labo</a> s&apos;ouvre sans compte, et un compte
+          gratuit permet de lancer des backtests avec des quotas. L&apos;adhésion à 29 € par mois lève ces quotas et
+          ouvre la configuration exacte des bots et leur dossier de validation, jamais leurs résultats, qui restent
+          publics et gratuits.{' '}
           <Link href="/preuve" className="text-accent">Où passera la ligne, en détail →</Link>
         </p>
       </section>
