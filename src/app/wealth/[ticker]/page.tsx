@@ -8,6 +8,7 @@ import { LockedAnalysis } from '@/components/LockedAnalysis'
 import { EquityFichePanel } from '@/components/EquityFichePanel'
 import { sanitizeProse } from '@/lib/prose'
 import { categoryLabel } from '@/lib/fiche-categories'
+import { longDate } from '@/lib/format-date'
 
 export const runtime = 'nodejs'
 // force-dynamic replaces `revalidate = 3600`: what this page renders now
@@ -60,9 +61,7 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
     about: { '@type': 'Corporation', name: fiche.asset_name, tickerSymbol: fiche.ticker },
   }
   const cat = fiche.category ? categoryLabel(fiche.category) : ''
-  const date = new Date(fiche.generated_at).toLocaleDateString('fr-FR', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  })
+  const date = longDate(fiche.generated_at)
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">

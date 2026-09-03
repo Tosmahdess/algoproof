@@ -4,6 +4,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Legend,
 } from 'recharts'
+import ChartFrame from '@/components/ChartFrame'
 
 interface BotCurve {
   slug:  string
@@ -44,7 +45,7 @@ export default function GlobalEquityCurve({ bots, days = 30 }: Props) {
   const chartData = buildChartData(bots, days)
 
   return (
-    <div className="h-64">
+    <ChartFrame className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <XAxis
@@ -86,6 +87,6 @@ export default function GlobalEquityCurve({ bots, days = 30 }: Props) {
           ))}
         </LineChart>
       </ResponsiveContainer>
-    </div>
+    </ChartFrame>
   )
 }

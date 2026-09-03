@@ -1,6 +1,7 @@
 'use client'
 
 import type { WealthCall, GrowthAsset } from '@/lib/types'
+import { shortDate } from '@/lib/format-date'
 
 interface PositionCardProps {
   call: WealthCall
@@ -27,9 +28,7 @@ export function PositionCard({ call, asset }: PositionCardProps) {
   const tp1Gap   = current && tp1Price ? ((tp1Price - current) / current) * 100 : null
   const tp2Gap   = current && tp2Price ? ((tp2Price - current) / current) * 100 : null
 
-  const dateStr = new Date(call.executed_at).toLocaleDateString('fr-FR', {
-    day: 'numeric', month: 'short',
-  })
+  const dateStr = shortDate(call.executed_at)
 
   const pnlColor = pnlPct === null ? '#888'
     : pnlPct >= 0 ? 'var(--positive)' : 'var(--negative)'

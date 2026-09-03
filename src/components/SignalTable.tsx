@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { GrowthAsset, Verdict } from '@/lib/types'
 import { SignalProgressBar } from './SignalProgressBar'
 import { sellPlanLines } from '@/lib/sell-plan'
+import { shortDate } from '@/lib/format-date'
 
 interface Props {
   assets: GrowthAsset[]
@@ -73,7 +74,7 @@ export function categoryLabel(cat: string): string {
 
 function formatDate(iso: string | undefined): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  return shortDate(iso)
 }
 
 function VerdictChip({ verdict }: { verdict: Verdict | null }) {

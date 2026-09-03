@@ -6,6 +6,7 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, ReferenceLine,
 } from 'recharts'
+import ChartFrame from '@/components/ChartFrame'
 
 interface Props {
   data: PerfDaily[]
@@ -41,7 +42,7 @@ export default function EquityCurve({ data, startCapital = 1000 }: Props) {
   const isPositive = (formatted[formatted.length - 1]?.capitalNum ?? startCapital) >= startCapital
 
   return (
-    <div className="w-full h-64">
+    <ChartFrame>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={formatted} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <defs>
@@ -63,6 +64,6 @@ export default function EquityCurve({ data, startCapital = 1000 }: Props) {
           />
         </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </ChartFrame>
   )
 }
