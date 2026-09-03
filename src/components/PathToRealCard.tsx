@@ -1,5 +1,6 @@
 import type { BotStats } from '@/lib/types'
 import { evaluatePathToReal, DEFAULT_LIVE_GATE, type LiveGate, type PathCriterion } from '@/lib/path-to-real'
+import { numericDate } from '@/lib/format-date'
 
 interface Props {
   status: string
@@ -23,7 +24,7 @@ function width(c: PathCriterion): number {
 export default function PathToRealCard({ status, stats, liveGate, liveSince }: Props) {
   if (status === 'live') {
     if (!liveSince) return null
-    const d = new Date(liveSince).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    const d = numericDate(liveSince)
     return (
       <div className="bg-card border border-border rounded-lg p-4 mb-8 text-sm">
         <span className="inline-flex items-center gap-2">

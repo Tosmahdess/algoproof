@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import type { Comment } from '@/lib/types'
+import { formatDate } from '@/lib/format-date'
 
 interface Props { slug: string }
 
-const fmt = (iso: string) =>
-  new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
+const fmt = (iso: string) => formatDate(iso, { day: 'numeric', month: 'short', year: 'numeric' })
 
 export default function DiscussionTab({ slug }: Props) {
   const [comments,   setComments]   = useState<Comment[]>([])

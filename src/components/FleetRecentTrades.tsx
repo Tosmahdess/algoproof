@@ -16,6 +16,7 @@ import Link from 'next/link'
 import type { TradeWithBot } from '@/lib/types'
 import { fmtEur } from '@/lib/display'
 import { reasonFr } from '@/lib/regime-labels'
+import { shortDatePadded } from '@/lib/format-date'
 
 export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }) {
   if (trades.length === 0) return null
@@ -41,7 +42,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
             {trades.map(t => (
               <tr key={t.id} className="border-b border-border/40">
                 <td className="px-2 py-1.5 font-mono text-muted">
-                  {new Date(t.closed_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                  {shortDatePadded(t.closed_at)}
                 </td>
                 <td className="px-2 py-1.5">
                   {t.bots ? (

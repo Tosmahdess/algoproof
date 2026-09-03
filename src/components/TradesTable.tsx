@@ -1,5 +1,6 @@
 import { Trade } from '@/lib/types'
 import { reasonFr } from '@/lib/regime-labels'
+import { shortDatePadded } from '@/lib/format-date'
 
 const REASON_MAP: Record<string, { label: string; cls: string }> = {
   take_profit_1:     { label: 'TP1',   cls: 'bg-positive/15 text-positive' },
@@ -41,7 +42,7 @@ export default function TradesTable({ trades }: { trades: Trade[] }) {
           {trades.map(t => (
             <tr key={t.id} className="border-b border-border/50 hover:bg-card/50 transition-colors">
               <td className="py-2 pr-4 text-muted font-mono text-xs">
-                {new Date(t.closed_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                {shortDatePadded(t.closed_at)}
               </td>
               <td className="py-2 pr-4 font-mono">{t.asset}</td>
               <td className="py-2 pr-4">
