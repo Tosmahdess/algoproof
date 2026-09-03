@@ -63,7 +63,10 @@ describe('getEntitlement', () => {
     await getEntitlement(client({ id: 'u1' }, { status: 'active' }, limitSpy))
     expect(limitSpy).toHaveBeenCalledWith(1)
   })
-  it('queries the status filter with exactly active and trialing', async () => {
+  it('treats a failing renewal as paying — the rule decided on 2026-09-03', async () => {
+    expect(await getEntitlement(client({ id: 'u1' }, { status: 'past_due' }))).toBe('paid')
+  })
+  it('queries the status filter with the one shared list, past_due included', async () => {
     let recordedStatusValues: unknown[] | undefined
     const chain = {
       select: () => chain,
@@ -80,7 +83,12 @@ describe('getEntitlement', () => {
       from: () => chain,
     } as never
     await getEntitlement(supabase)
-    expect(recordedStatusValues).toEqual(['active', 'trialing'])
+    // Three readers used to answer this question differently: the lab API said
+    // active/trialing/past_due, this site said active/trialing, the dossier SQL
+    // said active only. A member whose card had expired kept the lab, lost the
+    // dossiers, and read "free" here. One list now, mirrored in
+    // api/entitlement_status.py and public.has_live_subscription() (migration 040).
+    expect(recordedStatusValues).toEqual(['active', 'trialing', 'past_due'])
   })
   it('queries the user filter with the signed-in user id', async () => {
     let recordedUserIdValue: unknown
