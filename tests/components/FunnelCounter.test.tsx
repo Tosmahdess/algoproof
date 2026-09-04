@@ -23,6 +23,24 @@ describe('FunnelCounter', () => {
     expect(screen.getByText('Jugées au gantelet')).toBeTruthy()
   })
 
+  // The gap between swept and judged is the one a visitor cannot infer: 8.9M
+  // enumerated against 745k judged, with nothing on the page saying why. The
+  // rest of the funnel explains itself ("promues en bot", "en argent réel").
+  it('says why not everything swept gets judged', () => {
+    render(<FunnelCounter counts={COUNTS} />)
+    expect(screen.getByText(/n.est pas jug/i)).toBeTruthy()
+  })
+
+  // The judging cap is a COMPUTE BUDGET, not a merit selection -- measured in
+  // the vault: it anti-selects survivors rather than keeping the best. Copy
+  // that calls the judged subset "the best ones" would be a comfortable lie
+  // on the page whose whole point is the honesty of the denominator.
+  it('never sells the judged subset as the best of the swept corpus', () => {
+    const { container } = render(<FunnelCounter counts={COUNTS} />)
+    const text = container.textContent ?? ''
+    expect(text).not.toMatch(/les meilleures|la crème|le dessus du panier|les plus prometteuses/i)
+  })
+
   it('renders nothing at all when the counts are unavailable', () => {
     const { container } = render(<FunnelCounter counts={null} />)
     expect(container.firstChild).toBeNull()
