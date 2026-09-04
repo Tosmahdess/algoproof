@@ -63,16 +63,35 @@ export default async function HomePage() {
           {/* {' '} after the expression: RSC drops the ambient leading space of a text
               node that follows an expression when the element mixes text and expression
               children — the page rendered « 2bots ». The explicit space survives. */}
-          Je fais tourner {liveBots.length}{' '}bots en argent réel et le reste en laboratoire (simulation). J&apos;expose chaque trade, gains comme pertes, et je te donne les outils pour tester par toi-même.
+          {/* « je te donne les outils pour tester par toi-même » disait qu'un outil
+              existe sans dire ce qu'il fait ni qu'il est ouvert. Un visiteur venu du
+              blog repartait sans savoir que le banc d'essai le concerne. La headline
+              reste l'identité du projet ; c'est cette phrase qui porte le bénéfice.
+
+              « fragile, et pourquoi » n'est pas une image : c'est le mot que rend
+              globalVerdict() dans algolab (fragile | solide | data-dépendante), et la
+              raison vient de plainVerdict(). Les deux lisent RunDiagnostics, servi par
+              /runs/{id}/diagnostics.json, qui ne porte AUCUN softwall — donc la phrase
+              décrit ce qu'un visiteur SANS COMPTE reçoit vraiment. Le verdict PBO/DSR
+              est une autre fonction sur un payload derrière require_paid ; ne pas le
+              promettre ici. Vérifié le 04/09. */}
+          Je fais tourner {liveBots.length}{' '}bots en argent réel et le reste en laboratoire (simulation). J&apos;expose chaque trade, gains comme pertes. Et le labo où je les teste est ouvert : tu y passes ta propre stratégie, il la rejoue sur l&apos;historique et te dit si elle est fragile, et pourquoi.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
+          {/* Le libellé dit l'action, plus la destination. `event` est inchangé pour
+              ne pas casser la série analytique du CTA. */}
           <TrackedLink href="https://lab.algoproof.fr" event="cta_lab" location="home-hero" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
-            Ouvrir le labo →
+            Tester ta stratégie, sans compte →
           </TrackedLink>
           <Link href="/overview" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
             Voir mes bots en direct
           </Link>
         </div>
+        {/* La réassurance vivait uniquement dans le footer, trois écrans plus bas.
+            Elle sert au moment du clic, pas à la fin de la page. */}
+        <p className="mt-4 text-xs text-muted">
+          Un backtester, pas un broker. Rien à déposer, aucune clé à donner.
+        </p>
         {/* Live proof strip */}
         <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-muted border border-border rounded-lg px-5 py-3">
           <span><strong className="text-white font-mono">{liveBots.length}</strong> bots en argent réel</span>
