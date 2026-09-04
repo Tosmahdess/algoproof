@@ -1,5 +1,13 @@
 -- 041_equity_fiches_prose_columns.sql
 --
+-- ⚠️ THIS MIGRATION WAS A NO-OP. It was applied on 2026-09-04 and changed
+-- nothing: `anon` holds SELECT on this table at the TABLE level, and Postgres
+-- will not carve a column out of a table-level grant. It emitted
+-- "WARNING: no privileges could be revoked for column ..." and returned
+-- success. Superseded by 042_equity_fiches_column_grants.sql, which drops the
+-- table-level grant first and then grants the ten public columns. Kept here
+-- unchanged because it ran, and because the mistake is worth reading.
+--
 -- The four columns the membership sells stop being readable with the anon key.
 --
 -- 008_equity_fiches.sql set `create policy "public read" on equity_fiches for
