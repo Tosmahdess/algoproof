@@ -1,5 +1,6 @@
 import { supabaseServer } from '@/lib/supabase-server'
 import type { EquityFiche, EquityMarketRow, Verdict } from '@/lib/types'
+import { supabasePrivileged } from '@/lib/supabase-privileged'
 
 export type FicheSummary = Omit<
   EquityFiche, 'fondamentaux' | 'valorisation' | 'momentum' | 'risques'
@@ -25,9 +26,18 @@ export async function getFicheSummary(ticker: string): Promise<FicheSummary | nu
   return data[0] as unknown as FicheSummary
 }
 
-/** The complete analysis. Call only after checking entitlement. */
+/** The complete analysis. Call only after checking entitlement.
+ *
+ *  Reads through the privileged client, not the anon one: `equity_fiches` is
+ *  `FOR SELECT USING (true)` on every column, so the four prose blocks a member
+ *  pays for were readable by anyone holding the anon key, with the paywall
+ *  living only in this page. Migration 041 revokes those columns from `anon`;
+ *  until the service-role key exists on Vercel this falls back to the anon
+ *  client and says so in the log, because shipping the revoke first would empty
+ *  the paid analyses for everyone. */
 export async function getFicheFull(ticker: string): Promise<EquityFiche | null> {
-  const { data, error } = await supabaseServer
+  const client = supabasePrivileged() ?? supabaseServer
+  const { data, error } = await client
     .from('equity_fiches')
     .select(`${SUMMARY_COLUMNS},${PROSE_COLUMNS}`)
     .eq('ticker', ticker)
