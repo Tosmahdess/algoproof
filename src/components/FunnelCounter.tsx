@@ -34,8 +34,15 @@ export default function FunnelCounter({ counts }: { counts: FunnelCounts | null 
           <dd className="text-lg font-mono">{nf.format(counts.n_live)}</dd>
         </div>
       </dl>
+      {/* The swept -> judged drop is the only step a visitor cannot infer, and it
+          is an order of magnitude. Said plainly, and said as what it is: the
+          gauntlet costs compute, so it runs on part of the corpus. NOT "the best
+          ones" -- the cap is a budget, and it was measured in the vault to
+          anti-select survivors rather than keep them. The test pins both. */}
       <p className="text-xs text-muted mt-3">
-        Le rapport entre ces nombres est le seul qui compte. Les plateformes
+        Tout ce qui est balayé n&apos;est pas jugé : le gantelet complet coûte du
+        calcul, alors il ne passe qu&apos;une partie du corpus. Le rapport entre ces
+        nombres est le seul qui compte. Les plateformes
         qui vendent des stratégies publient leurs gagnantes, jamais le nombre de
         tentatives.{' '}
         <a href="https://lab.algoproof.fr/cockpit/cimetiere"

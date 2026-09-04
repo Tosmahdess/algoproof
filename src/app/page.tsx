@@ -332,9 +332,15 @@ export default async function HomePage() {
       {/* CTA final — distinct from hero (onboarding, not the lab) */}
       <div className="text-center">
         <a href="/start" className="inline-flex items-center gap-2 px-6 py-3 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
-          Commence ici →
+          Où trader en règle depuis la France →
         </a>
-        <p className="text-xs text-muted mt-3">Où trader en règle quand on est en France.</p>
+        {/* « Commence ici » promettait un début et menait à l'ouverture d'un
+            compte exchange : deux intentions différentes. Le libellé dit
+            maintenant la destination, le sous-titre porte la raison. */}
+        <p className="text-xs text-muted mt-3">
+          Binance ne sert plus les résidents français depuis juillet 2026. Les plateformes
+          qui restent, comparées.
+        </p>
       </div>
 
     </div>
