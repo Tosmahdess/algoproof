@@ -6,6 +6,7 @@ import { getEntitlement } from '@/lib/entitlement'
 import { createSupabaseAuthServer } from '@/lib/supabase-auth'
 import { LockedAnalysis } from '@/components/LockedAnalysis'
 import { EquityFichePanel } from '@/components/EquityFichePanel'
+import { EquityDisclosure } from '@/components/EquityDisclosure'
 import { sanitizeProse } from '@/lib/prose'
 import { categoryLabel } from '@/lib/fiche-categories'
 import { longDate } from '@/lib/format-date'
@@ -118,13 +119,13 @@ export default async function FichePage({ params }: { params: Promise<{ ticker: 
         </div>
       )}
 
-      <p className="mt-12 text-xs text-muted leading-relaxed">
-        Mon analyse du {date}. Le prix de référence ci-dessus est celui du jour de l&apos;analyse (figé) ;
-        le cours et sa variation sont en direct. C&apos;est mon opinion, pas un conseil en investissement.
-      </p>
-      <p className="text-xs text-muted/70 mt-8 italic">
-        Mon analyse personnelle, pas un conseil d&apos;achat. Vois ma <a href="/preuve" className="text-accent">méthode</a> et le <a href="/lexique" className="text-accent">lexique</a>.
-      </p>
+      {/* Deux pieds de page disaient la même chose à huit lignes d'intervalle
+          (« mon opinion, pas un conseil ») sans jamais dire qui écrit, à quelle
+          heure, ni ce que je détiens. Les trois manquants sont précisément ce que
+          Del. Reg. 2016/958 demande d'une recommandation, et un verdict par
+          société adossé à un plan de vente en a la forme. Un seul bloc, en bas,
+          qui les porte. */}
+      <EquityDisclosure generatedAt={fiche.generated_at} />
     </div>
   )
 }

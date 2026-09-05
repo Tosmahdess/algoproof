@@ -39,29 +39,41 @@ export default function PreuvePage() {
 
       <section>
         <h2 className="text-xl font-semibold mb-3">Ce qui est gratuit, ce qui le reste, et ce qui ne l&apos;est pas</h2>
-        <p className="text-sm mb-3">
-          Le labo s&apos;ouvre sans compte, et un compte gratuit permet de lancer des
-          backtests avec des quotas. L&apos;adhésion lève ces quotas et ouvre la recette
-          exacte des bots sortis du moteur (valeurs des paramètres et filtres) : c&apos;est
-          la ligne, elle est là où je disais qu&apos;elle serait avant de la tracer.
-        </p>
+        {/* Cette section disait « je ne donnerai pas mes réglages : c'est la seule
+            chose que je vendrai » pendant que les CGV du labo, elles, ne vendaient
+            que l'outil et que l'écran de paiement ne nommait aucun dossier. Deux
+            offres, un prix, et c'est le document contractuel qui l'emportait.
+            L'adhésion couvre le labo en entier. La frontière est la même partout :
+            ce que je produis est gratuit, comment je l'ai produit se paie. */}
         <p className="text-sm mb-3">
           Tout ce que mes bots font restera public, gratuitement, pour toujours :
           leurs trades, leurs pertes, leur historique, et le cimetière des
           stratégies que j&apos;ai tuées. Tu pourras toujours les voir tourner, avec
-          leurs chiffres.
+          leurs chiffres. Même chose pour mes analyses par société : le verdict et
+          la raison qui va avec tiennent en deux lignes, ils sont ouverts, et ils le
+          resteront.
         </p>
         <p className="text-sm mb-3">
-          Ce qui est payant, c&apos;est la configuration exacte d&apos;un bot
-          et son dossier de validation complet : les paramètres, les filtres, et la
-          preuve étape par étape de la façon dont cette configuration a été retenue
-          contre les milliers de voisines qui sont mortes. Dit autrement :{' '}
-          <strong>ce que mes bots font reste gratuit, comment ils ont gagné le
-          droit de tourner se paie</strong>.
+          Ce qui se paie, c&apos;est comment j&apos;y suis arrivé. Pour un bot :
+          la configuration exacte, les paramètres, les filtres, et la preuve étape par
+          étape de la façon dont cette configuration a été retenue contre les milliers
+          de voisines qui sont mortes. Pour une société : les quatre parties qui
+          expliquent d&apos;où sort le verdict, au lieu de te demander de me croire
+          sur parole. Et le labo lui-même, l&apos;outil avec lequel je produis tout
+          ça, sans quota journalier et avec ses grilles.
         </p>
         <p className="text-sm mb-3">
-          Je ne cacherai aucun résultat. Je ne donnerai pas mes réglages : c&apos;est
-          la seule chose que je vendrai. Le cimetière, lui, restera ouvert à tout le
+          Dit autrement :{' '}
+          <strong>ce que je fais reste gratuit, comment je l&apos;ai fait se paie.</strong>
+        </p>
+        <p className="text-sm mb-3">
+          Le labo s&apos;ouvre sans compte, et un compte gratuit permet de lancer des
+          backtests avec des quotas. Un dossier de validation, celui de l&apos;EMA cross,
+          est ouvert en entier à tout le monde : va voir à quoi ça ressemble avant de
+          payer quoi que ce soit.
+        </p>
+        <p className="text-sm mb-3">
+          Je ne cacherai aucun résultat. Le cimetière restera ouvert à tout le
           monde : les stratégies qui meurent sont la partie la plus utile de ce
           site, et personne ne devrait avoir à payer pour savoir ce qui ne marche
           pas.

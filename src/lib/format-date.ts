@@ -30,6 +30,27 @@ export function shortDatePadded(iso: string | number | Date): string {
   return new Date(iso).toLocaleDateString('fr-FR', withZone({ day: '2-digit', month: 'short' }))
 }
 
+/** "3 septembre 2026 à 09:14" — a fiche's completion instant.
+ *
+ *  Del. Reg. 2016/958 asks a recommendation to carry the date AND time it was
+ *  completed, and the reason is not bureaucratic: an opinion on a listed name
+ *  is worth what the price was when it was written. `equity_fiches.generated_at`
+ *  has always been a timestamp; only the day was ever rendered, so a reader
+ *  could not tell a fiche written before the open from one written after a 6 %
+ *  session. Pinned to Europe/Paris like every other date here. */
+export function longDateTime(iso: string | number | Date): string {
+  return new Date(iso).toLocaleString(
+    'fr-FR',
+    withZone({
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+  )
+}
+
 /** "3 septembre 2026" — an article or a fiche. */
 export function longDate(iso: string | number | Date): string {
   return new Date(iso).toLocaleDateString(
