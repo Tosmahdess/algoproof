@@ -17,13 +17,23 @@ import { longDateTime } from '@/lib/format-date'
  * an opinion checkable: WHO wrote it, WHEN exactly, WHAT they hold, and by WHICH
  * method. This block carries those four and replaces both footers.
  *
- * ⚠️ THREE OF THESE SENTENCES ARE ABOUT THE AUTHOR AND CANNOT BE DERIVED FROM
- * CODE — the holdings line, the "paid by nobody" line, and the "nobody reviews
- * me" line. They are written here as a proposal and must be read and corrected
- * by the author before this branch is merged. Everything else on this component
- * comes from data: the identity from algolab/web/app/mentions-legales (the LCEN
- * publication, already public), the instant from `equity_fiches.generated_at`,
- * the price from `price_at_generation`.
+ * TWO SENTENCES HERE ARE ABOUT THE AUTHOR AND CANNOT BE DERIVED FROM CODE — the
+ * holdings line and the "no issuer pays me" line. Both were read and kept by the
+ * author on 2026-09-05; a third, claiming nobody reviews these texts before
+ * publication, was struck out by him in the same pass. Do not reintroduce a
+ * personal claim here without asking: this block's whole value is that a reader
+ * can hold its statements against him.
+ *
+ * Everything else comes from data: the identity from
+ * algolab/web/app/mentions-legales (the LCEN publication, already public), the
+ * instant from `equity_fiches.generated_at`, the price from
+ * `price_at_generation`.
+ *
+ * Still missing, and known: RENFORCER / MAINTENIR / PASSER are defined nowhere
+ * on the site, and neither is their horizon. Four components render the labels;
+ * none says what they mean. Deducing them from sell-plan.ts and publishing the
+ * deduction as the author's own definition is the one thing this block must not
+ * do, so the gap is carried in the backlog instead.
  */
 export function EquityDisclosure({ generatedAt }: { generatedAt: string }) {
   return (
@@ -43,7 +53,7 @@ export function EquityDisclosure({ generatedAt }: { generatedAt: string }) {
         Ces analyses portent sur ma propre liste de suivi long terme et sur mes versements
         mensuels. Je peux détenir les titres dont je parle, et c&apos;est même en général la
         raison pour laquelle je les suis. Aucune société citée ne me rémunère, d&apos;aucune
-        manière, et personne ne relit ces textes avant publication.
+        manière.
       </p>
 
       <p>
