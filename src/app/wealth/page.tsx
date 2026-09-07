@@ -10,6 +10,7 @@ import { LatestAnalyses } from '@/components/LatestAnalyses'
 import type { GrowthAsset, Verdict } from '@/lib/types'
 import AnalysesClient from '@/components/AnalysesClient'
 import type { FicheIndexRow } from '@/lib/equity'
+import { investirMeta } from '@/lib/investir-meta'
 
 // Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
 // verdict is null once Task 7 gates it outside the free five.
@@ -211,11 +212,12 @@ export default function WealthPage() {
       >
         <p className="text-sm">
           <span className="text-positive font-semibold">La page Investir a déménagé · </span>
-          Je note maintenant les comptes de 599 sociétés américaines avec une règle publiée,
+          Je note maintenant les comptes de {investirMeta.contexte.societes_notees} sociétés
+          américaines avec une règle publiée,
           que tu peux refaire toi-même à partir de leur rapport annuel. Cette page-ci garde
           mon allocation long terme et mes analyses écrites à la main.
         </p>
-        <p className="text-xs text-muted mt-1">Voir les 581 sociétés notées →</p>
+        <p className="text-xs text-muted mt-1">Voir les {investirMeta.fiches_publiees} fiches →</p>
       </Link>
 
       {/* « Dernier changement » removed 2026-08-09: last changelog surface outside /intelligence.
