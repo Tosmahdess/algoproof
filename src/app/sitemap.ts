@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { getBotSlugs } from '@/lib/queries'
 import { getFicheSitemapData } from '@/lib/equity'
+import { asOf as investirAsOf, listeInvestir } from '@/lib/investir'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
 
 function getBlogSlugs(): string[] {
@@ -24,6 +25,16 @@ export default async function sitemap() {
   const ficheUrls = fiches.map(f => ({
     url: `https://algoproof.fr/wealth/${encodeURIComponent(f.ticker)}`,
     lastModified: new Date(f.generated_at),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }))
+
+  // Les 581 fiches Investir. Lues d'un JSON committe, donc sans reseau et sans
+  // try/catch : si le fichier manque, le build echoue, ce qui est la bonne
+  // reaction pour un contenu qui EST le depot.
+  const investirUrls = listeInvestir().map(f => ({
+    url: `https://algoproof.fr/investir/${f.slug}`,
+    lastModified: new Date(investirAsOf),
     changeFrequency: 'monthly' as const,
     priority: 0.6,
   }))
@@ -77,10 +88,16 @@ export default async function sitemap() {
       priority: 0.8,
     },
     {
+      url: 'https://algoproof.fr/investir',
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.9,
+    },
+    {
       url: 'https://algoproof.fr/wealth',
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
-      priority: 0.8,
+      priority: 0.7,
     },
     {
       url: 'https://algoproof.fr/blog',
@@ -110,6 +127,7 @@ export default async function sitemap() {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     })),
+    ...investirUrls,
     ...ficheUrls,
     ...botUrls,
     ...conceptUrls,
