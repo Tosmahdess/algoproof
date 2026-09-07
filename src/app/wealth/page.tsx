@@ -210,11 +210,12 @@ export default function WealthPage() {
         className="block rounded border border-border bg-card px-5 py-4 hover:border-accent/40 transition-colors"
       >
         <p className="text-sm">
-          <span className="text-positive font-semibold">Nouveau · </span>
-          Je note aussi les comptes de 599 sociétés américaines avec une règle publiée,
-          que tu peux refaire toi-même à partir de leur rapport annuel.
+          <span className="text-positive font-semibold">La page Investir a déménagé · </span>
+          Je note maintenant les comptes de 599 sociétés américaines avec une règle publiée,
+          que tu peux refaire toi-même à partir de leur rapport annuel. Cette page-ci garde
+          mon allocation long terme et mes analyses écrites à la main.
         </p>
-        <p className="text-xs text-muted mt-1">Voir les sociétés notées →</p>
+        <p className="text-xs text-muted mt-1">Voir les 581 sociétés notées →</p>
       </Link>
 
       {/* « Dernier changement » removed 2026-08-09: last changelog surface outside /intelligence.

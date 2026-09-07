@@ -12,8 +12,14 @@ const MES_BOTS_SUB = [
 const MES_BOTS_PATHS = MES_BOTS_SUB.map(x => x.href)
 
 // The 3 plain hubs after "Mes bots"
+// 2026-09-07, decision user : INVESTIR mene a /investir. L'entree portait deja
+// ce nom et pointait vers /wealth ; depuis qu'une page s'appelle reellement
+// /investir, un libelle qui mene ailleurs que la page du meme nom est un piege.
+// /wealth reste en ligne, en second, atteignable depuis /investir et le pied de
+// page : ses analyses restent du travail reel, et l'allocation long terme n'a
+// pas d'autre domicile.
 const HUBS = [
-  { href: '/wealth',       label: 'INVESTIR' },
+  { href: '/investir',     label: 'INVESTIR' },
   { href: '/intelligence', label: 'MÉTÉO DU MARCHÉ' },
   { href: '/blog',         label: 'APPRENDRE' },
 ]
@@ -28,7 +34,8 @@ const ACCOUNT_URL = `${LAB_URL}/account`
 const MOBILE_GROUPS: { title: string; links: { href: string; label: string; external?: boolean }[] }[] = [
   { title: 'Mes bots', links: MES_BOTS_SUB },
   { title: 'Explorer', links: [
-    { href: '/wealth',       label: 'Investir' },
+    { href: '/investir',     label: 'Investir' },
+    { href: '/wealth',       label: 'Mon allocation long terme' },
     { href: '/intelligence', label: 'Météo du marché' },
     { href: '/blog',         label: 'Apprendre' },
   ]},
