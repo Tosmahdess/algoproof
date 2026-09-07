@@ -93,3 +93,11 @@ export const COULEUR_NOTE: Record<Grade, string> = {
   'fragile':      'text-negative border-negative/40 bg-negative/10',
   'non note':     'text-muted border-border bg-card',
 }
+
+// Un nombre décimal rendu tel quel par JSX sort avec un POINT : la page a
+// affiché « 23.9 ans » en production. Tous les nombres décimaux de la page
+// passent par ici. Le côté Python formate déjà en français ; c'était le seul
+// endroit où un nombre traversait la frontière sans être mis en forme.
+export function decimalFr(n: number): string {
+  return n.toLocaleString('fr-FR', { maximumFractionDigits: 1 })
+}

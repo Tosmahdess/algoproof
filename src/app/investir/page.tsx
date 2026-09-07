@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import ExplainerBox from '@/components/ExplainerBox'
 import InvestirListe from '@/components/InvestirListe'
-import { asOf, compteParNote, contexte, listeInvestir } from '@/lib/investir'
+import { asOf, compteParNote, contexte, decimalFr, listeInvestir } from '@/lib/investir'
 import { longDate } from '@/lib/format-date'
 
 // Rendu statique. Le paquet est un fichier commité : la page ne dépend d'aucun
@@ -39,7 +39,7 @@ export default function InvestirPage() {
           ['Comptes solides', notes['solide'], 'text-positive'],
           ['À surveiller', notes['a surveiller'], 'text-warning'],
           ['Fragile', notes['fragile'], 'text-negative'],
-          ['Médiane de valorisation', `${contexte.mediane_annees} ans`, 'text-muted'],
+          ['Médiane de valorisation', `${decimalFr(contexte.mediane_annees)} ans`, 'text-muted'],
         ] as const).map(([label, valeur, couleur]) => (
           <div key={label} className="rounded border border-border bg-card px-4 py-3">
             <p className={`text-2xl font-semibold ${couleur}`}>{valeur}</p>
