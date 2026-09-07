@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import type { FicheIndexRow } from '@/lib/equity'
 import { VerdictBadge } from '@/components/VerdictBadge'
-import { LivePriceLine } from '@/components/LivePriceLine'
+import { PrixNonPublie } from '@/components/PrixNonPublie'
 import { relativeDaysFr } from '@/lib/relative-date'
 
 // Hero of /wealth: the freshest fiches. Freshness comes from the real analysis
@@ -36,9 +36,7 @@ export function LatestAnalyses({ fiches }: { fiches: FicheIndexRow[] }) {
             {f.verdict_reason ?? ''}
           </p>
           <div className="mt-2 flex items-center justify-between">
-            {f.ticker_yf
-              ? <LivePriceLine tickerYf={f.ticker_yf} priceAtGeneration={f.price_at_generation} fallback={f.price_at_generation} />
-              : <span />}
+            <PrixNonPublie />
             <span className="text-[10px] text-muted">{relativeDaysFr(f.generated_at)}</span>
           </div>
         </Link>

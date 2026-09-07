@@ -5,7 +5,7 @@ import type { FicheIndexRow } from '@/lib/equity'
 
 const fiche = (t: string, d: string, reason: string | null = 'thèse'): FicheIndexRow => ({
   ticker: t, asset_name: t + ' corp', category: null, verdict: 'renforcer',
-  generated_at: d, verdict_reason: reason, price_at_generation: 10, ticker_yf: t,
+  generated_at: d, verdict_reason: reason, ticker_yf: t,
 })
 
 describe('LatestAnalyses', () => {

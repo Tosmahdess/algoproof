@@ -60,12 +60,12 @@ export function PositionCard({ call, asset }: PositionCardProps) {
         <span className="text-muted text-[10px]">
           Entrée <span className="text-muted">{fmt(entry, 2)}€</span>
         </span>
-        {current !== null ? (
+        {pnlPct !== null ? (
           <span className="text-[10px] font-medium" style={{ color: pnlColor }}>
-            {fmt(current, 2)}€{pnlPct !== null ? ` (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)` : ''}
+            {pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
           </span>
         ) : (
-          <span className="text-muted text-[10px]">prix N/D</span>
+          <span className="text-muted text-[10px]">—</span>
         )}
       </div>
 

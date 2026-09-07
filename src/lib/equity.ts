@@ -10,7 +10,7 @@ export type FicheSummary = Omit<
 // the two readers below cannot drift apart.
 const PROSE_COLUMNS = 'fondamentaux,valorisation,momentum,risques'
 const SUMMARY_COLUMNS =
-  'ticker,ticker_yf,asset_name,category,generated_at,thesis_version,price_at_generation,verdict,verdict_reason,is_featured'
+  'ticker,ticker_yf,asset_name,category,generated_at,thesis_version,verdict,verdict_reason,is_featured'
 
 /** Everything a locked page may show. Deliberately not select('*'): a
  *  conditional render still ships whatever was fetched into the RSC payload,
@@ -50,7 +50,7 @@ export async function getFicheFull(ticker: string): Promise<EquityFiche | null> 
 export async function getGrowthRow(ticker: string): Promise<EquityMarketRow | null> {
   const { data, error } = await supabaseServer
     .from('growth_universe')
-    .select('signal_level,drawdown_pct,ref_price_180j,tp1_pct,tp2_pct,tp1_sell_pct,tp2_sell_pct,residual_pct,exit_state,current_price')
+    .select('signal_level,drawdown_pct,tp1_pct,tp2_pct,tp1_sell_pct,tp2_sell_pct,residual_pct,exit_state')
     .eq('ticker', ticker)
     .limit(1)
   if (error || !data || data.length === 0) return null
@@ -61,15 +61,14 @@ export type CoveredFiche = {
   ticker: string
   verdict: Verdict | null
   generated_at: string
-  price_at_generation: number | null
   ticker_yf: string
 }
 
 export async function getCoveredFiches(): Promise<CoveredFiche[]> {
-  // latest row per ticker; price_at_generation + ticker_yf feed the live "% depuis l'analyse"
+  // latest row per ticker ; aucun cours n'est selectionne, voir PrixNonPublie
   const { data, error } = await supabaseServer
     .from('equity_fiches')
-    .select('ticker,verdict,generated_at,thesis_version,price_at_generation,ticker_yf')
+    .select('ticker,verdict,generated_at,thesis_version,ticker_yf')
     .order('thesis_version', { ascending: false })
   if (error || !data) return []
   const seen = new Map<string, CoveredFiche>()
@@ -79,7 +78,6 @@ export async function getCoveredFiches(): Promise<CoveredFiche[]> {
         ticker: r.ticker,
         verdict: r.verdict,
         generated_at: r.generated_at,
-        price_at_generation: r.price_at_generation ?? null,
         ticker_yf: r.ticker_yf,
       })
     }
@@ -94,7 +92,6 @@ export type FicheIndexRow = {
   verdict: Verdict | null
   generated_at: string
   verdict_reason: string | null
-  price_at_generation: number | null
   ticker_yf: string | null
 }
 
@@ -103,7 +100,7 @@ export async function getAllFiches(): Promise<FicheIndexRow[]> {
   try {
     const { data, error } = await supabaseServer
       .from('equity_fiches')
-      .select('ticker,asset_name,category,verdict,thesis_version,generated_at,verdict_reason,price_at_generation,ticker_yf')
+      .select('ticker,asset_name,category,verdict,thesis_version,generated_at,verdict_reason,ticker_yf')
       .order('thesis_version', { ascending: false })
     if (error || !data) return []
     const seen = new Map<string, FicheIndexRow>()
@@ -112,7 +109,7 @@ export async function getAllFiches(): Promise<FicheIndexRow[]> {
         seen.set(r.ticker, {
           ticker: r.ticker, asset_name: r.asset_name, category: r.category, verdict: r.verdict,
           generated_at: r.generated_at, verdict_reason: r.verdict_reason ?? null,
-          price_at_generation: r.price_at_generation ?? null, ticker_yf: r.ticker_yf ?? null,
+          ticker_yf: r.ticker_yf ?? null,
         })
       }
     }

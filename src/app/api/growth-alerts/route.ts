@@ -10,7 +10,7 @@ const LEVEL_RANK: Record<string, number> = { crash: 3, major: 2, minor: 1 }
 export async function GET() {
   const { data, error } = await supabaseServer
     .from('growth_alerts')
-    .select('id,alerted_at,ticker,asset_name,drawdown_pct,signal_level,mi_regime,mi_score,current_price,high_90d,suggested_min,suggested_max')
+    .select('id,alerted_at,ticker,asset_name,drawdown_pct,signal_level,mi_regime,mi_score')
     .order('alerted_at', { ascending: false })
     .limit(200)
 

@@ -21,9 +21,16 @@ describe('SignalTable sell plan', () => {
     expect(screen.getByText('+25% → vendre 25%')).toBeInTheDocument()
     expect(screen.getByText('garder 50% (long terme)')).toBeInTheDocument()
   })
-  it('shows Achat/Vente legend and "À acheter" header', () => {
+  it('garde la légende Achat/Vente', () => {
     render(<SignalTable assets={[asset()]} lastAlerts={{}} verdictByTicker={{}} />)
     expect(screen.getByText(/acheter sur repli/i)).toBeInTheDocument()
-    expect(screen.getAllByText(/À acheter/i).length).toBeGreaterThan(0)
+  })
+
+  // La colonne « À acheter (€) » affichait une fourchette de prix dérivée d'un
+  // cours Yahoo. Elle est retirée depuis le 2026-09-08 : la source en interdit
+  // la rediffusion, et un prix passé par une base reste le même prix.
+  it("n'affiche plus de fourchette de prix", () => {
+    render(<SignalTable assets={[asset()]} lastAlerts={{}} verdictByTicker={{}} />)
+    expect(screen.queryByText(/À acheter/i)).toBeNull()
   })
 })

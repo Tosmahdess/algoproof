@@ -182,16 +182,6 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
         />
       </td>
 
-      <td className="py-2.5 px-3 text-xs">
-        {asset.signal_level && asset.suggested_min && asset.suggested_max ? (
-          <span className="text-foreground font-mono">
-            {asset.suggested_min} à {asset.suggested_max}€
-          </span>
-        ) : (
-          <span className="text-muted">—</span>
-        )}
-      </td>
-
       <td
         className="py-2.5 px-3"
         title="+X% = X% de plus-value depuis ton prix d'achat, pas X% de la position"
@@ -226,7 +216,6 @@ function SignalView({ assets, lastAlerts, verdictByTicker }: Props) {
           <th className="py-2.5 px-3 text-left font-medium">Signal</th>
           <th className="py-2.5 px-3 text-left font-medium">vs pic 180j</th>
           <th className="py-2.5 px-3 text-left font-medium">Distance seuils</th>
-          <th className="py-2.5 px-3 text-left font-medium">À acheter (€)</th>
           <th className="py-2.5 px-3 text-left font-medium">Plan de vente</th>
           <th className="py-2.5 px-3 text-left font-medium">Dernière alerte</th>
         </tr>
@@ -235,7 +224,7 @@ function SignalView({ assets, lastAlerts, verdictByTicker }: Props) {
         {alerted.length > 0 && (
           <>
             <tr className="bg-card/60">
-              <td colSpan={7} className="py-1.5 px-3 text-xs text-muted">
+              <td colSpan={6} className="py-1.5 px-3 text-xs text-muted">
                 🔴 En alerte · {alerted.length} actif{alerted.length > 1 ? 's' : ''}
               </td>
             </tr>
@@ -245,7 +234,7 @@ function SignalView({ assets, lastAlerts, verdictByTicker }: Props) {
           </>
         )}
         <tr className="bg-card/30">
-          <td colSpan={7} className="py-1.5 px-3 text-xs text-muted">
+          <td colSpan={6} className="py-1.5 px-3 text-xs text-muted">
             En surveillance · {surveillance.length} actifs
           </td>
         </tr>
@@ -301,7 +290,6 @@ function SecteurView({ assets, lastAlerts, verdictByTicker }: Props) {
                 <th className="py-1.5 px-3 text-left font-medium">Signal</th>
                 <th className="py-1.5 px-3 text-left font-medium">vs pic 180j</th>
                 <th className="py-1.5 px-3 text-left font-medium">Distance seuils</th>
-                <th className="py-1.5 px-3 text-left font-medium">À acheter (€)</th>
                 <th className="py-1.5 px-3 text-left font-medium">Vente</th>
                 <th className="py-1.5 px-3 text-left font-medium">Dernière alerte</th>
               </tr>

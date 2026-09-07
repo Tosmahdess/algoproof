@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import type { GrowthAsset, Verdict } from '@/lib/types'
-import { LivePriceLine } from './LivePriceLine'
+import { PrixNonPublie } from './PrixNonPublie'
 
 const SIGNAL_RANK: Record<string, number> = { crash: 3, major: 2, minor: 1 }
 
@@ -14,7 +14,6 @@ const VERDICT_META: Record<Verdict, { label: string; color: string }> = {
 
 export type FicheLite = {
   verdict: Verdict | null  // null once Task 7 gates it outside the free five
-  price_at_generation: number | null
   ticker_yf: string
 }
 
@@ -43,7 +42,7 @@ export function selectTopPicks(assets: GrowthAsset[], fiches: Record<string, Fic
   return assets.filter(a => isRenforcer(a) && a.signal_level).sort(cmp).slice(0, 5)
 }
 
-// LivePriceLine extracted to its own component (reused by LatestAnalyses).
+// Le cours n'est plus affiché : voir `PrixNonPublie`.
 
 function PickCard({ asset, fiche }: { asset: GrowthAsset; fiche: FicheLite | undefined }) {
   const verdict = fiche?.verdict ?? 'maintenir'
@@ -77,11 +76,7 @@ function PickCard({ asset, fiche }: { asset: GrowthAsset; fiche: FicheLite | und
       </div>
 
       <div className="mt-3">
-        {fiche?.ticker_yf ? (
-          <LivePriceLine tickerYf={fiche.ticker_yf} priceAtGeneration={fiche.price_at_generation} fallback={asset.current_price} />
-        ) : (
-          <span className="text-[11px] text-muted">—</span>
-        )}
+        <PrixNonPublie />
       </div>
 
     </Link>

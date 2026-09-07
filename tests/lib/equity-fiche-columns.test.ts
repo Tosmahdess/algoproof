@@ -32,8 +32,25 @@ describe('fiche column lists', () => {
     const { getFicheSummary } = await import('@/lib/equity')
     await getFicheSummary('AAA')
     const cols = selectSpy.mock.calls[0][0] as string
-    for (const c of ['ticker', 'asset_name', 'category', 'verdict', 'verdict_reason', 'generated_at', 'price_at_generation']) {
+    for (const c of ['ticker', 'asset_name', 'category', 'verdict', 'verdict_reason', 'generated_at']) {
       expect(cols).toContain(c)
+    }
+  })
+
+  // Le cours ne fait plus partie de ce qu'une page verrouillée montre, et la
+  // porte est la REQUÊTE : une colonne demandée voyage dans la charge servie
+  // même si aucun composant ne l'affiche. Ce test lisait l'inverse jusqu'au
+  // 2026-09-08, quand la seule source disponible s'est révélée interdite de
+  // rediffusion. Voir `DECISIONS.md`, entrée du 2026-09-08.
+  it('aucun lecteur ne demande une colonne de cours', async () => {
+    const { getFicheSummary, getFicheFull } = await import('@/lib/equity')
+    await getFicheSummary('AAA')
+    await getFicheFull('AAA')
+    for (const call of selectSpy.mock.calls) {
+      const cols = call[0] as string
+      for (const p of ['price_at_generation', 'current_price', 'ref_price_180j']) {
+        expect(cols).not.toContain(p)
+      }
     }
   })
 

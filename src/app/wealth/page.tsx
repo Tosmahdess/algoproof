@@ -14,7 +14,7 @@ import { investirMeta } from '@/lib/investir-meta'
 
 // Latest fiche per ticker, as returned by /api/equity-fiche (lib/equity CoveredFiche).
 // verdict is null once Task 7 gates it outside the free five.
-type CoveredFiche = { ticker: string; verdict: Verdict | null; generated_at: string; price_at_generation: number | null; ticker_yf: string }
+type CoveredFiche = { ticker: string; verdict: Verdict | null; generated_at: string; ticker_yf: string }
 
 // Source: apex-wealth/portfolios.py WEALTH_ALLOCATION.
 // Target allocation, percentages only (2026-07-04: the monthly DCA is a published
@@ -172,9 +172,9 @@ export default function WealthPage() {
       .catch(() => {})
   }, [])
 
-  // Derived: fiche-lite map (Top 5: verdict + live price)
+  // Derived: fiche-lite map (Top 5 : le verdict seul, plus aucun cours)
   const ficheByTicker = fiches.reduce((acc, f) => {
-    acc[f.ticker] = { verdict: f.verdict, price_at_generation: f.price_at_generation, ticker_yf: f.ticker_yf }
+    acc[f.ticker] = { verdict: f.verdict, ticker_yf: f.ticker_yf }
     return acc
   }, {} as Record<string, FicheLite>)
 
