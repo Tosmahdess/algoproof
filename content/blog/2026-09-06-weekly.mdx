@@ -1,0 +1,79 @@
+---
+title: "Quand le marché monte et que les shorts saignent : une semaine pour apprendre à lire le biais"
+date: "2026-09-06"
+category: "weekly"
+tags: ["weekly", "performance"]
+summary: "Semaine difficile en réel comme en simulation : 10 trades, un seul gagnant, et une leçon claire sur le danger de shorter un marché haussier."
+---
+
+## Mes bots en réel
+
+> Suivi sur une base normalisée de 1 000 €, pour comparer les bots entre eux indépendamment de leur capital réel engagé. Ce n'est pas le solde brut de mon compte broker.
+
+<StatRow>
+  <Stat label="Trades (semaine)" value="10" />
+  <Stat label="P&L (semaine)" value="-23,76 €" intent="negative" />
+  <Stat label="Taux de réussite" value="10 %" subtext="1 trade gagnant sur 10" />
+  <Stat label="P&L cumulé (all-time)" value="+383,62 €" subtext="365 trades depuis le départ, rodage inclus" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Meilleur trade de la semaine" sub="LINK-USDC, position longue" metrics="P&L: +19,26 € | Direction: long" intent="positive" />
+  <DataCard label="Pire trade de la semaine" sub="XRP-USDC, position longue" metrics="P&L: -10,78 € | Direction: long" intent="negative" />
+  <DataCard label="Shorts (5 trades)" sub="0 gagnant sur 5" metrics="P&L: -11,30 € | Meilleur: SUI-USDC -0,20 € | Pire: XRP-USDC -10,34 €" intent="negative" />
+  <DataCard label="Longs (5 trades)" sub="1 gagnant sur 5" metrics="P&L: -12,46 € | Meilleur: LINK-USDC +19,26 €" intent="negative" />
+</DataCardGroup>
+
+C'est une semaine rouge, sans détour. Dix trades, un seul dans le vert, un profit net de -23,76 € sur la base normalisée. Le seul trade gagnant, LINK-USDC en long à +19,26 €, a presque sauvé la mise à lui seul, mais les pertes sur XRP et plusieurs shorts ont pesé lourd.
+
+Ce qui me frappe : les cinq positions à la vente (short, c'est-à-dire parier sur une baisse) ont toutes perdu. Zéro gagnant. Et ce n'est pas un hasard quand on regarde le contexte de marché cette semaine.
+
+Le cumulé depuis le début reste positif : +383,62 € sur 365 trades. Je garde ça en tête. Une mauvaise semaine ne réécrit pas l'historique.
+
+---
+
+## Contexte de marché
+
+Le Bitcoin se trouve environ 14 % au-dessus de sa moyenne de prix sur 200 jours, ce qui est un signal clair de tendance haussière. Mon tableau de bord de marché affiche un niveau de risque vert et un régime de tendance orienté à la hausse. Mon indicateur de biais (qui mesure la direction dans laquelle le marché penche, pour décider si les bots doivent privilégier les longs ou les shorts) est actuellement réglé sur une préférence pour les positions longues.
+
+En clair : le marché pousse vers le haut, et shorter dans un marché comme celui-là, c'est nager à contre-courant. Cette semaine me l'a rappelé de façon concrète.
+
+Un point intéressant : en simulation, les shorts sont bloqués par un filtre de sécurité qui détecte un excès d'euphorie du côté des vendeurs à découvert. En réel, ce filtre n'est pas encore actif sur mes bots live. Ce décalage explique en partie pourquoi j'ai quand même pris cinq trades short cette semaine en réel, alors que la simulation les aurait refusés.
+
+---
+
+## Laboratoire (simulation)
+
+> Ce qui suit concerne ma flotte de bots en mode simulation : de l'argent fictif, des trades qui n'existent pas, mais des données qui, elles, sont bien réelles.
+
+<StatRow>
+  <Stat label="Trades simulés" value="522" />
+  <Stat label="Taux de réussite" value="83,5 %" subtext="436 gagnants sur 522" />
+  <Stat label="Coût de la simulation" value="-216,86 €" subtext="De l'argent qui n'existe pas, dépensé pour apprendre" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Meilleur trade simulé" sub="UNI-USDT, long" metrics="P&L simulé: +39,91 €" intent="positive" />
+  <DataCard label="Pire trade simulé" sub="ETH-USDT, long" metrics="P&L simulé: -12,89 €" intent="negative" />
+  <DataCard label="Shorts simulés (83 trades)" sub="Taux de réussite: 49,4 %" metrics="P&L simulé: -144,40 € | Pire: GALA-USDT -10,25 €" intent="negative" />
+  <DataCard label="Longs simulés (439 trades)" sub="Taux de réussite: 90 %" metrics="P&L simulé: -72,46 € | Meilleur: UNI-USDT +39,91 €" intent="neutral" />
+</DataCardGroup>
+
+Le constat en simulation est encore plus net qu'en réel. Les longs affichent un taux de réussite (WR) de 90 %, ce qui est excellent. Les shorts, eux, s'en tirent à 49,4 % : à peine mieux qu'un pile ou face. Et leur impact sur le P&L simulé global est massif : -144,40 € sur les 83 trades short, contre -72,46 € sur les 439 trades long.
+
+Une perte paper n'est pas une perte. C'est une observation. Et cette semaine, l'observation est limpide : les shorts coûtent cher quand le marché monte. Je ne perds rien de réel ici, mais j'identifie exactement où le réglage doit changer.
+
+---
+
+## Leçon de la semaine
+
+> Un taux de réussite de 90 % sur les longs et 49 % sur les shorts dans le même marché haussier : ce n'est pas la stratégie qui est cassée, c'est la direction qu'il faut ajuster.
+
+---
+
+## Prochaines étapes
+
+- Accélérer l'activation du filtre de sécurité anti-euphorie sur mes bots réels pour les shorts, afin d'aligner le comportement live sur ce que la simulation applique déjà.
+- Analyser plus finement XRP-USDC, qui apparaît à la fois dans le pire long et le pire short de la semaine : cet actif mérite une attention particulière avant d'y retourner.
+- Continuer à surveiller le niveau du Bitcoin par rapport à sa moyenne 200 jours : tant que le marché reste aussi clairement haussier, je vais traiter chaque signal short avec beaucoup plus de prudence.
+- La semaine prochaine, je publie une analyse dédiée au comportement des bots en phase de tendance forte : comment calibrer le bon niveau d'agressivité sans se faire piéger par les faux signaux de retournement.
