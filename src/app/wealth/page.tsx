@@ -201,6 +201,22 @@ export default function WealthPage() {
         </p>
       </div>
 
+      {/* Passerelle vers /investir. Les deux pages ne disent pas la même chose :
+          ici mes analyses d'un univers que j'ai choisi à la main ; là-bas une
+          règle publiée appliquée à un univers calculé, que le lecteur peut
+          refaire. */}
+      <Link
+        href="/investir"
+        className="block rounded border border-border bg-card px-5 py-4 hover:border-accent/40 transition-colors"
+      >
+        <p className="text-sm">
+          <span className="text-positive font-semibold">Nouveau · </span>
+          Je note aussi les comptes de 599 sociétés américaines avec une règle publiée,
+          que tu peux refaire toi-même à partir de leur rapport annuel.
+        </p>
+        <p className="text-xs text-muted mt-1">Voir les sociétés notées →</p>
+      </Link>
+
       {/* « Dernier changement » removed 2026-08-09: last changelog surface outside /intelligence.
           A visitor here wants the analyses, not a log of how the page evolved. */}
 
