@@ -77,7 +77,12 @@ export const BLOCS: { cle: string; titre: string }[] = [
   { cle: 'activite',     titre: 'Ce que fait l’entreprise' },
   { cle: 'fondamentaux', titre: 'Les comptes' },
   { cle: 'sante',        titre: 'Comment se porte l’entreprise' },
+  { cle: 'bilan',        titre: 'Ce qu’elle possède, ce qu’elle doit' },
   { cle: 'valorisation', titre: 'Ce qu’elle vaut, et à quelle date' },
+  // La LECTURE vient APRÈS les faits, jamais sous la note : un paragraphe qui
+  // cite une marge avant que la page ne l’ait imprimée se lit comme une
+  // affirmation ; après, il se lit comme une lecture.
+  { cle: 'lecture',      titre: 'Ce que j’en retiens' },
   { cle: 'risques',      titre: 'Ce qui peut mal tourner' },
   { cle: 'source',       titre: 'Refais-le toi-même' },
 ]
