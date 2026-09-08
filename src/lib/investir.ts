@@ -22,6 +22,10 @@ export type FicheIndex = {
   anchor: string | null
   currency: string | null
   valuation_years: number | null
+  // Assez grande pour que la mesure du flottant tienne : flottant >= 2 Md$ ou
+  // chiffre d'affaires >= 3 Md$. Ne décide PLUS ce qui est publié, sert de
+  // filtre au lecteur.
+  core: boolean
 }
 
 export type Fiche = FicheIndex & {
@@ -72,9 +76,9 @@ export function compteParNote(): Record<Grade, number> {
 export const BLOCS: { cle: string; titre: string }[] = [
   { cle: 'activite',     titre: 'Ce que fait l’entreprise' },
   { cle: 'fondamentaux', titre: 'Les comptes' },
+  { cle: 'sante',        titre: 'Comment se porte l’entreprise' },
   { cle: 'valorisation', titre: 'Ce qu’elle vaut, et à quelle date' },
   { cle: 'risques',      titre: 'Ce qui peut mal tourner' },
-  { cle: 'perimetre',    titre: 'Ce que cette fiche ne dit pas' },
   { cle: 'source',       titre: 'Refais-le toi-même' },
 ]
 

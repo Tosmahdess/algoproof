@@ -15,6 +15,7 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
   const [recherche, setRecherche] = useState('')
   const [notes, setNotes] = useState<Set<Grade>>(new Set())
   const [sansAncre, setSansAncre] = useState(false)
+  const [grandes, setGrandes] = useState(false)
 
   const visibles = useMemo(() => {
     const q = recherche.trim().toLowerCase()
@@ -22,9 +23,10 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
       if (q && !l.name.toLowerCase().includes(q)) return false
       if (notes.size && !notes.has(l.grade)) return false
       if (sansAncre && l.anchor === 'mesuree') return false
+      if (grandes && !l.core) return false
       return true
     })
-  }, [lignes, recherche, notes, sansAncre])
+  }, [lignes, recherche, notes, sansAncre, grandes])
 
   const bascule = (note: Grade) => {
     const suivant = new Set(notes)
@@ -57,6 +59,16 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
             {LIBELLE_NOTE[note]}
           </button>
         ))}
+        <button
+          onClick={() => setGrandes(!grandes)}
+          aria-pressed={grandes}
+          title="Flottant d'au moins deux milliards de dollars, ou chiffre d'affaires d'au moins trois milliards"
+          className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
+            grandes ? 'text-accent border-accent/40 bg-accent/10' : 'border-border text-muted hover:text-foreground'
+          }`}
+        >
+          Grandes sociétés
+        </button>
         <button
           onClick={() => setSansAncre(!sansAncre)}
           aria-pressed={sansAncre}
