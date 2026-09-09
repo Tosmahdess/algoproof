@@ -97,10 +97,11 @@ export function compteParNote(): Record<Grade, number> {
 // Le RÉCIT tient la pleine largeur : c'est ce qu'on vient lire, et aucun
 // gabarit ne peut l'écrire. Les COMPTES sont déterministes et se consultent —
 // ils vivent dans un bloc replié, sous un bandeau qui en donne l'essentiel.
+// Seule l'activite reste dans le paquet statique. La lecture et les risques
+// sont vendus : ils vivent dans Supabase et passent par une route qui lit
+// l'abonnement, parce qu'une page pre-generee sert le meme HTML a tout le monde.
 export const RECIT: { cle: string; titre: string }[] = [
   { cle: 'activite', titre: 'Ce que fait l’entreprise' },
-  { cle: 'lecture',  titre: 'Ce que j’en retiens' },
-  { cle: 'risques',  titre: 'Ce qui peut mal tourner' },
 ]
 
 export const COMPTES: { cle: string; titre: string }[] = [

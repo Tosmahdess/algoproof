@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EquityDisclosure } from '@/components/EquityDisclosure'
 import { CoursTradingView } from '@/components/CoursTradingView'
+import { RecitInvestir } from '@/components/RecitInvestir'
 import {
   COMPTES, COULEUR_NOTE, LIBELLE_NOTE, RECIT, asOf, ficheParSlug, tousLesSlugs,
 } from '@/lib/investir'
@@ -99,6 +100,12 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
             <p className="text-foreground/80 leading-relaxed">{fiche.blocs[cle]}</p>
           </section>
         ))}
+
+        {/* Les deux paragraphes que l'abonnement vend. Ils ne sont PAS dans
+            cette page : elle est statique, donc son HTML est le même pour tout
+            le monde. Le composant les demande à une route qui lit l'abonnement
+            avant d'aller les chercher. */}
+        <RecitInvestir slug={fiche.slug} nom={fiche.name} />
       </div>
 
       {fiche.ticker && (
