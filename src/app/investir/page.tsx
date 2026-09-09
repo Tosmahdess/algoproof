@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ExplainerBox from '@/components/ExplainerBox'
+import { CreuxDachat } from '@/components/CreuxDachat'
 import InvestirListe from '@/components/InvestirListe'
 import { asOf, compteParNote, contexte, decimalFr, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
 import { longDate } from '@/lib/format-date'
@@ -48,6 +49,8 @@ export default function InvestirPage() {
           </div>
         ))}
       </section>
+
+      <CreuxDachat index={lignes} />
 
       {dehors.length > 0 && (
         <section className="rounded-lg border border-border bg-card px-5 py-4">

@@ -30,6 +30,11 @@ export type FicheIndex = {
   // de comparateur à l'ancre de valorisation, donc le lecteur le retrouve d'une
   // page à l'autre. 235 fiches sur 1 407 n'en ont pas de nommé.
   famille: string | null
+  // Le symbole nu. Le bandeau des creux d'achat vient d'un autre pipeline qui
+  // ne connaît que le ticker : sans lui ici, il faudrait rapprocher les
+  // sociétés par leur raison sociale, et « MicroStrategy » n'est pas
+  // « MICROSTRATEGY Inc ».
+  symbole: string | null
 }
 
 // Les faits saillants, DÉJÀ rendus par les formateurs de la page : le site n'a
