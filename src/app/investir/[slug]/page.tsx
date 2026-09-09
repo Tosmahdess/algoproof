@@ -215,8 +215,11 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
       )}
 
       <p className="mt-10 text-xs text-muted">
-        Calcul du {longDate(asOf)}. Il est refait chaque mois, et à chaque nouveau
-        rapport annuel.
+        {/* La page disait « refait chaque mois » alors que rien ne le refaisait :
+            une promesse que personne ne tenait. Elle dit maintenant la date, qui
+            est vérifiable, et l'intention, qui ne se déguise plus en garantie. */}
+        Calcul du {longDate(asOf)}. Je le refais quand les comptes bougent, en
+        visant une fois par mois.
       </p>
 
       <EquityDisclosure generatedAt={asOf} />
