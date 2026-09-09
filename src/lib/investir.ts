@@ -148,3 +148,33 @@ export const COULEUR_NOTE: Record<Grade, string> = {
 export function decimalFr(n: number): string {
   return n.toLocaleString('fr-FR', { maximumFractionDigits: 1 })
 }
+
+// --- Les sociétés hors périmètre ---------------------------------------------
+//
+// Vingt-sept sociétés que la règle ne peut PAS noter : dix-sept ne sont pas
+// cotées aux États-Unis et ne déposent donc rien auprès du régulateur
+// américain, les autres sortent des portes d'éligibilité. Leur analyse vient de
+// /wealth, écrite à partir de données de marché : aucun de leurs chiffres n'est
+// adossé à un dépôt, et la fiche le dit en toutes lettres.
+//
+// Elles vivent dans un fichier SÉPARÉ, et c'est délibéré : mélangées aux 1 407,
+// un jour quelqu'un les compterait dans une médiane ou dans un total, et la
+// page annoncerait un chiffre qui ne veut rien dire.
+import horsPerimetreBrut from '@/data/investir-hors-perimetre.json'
+
+export type FicheHorsPerimetre = {
+  slug: string
+  name: string
+  ticker: string
+  categorie: string | null
+  description: string | null
+  as_of: string
+}
+
+export function listeHorsPerimetre(): FicheHorsPerimetre[] {
+  return (horsPerimetreBrut as { fiches: FicheHorsPerimetre[] }).fiches
+}
+
+export function horsPerimetreParSlug(slug: string): FicheHorsPerimetre | null {
+  return listeHorsPerimetre().find(f => f.slug === slug) ?? null
+}

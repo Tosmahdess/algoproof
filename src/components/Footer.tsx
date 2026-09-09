@@ -15,8 +15,6 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
     title: 'Investir',
     links: [
       { href: '/investir',        label: 'Les sociétés que je note' },
-      { href: '/wealth',          label: 'Mon allocation long terme' },
-      { href: '/wealth#analyses', label: 'Mes analyses par secteur' },
     ],
   },
   {

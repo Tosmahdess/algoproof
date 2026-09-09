@@ -1,0 +1,220 @@
+{
+ "fiches": [
+  {
+   "slug": "xiaomi",
+   "name": "Xiaomi",
+   "ticker": "1810.HK",
+   "categorie": "auto_ev",
+   "description": "Xiaomi conçoit et vend des smartphones, appareils connectés (TV, aspirateurs, montres) et s'est lancé dans la voiture électrique avec son modèle SU7. Le chiffre d'affaires dépasse 445 milliards de HKD, mais il a reculé de 11 % sur un an — ce qui signifie que les ventes ont baissé, signal à surveiller. La marge brute (ce qu'il reste après le coût de fabrication des produits) est de 22 %, et la marge nette (le bénéfice final rapporté aux ventes) atteint presque 8 %, ce qui est honnête pour un constructeur de matériel. La dette rapportée aux fonds propres est élevée (ratio de 13, c'est-à-dire que Xiaomi s'est beaucoup endetté par rapport à ce qu'elle possède en propre), en partie à cause des investissements massifs dans le véhicule électrique.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "adyen",
+   "name": "Adyen",
+   "ticker": "ADYEN.AS",
+   "categorie": "fintech_payment",
+   "description": "Adyen est une société néerlandaise de technologie de paiement : elle fournit aux entreprises (Spotify, McDonald's, Microsoft…) une infrastructure unique pour accepter des paiements en ligne, en magasin et sur mobile partout dans le monde. Son chiffre d'affaires dépasse 2,3 milliards d'euros, en croissance de +17 % sur un an — ce qui signifie que ses revenus ont augmenté de 17 % par rapport à l'année précédente, sans acquisitions. La marge brute (ce qu'il reste après les coûts directs du service, avant les frais généraux) est de 68 %, et la marge nette (le bénéfice réel conservé sur chaque euro encaissé) atteint 45 %, ce qui est exceptionnel dans le secteur. Le ratio dette/capitaux propres de 4,8 mérite attention — cela signifie que la dette représente presque 5 fois les fonds propres de l'entreprise — mais cette dette est en grande partie structurelle au modèle de paiement (fonds en transit) et non le signe d'un endettement dangereux classique.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "dassault-aviation",
+   "name": "Dassault Aviation",
+   "ticker": "AM.PA",
+   "categorie": "defense_aerospace",
+   "description": "Dassault Aviation conçoit et fabrique deux grandes familles de produits : les avions de combat Rafale (vendu à l'armée française et à l'export) et les jets d'affaires Falcon. Le chiffre d'affaires atteint environ 7,6 milliards d'euros, en hausse de +22 % sur un an — une croissance solide, tirée par les commandes militaires export (Grèce, Indonésie, Inde, Émirats). La marge bénéficiaire nette est de 12,9 %, ce qui signifie que pour 100 € de ventes, Dassault conserve environ 13 € de bénéfice réel — c'est correct pour l'aéronautique. Le ratio dette/fonds propres affiché (3,0) peut sembler élevé, mais Dassault est historiquement riche en trésorerie ; ce chiffre reflète davantage la structure comptable du groupe (avances clients sur contrats long terme) que du vrai endettement dangereux.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "asml",
+   "name": "ASML",
+   "ticker": "ASML",
+   "categorie": "semiconductors",
+   "description": "ASML est une entreprise néerlandaise qui fabrique les machines indispensables à la production de puces électroniques — en particulier les systèmes de lithographie EUV (des appareils qui gravent des circuits ultra-fins sur des plaques de silicium grâce à la lumière ultraviolette extrême). C'est littéralement le seul fabricant au monde capable de produire ces machines, ce qui lui confère un monopole technologique absolu. Le chiffre d'affaires dépasse 35 milliards de dollars avec une croissance de +21 % sur un an — c'est-à-dire que l'entreprise a vendu 21 % de plus que l'année précédente. La marge bénéficiaire nette est de 30 % (sur 100 € de revenus, 30 € restent en profit), ce qui témoigne d'une rentabilité exceptionnelle. La dette rapportée aux fonds propres affiche un ratio de 9, ce qui paraît élevé mais reste gérable compte tenu de la génération de trésorerie colossale et de la position de monopole de l'entreprise.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "aerovironment",
+   "name": "AeroVironment",
+   "ticker": "AVAV",
+   "categorie": "defense_aerospace",
+   "description": "AeroVironment conçoit et fabrique des drones militaires de petite taille (comme le célèbre Switchblade, un drone-munition) ainsi que des systèmes de missiles tactiques, principalement vendus à l'armée américaine et à des alliés étrangers. Le chiffre d'affaires atteint environ 1,6 milliard de dollars, en croissance de 143 % — ce chiffre inclut vraisemblablement un effet d'acquisition majeure, la croissance dite 'organique' (c'est-à-dire hors rachats d'entreprises) étant probablement bien inférieure. En revanche, les marges sont préoccupantes : la marge opérationnelle est négative à -5 % (l'entreprise dépense plus qu'elle ne gagne avant impôts) et la marge nette est à -14 % (elle perd de l'argent sur chaque dollar vendu). Le ratio dette/capitaux propres de 19 signifie que l'entreprise est très endettée par rapport à ce qu'elle possède en propre — un signal de vigilance, surtout en période d'incertitude.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "bae-systems",
+   "name": "BAE Systems",
+   "ticker": "BA.L",
+   "categorie": "defense_aerospace",
+   "description": "BAE Systems est l'un des plus grands groupes de défense et d'aérospatiale au monde, présent sur les marchés américain, britannique, australien et saoudien. Il conçoit et fabrique des avions de combat, des sous-marins, des systèmes d'armement terrestres et des technologies électroniques militaires. Le chiffre d'affaires atteint environ 29,4 milliards de dollars, en hausse de 7,7 % — c'est-à-dire que l'entreprise vend davantage chaque année, ce qui est un signe de croissance saine. La marge bénéficiaire nette est de 7,2 % (autrement dit, sur 100 dollars encaissés, 7,2 dollars finissent en profit net), ce qui est correct dans ce secteur très capitalistique. En revanche, le ratio dette/capitaux propres de 73 indique que l'entreprise s'appuie significativement sur la dette pour financer ses activités — ce n'est pas alarmant dans la défense où les contrats gouvernementaux sont longs et stables, mais c'est un point à surveiller.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "byd",
+   "name": "BYD",
+   "ticker": "BYDDY",
+   "categorie": "auto_ev",
+   "description": "BYD est le leader chinois des véhicules électriques et hybrides rechargeables, avec une activité qui s'étend aussi aux batteries, à l'électronique et aux transports en commun. Son chiffre d'affaires dépasse 780 milliards de yuans (environ 108 milliards de dollars), ce qui en fait un mastodonte industriel. La marge brute (c'est-à-dire ce qu'il reste après les coûts de fabrication directs) est de 17 %, correcte pour l'automobile mais modeste, et la marge nette (le bénéfice final rapporté au chiffre d'affaires) n'est que de 3,5 %, ce qui laisse peu de coussin en cas de pression sur les prix. La dette est élevée : un ratio dette/fonds propres de 55 signifie que l'entreprise a 55 fois plus de dettes que de capital propre, ce qui est courant dans l'industrie lourde mais représente un vrai facteur de risque. La croissance des revenus est en recul de 12 % sur la période analysée, ce qui mérite attention même si BYD continue de croître fortement en volumes de ventes mondiales.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "cd-projekt",
+   "name": "CD Projekt",
+   "ticker": "CDR.WA",
+   "categorie": "gaming",
+   "description": "CD Projekt est le studio polonais derrière les jeux The Witcher et Cyberpunk 2077, distribués via sa propre plateforme GOG. Le chiffre d'affaires s'établit à environ 878 millions de PLN, mais il recule de 15,6 % sur un an — ce qui signifie que la société vend moins qu'avant, probablement faute de nouvelle sortie majeure. En revanche, la rentabilité reste exceptionnelle : une marge brute (ce qu'il reste après les coûts directs de production) de 91 % et une marge bénéficiaire nette (part du chiffre d'affaires qui se transforme en profit réel) de 67 %, c'est rare dans n'importe quel secteur. La dette est très faible, le bilan est sain — l'entreprise vit sur ses fonds propres.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "electronic-arts",
+   "name": "Electronic Arts",
+   "ticker": "EA",
+   "categorie": "gaming",
+   "description": "Electronic Arts (EA) est l'un des plus grands éditeurs de jeux vidéo au monde, connu pour des franchises comme FIFA/EA Sports FC, Battlefield ou The Sims. Son chiffre d'affaires annuel dépasse 7,5 milliards de dollars, en croissance de près de 12 % sur un an — ce qui est solide pour un acteur établi. La marge brute (c'est-à-dire la part du revenu qui reste après les coûts directs de production) est très élevée à 79 %, reflet d'un modèle centré sur le numérique et les abonnements. En revanche, la dette nette rapportée aux fonds propres affiche un ratio dette/capitaux propres de 27, ce qui signifie que la société porte une dette significative par rapport à ce qu'elle possède en propre — à surveiller, mais pas alarmant pour une entreprise générant des flux de trésorerie récurrents.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "thales",
+   "name": "Thales",
+   "ticker": "HO.PA",
+   "categorie": "defense_aerospace",
+   "description": "Thales est un groupe industriel franco-européen spécialisé dans la défense, l'aérospatiale, la cybersécurité et les systèmes d'identité numérique. Son chiffre d'affaires annuel dépasse 22,8 milliards d'euros, en croissance d'environ 6,7 % — ce qui signifie que l'entreprise vend nettement plus qu'il y a un an. La marge opérationnelle (la part du chiffre d'affaires qui reste après les coûts de production et de fonctionnement) est d'environ 10 %, ce qui est raisonnable dans l'industrie de défense. La dette rapportée aux capitaux propres (le ratio dette/fonds propres, une mesure de l'endettement) est à 69,5 : c'est notable mais pas alarmant pour un groupe de cette taille qui génère des flux réguliers grâce à des contrats d'État à long terme.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "kering",
+   "name": "Kering",
+   "ticker": "KER.PA",
+   "categorie": "luxury_eu",
+   "description": "Kering est un groupe français de luxe qui possède des maisons emblématiques comme Gucci, Saint Laurent, Bottega Veneta ou encore Balenciaga. Son chiffre d'affaires s'élève à environ 14,5 milliards d'euros, mais il est en léger recul de 2,9 % — ce qui signifie que le groupe vend un peu moins qu'il y a un an. La marge brute (c'est-à-dire ce qu'il reste après le coût de fabrication des produits, avant les frais de fonctionnement) est très élevée à 72 %, ce qui est typique du luxe haut de gamme. En revanche, la marge nette (le bénéfice final après toutes les charges) est légèrement négative à -1,5 %, ce qui veut dire que le groupe perd un peu d'argent en ce moment, principalement à cause du ralentissement de Gucci, sa marque phare. La dette représente 116 fois les fonds propres (la dette rapportée aux capitaux de l'entreprise), ce qui est élevé et mérite attention, même si c'est courant dans un groupe qui investit massivement dans ses marques.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "lvmh",
+   "name": "LVMH",
+   "ticker": "MC.PA",
+   "categorie": "luxury_eu",
+   "description": "LVMH est le numéro un mondial du luxe : il regroupe plus de 75 maisons emblématiques réparties en vins & spiritueux (Moët, Hennessy), mode & maroquinerie (Louis Vuitton, Dior), montres & joaillerie (Bulgari, TAG Heuer) et distribution sélective (Sephora). Le chiffre d'affaires dépasse 79 milliards d'euros, ce qui est colossal, mais la croissance organique (c'est-à-dire à périmètre constant, hors effets de change et acquisitions) est en légère baisse de -2,9 % sur la période — un signe de ralentissement, pas d'effondrement. La marge brute (part du chiffre d'affaires conservée après les coûts de production directs) s'établit à 66 %, ce qui est excellent et témoigne du vrai pouvoir de prix du luxe. La marge opérationnelle (bénéfice dégagé par l'activité courante, avant intérêts et impôts) atteint 22,5 % et la marge nette (ce qu'il reste réellement dans la poche après tout) à 13,7 % — des niveaux très solides pour une entreprise de cette taille. La dette rapportée aux fonds propres (le ratio dette/fonds propres, qui mesure combien l'entreprise doit relativement à ce qu'elle possède) ressort à 53, ce qui peut sembler élevé mais reste gérable pour un groupe générant autant de liquidités.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "nintendo",
+   "name": "Nintendo",
+   "ticker": "NTDOY",
+   "categorie": "gaming",
+   "description": "Nintendo conçoit et commercialise des consoles de jeux vidéo (Switch, et bientôt Switch 2) ainsi que les jeux qui vont avec (Mario, Zelda, Pokémon…). Le chiffre d'affaires ressort à environ 2 313 milliards de yens, avec une croissance de +95 % sur l'exercice — une progression spectaculaire portée par l'anticipation du lancement de la Switch 2. La marge brute (ce qui reste après le coût de fabrication des produits) est de 39 %, et la marge nette (le bénéfice final rapporté aux ventes) de 18 %, ce qui témoigne d'un modèle solide. Nintendo est connue pour son bilan quasi sans dette et une trésorerie abondante, ce qui lui donne une grande résistance en cas de coup dur.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "philips",
+   "name": "Philips",
+   "ticker": "PHIA.AS",
+   "categorie": "consumer_premium",
+   "description": "Philips est une entreprise néerlandaise du secteur de la santé (Healthcare) qui fabrique des équipements médicaux d'imagerie, de monitoring de patients et de soins à domicile (respirateurs, etc.). Son chiffre d'affaires annuel dépasse 17,6 milliards d'euros, mais il recule de 4,7 % — ce qui signifie que l'entreprise vend moins qu'il y a un an. La marge brute (la part du chiffre d'affaires qu'il reste après fabrication des produits) est correcte à 45 %, mais la marge opérationnelle (ce qu'il reste après toutes les charges d'exploitation) n'est que de 6,2 %, ce qui est faible pour le secteur. La dette représente environ 71 % des fonds propres (dette-sur-capitaux-propres = 70,9), un niveau à surveiller mais pas alarmant pour une entreprise de cette taille. Philips est encore en phase de redressement après le scandale de rappel massif de ses appareils respiratoires CPAP en 2021, qui a pesé lourdement sur ses résultats et sa réputation.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "planet-labs",
+   "name": "Planet Labs",
+   "ticker": "PL",
+   "categorie": "space_economy",
+   "description": "Planet Labs exploite une constellation de plusieurs centaines de petits satellites qui photographient l'intégralité de la surface terrestre chaque jour, puis vend ces images et les données dérivées à des clients gouvernementaux, agricoles ou environnementaux via abonnement. Le chiffre d'affaires dépasse 307 millions de dollars avec une croissance de 41 % sur un an — c'est-à-dire que les ventes ont progressé de 41 % par rapport à l'année précédente, ce qui est très élevé. La marge brute (ce qu'il reste après les coûts directs de production) est solide à 56 %, mais l'entreprise perd encore beaucoup d'argent : la marge opérationnelle est de -30 % et la marge nette de -80 %, ce qui signifie qu'elle dépense bien plus qu'elle ne gagne au total. La dette rapportée aux capitaux propres (dette/equity) s'élève à 245, un ratio très élevé qui traduit un bilan sous tension — l'entreprise est significativement endettée par rapport à sa valeur comptable.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "rheinmetall",
+   "name": "Rheinmetall",
+   "ticker": "RHM.DE",
+   "categorie": "defense_aerospace",
+   "description": "Rheinmetall est un industriel allemand spécialisé dans la défense (munitions, véhicules blindés, systèmes d'armes) et les équipements automobiles. Le chiffre d'affaires atteint environ 11,4 milliards d'euros, avec une croissance de 68,8 % sur un an — un rythme de croissance exceptionnel, porté par la remontée massive des budgets de défense en Europe depuis l'invasion de l'Ukraine. La marge brute (ce que l'entreprise conserve après ses coûts de production directs) est solide à 52 %, mais la marge nette (le bénéfice final rapporté au chiffre d'affaires) reste modeste à 6,3 %, ce qui indique des charges importantes en bas de compte de résultat. La dette rapportée aux fonds propres (ratio dette/capitaux propres) affiche 51,6, un niveau élevé qui mérite attention, même si ce type de levier est courant dans l'industrie de défense à gros contrats long terme.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "pernod-ricard",
+   "name": "Pernod Ricard",
+   "ticker": "RI.PA",
+   "categorie": "consumer_premium",
+   "description": "Pernod Ricard est le deuxième producteur mondial de spiritueux et vins premium, avec des marques iconiques comme Absolut, Jameson, Ballantine's ou Martell. Son chiffre d'affaires dépasse 10 milliards d'euros, avec une marge brute (c'est-à-dire la part du chiffre d'affaires qui reste après le coût de production) de 58 %, ce qui est excellent pour le secteur. La marge opérationnelle (bénéfice dégagé par l'activité pure, avant impôts et intérêts financiers) atteint 30 %, signe d'une activité très rentable. En revanche, la croissance des revenus est en recul de -15 % sur la dernière période, reflet d'une normalisation post-COVID et d'une demande plus molle en Chine et aux États-Unis ; la dette représente 82 fois les fonds propres comptables, un ratio élevé mais classique dans l'industrie des spiritueux où les actifs de marques et les stocks vieillissants sont précieux.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "hermes",
+   "name": "Hermès",
+   "ticker": "RMS.PA",
+   "categorie": "luxury_eu",
+   "description": "Hermès fabrique et vend des articles de luxe très haut de gamme — maroquinerie (le célèbre sac Birkin), soierie, prêt-à-porter, parfums et horlogerie. Le chiffre d'affaires dépasse 16 milliards d'euros, mais la croissance récente ralentit à +1,6 % sur un an, ce qui est faible pour cette maison. La marge brute (c'est-à-dire ce qu'il reste après le coût de fabrication, avant les frais généraux) est exceptionnelle à 71 %, et la marge opérationnelle (ce qui reste une fois tous les coûts d'exploitation déduits) atteint 42 % — parmi les meilleures de toute la cote mondiale. La dette est quasi nulle : un ratio dette/fonds propres de 12, c'est-à-dire que pour 12 euros de dettes, la société dispose de 100 euros de capitaux propres, ce qui est très sain pour une grande entreprise industrielle.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "roche",
+   "name": "Roche",
+   "ticker": "ROG.SW",
+   "categorie": "pharma_defensive",
+   "description": "Roche est l'un des leaders mondiaux de la santé, actif à la fois dans les médicaments (oncologie, neurologie, immunologie) et dans les diagnostics médicaux (tests de laboratoire, imagerie). C'est une entreprise suisse cotée à Zurich. Je ne dispose pas de données financières fraîches via ma source automatique pour cette analyse (chiffre d'affaires, bénéfices, niveau d'endettement), ce qui m'oblige à rester prudent sur les chiffres précis. Ce que je sais de façon structurelle : Roche génère des marges élevées (la marge, c'est la part du chiffre d'affaires qui reste en bénéfice après les coûts), un dividende régulier depuis des décennies, et un bilan historiquement solide. La croissance organique (c'est-à-dire la croissance réelle de l'activité, hors effets de change ou d'acquisition) reste sous pression depuis la fin des brevets de certains blockbusters COVID.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "sanofi",
+   "name": "Sanofi",
+   "ticker": "SAN.PA",
+   "categorie": "pharma_defensive",
+   "description": "Sanofi est l'un des plus grands laboratoires pharmaceutiques mondiaux, avec des médicaments blockbusters comme le Dupixent (traitement des maladies inflammatoires) et des vaccins via sa filiale Sana Pasteur. Le chiffre d'affaires dépasse 48 milliards d'euros, en croissance de presque 15 % sur un an — ce qui est solide pour un secteur réputé stable. La marge brute (c'est-à-dire ce qu'il reste après les coûts de production directs, avant frais généraux et R&D) est très élevée à 73 %, typique d'un grand pharma. La marge bénéficiaire nette (ce que l'entreprise conserve réellement après toutes les charges et impôts) est plus modeste à 8 %, ce qui reflète des dépenses importantes en recherche et en ventes. La dette rapportée aux fonds propres est de 33,9 — ce chiffre peut sembler élevé mais il s'explique en partie par la structure comptable des groupes pharma après acquisitions ; à surveiller sans alarme immédiate.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "solana",
+   "name": "Solana",
+   "ticker": "SOL",
+   "categorie": "crypto_alt",
+   "description": "Solana est une blockchain de couche 1 conçue pour exécuter des applications décentralisées à très haute vitesse et à faible coût — c'est une infrastructure sur laquelle d'autres projets construisent leurs services (finance décentralisée, NFT, jeux, paiements). Son écosystème est dense et actif, avec une TVL (c'est-à-dire la valeur totale bloquée dans les applications du réseau) significative et un volume de transactions parmi les plus élevés du secteur. Côté tokenomics, l'offre de SOL est inflationniste : de nouveaux tokens sont émis régulièrement pour rémunérer les validateurs (ceux qui sécurisent le réseau), ce qui crée une pression vendeuse structurelle, même si ce taux d'inflation est programmé pour diminuer progressivement dans le temps.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "block",
+   "name": "Block",
+   "ticker": "SQ",
+   "categorie": "fintech_payment",
+   "description": "Block (anciennement Square) opère dans deux grands univers : d'un côté Cash App, une application de paiement et de services financiers grand public (envoi d'argent, achat de Bitcoin, carte de débit) ; de l'autre, les solutions de caisse et de paiement pour les commerçants. Le chiffre d'affaires atteint environ 24,5 milliards de dollars, mais sa croissance ne dépasse que 4,9 % sur un an — un rythme modeste pour une fintech qui promettait une expansion rapide. La marge brute (ce qu'il reste après les coûts directs de production du service) est correcte à 45 %, mais la marge opérationnelle est légèrement négative à -2,6 %, ce qui signifie que l'entreprise dépense encore un peu plus qu'elle ne gagne au quotidien. La bonne nouvelle : le bénéfice net est légèrement positif (marge de 3,3 %), signe que la rentabilité est proche mais fragile. La dette rapportée aux fonds propres est très élevée (ratio dette/capitaux propres de 37,5), ce qui indique un endettement significatif qui réduit la marge de manœuvre financière.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "schneider-electric",
+   "name": "Schneider Electric",
+   "ticker": "SU.PA",
+   "categorie": "energy_transition",
+   "description": "Schneider Electric est un géant industriel français spécialisé dans la gestion de l'énergie et l'automatisation : ses produits et logiciels permettent aux bâtiments, usines et data centers de consommer moins d'énergie et de fonctionner plus efficacement. Le chiffre d'affaires dépasse 40 milliards d'euros, avec une croissance de 4,2 % — c'est-à-dire que les ventes progressent à un rythme modéré mais régulier. La marge brute (la part du revenu qui reste après les coûts de production directs) est solide à 42 %, et la marge opérationnelle (ce que l'entreprise garde après ses frais de fonctionnement) atteint 17,6 %, ce qui est un bon niveau pour un industriel. La dette représente 81 fois les fonds propres — ratio élevé en apparence, mais courant pour les grands groupes industriels qui financent leur croissance par emprunt ; la génération de cash reste suffisante pour la couvrir.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "tsmc",
+   "name": "TSMC",
+   "ticker": "TSM",
+   "categorie": "semiconductors",
+   "description": "TSMC (Taiwan Semiconductor Manufacturing Company) est le plus grand fabricant de puces électroniques au monde — concrètement, l'entreprise ne conçoit pas ses propres puces, elle les fabrique pour le compte d'Apple, Nvidia, AMD et des centaines d'autres. Son chiffre d'affaires dépasse 4 400 milliards de dollars taiwanais (environ 136 milliards USD) et a progressé de 36 % sur un an, porté par la demande explosive en intelligence artificielle. La marge brute est de 64 % (c'est-à-dire que sur 100 € de ventes, 64 € restent après les coûts de production directs) et la marge nette de 50 % — des niveaux exceptionnels qui témoignent du quasi-monopole technologique de TSMC sur les nœuds les plus avancés. La dette rapportée aux fonds propres est de 16,5 (ratio dette/capitaux propres), ce qui peut sembler élevé mais reste gérable au regard des flux de trésorerie massifs générés chaque trimestre.",
+   "as_of": "2026-09-01"
+  },
+  {
+   "slug": "ubisoft",
+   "name": "Ubisoft",
+   "ticker": "UBI.PA",
+   "categorie": "gaming",
+   "description": "Ubisoft est l'un des grands éditeurs de jeux vidéo français, connu pour des franchises comme Assassin's Creed, Far Cry ou Rainbow Six. Le chiffre d'affaires (les revenus totaux générés) ressort à environ 1,4 milliard d'euros, mais il a reculé de presque 40 % sur un an — c'est un effondrement, pas une simple correction. La marge brute (ce qu'il reste après les coûts de production directs) est élevée à 88 %, ce qui est typique du logiciel, mais les marges opérationnelle et nette (ce qui reste après TOUS les coûts, puis après impôts) sont profondément négatives : l'entreprise perd plus d'argent qu'elle n'en gagne. La dette rapportée aux fonds propres (ratio dette/capitaux propres) atteint 129, ce qui signifie que la société est très endettée par rapport à sa valeur comptable — un signal de fragilité financière réelle.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "visa",
+   "name": "Visa",
+   "ticker": "V",
+   "categorie": "fintech_payment",
+   "description": "Visa est le plus grand réseau mondial de paiement par carte : chaque fois qu'un consommateur paie avec une carte Visa, Visa prélève une petite commission — sans jamais prêter d'argent lui-même, ce qui lui évite le risque de crédit. Le chiffre d'affaires atteint 43 milliards de dollars, en hausse de 17 % sur un an (croissance dite 'organique', c'est-à-dire tirée par l'activité réelle et non par des acquisitions). La marge brute est de 98 % — autrement dit, presque chaque dollar de revenu reste dans l'entreprise après les coûts directs — et la marge opérationnelle de 67 % confirme un modèle d'une rentabilité exceptionnelle. La dette rapportée aux fonds propres (ratio dette/capitaux propres) affiche 67, ce qui paraît élevé, mais est structurel chez Visa : elle s'explique par des rachats massifs d'actions qui réduisent comptablement les fonds propres, et les flux de trésorerie générés couvrent largement ce niveau d'endettement.",
+   "as_of": "2026-06-02"
+  },
+  {
+   "slug": "vestas-wind-systems",
+   "name": "Vestas Wind Systems",
+   "ticker": "VWS.CO",
+   "categorie": "energy_transition",
+   "description": "Vestas Wind Systems est le leader mondial de la fabrication et de la maintenance d'éoliennes terrestres et offshore. La société affiche un chiffre d'affaires d'environ 19,3 milliards de DKK (couronnes danoises) avec une croissance de 14,4 % sur un an, ce qui est sain. Là où le bât blesse, c'est la rentabilité : la marge brute (c'est-à-dire ce qu'il reste après les coûts de production directs, rapporté au chiffre d'affaires) n'est que de 13,5 %, et la marge nette (le bénéfice final après toutes les charges) plafonne à 4,4 %. Le secteur des énergies renouvelables souffre depuis plusieurs années de la hausse des coûts des matières premières et des difficultés logistiques, ce qui explique ces marges très serrées. En revanche, le ratio dette/capitaux propres de 100 (c'est-à-dire que la dette représente à peu près autant que l'argent investi par les actionnaires) est élevé mais gérable pour une industrie aussi capitalistique.",
+   "as_of": "2026-06-02"
+  }
+ ]
+}

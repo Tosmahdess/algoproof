@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { getBotSlugs } from '@/lib/queries'
 import { getFicheSitemapData } from '@/lib/equity'
-import { asOf as investirAsOf, listeInvestir } from '@/lib/investir'
+import { asOf as investirAsOf, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
 
 function getBlogSlugs(): string[] {
@@ -19,25 +19,26 @@ export default async function sitemap() {
   let slugs: string[] = []
   try { slugs = await getBotSlugs() } catch { /* build-time network error — continue with empty slugs */ }
 
-  let fiches: { ticker: string; generated_at: string }[] = []
-  try { fiches = await getFicheSitemapData() } catch { /* build-time network error — continue */ }
-
-  const ficheUrls = fiches.map(f => ({
-    url: `https://algoproof.fr/wealth/${encodeURIComponent(f.ticker)}`,
-    lastModified: new Date(f.generated_at),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }))
-
-  // Les 581 fiches Investir. Lues d'un JSON committe, donc sans reseau et sans
+  // Les fiches Investir. Lues d'un JSON committe, donc sans reseau et sans
   // try/catch : si le fichier manque, le build echoue, ce qui est la bonne
   // reaction pour un contenu qui EST le depot.
-  const investirUrls = listeInvestir().map(f => ({
-    url: `https://algoproof.fr/investir/${f.slug}`,
-    lastModified: new Date(investirAsOf),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }))
+  //
+  // Les hors perimetre suivent, a une priorite plus basse : elles ne portent
+  // pas de note et leur analyse n'est adossee a aucun depot.
+  const investirUrls = [
+    ...listeInvestir().map(f => ({
+      url: `https://algoproof.fr/investir/${f.slug}`,
+      lastModified: new Date(investirAsOf),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
+    ...listeHorsPerimetre().map(f => ({
+      url: `https://algoproof.fr/investir/${f.slug}`,
+      lastModified: new Date(f.as_of),
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    })),
+  ]
 
   // Bot fiches: real, but they churn as the engine promotes and archives.
   const botUrls = slugs.map(slug => ({
@@ -94,7 +95,7 @@ export default async function sitemap() {
       priority: 0.9,
     },
     {
-      url: 'https://algoproof.fr/wealth',
+      url: 'https://algoproof.fr/investir',
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.7,
@@ -128,7 +129,6 @@ export default async function sitemap() {
       priority: 0.7,
     })),
     ...investirUrls,
-    ...ficheUrls,
     ...botUrls,
     ...conceptUrls,
   ]

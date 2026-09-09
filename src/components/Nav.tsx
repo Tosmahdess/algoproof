@@ -12,6 +12,10 @@ const MES_BOTS_SUB = [
 const MES_BOTS_PATHS = MES_BOTS_SUB.map(x => x.href)
 
 // The 3 plain hubs after "Mes bots"
+// 2026-09-09 : /wealth est supprimee. Ses analyses vivaient a cote d'/investir,
+// dont 55 en doublon exact ; les 27 que la regle ne peut pas noter y ont ete
+// reprises. Une seule page societes, comme l'user le demandait depuis le debut.
+//
 // 2026-09-07, decision user : INVESTIR mene a /investir. L'entree portait deja
 // ce nom et pointait vers /wealth ; depuis qu'une page s'appelle reellement
 // /investir, un libelle qui mene ailleurs que la page du meme nom est un piege.
@@ -35,7 +39,6 @@ const MOBILE_GROUPS: { title: string; links: { href: string; label: string; exte
   { title: 'Mes bots', links: MES_BOTS_SUB },
   { title: 'Explorer', links: [
     { href: '/investir',     label: 'Investir' },
-    { href: '/wealth',       label: 'Mon allocation long terme' },
     { href: '/intelligence', label: 'Météo du marché' },
     { href: '/blog',         label: 'Apprendre' },
   ]},

@@ -4,20 +4,74 @@ import { EquityDisclosure } from '@/components/EquityDisclosure'
 import { CoursTradingView } from '@/components/CoursTradingView'
 import { RecitInvestir } from '@/components/RecitInvestir'
 import {
-  COMPTES, COULEUR_NOTE, LIBELLE_NOTE, RECIT, asOf, ficheParSlug, tousLesSlugs,
+  COMPTES, COULEUR_NOTE, LIBELLE_NOTE, RECIT, asOf, ficheParSlug,
+  horsPerimetreParSlug, listeHorsPerimetre, tousLesSlugs,
+  type FicheHorsPerimetre,
 } from '@/lib/investir'
 import { longDate } from '@/lib/format-date'
 
 export const dynamic = 'force-static'
 
 export function generateStaticParams() {
-  return tousLesSlugs().map(slug => ({ slug }))
+  return [...tousLesSlugs(), ...listeHorsPerimetre().map(f => f.slug)]
+    .map(slug => ({ slug }))
 }
+
+/**
+ * Une société que la règle ne peut pas noter : pas de note, pas de comptes, pas
+ * de bandeau de chiffres. Ce qu'elle a, c'est une description et des risques
+ * écrits à partir de données de marché — donc invérifiables, et la page
+ * l'annonce avant tout le reste plutôt qu'en note de bas de page.
+ */
+function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
+  return (
+    <div className="max-w-3xl mx-auto px-6 py-16">
+      <Link href="/investir" className="text-sm text-muted hover:text-foreground transition-colors">
+        ← Toutes les sociétés
+      </Link>
+      <h1 className="text-3xl font-semibold tracking-tight mt-6 mb-4">{fiche.name}</h1>
+
+      <div className="rounded-lg border border-warning/40 bg-warning/5 px-5 py-4 mb-8">
+        <p className="text-sm text-foreground/80 leading-relaxed">
+          <strong>Je ne note pas cette société.</strong> Elle ne dépose pas de
+          rapport annuel auprès du régulateur américain, donc ma règle n’a aucun
+          document à lire et ne rend aucune note. Ce qui suit vient d’une
+          analyse écrite à partir de données de marché le {longDate(fiche.as_of)} :
+          aucun de ses chiffres n’est adossé à un dépôt, et tu ne peux pas les
+          vérifier comme sur les autres fiches.
+        </p>
+      </div>
+
+      {fiche.description && (
+        <section className="mb-8">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
+            Ce que fait l’entreprise
+          </h2>
+          <p className="text-foreground/80 leading-relaxed">{fiche.description}</p>
+        </section>
+      )}
+
+      <RecitInvestir slug={fiche.slug} nom={fiche.name} />
+
+      <p className="mt-10 text-xs text-muted">
+        Analyse du {longDate(fiche.as_of)}. Elle n’est pas recalculée chaque mois,
+        contrairement aux sociétés que je note.
+      </p>
+      <EquityDisclosure generatedAt={fiche.as_of} />
+    </div>
+  )
+}
+
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const fiche = ficheParSlug(slug)
-  if (!fiche) return {}
+  if (!fiche) {
+    const dehors = horsPerimetreParSlug(slug)
+    return dehors ? { title: `${dehors.name} : ce que j’en sais`,
+                      description: `Analyse de ${dehors.name}. Je ne note pas ses comptes : elle ne dépose pas auprès du régulateur américain.` }
+                  : {}
+  }
   return {
     title: `${fiche.name} : ce que disent ses comptes`,
     description: `Ma note sur les comptes de ${fiche.name}, lue dans un seul rapport annuel déposé à la SEC. Aucun conseil en investissement.`,
@@ -27,7 +81,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function FicheInvestir({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const fiche = ficheParSlug(slug)
-  if (!fiche) notFound()
+  if (!fiche) {
+    const dehors = horsPerimetreParSlug(slug)
+    if (!dehors) notFound()
+    return <FicheHorsPerimetreVue fiche={dehors} />
+  }
 
   // Composant serveur : seuls les champs rendus ci-dessous partent au
   // navigateur. Le paquet complet reste au build.

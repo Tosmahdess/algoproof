@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import ExplainerBox from '@/components/ExplainerBox'
 import InvestirListe from '@/components/InvestirListe'
-import { asOf, compteParNote, contexte, decimalFr, listeInvestir } from '@/lib/investir'
+import { asOf, compteParNote, contexte, decimalFr, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
 import { longDate } from '@/lib/format-date'
 
 // Rendu statique. Le paquet est un fichier commité : la page ne dépend d'aucun
@@ -11,6 +11,7 @@ export const dynamic = 'force-static'
 export default function InvestirPage() {
   const lignes = listeInvestir()
   const notes = compteParNote()
+  const dehors = listeHorsPerimetre()
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12 space-y-12">
@@ -47,6 +48,29 @@ export default function InvestirPage() {
           </div>
         ))}
       </section>
+
+      {dehors.length > 0 && (
+        <section className="rounded-lg border border-border bg-card px-5 py-4">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
+            {dehors.length} sociétés que je ne note pas
+          </h2>
+          <p className="text-xs text-muted leading-relaxed mb-3">
+            Elles ne déposent pas de rapport annuel auprès du régulateur
+            américain, donc ma règle n’a aucun document à lire. Je les suis
+            quand même, avec une analyse écrite à partir de données de marché
+            que tu ne peux pas vérifier comme le reste. C’est dit sur chaque
+            fiche.
+          </p>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
+            {dehors.map(f => (
+              <Link key={f.slug} href={`/investir/${f.slug}`}
+                    className="text-muted hover:text-foreground transition-colors">
+                {f.name}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section>
         <h2 className="text-xl font-semibold mb-3">Comment la note est décidée</h2>
