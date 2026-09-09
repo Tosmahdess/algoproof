@@ -26,6 +26,10 @@ export type FicheIndex = {
   // chiffre d'affaires >= 3 Md$. Ne décide PLUS ce qui est publié, sert de
   // filtre au lecteur.
   core: boolean
+  // Le secteur, tel qu'il est nommé dans la fiche : c'est le même mot qui sert
+  // de comparateur à l'ancre de valorisation, donc le lecteur le retrouve d'une
+  // page à l'autre. 235 fiches sur 1 407 n'en ont pas de nommé.
+  famille: string | null
 }
 
 // Les faits saillants, DÉJÀ rendus par les formateurs de la page : le site n'a

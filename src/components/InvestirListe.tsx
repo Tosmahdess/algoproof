@@ -16,6 +16,15 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
   const [notes, setNotes] = useState<Set<Grade>>(new Set())
   const [sansAncre, setSansAncre] = useState(false)
   const [grandes, setGrandes] = useState(false)
+  const [famille, setFamille] = useState('')
+
+  // Les familles présentes, les plus peuplées d'abord : à 1 407 lignes, un
+  // ordre alphabétique de 58 entrées ne sert personne.
+  const familles = useMemo(() => {
+    const compte = new Map<string, number>()
+    for (const l of lignes) if (l.famille) compte.set(l.famille, (compte.get(l.famille) ?? 0) + 1)
+    return [...compte.entries()].sort((a, b) => b[1] - a[1])
+  }, [lignes])
 
   const visibles = useMemo(() => {
     const q = recherche.trim().toLowerCase()
@@ -24,9 +33,10 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
       if (notes.size && !notes.has(l.grade)) return false
       if (sansAncre && l.anchor === 'mesuree') return false
       if (grandes && !l.core) return false
+      if (famille && l.famille !== famille) return false
       return true
     })
-  }, [lignes, recherche, notes, sansAncre, grandes])
+  }, [lignes, recherche, notes, sansAncre, grandes, famille])
 
   const bascule = (note: Grade) => {
     const suivant = new Set(notes)
@@ -47,6 +57,18 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
           className="flex-1 min-w-56 rounded border border-border bg-card px-3 py-2 text-sm
                      placeholder:text-muted focus:outline-none focus:border-accent"
         />
+        <select
+          value={famille}
+          onChange={e => setFamille(e.target.value)}
+          aria-label="Filtrer par secteur"
+          className="rounded border border-border bg-card px-3 py-2 text-xs font-semibold
+                     text-muted focus:outline-none focus:border-accent max-w-56"
+        >
+          <option value="">Tous les secteurs</option>
+          {familles.map(([nom, n]) => (
+            <option key={nom} value={nom}>{nom} ({n})</option>
+          ))}
+        </select>
         {NOTES.map(note => (
           <button
             key={note}
