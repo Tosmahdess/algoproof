@@ -28,10 +28,27 @@ export type FicheIndex = {
   core: boolean
 }
 
+// Les faits saillants, DÉJÀ rendus par les formateurs de la page : le site n'a
+// aucun arrondi à faire, donc aucun moyen d'en inventer un.
+export type Chiffres = {
+  ca: string | null
+  resultat: string | null
+  marge: string | null
+  part_actionnaires: string | null
+  annees_de_valorisation: string | null
+  mediane_du_secteur: string | null
+  secteur: string | null
+}
+
 export type Fiche = FicheIndex & {
   taxonomy: string | null
   filed: string | null
   filing_accn: string | null
+  chiffres: Chiffres
+  // Le symbole boursier, seulement quand le registre n'en donne qu'un seul sur
+  // une place principale. 142 fiches sur 1 407 n'en ont pas : préférentielles,
+  // bons de souscription, deux classes ordinaires. On ne devine pas.
+  ticker: string | null
   blocs: Record<string, string>
 }
 
@@ -73,6 +90,22 @@ export function compteParNote(): Record<Grade, number> {
 
 // L'ordre de lecture des blocs, et leur titre affiché. `verdict` est rendu à
 // part, en tête de fiche : c'est la conclusion, pas une section.
+// Le RÉCIT tient la pleine largeur : c'est ce qu'on vient lire, et aucun
+// gabarit ne peut l'écrire. Les COMPTES sont déterministes et se consultent —
+// ils vivent dans un bloc replié, sous un bandeau qui en donne l'essentiel.
+export const RECIT: { cle: string; titre: string }[] = [
+  { cle: 'activite', titre: 'Ce que fait l’entreprise' },
+  { cle: 'lecture',  titre: 'Ce que j’en retiens' },
+  { cle: 'risques',  titre: 'Ce qui peut mal tourner' },
+]
+
+export const COMPTES: { cle: string; titre: string }[] = [
+  { cle: 'fondamentaux', titre: 'Trois exercices, ligne à ligne' },
+  { cle: 'sante',        titre: 'Ce que ces trois séries disent' },
+  { cle: 'bilan',        titre: 'Ce qu’elle possède, ce qu’elle doit' },
+  { cle: 'valorisation', titre: 'Ce qu’elle vaut, et à quelle date' },
+]
+
 export const BLOCS: { cle: string; titre: string }[] = [
   { cle: 'activite',     titre: 'Ce que fait l’entreprise' },
   { cle: 'fondamentaux', titre: 'Les comptes' },
