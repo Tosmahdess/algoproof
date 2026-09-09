@@ -18,9 +18,16 @@ const COULEUR: Record<string, string> = {
   minor: 'text-warning',
 }
 
-// Quinze jours. Au-delà, un creux repéré n'est plus un fait sur le présent : la
-// plus ancienne alerte de la base remonte à trois mois, et l'afficher sans
-// distinction ferait passer un recul de juin pour l'état d'aujourd'hui.
+// Quinze jours de FRAÎCHEUR DU REPÉRAGE, à ne pas confondre avec la durée du
+// recul. La plus ancienne alerte de la base remonte à trois mois, et les
+// afficher sans distinction ferait passer un creux de juin pour l'état
+// d'aujourd'hui.
+//
+// Les deux se sont trouvées côte à côte dans une première version — « creux
+// repérés ces 15 derniers jours » au-dessus de « −63 % » — et un lecteur
+// combine : il lit que la société a perdu 63 % en deux semaines. Elle est à
+// 63 % sous son plus haut de SIX MOIS, et l'alerte a été levée récemment. Deux
+// faits vrais, une phrase fausse.
 const FRAICHEUR_JOURS = 15
 
 /**
@@ -62,12 +69,13 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
   return (
     <section className="rounded-lg border border-border bg-card px-5 py-4">
       <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-1">
-        Creux repérés ces {FRAICHEUR_JOURS} derniers jours
+        Creux repérés récemment
       </h2>
       <p className="text-xs text-muted leading-relaxed mb-3">
-        Un recul marqué depuis le plus haut des six derniers mois. Ça vient des
-        cours, pas des comptes : ça n’entre dans aucune note, et ça ne dit pas
-        qu’une société va mieux ou moins bien.
+        Le pourcentage est le recul <strong>depuis le plus haut des six derniers
+        mois</strong>, pas la baisse des dernières semaines. La date est celle
+        du repérage. Ça vient des cours, pas des comptes : ça n’entre dans
+        aucune note, et ça ne dit pas qu’une société va mieux ou moins bien.
       </p>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
         {recents.map(a => {
@@ -76,8 +84,13 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
           const contenu = (
             <>
               <span className="truncate">{nom}</span>
-              <span className={`font-mono text-xs ${COULEUR[a.signal_level] ?? 'text-muted'}`}>
-                {a.drawdown_pct.toFixed(0).replace('-', '−')} %
+              <span className="flex items-baseline gap-2 shrink-0">
+                <span className="text-[10px] text-muted/70">
+                  {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                </span>
+                <span className={`font-mono text-xs ${COULEUR[a.signal_level] ?? 'text-muted'}`}>
+                  {a.drawdown_pct.toFixed(0).replace('-', '−')} %
+                </span>
               </span>
             </>
           )
