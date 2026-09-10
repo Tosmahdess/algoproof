@@ -192,3 +192,59 @@ describe('no surface points at a reference price the fiche does not show', () =>
     expect(block).toMatch(/Analyse terminée le \{longDateTime\(generatedAt\)\}, heure de Paris\./)
   })
 })
+
+// Audit 2026-09-09 (P3), small copy. Each rule was checked in the code before
+// the copy was changed.
+describe('small copy says what the site does', () => {
+  // « simulation fidèle » promised a conformity the vault had already caught
+  // failing (site trades != Telegram). What is checkable: the paper bots trade
+  // real market data and debit fees and slippage (armada exits.py nets both;
+  // a hand-deployed bot's config.py carries taker_fee and slippage_pct).
+  it('« simulation fidèle » is gone, and the three surfaces say what the simulation includes', () => {
+    expect(filesMatching(/simulation fid[eè]le/i)).toEqual([])
+    expect(filesMatching(/simulation sur données réelles, frais et slippage compris/)).toEqual(
+      expect.arrayContaining(['src/app/a-propos/page.tsx', 'src/app/faq/page.tsx', 'src/app/overview/page.tsx']),
+    )
+  })
+
+  // « Ce système garantit que les gains sont partiellement sécurisés dès le
+  // TP1 »: a gap through TP1 secures nothing. A negation (« ne garantit pas
+  // que ») is fine; an affirmative guarantee about a trading outcome is not.
+  it('no surface guarantees a trading outcome', () => {
+    expect(filesMatching(/(?<!ne )garantit que/i)).toEqual([])
+  })
+
+  // The 27 May article states a present that stopped being true: the only
+  // real-money bot, on Binance Spot, next to 37 others. History is not
+  // rewritten; a dated note at the head says what changed.
+  it('the 27 May EMA article opens on a dated update note while it keeps its old claims', () => {
+    const text = read(path.join(ROOT, 'content/blog/2026-05-27-ema-cross-h4-spot.mdx'))
+    expect(text).toMatch(/le seul en live sur Binance Spot|Les 37 autres/) // else there is nothing to date
+    const body = text.split(/^---\r?$/m)[2] ?? ''
+    expect(body.trimStart().startsWith('<Callout type="info" title="Mise à jour du 11 septembre 2026">')).toBe(true)
+    expect(body).toMatch(/migré sur Kraken le 30 juin 2026/)
+    expect(body).toMatch(/retirées le 23 juillet 2026/)
+  })
+
+  // /compte, free tier: the membership was said to give access « à cette
+  // page », to a reader already on it. What it opens on this site is the two
+  // paragraphs of each company fiche, told with the one sentence of the offer.
+  it('/compte says what membership opens on this site, in the offer\'s own sentence', () => {
+    expect(filesMatching(/donne aussi accès à cette page/)).toEqual([])
+    const compte = read(path.join(ROOT, 'src/app/compte/page.tsx')).replace(/\s+/g, ' ')
+    expect(compte).toMatch(new RegExp(
+      `deux paragraphes d${APOS}analyse par société : ce que ses chiffres veulent dire pour son métier, et ce qui peut mal tourner`,
+    ))
+  })
+
+  // FAQ: « Voir un bot trader ne permet de rien reproduire », unscoped, while
+  // the three real-money bots publish their parameters on their fiche. True of
+  // engine-born bots only, whose recipe is the paid part.
+  it('« nothing to reproduce » is scoped to engine-born bots, and the real bots do publish', async () => {
+    expect(filesMatching(/(?<!moteur, )voir un bot trader ne permet de rien reproduire/i)).toEqual([])
+    expect(filesMatching(/Pour les bots sortis du moteur, voir un bot trader ne permet de rien reproduire/))
+      .toEqual(['src/app/faq/page.tsx'])
+    const { getBotParams } = await import('@/lib/bot-params')
+    for (const slug of ['v1-spot', 'v1-hl', 'orb-bf25']) expect(getBotParams(slug), slug).toBeTruthy()
+  })
+})

@@ -56,7 +56,7 @@ export default function AProposPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Paper ou argent réel ?</h2>
         <p className="text-muted leading-relaxed">
-          La plupart de mes bots tournent en <strong>paper trading</strong> (simulation fidèle sur de vraies données,
+          La plupart de mes bots tournent en <strong>paper trading</strong> (simulation sur données réelles, frais et slippage compris,
           sans argent réel) : c&apos;est ainsi qu&apos;on valide une stratégie sans risque. Les bots qui passent en
           argent réel sont marqués « Argent réel ». Le statut de chaque bot est toujours affiché. Pour le
           vocabulaire, vois le <Link href="/lexique" className="text-accent">lexique</Link>.
