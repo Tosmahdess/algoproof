@@ -71,3 +71,29 @@ describe('the paid Investir offer has one description', () => {
     ]))
   })
 })
+
+// Audit §2.1: « aucune ne reste profitable » on the home and « Profitables
+// sur 2 ans : 0 » in the article, while the article's own table gives the
+// Ichimoku a PF of 1,02 and its prose « ces dix euros … cinq trades ». The
+// claim now carried is the one the table supports: nine lose, the tenth
+// makes ten euros on five trades.
+describe('the ten-AI-strategies claim matches the article\'s own table', () => {
+  const ARTICLE = 'content/blog/2026-07-11-10-strategies-ia-au-bulletin.mdx'
+  const article = () => read(path.join(ROOT, ARTICLE))
+
+  it('the table still says what the claim rests on (PF 1.02, five trades)', () => {
+    expect(article()).toMatch(/Ichimoku[^\n]*\| 1\.02 \|[^\n]*5 meilleurs trades/)
+  })
+
+  it('no surface says « aucune ne reste profitable » or counts zero profitable', () => {
+    expect(filesMatching(/aucune ne reste profitable/i)).toEqual([])
+    expect(article()).not.toMatch(/label="Profitables sur 2 ans" value="0"/)
+    expect(article()).not.toMatch(/z[ée]ro profitable/i)
+  })
+
+  it('the home and the article carry the nine-lose / ten-euros / five-trades claim', () => {
+    const CLAIM = /neuf perdent[^.]*dixième gagne dix euros[^.]*cinq trades/i
+    expect(filesMatching(CLAIM)).toEqual(expect.arrayContaining(['src/app/page.tsx']))
+    expect(article()).toMatch(/dix euros[^.]*cinq trades/)
+  })
+})

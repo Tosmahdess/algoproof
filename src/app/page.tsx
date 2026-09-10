@@ -157,10 +157,14 @@ export default async function HomePage() {
       <div className="border border-border rounded-lg p-8 mb-16 bg-card/40">
         <h2 className="text-xl font-semibold mb-3 text-center">Faire vérifier une stratégie écrite par une IA</h2>
         <p className="text-muted text-sm max-w-2xl mx-auto mb-5 text-center">
+          {/* La phrase disait qu'aucune des dix ne restait profitable ; la table
+              de l'article donne l'Ichimoku à PF 1,02. Le chiffre ci-dessous est
+              celui que l'article porte (dix euros, cinq trades), pas un arrondi
+              de la conclusion (audit 2026-09-09, §2.1). */}
           Demande dix stratégies de trading à une IA, tu les as en dix secondes. J&apos;ai passé
-          ces dix-là au bulletin anti-overfit du labo : aucune ne reste profitable une fois les
-          vrais frais payés. Ton agent IA peut faire passer les siennes au même contrôle,
-          gratuitement.
+          ces dix-là au bulletin anti-overfit du labo : neuf perdent une fois les vrais frais
+          payés ; la dixième gagne dix euros en deux ans, portés par cinq trades chanceux. Ton
+          agent IA peut faire passer les siennes au même contrôle, gratuitement.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Link href="/blog/2026-07-11-10-strategies-ia-au-bulletin" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
