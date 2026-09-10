@@ -74,12 +74,17 @@ export function RecitInvestir({ slug, nom }: { slug: string; nom: string }) {
       <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-3">
         Ce que j’en retiens
       </h2>
+      {/* La même phrase que /preuve, la FAQ et la page d'abonnement du labo :
+          une seule description de l'offre, sur toutes les surfaces (audit
+          2026-09-09). Le contenu de la phrase ne se réécrit pas ici. */}
       <p className="text-sm text-foreground/80 leading-relaxed">
-        Deux paragraphes de plus sur {nom} : ce que sa marge, sa croissance et
-        son bilan veulent dire <em>pour un métier comme le sien</em> — une marge
-        de dix pour cent ne se lit pas pareil chez un constructeur automobile et
-        chez un éditeur de logiciels — et ce qui peut mal tourner, en propre à
-        elle plutôt que la liste des risques de n’importe quelle entreprise.
+        Ce que les membres lisent en plus, ce sont deux paragraphes d’analyse par
+        société : ce que ses chiffres veulent dire pour son métier, et ce qui peut
+        mal tourner. Pour {nom}, ça veut dire lire sa marge et son bilan avec les
+        yeux de son secteur (dix pour cent de marge ne se lisent pas pareil chez un
+        constructeur automobile et chez un éditeur de logiciels), puis nommer ce qui
+        peut lui arriver à elle, pas la liste des risques de n’importe quelle
+        entreprise.
       </p>
       <p className="text-xs text-muted mt-3 leading-relaxed">
         Tout ce qui est au-dessus reste ouvert à tout le monde, pour toujours :

@@ -57,9 +57,10 @@ export default function PreuvePage() {
           Ce qui se paie, c&apos;est comment j&apos;y suis arrivé. Pour un bot :
           la configuration exacte, les paramètres, les filtres, et la preuve étape par
           étape de la façon dont cette configuration a été retenue contre les milliers
-          de voisines qui sont mortes. Pour une société : les quatre parties qui
-          expliquent d&apos;où sort le verdict, au lieu de te demander de me croire
-          sur parole. Et le labo lui-même, l&apos;outil avec lequel je produis tout
+          de voisines qui sont mortes. Sur les sociétés que je note : deux paragraphes
+          d&apos;analyse par société : ce que ses chiffres veulent dire pour son métier,
+          et ce qui peut mal tourner. Le verdict, sa raison et les comptes, eux, restent
+          ouverts. Et le labo lui-même, l&apos;outil avec lequel je produis tout
           ça, sans quota journalier et avec ses grilles.
         </p>
         <p className="text-sm mb-3">
