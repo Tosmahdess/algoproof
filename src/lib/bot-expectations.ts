@@ -29,8 +29,11 @@ export interface BotExpectations {
   dormancyNote?: string
   /** Per-bot override of the standard paper→real gate (PF/WR/trades/DD). */
   liveGate?: Partial<import('./path-to-real').LiveGate>
-  /** Date this bot started trading real money (YYYY-MM-DD). Verified, never guessed. */
-  liveSince?: string
+  // No `liveSince` here, on purpose. The real-money start date lives in ONE
+  // place, `bots.live_since`, and the fiche derives every mention from it.
+  // A second copy typed here served two dates on the same fiche (17/04/2026
+  // from the database, 08/05/2026 from this file) — pre-launch audit
+  // 2026-09-09, §2.5. User decision: v1-spot = 17/04/2026, V1-HL = 06/04/2026.
 }
 
 const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
@@ -38,8 +41,6 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     source:
       'Critères GO pré-enregistrés avant le passage en live (backtests 730 j par actif : PF ≥ 1.2, DD ≤ 15 %) + règles de risque du bot.',
     registeredAt: '2026-05-08',
-    // Verified 2026-07-04: MIN(timestamp) of the live-only DB (apex_live_trades.db).
-    liveSince: '2026-05-08',
     pfFloor: 1.2,
     maxDrawdown: 0.15,
     killCriteria: [
@@ -106,9 +107,9 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     source:
       'Gate standard APEX pré-enregistré (PF ≥ 1.30, DD ≤ 20 %). Le backtest d’origine (PF 1.41 sur 25 actifs) s’est révélé optimiste : c’est le live qui juge, et il est affiché ici sans filtre.',
     registeredAt: '2026-06-20',
-    // Confirmed real-money since inception (Binance Futures period then Hyperliquid
-    // cutover 2026-06-18) — the full track is real. First real trade: 2026-04-26.
-    liveSince: '2026-04-26',
+    // Real money since inception (Binance Futures period then Hyperliquid
+    // cutover 2026-06-18): the full track is real. The start date itself is
+    // read from bots.live_since, see the interface note above.
     pfFloor: 1.3,
     maxDrawdown: 0.2,
     killCriteria: [

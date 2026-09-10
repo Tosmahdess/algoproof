@@ -136,12 +136,14 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
       {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}
 
-      {/* Paper→real gate (paper bots) or real-money start date (live bots) */}
+      {/* Paper→real gate (paper bots) or real-money start date (live bots).
+          The date comes from bots.live_since, the same column the provenance
+          line above reads: one source, one date per bot (audit 2026-09-09). */}
       <PathToRealCard
         status={bot.status}
         stats={bot.stats}
         liveGate={expectations?.liveGate}
-        liveSince={expectations?.liveSince}
+        liveSince={bot.live_since ?? undefined}
       />
 
       {/* "Sur mon capital" — observed history rescaled to a visitor-chosen capital */}
