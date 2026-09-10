@@ -38,7 +38,7 @@ import { longDateTime } from '@/lib/format-date'
 export function EquityDisclosure({ generatedAt }: { generatedAt: string }) {
   return (
     <section className="mt-12 border-t border-border pt-6 text-xs text-muted leading-relaxed space-y-3">
-      <h2 className="text-[10px] uppercase tracking-widest text-muted/70">
+      <h2 className="text-[10px] uppercase tracking-widest text-muted">
         Qui écrit ceci, et dans quel cadre
       </h2>
 

@@ -31,7 +31,7 @@ export default function InvestirPage() {
           et tu retombes sur ma note en dix minutes. Ce n’est pas un conseil d’achat :
           je ne lis aucun cours de bourse.
         </p>
-        <p className="text-xs text-muted/70 mt-3">
+        <p className="text-xs text-muted mt-3">
           Dernier calcul le {longDate(asOf)}.
         </p>
       </div>

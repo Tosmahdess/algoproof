@@ -81,7 +81,12 @@ export default function Footer() {
           <span className="text-sm text-muted">AlgoProof : mon labo de trading algo, en public. Chaque trade, chaque perte.</span>
           <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-muted hover:text-white transition-colors">X / Twitter</a>
         </div>
-        <p className="mt-4 text-xs text-muted/50">
+        {/* The site's default rule (« paper trading sauf mention contraire »)
+            and its legal reserve were the least readable line of the site:
+            text-xs at 50 % opacity, 2,20:1 measured (audit 2026-09-09). Full
+            opacity, 13 px: 5,6:1 on this ground, computed in
+            tests/lib/design-contrast.test.ts. */}
+        <p className="mt-4 text-[13px] text-muted">
           Ceci n&apos;est pas un conseil financier. Toutes les performances sont en paper trading sauf mention contraire.
           Je ne touche jamais à ton argent : pas de dépôt, pas de clé d&apos;exchange, tout est en lecture seule.
         </p>

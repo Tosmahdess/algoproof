@@ -138,7 +138,7 @@ export default function StrategyDetail({ bot }: Props) {
           <p className="text-muted text-sm text-center py-12">Aucun trade à afficher pour ce filtre.</p>
         )}
         {bot.status === 'paper' && (
-          <p className="text-xs text-muted/60 mt-3 text-center">
+          <p className="text-xs text-muted mt-3 text-center">
             ⚠ Paper trading : exécution simulée, aucun capital réel exposé
           </p>
         )}

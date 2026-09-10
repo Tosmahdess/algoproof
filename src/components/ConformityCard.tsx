@@ -95,7 +95,7 @@ export default function ConformityCard({
           </li>
         ))}
       </ul>
-      <p className="text-xs text-muted/70">
+      <p className="text-xs text-muted">
         Critères pré-enregistrés le {expectations.registeredAt} et versionnés publiquement
         (tout changement est daté). Source des chiffres : {expectations.source}
       </p>

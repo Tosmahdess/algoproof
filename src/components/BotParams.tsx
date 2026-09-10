@@ -7,7 +7,7 @@ export default function BotParams({ params }: { params: BotParams }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {params.groups.map(group => (
           <div key={group.title}>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-muted/60 mb-3">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
               {group.title}
             </h3>
             <div className="space-y-2">
@@ -17,7 +17,7 @@ export default function BotParams({ params }: { params: BotParams }) {
                   <div className="text-right">
                     <span className="font-mono font-medium">{item.value}</span>
                     {item.note && (
-                      <span className="block text-xs text-muted/60 mt-0.5">{item.note}</span>
+                      <span className="block text-xs text-muted mt-0.5">{item.note}</span>
                     )}
                   </div>
                 </div>

@@ -85,7 +85,7 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
             <>
               <span className="truncate">{nom}</span>
               <span className="flex items-baseline gap-2 shrink-0">
-                <span className="text-[10px] text-muted/70">
+                <span className="text-[10px] text-muted">
                   {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                 </span>
                 <span className={`font-mono text-xs ${COULEUR[a.signal_level] ?? 'text-muted'}`}>

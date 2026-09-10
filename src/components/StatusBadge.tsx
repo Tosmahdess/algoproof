@@ -16,7 +16,7 @@ const config: Record<BotStatus, { glyph: string | null; label: string; classes: 
   live:     { glyph: '●', label: 'Argent réel', classes: 'bg-foreground/10 text-foreground border-foreground/40' },
   backtest: { glyph: '◌', label: 'Backtest',    classes: 'bg-accent/10 text-accent border-accent/30' },
   frozen:   { glyph: null, label: 'Gelé',       classes: 'bg-muted/10 text-muted border-muted/30' },
-  archived: { glyph: null, label: 'Archivé',    classes: 'bg-muted/10 text-muted/70 border-muted/20' },
+  archived: { glyph: null, label: 'Archivé',    classes: 'bg-muted/10 text-muted border-muted/20' },
 }
 
 export default function StatusBadge({ status }: { status: BotStatus }) {
