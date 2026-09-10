@@ -92,12 +92,15 @@ export function RecitInvestir({ slug, nom }: { slug: string; nom: string }) {
         et le document pour tout refaire toi-même. Ce qui s’achète, c’est la
         lecture.
       </p>
-      {/* Les mêmes destinations que le paywall des fiches /wealth : une seule
-          page d'abonnement, un seul endroit pour se connecter. */}
+      {/* Une seule page d'abonnement, un seul endroit pour se connecter.
+          `text-bg`, pas `text-background` : ce dernier n'est pas un jeton de
+          tailwind.config.ts, Tailwind n'émettait aucune règle, et le seul
+          bouton payant du site héritait du blanc cassé sur l'accent (2,74:1
+          mesuré, audit 2026-09-09). Sombre sur accent : 6,64:1. */}
       <div className="mt-4 flex flex-wrap gap-3">
         <a
           href="https://lab.algoproof.fr/membre"
-          className="rounded bg-accent px-4 py-2 text-sm font-semibold text-background hover:opacity-90 transition-opacity"
+          className="rounded bg-accent px-4 py-2 text-sm font-semibold text-bg hover:opacity-90 transition-opacity"
         >
           Voir l’abonnement
         </a>

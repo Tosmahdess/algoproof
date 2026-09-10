@@ -239,13 +239,13 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         <div className="space-y-3">
           <div>
             <p className="text-xs text-muted mb-1.5">Intégrer (iframe)</p>
-            <code className="block text-xs bg-background border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
+            <code className="block text-xs bg-bg border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
               {`<iframe src="https://algoproof.fr/embed/${slug}" width="480" height="200" frameborder="0"></iframe>`}
             </code>
           </div>
           <div>
             <p className="text-xs text-muted mb-1.5">Image directe (Twitter / Discord)</p>
-            <code className="block text-xs bg-background border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
+            <code className="block text-xs bg-bg border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
               {`https://algoproof.fr/api/card/${slug}`}
             </code>
           </div>

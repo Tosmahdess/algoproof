@@ -107,7 +107,7 @@ export default function DiscussionTab({ slug }: Props) {
             onChange={e => setPseudo(e.target.value)}
             maxLength={50}
             required
-            className="w-full bg-background border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-severe"
+            className="w-full bg-bg border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-severe"
           />
           <textarea
             placeholder="Ta question ou ton commentaire…"
@@ -116,7 +116,7 @@ export default function DiscussionTab({ slug }: Props) {
             maxLength={1000}
             required
             rows={3}
-            className="w-full bg-background border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-severe resize-none"
+            className="w-full bg-bg border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-severe resize-none"
           />
           {error && <p className="text-xs text-negative">{error}</p>}
           <button
