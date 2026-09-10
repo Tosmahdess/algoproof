@@ -37,6 +37,10 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
+                {/* Regime before the figure, same as the home list (audit 2026-09-09). */}
+                <div className="flex justify-end mb-1">
+                  <StatusBadge status={bot.status} />
+                </div>
                 {hasData ? (
                   <>
                     <p className={`text-sm font-bold font-mono ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</p>

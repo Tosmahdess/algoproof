@@ -224,6 +224,12 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
+                {/* The regime BEFORE the figure, on every row. This list showed
+                    ten coloured P&L without a word of status while the FAQ said
+                    « Le statut est toujours affiché » (audit 2026-09-09, P1). */}
+                <div className="flex justify-end mb-1">
+                  <StatusBadge status={bot.status} />
+                </div>
                 {hasData ? (
                   <>
                     <p className={`text-sm font-bold font-mono ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</p>

@@ -42,11 +42,13 @@ export default async function EmbedPage({ params }: { params: Promise<{ slug: st
         </div>
         <span style={{
           fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
-          color: isLive ? '#3fb950' : '#8b949e',
-          background: isLive ? 'rgba(63,185,80,0.1)' : 'rgba(139,148,158,0.1)',
-          border: `1px solid ${isLive ? 'rgba(63,185,80,0.3)' : 'rgba(139,148,158,0.3)'}`,
+          // Regime as a form and a word, not the gain colour (audit 2026-09-09):
+          // same glyphs and words as StatusBadge on the site.
+          color: isLive ? '#e6edf3' : '#8b949e',
+          background: isLive ? 'rgba(230,237,243,0.1)' : 'rgba(139,148,158,0.1)',
+          border: `1px ${isLive ? 'solid rgba(230,237,243,0.4)' : 'dashed rgba(139,148,158,0.4)'}`,
         }}>
-          {isLive ? '● Live' : 'Paper'}
+          {isLive ? '● Argent réel' : '○ Simulation'}
         </span>
       </div>
 

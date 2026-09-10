@@ -90,7 +90,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         )}
         <p className="text-xs text-muted mb-4 max-w-2xl">
           Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
-          La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux en argent réel sont marqués « live ».
+          La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
         </p>
       </div>
 

@@ -38,11 +38,13 @@ export async function GET(
           </div>
           <span style={{
             fontSize: 14, fontWeight: 600, padding: '6px 14px', borderRadius: 20,
-            color: isLive ? '#3fb950' : '#8b949e',
-            background: isLive ? 'rgba(63,185,80,0.12)' : 'rgba(139,148,158,0.12)',
-            border: `1px solid ${isLive ? 'rgba(63,185,80,0.4)' : 'rgba(139,148,158,0.4)'}`,
+            // Regime as a form and a word, not the gain colour (audit 2026-09-09):
+            // same glyphs and words as StatusBadge on the site.
+            color: isLive ? '#e6edf3' : '#8b949e',
+            background: isLive ? 'rgba(230,237,243,0.12)' : 'rgba(139,148,158,0.12)',
+            border: `1px ${isLive ? 'solid rgba(230,237,243,0.4)' : 'dashed rgba(139,148,158,0.4)'}`,
           }}>
-            {isLive ? '● Live' : 'Paper'}
+            {isLive ? '● Argent réel' : '○ Simulation'}
           </span>
         </div>
 
