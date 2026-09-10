@@ -70,3 +70,19 @@ export function fmtWinRateDisplay(family: string | null | undefined, totalTrades
   if (isCarryFamily(family)) return '—'
   return `${(winRate * 100).toFixed(1)}%`
 }
+
+// A drawdown is painted as a loss only when there is one to show. The tables,
+// the fiche metrics, the embed and the social card painted it red whatever the
+// value, so « 0.0% » on a funding or grid bot read as danger where the figure
+// says nothing happened (audit 2026-09-09, design review §2.1). `max_drawdown`
+// is stored as a positive fraction of the peak (queries.ts, stats.ts). The test
+// is made on the string the reader sees, so a drawdown that rounds to « 0.0% »
+// is not red either: colour and text come from this pair, which is why every
+// surface formats the figure through fmtDrawdown.
+export function fmtDrawdown(maxDrawdown: number): string {
+  return `${(maxDrawdown * 100).toFixed(1)}%`
+}
+
+export function drawdownIsLoss(maxDrawdown: number): boolean {
+  return Number.parseFloat(fmtDrawdown(maxDrawdown)) !== 0
+}

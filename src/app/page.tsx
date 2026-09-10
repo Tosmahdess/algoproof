@@ -10,7 +10,7 @@ import { getFunnelCounts } from '@/lib/funnel'
 import { familyColor, familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
-import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 import { sortFleet } from '@/lib/fleet-sort'
 
 export const revalidate = 1800
@@ -295,8 +295,8 @@ export default async function HomePage() {
                   >
                     {hasData ? fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor) : <span className="text-muted">—</span>}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-negative hidden lg:table-cell">
-                    {hasData ? `${(bot.stats.max_drawdown * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
+                  <td className={`px-4 py-3 text-right font-mono hidden lg:table-cell ${hasData && drawdownIsLoss(bot.stats.max_drawdown) ? 'text-negative' : ''}`}>
+                    {hasData ? fmtDrawdown(bot.stats.max_drawdown) : <span className="text-muted">—</span>}
                   </td>
                   <td className="px-4 py-3 text-right">
                     {hasData ? (
