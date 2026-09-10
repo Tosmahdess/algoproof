@@ -72,6 +72,58 @@ describe('the paid Investir offer has one description', () => {
   })
 })
 
+// Audit §2.4 / production evidence §10: « Binance a cessé de servir la France »
+// was written as a definitive past on four surfaces, with no source and no
+// date of reading, three weeks before the AMF rules on Binance's new MiCA
+// filing (due before 1 October 2026). The fact is true today; it is written
+// as if it could not stop being true. Every surface that states it must now
+// carry the day it happened, the date at which it was still true, the
+// 1 October appointment — and only the sources the production evidence
+// actually found (no invented URL).
+describe('the Binance claim is dated and sourced', () => {
+  const CLAIM = /Binance (a|ait) cessé de servir|Binance ne sert (plus|toujours pas)|Ton bot Binance est mort/i
+  const ALLOWED_SOURCES = [
+    'https://www.cointribune.com/deux-mois-apres-mica-binance-vise-un-retour-en-france-via-lamf/',
+    'https://www.moneyvox.fr/placement/actualites/109356/binance-suspend-ses-activites-en-france-les-consequences-pour-vos-crypto-ici-le-1er-juillet-2026',
+    'https://www.francecryptos.fr/articles/binance-suspend-ses-services-en-france-le-1er-juillet-2026-ce-que-doivent-faire--756231',
+    'https://cryptoast.fr/binance-quitte-france-cryptos/',
+  ]
+  const SURFACES = [
+    'src/app/page.tsx',
+    'src/app/start/page.tsx',
+    'src/app/mica/page.tsx',
+    'content/blog/2026-07-10-ton-bot-binance-est-mort-le-1er-juillet.mdx',
+  ]
+
+  it('the four audited surfaces still state the claim (else the rest is vacuous)', () => {
+    expect(filesMatching(CLAIM)).toEqual(expect.arrayContaining(SURFACES))
+  })
+
+  it('every surface stating it carries the day, the date of reading and the 1 October appointment', () => {
+    for (const f of filesMatching(CLAIM)) {
+      const text = read(path.join(ROOT, f)).replace(/\s+/g, ' ')
+      expect(text, `${f}: day of the cut`).toMatch(/1er juillet 2026/)
+      expect(text, `${f}: date at which it was still true`).toMatch(/10 septembre 2026/)
+      expect(text, `${f}: AMF appointment`).toMatch(/1er octobre( 2026)?/)
+      // The sources say Binance AIMS for a return through a new filing; a
+      // surface must not say the filing has been made (lab-side review).
+      expect(text, `${f}: overstated filing`).not.toMatch(/a (re)?déposé/i)
+      expect(text, `${f}: the lab's wording`).toMatch(/vise un retour par un nouveau dépôt/)
+    }
+  })
+
+  it('only the sources the production evidence found are cited', () => {
+    for (const f of SURFACES) {
+      const urls = [...read(path.join(ROOT, f)).matchAll(/https?:\/\/[^\s"')\]]+/g)].map(m => m[0])
+      const press = urls.filter(u => /cointribune|moneyvox|francecryptos|cryptoast|binance/i.test(u))
+      for (const u of press) expect(ALLOWED_SOURCES, `${f}: ${u}`).toContain(u)
+    }
+    // and at least one of them is cited somewhere, or the guard above checks nothing
+    const cited = SURFACES.flatMap(f => ALLOWED_SOURCES.filter(u => read(path.join(ROOT, f)).includes(u)))
+    expect(cited.length).toBeGreaterThan(0)
+  })
+})
+
 // Audit §2.1: « aucune ne reste profitable » on the home and « Profitables
 // sur 2 ans : 0 » in the article, while the article's own table gives the
 // Ichimoku a PF of 1,02 and its prose « ces dix euros … cinq trades ». The

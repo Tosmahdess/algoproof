@@ -347,9 +347,15 @@ export default async function HomePage() {
         {/* « Commence ici » promettait un début et menait à l'ouverture d'un
             compte exchange : deux intentions différentes. Le libellé dit
             maintenant la destination, le sous-titre porte la raison. */}
+        {/* Daté, pas définitif : Binance vise un retour par un nouveau dépôt
+            MiCA et l'AMF doit se prononcer avant le 1er octobre 2026. Même
+            phrase que le labo ; sources et rendez-vous de relecture sur /start
+            (audit 2026-09-09, §10). */}
         <p className="text-xs text-muted mt-3">
-          Binance ne sert plus les résidents français depuis juillet 2026. Les plateformes
-          qui restent, comparées.
+          Binance a cessé de servir les résidents français le 1er juillet 2026, faute d&apos;agrément
+          MiCA. Au 10 septembre 2026, rien n&apos;a repris : Binance vise un retour par un nouveau
+          dépôt auprès de l&apos;AMF, qui doit se prononcer avant le 1er octobre. Les plateformes qui
+          restent, comparées.
         </p>
       </div>
 
