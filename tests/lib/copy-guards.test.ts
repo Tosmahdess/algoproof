@@ -175,3 +175,20 @@ describe('Investir is described as the page it is', () => {
     expect(card![2]).not.toMatch(/\d/)
   })
 })
+
+// Audit 2026-09-09 §2.4: the disclosure block under every company fiche told
+// the reader that the « prix de référence affiché plus haut » was the one of
+// the instant the analysis was finished. D048 removed the frozen price; the
+// only quote left is the live TradingView widget, and not on every fiche. A
+// sentence pointing at a price the page does not show must not come back.
+describe('no surface points at a reference price the fiche does not show', () => {
+  it('« prix de référence affiché » is gone from src/ and content/', () => {
+    expect(filesMatching(/prix de r[ée]f[ée]rence affich/i)).toEqual([])
+  })
+
+  it('the disclosure block still says who wrote it and when', () => {
+    const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
+    expect(block).toMatch(/Thomas Dessombs, à titre individuel/)
+    expect(block).toMatch(/Analyse terminée le \{longDateTime\(generatedAt\)\}, heure de Paris\./)
+  })
+})

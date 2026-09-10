@@ -26,8 +26,17 @@ import { longDateTime } from '@/lib/format-date'
  *
  * Everything else comes from data: the identity from
  * algolab/web/app/mentions-legales (the LCEN publication, already public), the
- * instant from `equity_fiches.generated_at`, the price from
- * `price_at_generation`.
+ * instant from the date the fiche passes in.
+ *
+ * NO PRICE SENTENCE. This block used to tell the reader that the reference
+ * price shown above was the one of that instant and no longer moved, while the
+ * quote and its change were live. That held while fiches printed a frozen
+ * `price_at_generation`; D048 removed it. The only price left on a fiche is the
+ * TradingView quote (CoursTradingView), live, fetched by the reader's browser,
+ * shown only when the ticker is unambiguous, never on an out-of-scope fiche.
+ * A live quote is not a reference price at any instant, so the sentence
+ * described something no fiche shows (audit 2026-09-09, §2.4). The fiche says
+ * what its quote is, next to the widget.
  *
  * Still missing, and known: RENFORCER / MAINTENIR / PASSER are defined nowhere
  * on the site, and neither is their horizon. Four components render the labels;
@@ -44,9 +53,7 @@ export function EquityDisclosure({ generatedAt }: { generatedAt: string }) {
 
       <p>
         Thomas Dessombs, à titre individuel (entrepreneur individuel, sous le nom commercial
-        AlgoProof). Analyse terminée le {longDateTime(generatedAt)}, heure de Paris. Le prix
-        de référence affiché plus haut est celui de cet instant et ne bouge plus ; le cours
-        et sa variation, eux, sont en direct.
+        AlgoProof). Analyse terminée le {longDateTime(generatedAt)}, heure de Paris.
       </p>
 
       <p>
