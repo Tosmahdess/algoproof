@@ -149,3 +149,29 @@ describe('the ten-AI-strategies claim matches the article\'s own table', () => {
     expect(article()).toMatch(/dix euros[^.]*cinq trades/)
   })
 })
+
+// Audit 2026-09-09 (P3): /investir closed on a link to /wealth, which
+// redirects to /investir in 308 (a link back to the page itself), and
+// /a-propos described Investir as « DCA crypto, ETF, actions », a page that
+// no longer exists. Investir is company accounts graded by a rule the reader
+// can redo, and the description must not carry a hand-typed company count.
+describe('Investir is described as the page it is', () => {
+  it('/investir carries no link to /wealth, which only redirects back to it', () => {
+    const page = read(path.join(ROOT, 'src/app/investir/page.tsx'))
+    expect(page).toMatch(/Mon travail d’analyse, publié en transparence/) // the paragraph is still there
+    expect(page).not.toMatch(/href="\/wealth"/)
+  })
+
+  it('no surface describes Investir as a DCA on crypto, ETFs and shares', () => {
+    expect(filesMatching(/accumulation long terme \(DCA\)/i)).toEqual([])
+  })
+
+  it('/a-propos opens /investir and describes graded accounts, with no number typed by hand', () => {
+    const page = read(path.join(ROOT, 'src/app/a-propos/page.tsx')).replace(/\s+/g, ' ')
+    const card = page.match(/\{ href: '([^']*)', title: 'Investir', desc: '([^']*)' \}/)
+    expect(card, 'the Investir card').toBeTruthy()
+    expect(card![1]).toBe('/investir')
+    expect(card![2]).toMatch(/comptes de sociétés cotées, notés par une règle que tu peux refaire/)
+    expect(card![2]).not.toMatch(/\d/)
+  })
+})

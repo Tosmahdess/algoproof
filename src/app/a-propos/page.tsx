@@ -11,7 +11,11 @@ const PIECES = [
   // matching Nav and Footer — /overview had two names across the site.
   { href: '/overview',     title: 'La flotte',  desc: 'Des bots qui tradent en conditions réelles. Chaque trade est public, gains comme pertes.' },
   { href: 'https://lab.algoproof.fr', title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
-  { href: '/wealth',       title: 'Investir',   desc: 'Mon accumulation long terme (DCA) sur la crypto, les ETF et les actions, en transparence.' },
+  // The card described /wealth (a monthly DCA on crypto, ETFs and shares), a
+  // page removed on 2026-09-09 and redirected to /investir. It now describes
+  // the page it opens. No company count here: it changes with every export,
+  // and a number typed by hand goes stale silently.
+  { href: '/investir',     title: 'Investir',   desc: 'Les comptes de sociétés cotées, notés par une règle que tu peux refaire toi-même, rapport annuel en main.' },
   { href: '/intelligence', title: 'Météo du marché', desc: 'La météo du marché que je calcule chaque jour : risque ON ou OFF, en français.' },
   { href: '/blog',         title: 'Apprendre',  desc: 'Mon journal, ma méthode, la fiscalité et la conformité MiCA : tout est documenté.' },
 ]

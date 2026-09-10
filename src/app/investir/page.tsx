@@ -133,13 +133,14 @@ sinon                                  → comptes solides`}
           aujourd’hui de source de cours que j’aie le droit d’afficher publiquement. Je
           préfère un trou nommé à un chiffre dont je ne peux pas répondre.
         </p>
+        {/* Ce paragraphe finissait sur « Mes analyses long terme et mon
+            allocation », un lien vers /wealth. /wealth est supprimée depuis le
+            2026-09-09 et redirige ici en 308 : le lien ramenait sur la page
+            même, et il n'y a plus de page d'allocation à promettre (audit
+            2026-09-09). */}
         <p className="text-xs">
           Mon travail d’analyse, publié en transparence. Ce n’est pas un conseil en
-          investissement.{' '}
-          <Link href="/wealth" className="text-accent hover:underline">
-            Mes analyses long terme et mon allocation
-          </Link>
-          .
+          investissement.
         </p>
       </section>
     </main>

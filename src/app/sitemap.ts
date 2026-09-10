@@ -88,17 +88,16 @@ export default async function sitemap() {
       changeFrequency: 'hourly' as const,
       priority: 0.8,
     },
+    // Listed once. The /wealth merge (2026-09-09) left two /investir entries,
+    // monthly at 0.9 and daily at 0.7: two contradictory statements about one
+    // page. Monthly is the one the page itself states (« Je le refais quand
+    // les comptes bougent, en visant une fois par mois »). Guarded by
+    // tests/lib/sitemap-canonical.test.ts, « lists no URL twice ».
     {
       url: 'https://algoproof.fr/investir',
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.9,
-    },
-    {
-      url: 'https://algoproof.fr/investir',
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 0.7,
     },
     {
       url: 'https://algoproof.fr/blog',

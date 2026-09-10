@@ -38,4 +38,16 @@ describe('sitemap', () => {
     expect(overview, 'the fleet page must be indexable').toBeTruthy()
     expect(overview!.priority).toBe(0.9)
   })
+
+  // Audit 2026-09-09: /investir was listed twice (monthly at 0.9, daily at
+  // 0.7), a leftover of the /wealth merge. The same URL twice with two
+  // priorities says two contradictory things about one page.
+  it('lists no URL twice', async () => {
+    const urls = (await sitemap()).map(e => e.url)
+    expect(urls.length).toBeGreaterThan(10) // not vacuous on an empty sitemap
+    const twice = urls.filter((u, i) => urls.indexOf(u) !== i)
+    expect(twice).toEqual([])
+    // and the page that was doubled is still there, once
+    expect(urls.filter(u => u === 'https://algoproof.fr/investir')).toHaveLength(1)
+  })
 })
