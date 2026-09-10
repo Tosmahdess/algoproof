@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // "Mes bots" hub — dropdown over the live-proof sub-pages
 const MES_BOTS_SUB = [
@@ -52,6 +52,45 @@ export default function Nav() {
   const path = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  // « MES BOTS » opened on hover only (`group-hover`), so a keyboard user who
+  // tabbed onto the button and pressed Enter got nothing: /overview and
+  // /strategies were unreachable from the nav without a mouse (pre-launch
+  // audit 2026-09-09, §4). The button now owns an open state and says so
+  // (aria-expanded / aria-controls); hover still works through group-hover.
+  const [mesBotsOpen, setMesBotsOpen] = useState(false)
+  const mesBotsRef = useRef<HTMLDivElement>(null)
+  const mesBotsButtonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!mesBotsOpen) return
+    const onPointerDown = (e: MouseEvent) => {
+      if (mesBotsRef.current && !mesBotsRef.current.contains(e.target as Node)) setMesBotsOpen(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    return () => document.removeEventListener('mousedown', onPointerDown)
+  }, [mesBotsOpen])
+
+  const toggleMesBots = () => setMesBotsOpen(o => !o)
+  // Enter and Space are handled here, and their default is cancelled, so the
+  // browser's own synthetic click on the <button> cannot toggle it a second
+  // time (Enter clicks on keydown, Space on keyup — hence both handlers).
+  const onMesBotsButtonKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      toggleMesBots()
+    }
+  }
+  const onMesBotsButtonKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === ' ') e.preventDefault()
+  }
+  const onMesBotsKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape' && mesBotsOpen) {
+      e.preventDefault()
+      setMesBotsOpen(false)
+      mesBotsButtonRef.current?.focus()
+    }
+  }
+
   const mesBotsActive = MES_BOTS_PATHS.some(p => path === p || path.startsWith(p + '/'))
 
   return (
@@ -67,16 +106,30 @@ export default function Nav() {
         <div className="hidden md:flex items-center gap-6">
 
           {/* MES BOTS dropdown */}
-          <div className="relative group">
-            <button type="button" className={`text-xs font-semibold tracking-widest transition-colors flex items-center gap-1 ${mesBotsActive ? 'text-foreground' : 'text-muted hover:text-foreground'}`}>
+          <div className="relative group" ref={mesBotsRef} onKeyDown={onMesBotsKeyDown}>
+            <button
+              type="button"
+              ref={mesBotsButtonRef}
+              aria-expanded={mesBotsOpen}
+              aria-controls="mes-bots-menu"
+              aria-haspopup="true"
+              onClick={toggleMesBots}
+              onKeyDown={onMesBotsButtonKeyDown}
+              onKeyUp={onMesBotsButtonKeyUp}
+              className={`text-xs font-semibold tracking-widest transition-colors flex items-center gap-1 ${mesBotsActive ? 'text-foreground' : 'text-muted hover:text-foreground'}`}
+            >
               MES BOTS
-              <svg className="w-2.5 h-2.5 opacity-50 group-hover:opacity-100" viewBox="0 0 10 6" fill="currentColor">
+              <svg className={`w-2.5 h-2.5 group-hover:opacity-100 ${mesBotsOpen ? 'opacity-100' : 'opacity-50'}`} viewBox="0 0 10 6" fill="currentColor">
                 <path d="M0 0l5 6 5-6H0z"/>
               </svg>
             </button>
-            <div className="absolute left-0 top-full mt-1 w-52 rounded border border-border bg-bg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+            <div
+              id="mes-bots-menu"
+              className={`absolute left-0 top-full mt-1 w-52 rounded border border-border bg-bg shadow-lg group-hover:opacity-100 group-hover:visible transition-all duration-150 ${mesBotsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+            >
               {MES_BOTS_SUB.map(({ href, label }) => (
                 <Link key={href} href={href}
+                  onClick={() => setMesBotsOpen(false)}
                   className={`block px-4 py-2.5 text-xs transition-colors hover:text-positive ${path === href ? 'text-foreground font-semibold' : 'text-muted'}`}>
                   {label}
                 </Link>
