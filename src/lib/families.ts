@@ -50,13 +50,19 @@ const LABELS: Record<Family, string> = {
 // which would make two of the nine families collide on /overview's family
 // badges — the one deliberate raw-hex holdout from the 2026-08-22 design-token
 // pass, kept for that reason.
+//
+// No family borrows a SIGNAL colour (2026-09-11 review, user decision). Trend
+// was drawn in `severe`, breakout in `positive` (gain green), carry in
+// `warning` (alert amber): a badge read as a verdict on the bot. They moved to
+// pink-400, fuchsia-400 and purple-400, which nothing in src/ uses as a signal,
+// all above 7:1 on #0a0a0a and #111111. tests/lib/families.test.ts pins it.
 const COLORS: Record<Family, string> = {
-  trend: 'var(--severe)',
+  trend: '#f472b6',
   momentum: '#58a6ff',
-  breakout: 'var(--positive)',
+  breakout: '#e879f9',
   'mean-reversion': '#7c3aed',
   'price-action': 'var(--accent)',
-  carry: 'var(--warning)',
+  carry: '#c084fc',
   'market-neutral': '#14b8a6',
   'stat-arb': '#40c4ff',
   event: '#fb923c',

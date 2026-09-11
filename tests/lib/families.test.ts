@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
+import fs from 'node:fs'
+import path from 'node:path'
 import { FAMILY_ORDER, isFamily, familyLabel, familyColor } from '@/lib/families'
+
+const ROOT = path.resolve(__dirname, '../..')
+const SIGNALS = ['positive', 'negative', 'warning', 'severe'] as const
 
 describe('family taxonomy', () => {
   it('holds exactly the nine canonical families, in display order', () => {
@@ -55,6 +60,34 @@ describe('family taxonomy', () => {
     const colors = FAMILY_ORDER.map(familyColor)
     for (const c of colors) expect(c).toMatch(/^#[0-9a-f]{6}$|^var\(--[a-z]+\)$/)
     expect(new Set(colors).size).toBe(colors.length)
+  })
+
+  // 2026-09-11 review (P7): breakout was painted in `positive` (gain green),
+  // trend in `severe`, carry in `warning`. A family badge is a category, not a
+  // verdict: no family colour may be a signal token, or a signal token's hex.
+  it('no family colour is a signal colour, by token or by hex', () => {
+    const tw = fs.readFileSync(path.join(ROOT, 'tailwind.config.ts'), 'utf8')
+    const css = fs.readFileSync(path.join(ROOT, 'src/app/globals.css'), 'utf8')
+    const cssVar = (name: string) =>
+      css.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1].toLowerCase() ?? null
+
+    const signalHex = new Set<string>()
+    for (const s of SIGNALS) {
+      const fromConfig = tw.match(new RegExp(`\\b${s}:\\s*'(#[0-9a-fA-F]{6})'`))?.[1].toLowerCase()
+      expect(fromConfig, `${s} in tailwind.config.ts`).toBeTruthy()
+      signalHex.add(fromConfig!)
+      const fromCss = cssVar(s)
+      if (fromCss) signalHex.add(fromCss)
+    }
+
+    const offenders = FAMILY_ORDER.filter(f => {
+      const c = familyColor(f)
+      const token = c.match(/^var\(--([a-z-]+)\)$/)?.[1]
+      const hex = token ? cssVar(token) : c.toLowerCase()
+      return (token !== undefined && (SIGNALS as readonly string[]).includes(token))
+        || (hex !== null && signalHex.has(hex))
+    })
+    expect(offenders).toEqual([])
   })
 
   // FIX (final whole-branch review, I5): `Family` is a compile-time type and
