@@ -308,6 +308,25 @@ describe('small copy says what the site does', () => {
     expect(body.trimStart().startsWith('<Callout type="info" title="Mise à jour du 11 septembre 2026">')).toBe(true)
     expect(body).toMatch(/migré sur Kraken le 30 juin 2026/)
     expect(body).toMatch(/retirées le 23 juillet 2026/)
+    // 2026-09-11 review (P9). The note's grammar, the Hard-Gate the body still
+    // calls « en shadow » (layers 1-2 decommissioned 15/06/2026 per
+    // decision-stack.md; layer 3 never in v1-spot's code per D-APX-L3-8), and a
+    // summary whose figures are those of 27 May.
+    expect(body).not.toMatch(/les 37 autres bots en simulation sont/)
+    expect(body).toMatch(/la flotte en simulation compte aujourd'hui bien plus que ces 37 bots/)
+    expect(body).toMatch(
+      /Le Hard-Gate présenté plus bas n'est plus en shadow : ses deux premières couches ont été retirées le 15 juin 2026, et la troisième n'a jamais tourné sur ce bot\./,
+    )
+    const front = text.split(/^---\r?$/m)[1] ?? ''
+    expect(front).toMatch(/10 trades, PF 3\.71, \+52 USDC \(chiffres du 27 mai\)/)
+  })
+
+  // /start promised that the page « changera le jour même » the AMF rules on
+  // Binance: a promise of a same-day edit nobody can guarantee.
+  it('/start does not promise a same-day edit on the AMF decision', () => {
+    expect(filesMatching(/changera le jour même/)).toEqual([])
+    const start = read(path.join(ROOT, 'src/app/start/page.tsx')).replace(/\s+/g, ' ')
+    expect(start).toMatch(new RegExp(`Si l${APOS}AMF dit oui, je le noterai ici\\.`))
   })
 
   // /compte, free tier: the membership was said to give access « à cette
