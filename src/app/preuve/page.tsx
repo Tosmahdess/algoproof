@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Ma méthode : pourquoi je montre chaque perte',
-  description: 'Comment je valide une stratégie avant de la déployer : backtest sur 2 ans, 20 trades minimum, walk-forward, et rejet des overfits. La transparence comme méthode, pas comme argument.',
+  description: 'Comment je valide une stratégie avant de la déployer : backtest sur 2 ans, 20 trades minimum, un walk-forward qui regarde le pire trimestre (pas un test hors échantillon), des coûts inclus dès le backtest, puis du paper trading. La transparence comme méthode, pas comme argument.',
 }
 
 export default function PreuvePage() {

@@ -163,7 +163,7 @@ export default async function HomePage() {
               de la conclusion (audit 2026-09-09, §2.1). */}
           Demande dix stratégies de trading à une IA, tu les as en dix secondes. J&apos;ai passé
           ces dix-là au bulletin anti-overfit du labo : neuf perdent une fois les vrais frais
-          payés ; la dixième gagne dix euros en deux ans, portés par cinq trades chanceux. Ton
+          payés ; la dixième gagne dix euros en deux ans, portés par cinq trades. Ton
           agent IA peut faire passer les siennes au même contrôle, gratuitement.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
