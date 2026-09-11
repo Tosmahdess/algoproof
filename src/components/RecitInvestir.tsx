@@ -3,15 +3,37 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
+type Blocs = { lecture: string | null; risques: string | null }
+
 type Reponse = {
-  entitlement: 'guest' | 'free' | 'paid'
-  blocs?: { lecture: string | null; risques: string | null }
+  entitlement?: 'guest' | 'free' | 'paid'
+  horsPerimetre?: boolean
+  blocs?: Partial<Blocs>
   indisponible?: boolean
 }
 
 const TITRES: Record<string, string> = {
   lecture: 'Ce que j’en retiens',
   risques: 'Ce qui peut mal tourner',
+}
+
+const CLES = ['lecture', 'risques'] as const
+
+function BlocsRendus({ blocs }: { blocs: Partial<Blocs> }) {
+  return (
+    <div className="space-y-8">
+      {CLES.map(cle =>
+        blocs[cle] ? (
+          <section key={cle}>
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
+              {TITRES[cle]}
+            </h2>
+            <p className="text-foreground/80 leading-relaxed">{blocs[cle]}</p>
+          </section>
+        ) : null,
+      )}
+    </div>
+  )
 }
 
 /**
@@ -25,8 +47,18 @@ const TITRES: Record<string, string> = {
  * Ce qui s'affiche à sa place n'est pas un mur : la page dit ce que ces deux
  * paragraphes contiennent, sur cette société précise, parce qu'un lecteur qui
  * ne voit rien n'a aucune raison de payer pour le voir.
+ *
+ * `horsPerimetre` : posé par la page d'une société que la règle ne note pas.
+ * Décision user du 11/09/2026, temporaire : ces fiches n'ont rien à vendre
+ * (au mieux un paragraphe de risques), la route les sert à tout le monde, et
+ * ce composant n'y affiche jamais d'offre. Pas de texte : rien du tout, pas
+ * même un « Chargement » qui resterait affiché.
  */
-export function RecitInvestir({ slug, nom }: { slug: string; nom: string }) {
+export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
+  slug: string
+  nom: string
+  horsPerimetre?: boolean
+}) {
   const [reponse, setReponse] = useState<Reponse | null>(null)
 
   useEffect(() => {
@@ -38,26 +70,23 @@ export function RecitInvestir({ slug, nom }: { slug: string; nom: string }) {
     return () => { vivant = false }
   }, [slug])
 
+  if (horsPerimetre) {
+    if (!reponse) return null
+    if (reponse.indisponible) {
+      return <p className="text-sm text-muted">L’analyse est momentanément indisponible.</p>
+    }
+    const blocs = reponse.blocs
+    if (!blocs || !CLES.some(cle => blocs[cle])) return null
+    return <BlocsRendus blocs={blocs} />
+  }
+
   if (!reponse) {
     return <p className="text-sm text-muted">Chargement de l’analyse…</p>
   }
 
   const blocs = reponse.blocs
   if (reponse.entitlement === 'paid' && blocs) {
-    return (
-      <div className="space-y-8">
-        {(['lecture', 'risques'] as const).map(cle =>
-          blocs[cle] ? (
-            <section key={cle}>
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
-                {TITRES[cle]}
-              </h2>
-              <p className="text-foreground/80 leading-relaxed">{blocs[cle]}</p>
-            </section>
-          ) : null,
-        )}
-      </div>
-    )
+    return <BlocsRendus blocs={blocs} />
   }
 
   if (reponse.indisponible) {

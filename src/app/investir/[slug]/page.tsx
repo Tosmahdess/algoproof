@@ -51,7 +51,9 @@ function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
         </section>
       )}
 
-      <RecitInvestir slug={fiche.slug} nom={fiche.name} />
+      {/* horsPerimetre : ce que la table a pour cette société est servi à tout
+          le monde, sans offre (décision user du 11/09/2026, temporaire). */}
+      <RecitInvestir slug={fiche.slug} nom={fiche.name} horsPerimetre />
 
       <p className="mt-10 text-xs text-muted">
         Analyse du {longDate(fiche.as_of)}. Elle n’est pas recalculée chaque mois,
