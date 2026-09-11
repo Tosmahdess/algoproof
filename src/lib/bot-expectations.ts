@@ -61,7 +61,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
 
   'funding-rev-long': {
     source:
-      'Critères de mort pré-enregistrés le 2026-06-30 (avant tout run) ; backtest 2022-2026 univers HL∩Binance top-100 : PF 2.04, DD 13.8 %, walk-forward OOS 2.25, 5/5 années positives.',
+      'Critères de mort pré-enregistrés le 2026-06-30 (avant tout run) ; backtest 2022-2026 univers HL∩Binance top-100 : PF 2.04, DD 13.8 %, walk-forward 2.25, 5/5 années positives.',
     registeredAt: '2026-06-30',
     pfFloor: 1.3,
     maxDrawdown: 0.2,

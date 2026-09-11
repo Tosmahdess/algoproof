@@ -26,8 +26,11 @@ export function provenanceSentence(bot: ProvenanceBot): string {
   if (bot.origin === 'engine') {
     const found = fr(bot.found_at)
     if (found) parts.push(`Trouvé par la recherche automatique le ${found}.`)
+    // « Retenu », not « Validé » (audit 2026-09-10): the verdict behind this date was
+    // produced by a simulator with three known execution defects and will be judged
+    // again. The column keeps its name; the sentence says what happened.
     const validated = fr(bot.validated_at)
-    if (validated) parts.push(`Validé le ${validated}.`)
+    if (validated) parts.push(`Retenu par le moteur le ${validated}.`)
   } else {
     const started = fr(bot.paper_since)
     parts.push(
