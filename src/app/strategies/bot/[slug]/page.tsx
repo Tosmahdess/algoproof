@@ -59,7 +59,13 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   // returns null both when this bot was never screened and when the screening tables
   // don't exist yet in this environment.
   const provenance = await getProvenanceForBot(bot.slug)
-  const conceptSlug = ficheSlugForBot(bot)
+  // The `orb` fiche describes the Labo's ORB: a cap on trades per day and a session end
+  // where every position is closed. The engine's ORB closes nothing at session end and can
+  // fire several times in one session (audit 2026-09-10). Pointing an engine-born ORB bot
+  // at that fiche would describe a strategy it does not run, so both links from this page
+  // are withheld for those bots only; the hand-deployed ORB keeps its link.
+  const resolvedConcept = ficheSlugForBot(bot)
+  const conceptSlug = bot.origin === 'engine' && resolvedConcept === 'orb' ? null : resolvedConcept
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-16">
