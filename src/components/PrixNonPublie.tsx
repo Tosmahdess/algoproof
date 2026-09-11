@@ -14,7 +14,7 @@ import Link from 'next/link'
  * performance, un recul), qui sont des faits sur un portefeuille et non un
  * substitut au service de cotation. Ce qui disparaît : toute valeur de cours.
  *
- * Raisonnement complet : `DECISIONS.md`, entrée 2026-09-08.
+ * Le détail : `DECISIONS.md`, entrée 2026-09-08.
  */
 export function PrixNonPublie({ ticker, avecLien = false }:
   { ticker?: string | null; avecLien?: boolean }) {

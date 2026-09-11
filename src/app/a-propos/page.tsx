@@ -70,8 +70,8 @@ export default function AProposPage() {
           analyses par société. Le{' '}
           <a href="https://lab.algoproof.fr" className="text-accent">labo</a> s&apos;ouvre sans compte, et un compte
           gratuit permet de lancer des backtests avec des quotas. L&apos;adhésion à 29 € par mois lève ces quotas et
-          ouvre le reste : la configuration exacte des bots et leur dossier de validation, le raisonnement complet
-          derrière chaque analyse, et les fonctions de calcul du labo. Jamais les résultats, qui restent publics
+          ouvre le reste : la configuration exacte des bots et leur dossier de validation, deux paragraphes
+          d&apos;analyse par société, et les fonctions de calcul du labo. Jamais les résultats, qui restent publics
           et gratuits.{' '}
           <Link href="/preuve" className="text-accent">Où passera la ligne, en détail →</Link>
         </p>

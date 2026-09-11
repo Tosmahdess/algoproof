@@ -62,6 +62,18 @@ describe('the paid Investir offer has one description', () => {
     expect(filesMatching(/s[ée]lection du jour/i)).toEqual([])
   })
 
+  // 2026-09-11 review (P3): the FAQ and /a-propos still sold « le raisonnement
+  // complet » of each analysis, a third version of an offer that is two
+  // paragraphs.
+  it('« raisonnement complet » is gone from src/ and content/, and both pages say two paragraphs', () => {
+    expect(filesMatching(/raisonnement complet/i)).toEqual([])
+    const TWO = new RegExp(`deux paragraphes d${APOS}analyse par société`)
+    expect(filesMatching(TWO)).toEqual(expect.arrayContaining([
+      'src/app/faq/page.tsx',
+      'src/app/a-propos/page.tsx',
+    ]))
+  })
+
   it('the canonical sentence is on every surface that sells the offer', () => {
     const where = filesMatching(CANON)
     expect(where).toEqual(expect.arrayContaining([
