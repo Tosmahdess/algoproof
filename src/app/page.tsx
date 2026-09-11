@@ -126,7 +126,9 @@ export default async function HomePage() {
           // flotte » in the nav and the footer; it was « Mes bots » here and on
           // /a-propos. One page, one name.
           { href: '/overview',     emoji: '🤖', title: 'La flotte',  desc: 'Regarde mes bots trader en vrai, chaque trade horodaté.' },
-          { href: '/wealth',       emoji: '💰', title: 'Investir',  desc: 'Ma watchlist long terme et mes analyses par société.' },
+          // /wealth is redirected to /investir since 2026-09-09. Same page, same
+          // name as the nav, same description as the /a-propos card.
+          { href: '/investir',     emoji: '💰', title: 'Investir',  desc: 'Les comptes de sociétés cotées, notés par une règle que tu peux refaire toi-même, rapport annuel en main.' },
           { href: '/intelligence', emoji: '🌤️', title: 'Météo du marché', desc: 'La météo du marché, en français, chaque jour.' },
           // FIX (final whole-branch review, I6): the « bibliothèque des 22
           // stratégies » pointed at lab.algoproof.fr/apprendre. This branch

@@ -193,6 +193,47 @@ describe('Investir is described as the page it is', () => {
     expect(page).not.toMatch(/href="\/wealth"/)
   })
 
+  // 2026-09-11 review (P8): the home Investir card and both /compte links
+  // (the magic-link return and the member link) still went to /wealth, which
+  // next.config.ts redirects to /investir. next.config.ts is outside src/ and
+  // keeps its redirects. Four components still build /wealth/<ticker> links,
+  // but no page mounts them (only their own tests import them): they are
+  // named here, and mounting one again fails this test before a visitor
+  // follows the link.
+  it('no link, redirectTo or next in src/ sends a reader to /wealth', () => {
+    const LINK = /(?:href|redirectTo|next)\s*[=:]\s*\{?\s*["'`]\/wealth/
+    const NEXT_PARAM = /[?&]next=(?:\/|%2F)wealth/i
+    const UNMOUNTED = [
+      'src/components/AnalysesClient.tsx',
+      'src/components/LatestAnalyses.tsx',
+      'src/components/SignalTable.tsx',
+      'src/components/TopPicks.tsx',
+    ]
+    const srcFiles = FILES.filter(f => rel(f).startsWith('src/'))
+    const hits = srcFiles
+      .filter(f => { const t = read(f).replace(/\s+/g, ' '); return LINK.test(t) || NEXT_PARAM.test(t) })
+      .map(rel)
+      .sort()
+    // exactly the unmounted four: proves the pattern fires, and that no
+    // mounted file joined them
+    expect(hits).toEqual([...UNMOUNTED].sort())
+    for (const dead of UNMOUNTED) {
+      const name = path.basename(dead, '.tsx')
+      const importers = srcFiles
+        .filter(f => rel(f) !== dead && new RegExp(`from ['"](?:@/components/|\\./)${name}['"]`).test(read(f)))
+        .map(rel)
+      expect(importers, `${name} is mounted again`).toEqual([])
+    }
+  })
+
+  it('the home Investir card opens /investir with the /a-propos description', () => {
+    const home = read(path.join(ROOT, 'src/app/page.tsx')).replace(/\s+/g, ' ')
+    const card = home.match(/\{ href: '([^']*)', emoji: '[^']*', title: 'Investir', desc: '([^']*)' \}/)
+    expect(card, 'the Investir card').toBeTruthy()
+    expect(card![1]).toBe('/investir')
+    expect(card![2]).toBe('Les comptes de sociétés cotées, notés par une règle que tu peux refaire toi-même, rapport annuel en main.')
+  })
+
   it('no surface describes Investir as a DCA on crypto, ETFs and shares', () => {
     expect(filesMatching(/accumulation long terme \(DCA\)/i)).toEqual([])
   })
