@@ -220,7 +220,19 @@ describe('no surface points at a reference price the fiche does not show', () =>
   it('the disclosure block still says who wrote it and when', () => {
     const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
     expect(block).toMatch(/Thomas Dessombs, à titre individuel/)
-    expect(block).toMatch(/Analyse terminée le \{longDateTime\(generatedAt\)\}, heure de Paris\./)
+    // 2026-09-11 review (P6): the value passed in is `as_of`, a date with no
+    // time, and longDateTime printed it « à 02:00, heure de Paris ». A day only.
+    expect(block).toMatch(/Calcul du \{longDate\(generatedAt\)\}\./)
+    expect(block).not.toMatch(/longDateTime/)
+    expect(block).not.toMatch(/heure de Paris/)
+  })
+
+  it('the disclosure says the watchlist is a small part of what I grade (author\'s wording, 2026-09-11)', () => {
+    expect(filesMatching(/ma propre liste de suivi long terme et sur mes versements mensuels/)).toEqual([])
+    const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
+    expect(block).toMatch(new RegExp(
+      `Je note bien plus de sociétés que je n${APOS}en suis pour moi : ma liste de suivi long terme n${APOS}en est qu${APOS}une petite partie\\.`,
+    ))
   })
 })
 

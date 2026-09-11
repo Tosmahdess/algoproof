@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { longDateTime } from '@/lib/format-date'
+import { longDate } from '@/lib/format-date'
 
 /**
  * The disclosure block under an equity fiche.
@@ -24,9 +24,15 @@ import { longDateTime } from '@/lib/format-date'
  * personal claim here without asking: this block's whole value is that a reader
  * can hold its statements against him.
  *
+ * The sentence on the watchlist was rewritten by the author on 2026-09-11: the
+ * rule grades far more companies than he follows, so "these analyses cover my
+ * own watchlist" described a list that is a small part of the page's subject.
+ *
  * Everything else comes from data: the identity from
  * algolab/web/app/mentions-legales (the LCEN publication, already public), the
- * instant from the date the fiche passes in.
+ * day from the date the fiche passes in. Only a day: both callers pass `as_of`,
+ * a date with no time, and the date-and-time formatter rendered it as
+ * "à 02:00", an hour nobody wrote anything at (2026-09-11 review).
  *
  * NO PRICE SENTENCE. This block used to tell the reader that the reference
  * price shown above was the one of that instant and no longer moved, while the
@@ -53,12 +59,12 @@ export function EquityDisclosure({ generatedAt }: { generatedAt: string }) {
 
       <p>
         Thomas Dessombs, à titre individuel (entrepreneur individuel, sous le nom commercial
-        AlgoProof). Analyse terminée le {longDateTime(generatedAt)}, heure de Paris.
+        AlgoProof). Calcul du {longDate(generatedAt)}.
       </p>
 
       <p>
-        Ces analyses portent sur ma propre liste de suivi long terme et sur mes versements
-        mensuels. Je peux détenir les titres dont je parle, et c&apos;est même en général la
+        Je note bien plus de sociétés que je n&apos;en suis pour moi : ma liste de suivi long
+        terme n&apos;en est qu&apos;une petite partie. Je peux détenir les titres dont je parle, et c&apos;est même en général la
         raison pour laquelle je les suis. Aucune société citée ne me rémunère, d&apos;aucune
         manière.
       </p>
