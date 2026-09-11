@@ -35,7 +35,7 @@ export default async function HomePage() {
   // sentence below used to carry a literal 75 and would have aged in silence the
   // day one of them is archived. Same tagging rule as /overview's waveBotCount.
   const waveCount = bots.filter(b => b.engine_unit_key?.length).length
-  // Live = real money (v1-spot, orb-bf25) ; the rest is the laboratoire (simulation).
+  // Live = real money (status 'live': v1-spot, v1-hl, orb-bf25) ; the rest is the laboratoire (simulation).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
   const { live: liveBots, paper: paperBots } = splitCohorts(bots)
   // Ordered by track record, not by profit — the same default /overview uses,
