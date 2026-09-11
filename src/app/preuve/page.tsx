@@ -21,8 +21,13 @@ export default function PreuvePage() {
         <h2 className="text-xl font-semibold mb-3">Comment je valide une stratégie</h2>
         <ul className="space-y-2 text-sm text-muted leading-relaxed list-disc pl-5">
           <li>Backtest sur <strong>au moins 2 ans</strong> de données et <strong>20 trades minimum</strong> : en dessous, ce n&apos;est pas significatif.</li>
-          <li><strong>Walk-forward</strong> : la stratégie doit tenir sur des périodes qu&apos;elle n&apos;a jamais vues. Sinon, c&apos;est de l&apos;<a href="/lexique#overfit" className="text-accent">overfit</a> : je la rejette.</li>
-          <li>Coûts réalistes (frais, slippage, spread) inclus dès le backtest.</li>
+          {/* Audit 2026-09-10: the engine's « walk-forward » is the worst calendar quarter
+              of the history the strategy was selected on (validation/walkforward.py), and
+              failing it alone gives « en sursis », published, not a rejection. Its costs are
+              fees plus a fixed slippage and a flat, unsigned funding, with no spread
+              (config.py Costs, validation/costs.py). */}
+          <li><strong>Walk-forward</strong> : dans mon moteur, ce n&apos;est pas un test hors échantillon. Je regarde le pire trimestre de l&apos;historique qui a servi à choisir la stratégie. S&apos;il est trop faible, elle est recalée, ou mise en sursis si c&apos;est la seule épreuve qu&apos;elle rate.</li>
+          <li>Coûts inclus dès le backtest du moteur : frais et slippage fixes, plus un funding forfaitaire de 0,03 % par jour, compté comme un coût quel que soit le sens de la position. Le spread n&apos;est pas modélisé.</li>
           <li>Déploiement d&apos;abord en <a href="/lexique#paper-trading" className="text-accent">paper trading</a>, puis en argent réel seulement si ça tient.</li>
         </ul>
       </section>
