@@ -66,8 +66,8 @@ export default function AProposPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Gratuit ou payant ?</h2>
         <p className="text-muted leading-relaxed">
-          Regarder est gratuit : trades, pertes, courbes, historique, cimetière, et le verdict de chacune de mes
-          analyses par société. Le{' '}
+          Regarder est gratuit : trades, pertes, courbes, historique, cimetière. Sur les sociétés que je note,
+          la note, le verdict et sa raison, les chiffres et les comptes le sont aussi. Le{' '}
           <a href="https://lab.algoproof.fr" className="text-accent">labo</a> s&apos;ouvre sans compte, et un compte
           gratuit permet de lancer des backtests avec des quotas. L&apos;adhésion à 29 € par mois lève ces quotas et
           ouvre le reste : la configuration exacte des bots et leur dossier de validation, deux paragraphes

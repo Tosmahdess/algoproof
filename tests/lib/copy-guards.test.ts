@@ -74,6 +74,25 @@ describe('the paid Investir offer has one description', () => {
     ]))
   })
 
+  // 2026-09-11 review (P4): the free part was told four ways (« le verdict,
+  // sa raison courte et les comptes », « le verdict et la raison qui va avec »,
+  // « le verdict de chacune de mes analyses »…). One wording, shared with the
+  // lab, and scoped: it only holds on the companies the rule grades.
+  it('the free part has one wording, scoped to the companies I grade, on every surface that names it', () => {
+    const FREE = /la note, le verdict et sa raison, les chiffres et les comptes/i
+    const SCOPE = /sur les sociétés que je note/i
+    const SURFACES = ['src/app/faq/page.tsx', 'src/app/preuve/page.tsx', 'src/app/a-propos/page.tsx']
+    expect(filesMatching(FREE)).toEqual(expect.arrayContaining(SURFACES))
+    expect(filesMatching(SCOPE)).toEqual(expect.arrayContaining(SURFACES))
+    // Any « verdict, sa raison » / « verdict et la raison » that does not go on
+    // with « , les chiffres et les comptes » is another version of the free
+    // part, and so is a bare « note, (le) verdict » list.
+    expect(filesMatching(/verdict(?:,| et)\s+(?:sa|la)\s+raison(?!, les chiffres et les comptes)/i)).toEqual([])
+    expect(filesMatching(/\bnote,\s+(?:le\s+)?verdict\b(?!\s+et\s+sa\s+raison)/i)).toEqual([])
+    // « double : » in /preuve: « Sur les sociétés que je note : deux paragraphes… : »
+    expect(filesMatching(/Sur les sociétés que je note : deux paragraphes/)).toEqual([])
+  })
+
   it('the canonical sentence is on every surface that sells the offer', () => {
     const where = filesMatching(CANON)
     expect(where).toEqual(expect.arrayContaining([

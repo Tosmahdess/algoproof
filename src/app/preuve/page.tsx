@@ -49,18 +49,17 @@ export default function PreuvePage() {
           Tout ce que mes bots font restera public, gratuitement, pour toujours :
           leurs trades, leurs pertes, leur historique, et le cimetière des
           stratégies que j&apos;ai tuées. Tu pourras toujours les voir tourner, avec
-          leurs chiffres. Même chose pour mes analyses par société : le verdict et
-          la raison qui va avec tiennent en deux lignes, ils sont ouverts, et ils le
-          resteront.
+          leurs chiffres. Même chose sur les sociétés que je note : la note, le verdict
+          et sa raison, les chiffres et les comptes sont ouverts, et ils le resteront.
         </p>
         <p className="text-sm mb-3">
           Ce qui se paie, c&apos;est comment j&apos;y suis arrivé. Pour un bot :
           la configuration exacte, les paramètres, les filtres, et la preuve étape par
           étape de la façon dont cette configuration a été retenue contre les milliers
-          de voisines qui sont mortes. Sur les sociétés que je note : deux paragraphes
+          de voisines qui sont mortes. Sur les sociétés que je note, deux paragraphes
           d&apos;analyse par société : ce que ses chiffres veulent dire pour son métier,
-          et ce qui peut mal tourner. Le verdict, sa raison et les comptes, eux, restent
-          ouverts. Et le labo lui-même, l&apos;outil avec lequel je produis tout
+          et ce qui peut mal tourner. La note, le verdict et sa raison, les chiffres et
+          les comptes, eux, restent ouverts. Et le labo lui-même, l&apos;outil avec lequel je produis tout
           ça, sans quota journalier et avec ses grilles.
         </p>
         <p className="text-sm mb-3">
