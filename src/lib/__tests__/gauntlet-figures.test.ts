@@ -49,11 +49,8 @@ describe('the funnel copy is derived, not written', () => {
   // constant when the read fails. No figure beats a wrong figure.
   it('renders the sentences without figures when there is no data', () => {
     // « 11,4 Go » survit au repli et c'est VOULU : c'est un incident daté, pas une mesure
-    // qui bouge. Les deux seuils du tamis (PF sous 1,30, moins de 30 trades) survivent
-    // aussi depuis le 2026-09-11 (C0) : ce sont des règles fixes du moteur, pas des
-    // comptes dérivés. Ils sont retirés un par un, nommément. Tout le reste des chiffres,
-    // donc chaque compte de l'espace de recherche, doit avoir disparu.
-    const t = text(null).replace('11,4 Go', '').replace('sous 1,30', '').replace('moins de 30 trades', '')
+    // qui bouge. Tout le reste des chiffres doit avoir disparu.
+    const t = text(null).replace('11,4 Go', '')
     expect(t).not.toMatch(/[0-9]/)
     expect(t).toContain('Prends l’EMA cross')
     expect(t).toContain('gantelet')

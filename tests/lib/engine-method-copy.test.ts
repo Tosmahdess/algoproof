@@ -66,6 +66,65 @@ describe('retired engine-method sentences are gone from src/', () => {
   }
 })
 
+// The judge's gate thresholds are CLASSIFIED and never published (algolab DECISIONS
+// 2026-07-28 « seuils classés JAMAIS »; migration 024 « Thresholds are classified too »).
+// They must never reach rendered text or a client prop. Comments may cite them, so comments
+// are blanked before matching. The patterns target the prose forms engine copy takes; the
+// per-bot pre-registered kill criteria in bot-expectations.ts (« PF net < 1.30 → mort du
+// bot ») are a separate published contract written with symbols, and do not match.
+const CLASSIFIED: readonly [name: string, re: RegExp][] = [
+  ['PF floor in prose', /PF (?:net )?(?:est )?(?:sous|inférieur à|en dessous de)\s*\d/i],
+  ['trade-count floor', /(?:moins de|au moins|minimum de)\s*\d+\s*trades/i],
+  ['window-count floor', /il y en a moins de (?:\d+|deux|trois|quatre|cinq)\b/i],
+  ['qualified-market count', /\b(?:\d+|trois|quatre|cinq|six|sept) au lieu de (?:\d+|trois|quatre|cinq|six|sept)\b/i],
+]
+const blankComments = (s: string) =>
+  s.replace(/\/\*[\s\S]*?\*\//g, c => c.replace(/[^\n]/g, ' ')).replace(/^\s*\/\/.*$/gm, '')
+const classifiedHits = (text: string) => CLASSIFIED.filter(([, re]) => re.test(norm(text))).map(([name]) => name)
+
+describe('no classified gate threshold reaches rendered copy', () => {
+  it('positive control: the detector catches each threshold sentence retired on 2026-09-11', () => {
+    const FIXTURE = [
+      'Les autres passent un premier backtest, et j’écarte celles dont le PF est sous 1,30 ou qui font moins de 30 trades.',
+      'parmi ceux qui comptent au moins 20 trades. S’il y en a moins de trois, je prends le PF de tout l’historique à la place.',
+      'La règle revient à exiger un marché qualifié de plus que l’épreuve suivante, six au lieu de cinq, pour que le retrait…',
+    ].join(' ')
+    expect(classifiedHits(FIXTURE)).toEqual(
+      ['PF floor in prose', 'trade-count floor', 'window-count floor', 'qualified-market count'],
+    )
+  })
+
+  it('negative control: numbers that are not gate thresholds pass', () => {
+    expect(classifiedHits(
+      'Jusqu’à trois filtres d’entrée, jusqu’à une centaine de fois, un funding forfaitaire de 0,03 % par jour.',
+    )).toEqual([])
+  })
+
+  it('control: a threshold in a comment is ignored, the same threshold in a string is not', () => {
+    const src = "// j'écarte celles dont le PF est sous 1,30\nconst s = 'ou qui font moins de 30 trades'"
+    expect(classifiedHits(blankComments(src))).toEqual(['trade-count floor'])
+  })
+
+  it('no rendered string under src/ carries one (comments excluded)', () => {
+    const files = walk(path.join(ROOT, 'src'))
+    expect(files.length).toBeGreaterThan(50)
+    const offenders = files.flatMap(f =>
+      classifiedHits(blankComments(fs.readFileSync(f, 'utf8')))
+        .map(name => `${path.relative(ROOT, f).replace(/\\/g, '/')}: ${name}`))
+    expect(offenders).toEqual([])
+  })
+
+  it('the gauntlet copy handed to the client carries none, whatever the data', () => {
+    const client = [
+      ...gauntletFunnel(null),
+      ...gauntletFunnel({ base: 'EMAcross', tf: 'D1', nParams: 66, nFilterConfigs: 17780, nExits: 31, nBehaviors: 2782865, nJudged: 20000 }),
+      ...GAUNTLET_TRIALS.flatMap(t => [t.name, t.plain]),
+      ...GAUNTLET_VERDICTS,
+    ].join(' ')
+    expect(classifiedHits(client)).toEqual([])
+  })
+})
+
 describe('the exact wording is where the old sentence was', () => {
   const funnel = norm(gauntletFunnel(null).join(' '))
   const trials = GAUNTLET_TRIALS.map(t => ({ name: norm(t.name), plain: norm(t.plain) }))
@@ -76,10 +135,10 @@ describe('the exact wording is where the old sentence was', () => {
     expect(funnel).toMatch(/gloutonne/)
   })
 
-  it('the tamis counts entries before any backtest, then a backtest drops PF under 1,30 or under 30 trades', () => {
+  it('the tamis counts entries before any backtest, then a backtest drops weak PF and thin trade counts, naming no threshold', () => {
     expect(funnel).toMatch(/Avant tout backtest, il compte les entrées/)
-    expect(funnel).toMatch(/PF est sous 1,30/)
-    expect(funnel).toMatch(/moins de 30 trades/)
+    expect(funnel).toMatch(/celles dont le PF est trop faible/)
+    expect(funnel).toMatch(/qui ont trop peu de trades/)
   })
 
   it('the judging order is trade count, then PF', () => {
@@ -89,8 +148,8 @@ describe('the exact wording is where the old sentence was', () => {
   it('the walk-forward trial says it is the worst quarter of the selection history, and not out-of-sample', () => {
     const wf = trials[0]
     expect(wf.plain).toMatch(/trimestres civils/)
-    expect(wf.plain).toMatch(/au moins 20 trades/)
-    expect(wf.plain).toMatch(/moins de trois, je prends le PF de tout l'historique/)
+    expect(wf.plain).toMatch(/parmi ceux qui comptent assez de trades/)
+    expect(wf.plain).toMatch(/S'il y en a trop peu, je prends le PF de tout l'historique/)
     expect(wf.plain).toMatch(/Ce n'est pas un test hors échantillon/)
     expect(wf.plain).toMatch(/l'historique qui a servi à choisir la configuration/)
   })
@@ -105,7 +164,7 @@ describe('the exact wording is where the old sentence was', () => {
   it('the leave-out trial says there is no recomputation, only one more market required', () => {
     const loo = trials[2].plain
     expect(loo).toMatch(/je ne relance aucun calcul/)
-    expect(loo).toMatch(/six au lieu de cinq/)
+    expect(loo).toMatch(/exiger un marché qualifié de plus que l'épreuve suivante, pour que le retrait de n'importe lequel en laisse encore assez/)
   })
 
   it('en sursis = exactly one robustness trial failed, and it stays published', () => {

@@ -78,9 +78,11 @@ export function gauntletFunnel(space: SearchSpace | null): readonly string[] {
     // The exact mechanism (search/funnel.py:97-99, validation/verdict.py Criteria): an entry
     // count before any backtest, then one backtest that drops PF < 1,30 or < 30 trades. The
     // old sentence said the tamis dropped losers without running any costly computation,
-    // which the backtest step contradicts. The two thresholds are fixed rules, not counts,
-    // which is why tests/…/gauntlet-figures lets them survive the no-data fallback.
-    'Le premier tri est bête et brutal, et c’est ce qu’on lui demande. Je l’appelle le tamis. Avant tout backtest, il compte les entrées de chaque variante et écarte celles qui n’en ont pas assez. Les autres passent un premier backtest, et j’écarte celles dont le PF est sous 1,30 (PF : ce que la stratégie gagne divisé par ce qu’elle perd) ou qui font moins de 30 trades.',
+    // which the backtest step contradicts. The thresholds themselves are CLASSIFIED (algolab
+    // DECISIONS 2026-07-28 « seuils classés JAMAIS », migration 024): comments may cite them,
+    // the copy names the mechanism and never the numbers. Guarded over every rendered string
+    // under src/ by tests/lib/engine-method-copy.test.ts.
+    'Le premier tri est bête et brutal, et c’est ce qu’on lui demande. Je l’appelle le tamis. Avant tout backtest, il compte les entrées de chaque variante et écarte celles qui n’en ont pas assez. Les autres passent un premier backtest, et j’écarte celles dont le PF est trop faible (PF : ce que la stratégie gagne divisé par ce qu’elle perd) ou qui ont trop peu de trades.',
     // « 11,4 Go » reste FIGÉ et c'est délibéré : c'est un incident daté, pas une mesure qui
     // évolue. Le dériver n'aurait aucun sens ; le laisser sans ce commentaire inviterait
     // quelqu'un à le « corriger » en compteur vivant.
@@ -102,7 +104,7 @@ export const GAUNTLET_TRIALS: readonly { readonly name: string; readonly plain: 
   {
     name: 'Tenir sur son pire trimestre',
     plain:
-      'Je découpe l’historique en trimestres civils et je regarde le PF du pire d’entre eux, parmi ceux qui comptent au moins 20 trades. S’il y en a moins de trois, je prends le PF de tout l’historique à la place. Ce n’est pas un test hors échantillon : ces trimestres font partie de l’historique qui a servi à choisir la configuration. L’épreuve dit si elle a traversé une mauvaise période sans s’effondrer, pas si elle tiendra sur des données nouvelles.',
+      'Je découpe l’historique en trimestres civils et je regarde le PF du pire d’entre eux, parmi ceux qui comptent assez de trades. S’il y en a trop peu, je prends le PF de tout l’historique à la place. Ce n’est pas un test hors échantillon : ces trimestres font partie de l’historique qui a servi à choisir la configuration. L’épreuve dit si elle a traversé une mauvaise période sans s’effondrer, pas si elle tiendra sur des données nouvelles.',
   },
   {
     name: 'Battre le hasard, pas seulement le marché',
@@ -112,7 +114,7 @@ export const GAUNTLET_TRIALS: readonly { readonly name: string; readonly plain: 
   {
     name: 'Ne pas dépendre d’un seul marché',
     plain:
-      'Ici, je ne relance aucun calcul. La règle revient à exiger un marché qualifié de plus que l’épreuve suivante, six au lieu de cinq, pour que le retrait de n’importe lequel en laisse encore assez.',
+      'Ici, je ne relance aucun calcul. La règle revient à exiger un marché qualifié de plus que l’épreuve suivante, pour que le retrait de n’importe lequel en laisse encore assez.',
   },
   {
     name: 'Convaincre assez de marchés',
