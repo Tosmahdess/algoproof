@@ -50,16 +50,29 @@ import { longDate } from '@/lib/format-date'
  * deduction as the author's own definition is the one thing this block must not
  * do, so the gap is carried in the backlog instead.
  */
-export function EquityDisclosure({ generatedAt }: { generatedAt: string }) {
+export function EquityDisclosure({
+  generatedAt,
+  horsPerimetre = false,
+}: {
+  generatedAt: string
+  /** Out-of-scope fiche: no grade, no figures, no verdict. The sentence on
+   *  where the figures come from and the one on the verdict would describe
+   *  things this page does not show (2026-09-11 review). */
+  horsPerimetre?: boolean
+}) {
   return (
     <section className="mt-12 border-t border-border pt-6 text-xs text-muted leading-relaxed space-y-3">
       <h2 className="text-[10px] uppercase tracking-widest text-muted">
         Qui écrit ceci, et dans quel cadre
       </h2>
 
+      {/* "Version du", not "Calcul du": the line just above the block already
+          says "Calcul du …" on a graded fiche, and an out-of-scope fiche is
+          not a calculation of the rule at all. The day stays: it is the WHEN
+          this block exists to carry. */}
       <p>
         Thomas Dessombs, à titre individuel (entrepreneur individuel, sous le nom commercial
-        AlgoProof). Calcul du {longDate(generatedAt)}.
+        AlgoProof). Version du {longDate(generatedAt)}.
       </p>
 
       <p>
@@ -69,11 +82,23 @@ export function EquityDisclosure({ generatedAt }: { generatedAt: string }) {
         manière.
       </p>
 
+      {/* The former sentence sourced the figures from market data shown next to
+          them: it described fiches that printed a market price. Graded fiches read the
+          annual report and name it in plain text (filing date and accession
+          number, in blocs.source), with no link: the sentence says exactly
+          that. An out-of-scope fiche has neither figures nor verdict. */}
       <p>
-        Les chiffres de marché viennent des données affichées à côté d&apos;eux. Le verdict
-        et le texte qui l&apos;accompagne sont mon interprétation, pas un fait. Ce n&apos;est
-        pas un conseil en investissement personnalisé : je ne connais ni ta situation, ni tes
-        objectifs, ni ton horizon, et je ne cherche pas à les connaître.
+        {horsPerimetre ? (
+          <>Le texte de cette fiche est mon interprétation, pas un fait.</>
+        ) : (
+          <>
+            Les chiffres viennent du rapport annuel de la société, dont la fiche donne la
+            date de dépôt et le numéro. Le verdict et le texte qui l&apos;accompagne sont mon
+            interprétation, pas un fait.
+          </>
+        )}{' '}
+        Ce n&apos;est pas un conseil en investissement personnalisé : je ne connais ni ta
+        situation, ni tes objectifs, ni ton horizon, et je ne cherche pas à les connaître.
       </p>
 
       <p>

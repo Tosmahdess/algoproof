@@ -59,7 +59,7 @@ function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
         Analyse du {longDate(fiche.as_of)}. Elle n’est pas recalculée chaque mois,
         contrairement aux sociétés que je note.
       </p>
-      <EquityDisclosure generatedAt={fiche.as_of} />
+      <EquityDisclosure generatedAt={fiche.as_of} horsPerimetre />
     </div>
   )
 }

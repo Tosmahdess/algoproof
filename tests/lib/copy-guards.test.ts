@@ -263,9 +263,13 @@ describe('no surface points at a reference price the fiche does not show', () =>
     expect(block).toMatch(/Thomas Dessombs, à titre individuel/)
     // 2026-09-11 review (P6): the value passed in is `as_of`, a date with no
     // time, and longDateTime printed it « à 02:00, heure de Paris ». A day only.
-    expect(block).toMatch(/Calcul du \{longDate\(generatedAt\)\}\./)
+    // « Version du », not « Calcul du »: the line above the block already says
+    // « Calcul du » on a graded fiche, and an out-of-scope fiche is no calculation.
+    expect(block).toMatch(/Version du \{longDate\(generatedAt\)\}\./)
     expect(block).not.toMatch(/longDateTime/)
     expect(block).not.toMatch(/heure de Paris/)
+    // No fiche prints a market price any more (D048).
+    expect(filesMatching(/chiffres de march[ée] viennent des donn/i)).toEqual([])
   })
 
   it('the disclosure says the watchlist is a small part of what I grade (author\'s wording, 2026-09-11)', () => {

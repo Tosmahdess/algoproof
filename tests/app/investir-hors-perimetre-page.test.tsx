@@ -61,11 +61,26 @@ describe('/investir/[slug], out-of-scope company', () => {
     expect(container.textContent).toMatch(/momentanément indisponible/)
     expect(container.textContent).not.toMatch(/chiffres ci-dessus/)
   })
+
+  it('its disclosure claims neither figures from an annual report nor a verdict', async () => {
+    const { container } = await renderFiche(slug, { horsPerimetre: true, blocs: {} })
+    const text = (container.textContent ?? '').replace(/\s+/g, ' ')
+    expect(text).toContain('Le texte de cette fiche est mon interprétation, pas un fait.')
+    expect(text).not.toMatch(/Les chiffres viennent du rapport annuel/)
+    expect(text).not.toMatch(/Le verdict et le texte/)
+  })
 })
 
 describe('/investir/[slug], graded company (unchanged)', () => {
   it('still shows the offer to a guest, so the checks above are not vacuous', async () => {
     const { container } = await renderFiche(tousLesSlugs()[0], { entitlement: 'guest' })
     for (const t of TEASER) expect(container.textContent ?? '').toMatch(t)
+  })
+
+  it('its disclosure names the annual report, so the out-of-scope check is not vacuous', async () => {
+    const { container } = await renderFiche(tousLesSlugs()[0], { entitlement: 'guest' })
+    expect((container.textContent ?? '').replace(/\s+/g, ' ')).toContain(
+      'Les chiffres viennent du rapport annuel de la société, dont la fiche donne la date de dépôt et le numéro.',
+    )
   })
 })
