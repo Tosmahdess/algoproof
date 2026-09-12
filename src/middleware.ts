@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { AUTH_COOKIE_NAME } from '@/lib/auth-cookie'
 
 // Paths where the Supabase session is refreshed. Supabase rotates refresh
@@ -21,6 +21,12 @@ export const REFRESH_PATHS = ['/compte', '/api/investir']
 
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req })
+  // Every cookie setAll has handed over, across calls. The library makes ONE
+  // call today (node_modules/@supabase/ssr/dist/main/cookies.js: `await
+  // setAll(allToSet, {})`), and each call builds a NEW response: a second call
+  // would return a response carrying only its own cookies and silently drop
+  // the first call's. Re-applying the whole list costs nothing.
+  const pending: { name: string; value: string; options: CookieOptions }[] = []
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_AUTH_SUPABASE_URL ?? 'http://localhost',
     process.env.NEXT_PUBLIC_AUTH_SUPABASE_ANON_KEY ?? 'anon-dev',
@@ -32,15 +38,16 @@ export async function middleware(req: NextRequest) {
         // the response alone, the route behind this middleware still reads the
         // old cookie in the same request and refreshes again with a token that
         // is already spent.
-        setAll: (cookiesToSet, headers) => {
-          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value))
+        //
+        // The second argument the library passes is a headers object that is
+        // ALWAYS empty — `setAll(allToSet, {})`, its only call site. The
+        // Cache-Control this file used to copy out of it was never sent by
+        // anyone, so the parameter is not read at all.
+        setAll: cookiesToSet => {
+          pending.push(...cookiesToSet)
+          pending.forEach(({ name, value }) => req.cookies.set(name, value))
           res = NextResponse.next({ request: req })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options),
-          )
-          // Cache-Control: private, no-store (and friends), passed by the
-          // library: a response that sets a session cookie is never cached.
-          Object.entries(headers ?? {}).forEach(([key, value]) => res.headers.set(key, value))
+          pending.forEach(({ name, value, options }) => res.cookies.set(name, value, options))
         },
       },
       // AUTH_COOKIE_NAME comes from lib/auth-cookie.ts, not a literal here: it is
