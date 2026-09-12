@@ -58,8 +58,7 @@ export default function PreuvePage() {
           étape de la façon dont cette configuration a été retenue contre les milliers
           de voisines qui sont mortes. Sur les sociétés que je note, deux paragraphes
           d&apos;analyse par société : ce que ses chiffres veulent dire pour son métier,
-          et ce qui peut mal tourner. La note, le verdict et sa raison, les chiffres et
-          les comptes, eux, restent ouverts. Et le labo lui-même, l&apos;outil avec lequel je produis tout
+          et ce qui peut mal tourner. Et le labo lui-même, l&apos;outil avec lequel je produis tout
           ça, sans quota journalier et avec ses grilles.
         </p>
         <p className="text-sm mb-3">
