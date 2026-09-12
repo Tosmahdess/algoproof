@@ -282,6 +282,18 @@ describe('no surface points at a reference price the fiche does not show', () =>
     expect(filesMatching(/chiffres de march[ée] viennent des donn/i)).toEqual([])
   })
 
+  // 2026-09-11, the author's own rewrite of the holdings sentence. « Je peux
+  // détenir les titres dont je parle » let « les » cover every company the rule
+  // grades; he holds some of them, and chiefly the ones he follows.
+  it('the disclosure scopes the holdings sentence to the watchlist (author\'s wording, 2026-09-11)', () => {
+    expect(filesMatching(/Je peux détenir les titres dont je parle/)).toEqual([])
+    expect(filesMatching(/c(?:\\'|'|’|&apos;)est même en général la raison pour laquelle je les suis/)).toEqual([])
+    const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
+    expect(block).toMatch(
+      /Je peux détenir certains des titres notés ici, en particulier ceux de ma liste de suivi\./,
+    )
+  })
+
   it('the disclosure says the watchlist is a small part of what I grade (author\'s wording, 2026-09-11)', () => {
     expect(filesMatching(/ma propre liste de suivi long terme et sur mes versements mensuels/)).toEqual([])
     const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')

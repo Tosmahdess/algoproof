@@ -28,6 +28,15 @@ import { longDate } from '@/lib/format-date'
  * rule grades far more companies than he follows, so "these analyses cover my
  * own watchlist" described a list that is a small part of the page's subject.
  *
+ * The holdings sentence was rewritten by the author the same day, 2026-09-11,
+ * for the mirror-image reason. Saying he might hold "les titres dont il parle"
+ * let that "les" slide from the companies he actually follows to every company
+ * the rule grades: read literally, it claimed a possible position in each of
+ * them. The sentence now names the watchlist as the place those holdings sit.
+ * The retired wording is NOT quoted verbatim here on purpose: the guard in
+ * tests/lib/copy-guards.test.ts sweeps the whole tree for it, and a comment
+ * reproducing it would make this file its own offender.
+ *
  * Everything else comes from data: the identity from
  * algolab/web/app/mentions-legales (the LCEN publication, already public), the
  * day from the date the fiche passes in. Only a day: both callers pass `as_of`,
@@ -77,8 +86,8 @@ export function EquityDisclosure({
 
       <p>
         Je note bien plus de sociétés que je n&apos;en suis pour moi : ma liste de suivi long
-        terme n&apos;en est qu&apos;une petite partie. Je peux détenir les titres dont je parle, et c&apos;est même en général la
-        raison pour laquelle je les suis. Aucune société citée ne me rémunère, d&apos;aucune
+        terme n&apos;en est qu&apos;une petite partie. Je peux détenir certains des titres notés
+        ici, en particulier ceux de ma liste de suivi. Aucune société citée ne me rémunère, d&apos;aucune
         manière.
       </p>
 
