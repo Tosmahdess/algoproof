@@ -3,8 +3,12 @@ title: "Comment fonctionne mon bot EMA Cross H4 — le seul en live sur Binance 
 date: "2026-05-27"
 category: "strategie"
 tags: ["stratégie", "EMA", "Binance", "spot", "live"]
-summary: "Signal, gestion du risque, defense mesh, Market Intelligence : voici comment fonctionne mon bot de trading algo en production depuis mai 2026. 10 trades, PF 3.71, +52 USDC. Tout est détaillé."
+summary: "Signal, gestion du risque, defense mesh, Market Intelligence : voici comment fonctionne mon bot de trading algo en production depuis mai 2026. 10 trades, PF 3.71, +52 USDC (chiffres du 27 mai). Tout est détaillé."
 ---
+
+<Callout type="info" title="Mise à jour du 11 septembre 2026">
+Cet article décrit le bot tel qu'il tournait le 27 mai 2026, et une partie n'est plus vraie. Il ne tourne plus sur Binance Spot : je l'ai migré sur Kraken le 30 juin 2026, sans changer de stratégie. Il n'est plus le seul de ma flotte en argent réel, et la flotte en simulation compte aujourd'hui bien plus que ces 37 bots (le compte du jour est sur [la page de la flotte](/overview)). Les pauses autour des annonces macro (Fed, NFP, CPI) ont été retirées le 23 juillet 2026, après qu'un replay sur deux ans a montré qu'elles faisaient baisser le P&L et rendaient le drawdown légèrement pire. Le Hard-Gate présenté plus bas n'est plus en shadow : ses deux premières couches ont été retirées le 15 juin 2026, et la troisième n'a jamais tourné sur ce bot. Les chiffres plus bas sont ceux du 27 mai, ceux du jour sont sur [sa fiche](/strategies/bot/v1-spot). Le reste de l'article est celui du 27 mai.
+</Callout>
 
 C'est le seul bot de ma flotte qui trade en argent réel. Les 37 autres tournent en paper trading — ils valident leurs stratégies avant d'engager du capital. Celui-ci a passé les tests. Voici exactement comment il fonctionne.
 
@@ -34,7 +38,7 @@ La sortie se fait en **trois paliers** :
   <DataCard label="Runner — 20 % restants" sub="Jusqu'au retournement du signal" metrics="Action:Laisser courir | Sortie:Croisement EMA inverse" intent="neutral" />
 </DataCardGroup>
 
-Ce système garantit que les gains sont partiellement sécurisés dès le TP1, tout en laissant une partie de la position capturer les gros mouvements. Risque par trade : **1 % du capital**, réduit à 0.5 % si le bot est en drawdown. Maximum 3 positions simultanées, plafond daily risk à 3 %.
+Ce système prend une partie des gains au TP1 quand le prix y passe, tout en laissant une partie de la position capturer les gros mouvements. Risque par trade : **1 % du capital**, réduit à 0.5 % si le bot est en drawdown. Maximum 3 positions simultanées, plafond daily risk à 3 %.
 
 ## Le bouclier : 4 couches de defense mesh
 

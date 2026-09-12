@@ -90,7 +90,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         )}
         <p className="text-xs text-muted mb-4 max-w-2xl">
           Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
-          La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux en argent réel sont marqués « live ».
+          La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
         </p>
       </div>
 
@@ -136,12 +136,14 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
       {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}
 
-      {/* Paper→real gate (paper bots) or real-money start date (live bots) */}
+      {/* Paper→real gate (paper bots) or real-money start date (live bots).
+          The date comes from bots.live_since, the same column the provenance
+          line above reads: one source, one date per bot (audit 2026-09-09). */}
       <PathToRealCard
         status={bot.status}
         stats={bot.stats}
         liveGate={expectations?.liveGate}
-        liveSince={expectations?.liveSince}
+        liveSince={bot.live_since ?? undefined}
       />
 
       {/* "Sur mon capital" — observed history rescaled to a visitor-chosen capital */}
@@ -237,13 +239,13 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         <div className="space-y-3">
           <div>
             <p className="text-xs text-muted mb-1.5">Intégrer (iframe)</p>
-            <code className="block text-xs bg-background border border-border rounded px-3 py-2 font-mono text-muted/80 break-all select-all">
+            <code className="block text-xs bg-bg border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
               {`<iframe src="https://algoproof.fr/embed/${slug}" width="480" height="200" frameborder="0"></iframe>`}
             </code>
           </div>
           <div>
             <p className="text-xs text-muted mb-1.5">Image directe (Twitter / Discord)</p>
-            <code className="block text-xs bg-background border border-border rounded px-3 py-2 font-mono text-muted/80 break-all select-all">
+            <code className="block text-xs bg-bg border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
               {`https://algoproof.fr/api/card/${slug}`}
             </code>
           </div>

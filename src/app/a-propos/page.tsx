@@ -11,7 +11,11 @@ const PIECES = [
   // matching Nav and Footer — /overview had two names across the site.
   { href: '/overview',     title: 'La flotte',  desc: 'Des bots qui tradent en conditions réelles. Chaque trade est public, gains comme pertes.' },
   { href: 'https://lab.algoproof.fr', title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
-  { href: '/wealth',       title: 'Investir',   desc: 'Mon accumulation long terme (DCA) sur la crypto, les ETF et les actions, en transparence.' },
+  // The card described /wealth (a monthly DCA on crypto, ETFs and shares), a
+  // page removed on 2026-09-09 and redirected to /investir. It now describes
+  // the page it opens. No company count here: it changes with every export,
+  // and a number typed by hand goes stale silently.
+  { href: '/investir',     title: 'Investir',   desc: 'Les comptes de sociétés cotées, notés par une règle que tu peux refaire toi-même, rapport annuel en main.' },
   { href: '/intelligence', title: 'Météo du marché', desc: 'La météo du marché que je calcule chaque jour : risque ON ou OFF, en français.' },
   { href: '/blog',         title: 'Apprendre',  desc: 'Mon journal, ma méthode, la fiscalité et la conformité MiCA : tout est documenté.' },
 ]
@@ -52,9 +56,9 @@ export default function AProposPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Paper ou argent réel ?</h2>
         <p className="text-muted leading-relaxed">
-          La plupart de mes bots tournent en <strong>paper trading</strong> (simulation fidèle sur de vraies données,
+          La plupart de mes bots tournent en <strong>paper trading</strong> (simulation sur données réelles, frais et slippage compris,
           sans argent réel) : c&apos;est ainsi qu&apos;on valide une stratégie sans risque. Les bots qui passent en
-          argent réel sont clairement marqués « live ». Le statut de chaque bot est toujours affiché. Pour le
+          argent réel sont marqués « Argent réel ». Le statut de chaque bot est toujours affiché. Pour le
           vocabulaire, vois le <Link href="/lexique" className="text-accent">lexique</Link>.
         </p>
       </section>
@@ -62,12 +66,12 @@ export default function AProposPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Gratuit ou payant ?</h2>
         <p className="text-muted leading-relaxed">
-          Regarder est gratuit : trades, pertes, courbes, historique, cimetière, et le verdict de chacune de mes
-          analyses par société. Le{' '}
+          Regarder est gratuit : trades, pertes, courbes, historique, cimetière. Sur les sociétés que je note,
+          la note, le verdict et sa raison, les chiffres et les comptes le sont aussi. Le{' '}
           <a href="https://lab.algoproof.fr" className="text-accent">labo</a> s&apos;ouvre sans compte, et un compte
           gratuit permet de lancer des backtests avec des quotas. L&apos;adhésion à 29 € par mois lève ces quotas et
-          ouvre le reste : la configuration exacte des bots et leur dossier de validation, le raisonnement complet
-          derrière chaque analyse, et les fonctions de calcul du labo. Jamais les résultats, qui restent publics
+          ouvre le reste : la configuration exacte des bots et leur dossier de validation, deux paragraphes
+          d&apos;analyse par société, et les fonctions de calcul du labo. Jamais les résultats, qui restent publics
           et gratuits.{' '}
           <Link href="/preuve" className="text-accent">Où passera la ligne, en détail →</Link>
         </p>

@@ -20,16 +20,24 @@ export default async function ComptePage() {
           <p className="text-sm text-muted mb-6">
             Je t&apos;envoie un lien de connexion par mail. Pas de mot de passe à retenir.
           </p>
-          <MagicLinkForm redirectTo="/wealth" />
+          {/* /wealth only redirects to /investir (next.config.ts): the sign-in
+              lands on the page itself. auth/callback's safeNext accepts it. */}
+          <MagicLinkForm redirectTo="/investir" />
         </>
       )}
 
       {entitlement === 'free' && (
         <div className="space-y-4">
           <p className="text-sm">Tu es connecté, sans abonnement en cours.</p>
+          {/* Cette ligne promettait l'accès à « cette page », sur laquelle le
+              lecteur est déjà, connecté et sans abonnement. Ce que l'adhésion
+              ouvre sur ce site, ce sont les deux paragraphes des fiches société
+              (la route /api/investir/[slug]/recit ne les sert qu'à `paid`).
+              Même phrase que /preuve, la FAQ et RecitInvestir (audit 2026-09-09). */}
           <p className="text-sm text-muted">
             L&apos;adhésion au labo ouvre les quotas de backtest et les dossiers de validation
-            complets. Elle donne aussi accès à cette page.
+            complets. Sur ce site, elle donne aussi accès à deux paragraphes d&apos;analyse par
+            société : ce que ses chiffres veulent dire pour son métier, et ce qui peut mal tourner.
           </p>
           <a href="https://lab.algoproof.fr/membre" className="inline-block rounded-lg bg-positive px-4 py-2 text-sm font-semibold text-bg">
             Voir l&apos;abonnement
@@ -40,7 +48,7 @@ export default async function ComptePage() {
       {entitlement === 'paid' && (
         <div className="space-y-4">
           <p className="text-sm text-positive">Abonnement actif. Tout est ouvert.</p>
-          <a href="/wealth" className="text-sm text-accent">Aller aux analyses</a>
+          <a href="/investir" className="text-sm text-accent">Aller aux analyses</a>
         </div>
       )}
     </div>

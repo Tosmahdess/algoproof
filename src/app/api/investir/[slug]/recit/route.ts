@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getEntitlement } from '@/lib/entitlement'
 import { createSupabaseAuthServer } from '@/lib/supabase-auth'
 import { supabasePrivileged } from '@/lib/supabase-privileged'
+import horsPerimetreBrut from '@/data/investir-hors-perimetre.json'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -23,33 +24,63 @@ export const dynamic = 'force-dynamic'
  * La table n'a AUCUNE policy de lecture : ni `anon` ni `authenticated` n'y
  * accèdent, quelle que soit la requête. Seule la clé de service, qui ne quitte
  * jamais le serveur, la lit — et seulement après le verdict ci-dessous.
+ *
+ * AUCUNE RÉPONSE N'EST MISE EN CACHE. Elles dépendent toutes de la session
+ * (sauf la branche hors périmètre), et une réponse membre qu'un CDN garderait
+ * serait servie au visiteur suivant : `private, no-store` sur chacune.
  */
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ slug: string }> },
-) {
-  const { slug } = await params
-  const entitlement = await getEntitlement(await createSupabaseAuthServer())
-  if (entitlement !== 'paid') {
-    return NextResponse.json({ entitlement }, { status: 200 })
-  }
+const SANS_CACHE = { 'Cache-Control': 'private, no-store' }
 
+/**
+ * Les sociétés que la règle ne note pas, lues depuis le JSON du dépôt, jamais
+ * depuis la requête : c'est cette liste, et elle seule, qui ouvre la lecture.
+ *
+ * DÉCISION USER DU 11/09/2026, TEMPORAIRE (« le temps de trouver une
+ * solution »). Ces 27 fiches vendaient « deux paragraphes » alors qu'elles
+ * n'ont au mieux que `risques` en table. Tant qu'aucune offre n'existe pour
+ * elles, ce qu'elles ont est servi à tout le monde. À retirer avec la solution.
+ */
+const HORS_PERIMETRE: ReadonlySet<string> = new Set(
+  (horsPerimetreBrut as { fiches: { slug: string }[] }).fiches.map(f => f.slug),
+)
+
+async function lireBlocs(slug: string) {
   const client = supabasePrivileged()
   if (!client) {
-    // La clé de service manque sur l'hébergeur. Le membre ne voit rien, et le
+    // La clé de service manque sur l'hébergeur. Le lecteur ne voit rien, et le
     // log dit pourquoi — plutôt qu'un texte vide sans explication.
     console.error('[investir] SUPABASE_SERVICE_ROLE_KEY absente : récit non servi')
-    return NextResponse.json({ entitlement, indisponible: true }, { status: 200 })
+    return { indisponible: true as const }
   }
-
   const { data, error } = await client
     .from('investir_recits')
     .select('lecture,risques')
     .eq('slug', slug)
     .limit(1)
+  if (error || !data || data.length === 0) return { blocs: {} }
+  return { blocs: data[0] }
+}
 
-  if (error || !data || data.length === 0) {
-    return NextResponse.json({ entitlement, blocs: {} }, { status: 200 })
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  const { slug } = await params
+
+  if (HORS_PERIMETRE.has(slug)) {
+    // Même lecture privilégiée que le chemin membre, sans regarder l'abonnement.
+    return NextResponse.json(
+      { horsPerimetre: true, ...(await lireBlocs(slug)) },
+      { status: 200, headers: SANS_CACHE },
+    )
   }
-  return NextResponse.json({ entitlement, blocs: data[0] }, { status: 200 })
+
+  const entitlement = await getEntitlement(await createSupabaseAuthServer())
+  if (entitlement !== 'paid') {
+    return NextResponse.json({ entitlement }, { status: 200, headers: SANS_CACHE })
+  }
+  return NextResponse.json(
+    { entitlement, ...(await lireBlocs(slug)) },
+    { status: 200, headers: SANS_CACHE },
+  )
 }

@@ -20,9 +20,12 @@ export default function StartPage() {
         </h1>
         <p className="text-muted leading-relaxed">
           Binance Futures est bloqué pour les résidents français depuis 2023 (restriction AMF), et
-          Binance a cessé de servir la France au 1er juillet 2026 (réglementation MiCA). Trois
-          plateformes restent compatibles pour trader les mêmes stratégies. Mon propre bot spot
-          live tourne sur Kraken depuis le 30 juin.
+          Binance a cessé de servir les résidents français le 1er juillet 2026, faute d&apos;agrément
+          MiCA. Au 10 septembre 2026, rien n&apos;a repris : Binance vise un retour par un nouveau
+          dépôt auprès de l&apos;AMF, qui doit se prononcer avant le 1er octobre, et je relirai cette
+          page ce jour-là. Trois plateformes restent
+          compatibles pour trader les mêmes stratégies. Mon propre bot spot en argent réel tourne
+          sur Kraken depuis le 30 juin.
         </p>
       </div>
 
@@ -186,10 +189,23 @@ export default function StartPage() {
         <h2 className="text-base font-semibold">Pourquoi pas Binance ?</h2>
         <p className="text-sm text-muted leading-relaxed">
           Depuis 2023, l&apos;AMF (Autorité des Marchés Financiers) a demandé aux plateformes de dérivés crypto
-          de restreindre l&apos;accès aux résidents français : Binance Futures est bloqué depuis. Et au
+          de restreindre l&apos;accès aux résidents français : Binance Futures est bloqué depuis. Et le
           1er juillet 2026, avec la fin de la période de transition MiCA, Binance a cessé de servir les
-          résidents français y compris pour le spot. Mon propre bot spot live a migré sur Kraken le 30 juin
-          2026, sans changer de stratégie.
+          résidents français y compris pour le spot : ordres annulés, bots désactivés, retraits toujours
+          possibles. Mon propre bot spot en argent réel a migré sur Kraken le 30 juin 2026, sans changer
+          de stratégie.
+        </p>
+        {/* Le fait est daté et sourcé, parce qu'il peut cesser d'être vrai dans
+            trois semaines. Même phrase et mêmes deux sources que le labo ; seules
+            les URL relevées dans production-evidence.md (audit 2026-09-09, §10)
+            figurent ici. */}
+        <p className="text-sm text-muted leading-relaxed">
+          Au 10 septembre 2026, rien n&apos;a repris : Binance vise un retour par un nouveau dépôt
+          auprès de l&apos;AMF, qui doit se prononcer avant le 1er octobre (
+          <a href="https://www.cointribune.com/deux-mois-apres-mica-binance-vise-un-retour-en-france-via-lamf/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Cointribune, 8 septembre 2026</a>
+          ). L&apos;arrêt du 1er juillet, tel que la presse l&apos;a donné :{' '}
+          <a href="https://www.moneyvox.fr/placement/actualites/109356/binance-suspend-ses-activites-en-france-les-consequences-pour-vos-crypto-ici-le-1er-juillet-2026" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">MoneyVox</a>
+          . Si l&apos;AMF dit oui, je le noterai ici.
         </p>
         <p className="text-sm text-muted leading-relaxed">
           <strong className="text-foreground">À ne pas faire :</strong> utiliser un VPN pour contourner la restriction

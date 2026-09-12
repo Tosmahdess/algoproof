@@ -31,7 +31,7 @@ export default function DirectionFilterPills({ value, onChange, longCount, short
                   ? 'bg-positive/15 text-positive'
                   : p.key === 'short'
                   ? 'bg-negative/15 text-negative'
-                  : 'bg-foreground text-background'
+                  : 'bg-foreground text-bg'
                 : 'text-muted hover:text-foreground'
             }`}
           >

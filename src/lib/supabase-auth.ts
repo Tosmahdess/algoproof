@@ -21,7 +21,9 @@ export async function createSupabaseAuthServer() {
       cookies: {
         getAll: () => cookieStore.getAll(),
         // A no-op by design: a React Server Component cannot write cookies.
-        // The session is refreshed in src/middleware.ts, which does write them.
+        // The session is refreshed in src/middleware.ts, which does write them,
+        // so every path that calls this function must be in its matcher
+        // (tests/middleware.test.ts derives the callers from src/app).
         setAll: () => {},
       },
       cookieOptions: { name: AUTH_COOKIE_NAME },

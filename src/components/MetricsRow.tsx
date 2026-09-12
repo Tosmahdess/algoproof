@@ -1,5 +1,5 @@
 import { BotStats } from '@/lib/types'
-import { fmtPfDisplay, fmtWinRateDisplay } from '@/lib/display'
+import { drawdownIsLoss, fmtDrawdown, fmtPfDisplay, fmtWinRateDisplay } from '@/lib/display'
 import { isLowSample } from '@/lib/display'
 
 interface Metric { label: string; value: string; positive?: boolean }
@@ -22,7 +22,8 @@ export default function MetricsRow({ stats, family }: { stats: BotStats; family?
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-card rounded-lg border border-border">
         <MetricCell label="Taux de gain"      value={fmtWinRateDisplay(family, stats.total_trades, stats.win_rate)} />
         <MetricCell label="Facteur de profit" value={pfText} positive={pfText !== '—' && stats.profit_factor > 1} />
-        <MetricCell label="Drawdown max"      value={`${(stats.max_drawdown * 100).toFixed(1)}%`} positive={false} />
+        {/* Red only when there is a drawdown to show; « 0.0% » is neutral (display.ts). */}
+        <MetricCell label="Drawdown max"      value={fmtDrawdown(stats.max_drawdown)} positive={drawdownIsLoss(stats.max_drawdown) ? false : undefined} />
         <MetricCell label="Trades"            value={String(stats.total_trades)} />
       </div>
       {isLowSample(stats.total_trades) && (

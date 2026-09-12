@@ -21,7 +21,11 @@ const MICA_POINTS = [
 ]
 
 const FAQ = [
-  { question: "Puis-je encore utiliser Binance en France ?", answer: "Non. Binance a cessé de servir la France au 1er juillet 2026 (réglementation MiCA), y compris pour le spot (les Futures étaient déjà bloqués depuis 2023, restriction AMF). Vois la page Démarrer pour les alternatives réellement disponibles (Kraken, Bybit, Hyperliquid)." },
+  // Daté, même phrase que le labo : Binance vise un retour par un nouveau
+  // dépôt MiCA et l'AMF doit se prononcer avant le 1er octobre 2026. Les
+  // sources sont sur /start (une réponse de FAQ est une chaîne, aussi servie
+  // en JSON-LD, donc sans lien). Audit 2026-09-09, §10.
+  { question: "Puis-je encore utiliser Binance en France ?", answer: "Non, pas au 10 septembre 2026. Binance a cessé de servir les résidents français le 1er juillet 2026, faute d'agrément MiCA, y compris pour le spot (les Futures étaient déjà bloqués depuis 2023, restriction AMF). Au 10 septembre 2026, rien n'a repris : Binance vise un retour par un nouveau dépôt auprès de l'AMF, qui doit se prononcer avant le 1er octobre. Si ça change, cette réponse changera. Vois la page Démarrer pour les alternatives réellement disponibles (Kraken, Bybit, Hyperliquid), et les sources." },
   { question: "Dois-je déclarer si je n'ai pas vendu en euros ?", answer: "Tu déclares tes comptes (formulaire 3916-bis) même sans vente. Les échanges crypto→crypto ne sont pas imposables : seule la conversion en monnaie fiat (ou achat d'un bien) déclenche l'impôt sur la plus-value." },
   { question: "Le VPN pour contourner une restriction, c'est risqué ?", answer: "Oui. Utiliser un VPN pour accéder à un produit bloqué expose ton compte au gel et t'engage juridiquement. Mieux vaut un exchange réellement agréé et disponible en France." },
   { question: "MiCA change-t-il combien je paie d'impôts ?", answer: "Non. MiCA encadre les plateformes et protège l'investisseur, mais la fiscalité des plus-values reste nationale : flat tax de 31,4 % (ou option pour le barème progressif)." },

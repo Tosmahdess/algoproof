@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { getBotWithStats } from '@/lib/queries'
-import { pnlEur, fmtEur, fmtPfDisplay, fmtWinRateDisplay } from '@/lib/display'
+import { pnlEur, fmtEur, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss } from '@/lib/display'
 
 export const runtime = 'nodejs'
 export const revalidate = 3600
@@ -19,7 +19,8 @@ export async function GET(
   const metrics = [
     { label: 'T. GAIN',   value: fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate), color: '#e6edf3' },
     { label: 'F. PROFIT', value: fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor), color: bot.stats.profit_factor >= 1 ? '#3fb950' : '#ff4444' },
-    { label: 'DRAWDOWN',  value: `${(bot.stats.max_drawdown * 100).toFixed(1)}%`, color: '#ff4444' },
+    // Red only when there is a drawdown to show; « 0.0% » is neutral (display.ts).
+    { label: 'DRAWDOWN',  value: fmtDrawdown(bot.stats.max_drawdown), color: drawdownIsLoss(bot.stats.max_drawdown) ? '#ff4444' : '#e6edf3' },
     { label: 'P&L',       value: fmtEur(eur),                                 color: eur >= 0 ? '#3fb950' : '#ff4444' },
   ]
 
@@ -38,11 +39,13 @@ export async function GET(
           </div>
           <span style={{
             fontSize: 14, fontWeight: 600, padding: '6px 14px', borderRadius: 20,
-            color: isLive ? '#3fb950' : '#8b949e',
-            background: isLive ? 'rgba(63,185,80,0.12)' : 'rgba(139,148,158,0.12)',
-            border: `1px solid ${isLive ? 'rgba(63,185,80,0.4)' : 'rgba(139,148,158,0.4)'}`,
+            // Regime as a form and a word, not the gain colour (audit 2026-09-09):
+            // same glyphs and words as StatusBadge on the site.
+            color: isLive ? '#e6edf3' : '#8b949e',
+            background: isLive ? 'rgba(230,237,243,0.12)' : 'rgba(139,148,158,0.12)',
+            border: `1px ${isLive ? 'solid rgba(230,237,243,0.4)' : 'dashed rgba(139,148,158,0.4)'}`,
           }}>
-            {isLive ? '● Live' : 'Paper'}
+            {isLive ? '● Argent réel' : '○ Simulation'}
           </span>
         </div>
 

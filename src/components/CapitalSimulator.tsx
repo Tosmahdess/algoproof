@@ -80,7 +80,7 @@ export default function CapitalSimulator({
         </div>
       </div>
 
-      <p className="text-xs text-muted/70 mt-4">
+      <p className="text-xs text-muted mt-4">
         Simple règle de trois sur les résultats déjà publiés de ce bot ; aucune donnée n’est
         envoyée, rien n’est un conseil en investissement personnalisé.
       </p>

@@ -10,7 +10,7 @@ import { getFunnelCounts } from '@/lib/funnel'
 import { familyColor, familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
-import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, CARRY_METRIC_TOOLTIP } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 import { sortFleet } from '@/lib/fleet-sort'
 
 export const revalidate = 1800
@@ -35,7 +35,7 @@ export default async function HomePage() {
   // sentence below used to carry a literal 75 and would have aged in silence the
   // day one of them is archived. Same tagging rule as /overview's waveBotCount.
   const waveCount = bots.filter(b => b.engine_unit_key?.length).length
-  // Live = real money (v1-spot, orb-bf25) ; the rest is the laboratoire (simulation).
+  // Live = real money (status 'live': v1-spot, v1-hl, orb-bf25) ; the rest is the laboratoire (simulation).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
   const { live: liveBots, paper: paperBots } = splitCohorts(bots)
   // Ordered by track record, not by profit — the same default /overview uses,
@@ -126,7 +126,9 @@ export default async function HomePage() {
           // flotte » in the nav and the footer; it was « Mes bots » here and on
           // /a-propos. One page, one name.
           { href: '/overview',     emoji: '🤖', title: 'La flotte',  desc: 'Regarde mes bots trader en vrai, chaque trade horodaté.' },
-          { href: '/wealth',       emoji: '💰', title: 'Investir',  desc: 'Ma watchlist long terme et mes analyses par société.' },
+          // /wealth is redirected to /investir since 2026-09-09. Same page, same
+          // name as the nav, same description as the /a-propos card.
+          { href: '/investir',     emoji: '💰', title: 'Investir',  desc: 'Les comptes de sociétés cotées, notés par une règle que tu peux refaire toi-même, rapport annuel en main.' },
           { href: '/intelligence', emoji: '🌤️', title: 'Météo du marché', desc: 'La météo du marché, en français, chaque jour.' },
           // FIX (final whole-branch review, I6): the « bibliothèque des 22
           // stratégies » pointed at lab.algoproof.fr/apprendre. This branch
@@ -157,10 +159,14 @@ export default async function HomePage() {
       <div className="border border-border rounded-lg p-8 mb-16 bg-card/40">
         <h2 className="text-xl font-semibold mb-3 text-center">Faire vérifier une stratégie écrite par une IA</h2>
         <p className="text-muted text-sm max-w-2xl mx-auto mb-5 text-center">
+          {/* La phrase disait qu'aucune des dix ne restait profitable ; la table
+              de l'article donne l'Ichimoku à PF 1,02. Le chiffre ci-dessous est
+              celui que l'article porte (dix euros, cinq trades), pas un arrondi
+              de la conclusion (audit 2026-09-09, §2.1). */}
           Demande dix stratégies de trading à une IA, tu les as en dix secondes. J&apos;ai passé
-          ces dix-là au bulletin anti-overfit du labo : aucune ne reste profitable une fois les
-          vrais frais payés. Ton agent IA peut faire passer les siennes au même contrôle,
-          gratuitement.
+          ces dix-là au bulletin anti-overfit du labo : neuf perdent une fois les vrais frais
+          payés ; la dixième gagne dix euros en deux ans, portés par cinq trades chanceux. Ton
+          agent IA peut faire passer les siennes au même contrôle, gratuitement.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Link href="/blog/2026-07-11-10-strategies-ia-au-bulletin" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
@@ -224,6 +230,12 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
+                {/* The regime BEFORE the figure, on every row. This list showed
+                    ten coloured P&L without a word of status while the FAQ said
+                    « Le statut est toujours affiché » (audit 2026-09-09, P1). */}
+                <div className="flex justify-end mb-1">
+                  <StatusBadge status={bot.status} />
+                </div>
                 {hasData ? (
                   <>
                     <p className={`text-sm font-bold font-mono ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</p>
@@ -285,8 +297,8 @@ export default async function HomePage() {
                   >
                     {hasData ? fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor) : <span className="text-muted">—</span>}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-negative hidden lg:table-cell">
-                    {hasData ? `${(bot.stats.max_drawdown * 100).toFixed(1)}%` : <span className="text-muted">—</span>}
+                  <td className={`px-4 py-3 text-right font-mono hidden lg:table-cell ${hasData && drawdownIsLoss(bot.stats.max_drawdown) ? 'text-negative' : ''}`}>
+                    {hasData ? fmtDrawdown(bot.stats.max_drawdown) : <span className="text-muted">—</span>}
                   </td>
                   <td className="px-4 py-3 text-right">
                     {hasData ? (
@@ -337,9 +349,15 @@ export default async function HomePage() {
         {/* « Commence ici » promettait un début et menait à l'ouverture d'un
             compte exchange : deux intentions différentes. Le libellé dit
             maintenant la destination, le sous-titre porte la raison. */}
+        {/* Daté, pas définitif : Binance vise un retour par un nouveau dépôt
+            MiCA et l'AMF doit se prononcer avant le 1er octobre 2026. Même
+            phrase que le labo ; sources et rendez-vous de relecture sur /start
+            (audit 2026-09-09, §10). */}
         <p className="text-xs text-muted mt-3">
-          Binance ne sert plus les résidents français depuis juillet 2026. Les plateformes
-          qui restent, comparées.
+          Binance a cessé de servir les résidents français le 1er juillet 2026, faute d&apos;agrément
+          MiCA. Au 10 septembre 2026, rien n&apos;a repris : Binance vise un retour par un nouveau
+          dépôt auprès de l&apos;AMF, qui doit se prononcer avant le 1er octobre. Les plateformes qui
+          restent, comparées.
         </p>
       </div>
 
