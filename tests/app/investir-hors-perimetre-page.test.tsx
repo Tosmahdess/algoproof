@@ -43,8 +43,15 @@ describe('/investir/[slug], out-of-scope company', () => {
     expect(text).not.toMatch(/Chargement/)
   })
 
+  // The request FAILS here, it does not answer « guest »: that is the branch
+  // RecitInvestir's own `.catch` takes, which sets `{ entitlement: 'guest' }`
+  // itself. Serving that payload tested the route's answer, not the catch.
   it('shows no offer either when the request fails', async () => {
-    const { container } = await renderFiche(slug, { entitlement: 'guest' })
+    const fetchMock = vi.fn(async () => { throw new Error('network') })
+    vi.stubGlobal('fetch', fetchMock)
+    const { container } = render(await FicheInvestir({ params: Promise.resolve({ slug }) }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    await act(async () => {})
     const text = container.textContent ?? ''
     for (const t of TEASER) expect(text).not.toMatch(t)
     expect(text).not.toMatch(/Chargement/)
