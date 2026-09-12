@@ -35,12 +35,22 @@ const FILES = [...walk(path.join(ROOT, 'src')), ...walk(path.join(ROOT, 'content
 const read = (f: string) => fs.readFileSync(f, 'utf8')
 const rel = (f: string) => path.relative(ROOT, f).replace(/\\/g, '/')
 
+/** Every swept file, read and whitespace-collapsed ONCE at module load. This
+ *  used to happen inside `filesMatching`, so each of the ~25 guards below
+ *  re-read and re-collapsed the whole of src/ and content/ — the file took
+ *  over 5 s on a cold machine and tripped vitest's default per-test timeout. */
+const TEXTS = FILES.map(f => ({ rel: rel(f), text: read(f).replace(/\s+/g, ' ') }))
+
 /** Files whose text matches `re`, as repo-relative paths. JSX wraps prose
  *  across indented lines, so whitespace runs are collapsed before matching:
  *  a sentence must be found whatever the line breaks, and a guard must not
  *  pass because a phrase was merely re-wrapped. */
 function filesMatching(re: RegExp): string[] {
-  return FILES.filter(f => re.test(read(f).replace(/\s+/g, ' '))).map(rel)
+  // A /g regex keeps `lastIndex` between `.test()` calls, so reusing one over
+  // a list of files silently skips matches. Nothing here needs /g, and a
+  // shared TEXTS array makes the state harder to notice than it already was.
+  if (re.global) throw new Error(`filesMatching: pattern must not carry the /g flag: ${re}`)
+  return TEXTS.filter(t => re.test(t.text)).map(t => t.rel)
 }
 
 // JSX writes an apostrophe as &apos; or ’ as often as ', and a JS string
