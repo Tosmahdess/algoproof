@@ -15,6 +15,7 @@ import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
 import SampleNote from '@/components/SampleNote'
+import EngineRejudgeNotice from '@/components/EngineRejudgeNotice'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -114,7 +115,11 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         )}
       </p>
 
-      {/* Provenance: which screening campaign this bot came from, and how narrow its margin was */}
+      {/* The fiche is where a visitor decides, so the re-judge notice belongs here too, on
+          the bots whose verdict came out of the audited simulator (Fable review 2026-09-12). */}
+      {bot.origin === 'engine' && <EngineRejudgeNotice className="mb-6" />}
+
+      {/* Provenance: which screening campaign this bot came from, and what it measured */}
       {provenance && (
         <BotProvenance campaign={provenance.campaign} candidate={provenance.candidate} />
       )}

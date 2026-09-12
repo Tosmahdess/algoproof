@@ -30,7 +30,10 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
       <EngineRejudgeNotice className="mb-4" />
       {gauntletFunnel(space).map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
 
-      <p className="text-sm mb-3">Le gantelet, c’est quatre épreuves. Il faut tenir les quatre.</p>
+      {/* The old sentence demanded all four trials, which contradicted « en sursis reste
+          publiée » : rater une seule des trois épreuves de robustesse laisse la stratégie
+          publiée (audit 2026-09-10). */}
+      <p className="text-sm mb-3">Le gantelet, c’est quatre épreuves. Une candidate les tient toutes.</p>
       <ol className="space-y-3 mb-3">
         {GAUNTLET_TRIALS.map((t, i) => (
           <li key={t.name} className="text-sm">

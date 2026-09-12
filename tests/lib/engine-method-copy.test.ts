@@ -51,6 +51,12 @@ const RETIRED: readonly [why: string, motif: string][] = [
   ['bot provenance: an engine verdict called validated', 'Validé le'],
   ['funnel counter: whole-fleet counts presented as gauntlet promotions', 'Promues en bot'],
   ['funding-rev card: an out-of-sample figure the vault does not establish', 'walk-forward OOS'],
+  // 2026-09-12 round (Fable review + the measured screening leak):
+  ['bot fiche: a measured value printed next to its classified bar', 'pour une barre à'],
+  ['the gauntlet demands all four trials, contradicting « en sursis reste publiée »', 'Il faut tenir les quatre'],
+  ['the null control described as random entries (a circular shift is not random)', 'qui entrent au hasard'],
+  ['the worst-quarter trial carrying a second, repeated reservation', 'L’épreuve dit si elle'],
+  ['the macro-blackout replay understated as a slightly worse drawdown', 'drawdown pire'],
 ]
 
 describe('retired engine-method sentences are gone from src/', () => {
@@ -78,9 +84,58 @@ const CLASSIFIED: readonly [name: string, re: RegExp][] = [
   ['window-count floor', /il y en a moins de (?:\d+|deux|trois|quatre|cinq)\b/i],
   ['qualified-market count', /\b(?:\d+|trois|quatre|cinq|six|sept) au lieu de (?:\d+|trois|quatre|cinq|six|sept)\b/i],
 ]
+// The Labo's NUMERIC list, on top of the prose forms: the judge's values themselves
+// (wf bar 1,15 / PF floor 1,30 / trade floors 30 and 20 / three windows / five-or-six
+// markets / null bar 95), plus the phrasing that leaked them on a bot fiche (« barre à »).
+//
+// Two tiers, because the same digits are legitimately public elsewhere:
+//
+// TIER A runs over ALL of src/. These forms appear nowhere else: the wf bar value, the
+// « barre à » phrasing, a bare 95 in prose (not « 95 % », not « bg-bg/95 »), and the PF
+// floor. ALLOWED_PF_FLOOR below is the one exemption, and it is the user's call: the
+// per-bot pre-registered death criteria in bot-expectations.ts (« PF ≥ 1.30, DD ≤ 20 % »,
+// « PF net < 1.30 → mort du bot ») are a deliberate public commitment about a BOT, not the
+// engine judge's gate. That is why the /overview and /lexique profit-factor example moved
+// from 1,3 to 1,5 rather than widening this list.
+//
+// TIER B runs over the ENGINE SURFACES only: the trade floors, the DD limit and the window
+// and market counts collide with numbers the site publishes on purpose (« <20 trades » on a
+// low-sample badge, the public 2-year/20-trade rule on /preuve, the per-bot envelopes). A
+// global rule there would be noise, and noise is how a guard stops being read.
+const NUMERIC_GLOBAL: readonly [name: string, re: RegExp][] = [
+  ['wf bar value', /\b1[,.]15\b/],
+  ['bar phrasing', /barre à/i],
+  ['null bar 95', /(?<![\w/.])95(?![\w%])/],
+  ['PF floor value', /\b1[,.]30?\b/],
+]
+// The two exemptions, and they are the user's call: both publish a PF floor that is a
+// deliberate commitment about a BOT, not the engine judge's gate.
+//   bot-expectations.ts   per-bot pre-registered death criteria (« PF ≥ 1.30, DD ≤ 20 % »)
+//   path-to-real.ts       DEFAULT_LIVE_GATE.minPf, the paper->real gate PathToRealCard
+//                         prints on a fiche, so a reader can hold me to it
+const ALLOWED_PF_FLOOR = ['src/lib/bot-expectations.ts', 'src/lib/path-to-real.ts']
+const NUMERIC_ENGINE: readonly [name: string, re: RegExp][] = [
+  ['trade floor value', /\b(?:20|30)\s*trades\b/i],
+  ['DD limit value', /\b20\s*%/],
+  ['window count', /\b(?:trois|3)\s*trimestres\b/i],
+  ['market count', /\b(?:cinq|six|5|6)\s*march/i],
+]
+// Every surface that describes the judge or renders its payload.
+const ENGINE_SURFACES = [
+  'src/lib/gauntlet-explainer.ts',
+  'src/lib/screening.ts',
+  'src/lib/provenance.ts',
+  'src/components/GauntletExplainer.tsx',
+  'src/components/FunnelCounter.tsx',
+  'src/components/EngineRejudgeNotice.tsx',
+  'src/components/BotProvenance.tsx',
+]
+
 const blankComments = (s: string) =>
   s.replace(/\/\*[\s\S]*?\*\//g, c => c.replace(/[^\n]/g, ' ')).replace(/^\s*\/\/.*$/gm, '')
 const classifiedHits = (text: string) => CLASSIFIED.filter(([, re]) => re.test(norm(text))).map(([name]) => name)
+const hitsFor = (patterns: readonly [string, RegExp][], text: string) =>
+  patterns.filter(([, re]) => re.test(norm(text))).map(([name]) => name)
 
 describe('no classified gate threshold reaches rendered copy', () => {
   it('positive control: the detector catches each threshold sentence retired on 2026-09-11', () => {
@@ -92,6 +147,57 @@ describe('no classified gate threshold reaches rendered copy', () => {
     expect(classifiedHits(FIXTURE)).toEqual(
       ['PF floor in prose', 'trade-count floor', 'window-count floor', 'qualified-market count'],
     )
+  })
+
+  it('positive control: the numeric list catches the values, prose or not', () => {
+    expect(hitsFor(NUMERIC_GLOBAL, 'le walk-forward doit rendre 1,15')).toEqual(['wf bar value'])
+    expect(hitsFor(NUMERIC_GLOBAL, '95,16 pour une barre à 95')).toEqual(
+      ['bar phrasing', 'null bar 95'],
+    )
+    expect(hitsFor(NUMERIC_GLOBAL, 'un plancher de PF à 1,30')).toEqual(['PF floor value'])
+    expect(hitsFor(NUMERIC_ENGINE, 'il faut 30 trades, un drawdown sous 20 %, trois trimestres et six marchés'))
+      .toEqual(['trade floor value', 'DD limit value', 'window count', 'market count'])
+  })
+
+  it('negative control: UI numbers and non-gate figures pass', () => {
+    // « bg-bg/95 » and « 95% » are CSS, « 0,03 % » a cost, « une centaine » a run count.
+    expect(hitsFor(NUMERIC_GLOBAL, 'bg-bg/95 backdrop-blur, stopOpacity 95%')).toEqual([])
+    expect(hitsFor(NUMERIC_GLOBAL, 'un funding forfaitaire de 0,03 % par jour, jusqu’à une centaine de fois')).toEqual([])
+    expect(hitsFor(NUMERIC_GLOBAL, 'PF 1,41 sur 25 actifs, PF 1,35')).toEqual([])
+  })
+
+  it('no rendered string under src/ carries a value from the global list', () => {
+    const files = walk(path.join(ROOT, 'src'))
+    expect(files.length).toBeGreaterThan(50)
+    const offenders = files.flatMap(f => {
+      const rel = path.relative(ROOT, f).replace(/\\/g, '/')
+      return hitsFor(NUMERIC_GLOBAL, blankComments(fs.readFileSync(f, 'utf8')))
+        .filter(name => !(name === 'PF floor value' && ALLOWED_PF_FLOOR.includes(rel)))
+        .map(name => `${rel}: ${name}`)
+    })
+    expect(offenders).toEqual([])
+  })
+
+  it('each exemption is live, not dead: it still carries the commitment it was granted for', () => {
+    // An exemption that stops matching is a stale exemption, and stale is how an allowlist
+    // quietly becomes a hole. Every entry must still trip the pattern it excuses.
+    for (const rel of ALLOWED_PF_FLOOR) {
+      const code = blankComments(fs.readFileSync(path.join(ROOT, rel), 'utf8'))
+      expect(hitsFor(NUMERIC_GLOBAL, code), `${rel} no longer needs its exemption`)
+        .toContain('PF floor value')
+    }
+    // and each one is the commitment named in the comment above, not some other 1,30
+    expect(fileText('src/lib/bot-expectations.ts')).toMatch(/PF ≥ 1\.30/)
+    expect(fileText('src/lib/path-to-real.ts')).toMatch(/DEFAULT_LIVE_GATE[^=]*=\s*\{ minPf: 1\.3/)
+  })
+
+  it('no engine surface carries a value from the scoped list', () => {
+    const offenders = ENGINE_SURFACES.flatMap(rel => {
+      const full = path.join(ROOT, rel)
+      expect(fs.existsSync(full), `${rel} must exist`).toBe(true)
+      return hitsFor(NUMERIC_ENGINE, blankComments(fs.readFileSync(full, 'utf8'))).map(n => `${rel}: ${n}`)
+    })
+    expect(offenders).toEqual([])
   })
 
   it('negative control: numbers that are not gate thresholds pass', () => {

@@ -98,7 +98,7 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
           page was rewritten to feed FleetOverview and never replaced. */}
       <JsonLd data={faqJsonLd([
         { question: 'Les résultats sont-ils réels ?', answer: 'Oui. Les bots tournent en continu et chaque trade est enregistré automatiquement, gains comme pertes. Les chiffres sont mis à jour toutes les heures.' },
-        { question: 'Qu\'est-ce que le profit factor ?', answer: 'C\'est le rapport entre l\'argent gagné et l\'argent perdu. Un PF de 1,3 signifie 1,30 € gagné pour 1 € perdu.' },
+        { question: 'Qu\'est-ce que le profit factor ?', answer: 'C\'est le rapport entre l\'argent gagné et l\'argent perdu. Un PF de 1,5 signifie 1,50 € gagné pour 1 € perdu.' },
         { question: 'Le trading est-il en argent réel ?', answer: 'La plupart des bots sont en paper trading (simulation sur données réelles, frais et slippage compris). Les bots qui tournent avec mon argent sont marqués « Argent réel ».' },
       ])} />
       <h1 className="text-3xl font-semibold tracking-tight mb-3">La flotte</h1>

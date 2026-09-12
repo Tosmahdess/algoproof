@@ -104,12 +104,12 @@ export const GAUNTLET_TRIALS: readonly { readonly name: string; readonly plain: 
   {
     name: 'Tenir sur son pire trimestre',
     plain:
-      'Je découpe l’historique en trimestres civils et je regarde le PF du pire d’entre eux, parmi ceux qui comptent assez de trades. S’il y en a trop peu, je prends le PF de tout l’historique à la place. Ce n’est pas un test hors échantillon : ces trimestres font partie de l’historique qui a servi à choisir la configuration. L’épreuve dit si elle a traversé une mauvaise période sans s’effondrer, pas si elle tiendra sur des données nouvelles.',
+      'Je découpe l’historique en trimestres civils et je regarde le PF du pire d’entre eux, parmi ceux qui comptent assez de trades. S’il y en a trop peu, je prends le PF de tout l’historique à la place. Ce n’est pas un test hors échantillon : ces trimestres font partie de l’historique qui a servi à choisir la configuration.',
   },
   {
     name: 'Battre le hasard, pas seulement le marché',
     plain:
-      'Je décale ses signaux d’entrée dans le temps, jusqu’à une centaine de fois, pour fabriquer des versions de la même stratégie qui entrent au hasard, avec le même nombre d’entrées. Je le fais sur un seul marché témoin, pas sur tous. Si la vraie ne sort pas nettement du lot, elle ne prouve rien. Quand les autres épreuves ont déjà tranché, je saute celle-ci.',
+      'Je décale ses signaux d’entrée dans le temps, jusqu’à une centaine de fois, pour fabriquer des versions de la même stratégie qui entrent à d’autres moments, avec le même nombre d’entrées. Je le fais sur un seul marché témoin, pas sur tous. Si la vraie ne sort pas nettement du lot, elle ne prouve rien. Quand les autres épreuves ont déjà tranché, je saute celle-ci.',
   },
   {
     name: 'Ne pas dépendre d’un seul marché',

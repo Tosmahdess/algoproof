@@ -3,7 +3,9 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Ma méthode : pourquoi je montre chaque perte',
-  description: 'Comment je valide une stratégie avant de la déployer : backtest sur 2 ans, 20 trades minimum, un walk-forward qui regarde le pire trimestre (pas un test hors échantillon), des coûts inclus dès le backtest, puis du paper trading. La transparence comme méthode, pas comme argument.',
+  // ~150 characters: Google cuts a description around 155, and the walk-forward clause is the
+  // half that has to survive, since it is the claim this round corrected.
+  description: 'Backtest sur 2 ans, 20 trades minimum, et un walk-forward qui regarde le pire trimestre, pas un test hors échantillon. Ma méthode, pertes comprises.',
 }
 
 export default function PreuvePage() {
@@ -19,6 +21,13 @@ export default function PreuvePage() {
 
       <section>
         <h2 className="text-xl font-semibold mb-3">Comment je valide une stratégie</h2>
+        {/* Which rule applies to which bots: the list below is my own gate, and the
+            engine-born bots pass its gauntlet on top of it (Fable review 2026-09-12). */}
+        <p className="text-sm text-muted leading-relaxed mb-3">
+          Les bots que j&apos;ai déployés à la main suivent la règle ci-dessous. Ceux qui
+          sortent de mon moteur passent en plus les quatre épreuves de son gantelet,
+          expliquées sur <Link href="/strategies" className="text-accent">la page des stratégies</Link>.
+        </p>
         <ul className="space-y-2 text-sm text-muted leading-relaxed list-disc pl-5">
           <li>Backtest sur <strong>au moins 2 ans</strong> de données et <strong>20 trades minimum</strong> : en dessous, ce n&apos;est pas significatif.</li>
           {/* Audit 2026-09-10: the engine's « walk-forward » is the worst calendar quarter
