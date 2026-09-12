@@ -35,12 +35,22 @@ const FILES = [...walk(path.join(ROOT, 'src')), ...walk(path.join(ROOT, 'content
 const read = (f: string) => fs.readFileSync(f, 'utf8')
 const rel = (f: string) => path.relative(ROOT, f).replace(/\\/g, '/')
 
+/** Every swept file, read and whitespace-collapsed ONCE at module load. This
+ *  used to happen inside `filesMatching`, so each of the ~25 guards below
+ *  re-read and re-collapsed the whole of src/ and content/ — the file took
+ *  over 5 s on a cold machine and tripped vitest's default per-test timeout. */
+const TEXTS = FILES.map(f => ({ rel: rel(f), text: read(f).replace(/\s+/g, ' ') }))
+
 /** Files whose text matches `re`, as repo-relative paths. JSX wraps prose
  *  across indented lines, so whitespace runs are collapsed before matching:
  *  a sentence must be found whatever the line breaks, and a guard must not
  *  pass because a phrase was merely re-wrapped. */
 function filesMatching(re: RegExp): string[] {
-  return FILES.filter(f => re.test(read(f).replace(/\s+/g, ' '))).map(rel)
+  // A /g regex keeps `lastIndex` between `.test()` calls, so reusing one over
+  // a list of files silently skips matches. Nothing here needs /g, and a
+  // shared TEXTS array makes the state harder to notice than it already was.
+  if (re.global) throw new Error(`filesMatching: pattern must not carry the /g flag: ${re}`)
+  return TEXTS.filter(t => re.test(t.text)).map(t => t.rel)
 }
 
 // JSX writes an apostrophe as &apos; or ’ as often as ', and a JS string
@@ -60,6 +70,37 @@ describe('the paid Investir offer has one description', () => {
 
   it('« sélection du jour » is gone from src/ and content/', () => {
     expect(filesMatching(/s[ée]lection du jour/i)).toEqual([])
+  })
+
+  // 2026-09-11 review (P3): the FAQ and /a-propos still sold « le raisonnement
+  // complet » of each analysis, a third version of an offer that is two
+  // paragraphs.
+  it('« raisonnement complet » is gone from src/ and content/, and both pages say two paragraphs', () => {
+    expect(filesMatching(/raisonnement complet/i)).toEqual([])
+    const TWO = new RegExp(`deux paragraphes d${APOS}analyse par société`)
+    expect(filesMatching(TWO)).toEqual(expect.arrayContaining([
+      'src/app/faq/page.tsx',
+      'src/app/a-propos/page.tsx',
+    ]))
+  })
+
+  // 2026-09-11 review (P4): the free part was told four ways (« le verdict,
+  // sa raison courte et les comptes », « le verdict et la raison qui va avec »,
+  // « le verdict de chacune de mes analyses »…). One wording, shared with the
+  // lab, and scoped: it only holds on the companies the rule grades.
+  it('the free part has one wording, scoped to the companies I grade, on every surface that names it', () => {
+    const FREE = /la note, le verdict et sa raison, les chiffres et les comptes/i
+    const SCOPE = /sur les sociétés que je note/i
+    const SURFACES = ['src/app/faq/page.tsx', 'src/app/preuve/page.tsx', 'src/app/a-propos/page.tsx']
+    expect(filesMatching(FREE)).toEqual(expect.arrayContaining(SURFACES))
+    expect(filesMatching(SCOPE)).toEqual(expect.arrayContaining(SURFACES))
+    // Any « verdict, sa raison » / « verdict et la raison » that does not go on
+    // with « , les chiffres et les comptes » is another version of the free
+    // part, and so is a bare « note, (le) verdict » list.
+    expect(filesMatching(/verdict(?:,| et)\s+(?:sa|la)\s+raison(?!, les chiffres et les comptes)/i)).toEqual([])
+    expect(filesMatching(/\bnote,\s+(?:le\s+)?verdict\b(?!\s+et\s+sa\s+raison)/i)).toEqual([])
+    // « double : » in /preuve: « Sur les sociétés que je note : deux paragraphes… : »
+    expect(filesMatching(/Sur les sociétés que je note : deux paragraphes/)).toEqual([])
   })
 
   it('the canonical sentence is on every surface that sells the offer', () => {
@@ -162,6 +203,47 @@ describe('Investir is described as the page it is', () => {
     expect(page).not.toMatch(/href="\/wealth"/)
   })
 
+  // 2026-09-11 review (P8): the home Investir card and both /compte links
+  // (the magic-link return and the member link) still went to /wealth, which
+  // next.config.ts redirects to /investir. next.config.ts is outside src/ and
+  // keeps its redirects. Four components still build /wealth/<ticker> links,
+  // but no page mounts them (only their own tests import them): they are
+  // named here, and mounting one again fails this test before a visitor
+  // follows the link.
+  it('no link, redirectTo or next in src/ sends a reader to /wealth', () => {
+    const LINK = /(?:href|redirectTo|next)\s*[=:]\s*\{?\s*["'`]\/wealth/
+    const NEXT_PARAM = /[?&]next=(?:\/|%2F)wealth/i
+    const UNMOUNTED = [
+      'src/components/AnalysesClient.tsx',
+      'src/components/LatestAnalyses.tsx',
+      'src/components/SignalTable.tsx',
+      'src/components/TopPicks.tsx',
+    ]
+    const srcFiles = FILES.filter(f => rel(f).startsWith('src/'))
+    const hits = srcFiles
+      .filter(f => { const t = read(f).replace(/\s+/g, ' '); return LINK.test(t) || NEXT_PARAM.test(t) })
+      .map(rel)
+      .sort()
+    // exactly the unmounted four: proves the pattern fires, and that no
+    // mounted file joined them
+    expect(hits).toEqual([...UNMOUNTED].sort())
+    for (const dead of UNMOUNTED) {
+      const name = path.basename(dead, '.tsx')
+      const importers = srcFiles
+        .filter(f => rel(f) !== dead && new RegExp(`from ['"](?:@/components/|\\./)${name}['"]`).test(read(f)))
+        .map(rel)
+      expect(importers, `${name} is mounted again`).toEqual([])
+    }
+  })
+
+  it('the home Investir card opens /investir with the /a-propos description', () => {
+    const home = read(path.join(ROOT, 'src/app/page.tsx')).replace(/\s+/g, ' ')
+    const card = home.match(/\{ href: '([^']*)', emoji: '[^']*', title: 'Investir', desc: '([^']*)' \}/)
+    expect(card, 'the Investir card').toBeTruthy()
+    expect(card![1]).toBe('/investir')
+    expect(card![2]).toBe('Les comptes de sociétés cotées, notés par une règle que tu peux refaire toi-même, rapport annuel en main.')
+  })
+
   it('no surface describes Investir as a DCA on crypto, ETFs and shares', () => {
     expect(filesMatching(/accumulation long terme \(DCA\)/i)).toEqual([])
   })
@@ -189,7 +271,35 @@ describe('no surface points at a reference price the fiche does not show', () =>
   it('the disclosure block still says who wrote it and when', () => {
     const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
     expect(block).toMatch(/Thomas Dessombs, à titre individuel/)
-    expect(block).toMatch(/Analyse terminée le \{longDateTime\(generatedAt\)\}, heure de Paris\./)
+    // 2026-09-11 review (P6): the value passed in is `as_of`, a date with no
+    // time, and longDateTime printed it « à 02:00, heure de Paris ». A day only.
+    // « Version du », not « Calcul du »: the line above the block already says
+    // « Calcul du » on a graded fiche, and an out-of-scope fiche is no calculation.
+    expect(block).toMatch(/Version du \{longDate\(generatedAt\)\}\./)
+    expect(block).not.toMatch(/longDateTime/)
+    expect(block).not.toMatch(/heure de Paris/)
+    // No fiche prints a market price any more (D048).
+    expect(filesMatching(/chiffres de march[ée] viennent des donn/i)).toEqual([])
+  })
+
+  // 2026-09-11, the author's own rewrite of the holdings sentence. « Je peux
+  // détenir les titres dont je parle » let « les » cover every company the rule
+  // grades; he holds some of them, and chiefly the ones he follows.
+  it('the disclosure scopes the holdings sentence to the watchlist (author\'s wording, 2026-09-11)', () => {
+    expect(filesMatching(/Je peux détenir les titres dont je parle/)).toEqual([])
+    expect(filesMatching(/c(?:\\'|'|’|&apos;)est même en général la raison pour laquelle je les suis/)).toEqual([])
+    const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
+    expect(block).toMatch(
+      /Je peux détenir certains des titres notés ici, en particulier ceux de ma liste de suivi\./,
+    )
+  })
+
+  it('the disclosure says the watchlist is a small part of what I grade (author\'s wording, 2026-09-11)', () => {
+    expect(filesMatching(/ma propre liste de suivi long terme et sur mes versements mensuels/)).toEqual([])
+    const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
+    expect(block).toMatch(new RegExp(
+      `Je note bien plus de sociétés que je n${APOS}en suis pour moi : ma liste de suivi long terme n${APOS}en est qu${APOS}une petite partie\\.`,
+    ))
   })
 })
 
@@ -224,6 +334,25 @@ describe('small copy says what the site does', () => {
     expect(body.trimStart().startsWith('<Callout type="info" title="Mise à jour du 11 septembre 2026">')).toBe(true)
     expect(body).toMatch(/migré sur Kraken le 30 juin 2026/)
     expect(body).toMatch(/retirées le 23 juillet 2026/)
+    // 2026-09-11 review (P9). The note's grammar, the Hard-Gate the body still
+    // calls « en shadow » (layers 1-2 decommissioned 15/06/2026 per
+    // decision-stack.md; layer 3 never in v1-spot's code per D-APX-L3-8), and a
+    // summary whose figures are those of 27 May.
+    expect(body).not.toMatch(/les 37 autres bots en simulation sont/)
+    expect(body).toMatch(/la flotte en simulation compte aujourd'hui bien plus que ces 37 bots/)
+    expect(body).toMatch(
+      /Le Hard-Gate présenté plus bas n'est plus en shadow : ses deux premières couches ont été retirées le 15 juin 2026, et la troisième n'a jamais tourné sur ce bot\./,
+    )
+    const front = text.split(/^---\r?$/m)[1] ?? ''
+    expect(front).toMatch(/10 trades, PF 3\.71, \+52 USDC \(chiffres du 27 mai\)/)
+  })
+
+  // /start promised that the page « changera le jour même » the AMF rules on
+  // Binance: a promise of a same-day edit nobody can guarantee.
+  it('/start does not promise a same-day edit on the AMF decision', () => {
+    expect(filesMatching(/changera le jour même/)).toEqual([])
+    const start = read(path.join(ROOT, 'src/app/start/page.tsx')).replace(/\s+/g, ' ')
+    expect(start).toMatch(new RegExp(`Si l${APOS}AMF dit oui, je le noterai ici\\.`))
   })
 
   // /compte, free tier: the membership was said to give access « à cette

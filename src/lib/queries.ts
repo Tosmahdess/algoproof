@@ -292,7 +292,7 @@ export const getWaveMeasure = unstable_cache(
   { revalidate: 1800, tags: ['fleet-bots'] },
 )
 
-// Live cohort = real money (v1-spot, orb-bf25). Passed down so the P&L headline
+// Live cohort = real money (status 'live': v1-spot, v1-hl, orb-bf25). Passed down so the P&L headline
 // can separate real from laboratoire (simulation) instead of fusing them into
 // one total. Mirrors the cohort split in splitCohorts()/cohort.ts.
 export async function getLiveBots(): Promise<LiveBot[]> {

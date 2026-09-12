@@ -112,7 +112,6 @@ export default function Nav() {
               ref={mesBotsButtonRef}
               aria-expanded={mesBotsOpen}
               aria-controls="mes-bots-menu"
-              aria-haspopup="true"
               onClick={toggleMesBots}
               onKeyDown={onMesBotsButtonKeyDown}
               onKeyUp={onMesBotsButtonKeyUp}

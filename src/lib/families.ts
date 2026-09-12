@@ -44,22 +44,35 @@ const LABELS: Record<Family, string> = {
 // to a grey `#888` for the other four, which is how a momentum bot ended up
 // painted as "unknown family" on the home page).
 // Nine entries, nine DISTINCT colours (enforced by tests/lib/families.test.ts
-// "gives every family a distinct hex colour" — the whole reason this map
-// exists, see the FIX comment there). `price-action` maps to the `accent`
-// token; `stat-arb` keeps its literal hex rather than reusing the same token,
-// which would make two of the nine families collide on /overview's family
-// badges — the one deliberate raw-hex holdout from the 2026-08-22 design-token
-// pass, kept for that reason.
+// "gives every family a distinct colour" — the whole reason this map exists,
+// see the FIX comment there).
+//
+// No family borrows a SIGNAL colour (2026-09-11 review, user decision). Trend
+// was drawn in `severe`, breakout in `positive` (gain green), carry in
+// `warning` (alert amber): a badge read as a verdict on the bot.
+//
+// The nine below are the palette of the 2026-09-11 reading pass (user
+// decision, applied 2026-09-12). All nine are literal hexes now:
+// `price-action` used to map to `var(--accent)`, so that one badge changed
+// meaning whenever the accent token moved, and it read as the site's own
+// call-to-action colour rather than as a category.
+//
+// Contrast measured on the two backgrounds the site paints behind a badge,
+// #0a0a0a and #111111: trend 7.48 / 7.13, momentum 9.24 / 8.81, breakout
+// 8.05 / 7.67, mean-reversion 7.72 / 7.36, price-action 13.27 / 12.66, carry
+// 7.27 / 6.94, market-neutral 10.64 / 10.14, stat-arb 5.38 / 5.13, event
+// 14.32 / 13.66. tests/lib/families.test.ts RECOMPUTES those ratios and fails
+// below 4.5:1, so the figures above cannot drift away from the values.
 const COLORS: Record<Family, string> = {
-  trend: 'var(--severe)',
-  momentum: '#58a6ff',
-  breakout: 'var(--positive)',
-  'mean-reversion': '#7c3aed',
-  'price-action': 'var(--accent)',
-  carry: 'var(--warning)',
-  'market-neutral': '#14b8a6',
-  'stat-arb': '#40c4ff',
-  event: '#fb923c',
+  trend: '#f472b6',
+  momentum: '#38bdf8',
+  breakout: '#e879f9',
+  'mean-reversion': '#94a3b8',
+  'price-action': '#c7d2fe',
+  carry: '#a78bfa',
+  'market-neutral': '#2dd4bf',
+  'stat-arb': '#3b82f6',
+  event: '#fbcfe8',
 }
 
 export function isFamily(value: unknown): value is Family {

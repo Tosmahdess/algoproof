@@ -4,7 +4,9 @@ import path from 'node:path'
 
 // 'throw': getUser() throws (corrupt cookie chunk). 'rotate': getUser() rotates
 // the session through setAll, exactly as auth-js does on a refresh.
-const state = vi.hoisted(() => ({ mode: 'throw' as 'throw' | 'rotate' }))
+// 'rotate-twice': the same rotation split over TWO setAll calls, the shape the
+// library does not use today but that the middleware must survive.
+const state = vi.hoisted(() => ({ mode: 'throw' as 'throw' | 'rotate' | 'rotate-twice' }))
 
 vi.mock('@supabase/ssr', () => ({
   createServerClient: (
@@ -15,10 +17,20 @@ vi.mock('@supabase/ssr', () => ({
     auth: {
       getUser: async () => {
         if (state.mode === 'throw') throw new Error('corrupt cookie chunk')
+        // `{}` because that is what the library passes: `await setAll(allToSet,
+        // {})` is its only call site (dist/main/cookies.js). A mock inventing
+        // Cache-Control headers here, and a middleware copying them out, only
+        // ever tested each other.
         opts.cookies.setAll(
           [{ name: 'sb-algoproof-test', value: 'rotated-token', options: { path: '/', httpOnly: true } }],
-          { 'Cache-Control': 'private, no-cache, no-store, must-revalidate, max-age=0' },
+          {},
         )
+        if (state.mode === 'rotate-twice') {
+          opts.cookies.setAll(
+            [{ name: 'sb-algoproof-chunk1', value: 'second-chunk', options: { path: '/', httpOnly: true } }],
+            {},
+          )
+        }
         return { data: { user: null }, error: null }
       },
     },
@@ -56,9 +68,27 @@ describe('middleware on /api/investir/x, a rotated session reaches both sides', 
     const forwarded = res.headers.get('x-middleware-request-cookie') ?? ''
     expect(forwarded).toContain('sb-algoproof-test=rotated-token')
     expect(forwarded).not.toContain('stale-token')
-    // a response that sets a session cookie is not cacheable
-    expect(res.headers.get('cache-control')).toMatch(/private/)
-    expect(res.headers.get('cache-control')).toMatch(/no-store/)
+  })
+})
+
+// 2026-09-12 hardening. Each setAll call REBUILDS the response, so a second
+// call used to hand back a response carrying only its own cookies: the first
+// call's rotation reached the browser on a response that was then thrown away.
+// The library splits nothing today (one `setAll(allToSet, {})`), which is
+// exactly why nothing would have shown this the day it started to.
+describe('middleware when setAll is called more than once', () => {
+  it('keeps the cookies of every call, on the response and on the request', async () => {
+    state.mode = 'rotate-twice'
+    const req = new NextRequest('http://localhost/compte', {
+      headers: { cookie: 'sb-algoproof-test=stale-token' },
+    })
+    const res = await middleware(req)
+    expect(res.cookies.get('sb-algoproof-test')?.value).toBe('rotated-token')
+    expect(res.cookies.get('sb-algoproof-chunk1')?.value).toBe('second-chunk')
+    const forwarded = res.headers.get('x-middleware-request-cookie') ?? ''
+    expect(forwarded).toContain('sb-algoproof-test=rotated-token')
+    expect(forwarded).toContain('sb-algoproof-chunk1=second-chunk')
+    expect(forwarded).not.toContain('stale-token')
   })
 })
 

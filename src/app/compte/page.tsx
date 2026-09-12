@@ -20,7 +20,9 @@ export default async function ComptePage() {
           <p className="text-sm text-muted mb-6">
             Je t&apos;envoie un lien de connexion par mail. Pas de mot de passe à retenir.
           </p>
-          <MagicLinkForm redirectTo="/wealth" />
+          {/* /wealth only redirects to /investir (next.config.ts): the sign-in
+              lands on the page itself. auth/callback's safeNext accepts it. */}
+          <MagicLinkForm redirectTo="/investir" />
         </>
       )}
 
@@ -46,7 +48,7 @@ export default async function ComptePage() {
       {entitlement === 'paid' && (
         <div className="space-y-4">
           <p className="text-sm text-positive">Abonnement actif. Tout est ouvert.</p>
-          <a href="/wealth" className="text-sm text-accent">Aller aux analyses</a>
+          <a href="/investir" className="text-sm text-accent">Aller aux analyses</a>
         </div>
       )}
     </div>

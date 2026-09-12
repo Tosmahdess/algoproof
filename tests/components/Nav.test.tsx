@@ -21,6 +21,9 @@ describe('Nav — « MES BOTS » is usable from the keyboard', () => {
     const menuId = b.getAttribute('aria-controls')
     expect(menuId).toBeTruthy()
     expect(document.getElementById(menuId!)).not.toBeNull()
+    // WAI-ARIA disclosure pattern: the list is plain links, not role="menu",
+    // so the button does not announce a popup menu (2026-09-11 review).
+    expect(b).not.toHaveAttribute('aria-haspopup')
   })
 
   it('opens and closes on click', () => {

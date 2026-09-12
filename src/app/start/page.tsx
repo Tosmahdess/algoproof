@@ -205,7 +205,7 @@ export default function StartPage() {
           <a href="https://www.cointribune.com/deux-mois-apres-mica-binance-vise-un-retour-en-france-via-lamf/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Cointribune, 8 septembre 2026</a>
           ). L&apos;arrêt du 1er juillet, tel que la presse l&apos;a donné :{' '}
           <a href="https://www.moneyvox.fr/placement/actualites/109356/binance-suspend-ses-activites-en-france-les-consequences-pour-vos-crypto-ici-le-1er-juillet-2026" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">MoneyVox</a>
-          . Si l&apos;AMF dit oui, cette page changera le jour même.
+          . Si l&apos;AMF dit oui, je le noterai ici.
         </p>
         <p className="text-sm text-muted leading-relaxed">
           <strong className="text-foreground">À ne pas faire :</strong> utiliser un VPN pour contourner la restriction
