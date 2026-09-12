@@ -8,9 +8,12 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 import { supabase } from '@/lib/supabase'
-import {
-  marginLabel, getProvenanceForBot, count, frDate, ScreeningCampaign,
-} from '@/lib/screening'
+import { getProvenanceForBot, count, frDate, ScreeningCampaign } from '@/lib/screening'
+
+// `marginLabel` is gone on purpose (2026-09-12). Its only job was to print a measured value
+// next to its BAR ("95,16 pour une barre a 95"), and the bar is one of the judge's classified
+// gates, read straight from screening_campaigns.null_bar with the site's publishable key.
+// A helper whose only output is a leak has no fixed version, so it left with the sentence.
 
 const mockChain = (data: unknown, error: unknown = null) => {
   const terminal = { data, error }
@@ -29,29 +32,14 @@ const mockChain = (data: unknown, error: unknown = null) => {
 const cell = (o: Partial<ScreeningCampaign> = {}): ScreeningCampaign => ({
   base: 'EMAcross', tf: 'H4', state: 'judged', judged_on: '2026-07-22',
   data_dir: null, n_behaviors: 73770, n_rejected: 73744, n_marginal: 20, n_candidates: 2,
-  n_assets: 30, null_bar: 95, ...o,
+  n_assets: 30, ...o,
 })
 
-describe('marginLabel', () => {
-  it('flags a value that only just clears its bar', () => {
-    const m = marginLabel(95.16, 95, 'pct')
-    expect(m.tight).toBe(true)
-    expect(m.text).toBe('95,16 pour une barre à 95')
-  })
-
-  it('does not flag a comfortable margin', () => {
-    expect(marginLabel(98.66, 95, 'pct').tight).toBe(false)
-  })
-
-  it('treats a limit-style bar (lower is better) correctly', () => {
-    expect(marginLabel(19.57, 20, 'pct').tight).toBe(true)
-    expect(marginLabel(16.81, 20, 'pct').tight).toBe(false)
-  })
-
-  it('uses the French decimal comma', () => {
-    expect(marginLabel(1.195, 1.15, 'ratio').text).toBe('1,195 pour une barre à 1,15')
-  })
-})
+const CANDIDATE = {
+  campaign_id: 7, label: 'A', rank: 1, filter_families: ['tendance'],
+  null_pct: 95.16, dd: 19.57, wf_oos: 1.195, pf_net: 1.611,
+  trades: 249, assets_go: 6, qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 3,
+}
 
 describe('count', () => {
   // Pins the actual codepoint, not a DOM-normalised approximation of it. toLocaleString('fr-FR')
@@ -59,9 +47,10 @@ describe('count', () => {
   // spaces never matches it, which is exactly the bug that shipped in ScreeningDossier.tsx and
   // stayed invisible because screen.getByText()'s whitespace normaliser (\s, which matches
   // U+202F/U+00A0 too) made the broken and the fixed version look identical through the DOM.
-  // NARROW_NBSP below holds the literal U+202F character itself, typed directly into the
-  // source (not a JS unicode escape sequence) - asserting on the string directly is the
-  // only way to actually pin the exact byte a browser renders.
+  // NARROW_NBSP is written as an escape, on purpose: a literal U+202F in the source survives
+  // no round trip through an editor or a rewrite that normalises whitespace (it was lost once,
+  // on 2026-09-12, and this test caught it). The escape pins the same codepoint, which is the
+  // byte a browser renders.
   const NARROW_NBSP = ' '
   const ASCII_SPACE = ' '
 
@@ -91,20 +80,70 @@ describe('frDate', () => {
   })
 })
 
+// The leak, as a test. Measured 2026-09-12 with the publishable key: the two base tables
+// served null_bar, wf_bar and dd_limit to anyone who asked, and select('*') asked. Migration
+// 046 redacts them into two views; this suite pins the client side of that contract.
+describe('the screening reads ask for no classified threshold', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('reads the redacted views, never the base tables', async () => {
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(mockChain(CANDIDATE))
+      .mockReturnValueOnce(mockChain(cell()))
+    await getProvenanceForBot('v1-spot')
+    const tables = vi.mocked(supabase.from).mock.calls.map(c => c[0])
+    expect(tables).toEqual(['screening_candidates_public', 'screening_campaigns_public'])
+  })
+
+  it('names its columns instead of select(*), and asks for no bar', async () => {
+    const candidateChain = mockChain(CANDIDATE)
+    const campaignChain = mockChain(cell())
+    vi.mocked(supabase.from)
+      .mockReturnValueOnce(candidateChain)
+      .mockReturnValueOnce(campaignChain)
+    await getProvenanceForBot('v1-spot')
+
+    const selects = [
+      candidateChain.select.mock.calls[0][0] as string,
+      campaignChain.select.mock.calls[0][0] as string,
+    ]
+    for (const columns of selects) {
+      expect(columns).not.toBe('*')
+      expect(columns).not.toMatch(/\*/)
+      for (const bar of ['null_bar', 'wf_bar', 'dd_limit']) {
+        expect(columns, `${bar} must not be requested`).not.toContain(bar)
+      }
+    }
+    // and the measured values the fiche needs are still asked for, or the guard above
+    // would pass on an empty column list
+    expect(selects[0]).toContain('null_pct')
+    expect(selects[0]).toContain('forward_trades')
+    expect(selects[1]).toContain('n_behaviors')
+  })
+
+  it('the module source carries no bar column at all', async () => {
+    const fs = await import('node:fs')
+    const path = await import('node:path')
+    const src = fs.readFileSync(path.resolve(__dirname, '../../src/lib/screening.ts'), 'utf8')
+    // Comments may NAME them (the header explains the leak); no code may read them.
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+    for (const bar of ['null_bar', 'wf_bar', 'dd_limit']) {
+      expect(code, `${bar} in code`).not.toContain(bar)
+    }
+  })
+})
+
 describe('getProvenanceForBot', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('resolves the campaign + candidate for a bot found by slug', async () => {
-    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: ['tendance'],
-      null_pct: 95.16, dd: 19.57, dd_limit: 20, wf_oos: 1.195, wf_bar: 1.15, pf_net: 1.611,
-      trades: 249, assets_go: 6, qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 3 }
     const campaign = cell({ base: 'EMAcross', tf: 'H4' })
     vi.mocked(supabase.from)
-      .mockReturnValueOnce(mockChain(candidate))
+      .mockReturnValueOnce(mockChain(CANDIDATE))
       .mockReturnValueOnce(mockChain(campaign))
 
     const result = await getProvenanceForBot('v1-spot')
-    expect(result).toEqual({ campaign, candidate })
+    expect(result).toEqual({ campaign, candidate: CANDIDATE })
   })
 
   it('returns null when the bot has no screening candidate (not screened yet, or another family)', async () => {
@@ -113,18 +152,15 @@ describe('getProvenanceForBot', () => {
     expect(result).toBeNull()
   })
 
-  it('degrades to null on a Supabase error instead of throwing (tables not created yet)', async () => {
+  it('degrades to null on a Supabase error instead of throwing (view not created yet)', async () => {
     vi.mocked(supabase.from).mockReturnValueOnce(mockChain(null, { message: 'relation does not exist' }))
     const result = await getProvenanceForBot('v1-spot')
     expect(result).toBeNull()
   })
 
   it('degrades to null when the candidate exists but its campaign lookup fails', async () => {
-    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: [], null_pct: 95,
-      dd: 10, dd_limit: 20, wf_oos: 1.2, wf_bar: 1.15, pf_net: 1.5, trades: 100, assets_go: 3,
-      qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 0 }
     vi.mocked(supabase.from)
-      .mockReturnValueOnce(mockChain(candidate))
+      .mockReturnValueOnce(mockChain(CANDIDATE))
       .mockReturnValueOnce(mockChain(null, { message: 'not found' }))
     const result = await getProvenanceForBot('v1-spot')
     expect(result).toBeNull()
@@ -144,11 +180,8 @@ describe('getProvenanceForBot', () => {
 
   it('logs the Supabase error before degrading to null on the campaign lookup', async () => {
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: [], null_pct: 95,
-      dd: 10, dd_limit: 20, wf_oos: 1.2, wf_bar: 1.15, pf_net: 1.5, trades: 100, assets_go: 3,
-      qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 0 }
     vi.mocked(supabase.from)
-      .mockReturnValueOnce(mockChain(candidate))
+      .mockReturnValueOnce(mockChain(CANDIDATE))
       .mockReturnValueOnce(mockChain(null, { message: 'campaign not found' }))
     const result = await getProvenanceForBot('v1-spot')
     expect(result).toBeNull()
@@ -160,10 +193,7 @@ describe('getProvenanceForBot', () => {
   })
 
   it('orders by rank ascending and takes one row instead of erroring on multiple candidates', async () => {
-    const candidate = { campaign_id: 7, label: 'A', rank: 1, filter_families: [], null_pct: 95,
-      dd: 10, dd_limit: 20, wf_oos: 1.2, wf_bar: 1.15, pf_net: 1.5, trades: 100, assets_go: 3,
-      qualified_assets: [], bot_slug: 'v1-spot', forward_trades: 0 }
-    const candidateChain = mockChain(candidate)
+    const candidateChain = mockChain(CANDIDATE)
     vi.mocked(supabase.from)
       .mockReturnValueOnce(candidateChain)
       .mockReturnValueOnce(mockChain(cell()))

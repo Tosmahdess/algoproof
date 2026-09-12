@@ -1,7 +1,33 @@
 // src/lib/screening.ts
+//
+// MEASURED LEAK, 2026-09-12. With the site's publishable (anon) key,
+//   GET /rest/v1/screening_campaigns?select=*   returned `null_bar`
+//   GET /rest/v1/screening_candidates?select=*  returned `wf_bar`, `dd_limit`
+// which are the judge's CLASSIFIED gate thresholds (algolab DECISIONS 2026-07-28
+// « seuils classés JAMAIS »; migration 024 « Thresholds are classified too »).
+// Migration 024 redacted the verdict tables and never touched these two, and
+// BotProvenance printed the measured value next to that bar on a public bot fiche.
+//
+// Three things changed here, and the order matters:
+//   1. the bar columns left these types, so no caller can reach for them;
+//   2. every read names its columns instead of `select('*')`, so the payload is
+//      what the page needs and nothing more;
+//   3. `marginLabel` is gone: its only job was to print a measured value NEXT TO
+//      its bar, which is the sentence that leaked. The fiche now prints the
+//      measured value alone (BotProvenance).
+// Migration 046 closes the database side with column-level privileges. Until it
+// is applied by hand, the columns are still readable by anyone with the anon key:
+// the site no longer asks for them, which is necessary and not sufficient.
 import { supabase } from './supabase'
 
 export type ScreeningState = 'judged' | 'running' | 'queued' | 'never'
+
+// The columns each read asks for. Kept next to the types, as one string, because
+// supabase-js types the result rows from the literal it is given.
+const CAMPAIGN_COLUMNS =
+  'id,base,tf,state,judged_on,data_dir,n_behaviors,n_rejected,n_marginal,n_candidates,n_assets'
+const CANDIDATE_COLUMNS =
+  'campaign_id,label,rank,filter_families,null_pct,dd,wf_oos,pf_net,trades,assets_go,qualified_assets,bot_slug,forward_trades'
 
 export type ScreeningCampaign = {
   id?: number
@@ -15,7 +41,7 @@ export type ScreeningCampaign = {
   n_marginal: number | null
   n_candidates: number | null
   n_assets: number | null
-  null_bar: number | null
+  // NO `null_bar`. See the header.
 }
 
 export type ScreeningCandidate = {
@@ -23,17 +49,17 @@ export type ScreeningCandidate = {
   label: string
   rank: number
   filter_families: string[]
+  // Measured values, publishable: they say what this configuration did.
   null_pct: number | null
   dd: number | null
-  dd_limit: number | null
   wf_oos: number | null
-  wf_bar: number | null
   pf_net: number | null
   trades: number | null
   assets_go: number | null
   qualified_assets: string[]
   bot_slug: string | null
   forward_trades: number
+  // NO `wf_bar`, NO `dd_limit`. See the header.
 }
 
 /** French number: comma decimal separator, no trailing zeros beyond what was given. */
@@ -68,22 +94,7 @@ export function frDate(d: string | null): string {
  */
 export function count(n: number | null): string {
   if (n === null || n === undefined) return '—'
-  return n.toLocaleString('fr-FR').replace(/[\u00a0\u202f]/g, '\u202f')
-}
-
-/**
- * "95,16 pour une barre à 95" plus whether it only just clears. `tight` drives the
- * "un souffle" annotation — the margin is what carries fragility (spec section 4.3).
- * For a limit-style bar (drawdown: lower is better) tightness is measured the other way.
- */
-export function marginLabel(
-  value: number,
-  bar: number,
-  unit: 'pct' | 'ratio',
-): { text: string; tight: boolean } {
-  const span = unit === 'pct' ? 2 : 0.1
-  const tight = Math.abs(value - bar) <= span
-  return { text: `${fr(value)} pour une barre à ${fr(bar)}`, tight }
+  return n.toLocaleString('fr-FR').replace(/[  ]/g, ' ')
 }
 
 /**
@@ -95,6 +106,9 @@ export function marginLabel(
  * this direct bot_slug -> candidate -> campaign lookup instead of guessing a base. Degrades to
  * null on any error (including the screening tables not existing yet): a missing provenance
  * block must never break the bot fiche.
+ *
+ * The column lists are load-bearing, not tidiness: after migration 046 revokes table-wide
+ * SELECT and grants it per column, a `select('*')` here would be refused outright.
  */
 export async function getProvenanceForBot(slug: string): Promise<{
   campaign: ScreeningCampaign
@@ -106,7 +120,7 @@ export async function getProvenanceForBot(slug: string): Promise<{
     // error and silently drop the whole provenance block. Ordering by rank picks the best
     // candidate deterministically instead.
     const { data: candidate, error: e1 } = await supabase
-      .from('screening_candidates').select('*').eq('bot_slug', slug)
+      .from('screening_candidates_public').select(CANDIDATE_COLUMNS).eq('bot_slug', slug)
       .order('rank', { ascending: true }).limit(1).maybeSingle()
     if (e1) {
       console.error('[getProvenanceForBot] candidate lookup failed', e1.message)
@@ -115,7 +129,8 @@ export async function getProvenanceForBot(slug: string): Promise<{
     if (!candidate) return null
 
     const { data: campaign, error: e2 } = await supabase
-      .from('screening_campaigns').select('*').eq('id', candidate.campaign_id).maybeSingle()
+      .from('screening_campaigns_public').select(CAMPAIGN_COLUMNS)
+      .eq('id', (candidate as ScreeningCandidate).campaign_id).maybeSingle()
     if (e2) {
       console.error('[getProvenanceForBot] campaign lookup failed', e2.message)
       return null
