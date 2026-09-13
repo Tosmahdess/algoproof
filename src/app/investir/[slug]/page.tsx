@@ -128,6 +128,20 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
         </p>
       )}
 
+      {/* La RÉSERVE, avant les chiffres et pas après : la société a publié un
+          rapport annuel plus récent que celui d'où sortent les montants
+          ci-dessous. Une réserve qu'il faut chercher sous le bilan ne sert à
+          rien, et c'est le seul endroit où le lecteur apprend que ce ne sont
+          pas les derniers comptes publiés. */}
+      {fiche.blocs.reserve && (
+        <p
+          role="note"
+          className="text-sm leading-relaxed border border-border rounded px-4 py-3 mb-8 text-foreground/90"
+        >
+          {fiche.blocs.reserve}
+        </p>
+      )}
+
       {/* Le bandeau de faits : quatre chiffres qui se lisent d'un coup d'œil,
           déjà rendus côté vault pour que rien ne soit arrondi ici. */}
       <dl className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border border border-border rounded overflow-hidden mb-10">
