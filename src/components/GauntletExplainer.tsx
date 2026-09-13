@@ -13,6 +13,7 @@ import {
   GAUNTLET_ACCESS,
 } from '@/lib/gauntlet-explainer'
 import type { SearchSpace } from '@/lib/engine-search-space'
+import EngineRejudgeNotice from '@/components/EngineRejudgeNotice'
 
 // `space` comes from the page, which reads it server-side. Passed in rather than fetched
 // here so this file stays markup-only and the copy guards keep a single target.
@@ -26,9 +27,13 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
       <h2 className="text-xs uppercase tracking-wider text-muted mb-3">
         {GAUNTLET_EXPLAINER_TITLE}
       </h2>
+      <EngineRejudgeNotice className="mb-4" />
       {gauntletFunnel(space).map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
 
-      <p className="text-sm mb-3">Le gantelet, c’est quatre épreuves. Il faut tenir les quatre.</p>
+      {/* The old sentence demanded all four trials, which contradicted « en sursis reste
+          publiée » : rater une seule des trois épreuves de robustesse laisse la stratégie
+          publiée (audit 2026-09-10). */}
+      <p className="text-sm mb-3">Le gantelet, c’est quatre épreuves. Une candidate les tient toutes.</p>
       <ol className="space-y-3 mb-3">
         {GAUNTLET_TRIALS.map((t, i) => (
           <li key={t.name} className="text-sm">

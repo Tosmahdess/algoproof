@@ -5,7 +5,7 @@ export interface GlossaryTerm {
 }
 
 export const GLOSSARY: GlossaryTerm[] = [
-  { id: 'profit-factor', term: 'Profit factor (PF)', definition: 'Le rapport entre l\'argent gagné et l\'argent perdu. Un PF de 1,3 signifie 1,30 € gagné pour 1 € perdu. Au-dessus de 1, la stratégie est globalement gagnante.' },
+  { id: 'profit-factor', term: 'Profit factor (PF)', definition: 'Le rapport entre l\'argent gagné et l\'argent perdu. Un PF de 1,5 signifie 1,50 € gagné pour 1 € perdu. Au-dessus de 1, la stratégie est globalement gagnante.' },
   { id: 'win-rate', term: 'Win rate (WR)', definition: 'Le pourcentage de trades gagnants. 60 % = 6 trades gagnants sur 10. Un WR élevé ne suffit pas : ce qui compte est combien on gagne quand on gagne vs combien on perd quand on perd (voir profit factor).' },
   { id: 'drawdown', term: 'Drawdown (DD)', definition: 'La baisse du capital depuis son plus haut. Un drawdown de 15 % veut dire qu\'on a perdu 15 % par rapport au sommet avant de repartir. Mesure le pire moment à traverser.' },
   { id: 'atr', term: 'ATR (Average True Range)', definition: 'Une mesure de la volatilité d\'un actif : l\'amplitude moyenne de ses mouvements de prix. Sert notamment à dimensionner les stops en fonction de l\'agitation du marché.' },

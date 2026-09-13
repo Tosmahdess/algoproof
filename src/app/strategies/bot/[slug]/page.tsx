@@ -15,6 +15,7 @@ import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
 import SampleNote from '@/components/SampleNote'
+import EngineRejudgeNotice from '@/components/EngineRejudgeNotice'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -59,7 +60,13 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   // returns null both when this bot was never screened and when the screening tables
   // don't exist yet in this environment.
   const provenance = await getProvenanceForBot(bot.slug)
-  const conceptSlug = ficheSlugForBot(bot)
+  // The `orb` fiche describes the Labo's ORB: a cap on trades per day and a session end
+  // where every position is closed. The engine's ORB closes nothing at session end and can
+  // fire several times in one session (audit 2026-09-10). Pointing an engine-born ORB bot
+  // at that fiche would describe a strategy it does not run, so both links from this page
+  // are withheld for those bots only; the hand-deployed ORB keeps its link.
+  const resolvedConcept = ficheSlugForBot(bot)
+  const conceptSlug = bot.origin === 'engine' && resolvedConcept === 'orb' ? null : resolvedConcept
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-16">
@@ -108,7 +115,11 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         )}
       </p>
 
-      {/* Provenance: which screening campaign this bot came from, and how narrow its margin was */}
+      {/* The fiche is where a visitor decides, so the re-judge notice belongs here too, on
+          the bots whose verdict came out of the audited simulator (Fable review 2026-09-12). */}
+      {bot.origin === 'engine' && <EngineRejudgeNotice className="mb-6" />}
+
+      {/* Provenance: which screening campaign this bot came from, and what it measured */}
       {provenance && (
         <BotProvenance campaign={provenance.campaign} candidate={provenance.candidate} />
       )}

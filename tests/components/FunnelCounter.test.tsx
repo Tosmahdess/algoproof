@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import FunnelCounter from '@/components/FunnelCounter'
 
 // 2026-08-08: the counter used to print one number labelled « testées » that
@@ -23,9 +23,29 @@ describe('FunnelCounter', () => {
     expect(screen.getByText('Jugées au gantelet')).toBeTruthy()
   })
 
+  // Audit 2026-09-10 (C0): the two fleet counts were printed as the funnel's
+  // next steps, under « Jugées au gantelet », while the funnel_counts view counts
+  // every paper or live bot, hand-deployed ones included (migration 020). They
+  // now sit in their own block, outside the funnel list, under a label that says
+  // what they count.
+  it('keeps the fleet counts out of the engine funnel, labelled as the whole fleet', () => {
+    render(<FunnelCounter counts={COUNTS} />)
+    const engine = screen.getByTestId('funnel-engine')
+    const fleet = screen.getByTestId('funnel-fleet')
+    expect(engine.contains(fleet)).toBe(false)
+    expect(fleet.contains(engine)).toBe(false)
+    expect(within(engine).queryByText('25')).toBeNull()
+    expect(within(engine).queryByText('2')).toBeNull()
+    expect(within(fleet).getByText('25')).toBeTruthy()
+    expect(within(fleet).getByText('2')).toBeTruthy()
+    expect(fleet.textContent).toMatch(/à la main avant le moteur/)
+    expect(within(fleet).getByText('Bots en service (simulation ou argent réel)')).toBeTruthy()
+    expect(within(fleet).getByText('Dont en argent réel')).toBeTruthy()
+    expect(screen.queryByText(/Promues en bot/i)).toBeNull()
+  })
+
   // The gap between swept and judged is the one a visitor cannot infer: 8.9M
-  // enumerated against 745k judged, with nothing on the page saying why. The
-  // rest of the funnel explains itself ("promues en bot", "en argent réel").
+  // enumerated against 745k judged, with nothing on the page saying why.
   it('says why not everything swept gets judged', () => {
     render(<FunnelCounter counts={COUNTS} />)
     expect(screen.getByText(/n.est pas jug/i)).toBeTruthy()
