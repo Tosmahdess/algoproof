@@ -2,7 +2,7 @@
 import type { LiveBot } from '@/lib/fleet-aggregate'
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
-import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, WealthCall, AssetPrice, MiSnapshot, TriggerData, BotChangelog, WaveMeasure } from './types'
+import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, MiSnapshot, TriggerData, BotChangelog, WaveMeasure } from './types'
 import { getStartCapital } from './start-capitals'
 import { isCarryFamily } from './display'
 import { paginateAll } from './paginate'
@@ -344,22 +344,11 @@ export async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
     .slice(0, limit)
 }
 
-export async function getWealthCalls(): Promise<WealthCall[]> {
-  const { data, error } = await supabase
-    .from('wealth_calls')
-    .select('*')
-    .order('executed_at', { ascending: true })
-  if (error) throw new Error(error.message)
-  return data ?? []
-}
-
-export async function getAssetPrices(): Promise<AssetPrice[]> {
-  const { data, error } = await supabase
-    .from('asset_prices')
-    .select('*')
-  if (error) throw new Error(error.message)
-  return data ?? []
-}
+// `getWealthCalls` et `getAssetPrices` retirées le 2026-09-14. Aucune des deux
+// n'était appelée, et toutes deux faisaient `.select('*')` : sur `asset_prices`
+// cela demandait des clôtures Yahoo stockées, et aucun garde par nom de colonne
+// ne peut voir une étoile. La collecte côté vault n'est pas concernée — c'est la
+// PUBLICATION qui s'arrête, la même frontière que le 2026-09-08.
 
 export async function getLatestMacroReport(): Promise<{
   date: string
