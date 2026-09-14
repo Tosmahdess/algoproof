@@ -40,8 +40,24 @@ import { join } from 'node:path'
  * déjà fait les frais ailleurs.
  */
 
-/** Tables dont le contenu EST un cours, ou en contient une colonne. */
+/** Tables dont le contenu EST un cours. Aucun lecteur légitime : on n'y touche pas. */
 const TABLES_DE_COURS = ['asset_prices']
+
+/**
+ * Tables qui portent des colonnes de cours À CÔTÉ de colonnes légitimes.
+ *
+ * On ne peut pas les interdire en bloc : `CreuxDachat` lit `growth_alerts` pour
+ * des niveaux de signal, `equity.ts` lit `growth_universe` pour des
+ * pourcentages. Mais elles portent `current_price`, `ref_price_180j`,
+ * `high_90d`, `suggested_min` et `suggested_max`, alimentées par yfinance.
+ *
+ * L'invariant est donc : **la liste de colonnes doit être explicite**. Un
+ * `select('*')` sur l'une d'elles republie les cours sans jamais écrire leur
+ * nom, ce qu'aucune liste noire de colonnes ne peut voir. C'est exactement
+ * comme ça que `/api/growth-universe` servait quatre colonnes de prix en
+ * lecture anonyme, sans qu'aucun composant ne l'appelle.
+ */
+const TABLES_PORTANT_DES_COURS = ['growth_universe', 'growth_alerts']
 
 /**
  * Noms de colonnes qui portent un cours. Gardé en plus de l'interdit de table :
@@ -66,6 +82,19 @@ export function interrogeUneTableDeCours(code: string): boolean {
 export function demandeUneColonneDeCours(code: string): boolean {
   const selects = code.match(/\.select\(\s*['"`][^'"`]*['"`]/g) ?? []
   return selects.some(s => COLONNES_DE_COURS.test(s))
+}
+
+/**
+ * `.from('table_porteuse')` suivi d'un `.select('*')`, y compris chaîné sur
+ * plusieurs lignes. La fenêtre est volontairement courte : au-delà, ce n'est
+ * plus la même chaîne d'appels.
+ */
+export function selectEtoileSurTablePorteuse(code: string): boolean {
+  return TABLES_PORTANT_DES_COURS.some(t =>
+    new RegExp(
+      `\\.from\\(\\s*['"\`]${t}['"\`]\\s*\\)[\\s\\S]{0,200}?\\.select\\(\\s*['"\`]\\*['"\`]`
+    ).test(code)
+  )
 }
 
 export function appelleYahoo(code: string): boolean {
@@ -109,6 +138,10 @@ describe('aucun cours publié', () => {
     expect(coupables(demandeUneColonneDeCours)).toEqual([])
   })
 
+  it('aucune table porteuse de cours n’est lue avec select(*)', () => {
+    expect(coupables(selectEtoileSurTablePorteuse)).toEqual([])
+  })
+
   it('aucun appel sortant vers Yahoo Finance', () => {
     expect(coupables(appelleYahoo)).toEqual([])
   })
@@ -135,6 +168,19 @@ describe('sonde — les détecteurs détectent encore', () => {
     expect(demandeUneColonneDeCours(`.select('id,current_price')`)).toBe(true)
     // Un montant investi n'est pas une cotation : le garde ne doit pas le crier.
     expect(demandeUneColonneDeCours(`.select('id,amount_eur,venue')`)).toBe(false)
+  })
+
+  it('voit un select(*) sur une table porteuse, même chaîné sur plusieurs lignes', () => {
+    expect(selectEtoileSurTablePorteuse(
+      `supabase\n  .from('growth_universe')\n  .select('*')`
+    )).toBe(true)
+    expect(selectEtoileSurTablePorteuse(`.from('growth_alerts').select('*')`)).toBe(true)
+    // Une liste explicite et sans prix reste permise : c'est tout l'intérêt.
+    expect(selectEtoileSurTablePorteuse(
+      `.from('growth_alerts').select('id,ticker,drawdown_pct,signal_level')`
+    )).toBe(false)
+    // Et une étoile sur une table qui ne porte aucun cours ne regarde personne.
+    expect(selectEtoileSurTablePorteuse(`.from('bots').select('*')`)).toBe(false)
   })
 
   it('voit un appel Yahoo', () => {
