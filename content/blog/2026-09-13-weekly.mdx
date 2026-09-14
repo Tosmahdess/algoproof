@@ -1,0 +1,70 @@
+---
+title: "Un marché haussier ne protège pas d'une semaine rouge"
+date: "2026-09-13"
+category: "weekly"
+tags: ["weekly", "performance"]
+summary: "Semaine difficile pour mes bots en réel avec un P&L négatif malgré un contexte de marché globalement favorable. Le laboratoire confirme une tension particulière sur les positions short."
+---
+
+## Mes bots en réel
+
+> Suivi sur une base de 1 000 € pour rendre les deux bots comparables entre eux. Ce chiffre ne représente pas un solde broker brut.
+
+<StatRow>
+  <Stat label="Trades" value="8" subtext="semaine du 7 au 13 sept." />
+  <Stat label="P&L semaine" value="-18,43 €" intent="negative" />
+  <Stat label="Taux de réussite" value="25 %" subtext="2 trades gagnants sur 8" />
+  <Stat label="Cumulé depuis le début" value="+346,67 €" subtext="sur 373 trades, rodage inclus" />
+</StatRow>
+
+<DataCardGroup>
+  <DataCard label="Meilleur trade de la semaine" sub="INJ-USDC, position longue" metrics="P&L: +14,62 € | Direction: long" intent="positive" />
+  <DataCard label="Pire trade de la semaine" sub="NEAR-USDC, position longue" metrics="P&L: -10,48 € | Direction: long" intent="negative" />
+  <DataCard label="Positions longues (achat)" sub="4 trades" metrics="P&L: -2,25 € | Gagnants: 1/4 | WR: 25 %" intent="negative" />
+  <DataCard label="Positions short (vente à découvert)" sub="4 trades" metrics="P&L: -16,18 € | Gagnants: 1/4 | WR: 25 %" intent="negative" />
+</DataCardGroup>
+
+Semaine difficile, sans détour. Sur 8 trades, seulement 2 sont sortis dans le vert. Le taux de réussite (WR, pour win rate) tombe à 25 %, ce qui est bien en dessous de ce que j'attends sur la durée. Les shorts, c'est-à-dire les paris à la baisse, ont particulièrement souffert : -16,18 € pour seulement 1 trade gagnant sur 4. Le meilleur short de la semaine ? BTC-USDC, avec un maigre +1,29 €. Le pire ? XRP-USDC à -8,00 €.
+
+Ce qui tempère un peu le tableau : le cumulé depuis le lancement reste positif à +346,67 € sur 373 trades. La semaine est rouge, mais l'édifice tient.
+
+---
+
+## Laboratoire (simulation)
+
+Le coût de la simulation cette semaine : de l'argent qui n'existe pas, dépensé pour apprendre. 524 trades passés en papier, pour un résultat de -536,60 €. C'est une observation, pas une perte. Ces euros n'ont jamais existé.
+
+<DataCardGroup>
+  <DataCard label="Performance globale simulation" sub="524 trades" metrics="P&L paper: -536,60 € | WR: 80,9 %" intent="negative" />
+  <DataCard label="Positions longues (simulation)" sub="495 trades" metrics="P&L paper: -444,30 € | WR: 83,8 % | Meilleur: NEAR-USDT +14,92 €" intent="negative" />
+  <DataCard label="Positions short (simulation)" sub="29 trades" metrics="P&L paper: -92,30 € | WR: 31 % | Pire: GALA-USDT -10,79 €" intent="negative" />
+</DataCardGroup>
+
+Ce qui m'interpelle ici, c'est le contraste : un taux de réussite de 80,9 % sur les longs en simulation, et pourtant un P&L paper négatif. Cela m'indique que les quelques trades perdants pèsent très lourd face aux nombreux gagnants. Le ratio gain/perte moyen n'est pas encore au niveau qu'il faudrait. C'est exactement pour ça que la simulation existe : comprendre ces déséquilibres avant qu'ils coûtent de l'argent réel.
+
+Les shorts en simulation confirment ce que les bots en réel ont aussi observé cette semaine : vendre à découvert dans ce contexte est risqué. 31 % de réussite sur 29 trades short, c'est parlant.
+
+---
+
+## Contexte de marché
+
+Le marché affiche une tendance haussière cette semaine. Bitcoin se situe environ 13 % au-dessus de sa moyenne de prix sur 200 jours, ce qui est un signe de dynamique positive. Le score de risque global est vert, et mes filtres de sécurité n'ont bloqué aucune prise de position dans la flotte active.
+
+En revanche, du côté de la flotte en observation (celle que je ne déploie pas encore en réel), les filtres de sécurité ont détecté deux signaux d'alerte : une lecture de peur excessive sur les marchés dérivés côté short, et un signal de financement anormal côté long. Résultat : cette flotte reste en veille pour les deux directions.
+
+C'est justement cette nuance qui m'a frappé cette semaine. Un marché globalement haussier ne garantit pas que chaque bot, sur chaque actif, va en profiter. La dispersion des résultats entre INJ (+14,62 €) et NEAR (-10,48 €) en est la preuve directe.
+
+---
+
+## Leçon de la semaine
+
+> Un marché haussier est un contexte favorable, pas une garantie. Ce qui protège un système de trading, c'est la qualité de ses filtres et la discipline de ses règles, pas la direction générale du marché.
+
+---
+
+## Prochaines étapes
+
+- Je vais analyser plus finement le comportement des shorts cette semaine : pourquoi ils ont autant souffert alors que le contexte global était plutôt calme ?
+- Le signal sur NEAR est apparu dans les deux sens (meilleur en simulation, pire en réel) : je vais creuser cet actif spécifiquement pour comprendre si ce n'est pas une question de timing d'entrée.
+- Je continue de surveiller l'indicateur de biais de la flotte en observation : tant que les alertes sur les marchés dérivés restent actives, je ne l'active pas en réel.
+- Objectif de la semaine prochaine : poster une analyse courte sur le ratio gain/perte moyen, car le laboratoire montre clairement que c'est le paramètre à travailler en priorité.
