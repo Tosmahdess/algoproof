@@ -340,8 +340,13 @@ describe('small copy says what the site does', () => {
     // summary whose figures are those of 27 May.
     expect(body).not.toMatch(/les 37 autres bots en simulation sont/)
     expect(body).toMatch(/la flotte en simulation compte aujourd'hui bien plus que ces 37 bots/)
+    // « en shadow » est le mot-machine que f0416fc a retiré de la prose
+    // publiée ; le garde le cherchait encore et tombait sur main depuis. Ce
+    // qu'il doit épingler est la CORRECTION, pas son vocabulaire : le corps de
+    // l'article étiquette toujours le Hard-Gate « (en shadow) » plus bas, et
+    // le callout doit dire qu'il n'est plus là, avec ses deux dates.
     expect(body).toMatch(
-      /Le Hard-Gate présenté plus bas n'est plus en shadow : ses deux premières couches ont été retirées le 15 juin 2026, et la troisième n'a jamais tourné sur ce bot\./,
+      /Le Hard-Gate présenté plus bas n'est plus en place : ses deux premières couches ont été retirées le 15 juin 2026, et la troisième n'a jamais tourné sur ce bot\./,
     )
     const front = text.split(/^---\r?$/m)[1] ?? ''
     expect(front).toMatch(/10 trades, PF 3\.71, \+52 USDC \(chiffres du 27 mai\)/)
