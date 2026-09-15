@@ -11,17 +11,36 @@
 // laisserait voyagerait jusqu'au navigateur de chaque visiteur.
 import paquet from '@/data/investir.json'
 
-export type Grade = 'solide' | 'a surveiller' | 'fragile' | 'non note'
-
+// La NOTE a disparu du moteur le 2026-09-14, et avec elle le type `Grade`.
+// Elle se trompait dans les deux sens : 38 des 220 « solides » portant un bilan
+// cachaient un signal de dette dur, et 50 des 189 « fragiles » (26,5 %) avaient
+// de quoi financer plus de trois ans de pertes — CrowdStrike était « fragile »
+// avec 27,6 années de trésorerie nette.
+//
+// Rien ne la remplace par un mot. Ce qui coupe la liste, ce sont les alertes
+// nommées par le fait, et le nombre de contrôles qu'on a pu lire.
+//
+// Trois champs ont quitté l'index en même temps (`grade`, `gate`, `anchor`)
+// parce que les trois étaient devenus CONSTANTS sur toute fiche publiée. Deux
+// d'entre eux étaient affichés : le cartouche de note rendait `undefined` sur
+// les 1 407 lignes, et la mention de l'ancre de valorisation, testée par une
+// inégalité sur un champ désormais toujours nul, était vraie partout.
 export type FicheIndex = {
   slug: string
   cik: number
   name: string
-  grade: Grade
-  gate: string | null
-  anchor: string | null
   currency: string | null
-  valuation_years: number | null
+  // Les IDENTIFIANTS des alertes, jamais leurs phrases : `dilution` et
+  // `dette_nette` interpolent les chiffres de la société, donc deux sociétés
+  // alertées du même fait n'ont pas la même chaîne. Les libellés vivent dans
+  // `contexte.libelles`, écrits par le moteur.
+  alertes: string[]
+  // Les contrôles que ce dépôt n'a pas permis de lire, par identifiant.
+  non_lus: string[]
+  // Combien des sept ont pu être lus. Jamais décoratif : sans lui, « aucune
+  // alerte » est plus facile à obtenir là où moins de séries sont lues, et un
+  // filtre dessus sur-sélectionnerait les fiches les moins couvertes.
+  n_lus: number
   // Assez grande pour que la mesure du flottant tienne : flottant >= 2 Md$ ou
   // chiffre d'affaires >= 3 Md$. Ne décide PLUS ce qui est publié, sert de
   // filtre au lecteur.
@@ -65,6 +84,19 @@ export type Contexte = {
   mediane_annees: number
   societes_notees: number
   plafond_annees: number
+  // « 2 alertes sur 6 contrôles lus (sur 7). » — de la prose, donc elle n'est
+  // PAS dans l'index : la liste est servie en entier, une phrase par ligne
+  // voyagerait 1 407 fois. Mais le site ne la réécrit pas non plus, sinon deux
+  // formulations coexistent et dérivent (le pluriel d'« alerte » suffit à les
+  // séparer). La phrase ne dépend que du couple (alertes, lus), soit au plus
+  // une vingtaine de valeurs : le moteur exporte la table, la ligne y lit son
+  // entrée. Clé : `${alertes.length}|${n_lus}`.
+  residus: Record<string, string>
+  // Le libellé de chaque puce d'alerte, par identifiant. Écrit par le moteur,
+  // à côté des constantes qu'il nomme.
+  libelles: Record<string, string>
+  // Le nom court de chaque contrôle, pour la mention « Non lu : … ».
+  libelles_non_lus: Record<string, string>
 }
 
 const data = paquet as unknown as {
@@ -91,10 +123,38 @@ export function tousLesSlugs(): string[] {
   return data.fiches.map(f => f.slug)
 }
 
-export function compteParNote(): Record<Grade, number> {
-  const out = { solide: 0, 'a surveiller': 0, fragile: 0, 'non note': 0 } as Record<Grade, number>
-  for (const f of data.index) out[f.grade] += 1
-  return out
+// La phrase de tête d'une ligne de liste, telle que le moteur l'a écrite.
+//
+// Rend la chaîne vide quand le couple est absent de la table, et c'est
+// délibéré : une phrase composée ici serait indiscernable d'une phrase du
+// moteur, et se mettrait à diverger le jour où le moteur change de
+// formulation. Rien vaut mieux qu'une seconde implémentation.
+export function residuDe(
+  ligne: Pick<FicheIndex, 'alertes' | 'n_lus'>,
+  residus: Contexte['residus'],
+): string {
+  return residus[`${ligne.alertes.length}|${ligne.n_lus}`] ?? ''
+}
+
+// Les puces d'alerte, dérivées des lignes présentes — jamais d'une liste figée.
+// Une puce sans ligne derrière se vide au clic sans que le lecteur sache
+// pourquoi. À effectif égal, l'identifiant départage : sans ordre stable, deux
+// rendus de la même liste montrent les puces dans un ordre différent.
+export function compteParAlerte(lignes: FicheIndex[]): [string, number][] {
+  const compte = new Map<string, number>()
+  for (const l of lignes) {
+    for (const motif of l.alertes) compte.set(motif, (compte.get(motif) ?? 0) + 1)
+  }
+  return [...compte.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+}
+
+// Le groupe « Couverture ». Il rend l'opacité VISIBLE au lieu de la
+// récompenser : c'est le pendant honnête du filtre « aucune alerte » qu'on
+// n'offre pas, parce qu'il sur-sélectionnerait les fiches les moins couvertes.
+export function compteParCouverture(lignes: FicheIndex[]): [number, number][] {
+  const compte = new Map<number, number>()
+  for (const l of lignes) compte.set(l.n_lus, (compte.get(l.n_lus) ?? 0) + 1)
+  return [...compte.entries()].sort((a, b) => b[0] - a[0])
 }
 
 // L'ordre de lecture des blocs, et leur titre affiché. `verdict` est rendu à
@@ -130,21 +190,12 @@ export const BLOCS: { cle: string; titre: string }[] = [
   { cle: 'source',       titre: 'Refais-le toi-même' },
 ]
 
-export const LIBELLE_NOTE: Record<Grade, string> = {
-  'solide':       'Comptes solides',
-  'a surveiller': 'À surveiller',
-  'fragile':      'Fragile',
-  'non note':     'Je ne note pas',
-}
-
-// solide → vert, à surveiller → ambre, fragile → rouge. Les mêmes jetons que
-// le reste du site, pour qu'une note se lise sans apprendre un code de plus.
-export const COULEUR_NOTE: Record<Grade, string> = {
-  'solide':       'text-positive border-positive/40 bg-positive/10',
-  'a surveiller': 'text-warning border-warning/40 bg-warning/10',
-  'fragile':      'text-negative border-negative/40 bg-negative/10',
-  'non note':     'text-muted border-border bg-card',
-}
+// `LIBELLE_NOTE` et `COULEUR_NOTE` ont été retirés avec la note. Le vert /
+// ambre / rouge partait d'une bonne intention — les mêmes jetons que le reste
+// du site — et c'est précisément ce qui en faisait un verdict : une couleur
+// range une société sur une échelle avant qu'on ait lu la moindre phrase.
+//
+// Une alerte n'a pas de couleur. Elle a un fait, et le fait se lit.
 
 // Un nombre décimal rendu tel quel par JSX sort avec un POINT : la page a
 // affiché « 23.9 ans » en production. Tous les nombres décimaux de la page

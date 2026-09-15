@@ -3,7 +3,35 @@
  "contexte": {
   "mediane_annees": 20.6,
   "societes_notees": 1406,
-  "plafond_annees": 40
+  "plafond_annees": 40,
+  "residus": {
+   "0|6": "0 alertes sur 6 contrôles lus (sur 7).",
+   "3|5": "3 alertes sur 5 contrôles lus (sur 7).",
+   "2|6": "2 alertes sur 6 contrôles lus (sur 7).",
+   "1|6": "1 alerte sur 6 contrôles lus (sur 7).",
+   "2|5": "2 alertes sur 5 contrôles lus (sur 7).",
+   "3|6": "3 alertes sur 6 contrôles lus (sur 7).",
+   "0|5": "0 alertes sur 5 contrôles lus (sur 7).",
+   "4|6": "4 alertes sur 6 contrôles lus (sur 7).",
+   "1|5": "1 alerte sur 5 contrôles lus (sur 7).",
+   "5|6": "5 alertes sur 6 contrôles lus (sur 7).",
+   "4|5": "4 alertes sur 5 contrôles lus (sur 7).",
+   "1|4": "1 alerte sur 4 contrôles lus (sur 7)."
+  },
+  "libelles": {
+   "perte_unique": "perte sur un exercice",
+   "ca_sous_niveau": "chiffre d'affaires sous son niveau d'il y a deux ans",
+   "resultat_sous_niveau": "résultat sous son niveau d'il y a deux ans",
+   "capitaux_propres_negatifs": "capitaux propres négatifs",
+   "dilution": "nombre d'actions en hausse de plus de 10 % en deux ans",
+   "pertes_recurrentes": "pertes récurrentes (2 exercices sur 3)",
+   "perte_avec_dette_nette": "perte au dernier exercice avec une dette long terme nette de la trésorerie"
+  },
+  "libelles_non_lus": {
+   "dette_nette": "dette long terme",
+   "lecture_tresorerie": "trésorerie face aux pertes",
+   "capitaux_propres": "capitaux propres"
+  }
  },
  "fiches_publiees": 1406
 }

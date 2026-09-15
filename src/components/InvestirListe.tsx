@@ -2,19 +2,48 @@
 
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
-import type { FicheIndex, Grade } from '@/lib/investir'
-import { COULEUR_NOTE, LIBELLE_NOTE } from '@/lib/investir'
+import type { Contexte, FicheIndex } from '@/lib/investir'
+import { compteParAlerte, compteParCouverture, residuDe } from '@/lib/investir'
 
-// Ne reçoit que l'index : nom, note, porte. Aucune prose ne transite par ce
-// composant, et c'est délibéré — un composant client livre tout ce qu'il reçoit
-// dans la charge envoyée au navigateur, qu'il l'affiche ou non.
+// Ne reçoit que l'index : nom, alertes, couverture. Aucune prose ne transite
+// par ce composant, et c'est délibéré — un composant client livre tout ce
+// qu'il reçoit dans la charge envoyée au navigateur, qu'il l'affiche ou non.
+//
+// Il coupait sur `grade`. Le moteur n'émet plus que `lu` ou `non note`, et la
+// porte de publication refuse les `non note` : le champ était devenu constant
+// sur les 1 407 lignes. Les trois puces auraient rendu zéro ligne chacune.
+//
+// Ce qui coupe maintenant, c'est le crible : une puce par ALERTE nommée par le
+// fait, et un groupe « Couverture » qui rend l'opacité visible.
+//
+// ⚠️ Il n'y a PAS de puce « sans alerte », et ce n'est pas un oubli. Deux
+// raisons, la seconde étant la vraie :
+//
+//  1. « aucune alerte » est plus facile à obtenir là où moins de séries ont pu
+//     être lues — une fiche à 5 contrôles lus et 0 alerte n'est pas meilleure
+//     qu'une fiche à 7 contrôles lus et 1 alerte. Un filtre dessus
+//     sur-sélectionnerait les fiches les moins couvertes.
+//  2. Filtrer par ABSENCE de signal rend une liste de sociétés que le site n'a
+//     rien trouvé à reprocher : un blanc-seing implicite. MAR art. 3(1)(35)
+//     vise l'opinion sur la valeur d'un titre « explicitement OU
+//     IMPLICITEMENT », sans besoin de chiffre ni d'adjectif — et un « 0 sur
+//     7 » a l'air d'une mesure, donc porte plus loin que l'ancien « Comptes
+//     solides ». Filtrer par alerte POSITIVE est de l'autre côté de la ligne :
+//     c'est une phrase du dépôt, sourcée, réfutable, et défavorable.
+//
+// Pour la même raison il n'y a aucun TRI par nombre d'alertes : ascendant,
+// c'est un palmarès ; descendant, c'est une liste à vendre.
 
-const NOTES: Grade[] = ['solide', 'a surveiller', 'fragile']
-
-export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
+export default function InvestirListe({
+  lignes,
+  contexte,
+}: {
+  lignes: FicheIndex[]
+  contexte: Contexte
+}) {
   const [recherche, setRecherche] = useState('')
-  const [notes, setNotes] = useState<Set<Grade>>(new Set())
-  const [sansAncre, setSansAncre] = useState(false)
+  const [alertes, setAlertes] = useState<Set<string>>(new Set())
+  const [couverture, setCouverture] = useState<Set<number>>(new Set())
   const [grandes, setGrandes] = useState(false)
   const [famille, setFamille] = useState('')
 
@@ -26,23 +55,30 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
     return [...compte.entries()].sort((a, b) => b[1] - a[1])
   }, [lignes])
 
+  // Dérivées des lignes, jamais d'une liste figée : une puce sans ligne
+  // derrière se viderait au clic sans que le lecteur sache pourquoi.
+  const puces = useMemo(() => compteParAlerte(lignes), [lignes])
+  const paliers = useMemo(() => compteParCouverture(lignes), [lignes])
+
   const visibles = useMemo(() => {
     const q = recherche.trim().toLowerCase()
     return lignes.filter(l => {
       if (q && !l.name.toLowerCase().includes(q)) return false
-      if (notes.size && !notes.has(l.grade)) return false
-      if (sansAncre && l.anchor === 'mesuree') return false
+      // OU au sein du groupe : cocher deux alertes élargit, comme le lecteur
+      // s'y attend d'une liste de signaux.
+      if (alertes.size && !l.alertes.some(a => alertes.has(a))) return false
+      if (couverture.size && !couverture.has(l.n_lus)) return false
       if (grandes && !l.core) return false
       if (famille && l.famille !== famille) return false
       return true
     })
-  }, [lignes, recherche, notes, sansAncre, grandes, famille])
+  }, [lignes, recherche, alertes, couverture, grandes, famille])
 
-  const bascule = (note: Grade) => {
-    const suivant = new Set(notes)
-    if (suivant.has(note)) suivant.delete(note)
-    else suivant.add(note)
-    setNotes(suivant)
+  function bascule<T>(valeur: T, courant: Set<T>, poser: (s: Set<T>) => void) {
+    const suivant = new Set(courant)
+    if (suivant.has(valeur)) suivant.delete(valeur)
+    else suivant.add(valeur)
+    poser(suivant)
   }
 
   return (
@@ -69,18 +105,6 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
             <option key={nom} value={nom}>{nom} ({n})</option>
           ))}
         </select>
-        {NOTES.map(note => (
-          <button
-            key={note}
-            onClick={() => bascule(note)}
-            aria-pressed={notes.has(note)}
-            className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
-              notes.has(note) ? COULEUR_NOTE[note] : 'border-border text-muted hover:text-foreground'
-            }`}
-          >
-            {LIBELLE_NOTE[note]}
-          </button>
-        ))}
         <button
           onClick={() => setGrandes(!grandes)}
           aria-pressed={grandes}
@@ -91,17 +115,51 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
         >
           Grandes sociétés
         </button>
-        <button
-          onClick={() => setSansAncre(!sansAncre)}
-          aria-pressed={sansAncre}
-          title="Les sociétés dont je n'ai pas pu calculer le rapport entre le flottant et le résultat"
-          className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
-            sansAncre ? 'text-accent border-accent/40 bg-accent/10' : 'border-border text-muted hover:text-foreground'
-          }`}
-        >
-          Sans ancre
-        </button>
       </div>
+
+      <fieldset className="mb-3 border-0 p-0 m-0">
+        <legend className="text-xs font-semibold text-muted mb-2">
+          Alerte relevée dans le dépôt
+        </legend>
+        <div className="flex flex-wrap gap-2">
+          {puces.map(([motif, n]) => (
+            <button
+              key={motif}
+              onClick={() => bascule(motif, alertes, setAlertes)}
+              aria-pressed={alertes.has(motif)}
+              className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
+                alertes.has(motif)
+                  ? 'text-accent border-accent/40 bg-accent/10'
+                  : 'border-border text-muted hover:text-foreground'
+              }`}
+            >
+              {contexte.libelles[motif] ?? motif} ({n})
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset className="mb-4 border-0 p-0 m-0">
+        <legend className="text-xs font-semibold text-muted mb-2">
+          Couverture — combien des sept contrôles ce dépôt a permis de lire
+        </legend>
+        <div className="flex flex-wrap gap-2">
+          {paliers.map(([lus, n]) => (
+            <button
+              key={lus}
+              onClick={() => bascule(lus, couverture, setCouverture)}
+              aria-pressed={couverture.has(lus)}
+              className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
+                couverture.has(lus)
+                  ? 'text-accent border-accent/40 bg-accent/10'
+                  : 'border-border text-muted hover:text-foreground'
+              }`}
+            >
+              {lus} contrôles lus ({n})
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       <p className="text-xs text-muted mb-3">
         {visibles.length} société{visibles.length > 1 ? 's' : ''} sur {lignes.length}
@@ -112,18 +170,23 @@ export default function InvestirListe({ lignes }: { lignes: FicheIndex[] }) {
           <li key={l.cik}>
             <Link
               href={`/investir/${l.slug}`}
-              className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-1 py-3 hover:bg-card/60 transition-colors"
+              className="flex flex-col gap-1 px-1 py-3 hover:bg-card/60 transition-colors"
             >
               <span className="font-medium">{l.name}</span>
-              <span className={`rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${COULEUR_NOTE[l.grade]}`}>
-                {LIBELLE_NOTE[l.grade]}
-              </span>
-              {l.anchor !== 'mesuree' && (
-                <span className="text-[10px] uppercase tracking-wider text-muted border border-border rounded px-2 py-0.5">
-                  sans ancre
+              {/* La phrase du MOTEUR, pas une phrase d'ici : le compte ne se
+                  montre jamais sans son dénominateur, et deux formulations
+                  dériveraient (le pluriel d'« alerte » suffit à les séparer). */}
+              <span className="text-xs text-muted">{residuDe(l, contexte.residus)}</span>
+              {l.alertes.length > 0 && (
+                <span className="text-xs text-foreground/80">
+                  {l.alertes.map(a => contexte.libelles[a] ?? a).join(' · ')}
                 </span>
               )}
-              {l.gate && <span className="text-xs text-muted">{l.gate}</span>}
+              {l.non_lus.length > 0 && (
+                <span className="text-xs text-muted">
+                  Non lu : {l.non_lus.map(n => contexte.libelles_non_lus[n] ?? n).join(', ')}
+                </span>
+              )}
             </Link>
           </li>
         ))}

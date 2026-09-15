@@ -7,9 +7,9 @@ import { investirMeta } from '@/lib/investir-meta'
 // qu'un compte recopié à la main dérive — il se lit maintenant, comme partout
 // ailleurs, dans le fichier de métadonnées produit par la mesure.
 export const metadata: Metadata = {
-  title: `Investir : je note les comptes de ${investirMeta.contexte.societes_notees} sociétés, et tu peux le refaire`,
+  title: `Investir : je lis le dernier rapport annuel de ${investirMeta.contexte.societes_notees} sociétés, et tu peux le refaire`,
   description:
-    'Une note sur les comptes de chaque société, lue dans un seul rapport annuel déposé à la SEC : chiffre d’affaires, résultat net, nombre d’actions sur trois exercices. Aucun cours de bourse, aucun conseil en investissement.',
+    'Sept contrôles indépendants sur les comptes de chaque société, lus dans un seul rapport annuel déposé à la SEC. Chaque alerte est nommée par le fait qui la déclenche, et je dis ce que je n’ai pas pu lire. Aucun cours de bourse, aucun conseil en investissement.',
   openGraph: { url: 'https://algoproof.fr/investir' },
 }
 
