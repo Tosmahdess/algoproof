@@ -19,7 +19,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import type { Contexte, FicheIndex } from '@/lib/investir'
-import { compteParAlerte, compteParCouverture, residuDe } from '@/lib/investir'
+import { compteParAlerte, compteParCouverture, listeInvestir, residuDe } from '@/lib/investir'
 
 const LIGNE = (p: Partial<FicheIndex> = {}): FicheIndex => ({
   slug: 'societe',
@@ -114,5 +114,27 @@ describe('compteParCouverture', () => {
       [6, 2],
       [5, 1],
     ])
+  })
+})
+
+describe('noms EDGAR et URL stables', () => {
+  it('retire le marqueur Delaware des noms sans déplacer les neuf URL publiées', () => {
+    const lignes = listeInvestir()
+    const slugs = new Set(lignes.map(ligne => ligne.slug))
+
+    expect(lignes.filter(ligne => /\/DE\/$/i.test(ligne.name))).toEqual([])
+    for (const slug of [
+      'american-superconductor-corp-de',
+      'clorox-co-de',
+      'entergy-corp-de',
+      'ferguson-enterprises-inc-de',
+      'first-citizens-bancshares-inc-de',
+      'mattel-inc-de',
+      'northrop-grumman-corp-de',
+      'tractor-supply-co-de',
+      'whirlpool-corp-de',
+    ]) {
+      expect(slugs.has(slug), slug).toBe(true)
+    }
   })
 })
