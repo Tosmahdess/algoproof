@@ -340,8 +340,13 @@ describe('small copy says what the site does', () => {
     // summary whose figures are those of 27 May.
     expect(body).not.toMatch(/les 37 autres bots en simulation sont/)
     expect(body).toMatch(/la flotte en simulation compte aujourd'hui bien plus que ces 37 bots/)
+    // « en shadow » est le mot-machine que f0416fc a retiré de la prose
+    // publiée ; le garde le cherchait encore et tombait sur main depuis. Ce
+    // qu'il doit épingler est la CORRECTION, pas son vocabulaire : le corps de
+    // l'article étiquette toujours le Hard-Gate « (en shadow) » plus bas, et
+    // le callout doit dire qu'il n'est plus là, avec ses deux dates.
     expect(body).toMatch(
-      /Le Hard-Gate présenté plus bas n'est plus en shadow : ses deux premières couches ont été retirées le 15 juin 2026, et la troisième n'a jamais tourné sur ce bot\./,
+      /Le Hard-Gate présenté plus bas n'est plus en place : ses deux premières couches ont été retirées le 15 juin 2026, et la troisième n'a jamais tourné sur ce bot\./,
     )
     const front = text.split(/^---\r?$/m)[1] ?? ''
     expect(front).toMatch(/10 trades, PF 3\.71, \+52 USDC \(chiffres du 27 mai\)/)
@@ -375,5 +380,102 @@ describe('small copy says what the site does', () => {
       .toEqual(['src/app/faq/page.tsx'])
     const { getBotParams } = await import('@/lib/bot-params')
     for (const slug of ['v1-spot', 'v1-hl', 'orb-bf25']) expect(getBotParams(slug), slug).toBeTruthy()
+  })
+})
+
+// Le moteur a retiré la note (« Comptes solides » / « À surveiller » /
+// « Fragile ») le 2026-09-14 : elle se trompait dans les deux sens — 38 des 220
+// « solides » portant un bilan cachaient un signal de dette dur, et 50 des 189
+// « fragiles » avaient de quoi financer plus de trois ans de pertes.
+//
+// Une RÈGLE sur tout l'arbre, pas un contrôle sur les trois fichiers que cette
+// session a touchés : la prochaine instance sera écrite demain, sur une page
+// que personne ne relit. Les surfaces /investir sont visées nommément parce que
+// « fragile » et « solide » restent des mots français légitimes ailleurs.
+describe('Investir states facts, and grades nothing', () => {
+  const SURFACES = TEXTS.filter(t =>
+    /^src\/(app\/investir|components\/Investir|lib\/investir)/.test(t.rel))
+
+  it('sweeps a surface that really exists', () => {
+    // Sans ce plancher, tous les gardes ci-dessous sont satisfaits à la
+    // perfection par un motif de chemin qui ne matche rien.
+    expect(SURFACES.length).toBeGreaterThan(2)
+  })
+
+  it('no Investir surface carries the three retired grades', () => {
+    const grade = new RegExp(`Comptes solides|À surveiller|Je ne note pas`)
+    expect(SURFACES.filter(t => grade.test(t.text)).map(t => t.rel)).toEqual([])
+  })
+
+  it('no Investir surface still says it GRADES the accounts', () => {
+    // La RÈGLE, pas les trois phrases que j'avais sous les yeux : « je note »
+    // et « ma note » se sont retrouvés dans une description de recherche et
+    // dans un pied de page hors périmètre, que le premier jet de ce garde ne
+    // voyait pas. Le verbe est visé au plus près de son sujet — un garde qui
+    // listerait « note » tout court tirerait sur « une note de bas de page »
+    // et sur les notes de version.
+    const juge = new RegExp(
+      `je note |ma note |rétrograder une note|la note est décidée|sociétés que je note`, 'i')
+    expect(SURFACES.filter(t => juge.test(t.text)).map(t => t.rel)).toEqual([])
+  })
+
+  it('no Investir PAGE renders the field the retired anchor left behind', () => {
+    // `annees_de_valorisation` vaut `null` sur les 1 407 fiches depuis le
+    // retrait de l'ancre : la quatrième case du bandeau de faits affichait
+    // « Valorisation — » partout, un tiret qui a l'air d'une donnée manquante
+    // alors que la mesure n'existe plus du tout. Le champ SURVIT dans le
+    // paquet et dans le type (le moteur garde la clé, valeur nulle), donc le
+    // garde vise les pages, pas `src/lib`.
+    const pages = TEXTS.filter(t => t.rel.startsWith('src/app/investir'))
+    expect(pages.length).toBeGreaterThan(1)
+    expect(pages.filter(t => /annees_de_valorisation/.test(t.text)).map(t => t.rel)).toEqual([])
+  })
+
+  it('no Investir surface mentions the retired valuation anchor', () => {
+    // `anchor` vaut `null` sur les 1 407 lignes depuis le retrait de l'ancre :
+    // la mention « sans ancre », testée par `anchor !== 'mesuree'`, serait
+    // affichée partout. Une affirmation fausse 1 407 fois.
+    expect(SURFACES.filter(t => /sans ancre|mesuree/i.test(t.text)).map(t => t.rel)).toEqual([])
+  })
+
+  it('no Investir surface offers to filter on the ABSENCE of a signal', () => {
+    // MAR art. 3(1)(35) vise l'opinion sur la valeur d'un titre, y compris
+    // IMPLICITE. Une liste filtrée sur « aucune alerte » est une liste de
+    // sociétés que le site n'a rien trouvé à reprocher : un blanc-seing sans
+    // adjectif, et un « 0 sur 7 » a l'air d'une mesure, donc porte plus loin
+    // que l'ancien « Comptes solides ». La MENTION du zéro reste permise —
+    // c'est le FILTRE qui est refusé — tant qu'elle colle à son dénominateur.
+    const filtre = /aria-pressed[\s\S]{0,200}?(aucune alerte|sans alerte)/i
+    expect(SURFACES.filter(t => filtre.test(t.text)).map(t => t.rel)).toEqual([])
+  })
+
+  it('the positive counterpart: the sieve is actually described somewhere', () => {
+    // Sinon les cinq gardes ci-dessus passent sur une page vidée de tout.
+    expect(SURFACES.filter(t => /contrôles lus/.test(t.text)).length).toBeGreaterThan(0)
+  })
+
+  it('defines the accounting words once on the Investir entry page', () => {
+    const page = TEXTS.find(t => t.rel === 'src/app/investir/page.tsx')?.text ?? ''
+    const vocab = TEXTS.find(t => t.rel === 'src/lib/investir-vocab.ts')?.text ?? ''
+
+    expect(page).toContain('INVESTIR_VOCAB')
+    for (const terme of ['Exercice', 'Chiffre d’affaires', 'Résultat net', 'Marge nette',
+      'Capitaux propres', 'Dilution', 'Médiane du secteur']) {
+      expect(vocab).toContain(terme)
+    }
+  })
+
+  it('does not apply an investment predicate to a security on the sales page', () => {
+    const page = TEXTS.find(t => t.rel === 'src/app/investir/page.tsx')?.text
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() ?? ''
+    const phrases = page.split(/[.!?]+/)
+    const sujets = ["le titre", "ce titre", "l'action", "cette action", 'la valorisation']
+    const predicats = ['attractif', 'attrayant', 'cher', 'chere', 'bon marche',
+      'interessant', 'potentiel', 'convient', 'horizon']
+
+    expect(phrases.filter(phrase =>
+      sujets.some(sujet => phrase.includes(sujet)) &&
+      predicats.some(predicat => phrase.includes(predicat))
+    )).toEqual([])
   })
 })
