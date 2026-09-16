@@ -453,4 +453,29 @@ describe('Investir states facts, and grades nothing', () => {
     // Sinon les cinq gardes ci-dessus passent sur une page vidée de tout.
     expect(SURFACES.filter(t => /contrôles lus/.test(t.text)).length).toBeGreaterThan(0)
   })
+
+  it('defines the accounting words once on the Investir entry page', () => {
+    const page = TEXTS.find(t => t.rel === 'src/app/investir/page.tsx')?.text ?? ''
+    const vocab = TEXTS.find(t => t.rel === 'src/lib/investir-vocab.ts')?.text ?? ''
+
+    expect(page).toContain('INVESTIR_VOCAB')
+    for (const terme of ['Exercice', 'Chiffre d’affaires', 'Résultat net', 'Marge nette',
+      'Capitaux propres', 'Dilution', 'Médiane du secteur']) {
+      expect(vocab).toContain(terme)
+    }
+  })
+
+  it('does not apply an investment predicate to a security on the sales page', () => {
+    const page = TEXTS.find(t => t.rel === 'src/app/investir/page.tsx')?.text
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() ?? ''
+    const phrases = page.split(/[.!?]+/)
+    const sujets = ["le titre", "ce titre", "l'action", "cette action", 'la valorisation']
+    const predicats = ['attractif', 'attrayant', 'cher', 'chere', 'bon marche',
+      'interessant', 'potentiel', 'convient', 'horizon']
+
+    expect(phrases.filter(phrase =>
+      sujets.some(sujet => phrase.includes(sujet)) &&
+      predicats.some(predicat => phrase.includes(predicat))
+    )).toEqual([])
+  })
 })

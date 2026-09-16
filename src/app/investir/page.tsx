@@ -3,6 +3,7 @@ import ExplainerBox from '@/components/ExplainerBox'
 import { CreuxDachat } from '@/components/CreuxDachat'
 import InvestirListe from '@/components/InvestirListe'
 import { asOf, contexte, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
+import { INVESTIR_VOCAB } from '@/lib/investir-vocab'
 import { longDate } from '@/lib/format-date'
 
 // Rendu statique. Le paquet est un fichier commité : la page ne dépend d'aucun
@@ -66,6 +67,23 @@ export default function InvestirPage() {
       </section>
 
       <CreuxDachat index={lignes} />
+
+      <section aria-labelledby="mots-investir">
+        <h2 id="mots-investir" className="text-xl font-semibold mb-2">
+          Les mots employés dans les fiches
+        </h2>
+        <p className="text-sm text-muted leading-relaxed mb-4">
+          Je garde les mots des comptes, mais voici ce qu’ils veulent dire ici.
+        </p>
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {INVESTIR_VOCAB.map(([terme, definition]) => (
+            <div key={terme} className="rounded border border-border bg-card px-4 py-3">
+              <dt className="text-sm font-semibold text-foreground">{terme}</dt>
+              <dd className="text-sm text-muted leading-relaxed mt-1">{definition}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
 
       {dehors.length > 0 && (
         <section className="rounded-lg border border-border bg-card px-5 py-4">
