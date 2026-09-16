@@ -1344,7 +1344,7 @@
   {
    "slug": "american-superconductor-corp-de",
    "cik": 880807,
-   "name": "American Superconductor Corp /DE/",
+   "name": "American Superconductor Corp",
    "currency": "USD",
    "core": false,
    "famille": "les équipements électroniques",
@@ -4757,7 +4757,7 @@
   {
    "slug": "clorox-co-de",
    "cik": 21076,
-   "name": "Clorox Co /DE/",
+   "name": "Clorox Co",
    "currency": "USD",
    "core": true,
    "famille": "la chimie et la pharmacie",
@@ -7044,7 +7044,7 @@
   {
    "slug": "entergy-corp-de",
    "cik": 65984,
-   "name": "Entergy Corp /DE/",
+   "name": "Entergy Corp",
    "currency": "USD",
    "core": true,
    "famille": "les producteurs et distributeurs d'électricité",
@@ -7753,7 +7753,7 @@
   {
    "slug": "ferguson-enterprises-inc-de",
    "cik": 2011641,
-   "name": "Ferguson Enterprises Inc. /DE/",
+   "name": "Ferguson Enterprises Inc.",
    "currency": "USD",
    "core": true,
    "famille": "la distribution en gros de biens durables",
@@ -7891,7 +7891,7 @@
   {
    "slug": "first-citizens-bancshares-inc-de",
    "cik": 798941,
-   "name": "First Citizens Bancshares Inc /DE/",
+   "name": "First Citizens Bancshares Inc",
    "currency": "USD",
    "core": true,
    "famille": "les banques commerciales régionales",
@@ -12750,7 +12750,7 @@
   {
    "slug": "mattel-inc-de",
    "cik": 63276,
-   "name": "Mattel Inc /DE/",
+   "name": "Mattel Inc",
    "currency": "USD",
    "core": false,
    "famille": null,
@@ -13962,7 +13962,7 @@
   {
    "slug": "northrop-grumman-corp-de",
    "cik": 1133421,
-   "name": "Northrop Grumman Corp /DE/",
+   "name": "Northrop Grumman Corp",
    "currency": "USD",
    "core": true,
    "famille": "les instruments de mesure et les systèmes de détection",
@@ -19375,7 +19375,7 @@
   {
    "slug": "tractor-supply-co-de",
    "cik": 916365,
-   "name": "Tractor Supply Co /DE/",
+   "name": "Tractor Supply Co",
    "currency": "USD",
    "core": true,
    "famille": null,
@@ -21201,7 +21201,7 @@
   {
    "slug": "whirlpool-corp-de",
    "cik": 106640,
-   "name": "Whirlpool Corp /DE/",
+   "name": "Whirlpool Corp",
    "currency": "USD",
    "core": false,
    "famille": "les équipements électroniques",
@@ -25075,7 +25075,7 @@
   {
    "cik": 880807,
    "slug": "american-superconductor-corp-de",
-   "name": "American Superconductor Corp /DE/",
+   "name": "American Superconductor Corp",
    "core": false,
    "alertes": [
     "perte_unique",
@@ -33470,7 +33470,7 @@
   {
    "cik": 21076,
    "slug": "clorox-co-de",
-   "name": "Clorox Co /DE/",
+   "name": "Clorox Co",
    "core": true,
    "alertes": [
     "ca_sous_niveau"
@@ -39098,7 +39098,7 @@
   {
    "cik": 65984,
    "slug": "entergy-corp-de",
-   "name": "Entergy Corp /DE/",
+   "name": "Entergy Corp",
    "core": true,
    "alertes": [
     "resultat_sous_niveau"
@@ -40886,7 +40886,7 @@
   {
    "cik": 2011641,
    "slug": "ferguson-enterprises-inc-de",
-   "name": "Ferguson Enterprises Inc. /DE/",
+   "name": "Ferguson Enterprises Inc.",
    "core": true,
    "alertes": [
     "resultat_sous_niveau"
@@ -41229,7 +41229,7 @@
   {
    "cik": 798941,
    "slug": "first-citizens-bancshares-inc-de",
-   "name": "First Citizens Bancshares Inc /DE/",
+   "name": "First Citizens Bancshares Inc",
    "core": true,
    "alertes": [
     "ca_sous_niveau",
@@ -53092,7 +53092,7 @@
   {
    "cik": 63276,
    "slug": "mattel-inc-de",
-   "name": "Mattel Inc /DE/",
+   "name": "Mattel Inc",
    "core": false,
    "alertes": [
     "ca_sous_niveau"
@@ -56094,7 +56094,7 @@
   {
    "cik": 1133421,
    "slug": "northrop-grumman-corp-de",
-   "name": "Northrop Grumman Corp /DE/",
+   "name": "Northrop Grumman Corp",
    "core": true,
    "alertes": [],
    "non_lus": [],
@@ -69396,7 +69396,7 @@
   {
    "cik": 916365,
    "slug": "tractor-supply-co-de",
-   "name": "Tractor Supply Co /DE/",
+   "name": "Tractor Supply Co",
    "core": true,
    "alertes": [
     "resultat_sous_niveau"
@@ -73896,7 +73896,7 @@
   {
    "cik": 106640,
    "slug": "whirlpool-corp-de",
-   "name": "Whirlpool Corp /DE/",
+   "name": "Whirlpool Corp",
    "core": false,
    "alertes": [
     "perte_unique",
