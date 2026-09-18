@@ -61,7 +61,9 @@ export default function WaveExperiment({ waveBotCount, measure }: WaveExperiment
         {/* {' '} after each expression: RSC drops the ambient leading space of the text
             that follows it (« 75configurations », « 39instruments » in production). */}
         Je fais tourner {waveBotCount}{' '}configurations issues du gantelet du moteur, en paper,
-        listées ci-dessous comme n&apos;importe quel bot du labo, sans tri par résultat. À côté,{' '}
+        listées ci-dessous comme n&apos;importe quel bot du labo, sans tri par résultat. Elles ont
+        été choisies par la version d&apos;août du moteur, que j&apos;ai corrigé depuis ; chaque fiche
+        dit ce que donne sa recette rejouée avec l&apos;exécution corrigée. À côté,{' '}
         {MEASUREMENT_CONTROLS}{' '}instruments de mesure, fixés au lancement de la vague, tournent
         volontairement hors de cette liste,
         des témoins médians et un groupe frontière, pour vérifier si le classement du moteur tient
