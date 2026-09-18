@@ -189,7 +189,7 @@ export default async function HomePage() {
           </Link>
           <Link href="/overview" className="bg-card border border-border rounded-lg p-8 text-center hover:border-accent/30 transition-colors group">
             <h3 className="text-base font-semibold mb-2">Les derniers arrivés</h3>
-            <p className="text-muted text-sm">Le 21 août, {waveCount} stratégies choisies par la version d&apos;août de mon moteur de recherche sont entrées en simulation. J&apos;ai corrigé le moteur depuis, et il va les rejuger. Chacune devra aligner ses trades, et tenir, avant le moindre euro réel.</p>
+            <p className="text-muted text-sm">Le 21 août, {waveCount} stratégies choisies par la version d&apos;août de mon moteur de recherche sont entrées en simulation. J&apos;ai corrigé le moteur depuis, et il refait le tour des familles dont elles viennent. Chacune devra aligner ses trades, et tenir, avant le moindre euro réel.</p>
             <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir la flotte →</span>
           </Link>
           <Link href="/blog/2026-07-02-pourquoi-mes-bots-ne-tradent-pas" className="bg-card border border-border rounded-lg p-8 text-center hover:border-muted/50 transition-colors group">

@@ -29,6 +29,8 @@ describe('/ — the wave-1 sentence names its engine generation', () => {
     expect(card).toHaveTextContent(/Le 21 août, 2 stratégies/)
     expect(card).toHaveTextContent(/version d.août de mon moteur/)
     expect(card).toHaveTextContent(/corrigé/)
-    expect(card).toHaveTextContent(/rejuger/)
+    expect(card).toHaveTextContent(/refait le tour des familles/)
+    // D-AUDIT-4: the wave itself is not re-judged; its families are.
+    expect(card).not.toHaveTextContent(/rejuger/)
   })
 })

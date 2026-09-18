@@ -5,9 +5,10 @@ The C2 replay (vault: projects/apex-trading/backtests_massive/audits/
 execution contract. This script keeps the CONTRACT reading of the 75 heads the
 site publishes, and ONLY five fields per row: slug, base, tf, pf, n.
 
-No gate column is exported on purpose (user decision 2026-09-18): the recipes
-will be judged again by the corrected engine, so nothing marks the ones that
-lose a hard gate in the replay. Provenance is copied from c2_data_manifest.json,
+No gate column is exported on purpose (user decision 2026-09-18): nothing marks
+the recipes that lose a hard gate in the replay (12 of the 75 heads; 19 of 108
+over the whole wave). The corrected engine re-runs the families they came from
+(D-AUDIT-4: the wave itself is not re-judged). Provenance is copied from c2_data_manifest.json,
 never retyped.
 
 Usage:
@@ -28,8 +29,11 @@ OUT = Path(__file__).resolve().parent.parent / "src" / "data" / "recipe-replay.j
 PUBLISHED_TIER = "go_head"
 READING = "CONTRACT"
 REPLAYED_ON = "2026-09-12"  # vault commit 66e3eb50
-# Expiry of this block: the corrected H4 gauntlet started 2026-09-18 and should
-# have re-judged these bases before this date. A test goes red after it.
+# Expiry of this block. The corrected H4 tour started 2026-09-18 on the remote
+# host; ~26 days for 41 bases is an UNMEASURED estimate, and H1 has no host yet.
+# Re-check this date against the first measured H4 unit duration. When the test
+# goes red: replace the block with the corrected engine's families, or close it
+# with a sentence. Never just push the date.
 VALID_UNTIL = "2026-10-18"
 # c2_summary.md section 2: every recipe is replayed on the 30 symbols of the
 # dataset it cites (delisted TON included, because the published PF includes it).

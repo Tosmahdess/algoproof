@@ -44,6 +44,13 @@ describe('bot fiche — replay of the recipe on the repaired execution', () => {
     expect(block).toHaveTextContent(/30 actifs/)
     expect(block).toHaveTextContent(/6 que ce bot trade/)
     expect(block).toHaveTextContent(/pas un nouveau verdict/i)
+    // D-AUDIT-4: the corrected engine re-runs the FAMILIES, not this recipe;
+    // nothing replaces this block automatically.
+    expect(block).toHaveTextContent(/refait le tour des familles/)
+    expect(block).toHaveTextContent(/à la main/)
+    expect(block).not.toHaveTextContent(/rejuger/)
+    expect(block).toHaveTextContent(/trouvés le 10 septembre/)
+    expect(block).toHaveTextContent(/moteur utilisé pour le rejeu : be6cb2ec0e47/)
   })
 
   it('never speaks in gates or rejection', async () => {
@@ -54,7 +61,7 @@ describe('bot fiche — replay of the recipe on the repaired execution', () => {
     })
     await renderFiche()
     const text = screen.getByTestId('recipe-replay').textContent ?? ''
-    expect(text).not.toMatch(/porte|rejet|recal|échou|trimestre|par actif/i)
+    expect(text).not.toMatch(/\bportes?\b|rejet|recal|échou|trimestre|par actif/i)
   })
 
   it('says the recipe is not replayed yet for an engine bot outside the replay', async () => {

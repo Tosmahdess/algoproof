@@ -46,10 +46,19 @@ describe('recipe-replay.json — the published artefact', () => {
   it('exports ONLY slug, base, tf, pf and n — no gate, no old-engine figure', () => {
     // A gate column here (assets_go, worst_quarter_pf, pass_*, loo_stable,
     // pf_traded_assets, end_of_data, verdict_report, pf_recorded…) would mark
-    // the 19 recipes that lose a hard gate, which the user refused.
+    // the recipes that lose a hard gate in the replay (12 of these 75 heads,
+    // 19 of 108 over the whole wave), which the user refused.
     for (const r of RECIPE_REPLAY.rows) {
       expect(Object.keys(r).sort()).toEqual(['base', 'n', 'pf', 'slug', 'tf'])
     }
+  })
+
+  it('keeps the header to provenance fields only — no aggregate can ride along', () => {
+    expect(Object.keys(RECIPE_REPLAY.meta).sort()).toEqual([
+      'csvSha256', 'dataThrough', 'dataset', 'engineFingerprint', 'reading',
+      'recipesEngineFingerprint', 'replayedOn', 'source', 'universeAssets',
+      'validUntil', 'vaultBaseCommit',
+    ])
   })
 
   it('keeps each row\'s timeframe consistent with its slug', () => {
