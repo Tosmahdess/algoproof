@@ -14,6 +14,7 @@ import PathToRealCard from '@/components/PathToRealCard'
 import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
+import RecipeReplayCard from '@/components/RecipeReplayCard'
 import SampleNote from '@/components/SampleNote'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
@@ -22,6 +23,7 @@ import { getProvenanceForBot } from '@/lib/screening'
 import { ficheSlugForBot } from '@/lib/strategy-keys'
 import { getStrategyFiche } from '@/lib/strategy-library'
 import { provenanceSentence, dossierHref } from '@/lib/provenance'
+import { recipeReplayFor } from '@/lib/recipe-replay'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -59,6 +61,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   // returns null both when this bot was never screened and when the screening tables
   // don't exist yet in this environment.
   const provenance = await getProvenanceForBot(bot.slug)
+  // Wave-1 bots only (engine origin + unit key): what the replay on the
+  // repaired execution gives for this bot's recipe. Null for any other bot.
+  const replay = recipeReplayFor(bot)
   // The `orb` fiche describes the Labo's ORB: a cap on trades per day and a session end
   // where every position is closed. The engine's ORB closes nothing at session end and can
   // fire several times in one session (audit 2026-09-10). Pointing an engine-born ORB bot
@@ -118,6 +123,8 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {provenance && (
         <BotProvenance campaign={provenance.campaign} candidate={provenance.candidate} />
       )}
+
+      {replay && <RecipeReplayCard view={replay} tradedAssets={bot.assets.length} />}
 
       {/* Exchange alert — Binance Futures bloqué FR */}
       <ExchangeAlert exchange={bot.exchange} />

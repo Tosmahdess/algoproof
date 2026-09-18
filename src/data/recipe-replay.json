@@ -1,0 +1,542 @@
+{
+ "meta": {
+  "source": "c2_replay",
+  "reading": "CONTRACT",
+  "replayedOn": "2026-09-12",
+  "validUntil": "2026-10-18",
+  "dataset": "data_20260802",
+  "dataThrough": "2026-08-02",
+  "universeAssets": 30,
+  "engineFingerprint": "be6cb2ec0e47",
+  "recipesEngineFingerprint": "f3868e2e7526",
+  "vaultBaseCommit": "6cb27fc75156f528c46559a6d84a1d5933e8529b",
+  "csvSha256": "43fad96f232f38e95c852f3644873157726f453d76e18d3248f35b84822fae86"
+ },
+ "rows": [
+  {
+   "slug": "arm-atrchannel-h4-head00",
+   "base": "ATRChannel",
+   "tf": "H4",
+   "pf": 2.2485,
+   "n": 245
+  },
+  {
+   "slug": "arm-atrchannel-h4-head01",
+   "base": "ATRChannel",
+   "tf": "H4",
+   "pf": 2.39,
+   "n": 237
+  },
+  {
+   "slug": "arm-atrchannel-h4-head02",
+   "base": "ATRChannel",
+   "tf": "H4",
+   "pf": 1.979,
+   "n": 213
+  },
+  {
+   "slug": "arm-atrchannel-h4-head03",
+   "base": "ATRChannel",
+   "tf": "H4",
+   "pf": 2.0005,
+   "n": 263
+  },
+  {
+   "slug": "arm-atrchannel-h4-head04",
+   "base": "ATRChannel",
+   "tf": "H4",
+   "pf": 1.2944,
+   "n": 162
+  },
+  {
+   "slug": "arm-donchianbrea-d1-head00",
+   "base": "DonchianBreakout",
+   "tf": "D1",
+   "pf": 1.6156,
+   "n": 252
+  },
+  {
+   "slug": "arm-donchianbrea-d1-head01",
+   "base": "DonchianBreakout",
+   "tf": "D1",
+   "pf": 1.5986,
+   "n": 235
+  },
+  {
+   "slug": "arm-donchianbrea-d1-head02",
+   "base": "DonchianBreakout",
+   "tf": "D1",
+   "pf": 1.3327,
+   "n": 272
+  },
+  {
+   "slug": "arm-donchianbrea-h1-head00",
+   "base": "DonchianBreakout",
+   "tf": "H1",
+   "pf": 3.1705,
+   "n": 179
+  },
+  {
+   "slug": "arm-donchianbrea-h1-head01",
+   "base": "DonchianBreakout",
+   "tf": "H1",
+   "pf": 1.9401,
+   "n": 238
+  },
+  {
+   "slug": "arm-donchianbrea-h1-head02",
+   "base": "DonchianBreakout",
+   "tf": "H1",
+   "pf": 1.9121,
+   "n": 267
+  },
+  {
+   "slug": "arm-donchianbrea-h1-head03",
+   "base": "DonchianBreakout",
+   "tf": "H1",
+   "pf": 1.7332,
+   "n": 267
+  },
+  {
+   "slug": "arm-donchianbrea-h1-head04",
+   "base": "DonchianBreakout",
+   "tf": "H1",
+   "pf": 1.4133,
+   "n": 209
+  },
+  {
+   "slug": "arm-donchianbrea-h4-head00",
+   "base": "DonchianBreakout",
+   "tf": "H4",
+   "pf": 2.0652,
+   "n": 230
+  },
+  {
+   "slug": "arm-donchianbrea-h4-head01",
+   "base": "DonchianBreakout",
+   "tf": "H4",
+   "pf": 1.999,
+   "n": 245
+  },
+  {
+   "slug": "arm-donchianbrea-h4-head02",
+   "base": "DonchianBreakout",
+   "tf": "H4",
+   "pf": 1.572,
+   "n": 234
+  },
+  {
+   "slug": "arm-donchianbrea-h4-head03",
+   "base": "DonchianBreakout",
+   "tf": "H4",
+   "pf": 1.5719,
+   "n": 264
+  },
+  {
+   "slug": "arm-donchianbrea-h4-head04",
+   "base": "DonchianBreakout",
+   "tf": "H4",
+   "pf": 1.5603,
+   "n": 255
+  },
+  {
+   "slug": "arm-donchianbrea-h4-head05",
+   "base": "DonchianBreakout",
+   "tf": "H4",
+   "pf": 1.443,
+   "n": 343
+  },
+  {
+   "slug": "arm-emacross-h4-head00",
+   "base": "EMAcross",
+   "tf": "H4",
+   "pf": 2.1495,
+   "n": 235
+  },
+  {
+   "slug": "arm-heikinashitr-d1-head00",
+   "base": "HeikinAshiTrend",
+   "tf": "D1",
+   "pf": 1.8196,
+   "n": 249
+  },
+  {
+   "slug": "arm-heikinashitr-d1-head01",
+   "base": "HeikinAshiTrend",
+   "tf": "D1",
+   "pf": 1.7479,
+   "n": 269
+  },
+  {
+   "slug": "arm-heikinashitr-d1-head02",
+   "base": "HeikinAshiTrend",
+   "tf": "D1",
+   "pf": 1.5812,
+   "n": 234
+  },
+  {
+   "slug": "arm-heikinashitr-h4-head00",
+   "base": "HeikinAshiTrend",
+   "tf": "H4",
+   "pf": 2.3448,
+   "n": 219
+  },
+  {
+   "slug": "arm-heikinashitr-h4-head01",
+   "base": "HeikinAshiTrend",
+   "tf": "H4",
+   "pf": 1.7426,
+   "n": 197
+  },
+  {
+   "slug": "arm-heikinashitr-h4-head02",
+   "base": "HeikinAshiTrend",
+   "tf": "H4",
+   "pf": 1.7849,
+   "n": 228
+  },
+  {
+   "slug": "arm-heikinashitr-h4-head03",
+   "base": "HeikinAshiTrend",
+   "tf": "H4",
+   "pf": 1.7832,
+   "n": 227
+  },
+  {
+   "slug": "arm-heikinashitr-h4-head04",
+   "base": "HeikinAshiTrend",
+   "tf": "H4",
+   "pf": 1.7367,
+   "n": 272
+  },
+  {
+   "slug": "arm-heikinashitr-h4-head05",
+   "base": "HeikinAshiTrend",
+   "tf": "H4",
+   "pf": 1.6907,
+   "n": 205
+  },
+  {
+   "slug": "arm-hmacross-d1-head00",
+   "base": "HMAcross",
+   "tf": "D1",
+   "pf": 1.9282,
+   "n": 225
+  },
+  {
+   "slug": "arm-hmacross-d1-head01",
+   "base": "HMAcross",
+   "tf": "D1",
+   "pf": 1.9162,
+   "n": 227
+  },
+  {
+   "slug": "arm-hmacross-d1-head02",
+   "base": "HMAcross",
+   "tf": "D1",
+   "pf": 1.7454,
+   "n": 250
+  },
+  {
+   "slug": "arm-hmacross-h4-head00",
+   "base": "HMAcross",
+   "tf": "H4",
+   "pf": 3.1591,
+   "n": 233
+  },
+  {
+   "slug": "arm-hmacross-h4-head01",
+   "base": "HMAcross",
+   "tf": "H4",
+   "pf": 2.3782,
+   "n": 232
+  },
+  {
+   "slug": "arm-hmacross-h4-head02",
+   "base": "HMAcross",
+   "tf": "H4",
+   "pf": 2.152,
+   "n": 221
+  },
+  {
+   "slug": "arm-hmacross-h4-head03",
+   "base": "HMAcross",
+   "tf": "H4",
+   "pf": 2.0349,
+   "n": 243
+  },
+  {
+   "slug": "arm-hmacross-h4-head04",
+   "base": "HMAcross",
+   "tf": "H4",
+   "pf": 1.964,
+   "n": 281
+  },
+  {
+   "slug": "arm-hmacross-h4-head05",
+   "base": "HMAcross",
+   "tf": "H4",
+   "pf": 1.7441,
+   "n": 225
+  },
+  {
+   "slug": "arm-kamacross-d1-head00",
+   "base": "KAMAcross",
+   "tf": "D1",
+   "pf": 1.8576,
+   "n": 237
+  },
+  {
+   "slug": "arm-kamacross-d1-head01",
+   "base": "KAMAcross",
+   "tf": "D1",
+   "pf": 1.5047,
+   "n": 263
+  },
+  {
+   "slug": "arm-kamacross-h4-head00",
+   "base": "KAMAcross",
+   "tf": "H4",
+   "pf": 2.1035,
+   "n": 219
+  },
+  {
+   "slug": "arm-kamacross-h4-head01",
+   "base": "KAMAcross",
+   "tf": "H4",
+   "pf": 1.994,
+   "n": 224
+  },
+  {
+   "slug": "arm-kamacross-h4-head02",
+   "base": "KAMAcross",
+   "tf": "H4",
+   "pf": 1.9031,
+   "n": 248
+  },
+  {
+   "slug": "arm-kamacross-h4-head03",
+   "base": "KAMAcross",
+   "tf": "H4",
+   "pf": 1.8484,
+   "n": 247
+  },
+  {
+   "slug": "arm-kamacross-h4-head04",
+   "base": "KAMAcross",
+   "tf": "H4",
+   "pf": 1.5735,
+   "n": 179
+  },
+  {
+   "slug": "arm-kamacross-h4-head05",
+   "base": "KAMAcross",
+   "tf": "H4",
+   "pf": 1.6933,
+   "n": 203
+  },
+  {
+   "slug": "arm-keltnerbreak-d1-head00",
+   "base": "KeltnerBreak",
+   "tf": "D1",
+   "pf": 1.7064,
+   "n": 221
+  },
+  {
+   "slug": "arm-keltnerbreak-d1-head01",
+   "base": "KeltnerBreak",
+   "tf": "D1",
+   "pf": 1.4772,
+   "n": 264
+  },
+  {
+   "slug": "arm-keltnerbreak-h1-head00",
+   "base": "KeltnerBreak",
+   "tf": "H1",
+   "pf": 3.0417,
+   "n": 267
+  },
+  {
+   "slug": "arm-keltnerbreak-h1-head01",
+   "base": "KeltnerBreak",
+   "tf": "H1",
+   "pf": 2.0599,
+   "n": 225
+  },
+  {
+   "slug": "arm-keltnerbreak-h1-head02",
+   "base": "KeltnerBreak",
+   "tf": "H1",
+   "pf": 1.6174,
+   "n": 263
+  },
+  {
+   "slug": "arm-keltnerbreak-h4-head00",
+   "base": "KeltnerBreak",
+   "tf": "H4",
+   "pf": 2.7727,
+   "n": 284
+  },
+  {
+   "slug": "arm-keltnerbreak-h4-head01",
+   "base": "KeltnerBreak",
+   "tf": "H4",
+   "pf": 2.2565,
+   "n": 221
+  },
+  {
+   "slug": "arm-keltnerbreak-h4-head02",
+   "base": "KeltnerBreak",
+   "tf": "H4",
+   "pf": 1.9671,
+   "n": 235
+  },
+  {
+   "slug": "arm-keltnerbreak-h4-head03",
+   "base": "KeltnerBreak",
+   "tf": "H4",
+   "pf": 1.7157,
+   "n": 227
+  },
+  {
+   "slug": "arm-keltnerbreak-h4-head04",
+   "base": "KeltnerBreak",
+   "tf": "H4",
+   "pf": 1.6775,
+   "n": 230
+  },
+  {
+   "slug": "arm-orb-h1-head00",
+   "base": "ORB",
+   "tf": "H1",
+   "pf": 2.2364,
+   "n": 211
+  },
+  {
+   "slug": "arm-orb-h1-head01",
+   "base": "ORB",
+   "tf": "H1",
+   "pf": 2.3261,
+   "n": 222
+  },
+  {
+   "slug": "arm-orb-h1-head02",
+   "base": "ORB",
+   "tf": "H1",
+   "pf": 1.4802,
+   "n": 215
+  },
+  {
+   "slug": "arm-temacross-h4-head00",
+   "base": "TEMAcross",
+   "tf": "H4",
+   "pf": 3.352,
+   "n": 229
+  },
+  {
+   "slug": "arm-temacross-h4-head01",
+   "base": "TEMAcross",
+   "tf": "H4",
+   "pf": 2.9634,
+   "n": 222
+  },
+  {
+   "slug": "arm-temacross-h4-head02",
+   "base": "TEMAcross",
+   "tf": "H4",
+   "pf": 2.4947,
+   "n": 234
+  },
+  {
+   "slug": "arm-temacross-h4-head03",
+   "base": "TEMAcross",
+   "tf": "H4",
+   "pf": 2.4862,
+   "n": 236
+  },
+  {
+   "slug": "arm-temacross-h4-head04",
+   "base": "TEMAcross",
+   "tf": "H4",
+   "pf": 2.2819,
+   "n": 254
+  },
+  {
+   "slug": "arm-temacross-h4-head05",
+   "base": "TEMAcross",
+   "tf": "H4",
+   "pf": 2.2367,
+   "n": 234
+  },
+  {
+   "slug": "arm-williamsvolb-d1-head00",
+   "base": "WilliamsVolBreak",
+   "tf": "D1",
+   "pf": 2.0351,
+   "n": 198
+  },
+  {
+   "slug": "arm-williamsvolb-d1-head01",
+   "base": "WilliamsVolBreak",
+   "tf": "D1",
+   "pf": 1.851,
+   "n": 241
+  },
+  {
+   "slug": "arm-williamsvolb-d1-head02",
+   "base": "WilliamsVolBreak",
+   "tf": "D1",
+   "pf": 1.8023,
+   "n": 251
+  },
+  {
+   "slug": "arm-williamsvolb-d1-head03",
+   "base": "WilliamsVolBreak",
+   "tf": "D1",
+   "pf": 1.7701,
+   "n": 172
+  },
+  {
+   "slug": "arm-williamsvolb-d1-head04",
+   "base": "WilliamsVolBreak",
+   "tf": "D1",
+   "pf": 1.6662,
+   "n": 311
+  },
+  {
+   "slug": "arm-williamsvolb-d1-head05",
+   "base": "WilliamsVolBreak",
+   "tf": "D1",
+   "pf": 1.5925,
+   "n": 240
+  },
+  {
+   "slug": "arm-williamsvolb-h4-head00",
+   "base": "WilliamsVolBreak",
+   "tf": "H4",
+   "pf": 1.9147,
+   "n": 258
+  },
+  {
+   "slug": "arm-williamsvolb-h4-head01",
+   "base": "WilliamsVolBreak",
+   "tf": "H4",
+   "pf": 1.7105,
+   "n": 305
+  },
+  {
+   "slug": "arm-williamsvolb-h4-head02",
+   "base": "WilliamsVolBreak",
+   "tf": "H4",
+   "pf": 1.5626,
+   "n": 273
+  },
+  {
+   "slug": "arm-williamsvolb-h4-head03",
+   "base": "WilliamsVolBreak",
+   "tf": "H4",
+   "pf": 1.4404,
+   "n": 216
+  }
+ ]
+}
