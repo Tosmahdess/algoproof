@@ -64,8 +64,9 @@ new_teaser = """  if v_access = 'teaser' then
     -- n'economisait donc rien a qui n'avait pas paye, et cette branche mourait au
     -- statement_timeout de 3 s du role anon -- tandis que la branche payante plus
     -- bas, qui pousse le meme predicat DANS sa requete, repondait en 1,49 s.
-    -- Le catalogue prend desormais ce predicat ; l'appel ci-dessous rend exactement
-    -- les memes familles, dans le meme ordre, sans variante, comme avant.
+    -- Le catalogue prend desormais ce predicat. Que cet appel rende les memes familles
+    -- dans le meme ordre tient a la construction de family_id (voir l'en-tete) et se
+    -- verifie au bloc 3b du protocole -- ce n'est pas une affirmation libre.
     return pg_catalog.jsonb_build_object(
       'access', v_access,
       'families', coalesce(
@@ -102,11 +103,20 @@ header = """-- 048_survivor_family_catalog_scoped.sql
 --
 -- CE QUE FAIT CETTE MIGRATION, ET RIEN D'AUTRE : le predicat descend d'un etage. Le
 -- catalogue accepte p_strategy et l'applique dans son corpus, exactement au meme endroit
--- et avec le meme texte que la branche payante ; la branche teaser l'appelle scope. Elle
--- rend les memes familles, avec les memes dix cles, DANS LE MEME ORDRE -- celui du
--- catalogue (robustesse, isolement, PF decroissant), qui n'est pas celui de la branche
--- payante (strategy, family_id). Un visiteur ne verra donc pas ses familles se
--- reordonner : c'est la meme fonction qui les trie qu'avant.
+-- et avec le meme texte que la branche payante ; la branche teaser l'appelle scope.
+--
+-- POURQUOI FILTRER AVANT LE GROUP BY DONNE LE MEME RESULTAT QU'APRES, par construction :
+-- family_id = 'fam_' || md5(signature), et la signature porte lower(base) comme premiere
+-- cle (036). Une famille ne peut donc pas s'etendre sur deux bases distinctes, et min(base)
+-- dans `grouped` est constant par famille a la casse pres. Le filtre etant lower() des deux
+-- cotes, deux graphies d'une meme base passent ou echouent ensemble. La partition, les
+-- survivor_count, robustness, timeframes et le representant sont les memes.
+-- L'ORDRE aussi : le tri final est un comparateur total (il finit par family_id), et
+-- filtrer une liste triee par un comparateur total rend la meme sous-suite que trier la
+-- sous-population. Le visiteur ne verra donc pas ses familles se reordonner.
+-- Ceci est un argument, pas une mesure : la mesure est le bloc 3b de
+-- supabase/tests/survivor_family_teaser_live.sql, qui compare les tableaux jsonb
+-- strategie par strategie, ordre compris, avant et apres.
 --
 -- POURQUOI LA CORRELATION N'EST PAS TOUCHEE ICI. La 047 a prouve une forme jointe, moins
 -- chere, pour resoudre « la generation courante de chaque paire ». Elle n'est PAS reprise
@@ -119,8 +129,16 @@ header = """-- 048_survivor_family_catalog_scoped.sql
 --
 -- CE QUE LE PAYANT RISQUE : rien qui ne se mesure. Le bloc paye de survivor_family_all est
 -- recopie octet pour octet -- ce fichier est genere par extraction du corps de la 043, et
--- le generateur s'arrete si ce bloc differe d'un seul caractere. La verification d'avant
--- et d'apres est dans supabase/tests/survivor_family_teaser_live.sql.
+-- le generateur s'arrete si ce bloc differe d'un seul caractere. Mais un garde qui vit dans
+-- un script de generation ne dit rien de ce que la base execute : le bloc 3c du protocole
+-- compare, octet pour octet, ce qu'un abonne reel recoit avant et apres.
+--
+-- CE QUE CETTE MIGRATION NE PROMET PAS : la vitesse. Elle supprime le travail inutile ; elle
+-- ne cree aucun index. Le plancher mesure d'une traversee de cette table est de 2,29 s pour
+-- un budget anon de 3 s, et rien ne sert `lower(base)` aujourd'hui. Attendre donc une
+-- branche teaser « a la limite » plutot que confortable, et poser
+-- supabase/manual/2026-09-18_survivor_family_member_lower_base_index.sql si la porte du
+-- bloc 4 le reclame -- cet index sert le meme predicat des DEUX cotes de la frontiere.
 --
 -- ⚠️ L'ORDRE DES INSTRUCTIONS COMPTE. `create or replace` ne remplace pas une fonction dont
 -- la SIGNATURE change : il en cree une SURCHARGE. Laisser vivre survivor_family_catalog(text)
