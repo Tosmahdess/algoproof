@@ -5,27 +5,28 @@
 -- CREATE INDEX CONCURRENTLY est refusé. À lancer une instruction à la fois, via psql sur la
 -- connexion directe (session mode, port 5432 -- pas le pooler 6543).
 --
--- POURQUOI, ET POURQUOI SEULEMENT SI LA MESURE LE DEMANDE.
+-- ⚠️ CET EN-TETE A ETE CORRIGE LE 19/09 : SA JUSTIFICATION D'ORIGINE ETAIT FAUSSE.
 --
--- La 048 fait descendre `lower(m.base) = lower(p_strategy)` dans le corpus du catalogue, ce
--- qui rend la branche teaser scopée au lieu de construire 4 Mo avant de filtrer. Mais scoper
--- une requête ne la rend pas rapide si rien ne sert le prédicat : mesuré le 18/09, une
--- traversée de cette table coûte **2,29 s** quel que soit le filtre, parce que les trois
--- index de la 037 mènent sur `dataset_version` -- colonne de tête inutilisable ici, la
--- résolution de génération étant un sous-plan corrélé -- et que l'index couvrant du même
--- jour mène sur `base` brut, pas sur `lower(base)`.
+-- Il affirmait un « plancher de traversee de 2,29 s » mesure sur un count(*) a dataset
+-- constant, et en deduisait une decomposition « 2,3 s + 0,3 s + regroupement ≈ 2,8 s ».
+-- Cette requete-la n'etait pas un balayage : elle etait servie par l'index
+-- (dataset_version, published_at) de la 037. Le plancher n'a jamais ete mesure, et le
+-- raisonnement qui a conduit a poser cet index reposait dessus.
 --
--- Décomposition attendue pour HMAcross (18 723 survivants, la plus grosse) : 2,3 s de
--- traversée + ~0,3 s de sous-plan corrélé + le regroupement. Soit environ 2,8 s contre un
--- budget de 3 s. **La 048 seule fait donc passer la branche teaser de « morte » à « à la
--- limite »**, et sur un compute occupé par le drain de publication elle rendra 57014 par
--- intermittence -- c'est-à-dire que la page dira « Je n'ai pas réussi à lire cette liste »
--- une fois sur trois au lieu de toujours. Une amélioration réelle, et pas une réparation.
+-- CE QUI EST VRAI, MESURE LE 19/09 : la lenteur venait de l'enveloppe de la fonction, pas
+-- d'un index manquant. `survivor_family_catalog` etait en `language sql`, donc planifiee
+-- parametres inconnus, donc son predicat de strategie n'etait pas indexable et chaque appel
+-- balayait les 200 Mo. Le meme corps en plpgsql : 17,25 s -> 0,12 s. C'est la 049.
 --
--- Cet index est la colonne que le prédicat de la 048 **et** celui de la branche payante
--- filtrent tous les deux. Il les sert donc ensemble, sans réécrire une ligne de SQL et sans
--- introduire une seconde implémentation de la résolution de génération -- ce que ferait la
--- forme jointe de la 047 si on la reprenait ici, et c'est précisément ce que la 048 refuse.
+-- CET INDEX RESTE UTILE, ET LA MESURE LE MONTRE : une fois le parametre connu, le plan
+-- emprunte `Index Cond: (lower(base) = 'orderblock')` et le sous-plan correle n'est meme pas
+-- execute -- 2,4 ms sur un temoin vide. Sans lui, le plan sur mesure n'aurait rien a lire :
+-- la cle primaire porte `base` brut, pas `lower(base)`. Il sert aussi la branche payante,
+-- qui filtre exactement le meme predicat. 1,2 Mo, garde.
+--
+-- Mais il est ARRIVE POUR LA MAUVAISE RAISON, et ca se dit : il a ete pose sur une
+-- hypothese fausse, il se trouve qu'il etait bon. Laisser croire l'inverse ferait de cet
+-- en-tete un raisonnement a imiter.
 --
 -- QUAND LE POSER : si le bloc 4 de supabase/tests/survivor_family_teaser_live.sql rend 57014
 -- ou dépasse ~2,5 s. Pas avant : un index qu'aucune mesure ne réclame est une écriture de
