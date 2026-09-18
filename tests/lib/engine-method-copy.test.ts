@@ -57,6 +57,11 @@ const RETIRED: readonly [why: string, motif: string][] = [
   ['the null control described as random entries (a circular shift is not random)', 'qui entrent au hasard'],
   ['the worst-quarter trial carrying a second, repeated reservation', 'L’épreuve dit si elle'],
   ['the macro-blackout replay understated as a slightly worse drawdown', 'drawdown pire'],
+  // 2026-09-18: the dated re-judge notice, removed on the owner's decision once the
+  // corrected D1 tour was published (EngineRejudgeNotice deleted with its three mounts).
+  ['the 2026-09-10 audit notice', 'un audit a trouvé trois défauts'],
+  ['the engine figures called provisional until re-judged', "d'ici là ils restent provisoires"],
+  ['the notice component itself', 'EngineRejudgeNotice'],
 ]
 
 describe('retired engine-method sentences are gone from src/', () => {
@@ -127,7 +132,6 @@ const ENGINE_SURFACES = [
   'src/lib/provenance.ts',
   'src/components/GauntletExplainer.tsx',
   'src/components/FunnelCounter.tsx',
-  'src/components/EngineRejudgeNotice.tsx',
   'src/components/BotProvenance.tsx',
 ]
 

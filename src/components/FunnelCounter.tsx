@@ -1,5 +1,4 @@
 import type { FunnelCounts } from '@/lib/funnel'
-import EngineRejudgeNotice from '@/components/EngineRejudgeNotice'
 
 const nf = new Intl.NumberFormat('fr-FR')
 
@@ -17,7 +16,6 @@ export default function FunnelCounter({ counts }: { counts: FunnelCounts | null 
 
   return (
     <section data-testid="funnel-counter" className="bg-card border border-border rounded-lg p-4">
-      <EngineRejudgeNotice className="mb-3" />
       <dl data-testid="funnel-engine" className="flex flex-wrap gap-x-8 gap-y-3">
         <div>
           <dt className="text-xs text-muted">Configurations balayées</dt>
