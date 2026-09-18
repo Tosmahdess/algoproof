@@ -31,12 +31,18 @@ with ancien as (
            public.survivor_family_catalog(null) -> 'families') f
    group by 1, 2
 ), nouveau as (
+  -- The GROUP BY is defensive, not decorative. 047 groups on `exit_keys_txt::jsonb`, so it
+  -- cannot emit two rows for one exit shape today. Should that ever change -- someone
+  -- grouping on the raw text again -- `["a","b"]` and `[ "a", "b" ]` would arrive as two
+  -- rows against the catalog's one, and this check would report a divergence that is an
+  -- artefact of its own join rather than a real difference in the numbers.
   select s ->> 'strategy'                                     as strategy,
          s -> 'exit_keys'                                     as exit_keys,
-         (s ->> 'family_count')::int                          as family_count,
-         (s ->> 'survivor_count')::int                        as survivor_count
+         sum((s ->> 'family_count')::int)::int                as family_count,
+         sum((s ->> 'survivor_count')::int)::int              as survivor_count
     from jsonb_array_elements(
            public.survivor_strategy_summary(null) -> 'strategies') s
+   group by 1, 2
 )
 select coalesce(a.strategy, n.strategy)   as strategy,
        coalesce(a.exit_keys, n.exit_keys) as exit_keys,
@@ -86,7 +92,35 @@ rollback;
 
 -- Numbers to beat, measured on 2026-09-18:
 --   survivor_family_catalog(null) ... 18.30 s, 4 074 459 bytes
---   target for this aggregate ....... under 1 s before the covering index of 048,
---                                     a few hundred ms after it, and a few KB either way.
--- If `duree` is still seconds after 048 and a VACUUM, the index is not being used: check
--- for an Index Only Scan before assuming the plan improved.
+--   this aggregate ................. a few KB, and fast enough for query 3 below to pass.
+-- If it is still seconds after the covering index and the vacuum, the index is not being
+-- used: read `Heap Fetches` in the acceptance EXPLAIN of the manual file before assuming
+-- the plan improved.
+
+-- ---------------------------------------------------------------------------
+-- 3. THE GATE. Everything above ran with the statement timeout lifted, which is exactly how
+--    one convinces oneself that a slow function is fine. This runs it as the role and under
+--    the budget a visitor with no account actually gets.
+--
+--    Expected: one row, a few thousand bytes, well under 3 s.
+--    On error 57014, the page must NOT be wired to this function: it would fail the same
+--    way it fails today, only faster.
+begin;
+set local statement_timeout = '3s';
+set local role anon;
+
+select length(public.survivor_strategy_summary(null)::text) as octets,
+       clock_timestamp() - statement_timestamp()            as duree;
+
+rollback;
+
+-- And the same under a member's 8 s, to know whether the margin is real or whether the page
+-- would merely have stopped failing for the people who already pay.
+begin;
+set local statement_timeout = '8s';
+set local role authenticated;
+
+select length(public.survivor_strategy_summary(null)::text) as octets,
+       clock_timestamp() - statement_timestamp()            as duree;
+
+rollback;

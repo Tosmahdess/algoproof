@@ -40,8 +40,12 @@
 -- implementation of the rule, in the place that already owns it.
 --
 -- The consequence, stated so nobody has to rediscover it: if the mask ever reads another
--- field, that field must enter this GROUP BY. The parity test on the caller's side
--- (sum of masked aggregate == length of masked family list) is what fails if it does not.
+-- field, that field must enter this GROUP BY. What fails if it does not is the parity check
+-- in supabase/tests/survivor_strategy_summary_live.sql, and it compares the two counters
+-- SEPARATELY and in their own units: sum(family_count) here against the number of families
+-- the catalog publishes, and sum(survivor_count) here against the sum of the catalog's
+-- survivor_count. Survivors and families are not interchangeable, and a check that mixed
+-- them would pass while being wrong.
 --
 -- ---------------------------------------------------------------------------
 -- 2. Why the generation resolution is written as a join here
@@ -82,7 +86,16 @@
 --   public on /cockpit/survivants, and no recipe, parameter, filter value, pf, dd or
 --   trade count crosses this function.
 -- * It does not read `recipe` or `signature`, the two jsonb columns that make the table
---   182 MB for 136 661 rows. That is deliberate, and 048 turns it into an index-only scan.
+--   182 MB for 136 661 rows. That is deliberate: it is what makes the covering index of
+--   supabase/manual/2026-09-18_survivor_family_member_aggregate_index.sql able to answer
+--   this function without the heap. Whether the planner actually chooses an index-only scan
+--   is measured there, not assumed here.
+--
+-- One thing this function does NOT fix on its own: without that index it still makes two
+-- passes over the heap, and one pass alone was measured at 2.29 s. Do not wire the page to
+-- it until it has been timed under the real anon budget -- `set local role anon; set local
+-- statement_timeout = '3s'` -- because the 18.30 s above was measured with the timeout
+-- lifted, and a function that merely fails faster is not a fix.
 
 create or replace function public.survivor_strategy_summary(
   p_dataset text default null
