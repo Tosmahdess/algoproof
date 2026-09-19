@@ -44,6 +44,11 @@ describe('/investir, long blocks fold on a phone', () => {
   it('does not fold the hero, the counts, or the company list', () => {
     monter()
 
+    // Present first: an absence check alone is green on an empty page.
+    expect(screen.getByRole('heading', { level: 1, name: /Je lis le dernier rapport annuel/ })).toBeTruthy()
+    expect(screen.getByText('Sociétés lues')).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 2, name: 'Les sociétés' })).toBeTruthy()
+
     expect(screen.queryByRole('button', { name: /Je lis le dernier rapport annuel/ })).toBeNull()
     expect(screen.queryByRole('button', { name: /Sociétés lues/ })).toBeNull()
     expect(screen.queryByRole('button', { name: /^Les sociétés$/ })).toBeNull()

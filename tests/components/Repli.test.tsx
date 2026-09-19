@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it } from 'vitest'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import Repli from '@/components/Repli'
 
 /**
@@ -35,16 +35,56 @@ describe('Repli', () => {
     expect(corps.className.split(/\s+/)).not.toContain('hidden')
   })
 
-  it('opens by itself when the URL targets its anchor, and when printed', () => {
+  it('opens when printed, and keeps the anchor on its heading', () => {
     monter()
 
     const corps = screen.getByText('Le corps du bloc.').parentElement!
-    expect(corps.className).toContain('peer-target:block')
     expect(corps.className).toContain('print:block')
-    // The anchor stays on the heading, which is the `peer` the body reads.
-    const titre = screen.getByRole('heading', { level: 2 })
-    expect(titre.id).toBe('mots')
-    expect(titre.className).toContain('peer')
+    expect(screen.getByRole('heading', { level: 2 }).id).toBe('mots')
+  })
+
+  it('names its section after its heading', () => {
+    const { container } = monter()
+
+    expect(container.querySelector('section')!.getAttribute('aria-labelledby')).toBe('mots')
+  })
+
+  describe('arriving through the anchor', () => {
+    afterEach(() => window.history.replaceState(null, '', '/'))
+
+    it('opens, and says so, when the page is loaded on its anchor', () => {
+      window.history.replaceState(null, '', '/#mots')
+      monter()
+
+      const bouton = screen.getByRole('button')
+      expect(bouton.getAttribute('aria-expanded')).toBe('true')
+      expect(screen.getByText('Le corps du bloc.').parentElement!.className).not.toContain('max-sm:hidden')
+    })
+
+    it('can still be folded after arriving through the anchor', () => {
+      // With a CSS `:target` rule the body stayed visible whatever the
+      // button said: a second tap could never fold it back.
+      window.history.replaceState(null, '', '/#mots')
+      monter()
+
+      fireEvent.click(screen.getByRole('button'))
+
+      expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('false')
+      const corps = screen.getByText('Le corps du bloc.').parentElement!
+      expect(corps.className).toContain('max-sm:hidden')
+      expect(corps.className).not.toContain('peer-target')
+    })
+
+    it('opens when an in-page link points at it later', () => {
+      monter()
+
+      act(() => {
+        window.history.replaceState(null, '', '/#mots')
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      })
+
+      expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('true')
+    })
   })
 
   it('offers a disclosure button on a phone, and a plain title on a computer', () => {
