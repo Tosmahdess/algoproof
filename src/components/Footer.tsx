@@ -35,7 +35,8 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
   {
     title: 'Le labo',
     links: [
-      { href: LAB_URL, label: 'Backtester', external: true },
+      // The tool opens the tool (D053); « Découvrir le labo » below keeps the landing.
+      { href: `${LAB_URL}/lab`, label: 'Backtester', external: true },
       { href: `${LAB_URL}/apprendre`, label: 'Tutoriels', external: true },
       // "Bibliothèque des stratégies" dropped 2026-07-31: the library moved
       // here and is already linked as /strategies in the "Mes bots" group.

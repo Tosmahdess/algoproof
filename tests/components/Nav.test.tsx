@@ -1,8 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import Nav from '@/components/Nav'
+import { trackCtaLab } from '@/lib/analytics'
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/' }))
+vi.mock('@/lib/analytics', () => ({ trackCtaLab: vi.fn(), trackOutboundExchange: vi.fn() }))
 
 // Pre-launch audit 2026-09-09 (§4, keyboard navigation): the « MES BOTS »
 // menu opened on hover only. A keyboard user tabbed onto the button, pressed
@@ -89,11 +91,35 @@ describe('Nav — 4 hubs + Labo CTA', () => {
   // sub-links (tutoriels, agents, vote, membres) are gone from the nav.
   it('renders the Labo CTA as a plain link, without the old dropdown', () => {
     render(<Nav />)
-    const cta = screen.getAllByRole('link').find(a => a.getAttribute('href') === 'https://lab.algoproof.fr' && /le labo/i.test(a.textContent ?? ''))
+    const cta = screen.getAllByRole('link').find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab' && /le labo/i.test(a.textContent ?? ''))
     expect(cta).toBeDefined()
     for (const label of [/tutoriels/i, /agents ia/i, /vote du labo/i, /membres/i]) {
       expect(screen.queryByText(label)).toBeNull()
     }
+  })
+
+  // 2026-09-19 (D053): LE LABO opens the app (/lab), not the landing at the
+  // lab root. Going through the pitch on every visit was one extra click each
+  // time. The click is counted, so the routing can be judged on facts.
+  it('sends LE LABO straight into the app and counts the click as nav', () => {
+    vi.mocked(trackCtaLab).mockClear()
+    render(<Nav />)
+    const cta = screen.getByText('LE LABO').closest('a')!
+    expect(cta.getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
+    cta.addEventListener('click', e => e.preventDefault())
+    fireEvent.click(cta)
+    expect(trackCtaLab).toHaveBeenCalledWith('nav')
+  })
+
+  it('sends the mobile « Ouvrir le labo » into the app and counts it as nav-mobile', () => {
+    vi.mocked(trackCtaLab).mockClear()
+    render(<Nav />)
+    fireEvent.click(screen.getByRole('button', { name: /menu/i }))
+    const open = screen.getByText(/ouvrir le labo/i).closest('a')!
+    expect(open.getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
+    open.addEventListener('click', e => e.preventDefault())
+    fireEvent.click(open)
+    expect(trackCtaLab).toHaveBeenCalledWith('nav-mobile')
   })
 
   // The account lives on the lab (magic link + subscription state); this site
