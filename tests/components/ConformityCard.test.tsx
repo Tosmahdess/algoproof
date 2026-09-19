@@ -124,7 +124,7 @@ describe('ThreeSentences', () => {
   })
 })
 
-// 2026-09-19 (D056): on a phone the card took 772 px of v1-spot. Its table,
+// 2026-09-19 (D057): on a phone the card took 772 px of v1-spot. Its table,
 // kill criteria and source fold; its title, status and verdict sentence do
 // not, so a folded card never shows a bare « Dans l'enveloppe ».
 describe('ConformityCard folds its detail on a phone, never its verdict', () => {

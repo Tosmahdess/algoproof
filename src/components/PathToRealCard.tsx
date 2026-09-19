@@ -23,7 +23,7 @@ function width(c: PathCriterion): number {
 // A live bot used to get a 55 px card here, « En argent réel depuis le … »:
 // the provenance line at the top of the same fiche already says it, from the
 // same column (bots.live_since), 3 000 px earlier on a phone. Removed
-// 2026-09-19 (D056); the date has one surface, provenanceSentence().
+// 2026-09-19 (D057); the date has one surface, provenanceSentence().
 export default function PathToRealCard({ status, stats, liveGate }: Props) {
   if (status !== 'paper') return null
 

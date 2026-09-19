@@ -11,7 +11,7 @@ describe('PathToRealCard', () => {
     expect(screen.getAllByTestId('ptr-bar')).toHaveLength(4)
     expect(screen.getByText(/2\/4 critères atteints/i)).toBeInTheDocument()
   })
-  // 2026-09-19 (D056): a live bot rendered a 55 px card repeating « En argent
+  // 2026-09-19 (D057): a live bot rendered a 55 px card repeating « En argent
   // réel depuis le … », already on the provenance line of the same fiche,
   // from the same column. The card now renders nothing for a live bot.
   it('live bot: renders nothing, the provenance line carries the date', () => {

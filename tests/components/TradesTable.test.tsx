@@ -30,7 +30,7 @@ describe('TradesTable', () => {
   })
 })
 
-// 2026-09-19 (D056): twenty rows took 1 263 px on a phone. Rows past the
+// 2026-09-19 (D057): twenty rows took 1 263 px on a phone. Rows past the
 // phone limit are hidden below sm only; a computer still sees all of them.
 describe('TradesTable phone limit', () => {
   const many: Trade[] = Array.from({ length: 8 }, (_, i) => ({

@@ -150,7 +150,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}
 
       {/* Paper→real gate, paper bots only. A live bot's real-money start date
-          is on the provenance line above, and only there (D056): the card
+          is on the provenance line above, and only there (D057): the card
           used to repeat it from the same column. */}
       <PathToRealCard
         status={bot.status}
@@ -220,7 +220,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       </section>
 
       {/* "Sur mon capital" — observed history rescaled to a visitor-chosen
-          capital. AFTER the explanation since 2026-09-19 (D056): a reader
+          capital. AFTER the explanation since 2026-09-19 (D057): a reader
           handled amounts before learning what the bot does. */}
       {bot.perf_daily.length > 0 && (
         <CapitalSimulator perfDaily={bot.perf_daily} startCapital={bot.start_capital} />
@@ -247,7 +247,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         <DiscussionTab slug={slug} />
       </div>
 
-      {/* Partager — folded on every screen (D056): embed code, rarely used,
+      {/* Partager — folded on every screen (D057): embed code, rarely used,
           262 px on a phone. A native <details>, not Repli: this one SHOULD
           have a toggle on a computer too. */}
       <details className="bg-card border border-border rounded-lg p-6">

@@ -12,7 +12,7 @@ import { computeBotStats, countByDirection, filterTrades, type DirectionFilter }
 import { assetOptionsFromTrades } from '@/lib/asset'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
-/** Recent trades shown on a phone before « Voir les N derniers » (D056). */
+/** Recent trades shown on a phone before « Voir les N derniers » (D057). */
 const TRADES_MOBILE = 5
 
 interface Props {
@@ -77,7 +77,7 @@ export default function StrategyDetail({ bot }: Props) {
       : filterTrades(bot.all_trades, direction, asset).slice(0, 20)
   ), [bot.all_trades, bot.recent_trades, direction, asset, unfiltered])
 
-  // Five rows on a phone (D056): twenty took 1 263 px. The choice survives a
+  // Five rows on a phone (D057): twenty took 1 263 px. The choice survives a
   // filter change: a reader who asked for all of them keeps them.
   const [tousSurMobile, setTousSurMobile] = useState(false)
   const limiteMobile = tousSurMobile || tradesShown.length <= TRADES_MOBILE ? undefined : TRADES_MOBILE
