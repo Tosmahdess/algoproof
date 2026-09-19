@@ -1,0 +1,23 @@
+BEFORE postmaster: 2026-09-18 10:57:26.614390+00:00 | family md5: 87d17a0593914668eca6503e8a4d182a | engine_telemetry sessions: 0
+engine_verdict_survivor already exists: False
+APPLIED 050. notices:
+  NOTICE NOTICE:  constraint "engine_verdicts_survivors_storage_check" of relation "engine_verdicts" does not exist, skipping
+  NOTICE NOTICE:  policy "engine_verdict_survivor writer" for relation "public.engine_verdict_survivor" does not exist, skipping
+  NOTICE NOTICE:  trigger "engine_verdict_survivor_family" for relation "public.engine_verdict_survivor" does not exist, skipping
+  NOTICE NOTICE:  trigger "engine_verdicts_survivor_rows_guard" for relation "public.engine_verdicts" does not exist, skipping
+  NOTICE NOTICE:  trigger "engine_verdicts_survivor_rows_demoted" for relation "public.engine_verdicts" does not exist, skipping
+  NOTICE NOTICE:  trigger "engine_verdicts_survivor_rows_deleted" for relation "public.engine_verdicts" does not exist, skipping
+
+VERIFICATION
+1 columns: [('current_publish_seq', 'bigint'), ('survivors_storage', 'text')] (want 2 rows)
+2 anon/auth select: [(False, False)] (want f,f)
+3 engine_telemetry: [(True, True, True, False)] (want t,t,t,f)
+4 policies: [('engine_verdict_survivor writer', '{engine_telemetry}')] (want one writer policy, engine_telemetry)
+5 triggers on engine_verdicts:
+    engine_verdicts_survivor_rows_deleted | CREATE TRIGGER engine_verdicts_survivor_rows_deleted AFTER DELETE ON public.engine_verdicts FOR EACH ROW EXECUTE FUNCTION engine_verdicts_survivor_rows_purge()
+    engine_verdicts_survivor_rows_demoted | CREATE TRIGGER engine_verdicts_survivor_rows_demoted AFTER UPDATE ON public.engine_verdicts FOR EACH ROW WHEN (((NOT (old.survivors_storage IS DISTINCT FROM 'rows'::text)
+    engine_verdicts_survivor_rows_guard | CREATE TRIGGER engine_verdicts_survivor_rows_guard BEFORE INSERT OR UPDATE ON public.engine_verdicts FOR EACH ROW EXECUTE FUNCTION engine_verdicts_survivor_rows_guard()
+    survivor_family_index_sync | CREATE TRIGGER survivor_family_index_sync AFTER INSERT OR DELETE OR UPDATE OF base, tf, dataset_version, kmax, published_at, survivors ON public.engine_verdicts FOR EACH 
+6 survivors_storage not null: 0 (want 0)
+
+AFTER postmaster unchanged: True | family md5 unchanged: True
