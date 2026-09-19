@@ -37,7 +37,10 @@ const NOT_A_COLOUR: Record<string, Set<string>> = {
     'none', 'collapse', 'separate', 'spacing', 'opacity', '0', '2', '4', '8']),
 }
 
-const CLASS_RE = /\b(text|bg|border)-([a-z][a-z0-9]*)(?=[\s/'"`:\]}]|$)/g
+// `(?<!\[)`: an arbitrary PROPERTY such as `[text-transform:inherit]` is not a
+// colour utility, whatever its property name starts with (false positive on
+// Repli's button, 2026-09-19). `text-background`, `hover:text-foo` still match.
+const CLASS_RE = /(?<!\[)\b(text|bg|border)-([a-z][a-z0-9]*)(?=[\s/'"`:\]}]|$)/g
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

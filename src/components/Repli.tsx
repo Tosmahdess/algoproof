@@ -33,7 +33,9 @@ export default function Repli({
   id,
   titre,
   resume,
+  resumeClassName = 'text-xs font-normal text-muted',
   className,
+  testId,
   titreClassName = 'text-xl font-semibold',
   corpsClassName = 'mt-3',
   children,
@@ -43,8 +45,13 @@ export default function Repli({
   titre: ReactNode
   /** One short line under the title in the phone button, e.g. « 7 termes ». */
   resume?: ReactNode
+  /** Style of that line. Muted by default; a page whose title is already
+   *  small and muted (/strategies) sets it at body size so the tap target reads. */
+  resumeClassName?: string
   /** Classes of the wrapping <section> (a card, for instance). */
   className?: string
+  /** data-testid of the wrapping <section>. */
+  testId?: string
   titreClassName?: string
   corpsClassName?: string
   children: ReactNode
@@ -60,19 +67,19 @@ export default function Repli({
   }, [id])
 
   return (
-    <section aria-labelledby={id} className={className}>
-      <h2 id={id} className={`scroll-mt-20 ${titreClassName}`}>
+    <section aria-labelledby={id} className={className} data-testid={testId}>
+      <h2 id={id} className={`scroll-mt-24 ${titreClassName}`}>
         <button
           type="button"
           aria-expanded={ouvert}
           aria-controls={corpsId}
           onClick={() => setOuvert(o => !o)}
-          className="sm:hidden flex w-full items-start justify-between gap-3 text-left"
+          className="sm:hidden flex w-full items-start justify-between gap-3 text-left [text-transform:inherit]"
         >
           <span>
             {titre}
             {resume && (
-              <span className="block mt-1 text-xs font-normal normal-case tracking-normal text-muted">
+              <span className={`block mt-1 normal-case tracking-normal ${resumeClassName}`}>
                 {resume}
               </span>
             )}

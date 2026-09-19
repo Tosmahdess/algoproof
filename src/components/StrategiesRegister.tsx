@@ -54,7 +54,9 @@ export default function StrategiesRegister({ groups }: { groups: FicheGroup[] })
   const resultCount = visible.reduce((n, g) => n + g.fiches.length, 0)
 
   return (
-    <div data-testid="strategies-register">
+    // `registre` is where the index's « Aller aux stratégies » link lands on a
+    // computer, where the search sits below the fold (1 141 px on a 900 px screen).
+    <div id="registre" data-testid="strategies-register" className="scroll-mt-20">
       <SearchInput
         value={query}
         onChange={setQuery}
