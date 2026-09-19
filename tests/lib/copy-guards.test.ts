@@ -445,7 +445,10 @@ describe('Investir states facts, and grades nothing', () => {
     // adjectif, et un « 0 sur 7 » a l'air d'une mesure, donc porte plus loin
     // que l'ancien « Comptes solides ». La MENTION du zéro reste permise —
     // c'est le FILTRE qui est refusé — tant qu'elle colle à son dénominateur.
-    const filtre = /aria-pressed[\s\S]{0,200}?(aucune alerte|sans alerte)/i
+    // `<summary` too: since 2026-09-19 the alert chips sit in a <details>,
+    // and its summary comes BEFORE the first chip, ~500 characters after the
+    // previous aria-pressed — a « · sans alerte » written there slipped past.
+    const filtre = /(aria-pressed|<summary)[\s\S]{0,300}?(aucune alerte|sans alerte)/i
     expect(SURFACES.filter(t => filtre.test(t.text)).map(t => t.rel)).toEqual([])
   })
 

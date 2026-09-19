@@ -117,27 +117,44 @@ export default function InvestirListe({
         </button>
       </div>
 
-      <fieldset className="mb-3 border-0 p-0 m-0">
-        <legend className="text-xs font-semibold text-muted mb-2">
-          Alerte relevée dans le dépôt
-        </legend>
-        <div className="flex flex-wrap gap-2">
-          {puces.map(([motif, n]) => (
-            <button
-              key={motif}
-              onClick={() => bascule(motif, alertes, setAlertes)}
-              aria-pressed={alertes.has(motif)}
-              className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
-                alertes.has(motif)
-                  ? 'text-accent border-accent/40 bg-accent/10'
-                  : 'border-border text-muted hover:text-foreground'
-              }`}
-            >
-              {contexte.libelles[motif] ?? motif} ({n})
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      {/* Folded on every screen (user decision 2026-09-19): eight chips with
+          long labels took 400 px on a phone before the list. UNCONTROLLED on
+          purpose — an `open` driven by the selection would fold the block
+          under the finger when its last chip is released. Folded, the summary
+          names the active alerts in clear, in chip order: it counts motifs,
+          never companies, so it cannot turn into a tally. Coverage stays
+          outside, open: it is what shows how much each filing let me read. */}
+      <details className="mb-3">
+        <summary className="cursor-pointer text-xs font-semibold text-muted mb-2">
+          Alerte relevée dans le dépôt · {puces.length} motif{puces.length > 1 ? 's' : ''}
+          {alertes.size > 0 && (
+            <span className="text-accent">
+              {' · '}
+              {puces.filter(([motif]) => alertes.has(motif))
+                .map(([motif]) => contexte.libelles[motif] ?? motif).join(' · ')}
+            </span>
+          )}
+        </summary>
+        <fieldset className="border-0 p-0 m-0">
+          <legend className="sr-only">Alerte relevée dans le dépôt</legend>
+          <div className="flex flex-wrap gap-2">
+            {puces.map(([motif, n]) => (
+              <button
+                key={motif}
+                onClick={() => bascule(motif, alertes, setAlertes)}
+                aria-pressed={alertes.has(motif)}
+                className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
+                  alertes.has(motif)
+                    ? 'text-accent border-accent/40 bg-accent/10'
+                    : 'border-border text-muted hover:text-foreground'
+                }`}
+              >
+                {contexte.libelles[motif] ?? motif} ({n})
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      </details>
 
       <fieldset className="mb-4 border-0 p-0 m-0">
         <legend className="text-xs font-semibold text-muted mb-2">
