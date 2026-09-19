@@ -39,6 +39,7 @@ export default function Repli({
   aside,
   asideClassName = 'flex items-center justify-between gap-3 flex-wrap',
   entete,
+  ouvertParDefaut = false,
   titreClassName = 'text-xl font-semibold',
   corpsClassName = 'mt-3',
   children,
@@ -63,11 +64,14 @@ export default function Repli({
    *  block must still say (ConformityCard: its verdict sentence, so a folded
    *  card never shows a bare status badge). */
   entete?: ReactNode
+  /** Start open, on a phone too. For a block whose visible lead points INTO
+   *  its body (ConformityCard in breach: « écrit sous la règle concernée »). */
+  ouvertParDefaut?: boolean
   titreClassName?: string
   corpsClassName?: string
   children: ReactNode
 }) {
-  const [ouvert, setOuvert] = useState(false)
+  const [ouvert, setOuvert] = useState(ouvertParDefaut)
   const corpsId = `${id}-corps`
 
   useEffect(() => {

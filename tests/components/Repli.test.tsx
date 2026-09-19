@@ -81,6 +81,15 @@ describe('Repli', () => {
     expect(verdict.compareDocumentPosition(corps) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
+  it('can start open, and still fold on tap', () => {
+    render(<Repli id="o" titre="T" ouvertParDefaut><p>Corps ouvert.</p></Repli>)
+    const bouton = screen.getByRole('button')
+    expect(bouton.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByText('Corps ouvert.').parentElement!.className).not.toContain('max-sm:hidden')
+    fireEvent.click(bouton)
+    expect(screen.getByText('Corps ouvert.').parentElement!.className).toContain('max-sm:hidden')
+  })
+
   it('names its section after its heading', () => {
     const { container } = monter()
 

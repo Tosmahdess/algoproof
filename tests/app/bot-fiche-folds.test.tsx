@@ -35,8 +35,9 @@ const day = (i: number): PerfDaily => ({
   capital: 1000 + i, pnl_day: 1, win_rate: null,
 } as PerfDaily)
 
-async function monter(nTrades: number) {
-  const trades = Array.from({ length: nTrades }, (_, i) => trade(i + 1))
+async function monter(nTrades: number, nShorts = 0) {
+  const trades = Array.from({ length: nTrades }, (_, i) =>
+    i < nShorts ? { ...trade(i + 1), side: 'short' as const } : trade(i + 1))
   current.bot = prodBot('v1-spot', {
     status: 'live', live_since: '2026-04-17T00:00:00Z',
     recent_trades: trades, all_trades: trades,
@@ -64,6 +65,16 @@ describe('/strategies/bot/[slug] — recent trades on a phone', () => {
     within(tableau).getAllByRole('row').forEach(r => expect(r.className).not.toContain('max-sm:hidden'))
   })
 
+  it('follows a filter down to five rows or fewer, and back', async () => {
+    // Final review 2026-09-19: the limit is recomputed from what the filter
+    // shows; the choice « all of them » is not needed to get the button back.
+    await monter(20, 3)
+    fireEvent.click(screen.getByRole('button', { name: /^Short/ }))
+    expect(screen.queryByRole('button', { name: /Voir les/ })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /^Tous/ }))
+    expect(screen.getByRole('button', { name: /Voir les 20 derniers/ })).toBeTruthy()
+  })
+
   it('offers nothing when five rows or fewer', async () => {
     await monter(4)
     expect(screen.queryByRole('button', { name: /Voir les/ })).toBeNull()
@@ -73,14 +84,13 @@ describe('/strategies/bot/[slug] — recent trades on a phone', () => {
 
 describe('/strategies/bot/[slug] — share, order, live date', () => {
   it('folds the share block on every screen, in a closed <details>', async () => {
-    const { container } = await monter(3)
+    await monter(3)
     const titre = screen.getByRole('heading', { level: 2, name: /Partager ce bot/ })
     const details = titre.closest('details')!
     expect(details).toBeTruthy()
     expect(details.open).toBe(false)
     expect(titre.closest('summary')).toBeTruthy()
     expect(details.textContent).toContain('/embed/v1-spot')
-    expect(container.querySelectorAll('details').length).toBeGreaterThan(0)
   })
 
   it('puts the capital simulator after what the bot does', async () => {

@@ -47,6 +47,10 @@ export default function ConformityCard({
   return (
     <Repli
       id="conformite"
+      // In breach the verdict sentence points at the rules (« écrit sous la
+      // règle concernée ») or admits no decision: the rules must be in view.
+      // ORB is in that state (final review 2026-09-19).
+      ouvertParDefaut={result.status === 'breach'}
       titre="📏 Conformité au backtest"
       className="bg-card border border-border rounded-lg p-6 mb-8"
       titreClassName="text-xl font-semibold"

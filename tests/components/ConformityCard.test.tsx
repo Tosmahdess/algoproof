@@ -168,3 +168,37 @@ describe('ConformityCard header on a phone', () => {
     expect(screen.getByText('Dans l’enveloppe').closest('span.inline-flex')!.className).toContain('self-start')
   })
 })
+
+// Final review 2026-09-19: in breach, the verdict sentence points at the rule
+// (« écrit sous la règle concernée ») or admits there is no decision — and the
+// rules sit in the folded body. ORB is in exactly this state in production. A
+// breached card therefore opens by itself, on a phone too.
+describe('ConformityCard in breach opens by itself', () => {
+  const breached = { profit_factor: 0.9, max_drawdown: 0.3, total_trades: 40 }
+  const decided: BotExpectations = {
+    ...exp,
+    decisions: [{ rule: 'DD > 15 % → gel du bot.', date: '2026-09-19', status: 'pending',
+      scope: 'x', text: 'Décision en suspens.' }],
+  }
+
+  for (const [nom, attentes] of [['with a decision', decided], ['without one', exp]] as const) {
+    it(`opens, badge and verdict outside the body, ${nom}`, () => {
+      render(<ConformityCard expectations={attentes} stats={breached} />)
+      expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('true')
+      const corps = document.getElementById('conformite-corps')!
+      expect(corps.className).not.toContain('max-sm:hidden')
+      expect(corps.contains(screen.getByText('Hors enveloppe'))).toBe(false)
+      expect(corps.contains(screen.getByText(/^Le réalisé sort de l’enveloppe/))).toBe(false)
+      expect(corps.contains(screen.getByText('DD > 15 % → gel du bot.'))).toBe(true)
+    })
+  }
+
+  it('stays folded on a phone when it is only under watch or too early', () => {
+    for (const stats of [{ profit_factor: 1.25, max_drawdown: 0.14, total_trades: 40 },
+                         { profit_factor: 0, max_drawdown: 0.01, total_trades: 3 }]) {
+      const { unmount } = render(<ConformityCard expectations={exp} stats={stats} />)
+      expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('false')
+      unmount()
+    }
+  })
+})
