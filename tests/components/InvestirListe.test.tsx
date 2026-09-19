@@ -150,6 +150,53 @@ describe('InvestirListe', () => {
     expect(noms().join(' ')).not.toContain('HASBRO')
   })
 
+  it('folds the alert filters on every screen, closed at first render', () => {
+    // Eight chips with long labels took 400 px on a phone before the list.
+    // User decision 2026-09-19: a drilldown, on the computer too.
+    const { container } = monter()
+
+    const repli = container.querySelector('details')!
+    expect(repli).toBeTruthy()
+    expect(repli.open).toBe(false)
+    expect(repli.querySelector('summary')!.textContent).toMatch(
+      /Alerte relevée dans le dépôt · 2 motifs/,
+    )
+    expect(repli.contains(screen.getByRole('button', { name: /pertes récurrentes/ }))).toBe(true)
+  })
+
+  it('names the active alerts in clear in the folded summary, never a company count', () => {
+    const { container } = monter()
+
+    fireEvent.click(screen.getByRole('button', { name: /pertes récurrentes.*\(2\)/ }))
+
+    const resume = container.querySelector('summary')!.textContent ?? ''
+    expect(resume).toContain('pertes récurrentes (2 exercices sur 3)')
+    // The chip carries « (2) » companies; the summary must not turn it into a tally.
+    expect(resume).not.toMatch(/\(\d+\)/)
+    expect(resume).not.toMatch(/sociétés?/)
+  })
+
+  it('does not close under the finger when the last chip is unticked', () => {
+    // Uncontrolled on purpose: an `open` driven by the selection would fold
+    // the block the moment its last chip is released.
+    const { container } = monter()
+    const repli = container.querySelector('details')!
+    repli.open = true
+
+    const puce = screen.getByRole('button', { name: /pertes récurrentes.*\(2\)/ })
+    fireEvent.click(puce)
+    fireEvent.click(puce)
+
+    expect(repli.open).toBe(true)
+  })
+
+  it('leaves the coverage filter open: it is what shows how much was read', () => {
+    const { container } = monter()
+
+    const couverture = screen.getByRole('button', { name: /5 contrôles lus \(1\)/ })
+    expect(container.querySelector('details')!.contains(couverture)).toBe(false)
+  })
+
   it("n'affiche plus jamais la mention « sans ancre »", () => {
     // Elle testait `anchor !== 'mesuree'` ; `anchor` vaut désormais `null`
     // partout, donc la mention serait vraie sur les 1 407 lignes. Une

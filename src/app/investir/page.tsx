@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ExplainerBox from '@/components/ExplainerBox'
+import Repli from '@/components/Repli'
 import { CreuxDachat } from '@/components/CreuxDachat'
 import InvestirListe from '@/components/InvestirListe'
 import { asOf, contexte, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
@@ -9,6 +10,18 @@ import { longDate } from '@/lib/format-date'
 // Rendu statique. Le paquet est un fichier commité : la page ne dépend d'aucun
 // service, et le contenu publié se relit dans l'historique du dépôt.
 export const dynamic = 'force-static'
+
+// The seven controls, as the engine applies them. Kept word for word from the
+// <pre> they replace.
+const SEPT_CONTROLES = [
+  ['pertes', '2 exercices en perte sur 3, ou un seul'],
+  ["chiffre d'affaires", "sous son niveau d'il y a deux ans"],
+  ['résultat', "sous son niveau d'il y a deux ans"],
+  ['dilution', 'actions +10 % en deux ans'],
+  ['capitaux propres', 'négatifs'],
+  ['dette long terme', 'nette de la trésorerie, au-dessus du double de la médiane de son secteur'],
+  ['trésorerie', 'face aux pertes du dernier exercice'],
+] as const
 
 export default function InvestirPage() {
   const lignes = listeInvestir()
@@ -45,6 +58,12 @@ export default function InvestirPage() {
         <p className="text-xs text-muted mt-3">
           Dernier calcul le {longDate(asOf)}.
         </p>
+        {/* The list starts two screens below the fold on a computer, and
+            further on a phone even with the explanations folded. */}
+        <a href="#societes"
+           className="inline-block mt-3 text-sm text-muted hover:text-foreground transition-colors">
+          Aller aux sociétés ↓
+        </a>
       </div>
 
       {/* Aucune de ces trois cartes ne compte les sociétés SANS alerte, et ce
@@ -68,10 +87,16 @@ export default function InvestirPage() {
 
       <CreuxDachat index={lignes} />
 
-      <section aria-labelledby="mots-investir">
-        <h2 id="mots-investir" className="text-xl font-semibold mb-2">
-          Les mots employés dans les fiches
-        </h2>
+      {/* The four long explanatory blocks below fold on a phone and stay as
+          they were on a computer (Repli, user decision 2026-09-19): on a 390 px
+          phone the company search came after ~3 000 px of explanation. The
+          hero, the counts and the recent dips stay open. */}
+      <Repli
+        id="mots-investir"
+        titre="Les mots employés dans les fiches"
+        resume={`${INVESTIR_VOCAB.length} termes`}
+        corpsClassName="mt-2"
+      >
         <p className="text-sm text-muted leading-relaxed mb-4">
           Je garde les mots des comptes, mais voici ce qu’ils veulent dire ici.
         </p>
@@ -83,13 +108,16 @@ export default function InvestirPage() {
             </div>
           ))}
         </dl>
-      </section>
+      </Repli>
 
       {dehors.length > 0 && (
-        <section className="rounded-lg border border-border bg-card px-5 py-4">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
-            {dehors.length} sociétés que je ne lis pas
-          </h2>
+        <Repli
+          id="hors-perimetre"
+          titre={`${dehors.length} sociétés que je ne lis pas`}
+          className="rounded-lg border border-border bg-card px-5 py-4"
+          titreClassName="text-sm font-semibold uppercase tracking-widest text-muted"
+          corpsClassName="mt-2"
+        >
           <p className="text-xs text-muted leading-relaxed mb-3">
             Elles ne déposent pas de rapport annuel auprès du régulateur
             américain, donc ma règle n’a aucun document à lire. Je les suis
@@ -105,11 +133,14 @@ export default function InvestirPage() {
               </Link>
             ))}
           </div>
-        </section>
+        </Repli>
       )}
 
-      <section>
-        <h2 className="text-xl font-semibold mb-3">Ce que je contrôle, et ce que je ne sais pas</h2>
+      <Repli
+        id="methode"
+        titre="Ce que je contrôle, et ce que je ne sais pas"
+        resume="La méthode, les sept contrôles et leurs limites"
+      >
         <ExplainerBox
           stacked
           functional={
@@ -138,32 +169,40 @@ export default function InvestirPage() {
             </div>
           }
           technical={
-            <pre className="text-[11px] leading-relaxed overflow-x-auto">
-{`1. pertes             2 exercices en perte sur 3, ou un seul
-2. chiffre d'affaires sous son niveau d'il y a deux ans
-3. résultat           sous son niveau d'il y a deux ans
-4. dilution           actions +10 % en deux ans
-5. capitaux propres   négatifs
-6. dette long terme   nette de la trésorerie, au-dessus du
-                      double de la médiane de son secteur
-7. trésorerie         face aux pertes du dernier exercice
-
-lu / non lu par contrôle, sur ses propres entrées
-aucun score, aucune moyenne, aucun adjectif`}
-            </pre>
+            // Was a <pre>: on a phone overflow-x clipped every line
+            // (« 2 exercices en perte sur 3, ou un s… »). Items wrap instead.
+            <div className="text-xs leading-relaxed space-y-3">
+              <ol aria-label="Les sept contrôles" className="space-y-1.5">
+                {SEPT_CONTROLES.map(([nom, regle], i) => (
+                  <li key={nom} className="grid grid-cols-[1.25rem_1fr] sm:grid-cols-[1.25rem_9.5rem_1fr] gap-x-2">
+                    <span className="text-muted font-mono">{i + 1}.</span>
+                    <span className="font-semibold text-foreground">{nom}</span>
+                    <span className="col-start-2 sm:col-start-auto text-muted">{regle}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="text-muted">
+                lu / non lu par contrôle, sur ses propres entrées
+                <br />
+                aucun score, aucune moyenne, aucun adjectif
+              </p>
+            </div>
           }
         />
-      </section>
+      </Repli>
 
       <section>
-        <h2 className="text-xl font-semibold mb-3">Les sociétés</h2>
+        <h2 id="societes" className="text-xl font-semibold mb-3 scroll-mt-20">Les sociétés</h2>
         <InvestirListe lignes={lignes} contexte={contexte} />
       </section>
 
-      <section className="rounded border border-border bg-card px-5 py-4 space-y-2 text-sm text-muted leading-relaxed">
-        <h2 className="text-base font-semibold text-foreground">
-          Ce que cette liste ne contient pas, et pourquoi
-        </h2>
+      <Repli
+        id="hors-liste"
+        titre="Ce que cette liste ne contient pas, et pourquoi"
+        className="rounded border border-border bg-card px-5 py-4 text-sm text-muted leading-relaxed"
+        titreClassName="text-base font-semibold text-foreground"
+        corpsClassName="mt-2 space-y-2"
+      >
         <p>
           La règle ne lit que des rapports annuels déposés auprès du régulateur américain,
           la SEC. LVMH, Hermès, Kering, Roche, Nestlé, Nintendo, Rheinmetall, Thales ou
@@ -186,7 +225,7 @@ aucun score, aucune moyenne, aucun adjectif`}
           Mon travail d’analyse, publié en transparence. Ce n’est pas un conseil en
           investissement.
         </p>
-      </section>
+      </Repli>
     </main>
   )
 }
