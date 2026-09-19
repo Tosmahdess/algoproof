@@ -2,7 +2,7 @@
 // and publishes the bot's kill criteria. Server-safe (pure props, no client state);
 // the fold itself is Repli, a client island.
 //
-// 2026-09-19 (D056): on a phone the card took 772 px of v1-spot. The table,
+// 2026-09-19 (D057): on a phone the card took 772 px of v1-spot. The table,
 // the kill criteria and the source fold there; the title, the status badge,
 // the one-line method note and the verdict sentence stay visible (Repli's
 // `aside` and `entete`), so a folded card never shows a bare « Dans

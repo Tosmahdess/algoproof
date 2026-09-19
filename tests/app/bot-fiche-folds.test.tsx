@@ -1,6 +1,6 @@
 // tests/app/bot-fiche-folds.test.tsx
 //
-// 2026-09-19 (D056): the bot fiche on a phone. What a reader comes for
+// 2026-09-19 (D057): the bot fiche on a phone. What a reader comes for
 // (metrics, curve) was not buried, unlike /investir and /strategies; the mass
 // was AFTER it. This file pins the page-level decisions: the recent trades
 // show five rows on a phone, the share block folds on every screen, the
