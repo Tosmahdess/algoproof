@@ -1,0 +1,50 @@
+# 051 legacy map rebuilt base by base, 2026-09-19 ~20:55 UTC.
+# The single all-bases call earlier that evening filled the Supabase disk with temp files
+# (DiskFull, 19:04 UTC). Recovered by VACUUM FULL of survivor_family_member_jsonb (700 -> 435 MB).
+bases in rows mode: 42 | db: 435 MB
+ADXRegime            0.1s inserted=0 mismatch=0 no_row=0 db=435 MB
+ATRChannel           4.3s inserted=12788 mismatch=0 no_row=0 db=438 MB
+AwesomeOsc           0.2s inserted=614 mismatch=0 no_row=0 db=438 MB
+BBSqueeze            1.2s inserted=3443 mismatch=0 no_row=0 db=440 MB
+CCIExtremes          1.7s inserted=5049 mismatch=0 no_row=0 db=441 MB
+ChandelierExit       5.6s inserted=15880 mismatch=0 no_row=0 db=446 MB
+ConnorsRSI           0.5s inserted=944 mismatch=0 no_row=0 db=446 MB
+DonchianBreakout     2.6s inserted=5731 mismatch=0 no_row=0 db=447 MB
+EMAcross             1.8s inserted=5345 mismatch=0 no_row=0 db=448 MB
+EMARibbon            1.4s inserted=4133 mismatch=0 no_row=0 db=450 MB
+Engulfing            0.5s inserted=1019 mismatch=0 no_row=0 db=450 MB
+FVG                  0.0s inserted=0 mismatch=0 no_row=0 db=450 MB
+HeikinAshiTrend      3.7s inserted=9289 mismatch=0 no_row=0 db=453 MB
+HMAcross             9.4s inserted=20772 mismatch=0 no_row=0 db=458 MB
+HurstRegime          0.0s inserted=0 mismatch=0 no_row=0 db=458 MB
+Ichimoku             1.8s inserted=4405 mismatch=0 no_row=0 db=459 MB
+IFVG                 2.0s inserted=5370 mismatch=0 no_row=0 db=461 MB
+InsideBarBreakout    0.0s inserted=6 mismatch=0 no_row=0 db=461 MB
+KAMAcross            3.3s inserted=8787 mismatch=0 no_row=0 db=463 MB
+KeltnerBreak         4.6s inserted=13377 mismatch=0 no_row=0 db=467 MB
+LiqSweep             0.4s inserted=609 mismatch=0 no_row=0 db=467 MB
+MACDVolume           1.6s inserted=3800 mismatch=0 no_row=0 db=469 MB
+MACSimple            1.7s inserted=4635 mismatch=0 no_row=0 db=470 MB
+MSS                  1.5s inserted=5013 mismatch=0 no_row=0 db=472 MB
+ORB                  0.7s inserted=1576 mismatch=0 no_row=0 db=472 MB
+OrderBlock           0.0s inserted=0 mismatch=0 no_row=0 db=472 MB
+OscDivergence        0.0s inserted=0 mismatch=0 no_row=0 db=472 MB
+ParabolicSAR         1.3s inserted=3815 mismatch=0 no_row=0 db=473 MB
+PinBarReversal       0.1s inserted=291 mismatch=0 no_row=0 db=473 MB
+PremiumDiscount      0.0s inserted=50 mismatch=0 no_row=0 db=473 MB
+ROC                  1.9s inserted=5761 mismatch=0 no_row=0 db=475 MB
+RSI2                 1.9s inserted=3962 mismatch=0 no_row=0 db=476 MB
+SupertrendADX        0.1s inserted=63 mismatch=0 no_row=0 db=476 MB
+TEMAcross            3.5s inserted=10198 mismatch=0 no_row=0 db=479 MB
+TrendPullback        2.3s inserted=6773 mismatch=0 no_row=0 db=480 MB
+TSI                  1.0s inserted=3629 mismatch=0 no_row=0 db=481 MB
+TTMSqueeze           0.4s inserted=1410 mismatch=0 no_row=0 db=482 MB
+VolRegime            0.0s inserted=5 mismatch=0 no_row=0 db=482 MB
+VolumeSeqRetest      0.2s inserted=614 mismatch=0 no_row=0 db=482 MB
+WilliamsPR           1.8s inserted=5222 mismatch=0 no_row=0 db=483 MB
+WilliamsVolBreak     5.1s inserted=8886 mismatch=0 no_row=0 db=485 MB
+ZScoreReversal       1.1s inserted=549 mismatch=0 no_row=0 db=485 MB
+TOTAL {'inserted': 183813, 'recipe_mismatch': 0, 'no_row_at_position': 0, 'repointed': 0}
+map rows: 183836
+inconsistent mapped ids: 0
+postmaster: 2026-09-18 10:57:26.614390+00:00

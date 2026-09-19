@@ -1,0 +1,12 @@
+# 052 survivor_rows read switch applied to production 2026-09-19 (psycopg2 from apex-vps)
+BEFORE postmaster: 2026-09-18 10:57:26.614390+00:00 | engine_telemetry sessions: 0 | rows-mode units: 1 | relkind: r
+APPLIED 052 in 0.176 s (incl. network). notices:
+
+VERIFICATION
+1 relkind: v (want v)
+2 anon/auth: [(False, False)] (want f,f)
+3 disjoint: 0 (want 0)
+4 rows-mode units with wrong member count: [] (want [])
+5 total members via view: 189416
+vacuum analyze done in 36.0 s
+postmaster unchanged: True

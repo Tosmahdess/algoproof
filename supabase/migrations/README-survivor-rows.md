@@ -49,8 +49,14 @@ replay window for every dataset except `data_20260802` (`LEGACY_WINDOWS` in
 ### 3. M2 — `051`, then build the map
 
 ```sql
-select public.survivor_id_legacy_map_rebuild();
+-- one base per call, never the whole corpus at once
+select public.survivor_id_legacy_map_rebuild('<base>');
 ```
+
+**Base by base.** On 2026-09-19 the single all-bases call (188 550 rows) filled the Supabase
+disk with temp files (DiskFull, instance read-write again after a `VACUUM FULL` of
+`survivor_family_member_jsonb`). Called once per base it took 0 to 9 s each and grew the
+database by 50 MB in total (`manual/logs/2026-09-19_051_map_rebuild_by_base.txt`).
 
 `recipe_mismatch = 0` and `no_row_at_position = 0`, or stop. Rebuild again after any
 backfill or before 052; it is idempotent and sticky (it never re-points an id it has

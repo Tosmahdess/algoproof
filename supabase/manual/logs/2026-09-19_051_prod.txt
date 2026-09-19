@@ -1,0 +1,9 @@
+# 051 survivor_id_legacy_map applied to production 2026-09-19 (psycopg2 from apex-vps)
+BEFORE postmaster: 2026-09-18 10:57:26.614390+00:00 | map exists: False
+APPLIED 051. notices:
+
+REBUILD: {'stale': 0, 'units': 1, 'joined': 23, 'inserted': 23, 'repointed': 0, 'legacy_ids': 23, 'minted_here': 23, 'recipe_mismatch': 0, 'no_row_at_position': 0}
+anon/auth select on map: [(False, False)] (want f,f)
+map rows: 23
+inconsistent mapped ids: 0 (want 0)
+postmaster unchanged: True
