@@ -88,19 +88,20 @@ describe('the paid Investir offer has one description', () => {
   // sa raison courte et les comptes », « le verdict et la raison qui va avec »,
   // « le verdict de chacune de mes analyses »…). One wording, shared with the
   // lab, and scoped: it only holds on the companies the rule grades.
-  it('the free part has one wording, scoped to the companies I grade, on every surface that names it', () => {
-    const FREE = /la note, le verdict et sa raison, les chiffres et les comptes/i
-    const SCOPE = /sur les sociétés que je note/i
+  //
+  // 2026-09-19 (D058): the grade and the verdict left the Investir fiches on
+  // 2026-09-15, and this sentence kept promising them on /faq, /preuve,
+  // /a-propos, RecitInvestir and the lab's terms. It now names what a fiche
+  // shows, in plain French; the lab pins the same words.
+  it('the free part has one wording, scoped to the companies whose accounts I read, on every surface that names it', () => {
+    const FREE = /les sept contrôles et leurs alertes, les chiffres et le rapport annuel/i
+    const SCOPE = /sur les sociétés dont je lis les comptes/i
     const SURFACES = ['src/app/faq/page.tsx', 'src/app/preuve/page.tsx', 'src/app/a-propos/page.tsx']
-    expect(filesMatching(FREE)).toEqual(expect.arrayContaining(SURFACES))
+    expect(filesMatching(FREE)).toEqual(expect.arrayContaining([...SURFACES, 'src/components/RecitInvestir.tsx']))
     expect(filesMatching(SCOPE)).toEqual(expect.arrayContaining(SURFACES))
-    // Any « verdict, sa raison » / « verdict et la raison » that does not go on
-    // with « , les chiffres et les comptes » is another version of the free
-    // part, and so is a bare « note, (le) verdict » list.
-    expect(filesMatching(/verdict(?:,| et)\s+(?:sa|la)\s+raison(?!, les chiffres et les comptes)/i)).toEqual([])
-    expect(filesMatching(/\bnote,\s+(?:le\s+)?verdict\b(?!\s+et\s+sa\s+raison)/i)).toEqual([])
-    // « double : » in /preuve: « Sur les sociétés que je note : deux paragraphes… : »
-    expect(filesMatching(/Sur les sociétés que je note : deux paragraphes/)).toEqual([])
+    // The retired enumeration, in any of its forms, is gone everywhere.
+    expect(filesMatching(/verdict(?:,| et)\s+(?:sa|la)\s+raison/i)).toEqual([])
+    expect(filesMatching(/\bnote,\s+(?:le\s+)?verdict\b/i)).toEqual([])
   })
 
   it('the canonical sentence is on every surface that sells the offer', () => {
@@ -241,7 +242,7 @@ describe('Investir is described as the page it is', () => {
     const card = home.match(/\{ href: '([^']*)', emoji: '[^']*', title: 'Investir', desc: '([^']*)' \}/)
     expect(card, 'the Investir card').toBeTruthy()
     expect(card![1]).toBe('/investir')
-    expect(card![2]).toBe('Les comptes de sociétés cotées, notés par une règle que tu peux refaire toi-même, rapport annuel en main.')
+    expect(card![2]).toBe('Les comptes de sociétés cotées, lus par sept contrôles que tu peux refaire toi-même, rapport annuel en main.')
   })
 
   it('no surface describes Investir as a DCA on crypto, ETFs and shares', () => {
@@ -253,7 +254,7 @@ describe('Investir is described as the page it is', () => {
     const card = page.match(/\{ href: '([^']*)', title: 'Investir', desc: '([^']*)' \}/)
     expect(card, 'the Investir card').toBeTruthy()
     expect(card![1]).toBe('/investir')
-    expect(card![2]).toMatch(/comptes de sociétés cotées, notés par une règle que tu peux refaire/)
+    expect(card![2]).toMatch(/comptes de sociétés cotées, lus par sept contrôles que tu peux refaire/)
     expect(card![2]).not.toMatch(/\d/)
   })
 })
@@ -289,8 +290,10 @@ describe('no surface points at a reference price the fiche does not show', () =>
     expect(filesMatching(/Je peux détenir les titres dont je parle/)).toEqual([])
     expect(filesMatching(/c(?:\\'|'|’|&apos;)est même en général la raison pour laquelle je les suis/)).toEqual([])
     const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
+    // « notés » became « cités » on 2026-09-19 (D058), approved by the author:
+    // the fiches no longer grade anything.
     expect(block).toMatch(
-      /Je peux détenir certains des titres notés ici, en particulier ceux de ma liste de suivi\./,
+      /Je peux détenir certains des titres cités ici, en particulier ceux de ma liste de suivi\./,
     )
   })
 
@@ -298,7 +301,7 @@ describe('no surface points at a reference price the fiche does not show', () =>
     expect(filesMatching(/ma propre liste de suivi long terme et sur mes versements mensuels/)).toEqual([])
     const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
     expect(block).toMatch(new RegExp(
-      `Je note bien plus de sociétés que je n${APOS}en suis pour moi : ma liste de suivi long terme n${APOS}en est qu${APOS}une petite partie\\.`,
+      `Je lis les comptes de bien plus de sociétés que je n${APOS}en suis pour moi : ma liste de suivi long terme n${APOS}en est qu${APOS}une petite partie\\.`,
     ))
   })
 })

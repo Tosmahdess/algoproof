@@ -16,7 +16,7 @@ const PIECES = [
   // page removed on 2026-09-09 and redirected to /investir. It now describes
   // the page it opens. No company count here: it changes with every export,
   // and a number typed by hand goes stale silently.
-  { href: '/investir',     title: 'Investir',   desc: 'Les comptes de sociétés cotées, notés par une règle que tu peux refaire toi-même, rapport annuel en main.' },
+  { href: '/investir',     title: 'Investir',   desc: 'Les comptes de sociétés cotées, lus par sept contrôles que tu peux refaire toi-même, rapport annuel en main.' },
   { href: '/intelligence', title: 'Météo du marché', desc: 'La météo du marché que je calcule chaque jour : risque ON ou OFF, en français.' },
   { href: '/blog',         title: 'Apprendre',  desc: 'Mon journal, ma méthode, la fiscalité et la conformité MiCA : tout est documenté.' },
 ]
@@ -67,14 +67,15 @@ export default function AProposPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Gratuit ou payant ?</h2>
         <p className="text-muted leading-relaxed">
-          Regarder est gratuit : trades, pertes, courbes, historique, cimetière. Sur les sociétés que je note,
-          la note, le verdict et sa raison, les chiffres et les comptes le sont aussi. Le{' '}
+          Regarder est gratuit : trades, pertes, courbes, historique, cimetière. Sur les sociétés dont je lis
+          les comptes, les sept contrôles et leurs alertes, les chiffres et le rapport annuel le sont
+          aussi. Le{' '}
           <a href="https://lab.algoproof.fr" className="text-accent">labo</a> s&apos;ouvre sans compte, et un compte
           gratuit permet de lancer des backtests avec des quotas. L&apos;adhésion à 29 € par mois lève ces quotas et
           ouvre le reste : la configuration exacte des bots et leur dossier de validation, deux paragraphes
           d&apos;analyse par société, et les fonctions de calcul du labo. Jamais les résultats, qui restent publics
           et gratuits.{' '}
-          <Link href="/preuve" className="text-accent">Où passera la ligne, en détail →</Link>
+          <Link href="/preuve#gratuit" className="text-accent">Où passera la ligne, en détail →</Link>
         </p>
       </section>
     </main>

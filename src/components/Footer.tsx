@@ -14,7 +14,7 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
   {
     title: 'Investir',
     links: [
-      { href: '/investir',        label: 'Les sociétés que je note' },
+      { href: '/investir',        label: 'Les sociétés dont je lis les comptes' },
     ],
   },
   {

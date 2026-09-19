@@ -19,12 +19,15 @@ export default function PreuvePage() {
         </p>
       </header>
 
-      <section>
+      <section id="validation" className="scroll-mt-24">
         <h2 className="text-xl font-semibold mb-3">Comment je valide une stratégie</h2>
         {/* Which rule applies to which bots: the list below is my own gate, and the
-            engine-born bots pass its gauntlet on top of it (Fable review 2026-09-12). */}
+            engine-born bots pass its gauntlet on top of it (Fable review 2026-09-12).
+            2026-09-19: the intro said « the bots I deployed by hand » while two
+            of the four points spoke of the engine. Author's answer: one rule
+            for every bot, so the intro says so and the points drop « moteur ». */}
         <p className="text-sm text-muted leading-relaxed mb-3">
-          Les bots que j&apos;ai déployés à la main suivent la règle ci-dessous. Ceux qui
+          Tout ce que je déploie suit la règle ci-dessous. Les bots qui
           sortent de mon moteur passent en plus les quatre épreuves de son gantelet,
           expliquées sur <Link href="/strategies" className="text-accent">la page des stratégies</Link>.
         </p>
@@ -35,13 +38,13 @@ export default function PreuvePage() {
               failing it alone gives « en sursis », published, not a rejection. Its costs are
               fees plus a fixed slippage and a flat, unsigned funding, with no spread
               (config.py Costs, validation/costs.py). */}
-          <li><strong>Walk-forward</strong> : dans mon moteur, ce n&apos;est pas un test hors échantillon. Je regarde le pire trimestre de l&apos;historique qui a servi à choisir la stratégie. S&apos;il est trop faible, elle est recalée, ou mise en sursis si c&apos;est la seule épreuve qu&apos;elle rate.</li>
-          <li>Coûts inclus dès le backtest du moteur : frais et slippage fixes, plus un funding forfaitaire de 0,03 % par jour, compté comme un coût quel que soit le sens de la position. Le spread n&apos;est pas modélisé.</li>
+          <li><strong>Walk-forward</strong> : chez moi, ce n&apos;est pas un test hors échantillon. Je regarde le pire trimestre de l&apos;historique qui a servi à choisir la stratégie. S&apos;il est trop faible, elle est recalée, ou mise en sursis si c&apos;est la seule épreuve qu&apos;elle rate.</li>
+          <li>Coûts inclus dès le backtest : frais et slippage fixes, plus un funding forfaitaire de 0,03 % par jour, compté comme un coût quel que soit le sens de la position. Le spread n&apos;est pas modélisé.</li>
           <li>Déploiement d&apos;abord en <a href="/lexique#paper-trading" className="text-accent">paper trading</a>, puis en argent réel seulement si ça tient.</li>
         </ul>
       </section>
 
-      <section>
+      <section id="pertes" className="scroll-mt-24">
         <h2 className="text-xl font-semibold mb-3">Pourquoi je montre chaque perte</h2>
         <p className="text-muted leading-relaxed">
           Montrer uniquement ses gains, c&apos;est facile et ça ne prouve rien. J&apos;expose donc les drawdowns,
@@ -51,7 +54,7 @@ export default function PreuvePage() {
         </p>
       </section>
 
-      <section>
+      <section id="gratuit" className="scroll-mt-24">
         <h2 className="text-xl font-semibold mb-3">Ce qui est gratuit, ce qui le reste, et ce qui ne l&apos;est pas</h2>
         {/* Cette section disait « je ne donnerai pas mes réglages : c'est la seule
             chose que je vendrai » pendant que les CGV du labo, elles, ne vendaient
@@ -63,14 +66,15 @@ export default function PreuvePage() {
           Tout ce que mes bots font restera public, gratuitement, pour toujours :
           leurs trades, leurs pertes, leur historique, et le cimetière des
           stratégies que j&apos;ai tuées. Tu pourras toujours les voir tourner, avec
-          leurs chiffres. Même chose sur les sociétés que je note : la note, le verdict
-          et sa raison, les chiffres et les comptes sont ouverts, et ils le resteront.
+          leurs chiffres. Même chose sur les sociétés dont je lis les comptes : les
+          sept contrôles et leurs alertes, les chiffres et le rapport annuel
+          sont ouverts, et ils le resteront.
         </p>
         <p className="text-sm mb-3">
           Ce qui se paie, c&apos;est comment j&apos;y suis arrivé. Pour un bot :
           la configuration exacte, les paramètres, les filtres, et la preuve étape par
           étape de la façon dont cette configuration a été retenue contre les milliers
-          de voisines qui sont mortes. Sur les sociétés que je note, deux paragraphes
+          de voisines qui sont mortes. Sur les sociétés dont je lis les comptes, deux paragraphes
           d&apos;analyse par société : ce que ses chiffres veulent dire pour son métier,
           et ce qui peut mal tourner. Et le labo lui-même, l&apos;outil avec lequel je produis tout
           ça, sans quota journalier et avec ses grilles.

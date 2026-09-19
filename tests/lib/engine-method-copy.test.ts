@@ -284,7 +284,9 @@ describe('the exact wording is where the old sentence was', () => {
 
   it('/preuve: the walk-forward is not out-of-sample and failing it alone is « en sursis »', () => {
     const preuve = fileText('src/app/preuve/page.tsx')
-    expect(preuve).toMatch(/dans mon moteur, ce n'est pas un test hors échantillon/)
+    // 2026-09-19 (D058): the author states one rule for every bot, so the
+    // point no longer says « dans mon moteur ». The mechanics stay pinned.
+    expect(preuve).toMatch(/chez moi, ce n'est pas un test hors échantillon/)
     expect(preuve).toMatch(/pire trimestre de l'historique qui a servi à choisir la stratégie/)
     expect(preuve).toMatch(/mise en sursis si c'est la seule épreuve qu'elle rate/)
   })
