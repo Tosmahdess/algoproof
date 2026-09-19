@@ -68,7 +68,7 @@ export default function Repli({
 
   return (
     <section aria-labelledby={id} className={className} data-testid={testId}>
-      <h2 id={id} className={`scroll-mt-20 ${titreClassName}`}>
+      <h2 id={id} className={`scroll-mt-24 ${titreClassName}`}>
         <button
           type="button"
           aria-expanded={ouvert}

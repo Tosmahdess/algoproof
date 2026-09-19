@@ -33,8 +33,9 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
       resumeClassName="text-sm font-normal text-foreground"
       className="mb-10 bg-card border border-border rounded-lg p-5"
       titreClassName="text-xs uppercase tracking-wider text-muted"
-      // max-w-prose: at 1440 px the card ran ~110 characters a line.
-      corpsClassName="mt-3 max-w-prose"
+      // At 1440 px the card ran ~110 characters a line. max-w-2xl (~78) and not
+      // max-w-prose (~65): the latter pushed the search 307 px further down.
+      corpsClassName="mt-3 max-w-2xl"
     >
       {gauntletFunnel(space).map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
 

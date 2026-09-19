@@ -75,18 +75,21 @@ describe('/strategies — the explainer folds on a phone, never on a computer', 
     const lien = screen.getByRole('link', { name: /Aller aux stratégies/ })
     expect(lien.getAttribute('href')).toBe('#registre')
     expect(lien.className).toContain('max-sm:hidden')
+    // Sits right under the intro on a computer: the intro keeps its phone
+    // margin only below sm, the link carries the gap to the card.
+    expect(screen.getByText(/Comment marche chaque stratégie/).className).toContain('sm:mb-3')
     const registre = document.getElementById('registre')!
     expect(registre.getAttribute('data-testid')).toBe('strategies-register')
     expect(registre.querySelector('input[type="search"], input')).toBeTruthy()
   })
 
-  it('sets the honesty paragraphs at body size, and the method at a reading measure', async () => {
+  it('sets the honesty paragraphs at body size, and the method at a reading measure (max-w-2xl: max-w-prose cost 307 px on a computer)', async () => {
     bots.current = []
     render(await StrategiesIndexPage())
     const honnete = screen.getByText(/^Reste une limite que je préfère écrire/)
     expect(honnete.className).toContain('text-sm')
     expect(honnete.className).not.toContain('text-xs')
-    expect(honnete.closest('[id="comment-je-decide-corps"]')!.className).toContain('max-w-prose')
+    expect(honnete.closest('[id="comment-je-decide-corps"]')!.className).toContain('max-w-2xl')
   })
 })
 

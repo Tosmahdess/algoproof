@@ -41,6 +41,8 @@ describe('Repli', () => {
     const corps = screen.getByText('Le corps du bloc.').parentElement!
     expect(corps.className).toContain('print:block')
     expect(screen.getByRole('heading', { level: 2 }).id).toBe('mots')
+    // Clears the sticky nav AND a card's top padding when landed on.
+    expect(screen.getByRole('heading', { level: 2 }).className).toContain('scroll-mt-24')
   })
 
   it('passes a test id to its section, and lets a page set the summary style', () => {

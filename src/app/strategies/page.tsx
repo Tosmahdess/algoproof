@@ -47,7 +47,7 @@ export default async function StrategiesIndexPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Les stratégies</h1>
-      <p className="text-sm text-muted mb-8">
+      <p className="text-sm text-muted mb-8 sm:mb-3">
         Comment marche chaque stratégie que je teste, et lesquelles tournent
         vraiment chez moi. Pour voir les bots en direct, va sur{' '}
         <Link href="/overview" className="text-accent">La flotte</Link>.
@@ -55,7 +55,7 @@ export default async function StrategiesIndexPage() {
       {/* Computer only: there the search sits at 1 141 px on a 900 px screen.
           On a phone the method folds and the search is already in view. */}
       <a href="#registre"
-         className="max-sm:hidden inline-block -mt-5 mb-8 text-sm text-muted hover:text-foreground transition-colors">
+         className="max-sm:hidden inline-block mb-8 text-sm text-muted hover:text-foreground transition-colors">
         Aller aux stratégies ↓
       </a>
 
