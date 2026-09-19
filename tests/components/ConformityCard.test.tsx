@@ -53,6 +53,66 @@ describe('ConformityCard', () => {
   })
 })
 
+// C2.1 (audit 2026-09-15). ORB showed « DD > 20 % ou PF < 1,0 → bot gelé » beside a DD and
+// a PF that both broke it, while the bot kept trading real money, and the card said « les
+// critères d'arrêt ci-dessous s'appliquent ». A breached rule now always has something
+// next to it: the dated decision, or the admission that none is published.
+describe('ConformityCard never shows a breached rule alone', () => {
+  const breached = { profit_factor: 0.9, max_drawdown: 0.3, total_trades: 40 }
+
+  it('says once, and only that, that no decision is published when a breach has none', () => {
+    render(<ConformityCard expectations={exp} stats={breached} />)
+    const text = document.body.textContent ?? ''
+    expect(text.match(/aucune décision à ce jour/gi)).toHaveLength(1)
+    // Neither the old claim that the criteria were applied, nor a pointer to a decision
+    // that does not exist (Fable review 2026-09-19: both sentences, 8 lines apart).
+    expect(text).not.toMatch(/s’appliquent/)
+    expect(text).not.toMatch(/décidé est écrit/)
+  })
+
+  it('shows the latest decision on a rule, not the first one written', () => {
+    const twice: BotExpectations = {
+      ...exp,
+      decisions: [
+        { rule: 'DD > 15 % → gel du bot.', date: '2026-09-19', status: 'pending',
+          scope: 'x', text: 'Décision en suspens.' },
+        { rule: 'DD > 15 % → gel du bot.', date: '2026-10-01', status: 'kept',
+          scope: 'x', text: 'Je garde le bot.' },
+      ],
+    }
+    render(<ConformityCard expectations={twice} stats={breached} />)
+    expect(screen.getByText('Je garde le bot.')).toBeInTheDocument()
+    expect(screen.queryByText('Décision en suspens.')).toBeNull()
+  })
+
+  it('prints the dated decision right under the rule it answers', () => {
+    const withDecision: BotExpectations = {
+      ...exp,
+      decisions: [{
+        rule: 'DD > 15 % → gel du bot.',
+        date: '2026-09-19',
+        status: 'pending',
+        scope: 'tout l’historique affiché sur cette fiche',
+        text: 'Je n’ai pas gelé le bot, la décision est en suspens.',
+      }],
+    }
+    render(<ConformityCard expectations={withDecision} stats={breached} />)
+    const rule = screen.getByText('DD > 15 % → gel du bot.').closest('li')!
+    expect(rule.textContent).toMatch(/Décision du 2026-09-19/)
+    expect(rule.textContent).toMatch(/la décision est en suspens/)
+    expect(rule.textContent).toMatch(/tout l’historique affiché sur cette fiche/)
+    expect(screen.queryByText(/aucune décision à ce jour/i)).toBeNull()
+    expect(document.body.textContent).toMatch(/sous la règle concernée/)
+    // The rule itself is not rewritten: the commitment stays readable beside what I did.
+    expect(screen.getByText('DD > 15 % → gel du bot.')).toBeInTheDocument()
+  })
+
+  it('says nothing about decisions while the bot is inside its envelope', () => {
+    render(<ConformityCard expectations={exp} stats={{ profit_factor: 1.5, max_drawdown: 0.05, total_trades: 40 }} />)
+    expect(screen.queryByText(/aucune décision à ce jour/i)).toBeNull()
+  })
+})
+
 describe('ThreeSentences', () => {
   it('renders the three plain-FR rows', () => {
     render(<ThreeSentences data={exp.threeSentences!} />)

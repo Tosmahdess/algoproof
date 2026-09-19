@@ -88,13 +88,32 @@ export default function ConformityCard({
 
       <h3 className="text-base font-semibold mb-2">Quand ce bot sera coupé</h3>
       <ul className="space-y-1.5 mb-3">
-        {expectations.killCriteria.map(rule => (
-          <li key={rule} className="text-sm text-muted flex gap-2">
-            <span className="text-negative shrink-0">✕</span>
-            <span>{rule}</span>
-          </li>
-        ))}
+        {expectations.killCriteria.map(rule => {
+          // The last one written wins: decisions are appended, never edited.
+          const decision = expectations.decisions?.filter(d => d.rule === rule).at(-1)
+          return (
+            <li key={rule} className="text-sm text-muted flex gap-2">
+              <span className="text-negative shrink-0">✕</span>
+              <span>
+                {rule}
+                {decision && (
+                  <span
+                    className={`block mt-1.5 border-l-2 pl-3 ${
+                      decision.status === 'pending' ? 'border-warning' : 'border-border'
+                    }`}
+                  >
+                    <span className="block text-xs">
+                      Décision du {decision.date} · {decision.scope}
+                    </span>
+                    <span className="block text-foreground">{decision.text}</span>
+                  </span>
+                )}
+              </span>
+            </li>
+          )
+        })}
       </ul>
+
       <p className="text-xs text-muted">
         Critères pré-enregistrés le {expectations.registeredAt} et versionnés publiquement
         (tout changement est daté). Source des chiffres : {expectations.source}

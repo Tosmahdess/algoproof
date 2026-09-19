@@ -81,10 +81,11 @@ export function assessConformity(exp: BotExpectations, stats: RealizedStats): Co
   else if (stats.total_trades < LOW_SAMPLE_TRADES) status = 'insufficient'
   else status = worst ?? 'ok'
 
-  return { status, checks, narrative: buildNarrative(status, checks) }
+  const decided = exp.decisions?.some(d => exp.killCriteria.includes(d.rule)) ?? false
+  return { status, checks, narrative: buildNarrative(status, checks, decided) }
 }
 
-function buildNarrative(status: ConformityStatus, checks: ConformityCheck[]): string {
+function buildNarrative(status: ConformityStatus, checks: ConformityCheck[], decided: boolean): string {
   const failing = checks
     .filter(c => c.status !== 'ok')
     .map(c => `${c.label.toLowerCase()} ${c.realized} pour ${c.expected} attendu`)
@@ -92,7 +93,13 @@ function buildNarrative(status: ConformityStatus, checks: ConformityCheck[]): st
 
   switch (status) {
     case 'breach':
-      return `Le réalisé sort de l’enveloppe attendue (${failing}). Les critères d’arrêt publiés ci-dessous s’appliquent.`
+      // Not « les critères d'arrêt ci-dessous s'appliquent »: on ORB that asserted an
+      // application that had not happened. What was decided sits under the rule itself.
+      // One sentence, and only the true one: a pointer to a decision that does not exist
+      // would sit 8 lines above the card admitting there is none (Fable review 2026-09-19).
+      return decided
+        ? `Le réalisé sort de l’enveloppe attendue (${failing}). Ce que j’en ai décidé est écrit sous la règle concernée.`
+        : `Le réalisé sort de l’enveloppe attendue (${failing}). Je n’ai publié aucune décision à ce jour.`
     case 'watch':
       return `Le réalisé approche la limite de l’enveloppe (${failing}) : sous surveillance, pas de rupture à ce stade.`
     case 'insufficient':

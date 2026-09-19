@@ -12,6 +12,22 @@ export interface ThreeSentences {
   risk: string
 }
 
+/** What I decided when a published kill criterion was crossed. Joined to its rule by the
+ *  rule's EXACT text (tests/lib/bot-expectations-decisions.test.ts pins the join). The rule
+ *  itself is never rewritten: the commitment stays readable beside what I did with it. No
+ *  figure copied from the live stats in `text` (the card's table recomputes them), and no
+ *  real-money start date in `scope` (that lives in bots.live_since only, see below). */
+export interface KillDecision {
+  /** Exact text of the `killCriteria` entry this answers. */
+  rule: string
+  /** YYYY-MM-DD, like `registeredAt`. Decisions are APPENDED, never edited: the card
+   *  shows the last one written for a rule, and git keeps the ones before it. */
+  date: string
+  status: 'pending' | 'frozen' | 'kept'
+  scope: string
+  text: string
+}
+
 export interface BotExpectations {
   /** Provenance of the numbers (which backtest / gate / risk config). Displayed. */
   source: string
@@ -23,6 +39,8 @@ export interface BotExpectations {
   maxDrawdown?: number
   /** Public kill criteria : "when this bot gets cut". Plain FR sentences. */
   killCriteria: string[]
+  /** Dated decisions on crossed kill criteria (audit 2026-09-15, C2.1). */
+  decisions?: KillDecision[]
   /** "Ce bot en 3 phrases" — plain-FR summary for the novice layer. */
   threeSentences?: ThreeSentences
   /** Optional note explaining an expected quiet period (regime dormancy, fresh bot…). */
@@ -116,6 +134,19 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
       'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
       'Levier plafonné à ×2 et 6 positions simultanées maximum ; tout dépassement est une anomalie qui déclenche un arrêt immédiat.',
       'Chaque changement de configuration passe un checkpoint public (dernier : sortie 4R, verdict KEEP le 2026-06-25).',
+    ],
+    // User decision 2026-09-19: ORB is not cut, and the decision stays open for now.
+    // Wording proposed by the Fable review and validated by the user; no motive is
+    // written because none was given.
+    decisions: [
+      {
+        rule: 'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
+        date: '2026-09-19',
+        status: 'pending',
+        scope: 'tout l’historique en argent réel affiché sur cette fiche',
+        text:
+          'À cette date, la règle est franchie et je n’ai pas gelé le bot. Je n’ai pas encore décidé si je le coupe ou si je le garde : la décision est en suspens, et je n’ai publié aucune autopsie.',
+      },
     ],
     threeSentences: {
       entry:
