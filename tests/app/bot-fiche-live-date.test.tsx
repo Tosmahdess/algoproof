@@ -46,11 +46,11 @@ describe('/strategies/bot/[slug] — one real-money start date per bot', () => {
 
   // 2026-09-11 review (P2): provenance.ts formatted in UTC, PathToRealCard in
   // Europe/Paris. At 23:30 UTC the two surfaces printed two different days.
-  it('a live_since late in the UTC day prints ONE day on the provenance line and in the card', async () => {
+  // 2026-09-19 (D056): the card no longer repeats the date, so there is ONE
+  // surface — and it must still print the Paris day.
+  it('a live_since late in the UTC day prints the Paris day, once', async () => {
     const dates = await datesOnFiche('v1-spot', '2026-04-16T23:30:00Z')
-    // both surfaces must be there, or this compares one date with itself
-    expect(dates.length).toBeGreaterThanOrEqual(2)
-    expect(new Set(dates)).toEqual(new Set(['17/04/2026']))
+    expect(dates).toEqual(['17/04/2026'])
   })
 
   it('orb-bf25: same rule, the literal in bot-expectations must not resurface', async () => {

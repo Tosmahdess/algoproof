@@ -29,3 +29,25 @@ describe('TradesTable', () => {
     expect(screen.getByText(/aucun trade/i)).toBeInTheDocument()
   })
 })
+
+// 2026-09-19 (D056): twenty rows took 1 263 px on a phone. Rows past the
+// phone limit are hidden below sm only; a computer still sees all of them.
+describe('TradesTable phone limit', () => {
+  const many: Trade[] = Array.from({ length: 8 }, (_, i) => ({
+    ...trades[0], id: String(i + 1), asset: `A${i + 1}/USDT`,
+  }))
+
+  it('hides rows past the phone limit below sm only', () => {
+    render(<TradesTable trades={many} limiteMobile={5} />)
+    const rows = screen.getAllByRole('row').slice(1)   // skip the header row
+    expect(rows).toHaveLength(8)
+    rows.slice(0, 5).forEach(r => expect(r.className).not.toContain('max-sm:hidden'))
+    rows.slice(5).forEach(r => expect(r.className).toContain('max-sm:hidden'))
+    rows.forEach(r => expect(r.className.split(/\s+/)).not.toContain('hidden'))
+  })
+
+  it('hides nothing without a limit', () => {
+    render(<TradesTable trades={many} />)
+    screen.getAllByRole('row').slice(1).forEach(r => expect(r.className).not.toContain('max-sm:hidden'))
+  })
+})

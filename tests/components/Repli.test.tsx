@@ -58,6 +58,38 @@ describe('Repli', () => {
     expect(resume.className).not.toContain('text-muted')
   })
 
+  it('keeps an aside next to the title and a lead under it visible on every screen', () => {
+    // ConformityCard (2026-09-19): the status badge sits beside the title and
+    // the verdict sentence stays readable when the card is folded, so the
+    // badge is never the only thing a folded card says.
+    render(
+      <Repli id="c" titre="Conformité" aside={<span>Badge</span>} entete={<p>Le verdict.</p>}>
+        <p>Le tableau.</p>
+      </Repli>,
+    )
+
+    const badge = screen.getByText('Badge')
+    const verdict = screen.getByText('Le verdict.')
+    expect(screen.getByRole('button').contains(badge)).toBe(false)
+    expect(screen.getByRole('heading', { level: 2 }).contains(badge)).toBe(false)
+    const corps = screen.getByText('Le tableau.').parentElement!
+    expect(corps.contains(verdict)).toBe(false)
+    expect(verdict.closest('.max-sm\\:hidden')).toBeNull()
+    expect(badge.closest('.max-sm\\:hidden')).toBeNull()
+    // Reading order: title, badge, verdict, then the folded body.
+    expect(badge.compareDocumentPosition(verdict) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(verdict.compareDocumentPosition(corps) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('can start open, and still fold on tap', () => {
+    render(<Repli id="o" titre="T" ouvertParDefaut><p>Corps ouvert.</p></Repli>)
+    const bouton = screen.getByRole('button')
+    expect(bouton.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByText('Corps ouvert.').parentElement!.className).not.toContain('max-sm:hidden')
+    fireEvent.click(bouton)
+    expect(screen.getByText('Corps ouvert.').parentElement!.className).toContain('max-sm:hidden')
+  })
+
   it('names its section after its heading', () => {
     const { container } = monter()
 

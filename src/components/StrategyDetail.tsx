@@ -12,6 +12,9 @@ import { computeBotStats, countByDirection, filterTrades, type DirectionFilter }
 import { assetOptionsFromTrades } from '@/lib/asset'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
+/** Recent trades shown on a phone before « Voir les N derniers » (D056). */
+const TRADES_MOBILE = 5
+
 interface Props {
   bot: BotWithStats
 }
@@ -73,6 +76,11 @@ export default function StrategyDetail({ bot }: Props) {
       ? bot.recent_trades
       : filterTrades(bot.all_trades, direction, asset).slice(0, 20)
   ), [bot.all_trades, bot.recent_trades, direction, asset, unfiltered])
+
+  // Five rows on a phone (D056): twenty took 1 263 px. The choice survives a
+  // filter change: a reader who asked for all of them keeps them.
+  const [tousSurMobile, setTousSurMobile] = useState(false)
+  const limiteMobile = tousSurMobile || tradesShown.length <= TRADES_MOBILE ? undefined : TRADES_MOBILE
 
   const pct = pnlPct(stats.latest_capital, startCapital)
   const eur = pnlEur(stats.latest_capital, startCapital)
@@ -149,14 +157,30 @@ export default function StrategyDetail({ bot }: Props) {
         <h2 className="text-xl font-semibold mb-3">
           Trades récents
           <span className="text-muted text-sm font-normal ml-2">
-            ({tradesShown.length} affiché{tradesShown.length > 1 ? 's' : ''}
+            {/* The counter says what THIS screen shows: « 5 sur 20 » on a phone
+                while folded, « 20 affichés » everywhere else. */}
+            {limiteMobile !== undefined && (
+              <span className="sm:hidden">({limiteMobile} sur {tradesShown.length} affichés</span>
+            )}
+            <span className={limiteMobile !== undefined ? 'hidden sm:inline' : ''}>
+              ({tradesShown.length} affiché{tradesShown.length > 1 ? 's' : ''}
+            </span>
             {!unfiltered && ` (${[
               asset !== 'all' ? asset : null,
               direction === 'long' ? 'longs' : direction === 'short' ? 'shorts' : null,
             ].filter(Boolean).join(' · ')} uniquement)`})
           </span>
         </h2>
-        <TradesTable trades={tradesShown} />
+        <TradesTable trades={tradesShown} limiteMobile={limiteMobile} />
+        {limiteMobile !== undefined && (
+          <button
+            type="button"
+            onClick={() => setTousSurMobile(true)}
+            className="sm:hidden mt-4 w-full rounded border border-border px-3 py-2 text-sm text-muted hover:text-foreground transition-colors"
+          >
+            Voir les {tradesShown.length} derniers
+          </button>
+        )}
       </div>
     </>
   )

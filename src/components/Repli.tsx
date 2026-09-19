@@ -36,6 +36,10 @@ export default function Repli({
   resumeClassName = 'text-xs font-normal text-muted',
   className,
   testId,
+  aside,
+  asideClassName = 'flex items-center justify-between gap-3 flex-wrap',
+  entete,
+  ouvertParDefaut = false,
   titreClassName = 'text-xl font-semibold',
   corpsClassName = 'mt-3',
   children,
@@ -52,11 +56,22 @@ export default function Repli({
   className?: string
   /** data-testid of the wrapping <section>. */
   testId?: string
+  /** Shown beside the title on every screen, outside the button (a status
+   *  badge). The title and the aside then share a row styled by asideClassName. */
+  aside?: ReactNode
+  asideClassName?: string
+  /** Shown under the title on every screen, never folded: what a folded
+   *  block must still say (ConformityCard: its verdict sentence, so a folded
+   *  card never shows a bare status badge). */
+  entete?: ReactNode
+  /** Start open, on a phone too. For a block whose visible lead points INTO
+   *  its body (ConformityCard in breach: « écrit sous la règle concernée »). */
+  ouvertParDefaut?: boolean
   titreClassName?: string
   corpsClassName?: string
   children: ReactNode
 }) {
-  const [ouvert, setOuvert] = useState(false)
+  const [ouvert, setOuvert] = useState(ouvertParDefaut)
   const corpsId = `${id}-corps`
 
   useEffect(() => {
@@ -66,9 +81,8 @@ export default function Repli({
     return () => window.removeEventListener('hashchange', surAncre)
   }, [id])
 
-  return (
-    <section aria-labelledby={id} className={className} data-testid={testId}>
-      <h2 id={id} className={`scroll-mt-24 ${titreClassName}`}>
+  const titreH2 = (
+      <h2 id={id} className={`scroll-mt-24 ${aside ? 'flex-1 min-w-0 ' : ''}${titreClassName}`}>
         <button
           type="button"
           aria-expanded={ouvert}
@@ -93,6 +107,12 @@ export default function Repli({
         </button>
         <span className="hidden sm:inline">{titre}</span>
       </h2>
+  )
+
+  return (
+    <section aria-labelledby={id} className={className} data-testid={testId}>
+      {aside ? <div className={asideClassName}>{titreH2}{aside}</div> : titreH2}
+      {entete}
       <div
         id={corpsId}
         className={`${corpsClassName} ${ouvert ? '' : 'max-sm:hidden print:block'}`}
