@@ -1,5 +1,13 @@
 // Conformity card: confronts realized stats with the pre-registered backtest envelope
-// and publishes the bot's kill criteria. Server-safe (pure props, no client state).
+// and publishes the bot's kill criteria. Server-safe (pure props, no client state);
+// the fold itself is Repli, a client island.
+//
+// 2026-09-19 (D056): on a phone the card took 772 px of v1-spot. The table,
+// the kill criteria and the source fold there; the title, the status badge,
+// the one-line method note and the verdict sentence stay visible (Repli's
+// `aside` and `entete`), so a folded card never shows a bare « Dans
+// l'enveloppe ». On a computer nothing changes.
+import Repli from '@/components/Repli'
 import type { BotExpectations } from '@/lib/bot-expectations'
 import { assessConformity, ConformityStatus, RealizedStats } from '@/lib/conformity'
 
@@ -37,21 +45,32 @@ export default function ConformityCard({
   const { label, classes, dot } = STATUS_CONFIG[result.status]
 
   return (
-    <section className="bg-card border border-border rounded-lg p-6 mb-8">
-      <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
-        <h2 className="text-xl font-semibold">📏 Conformité au backtest</h2>
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${classes}`}>
+    <Repli
+      id="conformite"
+      titre="📏 Conformité au backtest"
+      className="bg-card border border-border rounded-lg p-6 mb-8"
+      titreClassName="text-xl font-semibold"
+      // Below sm the badge goes under the title: sharing the row left the
+      // title 158 px at 390 px, « 📏 » alone on a line. Computer row unchanged.
+      asideClassName="flex flex-col gap-2 mb-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:flex-wrap"
+      aside={
+        <span className={`self-start sm:self-auto inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${classes}`}>
           <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${dot}`} />
           {label}
         </span>
-      </div>
-      <p className="text-xs text-muted mb-4">
-        L’enveloppe attendue vient du backtest et de critères fixés à l’avance ; le réalisé
-        (paper ou live) y est confronté en continu. Si les deux divergent, c’est écrit ici,
-        pas caché.
-      </p>
-
-      <p className="text-sm mb-4">{result.narrative}</p>
+      }
+      entete={
+        <>
+          <p className="text-xs text-muted mb-4">
+            L’enveloppe attendue vient du backtest et de critères fixés à l’avance ; le réalisé
+            (paper ou live) y est confronté en continu. Si les deux divergent, c’est écrit ici,
+            pas caché.
+          </p>
+          <p className="text-sm max-sm:mb-0 mb-4">{result.narrative}</p>
+        </>
+      }
+      corpsClassName="max-sm:mt-4"
+    >
 
       {result.checks.length > 0 && (
         <div className="mb-5 overflow-x-auto">
@@ -121,6 +140,6 @@ export default function ConformityCard({
         Critères pré-enregistrés le {expectations.registeredAt} et versionnés publiquement
         (tout changement est daté). Source des chiffres : {expectations.source}
       </p>
-    </section>
+    </Repli>
   )
 }

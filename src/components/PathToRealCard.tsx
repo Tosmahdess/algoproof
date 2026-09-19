@@ -1,12 +1,10 @@
 import type { BotStats } from '@/lib/types'
 import { evaluatePathToReal, DEFAULT_LIVE_GATE, type LiveGate, type PathCriterion } from '@/lib/path-to-real'
-import { numericDate } from '@/lib/format-date'
 
 interface Props {
   status: string
   stats: BotStats
   liveGate?: Partial<LiveGate>
-  liveSince?: string
 }
 
 function fmt(c: PathCriterion): string {
@@ -20,20 +18,13 @@ function width(c: PathCriterion): number {
   return Math.max(0, Math.min(100, (c.value / c.target) * 100))
 }
 
-// The paper→real gate, public. Live bots show their real-money start date instead.
-export default function PathToRealCard({ status, stats, liveGate, liveSince }: Props) {
-  if (status === 'live') {
-    if (!liveSince) return null
-    const d = numericDate(liveSince)
-    return (
-      <div className="bg-card border border-border rounded-lg p-4 mb-8 text-sm">
-        <span className="inline-flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-negative animate-pulse" />
-          En argent réel depuis le {d}.
-        </span>
-      </div>
-    )
-  }
+// The paper→real gate, public, for paper bots only.
+//
+// A live bot used to get a 55 px card here, « En argent réel depuis le … »:
+// the provenance line at the top of the same fiche already says it, from the
+// same column (bots.live_since), 3 000 px earlier on a phone. Removed
+// 2026-09-19 (D056); the date has one surface, provenanceSentence().
+export default function PathToRealCard({ status, stats, liveGate }: Props) {
   if (status !== 'paper') return null
 
   const gate = { ...DEFAULT_LIVE_GATE, ...liveGate }

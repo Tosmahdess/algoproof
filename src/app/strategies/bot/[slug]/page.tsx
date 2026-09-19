@@ -149,20 +149,14 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
       {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}
 
-      {/* Paper→real gate (paper bots) or real-money start date (live bots).
-          The date comes from bots.live_since, the same column the provenance
-          line above reads: one source, one date per bot (audit 2026-09-09). */}
+      {/* Paper→real gate, paper bots only. A live bot's real-money start date
+          is on the provenance line above, and only there (D056): the card
+          used to repeat it from the same column. */}
       <PathToRealCard
         status={bot.status}
         stats={bot.stats}
         liveGate={expectations?.liveGate}
-        liveSince={bot.live_since ?? undefined}
       />
-
-      {/* "Sur mon capital" — observed history rescaled to a visitor-chosen capital */}
-      {bot.perf_daily.length > 0 && (
-        <CapitalSimulator perfDaily={bot.perf_daily} startCapital={bot.start_capital} />
-      )}
 
       {/* Explanation: plain overview → technical params */}
       <section className="mb-8">
@@ -225,6 +219,13 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         />
       </section>
 
+      {/* "Sur mon capital" — observed history rescaled to a visitor-chosen
+          capital. AFTER the explanation since 2026-09-19 (D056): a reader
+          handled amounts before learning what the bot does. */}
+      {bot.perf_daily.length > 0 && (
+        <CapitalSimulator perfDaily={bot.perf_daily} startCapital={bot.start_capital} />
+      )}
+
       {/* Bridge to the lab */}
       <div className="bg-card border border-border rounded-lg p-6 mb-8 text-center">
         <p className="text-sm text-muted mb-3">
@@ -246,10 +247,14 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         <DiscussionTab slug={slug} />
       </div>
 
-      {/* Partager */}
-      <div className="bg-card border border-border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-3">🔗 Partager ce bot</h2>
-        <div className="space-y-3">
+      {/* Partager — folded on every screen (D056): embed code, rarely used,
+          262 px on a phone. A native <details>, not Repli: this one SHOULD
+          have a toggle on a computer too. */}
+      <details className="bg-card border border-border rounded-lg p-6">
+        <summary className="cursor-pointer">
+          <h2 className="inline text-xl font-semibold">🔗 Partager ce bot</h2>
+        </summary>
+        <div className="space-y-3 mt-3">
           <div>
             <p className="text-xs text-muted mb-1.5">Intégrer (iframe)</p>
             <code className="block text-xs bg-bg border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
@@ -263,7 +268,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             </code>
           </div>
         </div>
-      </div>
+      </details>
 
     </div>
   )

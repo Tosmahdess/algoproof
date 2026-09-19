@@ -22,7 +22,9 @@ function ReasonBadge({ reason }: { reason: string | null }) {
   )
 }
 
-export default function TradesTable({ trades }: { trades: Trade[] }) {
+// `limiteMobile`: rows past it are hidden below sm only (a computer sees them
+// all). StrategyDetail owns the « Voir les N derniers » button that lifts it.
+export default function TradesTable({ trades, limiteMobile }: { trades: Trade[]; limiteMobile?: number }) {
   if (trades.length === 0) {
     return <p className="text-muted text-sm py-6 text-center">Aucun trade pour le moment.</p>
   }
@@ -39,8 +41,9 @@ export default function TradesTable({ trades }: { trades: Trade[] }) {
           </tr>
         </thead>
         <tbody>
-          {trades.map(t => (
-            <tr key={t.id} className="border-b border-border/50 hover:bg-card/50 transition-colors">
+          {trades.map((t, i) => (
+            <tr key={t.id} className={`border-b border-border/50 hover:bg-card/50 transition-colors${
+              limiteMobile !== undefined && i >= limiteMobile ? ' max-sm:hidden' : ''}`}>
               <td className="py-2 pr-4 text-muted font-mono text-xs">
                 {shortDatePadded(t.closed_at)}
               </td>

@@ -123,3 +123,48 @@ describe('ThreeSentences', () => {
     expect(screen.getByText('Ce qu’il peut perdre')).toBeInTheDocument()
   })
 })
+
+// 2026-09-19 (D056): on a phone the card took 772 px of v1-spot. Its table,
+// kill criteria and source fold; its title, status and verdict sentence do
+// not, so a folded card never shows a bare « Dans l'enveloppe ».
+describe('ConformityCard folds its detail on a phone, never its verdict', () => {
+  const ok = { profit_factor: 1.5, max_drawdown: 0.05, total_trades: 40 }
+
+  it('turns its title into a closed disclosure button, anchored #conformite', () => {
+    render(<ConformityCard expectations={exp} stats={ok} />)
+    const bouton = screen.getByRole('button', { name: /Conformité au backtest/ })
+    expect(bouton.getAttribute('aria-expanded')).toBe('false')
+    expect(bouton.className).toContain('sm:hidden')
+    expect(document.getElementById('conformite')!.tagName).toBe('H2')
+  })
+
+  it('keeps the status and the verdict sentence outside the folded body', () => {
+    render(<ConformityCard expectations={exp} stats={ok} />)
+    const corps = document.getElementById('conformite-corps')!
+    const verdict = screen.getByText('Le réalisé reste dans l’enveloppe attendue du backtest.')
+    expect(corps.contains(verdict)).toBe(false)
+    expect(corps.contains(screen.getByText('Dans l’enveloppe'))).toBe(false)
+    // Said once: not repeated in the phone button.
+    expect(screen.getByRole('button').textContent).not.toContain('Dans l’enveloppe')
+  })
+
+  it('folds the table, the kill criteria and the source', () => {
+    render(<ConformityCard expectations={exp} stats={ok} />)
+    const corps = document.getElementById('conformite-corps')!
+    expect(corps.contains(screen.getByText('Drawdown max'))).toBe(true)
+    expect(corps.contains(screen.getByText('Quand ce bot sera coupé'))).toBe(true)
+    expect(corps.contains(screen.getByText(/2026-01-01/))).toBe(true)
+  })
+})
+
+describe('ConformityCard header on a phone', () => {
+  it('stacks the badge under the title below sm, and keeps the computer row', () => {
+    // At 390 px the badge (123 px) shared the row with the title, which kept
+    // 158 px: « 📏 » alone on a line, the title broken in two (capture 19/09).
+    render(<ConformityCard expectations={exp} stats={{ profit_factor: 1.5, max_drawdown: 0.05, total_trades: 40 }} />)
+    const rangee = document.getElementById('conformite')!.parentElement!
+    expect(rangee.className).toContain('flex-col')
+    for (const c of ['sm:flex-row', 'sm:items-center', 'sm:justify-between']) expect(rangee.className).toContain(c)
+    expect(screen.getByText('Dans l’enveloppe').closest('span.inline-flex')!.className).toContain('self-start')
+  })
+})
