@@ -47,16 +47,14 @@ returns boolean language sql immutable as $$
                      select y from jsonb_array_elements(coalesce(b, '[]'::jsonb)) y);
 $$;
 
--- Removes survivor_id from every variant, recursively enough for family payloads: the one
--- field the switch is ALLOWED to change (positional id -> public HMAC id).
+-- Removes every survivor_id field: the one field the switch is ALLOWED to change (positional
+-- id -> public HMAC id). On the text, not by walking the jsonb: payloads run to megabytes and a
+-- recursive walk took minutes on a 219 k-survivor replica. The ids are hex, so the pattern
+-- cannot swallow anything else.
 create or replace function pg_temp.strip_ids(p jsonb)
 returns jsonb language sql immutable as $$
-  select case jsonb_typeof(p)
-    when 'object' then (select coalesce(jsonb_object_agg(key, pg_temp.strip_ids(value)), '{}'::jsonb)
-                          from jsonb_each(p) where key <> 'survivor_id')
-    when 'array' then (select coalesce(jsonb_agg(pg_temp.strip_ids(value) order by ord), '[]'::jsonb)
-                         from jsonb_array_elements(p) with ordinality as a(value, ord))
-    else p end;
+  select regexp_replace(p::text, '"survivor_id": "surv_[0-9a-f]{16}", ?|, "survivor_id": "surv_[0-9a-f]{16}"',
+                        '', 'g')::jsonb;
 $$;
 
 -- Session identity for the RPCs: '' = anonymous, else a paying member's uid.
@@ -261,6 +259,13 @@ begin
                        case when v_as_writer then ' as engine_telemetry' else ' as the current user' end));
 end
 $emulate$;
+
+-- Fresh statistics, as autovacuum would have them in production by the time 052 is applied:
+-- without them the planner sizes a just-filled child table as empty and the timings below
+-- measure a bad plan, not the switch. Transactional, so rolled back with the rest.
+analyze public.engine_verdict_survivor;
+analyze public.engine_verdicts;
+analyze public.survivor_family_member;
 
 -- ---------------------------------------------------------------------------
 -- C. Parity, per unit with authoritative rows (engine-written or stand-in): the child rows
