@@ -43,6 +43,19 @@ describe('Repli', () => {
     expect(screen.getByRole('heading', { level: 2 }).id).toBe('mots')
   })
 
+  it('passes a test id to its section, and lets a page set the summary style', () => {
+    const { container } = render(
+      <Repli id="m" titre="T" resume="R" testId="bloc" resumeClassName="text-sm text-foreground">
+        <p>x</p>
+      </Repli>,
+    )
+
+    expect(container.querySelector('section')!.getAttribute('data-testid')).toBe('bloc')
+    const resume = screen.getByText('R')
+    expect(resume.className).toContain('text-sm')
+    expect(resume.className).not.toContain('text-muted')
+  })
+
   it('names its section after its heading', () => {
     const { container } = monter()
 
@@ -98,6 +111,15 @@ describe('Repli', () => {
 
     const titreFixe = screen.getByText('Les mots employés', { selector: 'span.sm\\:inline' })
     expect(titreFixe.className).toContain('hidden')
+  })
+
+  it('lets the phone button inherit the title case', () => {
+    // Tailwind's preflight sets `text-transform: none` on buttons: an
+    // uppercase card title (/strategies, /investir) read in lower case on a
+    // phone and in capitals on a computer.
+    monter()
+
+    expect(screen.getByRole('button').className).toContain('[text-transform:inherit]')
   })
 
   it('shows the summary line inside the phone button only', () => {

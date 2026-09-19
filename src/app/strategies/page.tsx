@@ -52,6 +52,12 @@ export default async function StrategiesIndexPage() {
         vraiment chez moi. Pour voir les bots en direct, va sur{' '}
         <Link href="/overview" className="text-accent">La flotte</Link>.
       </p>
+      {/* Computer only: there the search sits at 1 141 px on a 900 px screen.
+          On a phone the method folds and the search is already in view. */}
+      <a href="#registre"
+         className="max-sm:hidden inline-block -mt-5 mb-8 text-sm text-muted hover:text-foreground transition-colors">
+        Aller aux stratégies ↓
+      </a>
 
       {/* The engine-process explainer, once for the whole library — it used to
           repeat on all 22 concept pages, which punished exactly the visitor who
