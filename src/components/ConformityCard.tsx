@@ -106,6 +106,9 @@ export default function ConformityCard({
                       Décision du {decision.date} · {decision.scope}
                     </span>
                     <span className="block text-foreground">{decision.text}</span>
+                    {decision.reviewBy && (
+                      <span className="block text-xs mt-1">Réexamen le {decision.reviewBy}.</span>
+                    )}
                   </span>
                 )}
               </span>

@@ -26,6 +26,9 @@ export interface KillDecision {
   status: 'pending' | 'frozen' | 'kept'
   scope: string
   text: string
+  /** YYYY-MM-DD. A pending decision carries the date it is re-examined; a real-clock
+   *  test goes red the day after, until a new decision is appended. */
+  reviewBy?: string
 }
 
 export interface BotExpectations {
@@ -146,6 +149,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
         scope: 'tout l’historique en argent réel affiché sur cette fiche',
         text:
           'À cette date, la règle est franchie et je n’ai pas gelé le bot. Je n’ai pas encore décidé si je le coupe ou si je le garde : la décision est en suspens, et je n’ai publié aucune autopsie.',
+        reviewBy: '2026-09-22',
       },
     ],
     threeSentences: {

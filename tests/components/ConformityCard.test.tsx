@@ -94,12 +94,14 @@ describe('ConformityCard never shows a breached rule alone', () => {
         status: 'pending',
         scope: 'tout l’historique affiché sur cette fiche',
         text: 'Je n’ai pas gelé le bot, la décision est en suspens.',
+        reviewBy: '2026-09-22',
       }],
     }
     render(<ConformityCard expectations={withDecision} stats={breached} />)
     const rule = screen.getByText('DD > 15 % → gel du bot.').closest('li')!
     expect(rule.textContent).toMatch(/Décision du 2026-09-19/)
     expect(rule.textContent).toMatch(/la décision est en suspens/)
+    expect(rule.textContent).toMatch(/Réexamen le 2026-09-22/)
     expect(rule.textContent).toMatch(/tout l’historique affiché sur cette fiche/)
     expect(screen.queryByText(/aucune décision à ce jour/i)).toBeNull()
     expect(document.body.textContent).toMatch(/sous la règle concernée/)

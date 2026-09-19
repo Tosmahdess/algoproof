@@ -15,3 +15,16 @@ describe('published decisions', () => {
     expect(decision!.text).not.toMatch(/\d+,\d+\s?%|PF \d/)
   })
 })
+
+// A pending decision without a date is a warning nobody removes. ORB's is re-examined on
+// 2026-09-22 (user, 2026-09-19). REAL clock on purpose: the day after, this goes red until
+// the decision is updated -- append the new one (frozen or kept), never push the date.
+describe('a pending decision has a review date that is not past', () => {
+  it('ORB pending decision is reviewed by 2026-09-22 and the date is not past', () => {
+    const orb = getBotExpectations('orb-bf25')!
+    const pending = orb.decisions!.filter((d) => d.status === 'pending').at(-1)!
+    expect(pending.reviewBy).toBe('2026-09-22')
+    const today = new Date().toISOString().slice(0, 10)
+    expect(today <= pending.reviewBy!).toBe(true)
+  })
+})
