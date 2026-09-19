@@ -36,7 +36,7 @@ block at the end of the file. Must be true live before going on:
 
 ### 2. Engine flag on, then backfill
 
-`APEX_PUBLISH_CHILD_ROWS=1` and `SURVIVOR_ID_KEY` on the box; `backfill_survivor_rows.py`
+`APEX_PUBLISH_CHILD_ROWS=1` and `APEX_SURVIVOR_ID_KEY` on the box; `backfill_survivor_rows.py`
 for the units already published. Every successful child write sets `survivors_storage = 'rows'`
 — that is harmless before 052, nothing reads it. Watch the engine log for
 `child rows NOT written` (the guard raises when rows ≠ `n_go + n_marginal`).
