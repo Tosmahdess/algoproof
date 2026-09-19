@@ -17,6 +17,14 @@ describe('Footer sitemap', () => {
     expect(screen.getByRole('link', { name: /démarrer/i })).toBeDefined()       // /start
   })
 
+  // D053: « Backtester » names the tool, so it opens the tool; « Découvrir le
+  // labo » names the pitch, so it keeps the landing at the lab root.
+  it('opens the backtester in the app and keeps « Découvrir le labo » on the landing', () => {
+    render(<Footer />)
+    expect(screen.getByRole('link', { name: /backtester/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
+    expect(screen.getByRole('link', { name: /découvrir le labo/i }).getAttribute('href')).toBe('https://lab.algoproof.fr')
+  })
+
   // /journal was removed 2026-08-08 — guard the removal so a copy/paste never revives a link
   // to a page that now 301s to the home.
   it('no longer links the removed public journal', () => {

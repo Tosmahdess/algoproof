@@ -10,7 +10,8 @@ const PIECES = [
   // FIX (final whole-branch review, label drift): « La flotte » everywhere,
   // matching Nav and Footer — /overview had two names across the site.
   { href: '/overview',     title: 'La flotte',  desc: 'Des bots qui tradent en conditions réelles. Chaque trade est public, gains comme pertes.' },
-  { href: 'https://lab.algoproof.fr', title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
+  // The card names the tool, so it opens the tool (D053), not the lab landing.
+  { href: 'https://lab.algoproof.fr/lab', title: 'Le labo',    desc: 'L\'outil pour tester tes propres stratégies : backtest, walk-forward, comparaisons.' },
   // The card described /wealth (a monthly DCA on crypto, ETFs and shares), a
   // page removed on 2026-09-09 and redirected to /investir. It now describes
   // the page it opens. No company count here: it changes with every export,

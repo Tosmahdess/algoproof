@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import TrackedLink from '@/components/TrackedLink'
+import { trackCtaLab } from '@/lib/analytics'
 
 // "Mes bots" hub — dropdown over the live-proof sub-pages
 const MES_BOTS_SUB = [
@@ -33,9 +35,13 @@ const HUBS = [
 // algoproof.fr n'a pas d'auth propre, donc COMPTE pointe là-bas.
 const LAB_URL = 'https://lab.algoproof.fr'
 const ACCOUNT_URL = `${LAB_URL}/account`
+// LE LABO opens the app, not the landing at the lab root: the pitch on every
+// visit cost one extra click each time (D053). The landing stays the external
+// entry page.
+const LAB_APP_URL = `${LAB_URL}/lab`
 
 // Mobile menu, grouped to mirror the desktop hierarchy
-const MOBILE_GROUPS: { title: string; links: { href: string; label: string; external?: boolean }[] }[] = [
+const MOBILE_GROUPS: { title: string; links: { href: string; label: string; external?: boolean; ctaLab?: string }[] }[] = [
   { title: 'Mes bots', links: MES_BOTS_SUB },
   { title: 'Explorer', links: [
     { href: '/investir',     label: 'Investir' },
@@ -43,7 +49,7 @@ const MOBILE_GROUPS: { title: string; links: { href: string; label: string; exte
     { href: '/blog',         label: 'Apprendre' },
   ]},
   { title: 'Le labo', links: [
-    { href: LAB_URL,     label: 'Ouvrir le labo', external: true },
+    { href: LAB_APP_URL, label: 'Ouvrir le labo', external: true, ctaLab: 'nav-mobile' },
     { href: ACCOUNT_URL, label: 'Compte',         external: true },
   ]},
 ]
@@ -147,13 +153,15 @@ export default function Nav() {
             )
           })}
 
-          {/* Le labo : lien simple vers le cockpit */}
-          <a
-            href={LAB_URL}
+          {/* Le labo : lien simple vers l'app, clic compté */}
+          <TrackedLink
+            href={LAB_APP_URL}
+            event="cta_lab"
+            location="nav"
             className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black"
           >
             LE LABO
-          </a>
+          </TrackedLink>
 
           {/* Compte : l'auth vit sur le lab */}
           <a
@@ -194,13 +202,13 @@ export default function Nav() {
                   {group.title}
                   <svg className="w-2.5 h-2.5 opacity-60 transition-transform group-open:rotate-180" viewBox="0 0 10 6" fill="currentColor"><path d="M0 0l5 6 5-6H0z"/></svg>
                 </summary>
-                {group.links.map(({ href, label, external }) => {
+                {group.links.map(({ href, label, external, ctaLab }) => {
                   const active = !external && (path === href || path.startsWith(href + '/'))
                   return (
                     <Link key={href} href={href}
                       target={external ? '_blank' : undefined}
                       rel={external ? 'noopener noreferrer' : undefined}
-                      onClick={() => setMobileOpen(false)}
+                      onClick={() => { if (ctaLab) trackCtaLab(ctaLab); setMobileOpen(false) }}
                       className={`block pl-7 pr-4 py-2.5 text-sm border-t border-border/30 transition-colors ${active ? 'text-foreground font-semibold' : 'text-muted hover:text-foreground'}`}>
                       {label}{external ? ' ↗' : ''}
                     </Link>
