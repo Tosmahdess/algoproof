@@ -66,16 +66,27 @@ already mapped unless `p_replace => true`).
   ```
   PGPASSWORD=... python supabase/tests/survivor_rows_gate.py \
       --dsn "host=db.avdegocswrhzdnvsyiui.supabase.co port=5432 user=postgres dbname=postgres sslmode=require" \
-      --paid-uid <uuid>
+      --paid-uid <uuid> --sample 200
   ```
-  Everything is rolled back. While it runs, 052's rename blocks the family RPCs: run it in a
-  quiet window. Exit 0 = green. It fails on any output difference other than (a) the
-  `survivor_id` field of family variants (positional → public id, by design) and (b) text
-  that is equal as jsonb; timings fail at 3 s (anon's timeout) and warn above 2× before.
+  Everything is rolled back. While it runs, 052's rename blocks the family RPCs (about 7 min
+  locally at 219 k survivors with `--sample 200`): run it in a quiet window. Exit 0 = green.
+  It fails on any output difference other than (a) the `survivor_id` field of family
+  variants (positional → public id, by design) and (b) text that is equal as jsonb (WARN).
+  Its timings are reported, not gated: calls made from plpgsql inside one long transaction
+  are distorted (same catalogue call, unchanged database: 0.38 s top-level, 3.7 s from a DO
+  block).
+- **Timings, the representative way**: on a committed copy of production (Supabase branch or
+  restored dump), apply 050/051, backfill, 052, `VACUUM ANALYZE`, then time the RPCs as
+  top-level `select`. Local 219 k-survivor replica, before → after 052: catalogue 0.37 →
+  0.45 s, strategy summary 0.30 → 0.41 s, scoped catalogue 0.30 → 0.43 s, preview 0.25 →
+  0.30 s, dossier 0.25 → 0.29 s (only 59 of 168 units in rows mode there; measure with all
+  of them). anon's `statement_timeout` is 3 s.
 
 ### 5. M3 — `052`, the read switch
 
-Its header lists the same preconditions. The switch is per unit: a unit reads child rows iff
+Its header lists the same preconditions. Right after it, outside any transaction:
+`vacuum analyze public.survivor_family_member_jsonb; vacuum analyze public.engine_verdict_survivor;`
+(052 deletes the rows-mode units' rows from the jsonb side). The switch is per unit: a unit reads child rows iff
 `survivors_storage = 'rows' and current_publish_seq is not null`; any unit can be turned
 back with `update engine_verdicts set survivors_storage = null where <unit>` (its child rows
 are purged, the jsonb list serves again). After applying, check the verification block and

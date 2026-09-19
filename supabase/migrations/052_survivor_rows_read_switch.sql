@@ -701,6 +701,11 @@ commit;
 notify pgrst, 'reload schema';
 
 -- ---------------------------------------------------------------------------
+-- RIGHT AFTER APPLYING, one statement at a time (VACUUM cannot run in a transaction): the
+-- rows-mode units' rows were just deleted from the jsonb side.
+--   vacuum analyze public.survivor_family_member_jsonb;
+--   vacuum analyze public.engine_verdict_survivor;
+--
 -- VERIFICATION, after applying:
 --   select relkind from pg_class where oid = 'public.survivor_family_member'::regclass; -- v
 --   select has_table_privilege('anon', 'public.survivor_family_member', 'select'),
