@@ -85,9 +85,9 @@ export function EquityDisclosure({
       </p>
 
       <p>
-        Je note bien plus de sociétés que je n&apos;en suis pour moi : ma liste de suivi long
-        terme n&apos;en est qu&apos;une petite partie. Je peux détenir certains des titres notés
-        ici, en particulier ceux de ma liste de suivi. Aucune société citée ne me rémunère, d&apos;aucune
+        Je lis les comptes de bien plus de sociétés que je n&apos;en suis pour moi : ma liste de
+        suivi long terme n&apos;en est qu&apos;une petite partie. Je peux détenir certains des titres
+        cités ici, en particulier ceux de ma liste de suivi. Aucune société citée ne me rémunère, d&apos;aucune
         manière.
       </p>
 
@@ -102,8 +102,8 @@ export function EquityDisclosure({
         ) : (
           <>
             Les chiffres viennent du rapport annuel de la société, dont la fiche donne la
-            date de dépôt et le numéro. Le verdict et le texte qui l&apos;accompagne sont mon
-            interprétation, pas un fait.
+            date de dépôt et le numéro. Les contrôles suivent une règle fixe ; le texte qui les accompagne est
+            mon interprétation, pas un fait.
           </>
         )}{' '}
         Ce n&apos;est pas un conseil en investissement personnalisé : je ne connais ni ta

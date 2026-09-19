@@ -117,8 +117,8 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
       </p>
       <p className="text-xs text-muted mt-3 leading-relaxed">
         Tout ce qui est au-dessus reste ouvert à tout le monde, pour toujours :
-        la note, le verdict et sa raison, les chiffres et les comptes, avec la
-        date de dépôt et le numéro du rapport annuel pour tout refaire toi-même.
+        les sept contrôles et leurs alertes, les chiffres et le rapport
+        annuel, avec sa date de dépôt et son numéro pour tout refaire toi-même.
         Ce qui s’achète, c’est la lecture.
       </p>
       {/* Une seule page d'abonnement, un seul endroit pour se connecter.

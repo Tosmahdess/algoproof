@@ -27,7 +27,9 @@ describe('EquityDisclosure', () => {
   it('on a graded fiche, says the figures come from the annual report the fiche names', () => {
     const text = textOf(<EquityDisclosure generatedAt="2026-09-07" />)
     expect(text).toContain('Les chiffres viennent du rapport annuel de la société, dont la fiche donne la date de dépôt et le numéro.')
-    expect(text).toContain('Le verdict et le texte qui l')
+    // 2026-09-19 (D058): no verdict any more on a fiche.
+    expect(text).toContain('le texte qui les accompagne est mon interprétation, pas un fait.')
+    expect(text).not.toMatch(/verdict/i)
     expect(text).not.toMatch(/chiffres de march/)
   })
 
