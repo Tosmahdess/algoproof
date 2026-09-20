@@ -21,6 +21,15 @@ export function trackCtaLab(location: string): void {
   track('cta_lab', { location })
 }
 
+/** A primary call-to-action toward the company accounts was clicked.
+ *  D059 opened the home on two entries of equal weight; only the lab one was
+ *  instrumented, so nothing measured whether the half of the page that exists
+ *  to give Investir visibility actually captures anyone. `location` labels the
+ *  call site, exactly as it does for the lab. */
+export function trackCtaInvestir(location: string): void {
+  track('cta_investir', { location })
+}
+
 /** An outbound exchange link was clicked (Bybit is the affiliated one). */
 export function trackOutboundExchange(exchange: Exchange, location: string): void {
   track('outbound_exchange', { exchange, location })

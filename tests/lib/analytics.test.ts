@@ -4,6 +4,7 @@ import {
   trackEmailSubscribe,
   trackViewBot,
   trackCtaLab,
+  trackCtaInvestir,
   trackOutboundExchange,
 } from '@/lib/analytics'
 
@@ -27,6 +28,13 @@ describe('analytics helpers', () => {
   it('trackCtaLab fires cta_lab with the location', () => {
     trackCtaLab('home-hero')
     expect(track).toHaveBeenCalledWith('cta_lab', { location: 'home-hero' })
+  })
+
+  // D059 opened the home on two entries; only the lab one was measurable.
+  // Without this, nothing says whether the companies entry captures anything.
+  it('trackCtaInvestir fires cta_investir with the location', () => {
+    trackCtaInvestir('home-hero')
+    expect(track).toHaveBeenCalledWith('cta_investir', { location: 'home-hero' })
   })
 
   it('trackOutboundExchange fires outbound_exchange with exchange + location', () => {
