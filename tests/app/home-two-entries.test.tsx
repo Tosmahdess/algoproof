@@ -16,7 +16,7 @@
 // and ONE place on this page that counts bots, written as a sum of its parts.
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { mkBot } from '../fixtures/bots'
 
@@ -101,21 +101,41 @@ describe('/ — the two entries sit directly under the message', () => {
 
   // The user's own arbitration (2026-09-20): the strategies entry carries BOTH
   // destinations — the lab to act, the fleet to check — with the lab first.
+  //
+  // The lab href became `/lab` (the backtester) on 2026-09-20, where it used to
+  // be the bare root (the landing-pitch). That amends D051/D053: the landing
+  // stays the pitch for COLD traffic — Reddit, SEO, a hand-typed URL — but the
+  // visitor who arrives from here has already read the pitch, three lines above
+  // the button. The button has promised « Tester ta stratégie » from the start;
+  // it is the destination that was wrong, not the label.
   it('the strategies entry opens the lab AND the fleet', async () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-strategies')
     const hrefs = [...card.querySelectorAll('a')].map(a => a.getAttribute('href'))
-    expect(hrefs).toContain('https://lab.algoproof.fr')
+    expect(hrefs).toContain('https://lab.algoproof.fr/lab')
     expect(hrefs).toContain('/overview')
     // The lab is the primary action, so it comes first in the DOM, which is
     // also the reading order on a phone.
-    expect(hrefs.indexOf('https://lab.algoproof.fr')).toBeLessThan(hrefs.indexOf('/overview'))
+    expect(hrefs.indexOf('https://lab.algoproof.fr/lab')).toBeLessThan(hrefs.indexOf('/overview'))
+  })
+
+  // The failure this pins is silent: `https://lab.algoproof.fr` is a perfectly
+  // valid URL that serves a perfectly good page, so a revert to it breaks
+  // nothing visible — it just puts the pitch back in front of a visitor who
+  // already read it. Asserting the presence of `/lab` alone would stay green if
+  // BOTH links were there; the absence of the bare root is the real assertion.
+  it('the lab button opens the backtester, not the pitch it already read', async () => {
+    render(await HomePage())
+    const card = screen.getByTestId('entry-strategies')
+    const hrefs = [...card.querySelectorAll('a')].map(a => a.getAttribute('href'))
+    expect(hrefs).not.toContain('https://lab.algoproof.fr')
+    expect(hrefs).not.toContain('https://lab.algoproof.fr/')
   })
 
   it('the lab link keeps the cta_lab analytics series intact', async () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-strategies')
-    const lab = [...card.querySelectorAll('a')].find(a => a.getAttribute('href') === 'https://lab.algoproof.fr')!
+    const lab = [...card.querySelectorAll('a')].find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab')!
     expect(lab.textContent).toMatch(/Tester ta stratégie, sans compte/)
   })
 
@@ -230,5 +250,94 @@ describe('/ — the doors the four-card grid used to carry', () => {
     const hero = screen.getByTestId('home-hero')
     const hrefs = [...hero.querySelectorAll('a')].map(a => a.getAttribute('href'))
     expect(hrefs).toContain('/preuve')
+  })
+})
+
+// The 2026-09-20 second pass (user). Three of the four asks were about the two
+// entries reading as ONE pair rather than a primary and an afterthought: the
+// same button colour, the same bottom line, and a mark above the headline.
+describe('/ — the two entries are a matched pair', () => {
+  // The two CTAs used to differ: `bg-positive text-black` on the left,
+  // `bg-card border border-border` on the right. Comparing the two class
+  // attributes rather than grepping for `bg-positive` is deliberate — a guard
+  // that only checks the right-hand button is green stays green if the LEFT one
+  // later stops being, and the pair would be uniform in the wrong direction.
+  it('both entry buttons carry the same green treatment', async () => {
+    render(await HomePage())
+    const lab = [...screen.getByTestId('entry-strategies').querySelectorAll('a')]
+      .find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab')!
+    const investir = [...screen.getByTestId('entry-companies').querySelectorAll('a')]
+      .find(a => a.getAttribute('href') === '/investir')!
+    expect(lab.getAttribute('class')).toContain('bg-positive')
+    expect(investir.getAttribute('class')).toBe(lab.getAttribute('class'))
+  })
+
+  // The user asked for the reassurance line on the left to be REMOVED so the
+  // two cards' bottoms would line up. Symmetry buys the same alignment without
+  // spending the reassurance — and it is worth more now that the button next to
+  // it opens a tool directly rather than a pitch. If a later session deletes
+  // one of the two, this fails rather than quietly re-staggering the cards.
+  it('each entry ends on its own reassurance line', async () => {
+    render(await HomePage())
+    expect(screen.getByTestId('entry-strategies').textContent)
+      .toMatch(/Un backtester, pas un broker\. Rien à déposer, aucune clé à donner\./)
+    expect(screen.getByTestId('entry-companies').textContent)
+      .toMatch(/Des lectures, pas des conseils\. Aucune recommandation d'achat ou de vente\./)
+  })
+
+  // D058 retired the company grade and verdict on 2026-09-19, but no sentence
+  // on this page said the reading is not advice. The companies card now does.
+  it('the companies entry says it is not investment advice', async () => {
+    render(await HomePage())
+    expect(screen.getByTestId('entry-companies').textContent).toMatch(/pas des conseils/i)
+  })
+
+  // Decorative on purpose: the nav already carries « ALGOPROOF » as text inside
+  // a link. A non-empty alt here would make a screen reader announce the brand
+  // twice, ~100 px apart, as two separate things.
+  it('the hero carries the mark, above the headline and without a second name', async () => {
+    render(await HomePage())
+    const hero = screen.getByTestId('home-hero')
+    const mark = hero.querySelector('img[src="/logo.svg"]')
+    expect(mark, 'the mark above the H1').toBeTruthy()
+    expect(mark!.getAttribute('alt')).toBe('')
+    const h1 = hero.querySelector('h1')!
+    expect(
+      mark!.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING,
+      'the mark comes before the H1',
+    ).toBeTruthy()
+  })
+})
+
+// Until 2026-09-20 this repo still shipped `src/app/favicon.ico` exactly as
+// Create Next App wrote it in commit 141efe9 — so every browser tab, and every
+// link preview that falls back to the icon, showed the Next.js logo. The
+// launch post makes that the first thing a stranger sees.
+describe('the site ships its own icon', () => {
+  const repo = (p: string) => resolve(__dirname, '../..', p)
+
+  it('the Create Next App favicon is gone and an SVG icon replaces it', () => {
+    expect(existsSync(repo('src/app/favicon.ico')), 'the default favicon.ico').toBe(false)
+    expect(existsSync(repo('src/app/icon.svg')), 'src/app/icon.svg').toBe(true)
+    expect(existsSync(repo('public/logo.svg')), 'public/logo.svg').toBe(true)
+  })
+
+  // The hero mark and the favicon are two files by necessity — one assumes the
+  // site background for the check's halo, the other carries its own tile — but
+  // they must stay the SAME mark. The check path is what makes it that mark.
+  it('the hero mark, the favicon and the OG card draw the same check', () => {
+    const CHECK = 'M36 22 L45 32 L60 9'
+    for (const f of ['public/logo.svg', 'src/app/icon.svg', 'src/app/opengraph-image.tsx']) {
+      expect(readFileSync(repo(f), 'utf8'), `${f} draws the mark's check`).toContain(CHECK)
+    }
+  })
+
+  // The palette is not decorative here: a mark that drifts from the site's
+  // tokens is a mark that stops matching the site it stands for.
+  it('the mark uses the site tokens, not hand-picked hexes', () => {
+    const svg = readFileSync(repo('public/logo.svg'), 'utf8')
+    expect(svg).toContain('#4ade80') // positive
+    expect(svg).toContain('#f87171') // negative
+    expect(svg).toContain('#0a0a0a') // bg — the check's halo
   })
 })

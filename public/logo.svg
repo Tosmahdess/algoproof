@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="AlgoProof">
+  <!-- Marque AlgoProof. Reprise de la tuile de profil X générée le 2026-06-05
+       (projects/algoproof/brand/profile.html dans le vault) : trois bougies qui
+       vont rouge -> gris -> vert, et un check qui monte au-dessus. Mêmes jetons
+       que tailwind.config.ts (negative #f87171, positive #4ade80) pour que la
+       marque et le site ne puissent pas diverger.
+
+       Le check est tracé DEUX fois : un halo à la couleur du fond, puis le vert.
+       C'est ce qui lui permet de croiser la troisième bougie en restant lisible.
+       Le halo vaut donc #0a0a0a, le jeton `bg` du site, et ce fichier suppose un
+       fond sombre. Pour une tuile qui porte son propre fond : src/app/icon.svg.
+
+       Halo à 8 et départ du check en (36,22), pas 10 et (22,32) : au premier
+       essai le halo mangeait les deuxième et troisième bougies, et à 40 px — la
+       taille réelle dans le hero — il ne restait qu'une tache verte. Mesuré sur
+       rendu, pas déduit. -->
+  <line x1="12.5" y1="30" x2="12.5" y2="54" stroke="#f87171" stroke-width="2.5"/>
+  <rect x="8" y="34" width="9" height="16" rx="2" fill="#f87171"/>
+
+  <line x1="26.5" y1="24" x2="26.5" y2="48" stroke="#9aa0aa" stroke-width="2.5"/>
+  <rect x="22" y="28" width="9" height="16" rx="2" fill="#9aa0aa"/>
+
+  <line x1="40.5" y1="17" x2="40.5" y2="42" stroke="#4ade80" stroke-width="2.5"/>
+  <rect x="36" y="21" width="9" height="17" rx="2" fill="#4ade80"/>
+
+  <path d="M36 22 L45 32 L60 9" stroke="#0a0a0a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M36 22 L45 32 L60 9" stroke="#4ade80" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
