@@ -16,8 +16,11 @@ import { sortFleet } from '@/lib/fleet-sort'
 export const revalidate = 1800
 
 export const metadata: Metadata = {
-  title: 'AlgoProof : mon labo de trading algorithmique, en public',
-  description: 'Je fais tourner des bots de trading en réel et j\'expose chaque trade, gains et pertes. Résultats vérifiables, mis à jour chaque heure. Labo de recherche transparent, en français.',
+  // 2026-09-20: the hero now names both activities; these two strings are what
+  // a browser tab, a search result and a link preview show, and they said
+  // « labo » alone. Guarded by tests/lib/site-positioning.test.ts.
+  title: 'AlgoProof : stratégies testées, comptes de sociétés examinés',
+  description: 'Je fais tourner des bots de trading et j\'expose chaque trade, gains comme pertes. Je passe aussi les rapports annuels de sociétés cotées à travers sept contrôles.',
 }
 
 // FIX (final review, C1 follow-on): these were two local five-entry maps with
@@ -35,7 +38,8 @@ export default async function HomePage() {
   // sentence below used to carry a literal 75 and would have aged in silence the
   // day one of them is archived. Same tagging rule as /overview's waveBotCount.
   const waveCount = bots.filter(b => b.engine_unit_key?.length).length
-  // Live = real money (status 'live': v1-spot, v1-hl, orb-bf25) ; the rest is the laboratoire (simulation).
+  // Live = real money (status 'live': v1-spot, v1-hl, orb-bf25) ; the rest is simulation
+  // (the word « laboratoire » was retired for a bot STATUS on 2026-09-20 — « le labo » is the tool).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
   const { live: liveBots, paper: paperBots } = splitCohorts(bots)
   // Ordered by track record, not by profit — the same default /overview uses,
@@ -49,54 +53,102 @@ export default async function HomePage() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-20">
 
-      {/* Hero */}
-      <div className="text-center mb-16">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-positive/10 border border-positive/20 text-positive text-xs mb-6">
-          <span className="w-1.5 h-1.5 rounded-full bg-positive animate-pulse" />
-          Labo de trading algo transparent, en français
-        </div>
-        <h1 className="text-5xl font-semibold tracking-tight mb-6">
-          Mon labo de trading<br />
-          <span className="text-positive">algorithmique, en public.</span>
+      {/* Hero — deux entrées (user 2026-09-20).
+          Le message d'accueil ne nommait qu'une des deux activités : la page
+          s'ouvrait sur « Mon labo de trading algorithmique, en public. » et le
+          mot « Investir » n'arrivait qu'à 1 686 px sur un téléphone de 390 px
+          (mesure en production, 20/09). Le titre et le paragraphe ci-dessous
+          sont le texte de l'user, arbitré tel quel ; les deux entrées en sont
+          les deux moitiés. Pastille retirée : elle annonçait un site
+          mono-activité juste au-dessus d'un titre qui en annonce deux. */}
+      <div data-testid="home-hero" className="text-center mb-16">
+        <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight mb-4 sm:mb-6">
+          Des stratégies testées.<br />
+          <span className="text-positive">Des comptes de sociétés examinés.</span>
         </h1>
-        <p className="text-lg text-muted max-w-2xl mx-auto mb-8">
-          {/* {' '} after the expression: RSC drops the ambient leading space of a text
-              node that follows an expression when the element mixes text and expression
-              children — the page rendered « 2bots ». The explicit space survives. */}
-          {/* « je te donne les outils pour tester par toi-même » disait qu'un outil
-              existe sans dire ce qu'il fait ni qu'il est ouvert. Un visiteur venu du
-              blog repartait sans savoir que le banc d'essai le concerne. La headline
-              reste l'identité du projet ; c'est cette phrase qui porte le bénéfice.
+        <p className="text-base sm:text-lg text-muted max-w-2xl mx-auto mb-6 sm:mb-10">
+          Je teste des stratégies de trading et je publie les résultats de mes bots, gains
+          comme pertes. Je passe aussi les rapports annuels de sociétés cotées à travers sept
+          contrôles, avec les chiffres et les sources pour que tu puisses vérifier.
+        </p>
 
-              « fragile, et pourquoi » n'est pas une image : c'est le mot que rend
-              globalVerdict() dans algolab (fragile | solide | data-dépendante), et la
-              raison vient de plainVerdict(). Les deux lisent RunDiagnostics, servi par
-              /runs/{id}/diagnostics.json, qui ne porte AUCUN softwall — donc la phrase
-              décrit ce qu'un visiteur SANS COMPTE reçoit vraiment. Le verdict PBO/DSR
-              est une autre fonction sur un payload derrière require_paid ; ne pas le
-              promettre ici. Vérifié le 04/09. */}
-          Je fais tourner {liveBots.length}{' '}bots en argent réel et le reste en laboratoire (simulation). J&apos;expose chaque trade, gains comme pertes. Et le labo où je les teste est ouvert : tu y passes ta propre stratégie, il la rejoue sur l&apos;historique et te dit si elle est fragile, et pourquoi.
-        </p>
-        <div className="flex flex-wrap gap-3 justify-center">
-          {/* Le libellé dit l'action, plus la destination. `event` est inchangé pour
-              ne pas casser la série analytique du CTA. */}
-          <TrackedLink href="https://lab.algoproof.fr" event="cta_lab" location="home-hero" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
-            Tester ta stratégie, sans compte →
-          </TrackedLink>
-          <Link href="/overview" className="px-5 py-2.5 bg-card border border-border rounded-lg hover:border-muted/50 transition-colors">
-            Voir mes bots en direct
-          </Link>
+        {/* Les deux entrées, directement sous le message.
+            Elles ne sont pas symétriques et c'est assumé : à gauche il y a un
+            outil que le visiteur peut lancer, à droite il y a des lectures que
+            j'ai faites. Forcer deux verbes d'action aurait laissé croire à un
+            « examinateur de sociétés » qui n'existe pas, et c'est la première
+            marche vers la note que D058 a retirée du site. */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mb-8">
+
+          <div data-testid="entry-strategies" className="bg-card border border-border rounded-lg p-6 flex flex-col">
+            <h2 className="text-xl font-semibold mb-3">Les stratégies</h2>
+            {/* « fragile, et pourquoi » n'est pas une image : c'est le mot que rend
+                globalVerdict() dans algolab (fragile | solide | data-dépendante), et la
+                raison vient de plainVerdict(). Les deux lisent RunDiagnostics, servi par
+                le diagnostics.json d'un run, qui ne porte AUCUN softwall — donc la phrase
+                décrit ce qu'un visiteur SANS COMPTE reçoit vraiment. Le verdict PBO/DSR
+                est une autre fonction sur un payload derrière require_paid ; ne pas le
+                promettre ici. Vérifié le 04/09. */}
+            <p className="text-sm text-muted">
+              Mes bots tournent en simulation et en argent réel, chaque trade publié. Le labo
+              où je teste mes stratégies est ouvert. Tu y passes la tienne, il la rejoue sur
+              l&apos;historique et te dit si elle est fragile, et pourquoi.
+            </p>
+            <div className="mt-auto pt-5">
+              {/* `event` inchangé : la série analytique du CTA ne doit pas se couper. */}
+              <TrackedLink href="https://lab.algoproof.fr" event="cta_lab" location="home-hero" className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
+                Tester ta stratégie, sans compte →
+              </TrackedLink>
+              <Link href="/overview" className="block mt-3 text-sm text-accent hover:underline">
+                Voir les résultats de mes bots
+              </Link>
+              {/* La réassurance est au moment du clic, pas trois écrans plus bas,
+                  et à côté du seul lien qui soulève la question. */}
+              <p className="mt-3 text-xs text-muted">
+                Un backtester, pas un broker. Rien à déposer, aucune clé à donner.
+              </p>
+            </div>
+          </div>
+
+          <div data-testid="entry-companies" className="bg-card border border-border rounded-lg p-6 flex flex-col">
+            <h2 className="text-xl font-semibold mb-3">Les sociétés</h2>
+            {/* D058 (19/09) : plus aucune page ne promet de note ni de verdict de
+                société. Cette entrée est celle qui envoie du trafic neuf vers
+                /investir, donc elle le dit elle-même plutôt que de le laisser
+                découvrir. « que je lis » porte la limite de couverture : une
+                société absente n'est pas une société sans alerte. */}
+            <p className="text-sm text-muted">
+              Pour chaque société cotée que je lis, je passe son dernier rapport annuel à
+              travers sept contrôles. Je publie les alertes qu&apos;ils lèvent et les chiffres,
+              avec la page du rapport pour refaire le calcul. Pas de note, pas de verdict.
+            </p>
+            <div className="mt-auto pt-5">
+              <Link href="/investir" className="inline-block px-5 py-2.5 bg-card border border-border font-semibold rounded-lg hover:border-positive/40 transition-colors text-sm">
+                Voir les sociétés que je lis →
+              </Link>
+              <Link href="/investir#methode" className="block mt-3 text-sm text-accent hover:underline">
+                Les sept contrôles, expliqués
+              </Link>
+            </div>
+          </div>
+
         </div>
-        {/* La réassurance vivait uniquement dans le footer, trois écrans plus bas.
-            Elle sert au moment du clic, pas à la fin de la page. */}
-        <p className="mt-4 text-xs text-muted">
-          Un backtester, pas un broker. Rien à déposer, aucune clé à donner.
-        </p>
-        {/* Live proof strip */}
-        <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-muted border border-border rounded-lg px-5 py-3">
-          <span><strong className="text-white font-mono">{liveBots.length}</strong> bots en argent réel</span>
+
+        {/* Un SEUL compteur de bots sur cette page, et il montre ses parts.
+            Avant : « 3 bots en argent réel · 89 en laboratoire » ici, puis
+            « 92 bots en service » dans l'entonnoir 120 px plus bas. 89 + 3 = 92,
+            donc rien n'était faux, mais deux populations emboîtées nommées dans
+            deux vocabulaires se lisent comme une contradiction, et c'est ce que
+            l'user a lu. Le total est maintenant écrit AVEC ses deux parts, et
+            l'entonnoir ne compte plus de bots. */}
+        <div data-testid="fleet-counters" className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-muted border border-border rounded-lg px-5 py-3">
+          <span><strong className="text-white font-mono">{liveBots.length + paperBots.length}</strong> bots en service</span>
           <span className="text-border">·</span>
-          <span><strong className="text-white font-mono">{paperBots.length}</strong> en laboratoire (simulation)</span>
+          <span><strong className="text-white font-mono">{liveBots.length}</strong> en argent réel</span>
+          <span className="text-border">·</span>
+          {/* « simulation », pas « laboratoire » : c'est déjà le mot de
+              StatusBadge, et ça laisse « le labo » désigner l'outil seul. */}
+          <span><strong className="text-white font-mono">{paperBots.length}</strong> en simulation</span>
           <span className="text-border">·</span>
           <span>données mises à jour chaque heure</span>
           <span className="text-border">·</span>
@@ -110,40 +162,29 @@ export default async function HomePage() {
           </a>
         </div>
         <div className="mt-4 max-w-xl mx-auto text-left">
-          <FunnelCounter counts={funnel} />
+          <FunnelCounter counts={funnel} showFleet={false} />
         </div>
+
+        {/* Ce qui reste de la grille des 4 portes. La flotte et Investir y
+            faisaient doublon avec les deux entrées ci-dessus. Les deux autres
+            destinations restent dans le hero, en texte, mais PAS dans le premier
+            écran : mesuré à 1 421 px sur un téléphone de 390x664, contre 1 896 px
+            (Météo) et 2 086 px (Apprendre) pour leurs anciennes cartes. Elles y
+            gagnent, elles n'y sont pas immédiates — ne pas l'écrire autrement. */}
+        <p className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted">
+          <Link href="/intelligence" className="hover:text-white transition-colors">Météo du marché</Link>
+          <span className="text-border">·</span>
+          <Link href="/strategies" className="hover:text-white transition-colors">
+            La bibliothèque des {STRATEGY_FICHES.length} stratégies
+          </Link>
+          <span className="text-border">·</span>
+          <Link href="/preuve" className="hover:text-white transition-colors">Pourquoi je montre chaque trade perdant</Link>
+        </p>
       </div>
 
       {/* Ambiance ticker — live crypto prices, purely decorative (no trading signal) */}
       <div className="mb-16">
         <TVTickerTapeIsland />
-      </div>
-
-      {/* Les 4 portes — router by interest, not by skill level */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-        {[
-          // FIX (final whole-branch review, label drift): /overview is « La
-          // flotte » in the nav and the footer; it was « Mes bots » here and on
-          // /a-propos. One page, one name.
-          { href: '/overview',     emoji: '🤖', title: 'La flotte',  desc: 'Regarde mes bots trader en vrai, chaque trade horodaté.' },
-          // /wealth is redirected to /investir since 2026-09-09. Same page, same
-          // name as the nav, same description as the /a-propos card.
-          { href: '/investir',     emoji: '💰', title: 'Investir',  desc: 'Les comptes de sociétés cotées, lus par sept contrôles que tu peux refaire toi-même, rapport annuel en main.' },
-          { href: '/intelligence', emoji: '🌤️', title: 'Météo du marché', desc: 'La météo du marché, en français, chaque jour.' },
-          // FIX (final whole-branch review, I6): the « bibliothèque des 22
-          // stratégies » pointed at lab.algoproof.fr/apprendre. This branch
-          // moved that library HERE, to /strategies, on the argument that
-          // showcase content belongs on the showcase domain. Until the lab-side
-          // deletion runs, the old link is duplicate content competing with the
-          // page it was copied from; after it runs, it is a dead link.
-          { href: '/strategies', emoji: '📚', title: 'Apprendre', desc: `La bibliothèque des ${STRATEGY_FICHES.length} stratégies expliquées en français, et les guides du blog.` },
-        ].map(p => (
-          <Link key={p.href} href={p.href} className="bg-card border border-border rounded-lg p-6 hover:border-positive/30 transition-colors group">
-            <div className="text-2xl mb-3">{p.emoji}</div>
-            <h2 className="text-xl font-semibold mb-3 group-hover:text-positive transition-colors">{p.title}</h2>
-            <p className="text-sm text-muted">{p.desc}</p>
-          </Link>
-        ))}
       </div>
 
       {/* Manifeste transparence (absorbs /preuve intent) */}

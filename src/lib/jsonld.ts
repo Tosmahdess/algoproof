@@ -22,7 +22,7 @@ export function organizationJsonLd() {
     name: 'AlgoProof',
     url: 'https://algoproof.fr',
     description:
-      'Labo de trading algorithmique transparent, en français. Chaque trade (gains et pertes) est public.',
+      'Je publie les résultats de mes bots de trading, gains comme pertes, et je passe les rapports annuels de sociétés cotées à travers sept contrôles.',
     sameAs: ['https://x.com/AlgoProof'],
   }
 }

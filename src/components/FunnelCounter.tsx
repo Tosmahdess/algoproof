@@ -11,7 +11,18 @@ const nf = new Intl.NumberFormat('fr-FR')
  * cockpit hero on lab.algoproof.fr — that is deliberate: the two sites must
  * never again disagree about what the engine has done.
  */
-export default function FunnelCounter({ counts }: { counts: FunnelCounts | null }) {
+export default function FunnelCounter({
+  counts,
+  showFleet = true,
+}: {
+  counts: FunnelCounts | null
+  /** The home carries its own, single bot counter and passes false here.
+   *  Measured 2026-09-20: this block said « 92 bots en service » 120 px under a
+   *  hero strip saying « 3 en argent réel · 89 en laboratoire ». 89 + 3 = 92, so
+   *  neither was false — they named nested populations in two vocabularies, and
+   *  that reads as a contradiction. /overview has no such strip and keeps it. */
+  showFleet?: boolean
+}) {
   if (!counts || counts.n_swept <= 0) return null
 
   return (
@@ -46,6 +57,7 @@ export default function FunnelCounter({ counts }: { counts: FunnelCounts | null 
           counts sat under « Jugées au gantelet », labelled as its next steps, while
           funnel_counts counts EVERY bot in paper or live, the ones deployed by hand
           before the engine included (migration 020, lines 16-17). */}
+      {showFleet && (
       <div data-testid="funnel-fleet" className="mt-4 pt-3 border-t border-border">
         <p className="text-xs text-muted mb-2">
           Hors de cet entonnoir : toute ma flotte, y compris les bots que j&apos;ai
@@ -62,6 +74,7 @@ export default function FunnelCounter({ counts }: { counts: FunnelCounts | null 
           </div>
         </dl>
       </div>
+      )}
     </section>
   )
 }

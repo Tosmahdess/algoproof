@@ -237,12 +237,20 @@ describe('Investir is described as the page it is', () => {
     }
   })
 
-  it('the home Investir card opens /investir with the /a-propos description', () => {
+  // 2026-09-20: the home stopped routing through a four-card grid. Investir is
+  // now one of the two entries directly under the headline, with its own copy,
+  // so the old assertion (home and /a-propos carry the SAME description) is
+  // obsolete by decision, not by drift. What must still hold whatever the
+  // markup: the entry exists, it opens both the list and the method, and it
+  // promises seven checks rather than the grade D058 retired. The structural
+  // side is checked at render in tests/app/home-two-entries.test.tsx.
+  it('the home companies entry opens /investir and its method, promising no grade', () => {
     const home = read(path.join(ROOT, 'src/app/page.tsx')).replace(/\s+/g, ' ')
-    const card = home.match(/\{ href: '([^']*)', emoji: '[^']*', title: 'Investir', desc: '([^']*)' \}/)
-    expect(card, 'the Investir card').toBeTruthy()
-    expect(card![1]).toBe('/investir')
-    expect(card![2]).toBe('Les comptes de sociétés cotées, lus par sept contrôles que tu peux refaire toi-même, rapport annuel en main.')
+    expect(home, 'the companies entry').toMatch(/data-testid="entry-companies"/)
+    expect(home, 'the company list').toMatch(/href="\/investir"/)
+    expect(home, 'the seven checks').toMatch(/href="\/investir#methode"/)
+    expect(home).toMatch(/sept contrôles/)
+    expect(home).toMatch(/Pas de note, pas de verdict/)
   })
 
   it('no surface describes Investir as a DCA on crypto, ETFs and shares', () => {

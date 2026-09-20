@@ -61,6 +61,28 @@ describe('FunnelCounter', () => {
     expect(text).not.toMatch(/les meilleures|la crème|le dessus du panier|les plus prometteuses/i)
   })
 
+  // 2026-09-20: on the HOME this block sat 120 px under a hero strip that
+  // counted the same bots under other words (« 89 en laboratoire » / « 92 bots
+  // en service »). Nested populations, two vocabularies, no sentence saying so
+  // — read as a contradiction. The home now carries the only bot count and
+  // passes showFleet={false}; /overview, which has no such strip, keeps it.
+  it('drops the fleet block, and only it, when showFleet is false', () => {
+    render(<FunnelCounter counts={COUNTS} showFleet={false} />)
+    expect(screen.queryByTestId('funnel-fleet')).toBeNull()
+    expect(screen.queryByText('Bots en service (simulation ou argent réel)')).toBeNull()
+    expect(screen.queryByText('Dont en argent réel')).toBeNull()
+    // The funnel itself is untouched: the denominator is the whole argument.
+    expect(screen.getByTestId('funnel-engine')).toBeTruthy()
+    expect(screen.getByText('Configurations balayées')).toBeTruthy()
+    expect(screen.getByText('Jugées au gantelet')).toBeTruthy()
+    expect(screen.getByText(/5\s?855\s?277/)).toBeTruthy()
+  })
+
+  it('keeps the fleet block by default, so /overview needs no flag', () => {
+    render(<FunnelCounter counts={COUNTS} />)
+    expect(screen.getByTestId('funnel-fleet')).toBeTruthy()
+  })
+
   it('renders nothing at all when the counts are unavailable', () => {
     const { container } = render(<FunnelCounter counts={null} />)
     expect(container.firstChild).toBeNull()
