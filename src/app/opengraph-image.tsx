@@ -38,7 +38,7 @@ export default async function Image() {
         <span style={{ color: '#4ade80' }}>Proof</span>
       </div>
       <span style={{ color: '#e6edf3', fontSize: '28px', textAlign: 'center', maxWidth: '700px' }}>
-        Trading algo vérifié, chaque trade publié
+        Des stratégies testées, des comptes de sociétés examinés
       </span>
       <span style={{ color: '#8b949e', fontSize: '20px', marginTop: '8px' }}>
         {botLine}

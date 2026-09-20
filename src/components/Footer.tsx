@@ -79,7 +79,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <span className="text-sm text-muted">AlgoProof : mon labo de trading algo, en public. Chaque trade, chaque perte.</span>
+          <span className="text-sm text-muted">AlgoProof : mes bots de trading et les comptes de sociétés que je lis, en public. Chaque trade, chaque perte.</span>
           <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-muted hover:text-white transition-colors">X / Twitter</a>
         </div>
         {/* The site's default rule (« paper trading sauf mention contraire »)

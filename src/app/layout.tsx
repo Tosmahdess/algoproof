@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: { template: '%s | AlgoProof', default: 'AlgoProof' },
-  description: 'Labo de trading algorithmique transparent, en français. Je fais tourner des bots en réel et j\'expose chaque trade, gains et pertes.',
+  description: 'Bots de trading et comptes de sociétés cotées, en public et en français. J\'expose chaque trade, gains comme pertes, et je passe chaque rapport annuel que je lis à travers sept contrôles.',
   metadataBase: new URL('https://algoproof.fr'),
   openGraph: {
     siteName: 'AlgoProof',
