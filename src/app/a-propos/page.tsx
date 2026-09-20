@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { membershipPrice } from '@/lib/launch-offer'
 
 export const metadata: Metadata = {
   title: 'À propos : AlgoProof, mon labo de trading en public',
@@ -71,7 +72,7 @@ export default function AProposPage() {
           les comptes, les sept contrôles et leurs alertes, les chiffres et le rapport annuel le sont
           aussi. Le{' '}
           <a href="https://lab.algoproof.fr" className="text-accent">labo</a> s&apos;ouvre sans compte, et un compte
-          gratuit permet de lancer des backtests avec des quotas. L&apos;adhésion à 29 € par mois lève ces quotas et
+          gratuit permet de lancer des backtests avec des quotas. L&apos;adhésion à {membershipPrice()} lève ces quotas et
           ouvre le reste : la configuration exacte des bots et leur dossier de validation, deux paragraphes
           d&apos;analyse par société, et les fonctions de calcul du labo. Jamais les résultats, qui restent publics
           et gratuits.{' '}

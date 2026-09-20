@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import JsonLd from '@/components/JsonLd'
 import { faqJsonLd } from '@/lib/jsonld'
 import FaqAccordion from '@/components/FaqAccordion'
+// Le prix du Labo vient d'UN endroit (miroir du dépôt algolab). Il était
+// recopié à la main ici, sur /a-propos et dans la phrase d'accès du gantelet.
+import { membershipPrice } from '@/lib/launch-offer'
 
 export const metadata: Metadata = {
   title: 'FAQ : questions fréquentes sur AlgoProof',
@@ -9,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 const FAQ = [
-  { question: 'Est-ce payant ?', answer: 'Regarder est gratuit et le restera : trades, pertes, historique, verdicts, stratégies recalées. Le compte labo (lien magique, sans mot de passe) est gratuit lui aussi et permet de lancer des backtests, avec des quotas. L\'adhésion à 29 € par mois ou 290 € par an lève ces quotas et ouvre le reste : la recette exacte des bots sortis du moteur, deux paragraphes d\'analyse par société, et les fonctions de calcul du labo (grilles, walk-forward, import de tes propres données). Pas de période d\'essai : le premier paiement est prélevé à la souscription, et je le rembourse intégralement sur simple demande dans les 14 jours.' },
+  { question: 'Est-ce payant ?', answer: 'Regarder est gratuit et le restera : trades, pertes, historique, verdicts, stratégies recalées. Le compte labo (lien magique, sans mot de passe) est gratuit lui aussi et permet de lancer des backtests, avec des quotas. L\'adhésion à ' + membershipPrice() + ', ou 290 € par an, lève ces quotas et ouvre le reste : la recette exacte des bots sortis du moteur, deux paragraphes d\'analyse par société, et les fonctions de calcul du labo (grilles, walk-forward, import de tes propres données). Pas de période d\'essai : le premier paiement est prélevé à la souscription, et je le rembourse intégralement sur simple demande dans les 14 jours.' },
   { question: 'Quel est le risque ?', answer: 'Le trading comporte un risque de perte. C\'est exactement pourquoi je montre aussi mes pertes et mes drawdowns. Rien ici n\'est un conseil financier : c\'est ma recherche, partagée en transparence.' },
   { question: 'Les bots sont-ils en argent réel ?', answer: 'La plupart tournent en paper trading (simulation sur données réelles, frais et slippage compris, sans argent réel). Les bots qui tournent avec mon argent sont marqués « Argent réel ». Le statut est toujours affiché, sur mobile aussi.' },
   { question: 'Touches-tu à mon argent ?', answer: 'Jamais. Le site ne demande ni dépôt, ni clé d\'exchange, ni accès à un compte de trading : il n\'y a rien à connecter, rien à confier. Tout est en lecture seule. Si un jour une offre demande davantage, elle sera annoncée ici noir sur blanc, jamais par surprise.' },
