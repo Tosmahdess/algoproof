@@ -123,9 +123,13 @@ export default async function HomePage() {
               avec la page du rapport pour refaire le calcul. Pas de note, pas de verdict.
             </p>
             <div className="mt-auto pt-5">
-              <Link href="/investir" className="inline-block px-5 py-2.5 bg-card border border-border font-semibold rounded-lg hover:border-positive/40 transition-colors text-sm">
+              {/* Same shape as the lab CTA opposite: the primary action of each
+                  entry carries an event, the secondary link does not. Without it
+                  the half of the home that exists to give Investir visibility
+                  could not be measured at all. */}
+              <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-block px-5 py-2.5 bg-card border border-border font-semibold rounded-lg hover:border-positive/40 transition-colors text-sm">
                 Voir les sociétés que je lis →
-              </Link>
+              </TrackedLink>
               <Link href="/investir#methode" className="block mt-3 text-sm text-accent hover:underline">
                 Les sept contrôles, expliqués
               </Link>

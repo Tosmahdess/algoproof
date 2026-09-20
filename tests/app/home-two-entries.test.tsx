@@ -16,6 +16,8 @@
 // and ONE place on this page that counts bots, written as a sum of its parts.
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { mkBot } from '../fixtures/bots'
 
 // 2 real-money, 3 in simulation. Distinctive digits: 2, 3 and their sum 5 do
@@ -145,6 +147,21 @@ describe('/ — the two entries sit directly under the message', () => {
     expect(card.textContent).toMatch(/sept contrôles/)
     expect(card.textContent).toMatch(/Pas de note, pas de verdict/)
     expect(card.textContent).not.toMatch(/\bje note\b|\bnotées?\b|\bverdict\b(?!\.)/i)
+  })
+
+  // The chantier that created this entry exists to give Investir visibility.
+  // Shipped without an event, it could not be told apart from the old card that
+  // sat at 1 686 px — the page would look better and prove nothing. The primary
+  // action of each entry carries one; the secondary links do not.
+  it('the companies entry is measurable, like the lab one opposite', async () => {
+    render(await HomePage())
+    const card = screen.getByTestId('entry-companies')
+    const cta = [...card.querySelectorAll('a')].find(a => a.getAttribute('href') === '/investir')!
+    expect(cta, 'the /investir call to action').toBeTruthy()
+    const src = readFileSync(resolve(__dirname, '../../src/app/page.tsx'), 'utf8').replace(/\s+/g, ' ')
+    expect(src, 'the companies CTA fires cta_investir').toMatch(
+      /<TrackedLink href="\/investir" event="cta_investir" location="home-hero"/,
+    )
   })
 
   // D051: Investir is an audience asset. Giving it the visibility it lacked
