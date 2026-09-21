@@ -18,9 +18,20 @@
 --      AVANT de toucher quoi que ce soit.
 --   2. BLOC 5 -> égalité du catalogue, stratégie par stratégie, sur les 38 stratégies.
 --
--- Si le BLOC 0 a prouvé l'hypothèse du plan générique, la 053 suffit à rouvrir la page et
--- CETTE migration devient un travail de fond, à faire posément. Elle ne devient urgente que
--- si le banc montre que le coût est le TRAVAIL.
+-- L'AUTRE HYPOTHÈSE EST DÉJÀ TOMBÉE, ET CELLE-CI EST DONC LA SEULE EN LICE. On a soupçonné
+-- le plan générique (la 047 n'a jamais reçu le `plan_cache_mode = force_custom_plan` que la
+-- 049 avait posé sur ses deux voisines). Réfuté le 21/09 par un appel REST à corps VIDE, qui
+-- invoque la fonction SANS argument -- donc planifiée avec une constante, coalesce replié :
+-- 3 tirs / 3 en 57014 sur la clé anon, et 57014 en 9,54 s sous le budget de 8 s du rôle
+-- service, exactement comme le bras paramétré (9,62 s). Le coût est le TRAVAIL.
+--
+-- ⚠️ ET CETTE MIGRATION PEUT NE PAS SUFFIRE. Elle retire UNE des deux passes sur le corpus.
+-- La 047 avait mesuré le plancher d'une seule passe à 2,29 s (count(*) avec un dataset
+-- constant), sur un corpus qui a beaucoup grossi depuis. Si les BLOCS 1 et 2 du banc
+-- montrent que la forme candidate reste au-dessus de 3 s, alors même ce correctif est une
+-- constante de plus et non une pente : il faudra écrire l'agrégat À LA PUBLICATION (un
+-- histogramme des exit_keys par unité, écrit par le publisher, lu et masqué par
+-- trailing-mask.ts), ce qui est la seule forme dont le coût ne suit pas la taille du corpus.
 --
 -- ---------------------------------------------------------------------------
 -- CE QUE ÇA CHANGE, ET POURQUOI C'EST LA SEULE CHOSE QUI CHANGE LA PENTE
@@ -138,9 +149,10 @@ begin
 end
 $PL$;
 
--- La ceinture de la 049, que la 047 n'avait jamais reçue. Conservée même si la 053 l'a déjà
--- posée : `set` est idempotent, et laisser cette ligne ici évite qu'un retour arrière sur la
--- 053 la retire sans qu'on s'en aperçoive.
+-- La ceinture de la 049, que la 047 n'a jamais reçue. Elle ne répare RIEN à elle seule --
+-- c'est mesuré, voir l'en-tête -- mais elle ne coûte rien et retire une variable de l'équation
+-- pour la prochaine mesure : après cette migration, un écart de temps entre l'éditeur SQL et
+-- REST ne pourra plus s'expliquer par le cache de plans.
 alter function public.survivor_strategy_summary(text)
   set plan_cache_mode = force_custom_plan;
 
