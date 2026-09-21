@@ -1,5 +1,11 @@
 -- 2026-09-21_banc_generation_courante.sql
 --
+-- ⚠️ « Failed to fetch (api.supabase.com) » N'EST PAS UNE ERREUR SQL. C'est la passerelle
+-- du dashboard qui coupe une requête trop longue : le SQL continue côté serveur, seul le
+-- navigateur a lâché. Lancer UN SEUL BLOC à la fois, et si un bloc revient comme ça,
+-- baisser son `statement_timeout` local plutôt que l'augmenter -- on cherche à savoir SI ça
+-- tient dans un budget, pas à obtenir le résultat coûte que coûte.
+--
 -- LECTURE SEULE. Chaque bloc est encadré de `begin; ... rollback;` et ne crée, ne modifie
 -- ni ne supprime quoi que ce soit. À coller dans l'éditeur SQL Supabase UN BLOC À LA FOIS.
 --
@@ -19,31 +25,36 @@
 --
 -- Deux hypothèses restent ouvertes, et un seul EXPLAIN les tranche toutes les deux :
 --
---   (A) LE PLAN GÉNÉRIQUE, ET C'EST L'HYPOTHÈSE DE TÊTE DEPUIS LA RELECTURE DE LA 049.
---       La 049 n'a pas seulement réécrit le catalogue en plpgsql : elle a épinglé
+--   (A) LE PLAN GÉNÉRIQUE — HYPOTHÈSE RÉFUTÉE LE 21/09, ET VOICI LA MESURE.
 --
---           alter function public.survivor_family_catalog(text, text)
---             set plan_cache_mode = force_custom_plan;
---           alter function public.survivor_family_all(text, text)
---             set plan_cache_mode = force_custom_plan;
+--       L'hypothèse : la 049 n'a pas seulement réécrit le catalogue en plpgsql, elle a
+--       épinglé `plan_cache_mode = force_custom_plan` sur survivor_family_catalog ET
+--       survivor_family_all. La 047 (survivor_strategy_summary) ne l'a jamais reçu, et
+--       c'est la seule des trois qui meurt. PostgREST appelant par instruction préparée,
+--       un plan GÉNÉRIQUE laisse `coalesce($1, g.dataset_version)` sous forme d'expression
+--       opaque, ni estimable ni indexable.
 --
---       `survivor_strategy_summary` (047) n'a JAMAIS reçu cette ligne. Or c'est la seule
---       des trois qui meurt. PostgREST appelle par instruction préparée : au-delà de la
---       5e exécution, PostgreSQL bascule sur un plan GÉNÉRIQUE, où
---       `m.dataset_version = coalesce($1, g.dataset_version)` n'est plus repliable — avec
---       un littéral `null`, le planificateur réduit ce coalesce à `g.dataset_version` et
---       obtient une vraie condition de jointure ; avec un paramètre inconnu, il garde une
---       expression opaque qu'il ne sait ni estimer ni indexer.
+--       LA RÉFUTATION, sans écrire une ligne en base et par le canal qui a produit le
+--       rouge. `survivor_strategy_summary` a un paramètre PAR DÉFAUT. Un POST REST avec un
+--       corps VIDE (`{}`) appelle donc `survivor_strategy_summary()` SANS argument : la
+--       valeur par défaut est substituée à l'analyse, le coalesce est replié sur une
+--       constante, et il n'y a plus un seul paramètre dans le plan. Mesuré le 21/09 :
 --
---       C'EST AUSSI CE QUI RÉCONCILIE LES DEUX MESURES CONTRADICTOIRES : 0,9 s le 18/09
---       dans l'éditeur SQL (littéraux -> plan custom) et timeout via REST (paramètres ->
---       plan générique). Le 19/09 la page servait encore 588 Ko : le plan générique n'était
---       pas encore installé sur les connexions du pool.
+--         corps {}                  clé anon (3 s)      3 tirs / 3 -> 57014, ~4,2 s
+--         corps {"p_dataset":null}  clé anon (3 s)      3 tirs / 3 -> 57014, ~4,1 s
+--         corps {}                  service_role (8 s)            -> 57014, 9,54 s
+--         corps {"p_dataset":null}  service_role (8 s)            -> 57014, 9,62 s
 --
---       Le BLOC 0 tranche cette hypothèse en reproduisant le comportement de PostgREST
---       DANS l'éditeur, au lieu de le déduire. Si le plan custom passe et que le générique
---       meurt, le correctif est UNE LIGNE (`alter function ... set plan_cache_mode`),
---       réversible par `reset`, sans toucher une ligne de corps.
+--       Le bras planifié avec une CONSTANTE meurt exactement comme le bras paramétré, et
+--       il meurt aussi sous 8 s. Donc : le coût est le TRAVAIL, pas le plan. La migration
+--       053 qui n'aurait posé que `set plan_cache_mode` a été SUPPRIMÉE de l'arbre plutôt
+--       que laissée « au cas où » : une migration exécutable dont l'hypothèse est réfutée
+--       est un piège pour la session suivante.
+--
+--       CE QUE ÇA NE DIT PAS : que le plan n'y est pour rien du tout. Il dit que même le
+--       meilleur plan accessible aujourd'hui dépasse 8 s. C'est la 054 — retirer une passe
+--       entière sur le corpus — qui est le correctif candidat, et le BLOC 1/2 mesure ce
+--       qu'elle rend.
 --
 --   (E) LA LARGEUR. 182 Mo pour 136 661 lignes, dont l'essentiel en `recipe`/`signature`
 --       jsonb que cet agrégat ne lit jamais. Si le bloc 1 montre un Seq Scan qui traîne le
@@ -83,47 +94,6 @@
 -- gardait (elle dérivait la génération du corpus lui-même, donc elle était
 -- auto-cohérente par construction). Un `false` au bloc 3 signifie exactement ça, et le
 -- bloc 3 bis le nomme.
-
-
--- ===========================================================================
--- BLOC 0 — LE BLOC QUI TRANCHE. Il reproduit PostgREST dans l'éditeur : une instruction
---          PRÉPARÉE, exécutée assez de fois pour que PostgreSQL bascule du plan CUSTOM au
---          plan GÉNÉRIQUE. Si le 1er passe et le 7e meurt, l'hypothèse A est prouvée et le
---          correctif est la ligne `alter function ... set plan_cache_mode`.
---
---          À lancer EN UNE SEULE FOIS (les instructions préparées vivent le temps de la
---          session, et le `rollback` final n'annule rien puisque tout est en lecture).
--- ===========================================================================
-begin;
-set local statement_timeout = '180s';
-
-prepare banc_summary(text) as select public.survivor_strategy_summary($1);
-
--- Exécutions 1 à 5 : PostgreSQL planifie à CHAQUE fois avec la valeur réelle (plan custom).
-explain (analyze, buffers, verbose off) execute banc_summary(null);   -- 1re : plan custom
-execute banc_summary(null);                                            -- 2e
-execute banc_summary(null);                                            -- 3e
-execute banc_summary(null);                                            -- 4e
-execute banc_summary(null);                                            -- 5e
-
--- À partir d'ici PostgreSQL a le droit de figer un plan GÉNÉRIQUE, celui que PostgREST
--- finit par obtenir sur une connexion du pool. C'est CE plan qu'il faut lire.
-explain (analyze, buffers, verbose off) execute banc_summary(null);   -- 6e
-explain (analyze, buffers, verbose off) execute banc_summary(null);   -- 7e
-
-deallocate banc_summary;
-rollback;
-
--- COMMENT LIRE LE BLOC 0
---   1re exécution rapide (< 2 s) ET 6e/7e lentes ou en timeout
---       -> HYPOTHÈSE A PROUVÉE. Le correctif est la migration 053 (une ligne). Chercher
---          dans le plan de la 7e la mention `$1` restée non repliée dans le coalesce.
---   les trois exécutions également lentes
---       -> A MORTE : c'est le travail, pas le plan. Passer aux blocs 1/2, qui mesurent le
---          correctif de fond (résolution de la génération depuis engine_verdicts).
---   ⚠️ Si la 6e et la 7e restent rapides, cela ne réfute pas A : PostgreSQL ne bascule que
---      s'il estime le plan générique au moins aussi bon. Dans ce cas le verdict vient du
---      bloc 1 (corps nu) comparé à la mesure REST déjà faite : 5 tirs / 5 en timeout.
 
 
 -- ===========================================================================
