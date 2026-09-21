@@ -38,6 +38,7 @@
  */
 
 import { fr, variantsPhrase, type SearchSpace } from '@/lib/engine-search-space'
+import { membershipPriceShort } from '@/lib/launch-offer'
 
 export const GAUNTLET_EXPLAINER_TITLE = 'Comment je décide qu’une stratégie mérite un bot'
 
@@ -138,13 +139,20 @@ export const GAUNTLET_HONESTY: readonly string[] = [
 
 // The access sentence closes the explainer. Structured (before / link / after)
 // so the component can make the middle segment clickable while the copy tests
-// keep asserting on the full sentence. The price mirrors what
-// lab.algoproof.fr/membre actually displays (0 € / 29 € per month) — if the
-// offer changes there, this label changes with it.
+// keep asserting on the full sentence.
+//
+// The price used to be TYPED here, under a comment asking a future reader to
+// keep it in step with lab.algoproof.fr/membre by hand. It now comes from
+// lib/launch-offer.ts, the mirror of the repo that actually charges.
 export const GAUNTLET_ACCESS = {
   before:
     'Les autres dossiers complets, réglages compris, se débloquent avec l’abonnement du labo : ',
-  linkLabel: 'compare le compte gratuit (0 €) et l’offre membre (29 € par mois)',
+  // Un getter, pas une constante : la fenêtre de lancement s'ouvre et se
+  // ferme sur une date, et un objet figé au chargement du module aurait
+  // épinglé le prix vrai à l'import, pas celui du jour où la page est rendue.
+  get linkLabel(): string {
+    return `compare le compte gratuit (0 €) et l’offre membre (${membershipPriceShort()})`
+  },
   href: 'https://lab.algoproof.fr/membre',
   after: ' et prends ce qui te suffit.',
 } as const

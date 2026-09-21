@@ -51,7 +51,12 @@ export default async function HomePage() {
   const preview = sortFleet(bots, 'proven', 'desc').slice(0, 10)
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-20">
+    /* pt-8 sur téléphone au lieu de py-20 : 80 px de vide au-dessus du hero
+       sur un écran de 664 px, c'est un huitième de l'écran dépensé avant le
+       premier mot. Ces 48 px repris financent la marque ajoutée au-dessus du
+       titre sans repousser la première carte sous le pli — voir la mesure dans
+       le commentaire du hero. Le bas de page ne change pas. */
+    <div className="max-w-6xl mx-auto px-6 pt-8 pb-20 sm:py-20">
 
       {/* Hero — deux entrées (user 2026-09-20).
           Le message d'accueil ne nommait qu'une des deux activités : la page
@@ -62,6 +67,23 @@ export default async function HomePage() {
           les deux moitiés. Pastille retirée : elle annonçait un site
           mono-activité juste au-dessus d'un titre qui en annonce deux. */}
       <div data-testid="home-hero" className="text-center mb-16">
+        {/* La marque, au-dessus du titre (user 2026-09-20). `alt` est vide
+            DÉLIBÉRÉMENT : la nav porte déjà « ALGOPROOF » en texte, dans un
+            lien ; un lecteur d'écran qui annoncerait la marque une seconde fois
+            à 100 px d'intervalle la lirait comme deux éléments distincts. Le
+            glyphe est ici décoratif, le nom est dans la nav.
+            Jusqu'à ce jour le dépôt n'avait AUCUN logo : `public/` ne contenait
+            que les SVG d'exemple de Next, et l'onglet servait le favicon par
+            défaut de Create Next App. */}
+        {/* Taille par palier, et c'est une contrainte MESURÉE, pas un goût :
+            à 44 px + mb-5 sur téléphone la marque coûtait 64 px et poussait le
+            bouton de la première carte de 618 à 682 px, donc sous le pli d'un
+            écran de 664 — exactement ce que D059 venait de réparer. 36 px + mb-3
+            ici, plus les 48 px repris au padding du conteneur, rendent la
+            position d'avant AU PIXEL : carte à 433, bouton 618 -> 658, dans
+            l'écran. Mesuré sur le build de production servi en local, 390x664 ;
+            un garde ne peut pas tenir ça, seule une remesure le peut. */}
+        <img src="/logo.svg" alt="" width={44} height={44} className="mx-auto mb-3 sm:mb-5 w-9 h-9 sm:w-11 sm:h-11" />
         <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight mb-4 sm:mb-6">
           Des stratégies testées.<br />
           <span className="text-positive">Des comptes de sociétés examinés.</span>
@@ -95,8 +117,18 @@ export default async function HomePage() {
               l&apos;historique et te dit si elle est fragile, et pourquoi.
             </p>
             <div className="mt-auto pt-5">
-              {/* `event` inchangé : la série analytique du CTA ne doit pas se couper. */}
-              <TrackedLink href="https://lab.algoproof.fr" event="cta_lab" location="home-hero" className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
+              {/* `event` inchangé : la série analytique du CTA ne doit pas se couper.
+                  Destination changée le 2026-09-20 (user) : `/lab`, le backtester,
+                  et non plus la racine de lab.algoproof.fr, qui est la landing-pitch.
+                  Le libellé promet « Tester ta stratégie » depuis toujours et
+                  envoyait sur une page de présentation : le libellé et la
+                  destination étaient déjà en désaccord. Amende D051 et D053 — la
+                  landing reste le pitch du trafic FROID (Reddit, SEO, URL tapée),
+                  elle n'est plus l'antichambre du trafic qui a déjà lu le pitch
+                  ici. « sans compte » reste vrai : middleware.ts de algolab garde
+                  /lab hors de WALLED_PATHS (seuls /runs et /compare sont murés),
+                  vérifié le 2026-09-20. */}
+              <TrackedLink href="https://lab.algoproof.fr/lab" event="cta_lab" location="home-hero" className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
                 Tester ta stratégie, sans compte →
               </TrackedLink>
               <Link href="/overview" className="block mt-3 text-sm text-accent hover:underline">
@@ -126,13 +158,36 @@ export default async function HomePage() {
               {/* Same shape as the lab CTA opposite: the primary action of each
                   entry carries an event, the secondary link does not. Without it
                   the half of the home that exists to give Investir visibility
-                  could not be measured at all. */}
-              <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-block px-5 py-2.5 bg-card border border-border font-semibold rounded-lg hover:border-positive/40 transition-colors text-sm">
+                  could not be measured at all.
+                  Bouton passé en vert plein le 2026-09-20 (user). Le contour
+                  sombre défendait une hiérarchie primaire/secondaire, mais cette
+                  hiérarchie n'a de sens qu'À L'INTÉRIEUR d'une carte : entre deux
+                  entrées annoncées comme les deux moitiés du site (D059), deux
+                  poids visuels différents se lisent « celle de droite compte
+                  moins ». Ce que le contour protégeait — ne pas laisser croire à
+                  un examinateur de sociétés qui n'existe pas — vit dans le
+                  LIBELLÉ, qui ne bouge pas : « Voir les sociétés que je lis »
+                  reste une lecture, jamais un verbe d'outil. */}
+              <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
                 Voir les sociétés que je lis →
               </TrackedLink>
               <Link href="/investir#methode" className="block mt-3 text-sm text-accent hover:underline">
                 Les sept contrôles, expliqués
               </Link>
+              {/* La contrepartie de la phrase d'en face, même position, même gris.
+                  L'user voulait retirer celle de gauche pour aligner les deux bas
+                  de carte ; l'aligner par SYMÉTRIE donne la même ligne droite sans
+                  rendre la réassurance — qui pèse plus lourd depuis que le bouton
+                  d'en face ouvre directement un outil. Et la carte sociétés gagne
+                  celle qui manquait : depuis D058 (15/09) aucune fiche ne conclut
+                  plus par un mot de synthèse, et rien sur cette page ne disait
+                  encore que ce n'est pas du conseil pour autant.
+                  Formulation contrainte : no-grade-sitewide.test.ts balaie le
+                  TEXTE de tout src/, commentaires compris — y réécrire le couple
+                  de mots retirés, même pour raconter qu'il est retiré, rougit. */}
+              <p className="mt-3 text-xs text-muted">
+                Des lectures, pas des conseils. Aucune recommandation d&apos;achat ou de vente.
+              </p>
             </div>
           </div>
 
