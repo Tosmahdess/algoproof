@@ -31,11 +31,61 @@ export interface FunnelCounts {
 }
 
 export interface VerdictCountRow {
+  // Identity columns, REQUIRED. They are not displayed — they exist so this
+  // surface can resolve one generation per rung, which it could not do before
+  // 2026-09-22 because the query never fetched them. See selectNewestPerPair.
+  base: string
+  tf: string
+  kmax: number
+  dataset_version: string
   n_behaviors: number
   n_go: number
   n_marginal: number
   n_no_go: number
   published_at?: string | null
+}
+
+/** The rung's identity ACROSS generations: "the same pair, re-run".
+ *  Twin of algolab web/lib/engine-filters.ts::enginePairKey. */
+function pairKey(row: Pick<VerdictCountRow, 'base' | 'tf' | 'kmax'>): string {
+  return `${row.base}|${row.tf}|${row.kmax}`
+}
+
+/**
+ * One generation per rung: the newest.
+ *
+ * THE DEFECT THIS CLOSES (owner, 2026-09-22): this surface summed EVERY verdict
+ * row, so a rung swept twice was counted twice. It printed « Jugées au gantelet
+ * 1 851 651 » while lab.algoproof.fr's cockpit printed 1 600 883 for the same
+ * words — a 250 768 gap that is entirely superseded generations.
+ *
+ * It is the SECOND time the two surfaces drifted on this exact pair. The first
+ * (2026-08-15, over-count of 151 359) is described in this file's header and
+ * pinned by the freshness test below; the cockpit had gained a filter and this
+ * one had not. Same shape, different filter: the cockpit gained the per-rung
+ * generation default on 2026-09-04 and this one, again, did not.
+ *
+ * Twin of algolab web/lib/engine-filters.ts::selectNewestPerPair — two repos,
+ * two deployments, so the rule is duplicated on purpose and pinned on both sides.
+ * Datasets are named data_YYYYMMDD, so lexical max is chronological max.
+ *
+ * ORDER MATTERS: the freshness cutoff runs FIRST, then this. The cockpit does
+ * the same (dropStaleRows in getEngineVerdicts, then the per-pair default in
+ * resolveEngineFilters), and reversing them would differ whenever a rung's
+ * newest generation is itself pre-cutoff.
+ */
+export function selectNewestPerPair<
+  T extends Pick<VerdictCountRow, 'base' | 'tf' | 'kmax' | 'dataset_version'>,
+>(rows: T[]): T[] {
+  const newest = new Map<string, string>()
+  for (const row of rows) {
+    const key = pairKey(row)
+    const current = newest.get(key)
+    if (current === undefined || row.dataset_version > current) {
+      newest.set(key, row.dataset_version)
+    }
+  }
+  return rows.filter((row) => newest.get(pairKey(row)) === row.dataset_version)
 }
 
 // 2026-08-12 19:38 UTC — the moment the corrected engine started producing, after
@@ -63,7 +113,7 @@ function judgedByCorrectedEngine(row: VerdictCountRow): boolean {
 
 /** Pure aggregation, so the swept/judged split is testable without Supabase. */
 export function verdictTotals(rows: VerdictCountRow[]): { n_swept: number; n_judged: number } {
-  return rows.filter(judgedByCorrectedEngine).reduce(
+  return selectNewestPerPair(rows.filter(judgedByCorrectedEngine)).reduce(
     (acc, r) => ({
       n_swept: acc.n_swept + r.n_behaviors,
       n_judged: acc.n_judged + r.n_go + r.n_marginal + r.n_no_go,
@@ -81,7 +131,10 @@ export async function getFunnelCounts(): Promise<FunnelCounts | null> {
       paginateAll<VerdictCountRow>(async (from, to) => {
         const { data, error } = await supabase
           .from('engine_verdicts_public')
-          .select('n_behaviors,n_go,n_marginal,n_no_go,published_at')
+          // base/tf/kmax/dataset_version are fetched for DEDUPLICATION, never for
+          // display: without them this query cannot tell a re-swept rung from a
+          // second campaign, which is how it came to over-count by 250 768.
+          .select('base,tf,kmax,dataset_version,n_behaviors,n_go,n_marginal,n_no_go,published_at')
           .range(from, to)
         if (error) throw new Error(error.message)
         return data ?? []
