@@ -1,5 +1,6 @@
 'use client'
 
+import StickyFilterBar from '@/components/StickyFilterBar'
 import { linkClass } from '@/lib/link-roles'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -75,7 +76,8 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
       )}
 
       {/* Category filter pills */}
-      <div className="flex flex-wrap gap-2 mb-10">
+      <StickyFilterBar activeCount={filter === null ? 0 : 1} onReset={() => setFilter(null)}>
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setFilter(null)}
           className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
@@ -103,9 +105,10 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
           )
         })}
       </div>
+      </StickyFilterBar>
 
       {filter === null && (counts['journal'] || 0) > 0 && (
-        <p className="text-xs text-muted -mt-6 mb-8">
+        <p className="text-xs text-muted mb-8">
           Les journaux de bord quotidiens ({counts['journal']}) ne sont plus mis en avant : la synthèse
           se fait dans la revue hebdo. Ils restent consultables via le filtre « Journal de bord ».
         </p>
