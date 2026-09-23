@@ -70,6 +70,34 @@ export interface BotWithStats extends Bot {
   all_trades: Trade[]   // complete trade list, used for client-side long/short filtering
 }
 
+/** The only fields of a trade the register's arithmetic ever reads: `side` and
+ *  `asset` for the slice, `pnl` for win rate / profit factor / capital, and
+ *  `closed_at` for the drawdown's chronological order. Named as a type so the
+ *  compiler, not a comment, is what forces the projection below to grow if the
+ *  arithmetic ever starts reading a fifth field. */
+export type StatsTrade = Pick<Trade, 'side' | 'pnl' | 'asset' | 'closed_at'>
+
+/** A bot as `/overview`'s CLIENT register receives it.
+ *
+ *  Measured in production on 2026-09-23: the page served 5.92 MB of HTML, 96 %
+ *  of it one inline RSC script holding 10 197 whole trade rows and 92 perf_daily
+ *  series — because FleetRegister is `'use client'`, so every field of every bot
+ *  handed to it is serialized into the page.
+ *
+ *  `perf_daily` is dropped because the register never reads it: sliceBotStats
+ *  passes `[]` in its place on purpose (the global equity curve is not a valid
+ *  baseline for a subset of trades), and returns `bot.stats` by reference before
+ *  touching anything at all when nothing is sliced. `recent_trades` is dropped
+ *  because the fleet-wide feed is its own prop, fetched by getRecentTrades(20).
+ *
+ *  This is the same rule FleetOverview already applied to GlobalEquityCurve's
+ *  `perf_daily` — "never ship a row set to the browser that the browser will not
+ *  use" — which had been applied to one of the two client props and not the
+ *  other. */
+export type FleetBot = Omit<BotWithStats, 'all_trades' | 'perf_daily' | 'recent_trades'> & {
+  all_trades: StatsTrade[]
+}
+
 export interface WealthCall {
   id: string
   executed_at: string

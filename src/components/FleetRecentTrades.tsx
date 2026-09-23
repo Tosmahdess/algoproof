@@ -12,6 +12,7 @@
 // renders inside the server component tree and never enters the filter
 // pipeline. The old version was filtered by the direction/asset pills; that
 // coupling is gone on purpose.
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import type { TradeWithBot } from '@/lib/types'
 import { fmtEur } from '@/lib/display'
@@ -46,7 +47,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
                 </td>
                 <td className="px-2 py-1.5">
                   {t.bots ? (
-                    <Link href={`/strategies/bot/${t.bots.slug}`} className="hover:text-accent transition-colors">
+                    <Link href={`/strategies/bot/${t.bots.slug}`} className={linkClass('record')}>
                       {t.bots.name}
                     </Link>
                   ) : '—'}

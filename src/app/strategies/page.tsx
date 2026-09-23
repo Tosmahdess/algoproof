@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { fichesByFamily } from '@/lib/strategy-library'
 import { familyLabel, familyDescription } from '@/lib/families'
@@ -50,7 +51,7 @@ export default async function StrategiesIndexPage() {
       <p className="text-sm text-muted mb-8 sm:mb-3">
         Comment marche chaque stratégie que je teste, et lesquelles tournent
         vraiment chez moi. Pour voir les bots en direct, va sur{' '}
-        <Link href="/overview" className="text-accent">La flotte</Link>.
+        <Link href="/overview" className={linkClass('inline')}>La flotte</Link>.
       </p>
       {/* Computer only: there the search sits at 1 141 px on a 900 px screen.
           On a phone the method folds and the search is already in view. */}

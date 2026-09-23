@@ -1,4 +1,5 @@
 'use client'
+import { linkClass } from '@/lib/link-roles'
 import { useState } from 'react'
 import { compare, TMI_BRACKETS } from '@/lib/crypto-tax'
 
@@ -66,7 +67,7 @@ export default function CryptoTaxCalculator() {
       <p className="text-xs text-muted leading-relaxed border-t border-border pt-3">
         Estimation indicative, <strong className="text-foreground">pas un conseil fiscal</strong>. La méthode réelle (art. 150 VH bis)
         calcule par cession sur la valeur globale du portefeuille. Vérifie sur{' '}
-        <a href="https://www.impots.gouv.fr" target="_blank" rel="noopener noreferrer" className="text-accent">impots.gouv.fr</a>.
+        <a href="https://www.impots.gouv.fr" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>impots.gouv.fr</a>.
       </p>
     </div>
   )

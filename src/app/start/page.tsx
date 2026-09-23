@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BYBIT_AFFILIATE_URL, HL_AFFILIATE_URL } from '@/lib/affiliates'
@@ -202,9 +203,9 @@ export default function StartPage() {
         <p className="text-sm text-muted leading-relaxed">
           Au 10 septembre 2026, rien n&apos;a repris : Binance vise un retour par un nouveau dépôt
           auprès de l&apos;AMF, qui doit se prononcer avant le 1er octobre (
-          <a href="https://www.cointribune.com/deux-mois-apres-mica-binance-vise-un-retour-en-france-via-lamf/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Cointribune, 8 septembre 2026</a>
+          <a href="https://www.cointribune.com/deux-mois-apres-mica-binance-vise-un-retour-en-france-via-lamf/" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>Cointribune, 8 septembre 2026</a>
           ). L&apos;arrêt du 1er juillet, tel que la presse l&apos;a donné :{' '}
-          <a href="https://www.moneyvox.fr/placement/actualites/109356/binance-suspend-ses-activites-en-france-les-consequences-pour-vos-crypto-ici-le-1er-juillet-2026" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">MoneyVox</a>
+          <a href="https://www.moneyvox.fr/placement/actualites/109356/binance-suspend-ses-activites-en-france-les-consequences-pour-vos-crypto-ici-le-1er-juillet-2026" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>MoneyVox</a>
           . Si l&apos;AMF dit oui, je le noterai ici.
         </p>
         <p className="text-sm text-muted leading-relaxed">

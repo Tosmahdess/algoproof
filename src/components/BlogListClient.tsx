@@ -1,5 +1,7 @@
 'use client'
 
+import StickyFilterBar from '@/components/StickyFilterBar'
+import { linkClass } from '@/lib/link-roles'
 import { useState } from 'react'
 import Link from 'next/link'
 import type { ArticleMeta } from '@/app/blog/page'
@@ -74,7 +76,8 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
       )}
 
       {/* Category filter pills */}
-      <div className="flex flex-wrap gap-2 mb-10">
+      <StickyFilterBar activeCount={filter === null ? 0 : 1} onReset={() => setFilter(null)}>
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setFilter(null)}
           className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
@@ -102,9 +105,10 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
           )
         })}
       </div>
+      </StickyFilterBar>
 
       {filter === null && (counts['journal'] || 0) > 0 && (
-        <p className="text-xs text-muted -mt-6 mb-8">
+        <p className="text-xs text-muted mb-8">
           Les journaux de bord quotidiens ({counts['journal']}) ne sont plus mis en avant : la synthèse
           se fait dans la revue hebdo. Ils restent consultables via le filtre « Journal de bord ».
         </p>
@@ -123,10 +127,10 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
                 <time>{new Date(a.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
               </div>
               <h2 className="text-xl font-semibold mb-3">
-                <Link href={`/blog/${a.slug}`} className="hover:text-positive transition-colors">{a.title}</Link>
+                <Link href={`/blog/${a.slug}`} className={linkClass('record')}>{a.title}</Link>
               </h2>
               <p className="text-muted text-sm">{a.summary}</p>
-              <Link href={`/blog/${a.slug}`} className="text-sm text-positive mt-3 inline-block hover:underline">Lire la suite →</Link>
+              <Link href={`/blog/${a.slug}`} className={linkClass('inline', 'text-sm mt-3 inline-block')}>Lire la suite →</Link>
             </article>
           )
         })}

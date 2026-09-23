@@ -1,3 +1,5 @@
+import TermPopover from '@/components/TermPopover'
+import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
@@ -29,7 +31,7 @@ export default function PreuvePage() {
         <p className="text-sm text-muted leading-relaxed mb-3">
           Tout ce que je déploie suit la règle ci-dessous. Les bots qui
           sortent de mon moteur passent en plus les quatre épreuves de son gantelet,
-          expliquées sur <Link href="/strategies" className="text-accent">la page des stratégies</Link>.
+          expliquées sur <Link href="/strategies" className={linkClass('inline')}>la page des stratégies</Link>.
         </p>
         <ul className="space-y-2 text-sm text-muted leading-relaxed list-disc pl-5">
           <li>Backtest sur <strong>au moins 2 ans</strong> de données et <strong>20 trades minimum</strong> : en dessous, ce n&apos;est pas significatif.</li>
@@ -40,7 +42,7 @@ export default function PreuvePage() {
               (config.py Costs, validation/costs.py). */}
           <li><strong>Walk-forward</strong> : chez moi, ce n&apos;est pas un test hors échantillon. Je regarde le pire trimestre de l&apos;historique qui a servi à choisir la stratégie. S&apos;il est trop faible, elle est recalée, ou mise en sursis si c&apos;est la seule épreuve qu&apos;elle rate.</li>
           <li>Coûts inclus dès le backtest : frais et slippage fixes, plus un funding forfaitaire de 0,03 % par jour, compté comme un coût quel que soit le sens de la position. Le spread n&apos;est pas modélisé.</li>
-          <li>Déploiement d&apos;abord en <a href="/lexique#paper-trading" className="text-accent">paper trading</a>, puis en argent réel seulement si ça tient.</li>
+          <li>Déploiement d&apos;abord en <TermPopover id="paper-trading">paper trading</TermPopover>, puis en argent réel seulement si ça tient.</li>
         </ul>
       </section>
 
@@ -104,7 +106,7 @@ export default function PreuvePage() {
 
       <section>
         <p className="text-sm">
-          <Link href="/blog" className="text-accent">Lis mes autopsies de stratégies sur le blog →</Link>
+          <Link href="/blog" className={linkClass('inline')}>Lis mes autopsies de stratégies sur le blog →</Link>
         </p>
       </section>
     </main>

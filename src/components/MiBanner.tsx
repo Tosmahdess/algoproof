@@ -1,5 +1,6 @@
 'use client'
 
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import type { MiSnapshot } from '@/lib/types'
@@ -95,7 +96,7 @@ export default function MiBanner() {
       {!snap.is_safe && (
         <p className="text-xs text-muted mt-2">
           Le gardien a coupé les nouvelles entrées : marché jugé défavorable. C&apos;est le comportement prévu, pas une panne.{' '}
-          <Link href="/intelligence" className="text-accent hover:underline">Comment il décide →</Link>
+          <Link href="/intelligence" className={linkClass('inline')}>Comment il décide →</Link>
         </p>
       )}
     </div>

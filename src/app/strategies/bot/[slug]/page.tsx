@@ -1,4 +1,6 @@
 // src/app/strategies/bot/[slug]/page.tsx
+import TermPopover from '@/components/TermPopover'
+import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -94,14 +96,14 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             funding reversal…). */}
         {conceptSlug && (
           <p className="text-sm mt-1 mb-2">
-            <Link href={`/strategies/${conceptSlug}`} className="text-accent hover:underline">
+            <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline')}>
               La stratégie derrière ce bot →
             </Link>
           </p>
         )}
         <p className="text-xs text-muted mb-4 max-w-2xl">
           Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
-          La plupart de mes bots sont en <a href="/lexique#paper-trading" className="text-accent">paper trading</a> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
+          La plupart de mes bots sont en <TermPopover id="paper-trading">paper trading</TermPopover> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
         </p>
       </div>
 
@@ -111,7 +113,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         {dossierHref(bot) && (
           <>
             {' '}
-            <a href={dossierHref(bot)!} className="text-accent underline"
+            <a href={dossierHref(bot)!} className={linkClass('inline')}
                target="_blank" rel="noopener noreferrer">
               Voir le dossier de validation
             </a>
@@ -174,7 +176,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
               return (
                 <p>
                   Ce bot fait tourner <strong>{fiche.title}</strong>.{' '}
-                  <Link href={`/strategies/${conceptSlug}`} className="text-accent underline">
+                  <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline')}>
                     Ce que fait cette stratégie, quand elle marche et quand elle meurt →
                   </Link>
                 </p>
@@ -204,7 +206,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
                     de filtres retenues par le gantelet) est réservée aux membres du labo.
                   </p>
                   <a href={`https://lab.algoproof.fr/cockpit/dossier/${dossier}`}
-                     className="text-accent underline">
+                     className={linkClass('inline')}>
                     Voir le dossier de la stratégie
                   </a>
                 </div>
@@ -235,7 +237,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           href="https://lab.algoproof.fr/lab"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-positive hover:underline"
+          className={linkClass('inline', 'text-sm')}
         >
           Ouvrir le labo →
         </a>

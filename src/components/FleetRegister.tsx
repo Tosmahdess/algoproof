@@ -40,10 +40,11 @@
 // nothing on screen. The family filter survives — filtering by family before
 // grouping by timeframe is a clean composition, unlike sort — as does the
 // archived section, which was never grouped by strategy in the first place.
+import StickyFilterBar from '@/components/StickyFilterBar'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { BotWithStats } from '@/lib/types'
+import type { FleetBot } from '@/lib/types'
 import type { Family } from '@/lib/families'
 import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
@@ -58,7 +59,7 @@ export interface FleetRegisterProps {
   /** The laboratory register set only — paper + archived, already combined
    * by `FleetOverview`. Never includes a `live` bot; there is no `live`
    * cohort to derive here anymore. */
-  bots: BotWithStats[]
+  bots: FleetBot[]
   initialState: FleetFilterState
 }
 
@@ -159,14 +160,16 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
       <section className="space-y-4">
         <h2 className="text-xs uppercase tracking-wider text-muted">Laboratoire · simulation</h2>
 
-        <FleetFilterBar
-          state={state}
-          counts={counts}
-          activeCount={activeFilterCount(state)}
-          onToggleFamily={toggleFamily}
-          onToggleSide={toggleSide}
-          onReset={reset}
-        />
+        <StickyFilterBar activeCount={activeFilterCount(state)} onReset={reset}>
+          <FleetFilterBar
+            state={state}
+            counts={counts}
+            activeCount={activeFilterCount(state)}
+            onToggleFamily={toggleFamily}
+            onToggleSide={toggleSide}
+            onReset={reset}
+          />
+        </StickyFilterBar>
 
         {emptyMessage ? (
           <div data-testid="fleet-empty" className="bg-card border border-border rounded-lg p-6 text-sm">

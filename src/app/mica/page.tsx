@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import FaqAccordion from '@/components/FaqAccordion'
@@ -80,7 +81,7 @@ export default function MicaPage() {
         <h2 className="text-lg font-semibold mb-2">Exchanges agréés MiCA</h2>
         <p className="text-sm text-muted mb-4">
           Statut indicatif, vérifie sur le{' '}
-          <a href="https://www.amf-france.org" target="_blank" rel="noopener noreferrer" className="text-accent">registre AMF/ESMA</a>.
+          <a href="https://www.amf-france.org" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>registre AMF/ESMA</a>.
         </p>
         <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-sm">
@@ -96,7 +97,7 @@ export default function MicaPage() {
               {MICA_EXCHANGES.map(e => (
                 <tr key={e.name} className="hover:bg-card/30">
                   <td className="px-4 py-3 font-medium text-foreground">
-                    {e.url ? <a href={e.url} target="_blank" rel="noopener noreferrer" className="hover:text-positive">{e.name} →</a> : e.name}
+                    {e.url ? <a href={e.url} target="_blank" rel="noopener noreferrer" className={linkClass('record')}>{e.name} →</a> : e.name}
                   </td>
                   <td className="px-4 py-3 text-muted">{e.type}</td>
                   <td className="px-4 py-3 text-muted">{e.status}</td>
@@ -106,7 +107,7 @@ export default function MicaPage() {
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-xs text-muted">Comment ouvrir un compte étape par étape → <Link href="/start" className="text-accent">page Démarrer</Link>.</p>
+        <p className="mt-2 text-xs text-muted">Comment ouvrir un compte étape par étape → <Link href="/start" className={linkClass('inline')}>page Démarrer</Link>.</p>
       </section>
 
       {/* Calculateur */}

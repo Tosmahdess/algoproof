@@ -109,7 +109,16 @@ export function tfRank(tf: string): number {
  * table renders in bold (`pnlEur`, one source of truth), so the order a reader sees always
  * matches the column they are reading it from.
  */
-export function byGainDesc(a: BotWithStats, z: BotWithStats): number {
+/** The three fields the ranking reads. Structural, not `BotWithStats`, so the
+ *  same comparator orders the register's projected rows (FleetBot) and the
+ *  full-fat ones without either side needing a cast. */
+export interface RankableBot {
+  name: string
+  start_capital: number
+  stats: { total_trades: number; latest_capital: number }
+}
+
+export function byGainDesc(a: RankableBot, z: RankableBot): number {
   const aTraded = a.stats.total_trades > 0
   const zTraded = z.stats.total_trades > 0
   if (aTraded !== zTraded) return aTraded ? -1 : 1
@@ -121,13 +130,15 @@ export function byGainDesc(a: BotWithStats, z: BotWithStats): number {
   return a.name.localeCompare(z.name)
 }
 
-export interface TimeframeGroup {
+export interface TimeframeGroup<T = BotWithStats> {
   tf: string
-  bots: BotWithStats[]
+  bots: T[]
 }
 
-export function groupByTimeframe(bots: BotWithStats[]): TimeframeGroup[] {
-  const byTf = new Map<string, BotWithStats[]>()
+export function groupByTimeframe<T extends RankableBot & { timeframe: string }>(
+  bots: T[],
+): TimeframeGroup<T>[] {
+  const byTf = new Map<string, T[]>()
   for (const b of bots) {
     const list = byTf.get(b.timeframe) ?? []
     list.push(b)

@@ -3,14 +3,20 @@
 // mobile list (src/app/page.tsx ~170-260). Same classes, same helpers — the home stays
 // on its own inline markup (controller decision: zero visible-change regression risk),
 // this is for the other surfaces that need the same table.
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import { familyColor, familyLabel } from '@/lib/families'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
-import type { BotWithStats } from '@/lib/types'
+import type { FleetBot } from '@/lib/types'
 
 interface BotTableProps {
-  bots: BotWithStats[]
+  // FleetBot, not BotWithStats: this table reads `stats`, `start_capital`,
+  // `family`, `slug`, `name`, `status` and `timeframe` and nothing else, and a
+  // BotWithStats satisfies it structurally — so /overview can hand it rows
+  // stripped of the trade history the browser never reads, while /strategies
+  // keeps passing whole bots unchanged.
+  bots: FleetBot[]
   showTf: boolean
 }
 
@@ -75,7 +81,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
               return (
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/strategies/bot/${bot.slug}`} className="font-medium hover:text-positive transition-colors">{bot.name}</Link>
+                    <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
                     <p className="text-muted text-[10px] mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">
