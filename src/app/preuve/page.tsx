@@ -1,3 +1,4 @@
+import TermPopover from '@/components/TermPopover'
 import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -41,7 +42,7 @@ export default function PreuvePage() {
               (config.py Costs, validation/costs.py). */}
           <li><strong>Walk-forward</strong> : chez moi, ce n&apos;est pas un test hors échantillon. Je regarde le pire trimestre de l&apos;historique qui a servi à choisir la stratégie. S&apos;il est trop faible, elle est recalée, ou mise en sursis si c&apos;est la seule épreuve qu&apos;elle rate.</li>
           <li>Coûts inclus dès le backtest : frais et slippage fixes, plus un funding forfaitaire de 0,03 % par jour, compté comme un coût quel que soit le sens de la position. Le spread n&apos;est pas modélisé.</li>
-          <li>Déploiement d&apos;abord en <a href="/lexique#paper-trading" className={linkClass('inline')}>paper trading</a>, puis en argent réel seulement si ça tient.</li>
+          <li>Déploiement d&apos;abord en <TermPopover id="paper-trading">paper trading</TermPopover>, puis en argent réel seulement si ça tient.</li>
         </ul>
       </section>
 

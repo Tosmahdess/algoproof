@@ -1,4 +1,5 @@
 // src/app/strategies/bot/[slug]/page.tsx
+import TermPopover from '@/components/TermPopover'
 import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -102,7 +103,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         )}
         <p className="text-xs text-muted mb-4 max-w-2xl">
           Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
-          La plupart de mes bots sont en <a href="/lexique#paper-trading" className={linkClass('inline')}>paper trading</a> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
+          La plupart de mes bots sont en <TermPopover id="paper-trading">paper trading</TermPopover> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
         </p>
       </div>
 
