@@ -47,7 +47,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
                 </td>
                 <td className="px-2 py-1.5">
                   {t.bots ? (
-                    <Link href={`/strategies/bot/${t.bots.slug}`} className={linkClass('inline')}>
+                    <Link href={`/strategies/bot/${t.bots.slug}`} className={linkClass('record')}>
                       {t.bots.name}
                     </Link>
                   ) : '—'}

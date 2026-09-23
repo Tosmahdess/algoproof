@@ -137,7 +137,7 @@ export default function Nav() {
               {MES_BOTS_SUB.map(({ href, label }) => (
                 <Link key={href} href={href}
                   onClick={() => setMesBotsOpen(false)}
-                  className={linkClass('nav', `flex items-center justify-between gap-2 px-4 py-2.5 text-xs ${path === href ? 'font-semibold' : ''}`)}>
+                  className={linkClass('nav', `flex items-center justify-between gap-2 px-4 py-2.5 text-xs ${path === href ? 'font-semibold' : ''}`, { active: path === href })}>
                   {label}
                   <LinkPending />
                 </Link>
@@ -150,7 +150,7 @@ export default function Nav() {
             const active = path === href || path.startsWith(href + '/')
             return (
               <Link key={href} href={href}
-                className={`inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest transition-colors ${active ? 'text-foreground' : 'text-muted hover:text-foreground'}`}>
+                className={linkClass('nav', 'inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest', { active })}>
                 {label}
                 <LinkPending />
               </Link>

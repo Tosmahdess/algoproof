@@ -10,8 +10,42 @@ import { linkClass, LINK_ROLES } from '@/lib/link-roles'
 // 23 of them coloured `text-accent` with no underline and no hover at all —
 // on a touch screen those carry no signal whatsoever that they are links.
 describe('the four link roles', () => {
-  it('has exactly four, so a fifth cannot be invented at a call site', () => {
-    expect([...LINK_ROLES]).toEqual(['inline', 'nav', 'card', 'term'])
+  it('is a closed set, so a role cannot be invented at a call site', () => {
+    expect([...LINK_ROLES]).toEqual(['inline', 'nav', 'card', 'record', 'term'])
+  })
+
+  // `record` exists because the first migration proved four roles were not
+  // enough: the catch-all sent an article title in an <h2>, a bot name in a
+  // table cell and a venue name in a table to `inline`, which made whole
+  // columns and every list heading indigo and underlined.
+  //
+  // It is NOT underlined, and that exception is deliberate. The rule that a
+  // link must be underlined at rest comes from WCAG 1.4.1, whose concern is a
+  // link inside a BLOCK OF TEXT, where colour alone would be the only thing
+  // separating it from the prose around it. A record link is the sole
+  // identifier of its row or card, and every one of its peers is a link too —
+  // there is no surrounding non-link text to be distinguished from, and
+  // underlining an entire column is noise, not an affordance.
+  it('does not underline a record link, and that is on purpose', () => {
+    expect(linkClass('record')).not.toMatch(/\bunderline\b/)
+    expect(linkClass('record')).toMatch(/text-foreground/)
+  })
+
+  // The first migration lost this: the nav's current page fell back to
+  // `text-muted` and was left distinguished by weight alone.
+  //
+  // It has to live in the role. Appending `text-foreground` at the call site
+  // would leave `text-muted text-foreground` in one class attribute, and two
+  // Tailwind utilities for the same property have equal specificity — the
+  // order in the GENERATED CSS decides, not the order in the attribute. That
+  // reads as working and is undefined.
+  it('marks the current nav entry with a colour, not just a weight', () => {
+    const idle = linkClass('nav')
+    const active = linkClass('nav', undefined, { active: true })
+
+    expect(idle).toMatch(/text-muted/)
+    expect(active).toMatch(/text-foreground/)
+    expect(active).not.toMatch(/text-muted/)
   })
 
   // The heart of the complaint. Hover is not a signal on a phone, and colour

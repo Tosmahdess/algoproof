@@ -97,7 +97,7 @@ export default function MicaPage() {
               {MICA_EXCHANGES.map(e => (
                 <tr key={e.name} className="hover:bg-card/30">
                   <td className="px-4 py-3 font-medium text-foreground">
-                    {e.url ? <a href={e.url} target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>{e.name} →</a> : e.name}
+                    {e.url ? <a href={e.url} target="_blank" rel="noopener noreferrer" className={linkClass('record')}>{e.name} →</a> : e.name}
                   </td>
                   <td className="px-4 py-3 text-muted">{e.type}</td>
                   <td className="px-4 py-3 text-muted">{e.status}</td>

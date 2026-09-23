@@ -370,7 +370,7 @@ export default async function HomePage() {
               return (
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('inline', 'font-medium')}>{bot.name}</Link>
+                    <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
                     <p className="text-muted text-[10px] mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">
