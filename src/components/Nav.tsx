@@ -1,5 +1,6 @@
 'use client'
 
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
@@ -136,7 +137,7 @@ export default function Nav() {
               {MES_BOTS_SUB.map(({ href, label }) => (
                 <Link key={href} href={href}
                   onClick={() => setMesBotsOpen(false)}
-                  className={`flex items-center justify-between gap-2 px-4 py-2.5 text-xs transition-colors hover:text-positive ${path === href ? 'text-foreground font-semibold' : 'text-muted'}`}>
+                  className={linkClass('nav', `flex items-center justify-between gap-2 px-4 py-2.5 text-xs ${path === href ? 'font-semibold' : ''}`)}>
                   {label}
                   <LinkPending />
                 </Link>

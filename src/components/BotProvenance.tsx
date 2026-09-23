@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import { count, fr, frDate, type ScreeningCampaign, type ScreeningCandidate } from '@/lib/screening'
 
 // The random-control line used to read « Celle-ci tient sa barre de hasard à 95,16 pour une
@@ -28,7 +29,7 @@ export default function BotProvenance({ campaign, candidate }: {
         href="https://lab.algoproof.fr/cockpit/survivants"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-accent hover:underline"
+        className={linkClass('inline')}
       >
         Voir le dossier complet →
       </a>

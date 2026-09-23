@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { STRATEGY_FICHES, getStrategyFiche } from '@/lib/strategy-library'
@@ -110,7 +111,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
           directly on a fiche. */}
       <p className="text-xs text-muted mb-8">
         {GAUNTLET_EXPLAINER_TITLE} : je l’explique une fois, en tête de{' '}
-        <Link href="/strategies#comment-je-decide" className="text-accent underline">
+        <Link href="/strategies#comment-je-decide" className={linkClass('inline')}>
           la page des stratégies
         </Link>.
       </p>
@@ -147,7 +148,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
           href={fiche.presetHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block ml-3 text-sm text-accent underline"
+          className={linkClass('inline', 'inline-block ml-3 text-sm')}
         >
           Reproduire ma config réelle
         </a>

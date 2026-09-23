@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 
 export default function NotFound() {
@@ -10,14 +11,14 @@ export default function NotFound() {
         Tout ce qui est publié reste accessible depuis l&apos;accueil.
       </p>
       <div className="flex gap-4 text-sm">
-        <Link href="/" className="text-accent hover:underline">Accueil</Link>
+        <Link href="/" className={linkClass('inline')}>Accueil</Link>
         {/* FIX (final whole-branch review, I2): this pointed at /strategies,
             which is now 22 pedagogical concept pages with no trades on them.
             A visitor arriving from a dead bot URL wants the bots. Labelled
             « La flotte », the same name /overview carries in the nav and the
             footer. */}
-        <Link href="/overview" className="text-accent hover:underline">La flotte</Link>
-        <Link href="/blog" className="text-accent hover:underline">Apprendre</Link>
+        <Link href="/overview" className={linkClass('inline')}>La flotte</Link>
+        <Link href="/blog" className={linkClass('inline')}>Apprendre</Link>
       </div>
     </main>
   )

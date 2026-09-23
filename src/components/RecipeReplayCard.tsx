@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { numericDate } from '@/lib/format-date'
 import type { RecipeReplayView } from '@/lib/recipe-replay'
@@ -50,7 +51,7 @@ export default function RecipeReplayCard({ view, tradedAssets }: {
       </p>
       <p>
         Au rejeu, elle donne un{' '}
-        <Link href="/lexique#profit-factor" className="text-accent">PF</Link>{' '}
+        <Link href="/lexique#profit-factor" className={linkClass('inline')}>PF</Link>{' '}
         de {view.pf.toFixed(2).replace('.', ',')} sur {view.n} trades. C&apos;est mesuré sur
         les {view.universeAssets} actifs qui ont servi à la choisir
         {basketClause(tradedAssets, view.universeAssets)}, avec des données arrêtées

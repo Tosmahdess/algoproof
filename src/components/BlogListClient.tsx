@@ -1,5 +1,6 @@
 'use client'
 
+import { linkClass } from '@/lib/link-roles'
 import { useState } from 'react'
 import Link from 'next/link'
 import type { ArticleMeta } from '@/app/blog/page'
@@ -123,10 +124,10 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
                 <time>{new Date(a.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
               </div>
               <h2 className="text-xl font-semibold mb-3">
-                <Link href={`/blog/${a.slug}`} className="hover:text-positive transition-colors">{a.title}</Link>
+                <Link href={`/blog/${a.slug}`} className={linkClass('inline')}>{a.title}</Link>
               </h2>
               <p className="text-muted text-sm">{a.summary}</p>
-              <Link href={`/blog/${a.slug}`} className="text-sm text-positive mt-3 inline-block hover:underline">Lire la suite →</Link>
+              <Link href={`/blog/${a.slug}`} className={linkClass('inline', 'text-sm mt-3 inline-block')}>Lire la suite →</Link>
             </article>
           )
         })}

@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import { createSupabaseAuthServer } from '@/lib/supabase-auth'
 import { getEntitlement } from '@/lib/entitlement'
 import { MagicLinkForm } from '@/components/MagicLinkForm'
@@ -48,7 +49,7 @@ export default async function ComptePage() {
       {entitlement === 'paid' && (
         <div className="space-y-4">
           <p className="text-sm text-positive">Abonnement actif. Tout est ouvert.</p>
-          <a href="/investir" className="text-sm text-accent">Aller aux analyses</a>
+          <a href="/investir" className={linkClass('inline', 'text-sm')}>Aller aux analyses</a>
         </div>
       )}
     </div>

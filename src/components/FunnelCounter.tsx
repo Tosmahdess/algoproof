@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import type { FunnelCounts } from '@/lib/funnel'
 
 const nf = new Intl.NumberFormat('fr-FR')
@@ -49,7 +50,7 @@ export default function FunnelCounter({
         qui vendent des stratégies publient leurs gagnantes, jamais le nombre de
         tentatives.{' '}
         <a href="https://lab.algoproof.fr/cockpit/cimetiere"
-           className="text-accent underline" target="_blank" rel="noopener noreferrer">
+           className={linkClass('inline')} target="_blank" rel="noopener noreferrer">
           Voir le cimetière
         </a>
       </p>

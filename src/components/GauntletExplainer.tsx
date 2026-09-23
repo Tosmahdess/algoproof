@@ -3,6 +3,7 @@
 // the top of /strategies, and the concept pages point here (#comment-je-decide).
 // The copy itself stays in src/lib/gauntlet-explainer.ts — this file only owns
 // the markup, so the copy guard tests keep a single target.
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import Repli from '@/components/Repli'
 import {
@@ -63,7 +64,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
           href={GAUNTLET_ACCESS.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-accent underline"
+          className={linkClass('inline')}
         >
           {GAUNTLET_ACCESS.linkLabel}
         </a>
@@ -75,7 +76,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
           href="https://lab.algoproof.fr/cockpit/survivants"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-accent underline"
+          className={linkClass('inline')}
         >
           Ce que mon moteur a jugé
         </a>
@@ -84,14 +85,14 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
           href="https://lab.algoproof.fr/cockpit/dossier/emacross"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-accent underline"
+          className={linkClass('inline')}
         >
           Un dossier ouvert en entier
         </a>
         {' · '}
-        <Link href="/lexique" className="text-accent underline">Les termes</Link>
+        <Link href="/lexique" className={linkClass('inline')}>Les termes</Link>
         {' · '}
-        <Link href="/preuve" className="text-accent underline">Ma méthode</Link>
+        <Link href="/preuve" className={linkClass('inline')}>Ma méthode</Link>
       </p>
     </Repli>
   )

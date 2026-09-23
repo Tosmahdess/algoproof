@@ -1,4 +1,5 @@
 // src/app/page.tsx
+import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import TrackedLink from '@/components/TrackedLink'
@@ -131,7 +132,7 @@ export default async function HomePage() {
               <TrackedLink href="https://lab.algoproof.fr/lab" event="cta_lab" location="home-hero" className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
                 Tester ta stratégie, sans compte →
               </TrackedLink>
-              <Link href="/overview" className="block mt-3 text-sm text-accent hover:underline">
+              <Link href="/overview" className={linkClass('inline', 'block mt-3 text-sm')}>
                 Voir les résultats de mes bots
               </Link>
               {/* La réassurance est au moment du clic, pas trois écrans plus bas,
@@ -171,7 +172,7 @@ export default async function HomePage() {
               <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
                 Voir les sociétés que je lis →
               </TrackedLink>
-              <Link href="/investir#methode" className="block mt-3 text-sm text-accent hover:underline">
+              <Link href="/investir#methode" className={linkClass('inline', 'block mt-3 text-sm')}>
                 Les sept contrôles, expliqués
               </Link>
               {/* La contrepartie de la phrase d'en face, même position, même gris.
@@ -252,7 +253,7 @@ export default async function HomePage() {
         <p className="text-muted text-sm max-w-2xl mx-auto mb-4">
           Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel : drawdowns, mauvaises semaines et erreurs compris. Alors j&apos;expose tout, sans filtre.
         </p>
-        <Link href="/preuve" className="text-sm text-positive hover:underline">Lire le manifeste →</Link>
+        <Link href="/preuve" className={linkClass('inline', 'text-sm')}>Lire le manifeste →</Link>
       </div>
 
       {/* L'IA genere. AlgoLab verifie. */}
@@ -369,7 +370,7 @@ export default async function HomePage() {
               return (
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/strategies/bot/${bot.slug}`} className="font-medium hover:text-positive transition-colors">{bot.name}</Link>
+                    <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('inline', 'font-medium')}>{bot.name}</Link>
                     <p className="text-muted text-[10px] mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">
