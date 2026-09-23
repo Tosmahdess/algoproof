@@ -26,9 +26,18 @@ export default function MiBanner() {
     fetch('/api/mi').then(r => r.json()).then(setSnap)
   }, [])
 
+  // `min-h-[113px]` on BOTH placeholders: the measured height of the loaded
+  // banner. This component fetches after mount, so without the reservation a
+  // one-line block grows the moment /api/mi answers and pushes everything
+  // below it down. Measured in Chrome on /overview: one shift of 0.1716 at
+  // ~1256 ms — essentially the page's whole CLS, and it lands 600 ms after the
+  // content, which is what makes it feel like the page is still moving.
+  //
+  // The failure state reserves it too: an unavailable weather must take the
+  // same room as an available one, or the page jumps on a bad day instead.
   if (snap === undefined) {
     return (
-      <div className="rounded border border-border p-4 flex items-center gap-3 animate-pulse">
+      <div className="rounded border border-border p-4 min-h-[113px] flex items-center gap-3 animate-pulse">
         <div className="h-3 w-3 rounded-full bg-border" />
         <span className="text-xs text-muted">Chargement du régime MI...</span>
       </div>
@@ -37,7 +46,7 @@ export default function MiBanner() {
 
   if (!snap) {
     return (
-      <div className="rounded border border-border p-4">
+      <div className="rounded border border-border p-4 min-h-[113px] flex items-center">
         <span className="text-xs text-muted">Données MI non disponibles</span>
       </div>
     )
