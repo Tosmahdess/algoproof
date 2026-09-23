@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 
 /**
@@ -38,7 +39,7 @@ export function PrixNonPublie({ ticker, avecLien = false }:
         href={`https://www.nasdaq.com/market-activity/stocks/${encodeURIComponent(ticker.toLowerCase())}`}
         target="_blank"
         rel="noopener noreferrer nofollow"
-        className="underline underline-offset-2 hover:text-foreground"
+        className={linkClass('inline')}
       >
         voir le cours sur Nasdaq
       </Link>

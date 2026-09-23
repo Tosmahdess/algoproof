@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { membershipPrice } from '@/lib/launch-offer'
@@ -61,7 +62,7 @@ export default function AProposPage() {
           La plupart de mes bots tournent en <strong>paper trading</strong> (simulation sur données réelles, frais et slippage compris,
           sans argent réel) : c&apos;est ainsi qu&apos;on valide une stratégie sans risque. Les bots qui passent en
           argent réel sont marqués « Argent réel ». Le statut de chaque bot est toujours affiché. Pour le
-          vocabulaire, vois le <Link href="/lexique" className="text-accent">lexique</Link>.
+          vocabulaire, vois le <Link href="/lexique" className={linkClass('inline')}>lexique</Link>.
         </p>
       </section>
 
@@ -71,12 +72,12 @@ export default function AProposPage() {
           Regarder est gratuit : trades, pertes, courbes, historique, cimetière. Sur les sociétés dont je lis
           les comptes, les sept contrôles et leurs alertes, les chiffres et le rapport annuel le sont
           aussi. Le{' '}
-          <a href="https://lab.algoproof.fr" className="text-accent">labo</a> s&apos;ouvre sans compte, et un compte
+          <a href="https://lab.algoproof.fr" className={linkClass('inline')}>labo</a> s&apos;ouvre sans compte, et un compte
           gratuit permet de lancer des backtests avec des quotas. L&apos;adhésion à {membershipPrice()} lève ces quotas et
           ouvre le reste : la configuration exacte des bots et leur dossier de validation, deux paragraphes
           d&apos;analyse par société, et les fonctions de calcul du labo. Jamais les résultats, qui restent publics
           et gratuits.{' '}
-          <Link href="/preuve#gratuit" className="text-accent">Où passera la ligne, en détail →</Link>
+          <Link href="/preuve#gratuit" className={linkClass('inline')}>Où passera la ligne, en détail →</Link>
         </p>
       </section>
     </main>

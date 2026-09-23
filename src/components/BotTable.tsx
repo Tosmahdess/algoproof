@@ -3,6 +3,7 @@
 // mobile list (src/app/page.tsx ~170-260). Same classes, same helpers — the home stays
 // on its own inline markup (controller decision: zero visible-change regression risk),
 // this is for the other surfaces that need the same table.
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import { familyColor, familyLabel } from '@/lib/families'
@@ -80,7 +81,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
               return (
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/strategies/bot/${bot.slug}`} className="font-medium hover:text-positive transition-colors">{bot.name}</Link>
+                    <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('inline', 'font-medium')}>{bot.name}</Link>
                     <p className="text-muted text-[10px] mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">

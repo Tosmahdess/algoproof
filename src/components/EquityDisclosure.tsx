@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { longDate } from '@/lib/format-date'
 
@@ -111,17 +112,17 @@ export function EquityDisclosure({
       </p>
 
       <p>
-        <Link href="/preuve" className="text-accent hover:underline">
+        <Link href="/preuve" className={linkClass('inline')}>
           Comment je travaille
         </Link>
         {' · '}
-        <Link href="/lexique" className="text-accent hover:underline">
+        <Link href="/lexique" className={linkClass('inline')}>
           Le lexique
         </Link>
         {' · '}
         <a
           href="https://lab.algoproof.fr/mentions-legales"
-          className="text-accent hover:underline"
+          className={linkClass('inline')}
         >
           Mentions légales
         </a>

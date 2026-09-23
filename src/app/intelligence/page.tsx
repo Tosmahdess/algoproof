@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import ExplainerBox from '@/components/ExplainerBox'
@@ -123,7 +124,7 @@ export default async function IntelligencePage() {
           Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège sentiment, dérivés, actualités et macro en un seul indicateur lisible.
         </p>
         <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
-          Pourquoi ça compte : quand le risque passe à OFF, mes bots se font plus prudents (positions réduites, défense active). La météo du marché n&apos;est pas décorative, elle pilote des décisions. Termes expliqués dans le <a href="/lexique" className="text-accent">lexique</a>.
+          Pourquoi ça compte : quand le risque passe à OFF, mes bots se font plus prudents (positions réduites, défense active). La météo du marché n&apos;est pas décorative, elle pilote des décisions. Termes expliqués dans le <a href="/lexique" className={linkClass('inline')}>lexique</a>.
         </p>
         <p className="text-sm text-muted max-w-2xl leading-relaxed">
           Chaque bot passe par cette couche avant d&apos;entrer en position. Elle réduit la taille quand le contexte se dégrade, et coupe les entrées quand il devient franchement mauvais. Le blocage total, lui, est une sécurité de dernier recours et pas le régime de tous les jours. Ce qu&apos;elle a réellement changé sur mes bots, et ce qu&apos;elle n&apos;a pas changé, est mesuré plus bas sur cette page.
@@ -135,7 +136,7 @@ export default async function IntelligencePage() {
         <MiRegimeBadge />
         <p className="text-xs text-muted mt-3">
           Tu peux suivre chaque signal accepté ou rejeté, en direct.{' '}
-          <a href="https://lab.algoproof.fr/terminal" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+          <a href="https://lab.algoproof.fr/terminal" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>
             Voir le terminal →
           </a>
         </p>

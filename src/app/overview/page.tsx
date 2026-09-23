@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBots, getRecentTrades, getWaveMeasure } from '@/lib/queries'
@@ -104,11 +105,11 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
       <h1 className="text-3xl font-semibold tracking-tight mb-3">La flotte</h1>
       <p className="text-sm text-muted max-w-2xl mb-8">
         Ce qui tourne en ce moment, avec quel argent, et ce que ça donne au total.
-        Comment lire : le <Link href="/lexique#profit-factor" className="text-accent">profit factor</Link> mesure
+        Comment lire : le <Link href="/lexique#profit-factor" className={linkClass('inline')}>profit factor</Link> mesure
         les gains divisés par les pertes (au-dessus de 1, la stratégie gagne), le{' '}
-        <Link href="/lexique#win-rate" className="text-accent">win rate</Link> le % de trades gagnants, le{' '}
-        <Link href="/lexique#drawdown" className="text-accent">drawdown</Link> la pire baisse. Plus de définitions
-        dans le <Link href="/lexique" className="text-accent">lexique</Link>.
+        <Link href="/lexique#win-rate" className={linkClass('inline')}>win rate</Link> le % de trades gagnants, le{' '}
+        <Link href="/lexique#drawdown" className={linkClass('inline')}>drawdown</Link> la pire baisse. Plus de définitions
+        dans le <Link href="/lexique" className={linkClass('inline')}>lexique</Link>.
       </p>
       <div className="mb-8">
         <FunnelCounter counts={funnel} />

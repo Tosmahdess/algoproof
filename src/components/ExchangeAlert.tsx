@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import { BYBIT_AFFILIATE_URL, HL_AFFILIATE_URL } from '@/lib/affiliates'
 
 export default function ExchangeAlert({ exchange }: { exchange: string }) {
@@ -27,7 +28,7 @@ export default function ExchangeAlert({ exchange }: { exchange: string }) {
         </a>
         <a
           href="/start"
-          className="text-xs text-warning/70 underline underline-offset-2 hover:text-warning"
+          className={linkClass('inline', 'text-xs')}
         >
           Guide complet →
         </a>
