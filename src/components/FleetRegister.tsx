@@ -43,7 +43,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { BotWithStats } from '@/lib/types'
+import type { FleetBot } from '@/lib/types'
 import type { Family } from '@/lib/families'
 import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
@@ -58,7 +58,7 @@ export interface FleetRegisterProps {
   /** The laboratory register set only — paper + archived, already combined
    * by `FleetOverview`. Never includes a `live` bot; there is no `live`
    * cohort to derive here anymore. */
-  bots: BotWithStats[]
+  bots: FleetBot[]
   initialState: FleetFilterState
 }
 

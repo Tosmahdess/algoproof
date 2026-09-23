@@ -3,7 +3,7 @@
 // Pure functions — usable both server-side (initial render) and client-side
 // (when the user toggles long/short filter).
 
-import type { BotStats, PerfDaily, Trade, TradeSide } from './types'
+import type { BotStats, PerfDaily, StatsTrade, Trade, TradeSide } from './types'
 import { toBaseAsset, type AssetFilter } from './asset'
 
 export type DirectionFilter = 'all' | 'long' | 'short'
@@ -18,11 +18,15 @@ export interface DirectionBreakdown {
   short: number
 }
 
-export function filterTrades(
-  trades: Trade[],
+// Generic over the row type, not fixed to `Trade`: `/overview` hands the client
+// a StatsTrade projection (four fields), the bot fiche hands it whole rows, and
+// both must come back out as whatever went in — the fiche renders the trades
+// this returns.
+export function filterTrades<T extends StatsTrade>(
+  trades: T[],
   filter: DirectionFilter,
   asset: AssetFilter = 'all',
-): Trade[] {
+): T[] {
   let out = filter === 'all' ? trades : trades.filter(t => t.side === filter)
   if (asset !== 'all') out = out.filter(t => toBaseAsset(t.asset) === asset)
   return out
@@ -38,7 +42,7 @@ export function countByDirection(trades: Trade[]): DirectionBreakdown {
  * Reconstruct a drawdown from a chronological list of pnls.
  * Used when filtering by direction — the global perf_daily is no longer the right baseline.
  */
-function computeDrawdownFromTrades(trades: Trade[]): number {
+function computeDrawdownFromTrades(trades: StatsTrade[]): number {
   if (trades.length === 0) return 0
   const sorted = [...trades].sort((a, b) =>
     new Date(a.closed_at).getTime() - new Date(b.closed_at).getTime()
@@ -63,7 +67,7 @@ function computeDrawdownFromTrades(trades: Trade[]): number {
  * - latest_capital for filtered modes = startCapital + sum(filtered pnl) (synthetic).
  */
 export function computeBotStats(
-  allTrades: Trade[],
+  allTrades: StatsTrade[],
   perfDaily: PerfDaily[],
   filter: DirectionFilter,
   startCapital = 1000,
@@ -130,8 +134,12 @@ export function computeBotStats(
  * - An empty slice yields total_trades 0 / latest_capital = start_capital /
  *   PF 0 — which BotTable renders as « — », never as a zero performance.
  */
+// `perf_daily` is deliberately NOT in this signature although the caller's bots
+// used to carry it: this function passes [] in its place (see below) and has
+// never read it. Leaving it in the type made 92 unread daily series look
+// required, and they were serialized into /overview's payload on that basis.
 export function sliceBotStats(
-  bot: { stats: BotStats; all_trades: Trade[]; perf_daily: PerfDaily[]; start_capital: number },
+  bot: { stats: BotStats; all_trades: StatsTrade[]; start_capital: number },
   side: SideFilter,
   assets: readonly string[],
 ): BotStats {

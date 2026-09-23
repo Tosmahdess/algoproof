@@ -7,10 +7,15 @@ import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import { familyColor, familyLabel } from '@/lib/families'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
-import type { BotWithStats } from '@/lib/types'
+import type { FleetBot } from '@/lib/types'
 
 interface BotTableProps {
-  bots: BotWithStats[]
+  // FleetBot, not BotWithStats: this table reads `stats`, `start_capital`,
+  // `family`, `slug`, `name`, `status` and `timeframe` and nothing else, and a
+  // BotWithStats satisfies it structurally — so /overview can hand it rows
+  // stripped of the trade history the browser never reads, while /strategies
+  // keeps passing whole bots unchanged.
+  bots: FleetBot[]
   showTf: boolean
 }
 

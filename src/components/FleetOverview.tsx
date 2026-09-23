@@ -35,7 +35,7 @@
 // the same reason the balance sheet lives here: FleetRegister has no prop
 // path to it at all, so there is nothing left inside the client boundary that
 // could accidentally fold it into a sort or a filter.
-import type { BotWithStats, WaveMeasure } from '@/lib/types'
+import type { BotWithStats, FleetBot, WaveMeasure } from '@/lib/types'
 import type { TradeWithBot } from '@/lib/types'
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import { serializeFleetFilters, type FleetFilterState } from '@/lib/bot-filters'
@@ -101,7 +101,27 @@ export default function FleetOverview({
   // page — the cards above are outside the filter boundary and stay put, which
   // is the property the old split existed to protect.
   const { live, paper, archived } = splitCohorts(bots)
-  const registerBots = [...live, ...paper, ...archived]
+  // The SECOND application of the rule stated above for GlobalEquityCurve, and
+  // the one that was missing: FleetRegister is `'use client'` too, so whatever
+  // is handed to it is serialized into the page. Measured on 2026-09-23, this
+  // line used to send 10 197 whole trade rows and 92 perf_daily series across
+  // the boundary — 5.92 MB of HTML — so that a facet could count two booleans
+  // per bot and sliceBotStats could re-derive stats from `pnl`.
+  //
+  // New objects, not a cast: `Pick<>` narrows the TYPE, but the rows Supabase
+  // returns carry columns this app's `Trade` interface does not even declare
+  // (`created_at`, `entry_event_id`, seen in the served payload). A cast would
+  // have left every one of them on the wire. FleetRegisterPayload.test.tsx
+  // asserts the exact key set for that reason.
+  const registerBots: FleetBot[] = [...live, ...paper, ...archived].map(b => {
+    const { perf_daily: _pd, recent_trades: _rt, all_trades, ...rest } = b
+    return {
+      ...rest,
+      all_trades: all_trades.map(t => ({
+        side: t.side, pnl: t.pnl, asset: t.asset, closed_at: t.closed_at,
+      })),
+    }
+  })
 
   // Archived bots are excluded from every aggregate on this page, and a dead
   // bot's flat line is noise on a 30-day chart. Same rule as the balance sheet.
