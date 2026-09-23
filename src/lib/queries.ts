@@ -48,7 +48,27 @@ export async function getBotSlugs(): Promise<string[]> {
   return (data ?? []).map(r => r.slug)
 }
 
+/** The whole trade row. The bot fiche renders entry/exit prices and reasons. */
+const TRADE_COLUMNS_FICHE = '*'
+
+/** The only four the FLEET reads — `side` and `asset` to slice, `pnl` for the
+ *  metrics, `closed_at` for the drawdown's order.
+ *
+ *  This is not a micro-optimisation, it is what makes the fleet cacheable at
+ *  all. Measured 2026-09-23 on funding-rate-harvest (5511 trades):
+ *  `select('*')` serialises to 2 112 768 B, over the 2 MB ceiling below, so
+ *  its entry was stored NOWHERE and its paginated fetch ran again on every
+ *  request to /, /overview, /strategies and 22 /strategies/[concept] pages —
+ *  1252 ms of it, every time. These four columns come to 520 681 B, under the
+ *  ceiling, and take 653 ms cold. The warning this file has printed at every
+ *  build for weeks asked for exactly this. */
+const TRADE_COLUMNS_FLEET = 'side,pnl,asset,closed_at'
+
 export async function getBotWithStats(slug: string): Promise<BotWithStats | null> {
+  return fetchBotWithStats(slug, TRADE_COLUMNS_FICHE)
+}
+
+async function fetchBotWithStats(slug: string, tradeColumns: string): Promise<BotWithStats | null> {
   const { data: bot, error: botErr } = await supabase
     .from('bots')
     .select('*')
@@ -73,12 +93,15 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
   const allTrades = await paginateAll<Trade>(async (from, to) => {
     const { data, error } = await supabase
       .from('trades')
-      .select('*')
+      .select(tradeColumns)
       .eq('bot_id', bot.id)
       .order('closed_at', { ascending: false })
       .range(from, to)
     if (error) throw new Error(`trades fetch failed for bot ${bot.id}: ${error.message}`)
-    return (data ?? []) as Trade[]
+    // Double cast: the column list is a parameter, not a literal, so the typed
+    // client cannot infer the row shape and falls back to GenericStringError[].
+    // The two call sites are the only ones, and both are named constants above.
+    return (data ?? []) as unknown as Trade[]
   })
 
   const allPerf = await paginateAll<PerfDaily>(async (from, to) => {
@@ -136,11 +159,18 @@ export async function getBotWithStats(slug: string): Promise<BotWithStats | null
  *  cache reads as configured while storing nothing. That is how one aggregate entry of
  *  3 492 901 B made `unstable_cache` a no-op on four pages for as long as it existed.
  *
- *  Measured 2026-08-09: ~0.386 KB per serialised trade row, so a single bot stops being
- *  cacheable somewhere around 5 300 trades. The largest today is funding-rate-harvest at
- *  3 375 trades / 1 290 KB — under the ceiling, with headroom that shrinks every time it
- *  trades. Warn well before, because the breach itself is invisible. */
-export const CACHE_TRADE_WARN = 4000
+ *  RECALIBRATED 2026-09-23, and the recalibration is the point. The old threshold came
+ *  from ~0.386 KB per WHOLE trade row, which put the ceiling near 5 300 trades. The
+ *  cached fleet entry no longer holds whole rows: TRADE_COLUMNS_FLEET measures
+ *  0.095 KB per row (5 511 trades of funding-rate-harvest = 520 681 B), so the ceiling
+ *  now lands around 22 000 trades.
+ *
+ *  Left at 4 000 it fired on 25 entries at every build while every one of them was
+ *  comfortably cacheable — and a warning that cries wolf is how the REAL breach went
+ *  unread for weeks: this file named funding-rate-harvest at every build, and the fix it
+ *  asked for is the one finally applied today. A threshold that no longer matches what
+ *  it measures is worse than none. */
+export const CACHE_TRADE_WARN = 15000
 
 export function cacheSizeWarning(slug: string, tradeCount: number): string | null {
   if (tradeCount <= CACHE_TRADE_WARN) return null
@@ -160,8 +190,10 @@ export function cacheSizeWarning(slug: string, tradeCount: number): string | nul
  *  clears the whole fleet; the per-slug tag allows clearing one bot alone. */
 function getBotWithStatsCached(slug: string): Promise<BotWithStats | null> {
   return unstable_cache(
-    () => getBotWithStats(slug),
-    ['bot-stats', slug],
+    // The FLEET projection, not the fiche's. A new cache key ('fleet-bot'), so
+    // the oversized entries written under the old one are never read back.
+    () => fetchBotWithStats(slug, TRADE_COLUMNS_FLEET),
+    ['fleet-bot', slug],
     { revalidate: 1800, tags: ['fleet-bots', `bot-stats:${slug}`] },
   )()
 }

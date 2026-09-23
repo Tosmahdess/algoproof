@@ -19,7 +19,12 @@ describe('cacheSizeWarning', () => {
   it('warns before the ceiling is reached, not after', () => {
     // ~0.386 KB per trade row => the 2 MB ceiling lands near 5 300 trades. The threshold
     // has to sit BELOW that, or the warning arrives once the cache is already broken.
-    expect(CACHE_TRADE_WARN).toBeLessThan(5300)
+    // 0.095 KB per row in the FLEET projection (measured: 5 511 rows = 520 681 B),
+    // so the 2 MB ceiling lands near 22 000. The threshold sits below that, and
+    // above the largest bot today, or it cries wolf at every build — which is
+    // precisely how the real breach went unread.
+    expect(CACHE_TRADE_WARN).toBeLessThan(22000)
+    expect(CACHE_TRADE_WARN).toBeGreaterThan(6000)
     const w = cacheSizeWarning('funding-rate-harvest', CACHE_TRADE_WARN + 1)
     expect(w).toContain('funding-rate-harvest')
     expect(w).toContain('SILENTLY')
@@ -33,7 +38,19 @@ describe('the aggregate reader is not re-wrapped in unstable_cache', () => {
   const src = readFileSync('src/lib/queries.ts', 'utf8')
 
   it('caches per slug, where entries fit under the ceiling', () => {
-    expect(src).toMatch(/unstable_cache\(\s*\(\)\s*=>\s*getBotWithStats\(slug\)/)
+    expect(src).toMatch(/unstable_cache\([\s\S]{0,400}?\[['"]fleet-bot['"], slug\]/)
+  })
+
+  // And the per-slug entry has to STAY under the ceiling. Measured 2026-09-23:
+  // funding-rate-harvest at 5511 trades serialises to 2 112 768 B with
+  // select('*') — over the 2 MB limit, so its entry was stored nowhere and its
+  // fetch ran again on every request to four page families. The four columns
+  // the fleet reads come to 520 681 B. Pinning the projection here because the
+  // breach is invisible at runtime: no error, no log, just a cache that holds
+  // nothing.
+  it('feeds that entry the fleet projection, not whole trade rows', () => {
+    expect(src).toMatch(/TRADE_COLUMNS_FLEET = 'side,pnl,asset,closed_at'/)
+    expect(src).toMatch(/fetchBotWithStats\(slug, TRADE_COLUMNS_FLEET\)/)
   })
 
   it('does not wrap the 3.5 MB composition', () => {

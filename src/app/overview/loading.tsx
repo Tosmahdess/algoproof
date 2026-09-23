@@ -11,6 +11,18 @@
 // known before the data is, so rendering them here means nothing moves under
 // the reader when the real content streams in.
 //
+// THE HEIGHTS ARE MEASURED, NOT GUESSED, and that is the whole point of the
+// second pass on this file. The first version reserved 64 px where the market
+// banner is 141, ~156 where « Argent réel » is 488, and 96 where the balance
+// sheet is 449 — about 760 px short in total, so the page lurched downwards the
+// moment the content replaced it. Chrome scored that CLS 0.17, "needs
+// improvement", on an element above the fold. A shell that is the wrong height
+// trades a blank screen for a jump, which is not obviously a better deal.
+//
+// The one thing here that depends on DATA is the number of real-money cards:
+// three today, at 220 px each, which lands on 488 px both in the two-column
+// desktop grid and stacked on a phone. Change the live fleet and this drifts.
+//
 // It does NOT cost the page its indexability: loading.tsx is a streaming
 // fallback, and the finished document still carries the register. The served
 // DOM is checked for its /strategies/bot/ links after every change to this
@@ -29,20 +41,21 @@ export default function Loading() {
       </p>
 
       <div role="status" aria-label="Chargement de la flotte" className="animate-pulse space-y-12">
-        {/* Le bandeau d'entonnoir */}
-        <Bar className="h-16 w-full" />
+        {/* La météo du marché : 141 px mesurés */}
+        <Bar className="h-[141px] w-full" />
 
-        {/* Argent réel : deux cartes */}
+        {/* Argent réel : 488 px mesurés — trois cartes de 220 */}
         <div className="space-y-4">
           <Bar className="h-3 w-28" />
           <div className="grid gap-4 md:grid-cols-2">
-            <Bar className="h-32" />
-            <Bar className="h-32" />
+            <Bar className="h-[220px]" />
+            <Bar className="h-[220px]" />
+            <Bar className="h-[220px]" />
           </div>
         </div>
 
-        {/* Le bilan */}
-        <Bar className="h-24 w-full" />
+        {/* Le bilan : 449 px mesurés */}
+        <Bar className="h-[449px] w-full" />
 
         {/* Le registre : une ligne par stratégie */}
         <div className="space-y-4">
