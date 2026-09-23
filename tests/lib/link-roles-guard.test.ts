@@ -83,4 +83,18 @@ describe('every link goes through the role system', () => {
     const report = bad.map(v => `  ${v.where} <${v.tag}> ${v.why}\n      ${v.cls}`).join('\n')
     expect(report, `${bad.length} lien(s) hors du système :\n${report}`).toBe('')
   })
+
+  // The AST guard above inspects <Link>/<a> elements. The body of a blog
+  // article has neither: @tailwindcss/typography styles its links through
+  // `prose-a:` variants on the WRAPPER, which no amount of JSX walking will
+  // find. That surface — where a reader spends the most time on this site —
+  // carried `prose-a:no-underline hover:prose-a:underline`, exactly the
+  // hover-only affordance the whole lot exists to remove.
+  it('does not let the typographic prose opt out of the underline', () => {
+    const offenders = tsxFiles(join(ROOT, 'src'))
+      .filter(f => readFileSync(f, 'utf8').includes('prose-a:no-underline'))
+      .map(f => relative(ROOT, f))
+
+    expect(offenders.join(', '), 'prose links are underlined at rest, like every other inline link').toBe('')
+  })
 })

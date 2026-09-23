@@ -99,6 +99,10 @@ export default function Nav() {
     }
   }
 
+  // The mobile menu closes when the navigation COMMITS, not when the link is
+  // clicked: see the entry's onClick below for why the difference matters.
+  useEffect(() => { setMobileOpen(false) }, [path])
+
   const mesBotsActive = MES_BOTS_PATHS.some(p => path === p || path.startsWith(p + '/'))
 
   return (
@@ -137,6 +141,7 @@ export default function Nav() {
               {MES_BOTS_SUB.map(({ href, label }) => (
                 <Link key={href} href={href}
                   onClick={() => setMesBotsOpen(false)}
+                  aria-current={path === href ? 'page' : undefined}
                   className={linkClass('nav', `flex items-center justify-between gap-2 px-4 py-2.5 text-xs ${path === href ? 'font-semibold' : ''}`, { active: path === href })}>
                   {label}
                   <LinkPending />
@@ -150,6 +155,7 @@ export default function Nav() {
             const active = path === href || path.startsWith(href + '/')
             return (
               <Link key={href} href={href}
+                aria-current={active ? 'page' : undefined}
                 className={linkClass('nav', 'inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest', { active })}>
                 {label}
                 <LinkPending />
@@ -197,7 +203,7 @@ export default function Nav() {
       {/* Mobile menu — real collapsible accordions (native details/summary).
           The group containing the current page starts open. */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-bg max-h-[80vh] overflow-y-auto">
+        <div data-testid="mobile-menu" className="md:hidden border-t border-border bg-bg max-h-[80vh] overflow-y-auto">
           {MOBILE_GROUPS.map(group => {
             const containsActive = group.links.some(l => !l.external && (path === l.href || path.startsWith(l.href + '/')))
             return (
@@ -212,7 +218,16 @@ export default function Nav() {
                     <Link key={href} href={href}
                       target={external ? '_blank' : undefined}
                       rel={external ? 'noopener noreferrer' : undefined}
-                      onClick={() => { if (ctaLab) trackCtaLab(ctaLab); setMobileOpen(false) }}
+                      // Closing the menu HERE unmounted the link — and the
+                      // LinkPending inside it — on the click, before `pending`
+                      // could ever be true. The spinner was impossible to see
+                      // on a phone, the one device slow enough to need it.
+                      // Internal entries now close on the pathname change
+                      // instead (see the effect above), which is when the
+                      // navigation has actually landed. An external entry
+                      // leaves the site, so no pathname change is coming and
+                      // it must still close itself.
+                      onClick={() => { if (ctaLab) trackCtaLab(ctaLab); if (external) setMobileOpen(false) }}
                       className={`flex items-center justify-between gap-2 pl-7 pr-4 py-2.5 text-sm border-t border-border/30 transition-colors ${active ? 'text-foreground font-semibold' : 'text-muted hover:text-foreground'}`}>
                       <span>{label}{external ? ' ↗' : ''}</span>
                       {!external && <LinkPending />}

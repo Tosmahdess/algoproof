@@ -22,6 +22,15 @@ describe('a filter bar that follows the reader', () => {
     expect(bar().className).toContain('top-[var(--nav-h)]')
   })
 
+  // It used to bleed edge-to-edge with `-mx-6 px-6`, which silently assumed
+  // every container pads by 24 px. The cockpit's pads by 16 px under lg, so the
+  // bar overhung its column by 8 px each side and gave the page a horizontal
+  // scroll — on the one breakpoint this bar exists to serve.
+  it('never reaches outside the container it is dropped into', () => {
+    render(<StickyFilterBar activeCount={0} onReset={() => {}}><p>contrôles</p></StickyFilterBar>)
+    expect(bar().className).not.toMatch(/-m[xlr]-/)
+  })
+
   it('is opaque, so the list does not scroll through it', () => {
     render(<StickyFilterBar activeCount={0} onReset={() => {}}><p>contrôles</p></StickyFilterBar>)
     expect(bar().className).toMatch(/\bbg-bg\b/)

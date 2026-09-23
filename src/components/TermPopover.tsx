@@ -31,6 +31,12 @@ import { linkClass } from '@/lib/link-roles'
 export default function TermPopover({ id, children }: { id: string; children: ReactNode }) {
   const entry = GLOSSARY.find(t => t.id === id)
   const [open, setOpen] = useState(false)
+  // Which edge of the term the bubble hangs from. `max-w` bounds the bubble's
+  // WIDTH, not its POSITION: a term in the right half of a 390 px screen — « win
+  // rate » and « drawdown » both are, in /overview's opening paragraph — pushed
+  // a left-anchored bubble past the right edge, and with no overflow guard on
+  // body that is a horizontal scroll on the page.
+  const [align, setAlign] = useState<'left' | 'right'>('left')
   const anchor = useRef<HTMLSpanElement>(null)
   const trigger = useRef<HTMLAnchorElement>(null)
   const panelId = useId()
@@ -78,17 +84,25 @@ export default function TermPopover({ id, children }: { id: string; children: Re
           // away a behaviour the plain link had.
           if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
           e.preventDefault()
+          // Measured at open time, not at render: the term's position depends
+          // on where the line wrapped, which nothing else here knows.
+          const rect = e.currentTarget.getBoundingClientRect()
+          setAlign(rect.left > window.innerWidth / 2 ? 'right' : 'left')
           setOpen(v => !v)
         }}
       >
         {children}
       </Link>
 
+      {/* The panel carries NO `role="tooltip"`: an ARIA tooltip may not contain
+          an interactive element, and this one holds a link to the full entry.
+          The trigger's aria-expanded / aria-controls is the disclosure pattern,
+          and it is what a screen reader follows here. */}
       {open && (
         <span
           id={panelId}
-          role="tooltip"
-          className="absolute left-0 top-full z-40 mt-2 block w-72 max-w-[calc(100vw-3rem)] rounded-lg border border-border bg-card p-3 text-left shadow-lg"
+          data-testid="term-definition"
+          className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} top-full z-40 mt-2 block w-72 max-w-[calc(100vw-3rem)] rounded-lg border border-border bg-card p-3 text-left shadow-lg`}
         >
           <span className="block text-xs font-semibold text-foreground">{entry.term}</span>
           <span className="mt-1 block text-xs leading-relaxed text-muted">{entry.definition}</span>

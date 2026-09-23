@@ -31,7 +31,7 @@ describe('a lexicon term in a sentence', () => {
 
     // fireEvent returns false when a handler called preventDefault().
     expect(click, 'the click must be intercepted, not followed').toBe(false)
-    expect(screen.getByRole('tooltip')).toHaveTextContent(PF.definition.slice(0, 40))
+    expect(screen.getByTestId('term-definition')).toHaveTextContent(PF.definition.slice(0, 40))
   })
 
   // The single source of truth: one definition, written once. Two copies drift
@@ -40,13 +40,13 @@ describe('a lexicon term in a sentence', () => {
     render(<TermPopover id="drawdown">drawdown</TermPopover>)
     fireEvent.click(screen.getByRole('link', { name: /drawdown/i }))
     const dd = GLOSSARY.find(t => t.id === 'drawdown')!
-    expect(screen.getByRole('tooltip')).toHaveTextContent(dd.definition.slice(0, 40))
+    expect(screen.getByTestId('term-definition')).toHaveTextContent(dd.definition.slice(0, 40))
   })
 
   it('still offers the full entry for a reader who wants more', () => {
     render(<TermPopover id="profit-factor">profit factor</TermPopover>)
     fireEvent.click(screen.getByRole('link', { name: /profit factor/i }))
-    expect(within(screen.getByRole('tooltip')).getByRole('link'))
+    expect(within(screen.getByTestId('term-definition')).getByRole('link'))
       .toHaveAttribute('href', '/lexique#profit-factor')
   })
 
@@ -54,10 +54,10 @@ describe('a lexicon term in a sentence', () => {
     render(<TermPopover id="profit-factor">profit factor</TermPopover>)
     const term = screen.getByRole('link', { name: /profit factor/i })
     fireEvent.click(term)
-    expect(screen.queryByRole('tooltip')).not.toBeNull()
+    expect(screen.queryByTestId('term-definition')).not.toBeNull()
 
     fireEvent.keyDown(document, { key: 'Escape' })
-    expect(screen.queryByRole('tooltip')).toBeNull()
+    expect(screen.queryByTestId('term-definition')).toBeNull()
     expect(document.activeElement).toBe(term)
   })
 
@@ -68,7 +68,7 @@ describe('a lexicon term in a sentence', () => {
     </>)
     fireEvent.click(screen.getByRole('link', { name: /profit factor/i }))
     fireEvent.mouseDown(screen.getByTestId('ailleurs'))
-    expect(screen.queryByRole('tooltip')).toBeNull()
+    expect(screen.queryByTestId('term-definition')).toBeNull()
   })
 
   // A reader who ctrl-clicks or middle-clicks is asking for a tab. Swallowing
@@ -79,7 +79,7 @@ describe('a lexicon term in a sentence', () => {
       screen.getByRole('link', { name: /profit factor/i }), { ctrlKey: true })
 
     expect(click, 'a ctrl-click must NOT be intercepted').toBe(true)
-    expect(screen.queryByRole('tooltip')).toBeNull()
+    expect(screen.queryByTestId('term-definition')).toBeNull()
   })
 
   // An id with no glossary entry must degrade to the plain link it always was,
@@ -89,6 +89,35 @@ describe('a lexicon term in a sentence', () => {
     const click = fireEvent.click(screen.getByRole('link', { name: /machin/i }))
 
     expect(click, 'nothing to show, so nothing to intercept').toBe(true)
-    expect(screen.queryByRole('tooltip')).toBeNull()
+    expect(screen.queryByTestId('term-definition')).toBeNull()
+  })
+
+  // The bubble is anchored to the term. `max-w` bounds its WIDTH, not its
+  // POSITION: a term sitting in the right half of a 390 px screen — « win rate »
+  // and « drawdown » both do, in /overview's opening paragraph — pushed the
+  // bubble past the right edge and, with no overflow guard on body, gave the
+  // page a horizontal scroll.
+  it('opens leftwards when the term sits in the right half of the screen', () => {
+    render(<TermPopover id="profit-factor">profit factor</TermPopover>)
+    const term = screen.getByRole('link', { name: /profit factor/i })
+    term.getBoundingClientRect = () => ({ left: 300, right: 360, width: 60 }) as DOMRect
+    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true })
+
+    fireEvent.click(term)
+
+    const panel = screen.getByTestId('term-definition')
+    expect(panel.className).toContain('right-0')
+    expect(panel.className).not.toContain('left-0')
+  })
+
+  it('opens rightwards from a term on the left, as before', () => {
+    render(<TermPopover id="profit-factor">profit factor</TermPopover>)
+    const term = screen.getByRole('link', { name: /profit factor/i })
+    term.getBoundingClientRect = () => ({ left: 20, right: 80, width: 60 }) as DOMRect
+    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true })
+
+    fireEvent.click(term)
+
+    expect(screen.getByTestId('term-definition').className).toContain('left-0')
   })
 })

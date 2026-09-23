@@ -22,6 +22,15 @@ import { useId, useState, type ReactNode } from 'react'
  * two numbers are a pair, and the test reads both files so that changing one
  * alone fails.
  *
+ * NO horizontal bleed. It used to carry `-mx-6 px-6` to run edge to edge, which
+ * silently assumed every container it is mounted in pads by exactly 24 px — and
+ * the cockpit's does not (`p-4 lg:p-6`), so under `lg` the bar overhung its
+ * column by 8 px each side and, with no `overflow-x` guard on body, gave the
+ * page a horizontal scroll. On the one breakpoint this bar exists to serve.
+ * Without the bleed it inherits whatever padding it is dropped into and cannot
+ * overhang anything; nothing scrolls through it either, since the content it
+ * covers lives inside that same padding.
+ *
  * On a phone it is COLLAPSED, showing one line: how many filters are on, and a
  * way to clear them. A full filter bar pinned to the top of a phone eats a
  * third of the screen, so the cure for "I lose my filters" would have become "I
@@ -38,7 +47,7 @@ export default function StickyFilterBar(
   return (
     <div
       data-testid="sticky-filters"
-      className="sticky top-[var(--nav-h)] z-40 -mx-6 mb-6 border-b border-border bg-bg px-6 py-3"
+      className="sticky top-[var(--nav-h)] z-40 mb-6 border-b border-border bg-bg py-3"
     >
       {/* La ligne compacte : seule chose visible sur téléphone. */}
       <div className="flex items-center justify-between gap-3 lg:hidden">
