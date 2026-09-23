@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import TrackedLink from '@/components/TrackedLink'
+import LinkPending from '@/components/LinkPending'
 import { trackCtaLab } from '@/lib/analytics'
 
 // "Mes bots" hub — dropdown over the live-proof sub-pages
@@ -135,8 +136,9 @@ export default function Nav() {
               {MES_BOTS_SUB.map(({ href, label }) => (
                 <Link key={href} href={href}
                   onClick={() => setMesBotsOpen(false)}
-                  className={`block px-4 py-2.5 text-xs transition-colors hover:text-positive ${path === href ? 'text-foreground font-semibold' : 'text-muted'}`}>
+                  className={`flex items-center justify-between gap-2 px-4 py-2.5 text-xs transition-colors hover:text-positive ${path === href ? 'text-foreground font-semibold' : 'text-muted'}`}>
                   {label}
+                  <LinkPending />
                 </Link>
               ))}
             </div>
@@ -147,8 +149,9 @@ export default function Nav() {
             const active = path === href || path.startsWith(href + '/')
             return (
               <Link key={href} href={href}
-                className={`text-xs font-semibold tracking-widest transition-colors ${active ? 'text-foreground' : 'text-muted hover:text-foreground'}`}>
+                className={`inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest transition-colors ${active ? 'text-foreground' : 'text-muted hover:text-foreground'}`}>
                 {label}
+                <LinkPending />
               </Link>
             )
           })}
@@ -209,8 +212,9 @@ export default function Nav() {
                       target={external ? '_blank' : undefined}
                       rel={external ? 'noopener noreferrer' : undefined}
                       onClick={() => { if (ctaLab) trackCtaLab(ctaLab); setMobileOpen(false) }}
-                      className={`block pl-7 pr-4 py-2.5 text-sm border-t border-border/30 transition-colors ${active ? 'text-foreground font-semibold' : 'text-muted hover:text-foreground'}`}>
-                      {label}{external ? ' ↗' : ''}
+                      className={`flex items-center justify-between gap-2 pl-7 pr-4 py-2.5 text-sm border-t border-border/30 transition-colors ${active ? 'text-foreground font-semibold' : 'text-muted hover:text-foreground'}`}>
+                      <span>{label}{external ? ' ↗' : ''}</span>
+                      {!external && <LinkPending />}
                     </Link>
                   )
                 })}

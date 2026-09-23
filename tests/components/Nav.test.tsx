@@ -148,3 +148,35 @@ describe('Nav — 4 hubs + Labo CTA', () => {
     expect(screen.queryByText(/^intelligence$/i)).toBeNull()
   })
 })
+
+// 2026-09-23, external review: "quand on clique sur un lien de la nav, indiquer
+// que c'est en cours de chargement". Every internal nav destination carries a
+// LinkPending hint, so adding a nav entry without one fails here rather than
+// shipping a link that gives no sign it was clicked.
+//
+// The external entries (LE LABO, COMPTE) are deliberately excluded: they leave
+// for lab.algoproof.fr, and useLinkStatus reports on client navigations only —
+// a hint there would be permanently dark and would lie about what it measures.
+describe('Nav — every internal link shows that it was clicked', () => {
+  it('carries a pending hint on each internal destination', () => {
+    const { container } = render(<Nav />)
+    const internal = [...container.querySelectorAll('a[href^="/"]')]
+      .filter(a => a.getAttribute('href') !== '/')   // le logo
+
+    expect(internal.length).toBeGreaterThanOrEqual(5)
+    const without = internal.filter(a => a.querySelector('[data-testid="link-pending"]') === null)
+    expect(without.map(a => a.getAttribute('href'))).toEqual([])
+  })
+
+  // The mobile menu is unmounted while closed, so the assertion above cannot
+  // see it: a hint missing there would have shipped silently.
+  it('carries it on the mobile entries too, once the menu is open', () => {
+    const { container } = render(<Nav />)
+    fireEvent.click(screen.getByRole('button', { name: /menu/i }))
+
+    const internal = [...container.querySelectorAll('a[href^="/"]')]
+      .filter(a => a.getAttribute('href') !== '/')
+    const without = internal.filter(a => a.querySelector('[data-testid="link-pending"]') === null)
+    expect(without.map(a => a.getAttribute('href'))).toEqual([])
+  })
+})
