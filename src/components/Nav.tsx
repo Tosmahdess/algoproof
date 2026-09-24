@@ -176,7 +176,7 @@ export default function Nav() {
           {/* Compte : l'auth vit sur le lab */}
           <a
             href={ACCOUNT_URL}
-            className="text-xs font-semibold tracking-widest transition-colors text-muted hover:text-foreground"
+            className={linkClass('nav', 'text-xs font-semibold tracking-widest')}
           >
             COMPTE
           </a>
@@ -208,7 +208,7 @@ export default function Nav() {
             const containsActive = group.links.some(l => !l.external && (path === l.href || path.startsWith(l.href + '/')))
             return (
               <details key={group.title} open={containsActive} className="group border-b border-border/40">
-                <summary className="flex items-center justify-between px-4 py-3 cursor-pointer list-none text-[11px] font-semibold tracking-[0.2em] uppercase text-positive select-none [&::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between px-4 py-3 cursor-pointer list-none text-xs font-semibold tracking-[0.2em] uppercase text-positive select-none [&::-webkit-details-marker]:hidden">
                   {group.title}
                   <svg className="w-2.5 h-2.5 opacity-60 transition-transform group-open:rotate-180" viewBox="0 0 10 6" fill="currentColor"><path d="M0 0l5 6 5-6H0z"/></svg>
                 </summary>
@@ -228,7 +228,7 @@ export default function Nav() {
                       // leaves the site, so no pathname change is coming and
                       // it must still close itself.
                       onClick={() => { if (ctaLab) trackCtaLab(ctaLab); if (external) setMobileOpen(false) }}
-                      className={`flex items-center justify-between gap-2 pl-7 pr-4 py-2.5 text-sm border-t border-border/30 transition-colors ${active ? 'text-foreground font-semibold' : 'text-muted hover:text-foreground'}`}>
+                      className={`${linkClass('nav', 'flex items-center justify-between gap-2 pl-7 pr-4 py-2.5 text-sm border-t border-border/30', { active })}${active ? ' font-semibold' : ''}`}>
                       <span>{label}{external ? ' ↗' : ''}</span>
                       {!external && <LinkPending />}
                     </Link>

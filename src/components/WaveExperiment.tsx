@@ -56,7 +56,7 @@ export default function WaveExperiment({ waveBotCount, measure }: WaveExperiment
 
   return (
     <section data-testid="wave-experiment" className="bg-card border border-border rounded-lg p-6 space-y-2">
-      <h2 className="text-xs uppercase tracking-wider text-muted">Expérience en cours</h2>
+      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">Expérience en cours</h2>
       <p className="text-sm">
         {/* {' '} after each expression: RSC drops the ambient leading space of the text
             that follows it (« 75configurations », « 39instruments » in production). */}

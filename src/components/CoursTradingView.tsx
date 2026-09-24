@@ -45,7 +45,7 @@ export function CoursTradingView({ symbole }: { symbole: string }) {
   return (
     <div className="tradingview-widget-container" ref={hote}>
       <div className="tradingview-widget-container__widget" />
-      <div className="tradingview-widget-copyright text-[10px] text-muted">
+      <div className="tradingview-widget-copyright text-xs text-muted">
         <a
           href="https://www.tradingview.com/"
           rel="noopener nofollow"

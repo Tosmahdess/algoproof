@@ -106,7 +106,7 @@ export default function ConformityCard({
       )}
 
       {stats.total_trades === 0 && expectations.dormancyNote && (
-        <p className="text-sm text-muted mb-5">{expectations.dormancyNote}</p>
+        <p className="text-sm leading-relaxed mb-5">{expectations.dormancyNote}</p>
       )}
 
       <h3 className="text-base font-semibold mb-2">Quand ce bot sera coupé</h3>

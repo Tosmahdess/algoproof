@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EquityDisclosure } from '@/components/EquityDisclosure'
@@ -27,13 +28,13 @@ export function generateStaticParams() {
 function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
-      <Link href="/investir" className="text-sm text-muted hover:text-foreground transition-colors">
+      <Link href="/investir" className={linkClass('nav', 'text-sm')}>
         ← Toutes les sociétés
       </Link>
       <h1 className="text-3xl font-semibold tracking-tight mt-6 mb-4">{fiche.name}</h1>
 
       <div className="rounded-lg border border-warning/40 bg-warning/5 px-5 py-4 mb-8">
-        <p className="text-sm text-foreground/80 leading-relaxed">
+        <p className="text-sm text-foreground leading-relaxed">
           <strong>Je ne lis pas les comptes de cette société.</strong> Elle ne
           dépose pas de rapport annuel auprès du régulateur américain, donc mes
           sept contrôles n’ont aucun document à lire. Ce qui suit vient d’une
@@ -48,7 +49,7 @@ function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
           <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
             Ce que fait l’entreprise
           </h2>
-          <p className="text-foreground/80 leading-relaxed">{fiche.description}</p>
+          <p className="text-foreground leading-relaxed">{fiche.description}</p>
         </section>
       )}
 
@@ -106,7 +107,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
-      <Link href="/investir" className="text-sm text-muted hover:text-foreground transition-colors">
+      <Link href="/investir" className={linkClass('nav', 'text-sm')}>
         ← Toutes les sociétés
       </Link>
 
@@ -144,7 +145,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
           qui RASSURE déguisée en alarme, et Amazon zéro alerte au-dessus d'un
           bloc non vide. */}
       {fiche.blocs.alertes && (
-        <p className="text-base leading-relaxed border-l-2 border-border pl-4 mb-8 text-foreground/90">
+        <p className="text-base leading-relaxed border-l-2 border-border pl-4 mb-8 text-foreground">
           {fiche.blocs.alertes}
         </p>
       )}
@@ -157,7 +158,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
       {fiche.blocs.reserve && (
         <p
           role="note"
-          className="text-sm leading-relaxed border border-border rounded px-4 py-3 mb-8 text-foreground/90"
+          className="text-sm leading-relaxed border border-border rounded px-4 py-3 mb-8 text-foreground"
         >
           {fiche.blocs.reserve}
         </p>
@@ -183,7 +184,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
           ['Marge nette', c.marge],
         ] as const).map(([label, valeur]) => (
           <div key={label} className="bg-card px-4 py-3">
-            <dt className="text-[10px] uppercase tracking-wider text-muted">{label}</dt>
+            <dt className="text-xs uppercase tracking-wider text-muted">{label}</dt>
             <dd className="text-sm font-semibold font-mono mt-1">{valeur ?? '—'}</dd>
           </div>
         ))}
@@ -195,7 +196,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
             <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
               {titre}
             </h2>
-            <p className="text-foreground/80 leading-relaxed">{fiche.blocs[cle]}</p>
+            <p className="text-foreground leading-relaxed">{fiche.blocs[cle]}</p>
           </section>
         ))}
 
@@ -231,7 +232,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
                   {titre}
                 </h3>
-                <p className="text-sm text-foreground/80 leading-relaxed">{fiche.blocs[cle]}</p>
+                <p className="text-sm text-foreground leading-relaxed">{fiche.blocs[cle]}</p>
               </section>
             ))}
           </div>
@@ -243,7 +244,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
           <summary className="cursor-pointer text-sm font-semibold uppercase tracking-widest text-muted">
             Refais-le toi-même
           </summary>
-          <p className="mt-4 text-sm text-foreground/80 leading-relaxed">{fiche.blocs.source}</p>
+          <p className="mt-4 text-sm text-foreground leading-relaxed">{fiche.blocs.source}</p>
         </details>
       )}
 

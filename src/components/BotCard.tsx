@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { BotWithStats, BotStats } from '@/lib/types'
 import { fmtDrawdown, fmtPfDisplay, fmtWinRateDisplay } from '@/lib/display'
@@ -13,11 +14,10 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
   const hasData = stats.total_trades > 0
 
   return (
-    <Link href={`/strategies/bot/${bot.slug}`} className="block group">
-      <div className="bg-card border border-border rounded-lg p-5 hover:border-muted/50 transition-colors">
+    <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('card', 'bg-card p-5')}>
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="text-base font-semibold text-white group-hover:text-positive transition-colors">{bot.name}</h3>
+            <h3 className="text-base font-semibold group-hover:text-accent transition-colors">{bot.name}</h3>
             <p className="text-xs text-muted mt-0.5">{bot.strategy}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -64,7 +64,6 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
         <div className="mt-2 pt-2 border-t border-border/40">
           <SyncBadge lastSyncAt={bot.last_sync_at} />
         </div>
-      </div>
     </Link>
   )
 }

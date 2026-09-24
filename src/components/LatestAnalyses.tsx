@@ -1,5 +1,6 @@
 'use client'
 
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import type { FicheIndexRow } from '@/lib/equity'
 import { VerdictBadge } from '@/components/VerdictBadge'
@@ -23,12 +24,12 @@ export function LatestAnalyses({ fiches }: { fiches: FicheIndexRow[] }) {
           key={f.ticker}
           href={`/wealth/${encodeURIComponent(f.ticker)}`}
           title={`Voir mon analyse de ${f.asset_name}`}
-          className="block rounded-lg border border-border bg-card px-4 py-3 transition-colors hover:bg-card/60"
+          className={linkClass('card', 'bg-card px-4 py-3')}
         >
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <span className="text-sm font-mono font-bold">{f.ticker}</span>
-              <div className="text-[11px] text-muted truncate">{f.asset_name}</div>
+              <div className="text-xs text-muted truncate">{f.asset_name}</div>
             </div>
             <VerdictBadge verdict={f.verdict} />
           </div>
@@ -37,7 +38,7 @@ export function LatestAnalyses({ fiches }: { fiches: FicheIndexRow[] }) {
           </p>
           <div className="mt-2 flex items-center justify-between">
             <PrixNonPublie />
-            <span className="text-[10px] text-muted">{relativeDaysFr(f.generated_at)}</span>
+            <span className="text-xs text-muted">{relativeDaysFr(f.generated_at)}</span>
           </div>
         </Link>
       ))}

@@ -57,7 +57,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
       {GAUNTLET_VERDICTS.map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
       {/* Body size, not text-xs muted: this is the limit the site stands on,
           and it was the least readable paragraph of the page. */}
-      {GAUNTLET_HONESTY.map((p, i) => <p key={i} className="text-sm text-muted mb-3">{p}</p>)}
+      {GAUNTLET_HONESTY.map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
       <p className="text-xs text-muted mb-3">
         {GAUNTLET_ACCESS.before}
         <a

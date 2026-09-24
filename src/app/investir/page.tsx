@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import ExplainerBox from '@/components/ExplainerBox'
 import Repli from '@/components/Repli'
@@ -61,7 +62,7 @@ export default function InvestirPage() {
         {/* The list starts two screens below the fold on a computer, and
             further on a phone even with the explanations folded. */}
         <a href="#societes"
-           className="inline-block mt-3 text-sm text-muted hover:text-foreground transition-colors">
+           className={linkClass('nav', 'inline-block mt-3 text-sm')}>
           Aller aux sociétés ↓
         </a>
       </div>
@@ -80,7 +81,7 @@ export default function InvestirPage() {
         ] as const).map(([label, valeur]) => (
           <div key={label} className="rounded border border-border bg-card px-4 py-3">
             <p className="text-2xl font-semibold text-foreground">{valeur}</p>
-            <p className="text-[11px] uppercase tracking-wider text-muted mt-1">{label}</p>
+            <p className="text-xs uppercase tracking-wider text-muted mt-1">{label}</p>
           </div>
         ))}
       </section>
@@ -97,7 +98,7 @@ export default function InvestirPage() {
         resume={`${INVESTIR_VOCAB.length} termes`}
         corpsClassName="mt-2"
       >
-        <p className="text-sm text-muted leading-relaxed mb-4">
+        <p className="text-sm leading-relaxed mb-4">
           Je garde les mots des comptes, mais voici ce qu’ils veulent dire ici.
         </p>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -128,7 +129,7 @@ export default function InvestirPage() {
           <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
             {dehors.map(f => (
               <Link key={f.slug} href={`/investir/${f.slug}`}
-                    className="text-muted hover:text-foreground transition-colors">
+                    className={linkClass('inline', 'text-sm')}>
                 {f.name}
               </Link>
             ))}
@@ -171,7 +172,7 @@ export default function InvestirPage() {
           technical={
             // Was a <pre>: on a phone overflow-x clipped every line
             // (« 2 exercices en perte sur 3, ou un s… »). Items wrap instead.
-            <div className="text-xs leading-relaxed space-y-3">
+            <div className="text-sm leading-relaxed space-y-3">
               <ol aria-label="Les sept contrôles" className="space-y-1.5">
                 {SEPT_CONTROLES.map(([nom, regle], i) => (
                   <li key={nom} className="grid grid-cols-[1.25rem_1fr] sm:grid-cols-[1.25rem_9.5rem_1fr] gap-x-2">
@@ -181,7 +182,7 @@ export default function InvestirPage() {
                   </li>
                 ))}
               </ol>
-              <p className="text-muted">
+              <p>
                 lu / non lu par contrôle, sur ses propres entrées
                 <br />
                 aucun score, aucune moyenne, aucun adjectif
@@ -199,7 +200,7 @@ export default function InvestirPage() {
       <Repli
         id="hors-liste"
         titre="Ce que cette liste ne contient pas, et pourquoi"
-        className="rounded border border-border bg-card px-5 py-4 text-sm text-muted leading-relaxed"
+        className="rounded border border-border bg-card px-5 py-4 text-sm leading-relaxed"
         titreClassName="text-base font-semibold text-foreground"
         corpsClassName="mt-2 space-y-2"
       >

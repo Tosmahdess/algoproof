@@ -15,8 +15,8 @@ export default function ThreeSentences({ data }: { data: ThreeSentencesData }) {
       <dl className="space-y-2.5">
         {ROWS.map(({ key, label }) => (
           <div key={key} className="flex flex-col sm:flex-row sm:gap-3">
-            <dt className="text-xs text-accent font-medium sm:w-36 shrink-0 sm:pt-0.5">{label}</dt>
-            <dd className="text-sm text-muted">{data[key]}</dd>
+            <dt className="text-xs font-semibold uppercase tracking-widest text-muted sm:w-36 shrink-0 sm:pt-0.5">{label}</dt>
+            <dd className="text-sm leading-relaxed">{data[key]}</dd>
           </div>
         ))}
       </dl>

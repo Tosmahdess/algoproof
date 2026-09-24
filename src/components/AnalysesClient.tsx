@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import type { FicheIndexRow } from '@/lib/equity'
 import type { Verdict } from '@/lib/types'
@@ -79,15 +80,15 @@ export default function AnalysesClient({ fiches }: { fiches: FicheIndexRow[] }) 
                 <Link
                   key={f.ticker}
                   href={`/wealth/${encodeURIComponent(f.ticker)}`}
-                  className="block rounded-lg border bg-card px-3 py-2.5 transition-colors hover:bg-card/60"
+                  className={linkClass('card', 'bg-card px-3 py-2.5')}
                   style={{ borderColor: v.color + '40' }}
                 >
                   <div className="flex items-center justify-between gap-1">
                     <span className="font-mono font-bold text-sm">{f.ticker}</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                    <span className="text-xs font-bold px-1.5 py-0.5 rounded"
                       style={{ color: v.color, background: v.color + '1f' }}>{v.label}</span>
                   </div>
-                  <div className="text-[11px] text-muted truncate mt-1">{f.asset_name}</div>
+                  <div className="text-xs text-muted truncate mt-1">{f.asset_name}</div>
                 </Link>
               )
             })}

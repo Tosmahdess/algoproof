@@ -15,10 +15,12 @@ interface ExplainerBoxProps {
 
 type Tab = 'functional' | 'technical' | 'discussion'
 
+const BODY_TEXT = 'text-sm leading-relaxed'
+
 const TAB_STYLE = (active: boolean) =>
   `px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
     active
-      ? 'text-severe border-severe'
+      ? 'text-foreground border-accent'
       : 'text-muted border-transparent hover:text-foreground'
   }`
 
@@ -34,10 +36,10 @@ export default function ExplainerBox({
     return (
       <div className="rounded border border-border overflow-hidden">
         <div data-section="functional" className="px-6 py-5">
-          <div className="text-sm leading-relaxed">{functional}</div>
+          <div className={BODY_TEXT}>{functional}</div>
         </div>
         <div data-section="technical" className="border-t border-border bg-card px-6 py-5">
-          <div className="text-sm">{technical}</div>
+          <div className={BODY_TEXT}>{technical}</div>
         </div>
       </div>
     )
@@ -63,13 +65,13 @@ export default function ExplainerBox({
 
       <div className="px-6 py-5">
         {active === 'functional' && (
-          <div data-section="functional" className="text-sm leading-relaxed">{functional}</div>
+          <div data-section="functional" className={BODY_TEXT}>{functional}</div>
         )}
         {active === 'technical' && (
-          <div data-section="technical" className="text-sm">{technical}</div>
+          <div data-section="technical" className={BODY_TEXT}>{technical}</div>
         )}
         {active === 'discussion' && showDiscussion && (
-          <div data-section="discussion" className="text-sm">
+          <div data-section="discussion" className={BODY_TEXT}>
             <DiscussionTab slug={discussionSlug!} />
           </div>
         )}

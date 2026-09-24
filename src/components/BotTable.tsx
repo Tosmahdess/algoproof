@@ -35,11 +35,11 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium truncate">{bot.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] font-semibold uppercase" style={{ color: familyColor(bot.family) }}>
+                  <span className="text-xs font-semibold uppercase" style={{ color: familyColor(bot.family) }}>
                     {familyLabel(bot.family)}
                   </span>
-                  {showTf && <span className="text-[10px] text-muted">{bot.timeframe}</span>}
-                  {hasData && <span className="text-[10px] text-muted">{bot.stats.total_trades} trades</span>}
+                  {showTf && <span className="text-xs text-muted">{bot.timeframe}</span>}
+                  {hasData && <span className="text-xs text-muted">{bot.stats.total_trades} trades</span>}
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
@@ -50,7 +50,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                 {hasData ? (
                   <>
                     <p className={`text-sm font-bold font-mono ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</p>
-                    <p className={`text-[10px] font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pct)}</p>
+                    <p className={`text-xs font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pct)}</p>
                   </>
                 ) : <span className="text-xs text-muted">—</span>}
               </div>
@@ -63,7 +63,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
       <div className="hidden md:block rounded border border-border overflow-hidden mb-6">
         <table className="w-full text-xs">
           <thead className="bg-card">
-            <tr className="text-muted text-[10px] uppercase tracking-widest border-b border-border">
+            <tr className="text-xs font-semibold uppercase tracking-widest text-muted border-b border-border">
               <th className="px-4 py-3 text-left">Stratégie</th>
               <th className="px-4 py-3 text-left">Famille</th>
               {showTf && <th className="px-4 py-3 text-left">TF</th>}
@@ -82,10 +82,10 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
                     <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
-                    <p className="text-muted text-[10px] mt-0.5">{bot.exchange} · {bot.timeframe}</p>
+                    <p className="text-muted text-xs mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: familyColor(bot.family) }}>
+                    <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: familyColor(bot.family) }}>
                       {familyLabel(bot.family)}
                     </span>
                   </td>
@@ -119,7 +119,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                     {hasData ? (
                       <div>
                         <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(pnlEur(bot.stats.latest_capital, bot.start_capital))}</span>
-                        <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
+                        <span className={`block text-xs font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
                       </div>
                     ) : <span className="text-muted">—</span>}
                   </td>

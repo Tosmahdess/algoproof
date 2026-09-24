@@ -47,7 +47,7 @@ function Pill({ label, count, active, onClick }: {
       aria-pressed={active}
       className={[
         'px-3 py-1.5 text-xs font-mono border rounded transition-colors',
-        active ? 'bg-accent text-bg border-accent' : 'bg-bg text-muted border-border hover:text-white',
+        active ? 'bg-accent text-bg border-accent' : 'bg-bg text-muted border-border hover:text-foreground',
         count === 0 && !active ? 'opacity-40' : '',
       ].join(' ')}
     >
@@ -123,7 +123,7 @@ export default function FleetFilterBar({
             slice the register anymore. */}
 
         {activeCount > 0 && (
-          <button type="button" onClick={onReset} className="text-xs text-accent underline">
+          <button type="button" onClick={onReset} className="text-sm text-accent underline">
             Tout effacer
           </button>
         )}

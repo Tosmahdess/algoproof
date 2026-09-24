@@ -44,7 +44,7 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
             style={active === p.id ? { color: p.color } : undefined}
           >
             <span>{p.label}</span>
-            <span className="ml-1.5 text-[9px] opacity-60 font-mono">{p.weight}</span>
+            <span className="ml-1.5 text-xs opacity-60 font-mono">{p.weight}</span>
           </button>
         ))}
         <button
@@ -54,7 +54,7 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
         >
           Historique
           {changelogs.length > 0 && (
-            <span className="ml-1.5 text-[9px] font-mono opacity-60">{changelogs.length}</span>
+            <span className="ml-1.5 text-xs font-mono opacity-60">{changelogs.length}</span>
           )}
         </button>
       </div>
@@ -63,16 +63,16 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
       {activePillar && (
         <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
           <div className="px-6 py-5">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted mb-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
               En pratique
             </p>
             <p className="text-sm leading-relaxed">{activePillar.functional}</p>
           </div>
           <div className="px-6 py-5 bg-card">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted mb-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
               Technique
             </p>
-            <p className="text-sm leading-relaxed text-muted">{activePillar.technical}</p>
+            <p className="text-sm leading-relaxed">{activePillar.technical}</p>
           </div>
         </div>
       )}

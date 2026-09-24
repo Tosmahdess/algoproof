@@ -36,40 +36,40 @@ export function PositionCard({ call, asset }: PositionCardProps) {
   const sigColor = SIGNAL_COLOR[call.signal_level] ?? '#666'
 
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+    <div className="rounded-lg border border-border bg-card p-3">
       <div className="flex items-start justify-between mb-1.5">
         <div>
-          <div className="text-[10px] font-mono text-muted">{call.asset}</div>
-          <div className="text-sm font-semibold text-zinc-200 leading-tight">
+          <div className="text-xs font-mono text-muted">{call.asset}</div>
+          <div className="text-sm font-semibold text-foreground leading-tight">
             {asset?.asset_name ?? call.asset}
           </div>
         </div>
         <span
-          className="text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0"
+          className="text-xs font-bold px-1.5 py-0.5 rounded shrink-0"
           style={{ background: sigColor + '22', color: sigColor }}
         >
           {call.signal_level?.replace('_dip', '').toUpperCase() ?? '—'}
         </span>
       </div>
 
-      <div className="text-[10px] text-muted mb-2">
+      <div className="text-xs text-muted mb-2">
         {dateStr} · {fmt(call.amount_eur)}€
       </div>
 
       <div className="flex items-center justify-between text-xs mb-2.5">
-        <span className="text-muted text-[10px]">
+        <span className="text-muted text-xs">
           Entrée <span className="text-muted">{fmt(entry, 2)}€</span>
         </span>
         {pnlPct !== null ? (
-          <span className="text-[10px] font-medium" style={{ color: pnlColor }}>
+          <span className="text-xs font-medium" style={{ color: pnlColor }}>
             {pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
           </span>
         ) : (
-          <span className="text-muted text-[10px]">—</span>
+          <span className="text-muted text-xs">—</span>
         )}
       </div>
 
-      <div className="space-y-1 text-[10px]">
+      <div className="space-y-1 text-xs">
         {tp1Price && (
           <div className="flex justify-between">
             <span className="text-muted">
@@ -114,7 +114,7 @@ export function PositionCard({ call, asset }: PositionCardProps) {
 
 export function EmptySlotCard() {
   return (
-    <div className="rounded-lg border border-dashed border-zinc-800 bg-zinc-950/30 p-3 flex items-center justify-center min-h-[110px]">
+    <div className="rounded-lg border border-dashed border-border bg-card/30 p-3 flex items-center justify-center min-h-[110px]">
       <span className="text-muted text-xs">slot libre</span>
     </div>
   )

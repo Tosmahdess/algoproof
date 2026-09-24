@@ -20,7 +20,7 @@ function CustomTooltip({ active, payload, label }: any) {
   return (
     <div className="bg-card border border-border rounded p-2 text-xs">
       <p className="text-muted mb-1">{label}</p>
-      <p className="text-white font-mono">€{d.capital.toFixed(2)}</p>
+      <p className="text-foreground font-mono">€{d.capital.toFixed(2)}</p>
       <p className={`font-mono ${pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
         {pnl >= 0 ? '+' : ''}{pnl.toFixed(2)}
       </p>

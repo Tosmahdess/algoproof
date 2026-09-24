@@ -135,7 +135,7 @@ export default function StartPage() {
             location="start"
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-foreground transition-colors hover:border-positive hover:text-positive"
+            className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-foreground hover:border-muted transition-colors"
           >
             Découvrir Kraken →
           </TrackedLink>
@@ -218,7 +218,7 @@ export default function StartPage() {
       <div className="text-center">
         <Link
           href="/strategies"
-          className="inline-block rounded-lg border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-positive hover:text-positive"
+          className="inline-block rounded-lg border border-border px-6 py-3 text-sm font-medium text-foreground hover:border-muted transition-colors"
         >
           Voir toutes les stratégies →
         </Link>

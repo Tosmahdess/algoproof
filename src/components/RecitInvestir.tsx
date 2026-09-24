@@ -28,7 +28,7 @@ function BlocsRendus({ blocs }: { blocs: Partial<Blocs> }) {
             <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
               {TITRES[cle]}
             </h2>
-            <p className="text-foreground/80 leading-relaxed">{blocs[cle]}</p>
+            <p className="text-foreground leading-relaxed">{blocs[cle]}</p>
           </section>
         ) : null,
       )}
@@ -106,7 +106,7 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
       {/* La même phrase que /preuve, la FAQ et la page d'abonnement du labo :
           une seule description de l'offre, sur toutes les surfaces (audit
           2026-09-09). Le contenu de la phrase ne se réécrit pas ici. */}
-      <p className="text-sm text-foreground/80 leading-relaxed">
+      <p className="text-sm text-foreground leading-relaxed">
         Ce que les membres lisent en plus, ce sont deux paragraphes d’analyse par
         société : ce que ses chiffres veulent dire pour son métier, et ce qui peut
         mal tourner. Pour {nom}, ça veut dire lire sa marge et son bilan avec les
@@ -129,12 +129,12 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
       <div className="mt-4 flex flex-wrap gap-3">
         <a
           href="https://lab.algoproof.fr/membre"
-          className="rounded bg-accent px-4 py-2 text-sm font-semibold text-bg hover:opacity-90 transition-opacity"
+          className="rounded-lg bg-positive px-4 py-2 text-sm font-semibold text-black hover:opacity-90 transition-opacity"
         >
           Voir l’abonnement
         </a>
         {reponse.entitlement === 'guest' && (
-          <Link href="/compte" className="rounded border border-border px-4 py-2 text-sm hover:bg-card transition-colors">
+          <Link href="/compte" className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:border-muted transition-colors">
             J’ai déjà un compte
           </Link>
         )}

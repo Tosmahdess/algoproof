@@ -95,7 +95,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             </Link>
           </p>
         )}
-        <p className="text-xs text-muted mb-4 max-w-2xl">
+        <p className="text-sm text-muted mb-4 max-w-2xl">
           Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
           La plupart de mes bots sont en <TermPopover id="paper-trading">paper trading</TermPopover> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
         </p>
@@ -189,7 +189,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             if (bot.engine_unit_key) {
               const dossier = bot.engine_unit_key.split('|')[0].toLowerCase()
               return (
-                <div className="text-xs">
+                <div className="text-sm space-y-2">
                   <p className="text-muted mb-2">
                     La configuration exacte de ce bot (valeurs des paramètres et combinaison
                     de filtres retenues par le gantelet) est réservée aux membres du labo.
@@ -202,7 +202,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
               )
             }
             return (
-              <p className="text-muted italic text-xs">
+              <p className="text-sm text-muted italic">
                 Paramètres techniques en cours de documentation.
               </p>
             )
@@ -219,7 +219,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
       {/* Bridge to the lab */}
       <div className="bg-card border border-border rounded-lg p-6 mb-8 text-center">
-        <p className="text-sm text-muted mb-3">
+        <p className="text-sm mb-3">
           Envie de tester une idée avec la même rigueur ? Le labo applique mes contrôles anti-overfit à tes propres backtests.
         </p>
         <a

@@ -26,7 +26,7 @@ export function PrixNonPublie({ ticker, avecLien = false }:
 
   if (!avecLien || !ticker) {
     return (
-      <span className="text-[11px] text-muted" title={explication}>
+      <span className="text-xs text-muted" title={explication}>
         cours non publié
       </span>
     )

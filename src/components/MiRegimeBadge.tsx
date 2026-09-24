@@ -90,7 +90,7 @@ export default function MiRegimeBadge() {
         <span className="text-xs text-muted font-mono">
           score {snap.composite_score?.toFixed(1) ?? '—'}
         </span>
-        <span className="ml-auto text-[10px] text-muted">il y a {ageMin} min</span>
+        <span className="ml-auto text-xs text-muted">il y a {ageMin} min</span>
       </div>
 
       {/* Row 2 — Trading status */}
@@ -103,8 +103,8 @@ export default function MiRegimeBadge() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono">
         {PILLARS.map(p => (
           <div key={p.key} className="text-center">
-            <p className="text-[9px] text-muted uppercase tracking-wider leading-tight">{p.label}</p>
-            <p className="font-bold mt-1 text-[11px]" style={{ color: p.color }}>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted leading-tight">{p.label}</p>
+            <p className="font-bold mt-1 text-xs" style={{ color: p.color }}>
               {snap[p.key] != null ? (snap[p.key] as number).toFixed(1) : '—'}
             </p>
           </div>
@@ -124,12 +124,12 @@ export default function MiRegimeBadge() {
             <span className="text-muted">Tendance</span>
             <span className="font-mono">{trendFr(snap.trend_regime)}</span>
             {snap.btc_vs_ema200_pct != null && (
-              <span className={`font-mono text-[10px] ${snap.btc_vs_ema200_pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+              <span className={`font-mono text-xs ${snap.btc_vs_ema200_pct >= 0 ? 'text-positive' : 'text-negative'}`}>
                 ({snap.btc_vs_ema200_pct > 0 ? '+' : ''}{snap.btc_vs_ema200_pct.toFixed(1)}% vs moyenne 200 j)
               </span>
             )}
           </div>
-          <div className="ml-auto flex items-center gap-2 font-mono text-[10px]">
+          <div className="ml-auto flex items-center gap-2 font-mono text-xs">
             <span className={snap.allow_long ? 'text-positive' : 'text-muted line-through'}>Longs</span>
             <span className={snap.allow_short ? 'text-positive' : 'text-muted line-through'}>Shorts</span>
           </div>

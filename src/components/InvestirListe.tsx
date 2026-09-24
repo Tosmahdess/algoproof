@@ -195,7 +195,7 @@ export default function InvestirListe({
                   dériveraient (le pluriel d'« alerte » suffit à les séparer). */}
               <span className="text-xs text-muted">{residuDe(l, contexte.residus)}</span>
               {l.alertes.length > 0 && (
-                <span className="text-xs text-foreground/80">
+                <span className="text-xs text-foreground">
                   {l.alertes.map(a => contexte.libelles[a] ?? a).join(' · ')}
                 </span>
               )}
