@@ -4,7 +4,7 @@ import FleetKpiCards from '@/components/FleetKpiCards'
 
 // User request 24/09: /overview opens on the cockpit's card shape, two cards,
 // bots in service and bots on real money, and no prose around them.
-const COUNTS = { n_swept: 5855277, n_judged: 351359, n_promoted: 92, n_live: 3 }
+const COUNTS = { n_swept: 5855277, n_judged: 351359, n_go: 0, n_marginal: 0, n_no_go: 0, n_promoted: 92, n_live: 3 }
 
 describe('FleetKpiCards', () => {
   it('renders one card per fleet count, labelled', () => {
