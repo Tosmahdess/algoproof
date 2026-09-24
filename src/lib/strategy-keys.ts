@@ -70,7 +70,9 @@ export const FICHE_BY_LEGACY_BOT_SLUG: Record<string, FicheSlug | null> = {
   'temacross-bf10': 'ma-cross',       // TEMA cross — user's call
   'tsi-bf8': 'tsi',
   'ttmsqueeze-bf7': 'ttm-squeeze',
-  'wvolbreak-bf28': null,             // Williams vol break, no fiche
+  // Runs a closer-to-Williams rule than the engine (close vs prior close +
+  // half the prior range); the fiche names both variants (2026-09-24).
+  'wvolbreak-bf28': 'williams-vol-break',
 }
 
 /**
@@ -114,7 +116,8 @@ export const FICHE_BY_ENGINE_BASE: Record<string, FicheSlug> = {
   ATRChannel: 'atr-channel',
   HeikinAshiTrend: 'heikin-ashi',
   ORB: 'orb',
-  // WilliamsVolBreak: deliberately absent — see the wave-1 note above.
+  // Fiche written 2026-09-24 (it was deliberately absent until then, see above).
+  WilliamsVolBreak: 'williams-vol-break',
 }
 
 /** The `base` segment of an `engine_unit_key`, or null when there isn't one. */

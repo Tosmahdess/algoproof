@@ -89,7 +89,7 @@ describe('Fonctionnel tab of an engine-born bot', () => {
   it('no machine identifier (snake_case) reaches the summary of any engine base', async () => {
     for (const [base, slug] of [['HMAcross', 'arm-hmacross-h4-head00'], ['KeltnerBreak', 'arm-keltnerbreak-h4-head00'],
       ['EMAcross', 'arm-emacross-d1-head01'], ['KAMAcross', 'arm-kamacross-h4-head00'], ['DonchianBreakout', 'arm-donchianbrea-h4-head00'],
-      ['ATRChannel', 'arm-atrchannel-h4-head00'], ['HeikinAshiTrend', 'arm-heikinashitr-h4-head00'], ['TEMAcross', 'arm-temacross-h4-head00']]) {
+      ['ATRChannel', 'arm-atrchannel-h4-head00'], ['HeikinAshiTrend', 'arm-heikinashitr-h4-head00'], ['TEMAcross', 'arm-temacross-h4-head00'], ['WilliamsVolBreak', 'arm-williamsvolb-d1-head01']]) {
       state.bot = mkBot({ slug, origin: 'engine', engine_unit_key: `${base}|H4|data_20260802|3` })
       const { unmount } = render(await StrategyPage({ params: Promise.resolve({ slug }) }))
       const text = screen.getByTestId('engine-bot-summary').textContent ?? ''
@@ -111,12 +111,25 @@ describe('Fonctionnel tab of an engine-born bot', () => {
 
   it('a base without a fiche keeps its description sentence', async () => {
     state.bot = mkBot({
-      slug: 'arm-williamsvolb-d1-head01', origin: 'engine',
+      slug: 'arm-liqsweep-h4-head00', origin: 'engine',
+      engine_unit_key: 'LiqSweep|H4|data_20260802|3',
+      description: 'Balayage de liquidité, configuration issue du gantelet du moteur.',
+    })
+    await renderFiche()
+    expect(screen.queryByTestId('engine-bot-summary')).toBeNull()
+    expect(screen.getByText(/Balayage de liquidité/)).toBeInTheDocument()
+  })
+
+  // 2026-09-24: WilliamsVolBreak got its fiche; its engine bots now carry the summary.
+  it('a WilliamsVolBreak bot carries the summary of its new fiche', async () => {
+    state.bot = mkBot({
+      slug: 'arm-williamsvolb-d1-head01', origin: 'engine', timeframe: 'D1',
       engine_unit_key: 'WilliamsVolBreak|D1|data_20260802|3',
       description: 'Cassure de volatilité selon Larry Williams, configuration sélectionnée par mes tests.',
     })
     await renderFiche()
-    expect(screen.queryByTestId('engine-bot-summary')).toBeNull()
-    expect(screen.getByText(/Cassure de volatilité selon Larry Williams/)).toBeInTheDocument()
+    expect(screen.getByTestId('engine-bot-summary')).toHaveTextContent(/bougie explosive/)
+    expect(screen.getByRole('link', { name: /fiche complète/i }))
+      .toHaveAttribute('href', '/strategies/williams-vol-break')
   })
 })

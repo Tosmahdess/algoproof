@@ -5,7 +5,7 @@ import { FIXTURE_FLEET } from '../fixtures/bots'
 
 describe('concept pages', () => {
   it('generates a static param for every fiche', () => {
-    expect(STRATEGY_FICHES.map(f => ({ concept: f.slug }))).toHaveLength(22)
+    expect(STRATEGY_FICHES.map(f => ({ concept: f.slug }))).toHaveLength(23)
   })
 
   // `Array.isArray` is true for any filter() result — this used to pass
@@ -20,6 +20,7 @@ describe('concept pages', () => {
   // once ATRChannel is evidenced in FICHE_BY_ENGINE_BASE — which wave-1 did.
   const COVERED_FICHES = new Set([
     'ema-cross', 'orb', 'macd', 'ichimoku', 'ema-ribbon', 'donchian', 'atr-channel',
+    'williams-vol-break', // wvolbreak-bf28 is in the fixture fleet (fiche written 2026-09-24)
   ])
 
   it('lists incarnations for fiches the fixture fleet actually deploys, and nothing for the rest', () => {

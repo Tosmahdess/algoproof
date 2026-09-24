@@ -46,13 +46,14 @@ describe('bot fiche — functional tab for engine bots', () => {
   })
 
   it('falls back to the description when an engine base has no concept page', async () => {
+    // WilliamsVolBreak was the example until its fiche was written (2026-09-24).
     current = mkBot({
-      slug: 'arm-williamsvolb-d1-head00',
+      slug: 'arm-liqsweep-h4-head00',
       origin: 'engine',
-      engine_unit_key: 'WilliamsVolBreak|D1|data_20260802|3',
-      description: 'Cassure de volatilité selon Larry Williams.',
+      engine_unit_key: 'LiqSweep|H4|data_20260802|3',
+      description: 'Balayage de liquidité.',
     })
     render(await StrategyPage({ params: Promise.resolve({ slug: current.slug }) }))
-    expect(screen.getByText('Cassure de volatilité selon Larry Williams.')).toBeInTheDocument()
+    expect(screen.getByText('Balayage de liquidité.')).toBeInTheDocument()
   })
 })

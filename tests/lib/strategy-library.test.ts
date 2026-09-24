@@ -3,8 +3,8 @@ import { STRATEGY_FICHES, getStrategyFiche, fichesByFamily } from '@/lib/strateg
 import { FAMILY_ORDER, isFamily } from '@/lib/families'
 
 describe('strategy library', () => {
-  it('carries all 22 fiches', () => {
-    expect(STRATEGY_FICHES).toHaveLength(22)
+  it('carries all 23 fiches', () => {
+    expect(STRATEGY_FICHES).toHaveLength(23)
   })
 
   it('gives every fiche a canonical family, not a free-form label', () => {
@@ -42,18 +42,19 @@ describe('strategy library', () => {
     stochastic: 'mean-reversion',
     fvg: 'price-action',
     'fvg-multi': 'price-action',
+    'williams-vol-break': 'breakout',
   }
 
-  it('maps every one of the 22 fiches to its agreed family', () => {
-    expect(Object.keys(EXPECTED_FAMILY)).toHaveLength(22)
+  it('maps every one of the 23 fiches to its agreed family', () => {
+    expect(Object.keys(EXPECTED_FAMILY)).toHaveLength(23)
     for (const [slug, family] of Object.entries(EXPECTED_FAMILY)) {
       expect(getStrategyFiche(slug)!.family, slug).toBe(family)
     }
   })
 
   it('has unique slugs and unique strategyIds', () => {
-    expect(new Set(STRATEGY_FICHES.map(f => f.slug)).size).toBe(22)
-    expect(new Set(STRATEGY_FICHES.map(f => f.strategyId)).size).toBe(22)
+    expect(new Set(STRATEGY_FICHES.map(f => f.slug)).size).toBe(23)
+    expect(new Set(STRATEGY_FICHES.map(f => f.strategyId)).size).toBe(23)
   })
 
   it('no longer carries botSlug: incarnations are derived, not hand-written', () => {
