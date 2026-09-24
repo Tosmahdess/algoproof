@@ -551,7 +551,8 @@ const FICHES = [
     // Written 2026-09-24. Source of truth for the rule: the engine's
     // backtests_massive/strategies/williams_vol_break.py (range > ATR(14) x mult,
     // side = bar colour, first bar of a run only) and its Lab port
-    // algolab/strategies/williams_vol_break.py. The legacy wvolbreak-bf28 bot
+    // algolab/strategies/williams_vol_break.py (first-bar-of-run parity added to
+    // the Lab 2026-09-24, so the fiche no longer caveats it). The legacy wvolbreak-bf28 bot
     // runs a different, closer-to-Williams rule: logic[1] says so.
     slug: "williams-vol-break",
     strategyId: "williams_vol_break",
@@ -561,7 +562,7 @@ const FICHES = [
       "Une bougie beaucoup plus grande que d'habitude, prise dans le sens de sa couleur.",
     logic: [
       "Chaque bougie est mesurée du plus haut au plus bas, puis comparée à l'ATR des 14 dernières, c'est-à-dire à la taille d'une bougie ordinaire. Si elle le dépasse d'un certain multiple, elle est jugée explosive et j'entre dès qu'elle est terminée : long si elle est verte, short si elle est rouge. Seule la première bougie explosive d'une série de même couleur déclenche, les suivantes ne font rien.",
-      "L'idée vient de Larry Williams, qui achetait quand le prix dépassait l'ouverture d'une fraction de l'amplitude de la veille. Mon bot D1 écrit à la main en garde une forme proche (la clôture doit dépasser celle de la veille d'une demi-amplitude de la veille). La version de mon moteur, que le labo reprend à un détail près (il ne saute pas les bougies explosives consécutives), mesure la bougie contre l'ATR. Ce ne sont pas les mêmes signaux, et un résultat sur l'une ne dit rien de l'autre.",
+      "L'idée vient de Larry Williams, qui achetait quand le prix dépassait l'ouverture d'une fraction de l'amplitude de la veille. Mon bot D1 écrit à la main en garde une forme proche (la clôture doit dépasser celle de la veille d'une demi-amplitude de la veille). La version de mon moteur, que le labo reproduit, mesure la bougie contre l'ATR. Ce ne sont pas les mêmes signaux, et un résultat sur l'une ne dit rien de l'autre.",
     ],
     worksWhen: [
       "Les départs de mouvement francs, quand une première grosse bougie ouvre une série dans le même sens.",
