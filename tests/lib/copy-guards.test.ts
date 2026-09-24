@@ -185,9 +185,10 @@ describe('the ten-AI-strategies claim matches the article\'s own table', () => {
     expect(article()).not.toMatch(/z[ée]ro profitable/i)
   })
 
-  it('the home and the article carry the nine-lose / ten-euros / five-trades claim', () => {
-    const CLAIM = /neuf perdent[^.]*dixième gagne dix euros[^.]*cinq trades/i
-    expect(filesMatching(CLAIM)).toEqual(expect.arrayContaining(['src/app/page.tsx']))
+  // The home's « IA » card that carried this claim was removed on 2026-09-24
+  // (owner, desktop pass). The article is the one surface left; the two
+  // guards above still catch the old « aucune ne reste profitable » anywhere.
+  it('the article carries the nine-lose / ten-euros / five-trades claim', () => {
     expect(article()).toMatch(/dix euros[^.]*cinq trades/)
   })
 })

@@ -6,7 +6,7 @@ import FunnelCounter from '@/components/FunnelCounter'
 // was really the sum of two different things (see lib/funnel.ts). It now shows
 // the pair under honest names — the same pair the cockpit hero prints on
 // lab.algoproof.fr, so the two sites cannot disagree.
-const COUNTS = { n_swept: 5855277, n_judged: 351359, n_promoted: 25, n_live: 2 }
+const COUNTS = { n_swept: 5855277, n_judged: 351359, n_go: 1359, n_marginal: 50000, n_no_go: 300000, n_promoted: 25, n_live: 2 }
 
 describe('FunnelCounter', () => {
   it('renders the four numbers', () => {

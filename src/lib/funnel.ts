@@ -26,6 +26,12 @@ import { paginateAll } from './paginate'
 export interface FunnelCounts {
   n_swept: number
   n_judged: number
+  // The three ways a judged configuration leaves the engine — the same split as
+  // the four KPI cards at the top of lab.algoproof.fr/cockpit. Added 2026-09-24
+  // so the home can print that same read (owner). They always sum to n_judged.
+  n_go: number
+  n_marginal: number
+  n_no_go: number
   n_promoted: number
   n_live: number
 }
@@ -112,15 +118,19 @@ function judgedByCorrectedEngine(row: VerdictCountRow): boolean {
 }
 
 /** Pure aggregation, so the swept/judged split is testable without Supabase. */
-export function verdictTotals(rows: VerdictCountRow[]): { n_swept: number; n_judged: number } {
+export function verdictTotals(rows: VerdictCountRow[]): Omit<FunnelCounts, 'n_promoted' | 'n_live'> {
   return selectNewestPerPair(rows.filter(judgedByCorrectedEngine)).reduce(
     (acc, r) => ({
       n_swept: acc.n_swept + r.n_behaviors,
       n_judged: acc.n_judged + r.n_go + r.n_marginal + r.n_no_go,
+      n_go: acc.n_go + r.n_go,
+      n_marginal: acc.n_marginal + r.n_marginal,
+      n_no_go: acc.n_no_go + r.n_no_go,
     }),
-    { n_swept: 0, n_judged: 0 },
+    { n_swept: 0, n_judged: 0, n_go: 0, n_marginal: 0, n_no_go: 0 },
   )
 }
+
 
 export async function getFunnelCounts(): Promise<FunnelCounts | null> {
   try {
@@ -141,10 +151,8 @@ export async function getFunnelCounts(): Promise<FunnelCounts | null> {
       }),
     ])
     if (botCounts.error || !botCounts.data) return null
-    const { n_swept, n_judged } = verdictTotals(verdictRows)
     return {
-      n_swept,
-      n_judged,
+      ...verdictTotals(verdictRows),
       n_promoted: botCounts.data.n_promoted,
       n_live: botCounts.data.n_live,
     }
