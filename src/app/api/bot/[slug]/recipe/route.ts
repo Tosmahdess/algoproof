@@ -33,15 +33,21 @@ async function readRecipe(slug: string) {
       .select('recipe')
       .eq('slug', slug)
       .limit(1)
+    // A member must never read the members-only sentence: every paid answer
+    // without a recipe says « indisponible » (missing row included — the
+    // window between a site deploy and the publisher's first upsert).
     if (error) {
       console.error('[bot-recipe] read failed:', error)
-      return {}
+      return { indisponible: true as const }
     }
-    if (!data || data.length === 0) return {}
+    if (!data || data.length === 0) {
+      console.error(`[bot-recipe] no row for ${slug}`)
+      return { indisponible: true as const }
+    }
     return { recipe: (data[0] as { recipe: unknown }).recipe }
   } catch (e) {
     console.error('[bot-recipe] read threw:', e)
-    return {}
+    return { indisponible: true as const }
   }
 }
 

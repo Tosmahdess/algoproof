@@ -1,5 +1,5 @@
 -- 055_bot_recipes.sql
--- Project: avdegocswrhzdnvsyiui (the one prod project; auth, subscriptions and content live together).
+-- Project: avdegocswrhzdnvsyiui (SUPABASE_URL: the content project, read by supabasePrivileged()).
 -- Apply in the Supabase SQL editor.
 --
 -- The exact recipe of each published wave bot (cohort go_head, 75 on 2026-09-24):
@@ -23,7 +23,8 @@ create table if not exists public.bot_recipes (
 
 alter table public.bot_recipes enable row level security;
 
-revoke all on public.bot_recipes from anon, authenticated;
+revoke all on public.bot_recipes from anon, authenticated, public;
+grant all on public.bot_recipes to service_role;
 
 comment on table public.bot_recipes is
   'Exact recipe per published wave bot. Service role only (no policy): served to paying '

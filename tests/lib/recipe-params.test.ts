@@ -45,6 +45,7 @@ describe('toBotParams', () => {
     expect(flat(recipe)).toContain('Sortie|Stop loss|ATR × 2.5|')
     expect(flat(recipe)).toContain('Sortie|R:R minimal|1 : 3|')
     expect(flat({ ...recipe, exit: null })).toContain('Sortie|Sortie|par défaut du moteur|')
+    expect(flat({ ...recipe, exit: { atr_mult: 2, atr_period: 21 } })).toContain('Sortie|atr_period|21|')
   })
 
   it('says when there is no filter at all rather than dropping the group', () => {

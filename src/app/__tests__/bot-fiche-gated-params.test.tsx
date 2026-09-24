@@ -94,6 +94,13 @@ describe('bot fiche — the recipe for members', () => {
     expect(await screen.findByText(/momentanément indisponible/)).toBeInTheDocument()
   })
 
+  it('a paid answer without a recipe never shows a member the members-only sentence', async () => {
+    answer({ entitlement: 'paid' })
+    await openTechnique()
+    expect(await screen.findByText(/momentanément indisponible/)).toBeInTheDocument()
+    expect(screen.queryByText(/réservée aux membres du labo/)).toBeNull()
+  })
+
   it('the server-rendered page carries no recipe value, whatever the route would answer', async () => {
     answer({ entitlement: 'paid', recipe: { tf: 'H4', params: { period: SENTINEL }, filters: {}, exit: null } })
     const { renderToStaticMarkup } = await import('react-dom/server')

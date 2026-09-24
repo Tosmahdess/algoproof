@@ -37,7 +37,8 @@ export default function RecipeGate({ slug, dossierBase }: { slug: string; dossie
     return <BotParamsSection params={toBotParams(answer.recipe)} />
   }
 
-  if (answer.entitlement === 'paid' && answer.indisponible) {
+  // Any paid answer without a recipe: never the members-only sentence to a member.
+  if (answer.entitlement === 'paid') {
     return <p className="text-sm text-muted">La recette est momentanément indisponible.</p>
   }
 

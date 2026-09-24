@@ -81,14 +81,14 @@ describe('/api/bot/[slug]/recipe', () => {
     expect(res.headers.get('cache-control')).toBe('private, no-store')
   })
 
-  it('a member on a slug with no row, or a failed read, gets no recipe and no 500', async () => {
+  it('a member on a slug with no row, or a failed read, is told unavailable, never a 500', async () => {
     state.entitlement = 'paid'
     state.rows = []
-    expect((await call()).body).toEqual({ entitlement: 'paid' })
+    expect((await call()).body).toEqual({ entitlement: 'paid', indisponible: true })
     state.rows = null
     state.error = { message: 'boom' }
     const { res, body } = await call()
     expect(res.status).toBe(200)
-    expect(body).toEqual({ entitlement: 'paid' })
+    expect(body).toEqual({ entitlement: 'paid', indisponible: true })
   })
 })

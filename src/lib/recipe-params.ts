@@ -11,7 +11,7 @@ export interface BotRecipe {
   tf?: string
   params?: Record<string, Scalar>
   filters?: Record<string, Record<string, Scalar>>
-  exit?: { atr_mult?: number; rr?: number; trail_mult?: number } | null
+  exit?: ({ atr_mult?: number; rr?: number; trail_mult?: number } & Record<string, number>) | null
   assets?: string[]
   provenance?: { dataset?: string; engine_fingerprint?: string }
 }
@@ -87,6 +87,10 @@ export function toBotParams(r: BotRecipe): BotParams {
     if (r.exit.atr_mult != null) exit.push({ label: 'Stop loss', value: `ATR × ${r.exit.atr_mult}` })
     if (r.exit.rr != null) exit.push({ label: 'R:R minimal', value: `1 : ${r.exit.rr}` })
     if (r.exit.trail_mult != null) exit.push({ label: 'Stop suiveur', value: `ATR × ${r.exit.trail_mult}` })
+    // Any other exit key (atr_period is allowed by the engine) renders raw, never dropped.
+    for (const [k, v] of Object.entries(r.exit)) {
+      if (!['atr_mult', 'rr', 'trail_mult'].includes(k)) exit.push({ label: k, value: String(v) })
+    }
   }
 
   const groups: ParamGroup[] = [
