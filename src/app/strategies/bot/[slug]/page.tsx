@@ -17,6 +17,7 @@ import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
 import SampleNote from '@/components/SampleNote'
 import RecipeGate from '@/components/RecipeGate'
+import EngineBotSummary from '@/components/EngineBotSummary'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -156,20 +157,22 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           functional={(() => {
             // An engine bot's `description` is one generic sentence per base,
             // identical on every bot of that base (publisher: ARMADA_BASE_DESC_FR).
-            // The strategy page already explains how it works, when it works
-            // and when it dies — so point there instead of repeating the line
-            // 75 times. Legacy bots keep their hand-written text; an engine
-            // base with no concept page yet (WilliamsVolBreak) falls back too,
-            // because an empty slot would read as "nothing to say".
+            // Since 2026-09-24 the tab carries the concept summary inline plus
+            // this bot's own facts (EngineBotSummary), instead of one line and
+            // a link. Legacy bots keep their hand-written text; an engine base
+            // with no concept page yet (WilliamsVolBreak) falls back to its
+            // sentence, because an empty slot would read as "nothing to say".
             const fiche = bot.engine_unit_key && conceptSlug ? getStrategyFiche(conceptSlug) : null
-            if (fiche) {
+            if (fiche && conceptSlug) {
               return (
-                <p>
-                  Ce bot fait tourner <strong>{fiche.title}</strong>.{' '}
-                  <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline')}>
-                    Ce que fait cette stratégie, quand elle marche et quand elle meurt →
-                  </Link>
-                </p>
+                <EngineBotSummary
+                  fiche={fiche}
+                  conceptSlug={conceptSlug}
+                  slug={bot.slug}
+                  timeframe={bot.timeframe}
+                  exchange={bot.exchange}
+                  assets={bot.assets}
+                />
               )
             }
             return bot.description ? (
