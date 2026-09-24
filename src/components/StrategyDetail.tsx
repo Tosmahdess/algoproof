@@ -91,7 +91,7 @@ export default function StrategyDetail({ bot }: Props) {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <p className="text-xs uppercase tracking-widest text-muted">Trades exposés</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted">Trades exposés</p>
             <AlsoLiveBadge slug={bot.slug} status={bot.status} />
           </div>
           <p className="text-sm font-mono">

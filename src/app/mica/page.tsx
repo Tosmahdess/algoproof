@@ -64,7 +64,7 @@ export default function MicaPage() {
           {MICA_POINTS.map(([title, body]) => (
             <div key={title} className="rounded-lg border border-border bg-card p-5">
               <h3 className="text-base font-semibold text-foreground mb-1">{title}</h3>
-              <p className="text-sm text-muted leading-relaxed">{body}</p>
+              <p className="text-sm leading-relaxed">{body}</p>
             </div>
           ))}
         </div>
@@ -99,8 +99,8 @@ export default function MicaPage() {
                   <td className="px-4 py-3 font-medium text-foreground">
                     {e.url ? <a href={e.url} target="_blank" rel="noopener noreferrer" className={linkClass('record')}>{e.name} →</a> : e.name}
                   </td>
-                  <td className="px-4 py-3 text-muted">{e.type}</td>
-                  <td className="px-4 py-3 text-muted">{e.status}</td>
+                  <td className="px-4 py-3">{e.type}</td>
+                  <td className="px-4 py-3">{e.status}</td>
                   <td className="px-4 py-3 text-foreground">{e.franceOk}</td>
                 </tr>
               ))}

@@ -52,7 +52,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
-      <div className="flex items-center gap-2 text-xs text-muted mb-6">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted mb-6">
         {article.meta.category && (() => {
           const cat = BLOG_CATEGORIES[article.meta.category as BlogCategory]
           return cat ? (

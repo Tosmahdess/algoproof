@@ -18,6 +18,9 @@ describe('isNumeric — whole-cell, anchored', () => {
     ['+12 %'],
     ['−0,3 %'],
     ['-68 %'],
+    ['132 / 72 % / +978'],
+    ['53 / 7.5 % / −430'],
+    ['50/200'],
   ])('%s is numeric', (value) => {
     expect(isNumeric(value)).toBe(true)
   })
@@ -27,6 +30,8 @@ describe('isNumeric — whole-cell, anchored', () => {
     ['BTC 1j'],
     ['Ichimoku 9/26/52'],
     ["n inférieur à 20 : rien n'est significatif"],
+    ['06/04 → 01/05'],
+    ['0 % (non imposable)'],
   ])('%s is NOT numeric (digits present but the cell is not a number)', (value) => {
     expect(isNumeric(value)).toBe(false)
   })

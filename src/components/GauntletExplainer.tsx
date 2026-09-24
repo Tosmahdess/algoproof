@@ -33,7 +33,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
       resume="Comment je trie, les quatre épreuves, et la limite que j’écris noir sur blanc."
       resumeClassName="text-sm font-normal text-foreground"
       className="mb-10 bg-card border border-border rounded-lg p-5"
-      titreClassName="text-xs uppercase tracking-wider text-muted"
+      titreClassName="text-xs font-semibold uppercase tracking-widest text-muted"
       // At 1440 px the card ran ~110 characters a line. max-w-2xl (~78) and not
       // max-w-prose (~65): the latter pushed the search 307 px further down.
       corpsClassName="mt-3 max-w-2xl"

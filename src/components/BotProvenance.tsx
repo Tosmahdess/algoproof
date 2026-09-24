@@ -16,7 +16,7 @@ export default function BotProvenance({ campaign, candidate }: {
   return (
     <aside data-testid="provenance"
            className="rounded-lg border border-border p-4 text-sm space-y-1 mb-8">
-      <div className="text-xs uppercase tracking-widest text-muted">D&apos;où vient ce bot</div>
+      <div className="text-xs font-semibold uppercase tracking-widest text-muted">D&apos;où vient ce bot</div>
       <p>
         Issu de la campagne {campaign.base} {campaign.tf}, close le {frDate(campaign.judged_on)} :
         {' '}{count(campaign.n_behaviors)} configurations jugées, {count(campaign.n_candidates)} retenues.

@@ -52,7 +52,7 @@ export default function InvestirPage() {
           en « solide » ou « fragile », je te donne les faits et le compte de ce que j’ai
           pu lire. Ouvre le même document, tu refais mes contrôles en dix minutes.
         </p>
-        <p className="text-sm text-muted max-w-2xl leading-relaxed mt-3">
+        <p className="text-sm max-w-2xl leading-relaxed mt-3">
           Ce n’est pas un conseil d’achat, et pas seulement pour la forme : je ne lis aucun
           cours de bourse, donc rien ici ne peut dire si un titre est cher aujourd’hui.
         </p>
@@ -81,7 +81,7 @@ export default function InvestirPage() {
         ] as const).map(([label, valeur]) => (
           <div key={label} className="rounded border border-border bg-card px-4 py-3">
             <p className="text-2xl font-semibold text-foreground">{valeur}</p>
-            <p className="text-xs uppercase tracking-wider text-muted mt-1">{label}</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted mt-1">{label}</p>
           </div>
         ))}
       </section>
@@ -105,7 +105,7 @@ export default function InvestirPage() {
           {INVESTIR_VOCAB.map(([terme, definition]) => (
             <div key={terme} className="rounded border border-border bg-card px-4 py-3">
               <dt className="text-sm font-semibold text-foreground">{terme}</dt>
-              <dd className="text-sm text-muted leading-relaxed mt-1">{definition}</dd>
+              <dd className="text-sm leading-relaxed mt-1">{definition}</dd>
             </div>
           ))}
         </dl>

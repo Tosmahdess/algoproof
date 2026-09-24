@@ -14,7 +14,7 @@ export default function Error({
       <p className="text-xs text-muted mb-8">{error.digest}</p>
       <button
         onClick={reset}
-        className="px-4 py-2 bg-card border border-border rounded-lg text-sm hover:border-muted/50 transition-colors"
+        className="px-4 py-2 bg-card border border-border rounded-lg text-sm hover:border-muted transition-colors"
       >
         Réessayer
       </button>

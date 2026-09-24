@@ -13,9 +13,10 @@ interface RowProps {
   _aligns?: string[]
   _isSummary?: boolean
   _widths?: string
+  _headers?: string[]
 }
 
-export function Row({ values, _colCount, _aligns, _isSummary, _widths }: RowProps) {
+export function Row({ values, _colCount, _aligns, _isSummary, _widths, _headers }: RowProps) {
   const cells = values.split('|').map(c => c.trim())
   const count = _colCount ?? cells.length
   const aligns = _aligns ?? ['left', ...Array(count - 1).fill('right')]
@@ -23,9 +24,32 @@ export function Row({ values, _colCount, _aligns, _isSummary, _widths }: RowProp
 
   const baseBg = _isSummary ? 'bg-card border-t border-border' : ''
 
+  // Below sm the row is a stacked card: first cell as its title, every other
+  // cell as « header : value ». A 5-column grid cannot fit 390px without
+  // hiding the column the article is about (10 stratégies IA, 2026-09-24).
+  const stacked = (
+    <div className={`sm:hidden px-3 py-3 ${baseBg}`}>
+      <div className="text-sm font-semibold">{cells[0]}</div>
+      <dl className="mt-1.5 space-y-1">
+        {cells.slice(1).map((cell, j) => {
+          const numeric = isNumeric(cell)
+          const color = numeric ? signColor[detectSign(cell)] : 'text-foreground'
+          return (
+            <div key={j} className="flex gap-2 text-sm">
+              <dt className="shrink-0 text-xs font-semibold uppercase tracking-widest text-muted pt-0.5">{_headers?.[j + 1]}</dt>
+              <dd className={`min-w-0 break-words ${numeric ? 'font-mono tabular-nums' : ''} ${color}`}>{cell}</dd>
+            </div>
+          )
+        })}
+      </dl>
+    </div>
+  )
+
   return (
+    <>
+    {stacked}
     <div
-      className={`grid ${baseBg}`}
+      className={`hidden sm:grid ${baseBg}`}
       style={{ gridTemplateColumns: gridTemplate }}
     >
       {cells.map((cell, i) => {
@@ -50,6 +74,7 @@ export function Row({ values, _colCount, _aligns, _isSummary, _widths }: RowProp
         )
       })}
     </div>
+    </>
   )
 }
 
@@ -76,11 +101,11 @@ export function CompactTable({ cols, widths, aligns, summary, children }: Compac
   const lastIndex = rows.length - 1
 
   return (
-    <div className="not-prose my-8 -mx-4 sm:mx-0 overflow-x-auto">
-      <div className={`inline-block align-middle ${colCount >= 5 ? 'min-w-[40rem]' : 'min-w-full'}`}>
+    <div className="not-prose my-8 sm:overflow-x-auto">
+      <div className="sm:inline-block align-middle w-full sm:min-w-full">
         <div className="border border-border rounded-md overflow-hidden bg-card/40">
           <div
-            className="grid bg-card border-b border-border"
+            className="hidden sm:grid bg-card border-b border-border"
             style={{ gridTemplateColumns: gridTemplate }}
           >
             {headers.map((h, i) => {
@@ -109,6 +134,7 @@ export function CompactTable({ cols, widths, aligns, summary, children }: Compac
                   _aligns={alignArr}
                   _isSummary={summary === true && i === lastIndex}
                   _widths={gridTemplate}
+                  _headers={headers}
                 />
               )
             })}

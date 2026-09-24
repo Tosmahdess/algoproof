@@ -80,13 +80,13 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Quand ça marche</h2>
-          <ul className="text-sm space-y-2">
+          <ul className="text-sm leading-relaxed space-y-2">
             {fiche.worksWhen.map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </section>
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Quand ça meurt</h2>
-          <ul className="text-sm space-y-2">
+          <ul className="text-sm leading-relaxed space-y-2">
             {fiche.diesWhen.map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </section>
@@ -123,7 +123,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
           Ce qui tourne chez moi
         </h2>
         {incarnations.length === 0 ? (
-          <p className="text-sm">
+          <p className="text-sm text-muted">
             Aucun bot ne fait tourner cette stratégie en ce moment.
           </p>
         ) : (

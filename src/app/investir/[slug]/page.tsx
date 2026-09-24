@@ -184,7 +184,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
           ['Marge nette', c.marge],
         ] as const).map(([label, valeur]) => (
           <div key={label} className="bg-card px-4 py-3">
-            <dt className="text-xs uppercase tracking-wider text-muted">{label}</dt>
+            <dt className="text-xs font-semibold uppercase tracking-widest text-muted">{label}</dt>
             <dd className="text-sm font-semibold font-mono mt-1">{valeur ?? '—'}</dd>
           </div>
         ))}

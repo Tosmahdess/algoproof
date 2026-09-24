@@ -115,7 +115,7 @@ export default function ConformityCard({
           // The last one written wins: decisions are appended, never edited.
           const decision = expectations.decisions?.filter(d => d.rule === rule).at(-1)
           return (
-            <li key={rule} className="text-sm text-muted flex gap-2">
+            <li key={rule} className="text-sm leading-relaxed flex gap-2">
               <span className="text-negative shrink-0">✕</span>
               <span>
                 {rule}

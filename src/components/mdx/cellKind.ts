@@ -12,8 +12,14 @@
 // optional trailing unit. A sentence that happens to contain a digit no
 // longer qualifies.
 
+// One number: optional sign, digits with separators, optional unit.
+const NUM = String.raw`[+−–-]?\s*\d[\d\s.,]*\s*(?:%|€|x|×|k|M|USDT|pb|bp|j|h|R)?`
+// A cell is numeric if it is one number, or several joined by « / »
+// (« 132 / 72 % / +978 » = n / WR / P&L in the hard-gate article).
+const NUMERIC_CELL = new RegExp(String.raw`^${NUM}(?:\s*/\s*${NUM})*$`)
+
 export function isNumeric(s: string): boolean {
-  return /^[+−–-]?\s*\d[\d\s.,/]*\s*(%|€|x|×|k|M|USDT|pb|bp|j|h|R)?$/.test(s.trim())
+  return NUMERIC_CELL.test(s.trim())
 }
 
 /** Detect sign for color coding.

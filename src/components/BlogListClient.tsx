@@ -42,15 +42,15 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">Apprendre en pratique, dans le labo</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <a href="https://lab.algoproof.fr/apprendre" className={linkClass('card', 'bg-card p-4')}>
-            <div className="font-bold text-sm mb-1 group-hover:text-accent transition-colors">🎓 Les tutoriels</div>
+            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">🎓 Les tutoriels</h3>
             <p className="text-xs text-muted">Cinq pas-à-pas interactifs, de zéro à ton premier verdict, plus le guide du Cockpit.</p>
           </a>
           <a href="/strategies" className={linkClass('card', 'bg-card p-4')}>
-            <div className="font-bold text-sm mb-1 group-hover:text-accent transition-colors">📚 Les stratégies</div>
+            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">📚 Les stratégies</h3>
             <p className="text-xs text-muted">Les {STRATEGY_FICHES.length} stratégies expliquées : quand ça marche, quand ça meurt, et les bots qui les incarnent.</p>
           </a>
           <a href="https://lab.algoproof.fr/agents" className={linkClass('card', 'bg-card p-4')}>
-            <div className="font-bold text-sm mb-1 group-hover:text-accent transition-colors">🤖 Pour ton agent IA</div>
+            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">🤖 Pour ton agent IA</h3>
             <p className="text-xs text-muted">Le serveur MCP public : ton agent backteste et reçoit le bulletin anti-overfit.</p>
           </a>
         </div>

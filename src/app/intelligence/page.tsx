@@ -120,13 +120,13 @@ export default async function IntelligencePage() {
         <h1 className="text-3xl font-semibold tracking-tight mb-3">
           Risque ON ou risque OFF, tous les jours
         </h1>
-        <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
+        <p className="text-sm max-w-2xl leading-relaxed mb-3">
           Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège sentiment, dérivés, actualités et macro en un seul indicateur lisible.
         </p>
-        <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
+        <p className="text-sm max-w-2xl leading-relaxed mb-3">
           Pourquoi ça compte : quand le risque passe à OFF, mes bots se font plus prudents (positions réduites, défense active). La météo du marché n&apos;est pas décorative, elle pilote des décisions. Termes expliqués dans le <a href="/lexique" className={linkClass('inline')}>lexique</a>.
         </p>
-        <p className="text-sm text-muted max-w-2xl leading-relaxed">
+        <p className="text-sm max-w-2xl leading-relaxed">
           Chaque bot passe par cette couche avant d&apos;entrer en position. Elle réduit la taille quand le contexte se dégrade, et coupe les entrées quand il devient franchement mauvais. Le blocage total, lui, est une sécurité de dernier recours et pas le régime de tous les jours. Ce qu&apos;elle a réellement changé sur mes bots, et ce qu&apos;elle n&apos;a pas changé, est mesuré plus bas sur cette page.
         </p>
       </div>
