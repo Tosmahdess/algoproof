@@ -35,10 +35,6 @@ export default async function HomePage() {
   // the homepage headline counts and ranking.
   const [allBots, funnel] = await Promise.all([getAllBotsWithStats(), getFunnelCounts()])
   const bots = excludeArchived(allBots)
-  // Wave-1 cohort, counted from the data rather than typed into the copy: the
-  // sentence below used to carry a literal 75 and would have aged in silence the
-  // day one of them is archived. Same tagging rule as /overview's waveBotCount.
-  const waveCount = bots.filter(b => b.engine_unit_key?.length).length
   // Live = real money (status 'live': v1-spot, v1-hl, orb-bf25) ; the rest is simulation
   // (the word « laboratoire » was retired for a bot STATUS on 2026-09-20 — « le labo » is the tool).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
@@ -276,28 +272,6 @@ export default async function HomePage() {
           <a href="https://lab.algoproof.fr/agents" className="px-5 py-2.5 border border-border font-semibold rounded-lg hover:bg-card transition-colors text-sm">
             Connecter son agent (MCP)
           </a>
-        </div>
-      </div>
-
-      {/* Ce qui travaille en ce moment */}
-      <div className="mb-16">
-        <h2 className="text-xl font-semibold mb-3">Ce qui travaille en ce moment</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link href="/strategies/bot/orb-bf25" className="bg-card border border-border rounded-lg p-8 text-center hover:border-positive/30 transition-colors group">
-            <h3 className="text-base font-semibold mb-2">En argent réel</h3>
-            <p className="text-muted text-sm">ORB H1 tourne sur Hyperliquid avec mon capital. Chaque trade, chaque perte, publié à l&apos;heure.</p>
-            <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir le bot →</span>
-          </Link>
-          <Link href="/overview" className="bg-card border border-border rounded-lg p-8 text-center hover:border-accent/30 transition-colors group">
-            <h3 className="text-base font-semibold mb-2">Les derniers arrivés</h3>
-            <p className="text-muted text-sm">Le 21 août, {waveCount} stratégies choisies par la version d&apos;août de mon moteur de recherche sont entrées en simulation. J&apos;ai corrigé le moteur depuis, et il refait le tour des familles dont elles viennent. Chacune devra aligner ses trades, et tenir, avant le moindre euro réel.</p>
-            <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir la flotte →</span>
-          </Link>
-          <Link href="/blog/2026-07-02-pourquoi-mes-bots-ne-tradent-pas" className="bg-card border border-border rounded-lg p-8 text-center hover:border-muted/50 transition-colors group">
-            <h3 className="text-base font-semibold mb-2">Ceux qui dorment</h3>
-            <p className="text-muted text-sm">Mes bots de tendance n&apos;ont presque pas tradé de mai à juillet. C&apos;est voulu : pas de tendance, pas de trade. J&apos;ai vérifié, les forcer serait perdant.</p>
-            <span className="inline-block mt-4 text-sm text-white group-hover:underline">Lire l&apos;enquête →</span>
-          </Link>
         </div>
       </div>
 
