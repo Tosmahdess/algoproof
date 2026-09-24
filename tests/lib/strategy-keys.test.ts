@@ -72,18 +72,18 @@ describe('ficheSlugForBot', () => {
   })
 
   it('falls back to the legacy map when the engine base is not evidenced yet', () => {
-    // WilliamsVolBreak is deliberately absent from FICHE_BY_ENGINE_BASE (no
-    // fiche exists for it among the 22 — see the 2026-08-19 comment in
-    // strategy-keys.ts). ATRChannel used to be the example here, but wave-1
-    // (task 9, 2026-08-19) evidenced it, so it now resolves through the
-    // engine base instead — see the test.each block below.
-    expect(FICHE_BY_ENGINE_BASE['WilliamsVolBreak']).toBeUndefined()
-    expect(ficheSlugForBot({ slug: 'wvolbreak-bf28', engine_unit_key: 'WilliamsVolBreak|H4|v1|3' }))
+    // A base with no fiche resolves to null. WilliamsVolBreak was the example
+    // until 2026-09-24, when its fiche was written; the engine also knows
+    // bases no wave has promoted (LiqSweep), which is the example now.
+    expect(FICHE_BY_ENGINE_BASE['LiqSweep']).toBeUndefined()
+    expect(ficheSlugForBot({ slug: 'x', engine_unit_key: 'LiqSweep|H4|v1|3' }))
       .toBeNull()
-    expect(ficheSlugForBot({ slug: 'wvolbreak-k3', engine_unit_key: 'WilliamsVolBreak|H4|v1|3' }))
+    expect(ficheSlugForBot({ slug: 'arm-williamsvolb-d1-head01', engine_unit_key: 'WilliamsVolBreak|D1|v1|3' }))
+      .toBe('williams-vol-break')
+    expect(ficheSlugForBot({ slug: 'wvolbreak-k3', engine_unit_key: 'LiqSweep|H4|v1|3' }))
       .toBeNull()
 
-    // The WilliamsVolBreak case above is null in BOTH maps, so it cannot by
+    // The LiqSweep case above is null in BOTH maps, so it cannot by
     // itself prove the fallback branch runs — it would read the same if
     // ficheSlugForBot short-circuited to null the moment the base were
     // missing from Map B, without ever consulting Map A. Pair an unlisted,
@@ -106,13 +106,10 @@ describe('ficheSlugForBot', () => {
     ['ATRChannel|H4|data_20260802|3', 'atr-channel'],
     ['HeikinAshiTrend|D1|data_20260802|3', 'heikin-ashi'],
     ['ORB|H1|data_20260802|3', 'orb'],
+    // 2026-09-24: its fiche was written, the base joins the map.
+    ['WilliamsVolBreak|D1|data_20260802|3', 'williams-vol-break'],
   ])('%s → %s', (key, fiche) => {
     expect(ficheSlugForBot({ slug: 'x', engine_unit_key: key })).toBe(fiche)
-  })
-
-  it('WilliamsVolBreak stays deliberately unmapped — /overview only', () => {
-    expect(ficheSlugForBot({ slug: 'x', engine_unit_key: 'WilliamsVolBreak|D1|data_20260802|3' }))
-      .toBeNull()
   })
 
   it('survives a malformed or empty engine key instead of throwing', () => {
@@ -144,24 +141,24 @@ describe('ficheSlugForBot', () => {
 })
 
 describe('coverage of the library by the deployed fleet', () => {
-  it('13 of the 22 fiches have at least one deployed incarnation', () => {
+  it('14 of the 23 fiches have at least one deployed incarnation', () => {
     const claimed = new Set(Object.values(FICHE_BY_LEGACY_BOT_SLUG).filter(v => v !== null))
-    expect(STRATEGY_FICHES).toHaveLength(22)
+    expect(STRATEGY_FICHES).toHaveLength(23)
     // The exact list, not just its size: a size-only assertion survives a
     // swapped pairing (e.g. donchian-bf17 → keltner) as long as the count of
     // distinct claimed fiches is unchanged.
     expect([...claimed].sort()).toEqual([
       'atr-channel', 'bollinger', 'donchian', 'ema-cross', 'ema-ribbon',
       'heikin-ashi', 'ichimoku', 'keltner', 'ma-cross', 'macd', 'orb',
-      'tsi', 'ttm-squeeze',
+      'tsi', 'ttm-squeeze', 'williams-vol-break',
     ])
   })
 
-  it('five deployed bots run something no fiche describes', () => {
+  it('four deployed bots run something no fiche describes', () => {
     const orphans = Object.entries(FICHE_BY_LEGACY_BOT_SLUG).filter(([, v]) => v === null)
     expect(orphans.map(([s]) => s)).toEqual([
       'combobbrsi-bf9', 'funding-rate-harvest',
-      'grid-btc-spot', 'funding-rev-long', 'wvolbreak-bf28',
+      'grid-btc-spot', 'funding-rev-long',
     ])
   })
 })

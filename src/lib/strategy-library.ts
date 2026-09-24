@@ -548,6 +548,53 @@ const FICHES = [
     labHref: "https://lab.algoproof.fr/lab?strategy=atr_channel",
   },
   {
+    // Written 2026-09-24. Source of truth for the rule: the engine's
+    // backtests_massive/strategies/williams_vol_break.py (range > ATR(14) x mult,
+    // side = bar colour, first bar of a run only) and its Lab port
+    // algolab/strategies/williams_vol_break.py. The legacy wvolbreak-bf28 bot
+    // runs a different, closer-to-Williams rule: logic[1] says so.
+    slug: "williams-vol-break",
+    strategyId: "williams_vol_break",
+    title: "Williams Volatility Breakout",
+    family: "breakout",
+    oneLiner:
+      "Une bougie beaucoup plus grande que d'habitude, prise dans le sens de sa couleur.",
+    logic: [
+      "Chaque bougie est mesurée du plus haut au plus bas, puis comparée à l'ATR des 14 dernières, c'est-à-dire à la taille d'une bougie ordinaire. Si elle le dépasse d'un certain multiple, elle est jugée explosive et j'entre dès qu'elle est terminée : long si elle est verte, short si elle est rouge. Seule la première bougie explosive d'une série de même couleur déclenche, les suivantes ne font rien.",
+      "L'idée vient de Larry Williams, qui achetait quand le prix dépassait l'ouverture d'une fraction de l'amplitude de la veille. Mon bot D1 écrit à la main en garde une forme proche (la clôture doit dépasser celle de la veille d'une demi-amplitude de la veille). La version de mon moteur, que le labo reprend à un détail près (il ne saute pas les bougies explosives consécutives), mesure la bougie contre l'ATR. Ce ne sont pas les mêmes signaux, et un résultat sur l'une ne dit rien de l'autre.",
+    ],
+    worksWhen: [
+      "Les départs de mouvement francs, quand une première grosse bougie ouvre une série dans le même sens.",
+      "Les unités de temps longues (H4, D1), où une bougie explosive résume une vraie séance de flux plutôt qu'un gros ordre isolé.",
+      "Avec un filtre de tendance : une bougie explosive dans le sens du fond de marché a plus de raisons d'avoir une suite qu'une bougie à contre-courant.",
+    ],
+    diesWhen: [
+      "Les bougies de capitulation : la plus grosse bougie d'une chute est parfois la dernière, et le bot entre short tout en bas.",
+      "L'entrée arrive juste après une bougie déjà très étirée. Le prix revient souvent chercher une partie du mouvement avant de repartir, et le stop encaisse ce retour.",
+      "Un multiple trop bas. Par construction, une bougie moyenne mesure à peu près un ATR : à 0,5, presque n'importe quelle bougie passe, et la stratégie trade du bruit.",
+    ],
+    params: [
+      {
+        name: "mult",
+        role: "Le multiple de l'ATR au-delà duquel une bougie compte comme explosive.",
+        pitfall: "Mon moteur l'a balayé à 0,5, 1,0 et 1,5. Sous 1, tu ne filtres plus grand-chose.",
+      },
+      {
+        name: "atr_ref_period",
+        role: "La fenêtre de l'ATR de référence, ce qu'on appelle une bougie ordinaire (14 dans le moteur).",
+      },
+      {
+        name: "sl_atr_mult",
+        role: "Le stop en multiples d'ATR.",
+      },
+      {
+        name: "tp_r",
+        role: "L'objectif en multiples du risque.",
+      },
+    ],
+    labHref: "https://lab.algoproof.fr/lab?strategy=williams_vol_break",
+  },
+  {
     slug: "bollinger",
     strategyId: "bollinger",
     title: "Bollinger Bands",
