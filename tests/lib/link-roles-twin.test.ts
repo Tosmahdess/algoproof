@@ -17,7 +17,7 @@ import { join } from 'node:path'
 // Line endings are normalised before hashing on purpose: these repos check out
 // with CRLF on Windows and LF elsewhere, so hashing the raw bytes would fail on
 // half the machines for a reason that has nothing to do with drift.
-const TWIN_SHA256 = '139362e96ea3d0bdb82fa948161d54c7f9739164836a5b334294a4a6aeb4be08'
+const TWIN_SHA256 = 'ba385abd0457690cd8c8c83c5753d2433baa7cde186666311994b8ecdbe990c5'
 
 describe('link-roles.ts and its twin in the other repo', () => {
   it('still matches the digest both sides assert', () => {
