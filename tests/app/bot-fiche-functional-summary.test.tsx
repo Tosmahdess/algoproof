@@ -47,7 +47,8 @@ describe('Fonctionnel tab of an engine-born bot', () => {
     state.bot = keltner()
     await renderFiche()
     const fiche = getStrategyFiche('keltner')!
-    expect(screen.getByText(fiche.oneLiner, { exact: false })).toBeInTheDocument()
+    expect(screen.getByText(fiche.oneLiner)).toBeInTheDocument()
+    expect(screen.getByText(fiche.logic[0])).toBeInTheDocument()
     expect(screen.getByText(fiche.worksWhen[0])).toBeInTheDocument()
     expect(screen.getByText(fiche.diesWhen[0])).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /fiche complète/i }))
@@ -60,9 +61,8 @@ describe('Fonctionnel tab of an engine-born bot', () => {
     const own = screen.getByTestId('engine-bot-own')
     expect(own).toHaveTextContent(/grappe n° 03/)
     expect(own).toHaveTextContent(/H4/)
-    expect(own).toHaveTextContent(/3 marchés/)
-    expect(own).toHaveTextContent(/ADA, ETH, SOL/)
-    expect(own).toHaveTextContent(/onglet Technique/)
+    expect(own).toHaveTextContent(/3 marchés Binance Futures/)
+    expect(own).toHaveTextContent(/onglet Technique, que je réserve aux membres/)
   })
 
   it('never renders the Lab parameter names of the fiche on a wave bot', async () => {
@@ -72,6 +72,29 @@ describe('Fonctionnel tab of an engine-born bot', () => {
     for (const p of getStrategyFiche('keltner')!.params) {
       expect(summary.textContent).not.toContain(p.name)
     }
+  })
+
+  it('no machine identifier (snake_case) reaches the summary of any engine base', async () => {
+    for (const [base, slug] of [['HMAcross', 'arm-hmacross-h4-head00'], ['KeltnerBreak', 'arm-keltnerbreak-h4-head00'],
+      ['EMAcross', 'arm-emacross-d1-head01'], ['KAMAcross', 'arm-kamacross-h4-head00'], ['DonchianBreakout', 'arm-donchianbrea-h4-head00'],
+      ['ATRChannel', 'arm-atrchannel-h4-head00'], ['HeikinAshiTrend', 'arm-heikinashitr-h4-head00'], ['TEMAcross', 'arm-temacross-h4-head00']]) {
+      state.bot = mkBot({ slug, origin: 'engine', engine_unit_key: `${base}|H4|data_20260802|3` })
+      const { unmount } = render(await StrategyPage({ params: Promise.resolve({ slug }) }))
+      const text = screen.getByTestId('engine-bot-summary').textContent ?? ''
+      expect(text, base).not.toMatch(/\b[a-z]+_[a-z_]+\b/)
+      unmount()
+    }
+  })
+
+  it('the free sample does not promise a members-only Technique tab', async () => {
+    state.bot = mkBot({
+      slug: 'arm-emacross-h4-head00', origin: 'engine', exchange: 'Binance Futures', timeframe: 'H4',
+      engine_unit_key: 'EMAcross|H4|data_20260802|3',
+    })
+    await renderFiche()
+    const own = screen.getByTestId('engine-bot-own')
+    expect(own).toHaveTextContent(/onglet Technique\./)
+    expect(own).not.toHaveTextContent(/réserve aux membres/)
   })
 
   it('a base without a fiche keeps its description sentence', async () => {

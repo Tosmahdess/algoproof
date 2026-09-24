@@ -8,25 +8,28 @@ import Link from 'next/link'
 import { linkClass } from '@/lib/link-roles'
 import type { StrategyFiche } from '@/lib/strategy-library'
 
-const ticker = (a: string) => a.split('/')[0]
-
-export default function EngineBotSummary({ fiche, conceptSlug, slug, timeframe, exchange, assets }: {
+export default function EngineBotSummary({ fiche, conceptSlug, slug, timeframe, exchange, assetCount, technicalIsPublic }: {
   fiche: StrategyFiche
   conceptSlug: string
   slug: string
   timeframe: string
   exchange: string
-  assets: string[]
+  assetCount: number
+  /** The free sample (hand-written params in bot-params.ts) shows its recipe to everyone. */
+  technicalIsPublic: boolean
 }) {
   const head = /head(\d+)$/.exec(slug)?.[1]
+  // The oneLiner leads; logic[0] explains. Not joined into one cell: several
+  // fiches restate the oneLiner in logic[0], and side by side it read twice.
   const rows = [
-    { label: 'Quand il entre', text: `${fiche.oneLiner} ${fiche.logic[0] ?? ''}`.trim() },
+    { label: 'Comment ça marche', text: fiche.logic[0] },
     { label: 'Où ça marche', text: fiche.worksWhen[0] },
     { label: 'Où ça meurt', text: fiche.diesWhen[0] },
   ].filter(r => r.text)
 
   return (
     <div data-testid="engine-bot-summary" className="space-y-4">
+      <p className="text-sm font-medium leading-relaxed">{fiche.oneLiner}</p>
       <dl className="space-y-2.5">
         {rows.map(r => (
           <div key={r.label} className="flex flex-col sm:flex-row sm:gap-3">
@@ -37,15 +40,15 @@ export default function EngineBotSummary({ fiche, conceptSlug, slug, timeframe, 
       </dl>
       <p data-testid="engine-bot-own" className="text-sm leading-relaxed">
         {head
-          ? <>C&apos;est la grappe n° {head} que mon moteur a retenue pour {fiche.title} en {timeframe}. </>
-          : <>Il tourne en {timeframe}. </>}
-        Il trade {assets.length} marchés {exchange} : {assets.map(ticker).join(', ')}.
-        {' '}Ce qui le distingue des autres grappes de la même stratégie (les réglages, les filtres
-        retenus par le gantelet, le stop et la cible) est dans l&apos;onglet Technique, que je réserve
-        aux membres du labo.
+          ? <>C&apos;est la grappe n° {head} que mon moteur a retenue pour cette stratégie en {timeframe}, </>
+          : <>Il tourne en {timeframe}, </>}
+        sur {assetCount} marchés {exchange}.
+        {' '}{head ? 'Ce qui la distingue' : 'Ce qui le distingue'} des autres grappes de la même stratégie (les réglages, les filtres
+        retenus par le gantelet, le stop et la cible) est dans l&apos;onglet Technique
+        {technicalIsPublic ? '.' : <>, que je réserve aux membres du labo.</>}
       </p>
       <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline', 'text-sm')}>
-        Ce que dit la fiche complète de la stratégie →
+        Ce que dit la fiche complète de la stratégie&nbsp;→
       </Link>
     </div>
   )

@@ -178,7 +178,7 @@ const FICHES = [
     oneLiner:
       "Le croisement de moyennes générique : la même mécanique que l'EMA cross, avec le type de moyenne en paramètre.",
     logic: [
-      "Même principe que l'EMA cross : une moyenne rapide croise une moyenne lente et donne la direction. La différence est le paramètre ma_type : simple (SMA), exponentielle (EMA), pondérée (WMA), de Hull (HMA) ou triple exponentielle (TEMA). Chaque type arbitre autrement entre réactivité et lissage.",
+      "Même principe que l'EMA cross : une moyenne rapide croise une moyenne lente et donne la direction. La différence tient au type de moyenne, qui peut être simple (SMA), exponentielle (EMA), pondérée (WMA), de Hull (HMA) ou triple exponentielle (TEMA). Chaque type arbitre autrement entre réactivité et lissage.",
       "C'est la fiche à utiliser pour comparer les types de moyennes entre eux, à périodes égales : le Lab permet de mettre les cinq dans une même grille et de voir si la différence survit aux frais.",
     ],
     worksWhen: [

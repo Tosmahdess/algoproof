@@ -171,7 +171,8 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
                   slug={bot.slug}
                   timeframe={bot.timeframe}
                   exchange={bot.exchange}
-                  assets={bot.assets}
+                  assetCount={bot.assets.length}
+                  technicalIsPublic={getBotParams(slug) !== null}
                 />
               )
             }
