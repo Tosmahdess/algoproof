@@ -5,12 +5,11 @@ import Link from 'next/link'
 import TrackedLink from '@/components/TrackedLink'
 import StatusBadge from '@/components/StatusBadge'
 import TVTickerTapeIsland from '@/components/TVTickerTapeIsland'
-import FunnelCounter from '@/components/FunnelCounter'
+import EngineBand from '@/components/EngineBand'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { getFunnelCounts } from '@/lib/funnel'
 import { familyColor, familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
-import { STRATEGY_FICHES } from '@/lib/strategy-library'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 import { sortFleet } from '@/lib/fleet-sort'
 
@@ -63,7 +62,7 @@ export default async function HomePage() {
           sont le texte de l'user, arbitré tel quel ; les deux entrées en sont
           les deux moitiés. Pastille retirée : elle annonçait un site
           mono-activité juste au-dessus d'un titre qui en annonce deux. */}
-      <div data-testid="home-hero" className="text-center mb-16">
+      <div data-testid="home-hero" className="text-center mb-10 sm:mb-16">
         {/* La marque, au-dessus du titre (user 2026-09-20). `alt` est vide
             DÉLIBÉRÉMENT : la nav porte déjà « ALGOPROOF » en texte, dans un
             lien ; un lecteur d'écran qui annoncerait la marque une seconde fois
@@ -85,7 +84,7 @@ export default async function HomePage() {
           Des stratégies testées.<br />
           <span className="text-positive">Des comptes de sociétés examinés.</span>
         </h1>
-        <p className="text-base sm:text-lg text-muted max-w-2xl mx-auto mb-6 sm:mb-10">
+        <p className="text-base sm:text-lg text-muted max-w-3xl mx-auto mb-6 sm:mb-10">
           Je teste des stratégies de trading et je publie les résultats de mes bots, gains
           comme pertes. Je passe aussi les rapports annuels de sociétés cotées à travers sept
           contrôles, avec les chiffres et les sources pour que tu puisses vérifier.
@@ -97,7 +96,7 @@ export default async function HomePage() {
             j'ai faites. Forcer deux verbes d'action aurait laissé croire à un
             « examinateur de sociétés » qui n'existe pas, et c'est la première
             marche vers la note que D058 a retirée du site. */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mb-4">
 
           <div data-testid="entry-strategies" className="bg-card border border-border rounded-lg p-6 flex flex-col">
             <h2 className="text-xl font-semibold mb-3">Les stratégies</h2>
@@ -190,89 +189,24 @@ export default async function HomePage() {
 
         </div>
 
-        {/* Un SEUL compteur de bots sur cette page, et il montre ses parts.
-            Avant : « 3 bots en argent réel · 89 en laboratoire » ici, puis
-            « 92 bots en service » dans l'entonnoir 120 px plus bas. 89 + 3 = 92,
-            donc rien n'était faux, mais deux populations emboîtées nommées dans
-            deux vocabulaires se lisent comme une contradiction, et c'est ce que
-            l'user a lu. Le total est maintenant écrit AVEC ses deux parts, et
-            l'entonnoir ne compte plus de bots. */}
-        <div data-testid="fleet-counters" className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-muted border border-border rounded-lg px-5 py-3">
-          <span><strong className="text-foreground font-mono">{liveBots.length + paperBots.length}</strong> bots en service</span>
-          <span className="text-border">·</span>
-          <span><strong className="text-foreground font-mono">{liveBots.length}</strong> en argent réel</span>
-          <span className="text-border">·</span>
-          {/* « simulation », pas « laboratoire » : c'est déjà le mot de
-              StatusBadge, et ça laisse « le labo » désigner l'outil seul. */}
-          <span><strong className="text-foreground font-mono">{paperBots.length}</strong> en simulation</span>
-          <span className="text-border">·</span>
-          <span>données mises à jour chaque heure</span>
-          <span className="text-border">·</span>
-          <a
-            href="https://lab.algoproof.fr/cockpit/cimetiere"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={linkClass('inline')}
-          >
-            et un registre public de mes verdicts, recalés compris
-          </a>
-        </div>
-        <div className="mt-4 max-w-xl mx-auto text-left">
-          <FunnelCounter counts={funnel} showFleet={false} />
-        </div>
-
-        {/* Ce qui reste de la grille des 4 portes. La flotte et Investir y
-            faisaient doublon avec les deux entrées ci-dessus. Les deux autres
-            destinations restent dans le hero, en texte, mais PAS dans le premier
-            écran : mesuré à 1 421 px sur un téléphone de 390x664, contre 1 896 px
-            (Météo) et 2 086 px (Apprendre) pour leurs anciennes cartes. Elles y
-            gagnent, elles n'y sont pas immédiates — ne pas l'écrire autrement. */}
-        <p className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
-          <Link href="/intelligence" className={linkClass('inline')}>Météo du marché</Link>
-          <span className="text-border">·</span>
-          <Link href="/strategies" className={linkClass('inline')}>
-            La bibliothèque des {STRATEGY_FICHES.length} stratégies
-          </Link>
-          <span className="text-border">·</span>
-          <Link href="/preuve" className={linkClass('inline')}>Pourquoi je montre chaque trade perdant</Link>
-        </p>
+        {/* Un SEUL compteur de bots sur cette page, écrit avec ses parts, puis
+            la lecture du moteur sous les mêmes mots que le haut du cockpit.
+            Pleine largeur (user 2026-09-24) : empilés sous deux cartes pleine
+            largeur, l'ancien bandeau (ajusté à son texte) et l'ancienne carte
+            « balayées » (max-w-xl) donnaient quatre largeurs de suite sur PC.
+            Les trois liens texte qui suivaient sont retirés à la demande de
+            l'user : Météo et Apprendre sont dans la nav, /preuve et la
+            bibliothèque dans le pied de page. */}
+        <EngineBand live={liveBots.length} paper={paperBots.length} counts={funnel} />
       </div>
 
-      {/* Ambiance ticker — live crypto prices, purely decorative (no trading signal) */}
-      <div className="mb-16">
+      {/* Ambiance ticker — live crypto prices, purely decorative (no trading signal).
+          Hauteur réservée : le widget est injecté côté client (44 px mesurés en
+          prod), sans ça la table remonte puis redescend au chargement.
+          Le manifeste et la carte « IA » qui suivaient sont retirés (user
+          2026-09-24) : le bandeau mène directement aux stratégies actives. */}
+      <div className="min-h-[44px] mb-10 sm:mb-16">
         <TVTickerTapeIsland />
-      </div>
-
-      {/* Manifeste transparence (absorbs /preuve intent) */}
-      <div className="border border-border rounded-lg p-8 mb-16 text-center bg-card/40">
-        <h2 className="text-xl font-semibold mb-3">Pourquoi je montre chaque trade perdant</h2>
-        <p className="text-sm leading-relaxed max-w-2xl mx-auto mb-4">
-          Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel : drawdowns, mauvaises semaines et erreurs compris. Alors j&apos;expose tout, sans filtre.
-        </p>
-        <Link href="/preuve" className={linkClass('inline', 'text-sm')}>Lire le manifeste →</Link>
-      </div>
-
-      {/* L'IA genere. AlgoLab verifie. */}
-      <div className="border border-border rounded-lg p-8 mb-16 bg-card/40">
-        <h2 className="text-xl font-semibold mb-3 text-center">Faire vérifier une stratégie écrite par une IA</h2>
-        <p className="text-sm leading-relaxed max-w-2xl mx-auto mb-5 text-center">
-          {/* La phrase disait qu'aucune des dix ne restait profitable ; la table
-              de l'article donne l'Ichimoku à PF 1,02. Le chiffre ci-dessous est
-              celui que l'article porte (dix euros, cinq trades), pas un arrondi
-              de la conclusion (audit 2026-09-09, §2.1). */}
-          Demande dix stratégies de trading à une IA, tu les as en dix secondes. J&apos;ai passé
-          ces dix-là au bulletin anti-overfit du labo : neuf perdent une fois les vrais frais
-          payés ; la dixième gagne dix euros en deux ans, portés par cinq trades. Ton
-          agent IA peut faire passer les siennes au même contrôle, gratuitement.
-        </p>
-        <div className="flex flex-wrap justify-center gap-3">
-          <Link href="/blog/2026-07-11-10-strategies-ia-au-bulletin" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
-            Lire le test des 10 stratégies
-          </Link>
-          <a href="https://lab.algoproof.fr/agents" className="px-5 py-2.5 border border-border text-foreground font-semibold rounded-lg hover:border-muted transition-colors text-sm">
-            Connecter son agent (MCP)
-          </a>
-        </div>
       </div>
 
       {/* Tableau comparatif — top 10 */}
@@ -288,7 +222,7 @@ export default async function HomePage() {
       </div>
 
       {/* Mobile : liste classement rapide */}
-      <div className="md:hidden rounded border border-border overflow-hidden divide-y divide-border mb-6">
+      <div className="md:hidden rounded-lg border border-border overflow-hidden divide-y divide-border mb-6">
         {preview.map((bot) => {
           const hasData = bot.stats.total_trades > 0
           const eur     = pnlEur(bot.stats.latest_capital, bot.start_capital)
@@ -324,7 +258,7 @@ export default async function HomePage() {
       </div>
 
       {/* Desktop : table complète */}
-      <div className="hidden md:block rounded border border-border overflow-hidden mb-6">
+      <div className="hidden md:block rounded-lg border border-border overflow-hidden mb-6">
         <table className="w-full text-xs">
           <thead className="bg-card">
             <tr className="text-muted text-xs font-semibold uppercase tracking-widest border-b border-border">
@@ -393,27 +327,35 @@ export default async function HomePage() {
         </table>
       </div>
 
-      <div className="text-center mb-16">
+      <div className="text-center mb-10 sm:mb-16">
         <Link href="/overview" className="inline-flex items-center gap-2 text-sm border border-border text-foreground hover:border-muted transition-colors rounded-lg px-4 py-2">
           Voir les {bots.length} bots complets →
         </Link>
       </div>
 
-      {/* Teaser Apprendre + Performance */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-        <Link href="/blog" className={linkClass('card', 'bg-card p-8 text-center')}>
-          <h2 className="text-xl font-semibold mb-3 group-hover:text-accent transition-colors">Apprendre</h2>
-          <p className="text-muted text-sm">Journal de bord, revues hebdo, autopsies de stratégies, fiscalité et MiCA. Tout est documenté.</p>
-          <span className="inline-block mt-4 text-sm text-muted group-hover:text-foreground">Lire les articles →</span>
-        </Link>
-        <Link href="/overview" className={linkClass('card', 'bg-card p-8 text-center')}>
-          <h2 className="text-xl font-semibold mb-3 group-hover:text-accent transition-colors">La flotte</h2>
-          <p className="text-muted text-sm">Ce qui tourne, avec quel argent, et le bilan brut.</p>
-          <span className="inline-block mt-4 text-sm text-muted group-hover:text-foreground">Voir les résultats →</span>
-        </Link>
-      </div>
-
-      <div className="mb-12">
+      {/* Apprendre + La flotte — même recette que les deux entrées du haut
+          (user 2026-09-24) : même fond, même titre, prose blanche, lien en bas
+          de carte. Ce n'étaient pas des cartes-liens entières : le lien est le
+          même rôle `inline` que « Voir les résultats de mes bots » en haut. */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 sm:mb-16">
+        <div data-testid="teaser-learn" className="bg-card border border-border rounded-lg p-6 flex flex-col">
+          <h2 className="text-xl font-semibold mb-3">Apprendre</h2>
+          <p className="text-sm leading-relaxed">
+            Journal de bord, revues hebdo, autopsies de stratégies, fiscalité et MiCA. Tout est documenté.
+          </p>
+          <div className="mt-auto pt-5">
+            <Link href="/blog" className={linkClass('inline', 'text-sm')}>Lire les articles</Link>
+          </div>
+        </div>
+        <div data-testid="teaser-fleet" className="bg-card border border-border rounded-lg p-6 flex flex-col">
+          <h2 className="text-xl font-semibold mb-3">La flotte</h2>
+          <p className="text-sm leading-relaxed">
+            Ce qui tourne, avec quel argent, et le bilan brut.
+          </p>
+          <div className="mt-auto pt-5">
+            <Link href="/overview" className={linkClass('inline', 'text-sm')}>Voir les résultats</Link>
+          </div>
+        </div>
       </div>
 
       {/* CTA final — distinct from hero (onboarding, not the lab) */}

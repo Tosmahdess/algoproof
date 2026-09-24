@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { verdictTotals, selectNewestPerPair, CORRECTED_ENGINE_SINCE } from '@/lib/funnel'
+import { heroRatio } from '@/lib/hero-ratio'
 import type { VerdictCountRow } from '@/lib/funnel'
 
 // Any row without a post-fix timestamp is filtered out (see the freshness block
@@ -29,11 +30,11 @@ describe('verdictTotals — swept vs judged (top-K finalize, 2026-08-06)', () =>
       // rung, or the newest-generation rule would collapse the pair.
       rung({ base: 'KAMAcross', tf: 'D1', n_behaviors: 10_417, n_go: 0, n_marginal: 2, n_no_go: 10_415 }),
     ]
-    expect(verdictTotals(rows)).toEqual({ n_swept: 580_417, n_judged: 30_417 })
+    expect(verdictTotals(rows)).toEqual({ n_swept: 580_417, n_judged: 30_417, n_go: 5, n_marginal: 997, n_no_go: 29_415 })
   })
 
   it('returns zeros on an empty corpus', () => {
-    expect(verdictTotals([])).toEqual({ n_swept: 0, n_judged: 0 })
+    expect(verdictTotals([])).toEqual({ n_swept: 0, n_judged: 0, n_go: 0, n_marginal: 0, n_no_go: 0 })
   })
 
   // D-APX-KLAD-4 (2026-08-15): a ladder row (greedy K4-5 extension, kmax=4/5,
@@ -47,7 +48,7 @@ describe('verdictTotals — swept vs judged (top-K finalize, 2026-08-06)', () =>
       // kmax 5 is a different rung, so it is additive and not a re-run.
       rung({ kmax: 5, n_behaviors: 180, n_go: 1, n_marginal: 0, n_no_go: 179 }),
     ]
-    expect(verdictTotals(rows)).toEqual({ n_swept: 20_180, n_judged: 20_180 })
+    expect(verdictTotals(rows)).toEqual({ n_swept: 20_180, n_judged: 20_180, n_go: 2, n_marginal: 4, n_no_go: 20_174 })
   })
 })
 
@@ -64,13 +65,13 @@ describe('freshness — the flotte must count what the cockpit counts', () => {
       rung({ base: 'Fresh', n_behaviors: 200, n_go: 2, n_marginal: 2, n_no_go: 16, published_at: '2026-08-14T20:39:00Z' }),
     ]
 
-    expect(verdictTotals(rows)).toEqual({ n_swept: 200, n_judged: 20 })
+    expect(verdictTotals(rows)).toMatchObject({ n_swept: 200, n_judged: 20 })
   })
 
   it('treats a missing timestamp as stale, never as a default pass', () => {
     const rows = [rung({ n_behaviors: 100, n_go: 1, n_marginal: 1, n_no_go: 8, published_at: null })]
 
-    expect(verdictTotals(rows)).toEqual({ n_swept: 0, n_judged: 0 })
+    expect(verdictTotals(rows)).toEqual({ n_swept: 0, n_judged: 0, n_go: 0, n_marginal: 0, n_no_go: 0 })
   })
 
   // ── THE DEFECT, 2026-09-22 ────────────────────────────────────────────────
@@ -90,7 +91,7 @@ describe('freshness — the flotte must count what the cockpit counts', () => {
     ]
     // The July generation is superseded: neither its swept corpus nor its
     // judged count may reach the counter.
-    expect(verdictTotals(rows)).toEqual({ n_swept: 570_000, n_judged: 20_000 })
+    expect(verdictTotals(rows)).toMatchObject({ n_swept: 570_000, n_judged: 20_000 })
   })
 
   it('keeps every rung that was never re-run, including across bases and depths', () => {
@@ -100,7 +101,7 @@ describe('freshness — the flotte must count what the cockpit counts', () => {
       rung({ base: 'EMAcross', tf: 'D1', kmax: 3, n_behaviors: 400, n_go: 0, n_marginal: 0, n_no_go: 10 }),
       rung({ base: 'KAMAcross', tf: 'H1', kmax: 3, n_behaviors: 800, n_go: 0, n_marginal: 0, n_no_go: 10 }),
     ]
-    expect(verdictTotals(rows)).toEqual({ n_swept: 1_500, n_judged: 40 })
+    expect(verdictTotals(rows)).toMatchObject({ n_swept: 1_500, n_judged: 40 })
   })
 
   // The cutoff runs FIRST, then the generation rule — same order as the cockpit.
@@ -111,7 +112,7 @@ describe('freshness — the flotte must count what the cockpit counts', () => {
       rung({ dataset_version: 'data_20260901', n_behaviors: 999, n_go: 9, n_marginal: 9, n_no_go: 9, published_at: '2026-08-01T00:00:00Z' }),
       rung({ dataset_version: 'data_20260831', n_behaviors: 500, n_go: 1, n_marginal: 1, n_no_go: 8 }),
     ]
-    expect(verdictTotals(rows)).toEqual({ n_swept: 500, n_judged: 10 })
+    expect(verdictTotals(rows)).toMatchObject({ n_swept: 500, n_judged: 10 })
   })
 
   it('selectNewestPerPair is the twin of the cockpit rule, keyed on base+tf+kmax', () => {
@@ -131,5 +132,19 @@ describe('freshness — the flotte must count what the cockpit counts', () => {
     // Two repos, two deployments: the constant is duplicated on purpose, and
     // pinned on both sides so a change to one is visible in the other's diff.
     expect(CORRECTED_ENGINE_SINCE).toBe('2026-08-12T19:38:00Z')
+  })
+})
+
+// Twin of algolab web/lib/__tests__ heroRatio cases: the home's candidates cell
+// and the cockpit's fourth card must print the same « 1 sur N ».
+describe('heroRatio — the candidates denominator', () => {
+  it('rounds to the magnitude the cockpit prints', () => {
+    expect(heroRatio(3_368, 1_600_883)).toBe(500)
+    expect(heroRatio(1, 12_345)).toBe(10_000)
+    expect(heroRatio(3, 37)).toBe(10)
+  })
+  it('states nothing when there is no candidate or no judged corpus', () => {
+    expect(heroRatio(0, 1_000)).toBeNull()
+    expect(heroRatio(5, 0)).toBeNull()
   })
 })

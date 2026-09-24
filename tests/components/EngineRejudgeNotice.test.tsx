@@ -46,7 +46,7 @@ async function ficheText(bot: BotWithStats): Promise<{ text: string; notices: nu
 
 describe('the 2026-09-10 re-judge notice is gone (removed 2026-09-18)', () => {
   it('is off the funnel counter, which still renders', () => {
-    const { unmount } = render(<FunnelCounter counts={{ n_swept: 10, n_judged: 5, n_promoted: 3, n_live: 1 }} />)
+    const { unmount } = render(<FunnelCounter counts={{ n_swept: 10, n_judged: 5, n_go: 1, n_marginal: 1, n_no_go: 3, n_promoted: 3, n_live: 1 }} />)
     const counter = screen.getByTestId('funnel-counter')
     expect(counter.querySelectorAll('[data-testid="engine-rejudge-notice"]')).toHaveLength(0)
     expect(counter.textContent).not.toMatch(GONE)

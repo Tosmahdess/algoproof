@@ -39,6 +39,10 @@ vi.mock('@/lib/funnel', () => ({
   getFunnelCounts: async () => ({
     n_swept: 5855277,
     n_judged: 351359,
+    // Sum to n_judged, like the view. 351359 / 713 = 492.8 -> « 1 sur 500 ».
+    n_go: 713,
+    n_marginal: 20646,
+    n_no_go: 330000,
     // The view still returns these. The point of the fix is that THIS page no
     // longer prints them: a second bot count beside the hero's is what made
     // « 89 » and « 92 » look like a contradiction.
@@ -48,7 +52,6 @@ vi.mock('@/lib/funnel', () => ({
 }))
 
 import HomePage from '@/app/page'
-import { STRATEGY_FICHES } from '@/lib/strategy-library'
 
 describe('/ — the home opens on both activities, not on the lab alone', () => {
   it('the headline names strategies AND company accounts', async () => {
@@ -212,12 +215,30 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
     expect(screen.queryByText('Bots en service (simulation ou argent réel)')).toBeNull()
   })
 
-  it('the funnel stays, counting configurations and nothing else', async () => {
+  it('the engine band counts configurations the way the cockpit does', async () => {
     render(await HomePage())
     const funnel = screen.getByTestId('funnel-counter')
-    expect(within(funnel).getByText('Configurations balayées')).toBeTruthy()
-    expect(within(funnel).getByText('Jugées au gantelet')).toBeTruthy()
+    for (const label of ['Configurations balayées', 'Jugées au gantelet', 'Recalées', 'En sursis', 'Candidates']) {
+      expect(within(funnel).getByText(label), label).toBeTruthy()
+    }
+    const text = funnel.textContent!.replace(/\s/g, ' ')
+    expect(text).toMatch(/330\s000/)
+    expect(text).toMatch(/93 % des jugées/) // floor(100 * 330000 / 351359) = 93
     expect(funnel.textContent).not.toMatch(/bots? en service/i)
+  })
+
+  // Cockpit spec §9.3, carried over: « 713 » alone reads as 713 winners.
+  it('the candidate count never renders without its denominator', async () => {
+    render(await HomePage())
+    const funnel = screen.getByTestId('funnel-counter')
+    expect(funnel.textContent).toMatch(/1 sur 500 jugées/)
+  })
+
+  // Owner, 2026-09-24: no cimetière link on this band.
+  it('the band carries no link to the cimetière', async () => {
+    render(await HomePage())
+    const band = screen.getByTestId('engine-band')
+    expect(band.querySelector('a[href*="cimetiere"]')).toBeNull()
   })
 
   // Vocabulary decision (2026-09-20): « le labo » is the TOOL, « simulation »
@@ -231,25 +252,38 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
   })
 })
 
-describe('/ — the doors the four-card grid used to carry', () => {
-  it('the market weather is still reachable from the first screen', async () => {
+// Owner, 2026-09-24, desktop pass: the three text links under the counters, the
+// manifesto card and the « IA » card are gone. The ticker leads straight to the
+// strategies table. Météo and Apprendre stay in the nav, /preuve in the footer.
+describe('/ — from the counters, the ticker, then straight to the strategies', () => {
+  it('the hero no longer carries the three text links', async () => {
     render(await HomePage())
-    const hero = screen.getByTestId('home-hero')
-    const hrefs = [...hero.querySelectorAll('a')].map(a => a.getAttribute('href'))
-    expect(hrefs).toContain('/intelligence')
+    const hrefs = [...screen.getByTestId('home-hero').querySelectorAll('a')].map(a => a.getAttribute('href'))
+    expect(hrefs).not.toContain('/intelligence')
+    expect(hrefs).not.toContain('/preuve')
+    expect(hrefs).not.toContain('/strategies')
   })
 
-  it('the strategy library keeps its live fiche count', async () => {
-    render(await HomePage())
-    const link = screen.getAllByRole('link').find(a => a.getAttribute('href') === '/strategies')!
-    expect(link.textContent).toContain(`${STRATEGY_FICHES.length} stratégies`)
+  it('neither the manifesto nor the IA card sits between the ticker and the table', async () => {
+    const { container } = render(await HomePage())
+    expect(container.textContent).not.toMatch(/Lire le manifeste/)
+    expect(container.textContent).not.toMatch(/Faire vérifier une stratégie écrite par une IA/)
+    const headings = [...container.querySelectorAll('h2')].map(h => h.textContent)
+    expect(headings).toContain('Stratégies actives')
   })
 
-  it('the manifesto is still one click from the first screen', async () => {
+  // Same recipe as the two entries: background, border, padding, title, white
+  // prose. Comparing class attributes, not grepping one token, so the pair
+  // cannot drift apart in either direction.
+  it('Apprendre and La flotte are dressed like the two entries', async () => {
     render(await HomePage())
-    const hero = screen.getByTestId('home-hero')
-    const hrefs = [...hero.querySelectorAll('a')].map(a => a.getAttribute('href'))
-    expect(hrefs).toContain('/preuve')
+    const entry = screen.getByTestId('entry-strategies')
+    for (const id of ['teaser-learn', 'teaser-fleet']) {
+      const card = screen.getByTestId(id)
+      expect(card.getAttribute('class'), id).toBe(entry.getAttribute('class'))
+      expect(card.querySelector('h2')!.getAttribute('class'), id).toBe(entry.querySelector('h2')!.getAttribute('class'))
+      expect(card.querySelector('p')!.getAttribute('class'), id).toBe(entry.querySelector('p')!.getAttribute('class'))
+    }
   })
 })
 
