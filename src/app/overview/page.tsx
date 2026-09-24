@@ -2,11 +2,11 @@ import TermPopover from '@/components/TermPopover'
 import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBots, getRecentTrades, getWaveMeasure } from '@/lib/queries'
+import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBots, getRecentTrades } from '@/lib/queries'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { parseFleetFilters } from '@/lib/bot-filters'
 import FleetOverview from '@/components/FleetOverview'
-import FunnelCounter from '@/components/FunnelCounter'
+import FleetKpiCards from '@/components/FleetKpiCards'
 import JsonLd from '@/components/JsonLd'
 import { faqJsonLd } from '@/lib/jsonld'
 import { getFunnelCounts } from '@/lib/funnel'
@@ -56,7 +56,7 @@ function toURLSearchParams(sp: Record<string, string | string[] | undefined>): U
 }
 
 export default async function OverviewPage({ searchParams }: OverviewPageProps) {
-  const [bots, trades, liveBots, recentTrades, funnel, waveMeasure, resolvedSearchParams] = await Promise.all([
+  const [bots, trades, liveBots, recentTrades, funnel, resolvedSearchParams] = await Promise.all([
     getAllBotsWithStats(),
     getAllTradesForAggregate(),
     getLiveBots(),
@@ -65,21 +65,9 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
     // stage 0 and never reaches the filter pipeline.
     getRecentTrades(20),
     getFunnelCounts(),
-    // Task 7 (armada-wave-visibility): backs the « expérience en cours »
-    // encart. Fetched alongside `bots` in the same Promise.all, and cached
-    // in queries.ts under the `fleet-bots` tag — same fetch wave, same
-    // revalidation clock as the bots fetch it sits next to on the page.
-    // Degrades to null on any failure (including the table not existing yet,
-    // migration 033 pending) — see getWaveMeasure's own comment.
-    getWaveMeasure(),
     searchParams,
   ])
   const aggregate = computeFleetAggregate(trades, liveBots)
-  // Wave-1 cohort = engine-originated bots carrying an engine_unit_key.
-  // Computed here, where the page already holds the full `bots` array,
-  // rather than inside FleetOverview/WaveExperiment (both stay plain
-  // props-in/markup-out with no knowledge of the wave-1 tagging rule).
-  const waveBotCount = bots.filter(b => b.engine_unit_key?.length).length
 
   // FIX round 2 (new Important finding): filter state is seeded HERE, server
   // side, instead of via useSearchParams() inside the client component.
@@ -113,15 +101,13 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
         dans le <Link href="/lexique" className={linkClass('inline')}>lexique</Link>.
       </p>
       <div className="mb-8">
-        <FunnelCounter counts={funnel} />
+        <FleetKpiCards counts={funnel} />
       </div>
       <FleetOverview
         bots={bots}
         aggregate={aggregate}
         recentTrades={recentTrades}
         initialState={initialState}
-        waveBotCount={waveBotCount}
-        waveMeasure={waveMeasure}
       />
     </main>
   )

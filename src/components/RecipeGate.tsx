@@ -46,7 +46,7 @@ export default function RecipeGate({ slug, dossierBase }: { slug: string; dossie
     <div className="text-sm space-y-2">
       <p className="text-muted mb-2">
         La configuration exacte de ce bot (valeurs des paramètres et combinaison
-        de filtres retenues par le gantelet) est réservée aux membres du labo.
+        de filtres que j&apos;ai gardée après le tri) est réservée aux membres du labo.
       </p>
       <a href={`https://lab.algoproof.fr/cockpit/dossier/${dossierBase}`}
          className={linkClass('inline')}>

@@ -39,12 +39,15 @@ export default function EngineBotSummary({ fiche, conceptSlug, slug, timeframe, 
         ))}
       </dl>
       <p data-testid="engine-bot-own" className="text-sm leading-relaxed">
+        {/* No engine jargon (user rule 24/09): « grappe », « moteur » and
+            « gantelet » read as noise to a visitor. The head number already
+            sits in the h1, only when several heads share strategy and TF. */}
         {head
-          ? <>C&apos;est la grappe n° {head} que mon moteur a retenue pour cette stratégie en {timeframe}, </>
+          ? <>C&apos;est une configuration que j&apos;ai retenue pour cette stratégie en {timeframe}, </>
           : <>Il tourne en {timeframe}, </>}
         sur {assetCount} marchés {exchange}.
-        {' '}{head ? 'Ce qui la distingue' : 'Ce qui le distingue'} des autres grappes de la même stratégie (les réglages, les filtres
-        retenus par le gantelet, le stop et la cible) est dans l&apos;onglet Technique
+        {' '}{head ? 'Ce qui la distingue' : 'Ce qui le distingue'} des autres configurations de la même stratégie (les réglages, les filtres
+        que j&apos;ai gardés après le tri, le stop et la cible) est dans l&apos;onglet Technique
         {technicalIsPublic ? '.' : <>, que je réserve aux membres du labo.</>}
       </p>
       <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline', 'text-sm')}>

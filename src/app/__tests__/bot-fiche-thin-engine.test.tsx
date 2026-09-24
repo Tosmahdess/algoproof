@@ -10,7 +10,7 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => null }))
 })
 
-const REPEATED = 'Croisement de moyennes de Hull, configuration issue du gantelet du moteur.'
+const REPEATED = 'Croisement de moyennes de Hull, configuration sélectionnée par mes tests.'
 let current = mkBot()
 
 vi.mock('@/lib/queries', () => ({

@@ -30,7 +30,7 @@ export function provenanceSentence(bot: ProvenanceBot): string {
     // produced by a simulator with three known execution defects and will be judged
     // again. The column keeps its name; the sentence says what happened.
     const validated = fr(bot.validated_at)
-    if (validated) parts.push(`Retenu par le moteur le ${validated}.`)
+    if (validated) parts.push(`Retenu par mes tests le ${validated}.`)
   } else {
     const started = fr(bot.paper_since)
     parts.push(

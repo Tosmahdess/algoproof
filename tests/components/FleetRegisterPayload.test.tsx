@@ -66,8 +66,6 @@ function renderWith(bots: BotWithStats[]) {
       aggregate={AGG}
       recentTrades={[]}
       initialState={EMPTY_FILTERS}
-      waveBotCount={0}
-      waveMeasure={null}
     />,
   )
   return registerProps[0]!.bots
