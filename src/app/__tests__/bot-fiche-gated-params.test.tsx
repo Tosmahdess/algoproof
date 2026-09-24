@@ -13,7 +13,11 @@ import { mkBot } from '../../../tests/fixtures/bots'
 // MiBanner / DiscussionTab-style client fetches — same stub overview.test.tsx
 // uses, so a background fetch doesn't leave an unhandled rejection.
 beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => null }))
+  // Comments answer a list (DiscussionTab reads .length once its fetch lands).
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => ({
+    ok: true,
+    json: async () => (String(url).includes('/api/comments') ? [] : null),
+  })))
 })
 
 // engine_unit_key shape (cross-repo contract, 2026-08-19): the vault's armada
@@ -47,8 +51,60 @@ describe('bot fiche — gated params block for wave bots', () => {
     fireEvent.click(screen.getByRole('button', { name: /Technique/i }))
 
     expect(screen.queryByText(/en cours de documentation/)).toBeNull()
-    expect(screen.getByText(/réservée aux membres du labo/)).toBeInTheDocument()
+    expect(await screen.findByText(/réservée aux membres du labo/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Voir le dossier de la stratégie/i }))
       .toHaveAttribute('href', expect.stringContaining('lab.algoproof.fr/cockpit/dossier/hmacross'))
+  })
+})
+
+// 2026-09-24: a paying member now sees the recipe itself in the tab, fetched
+// from /api/bot/[slug]/recipe after the page has loaded. The static HTML stays
+// the same for everyone, so no recipe value may ever be in it.
+describe('bot fiche — the recipe for members', () => {
+  const SENTINEL = 424242
+  const answer = (body: unknown) =>
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => ({
+      ok: true,
+      json: async () =>
+        String(url).includes('/recipe') ? body : String(url).includes('/api/comments') ? [] : null,
+    })))
+
+  async function openTechnique() {
+    render(await StrategyPage({ params: Promise.resolve({ slug: waveBot.slug }) }))
+    fireEvent.click(screen.getByRole('button', { name: /Technique/i }))
+  }
+
+  it('a member sees the recipe values, not the members-only sentence', async () => {
+    answer({ entitlement: 'paid', recipe: { tf: 'H4', params: { period: SENTINEL }, filters: {}, exit: null } })
+    await openTechnique()
+    expect(await screen.findByText(String(SENTINEL))).toBeInTheDocument()
+    expect(screen.queryByText(/réservée aux membres du labo/)).toBeNull()
+  })
+
+  it('a free visitor keeps the members-only sentence and the dossier link', async () => {
+    answer({ entitlement: 'free' })
+    await openTechnique()
+    expect(await screen.findByText(/réservée aux membres du labo/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Voir le dossier de la stratégie/i })).toBeInTheDocument()
+  })
+
+  it('an unavailable answer says so to the member', async () => {
+    answer({ entitlement: 'paid', indisponible: true })
+    await openTechnique()
+    expect(await screen.findByText(/momentanément indisponible/)).toBeInTheDocument()
+  })
+
+  it('a paid answer without a recipe never shows a member the members-only sentence', async () => {
+    answer({ entitlement: 'paid' })
+    await openTechnique()
+    expect(await screen.findByText(/momentanément indisponible/)).toBeInTheDocument()
+    expect(screen.queryByText(/réservée aux membres du labo/)).toBeNull()
+  })
+
+  it('the server-rendered page carries no recipe value, whatever the route would answer', async () => {
+    answer({ entitlement: 'paid', recipe: { tf: 'H4', params: { period: SENTINEL }, filters: {}, exit: null } })
+    const { renderToStaticMarkup } = await import('react-dom/server')
+    const html = renderToStaticMarkup(await StrategyPage({ params: Promise.resolve({ slug: waveBot.slug }) }))
+    expect(html).not.toContain(String(SENTINEL))
   })
 })

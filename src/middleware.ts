@@ -17,7 +17,7 @@ import { AUTH_COOKIE_NAME } from '@/lib/auth-cookie'
 // static and build no auth client, so they stay out.
 //
 // No path is walled: the lock lives in the payload, not in a redirect.
-export const REFRESH_PATHS = ['/compte', '/api/investir']
+export const REFRESH_PATHS = ['/compte', '/api/investir', '/api/bot']
 
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req })
@@ -76,5 +76,6 @@ export const config = {
   matcher: [
     '/compte', '/compte/:path*',
     '/api/investir', '/api/investir/:path*',
+    '/api/bot', '/api/bot/:path*',
   ],
 }
