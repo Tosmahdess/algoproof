@@ -16,6 +16,7 @@ import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
 import SampleNote from '@/components/SampleNote'
+import RecipeGate from '@/components/RecipeGate'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -180,26 +181,16 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           technical={(() => {
             const params = getBotParams(slug)
             if (params) return <BotParamsSection params={params} />
-            // No fiche entry yet, but the engine tags this bot with a unit key —
-            // it is a wave bot whose exact recipe is a paid labo asset, not an
-            // undocumented gap. Say so instead of the generic fallback below,
-            // which would read as "not written yet" on a config withheld on
-            // purpose. dossier slug: engine_unit_key's `base` segment,
+            // No fiche entry yet, but the engine tags this bot with a unit key:
+            // a wave bot whose exact recipe is a paid labo asset. The page is
+            // static and the same for everyone, so it hands only the slug to
+            // RecipeGate, which asks /api/bot/[slug]/recipe after load: a
+            // paying member gets the recipe, anyone else the members-only
+            // sentence. dossier slug: engine_unit_key's `base` segment,
             // lowercased (e.g. 'HMAcross|H4|data_20260802|3' -> 'hmacross').
             if (bot.engine_unit_key) {
               const dossier = bot.engine_unit_key.split('|')[0].toLowerCase()
-              return (
-                <div className="text-sm space-y-2">
-                  <p className="text-muted mb-2">
-                    La configuration exacte de ce bot (valeurs des paramètres et combinaison
-                    de filtres retenues par le gantelet) est réservée aux membres du labo.
-                  </p>
-                  <a href={`https://lab.algoproof.fr/cockpit/dossier/${dossier}`}
-                     className={linkClass('inline')}>
-                    Voir le dossier de la stratégie
-                  </a>
-                </div>
-              )
+              return <RecipeGate slug={slug} dossierBase={dossier} />
             }
             return (
               <p className="text-sm text-muted italic">
