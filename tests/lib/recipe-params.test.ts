@@ -44,7 +44,7 @@ describe('toBotParams', () => {
   it('renders the exit, and says so when the engine default applies', () => {
     expect(flat(recipe)).toContain('Sortie|Stop loss|ATR × 2.5|')
     expect(flat(recipe)).toContain('Sortie|R:R minimal|1 : 3|')
-    expect(flat({ ...recipe, exit: null })).toContain('Sortie|Sortie|par défaut du moteur|')
+    expect(flat({ ...recipe, exit: null })).toContain('Sortie|Sortie|stop et cible par défaut|')
     expect(flat({ ...recipe, exit: { atr_mult: 2, atr_period: 21 } })).toContain('Sortie|atr_period|21|')
   })
 
@@ -53,6 +53,8 @@ describe('toBotParams', () => {
   })
 
   it('names the engine generation it came from', () => {
-    expect(flat(recipe)).toContain('Provenance|Génération|data_20990101|moteur feedbeef')
+    // User rule 24/09: no engine jargon, a dated dataset reads as a date.
+    expect(flat(recipe)).toContain('Provenance|Données|jusqu’au 01/01/2099|version feedbeef')
+    expect(flat(recipe).join(' ')).not.toMatch(/moteur|data_/)
   })
 })

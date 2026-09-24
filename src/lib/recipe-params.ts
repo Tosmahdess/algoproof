@@ -65,6 +65,11 @@ const kv = (o: Record<string, Scalar>) =>
 
 const ticker = (a: string) => a.split('/')[0]
 
+function datasetLabel(dataset: string): string {
+  const m = /^data_(\d{4})(\d{2})(\d{2})$/.exec(dataset)
+  return m ? `jusqu’au ${m[3]}/${m[2]}/${m[1]}` : dataset
+}
+
 export function toBotParams(r: BotRecipe): BotParams {
   const signal: ParamGroup['items'] = Object.entries(r.params ?? {}).map(([k, v]) => ({
     label: PARAM_NAME_FR[k] ?? k,
@@ -82,7 +87,7 @@ export function toBotParams(r: BotRecipe): BotParams {
 
   const exit: ParamGroup['items'] = []
   if (!r.exit) {
-    exit.push({ label: 'Sortie', value: 'par défaut du moteur' })
+    exit.push({ label: 'Sortie', value: 'stop et cible par défaut' })
   } else {
     if (r.exit.atr_mult != null) exit.push({ label: 'Stop loss', value: `ATR × ${r.exit.atr_mult}` })
     if (r.exit.rr != null) exit.push({ label: 'R:R minimal', value: `1 : ${r.exit.rr}` })
@@ -102,7 +107,9 @@ export function toBotParams(r: BotRecipe): BotParams {
   if (p?.dataset) {
     groups.push({
       title: 'Provenance',
-      items: [{ label: 'Génération', value: p.dataset, note: p.engine_fingerprint ? `moteur ${p.engine_fingerprint}` : undefined }],
+      // No engine jargon on the fiche (user rule 24/09): « data_20260802 »
+      // reads as the date the data stops, the fingerprint as a version.
+      items: [{ label: 'Données', value: datasetLabel(p.dataset), note: p.engine_fingerprint ? `version ${p.engine_fingerprint}` : undefined }],
     })
   }
   return { groups }
