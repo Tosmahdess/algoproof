@@ -29,13 +29,13 @@ import StrategyPage from '@/app/strategies/bot/[slug]/page'
 
 const keltner = () => mkBot({
   slug: 'arm-keltnerbreak-h4-head03',
-  name: 'Keltner Channel H4 — moteur · grappe 03',
+  name: 'Cassure Keltner H4 Binance Futures n° 4',
   origin: 'engine',
   exchange: 'Binance Futures',
   timeframe: 'H4',
   assets: ['ADA/USDT', 'ETH/USDT', 'SOL/USDT'],
   engine_unit_key: 'KeltnerBreak|H4|data_20260802|3',
-  description: 'Cassure de canal de Keltner, configuration issue du gantelet du moteur.',
+  description: 'Cassure de canal de Keltner, configuration sélectionnée par mes tests.',
 })
 
 async function renderFiche() {
@@ -55,11 +55,13 @@ describe('Fonctionnel tab of an engine-born bot', () => {
       .toHaveAttribute('href', '/strategies/keltner')
   })
 
-  it("names this bot's own facts: head, timeframe, markets", async () => {
+  it("names this bot's own facts in plain words: timeframe, markets, no engine jargon", async () => {
     state.bot = keltner()
     await renderFiche()
     const own = screen.getByTestId('engine-bot-own')
-    expect(own).toHaveTextContent(/grappe n° 03/)
+    // User rule 24/09: moteur, grappe, gantelet are unreadable to a visitor.
+    expect(own.textContent).not.toMatch(/moteur|grappe|gantelet/i)
+    expect(own).toHaveTextContent(/configuration que j'ai retenue/)
     expect(own).toHaveTextContent(/H4/)
     expect(own).toHaveTextContent(/3 marchés Binance Futures/)
     expect(own).toHaveTextContent(/onglet Technique, que je réserve aux membres/)
@@ -101,7 +103,7 @@ describe('Fonctionnel tab of an engine-born bot', () => {
     state.bot = mkBot({
       slug: 'arm-williamsvolb-d1-head01', origin: 'engine',
       engine_unit_key: 'WilliamsVolBreak|D1|data_20260802|3',
-      description: 'Cassure de volatilité selon Larry Williams, configuration issue du gantelet du moteur.',
+      description: 'Cassure de volatilité selon Larry Williams, configuration sélectionnée par mes tests.',
     })
     await renderFiche()
     expect(screen.queryByTestId('engine-bot-summary')).toBeNull()

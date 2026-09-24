@@ -9,7 +9,7 @@ import type { BotWithStats } from '@/lib/types'
 // perf_daily/recent_trades/all_trades) so strict tsc holds it to every required field.
 // Widened here rather than loosening the component's contract to a partial type.
 const bot = (over: Partial<BotWithStats> = {}): BotWithStats => ({
-  id: '1', slug: 'arm-hmacross-h4-head00', name: 'Croisement HMA H4 — moteur · grappe 00',
+  id: '1', slug: 'arm-hmacross-h4-head00', name: 'Croisement HMA H4 Binance Futures n° 1',
   strategy: 'hmacross', family: 'trend', status: 'paper', exchange: 'Binance Futures',
   venue: null, assets: [], timeframe: 'H4', description: null,
   created_at: '2026-01-01T00:00:00Z', last_sync_at: null, start_capital: 1000,
@@ -25,7 +25,7 @@ test('a zero-trade bot renders an em-dash row, not zeros', () => {
   // getAllByText, not getByText: the component always renders BOTH the mobile list and
   // the desktop table (same as the home markup it's transposed from), toggled by CSS
   // media queries alone — jsdom doesn't evaluate those, so the bot name is present twice.
-  expect(screen.getAllByText('Croisement HMA H4 — moteur · grappe 00').length).toBeGreaterThan(0)
+  expect(screen.getAllByText('Croisement HMA H4 Binance Futures n° 1').length).toBeGreaterThan(0)
   expect(screen.getAllByText('—').length).toBeGreaterThan(0)
 })
 
