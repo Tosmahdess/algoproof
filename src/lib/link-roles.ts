@@ -21,7 +21,11 @@ export type LinkRole = (typeof LINK_ROLES)[number]
 /** Focus ring shared by every role. Keyboard users had nothing on most of
  *  these links: `focus:outline-none` with no replacement is the single most
  *  common way a redesign locks them out. */
-const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg rounded-sm'
+// The ring without a radius, for roles that carry their own: `rounded-sm` is
+// emitted after `rounded-lg` in the built CSS, so appending it to a card
+// squared every card tile to 2px (found 2026-09-24, first real card call sites).
+const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg'
+const FOCUS = `${FOCUS_RING} rounded-sm`
 
 const ROLE_CLASS: Record<LinkRole, string> = {
   /** A link inside a sentence.
@@ -46,7 +50,7 @@ const ROLE_CLASS: Record<LinkRole, string> = {
    *  The text inside carries no link colour at all; the border answers on
    *  hover and the title picks up the accent through `group-hover`. A coloured
    *  title inside a clickable card reads as a second, nested link. */
-  card: `block group border border-border rounded-lg hover:border-accent/30 transition-colors ${FOCUS}`,
+  card: `block group border border-border rounded-lg hover:border-accent/30 transition-colors ${FOCUS_RING}`,
 
   /** The NAME of a record, which is also the way into it: a bot in a table
    *  row, an article title in a list, a venue in a column.

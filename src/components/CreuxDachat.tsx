@@ -1,5 +1,6 @@
 'use client'
 
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import type { FicheIndex } from '@/lib/investir'
@@ -85,7 +86,7 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
             <>
               <span className="truncate">{nom}</span>
               <span className="flex items-baseline gap-2 shrink-0">
-                <span className="text-[10px] text-muted">
+                <span className="text-xs text-muted">
                   {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                 </span>
                 <span className={`font-mono text-xs ${COULEUR[a.signal_level] ?? 'text-muted'}`}>
@@ -98,7 +99,7 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
             <li key={a.ticker} className="flex items-baseline justify-between gap-3 text-sm py-0.5">
               {fiche ? (
                 <Link href={`/investir/${fiche.slug}`}
-                      className="flex items-baseline justify-between gap-3 w-full hover:text-foreground transition-colors text-muted">
+                      className={linkClass('inline', 'flex items-baseline justify-between gap-3 w-full text-sm')}>
                   {contenu}
                 </Link>
               ) : (

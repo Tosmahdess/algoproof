@@ -1,3 +1,4 @@
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { TWITTER_URL } from '@/lib/constants'
 
@@ -67,9 +68,9 @@ export default function Footer() {
                 {col.links.map(l => (
                   <li key={l.href}>
                     {l.external ? (
-                      <a href={l.href} target="_blank" rel="noopener noreferrer" className="text-sm text-muted hover:text-white transition-colors">{l.label}</a>
+                      <a href={l.href} target="_blank" rel="noopener noreferrer" className={linkClass('nav', 'text-sm')}>{l.label}</a>
                     ) : (
-                      <Link href={l.href} className="text-sm text-muted hover:text-white transition-colors">{l.label}</Link>
+                      <Link href={l.href} className={linkClass('nav', 'text-sm')}>{l.label}</Link>
                     )}
                   </li>
                 ))}
@@ -80,14 +81,14 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <span className="text-sm text-muted">AlgoProof : mes bots de trading et les comptes de sociétés que je lis, en public. Chaque trade, chaque perte.</span>
-          <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-muted hover:text-white transition-colors">X / Twitter</a>
+          <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className={linkClass('nav', 'text-sm')}>X / Twitter</a>
         </div>
         {/* The site's default rule (« paper trading sauf mention contraire »)
             and its legal reserve were the least readable line of the site:
             text-xs at 50 % opacity, 2,20:1 measured (audit 2026-09-09). Full
             opacity, 13 px: 5,6:1 on this ground, computed in
             tests/lib/design-contrast.test.ts. */}
-        <p className="mt-4 text-[13px] text-muted">
+        <p className="mt-4 text-sm text-muted">
           Ceci n&apos;est pas un conseil financier. Toutes les performances sont en paper trading sauf mention contraire.
           Je ne touche jamais à ton argent : pas de dépôt, pas de clé d&apos;exchange, tout est en lecture seule.
         </p>
@@ -95,15 +96,15 @@ export default function Footer() {
         {/* Legal links point at lab.algoproof.fr: same publisher, one set of legal
             pages for both sites, and algoproof.fr has none of its own yet. */}
         <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-          <a href="https://lab.algoproof.fr/mentions-legales" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+          <a href="https://lab.algoproof.fr/mentions-legales" target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
             Mentions légales
           </a>
           <span>·</span>
-          <a href="https://lab.algoproof.fr/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+          <a href="https://lab.algoproof.fr/privacy" target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
             Confidentialité
           </a>
           <span>·</span>
-          <a href="https://lab.algoproof.fr/terms" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+          <a href="https://lab.algoproof.fr/terms" target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
             Conditions
           </a>
         </div>

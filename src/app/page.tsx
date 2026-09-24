@@ -35,10 +35,6 @@ export default async function HomePage() {
   // the homepage headline counts and ranking.
   const [allBots, funnel] = await Promise.all([getAllBotsWithStats(), getFunnelCounts()])
   const bots = excludeArchived(allBots)
-  // Wave-1 cohort, counted from the data rather than typed into the copy: the
-  // sentence below used to carry a literal 75 and would have aged in silence the
-  // day one of them is archived. Same tagging rule as /overview's waveBotCount.
-  const waveCount = bots.filter(b => b.engine_unit_key?.length).length
   // Live = real money (status 'live': v1-spot, v1-hl, orb-bf25) ; the rest is simulation
   // (the word « laboratoire » was retired for a bot STATUS on 2026-09-20 — « le labo » is the tool).
   // Keep these counts apart so the hero never implies the whole fleet is real capital.
@@ -112,7 +108,7 @@ export default async function HomePage() {
                 décrit ce qu'un visiteur SANS COMPTE reçoit vraiment. Le verdict PBO/DSR
                 est une autre fonction sur un payload derrière require_paid ; ne pas le
                 promettre ici. Vérifié le 04/09. */}
-            <p className="text-sm text-muted">
+            <p className="text-sm leading-relaxed">
               Mes bots tournent en simulation et en argent réel, chaque trade publié. Le labo
               où je teste mes stratégies est ouvert. Tu y passes la tienne, il la rejoue sur
               l&apos;historique et te dit si elle est fragile, et pourquoi.
@@ -150,7 +146,7 @@ export default async function HomePage() {
                 /investir, donc elle le dit elle-même plutôt que de le laisser
                 découvrir. « que je lis » porte la limite de couverture : une
                 société absente n'est pas une société sans alerte. */}
-            <p className="text-sm text-muted">
+            <p className="text-sm leading-relaxed">
               Pour chaque société cotée que je lis, je passe son dernier rapport annuel à
               travers sept contrôles. Je publie les alertes qu&apos;ils lèvent et les chiffres,
               avec la page du rapport pour refaire le calcul. Pas de note, pas de verdict.
@@ -202,13 +198,13 @@ export default async function HomePage() {
             l'user a lu. Le total est maintenant écrit AVEC ses deux parts, et
             l'entonnoir ne compte plus de bots. */}
         <div data-testid="fleet-counters" className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-muted border border-border rounded-lg px-5 py-3">
-          <span><strong className="text-white font-mono">{liveBots.length + paperBots.length}</strong> bots en service</span>
+          <span><strong className="text-foreground font-mono">{liveBots.length + paperBots.length}</strong> bots en service</span>
           <span className="text-border">·</span>
-          <span><strong className="text-white font-mono">{liveBots.length}</strong> en argent réel</span>
+          <span><strong className="text-foreground font-mono">{liveBots.length}</strong> en argent réel</span>
           <span className="text-border">·</span>
           {/* « simulation », pas « laboratoire » : c'est déjà le mot de
               StatusBadge, et ça laisse « le labo » désigner l'outil seul. */}
-          <span><strong className="text-white font-mono">{paperBots.length}</strong> en simulation</span>
+          <span><strong className="text-foreground font-mono">{paperBots.length}</strong> en simulation</span>
           <span className="text-border">·</span>
           <span>données mises à jour chaque heure</span>
           <span className="text-border">·</span>
@@ -216,7 +212,7 @@ export default async function HomePage() {
             href="https://lab.algoproof.fr/cockpit/cimetiere"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white transition-colors"
+            className={linkClass('inline')}
           >
             et un registre public de mes verdicts, recalés compris
           </a>
@@ -231,14 +227,14 @@ export default async function HomePage() {
             écran : mesuré à 1 421 px sur un téléphone de 390x664, contre 1 896 px
             (Météo) et 2 086 px (Apprendre) pour leurs anciennes cartes. Elles y
             gagnent, elles n'y sont pas immédiates — ne pas l'écrire autrement. */}
-        <p className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted">
-          <Link href="/intelligence" className="hover:text-white transition-colors">Météo du marché</Link>
+        <p className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
+          <Link href="/intelligence" className={linkClass('inline')}>Météo du marché</Link>
           <span className="text-border">·</span>
-          <Link href="/strategies" className="hover:text-white transition-colors">
+          <Link href="/strategies" className={linkClass('inline')}>
             La bibliothèque des {STRATEGY_FICHES.length} stratégies
           </Link>
           <span className="text-border">·</span>
-          <Link href="/preuve" className="hover:text-white transition-colors">Pourquoi je montre chaque trade perdant</Link>
+          <Link href="/preuve" className={linkClass('inline')}>Pourquoi je montre chaque trade perdant</Link>
         </p>
       </div>
 
@@ -250,7 +246,7 @@ export default async function HomePage() {
       {/* Manifeste transparence (absorbs /preuve intent) */}
       <div className="border border-border rounded-lg p-8 mb-16 text-center bg-card/40">
         <h2 className="text-xl font-semibold mb-3">Pourquoi je montre chaque trade perdant</h2>
-        <p className="text-muted text-sm max-w-2xl mx-auto mb-4">
+        <p className="text-sm leading-relaxed max-w-2xl mx-auto mb-4">
           Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel : drawdowns, mauvaises semaines et erreurs compris. Alors j&apos;expose tout, sans filtre.
         </p>
         <Link href="/preuve" className={linkClass('inline', 'text-sm')}>Lire le manifeste →</Link>
@@ -259,7 +255,7 @@ export default async function HomePage() {
       {/* L'IA genere. AlgoLab verifie. */}
       <div className="border border-border rounded-lg p-8 mb-16 bg-card/40">
         <h2 className="text-xl font-semibold mb-3 text-center">Faire vérifier une stratégie écrite par une IA</h2>
-        <p className="text-muted text-sm max-w-2xl mx-auto mb-5 text-center">
+        <p className="text-sm leading-relaxed max-w-2xl mx-auto mb-5 text-center">
           {/* La phrase disait qu'aucune des dix ne restait profitable ; la table
               de l'article donne l'Ichimoku à PF 1,02. Le chiffre ci-dessous est
               celui que l'article porte (dix euros, cinq trades), pas un arrondi
@@ -273,31 +269,9 @@ export default async function HomePage() {
           <Link href="/blog/2026-07-11-10-strategies-ia-au-bulletin" className="px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
             Lire le test des 10 stratégies
           </Link>
-          <a href="https://lab.algoproof.fr/agents" className="px-5 py-2.5 border border-border font-semibold rounded-lg hover:bg-card transition-colors text-sm">
+          <a href="https://lab.algoproof.fr/agents" className="px-5 py-2.5 border border-border text-foreground font-semibold rounded-lg hover:border-muted transition-colors text-sm">
             Connecter son agent (MCP)
           </a>
-        </div>
-      </div>
-
-      {/* Ce qui travaille en ce moment */}
-      <div className="mb-16">
-        <h2 className="text-xl font-semibold mb-3">Ce qui travaille en ce moment</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link href="/strategies/bot/orb-bf25" className="bg-card border border-border rounded-lg p-8 text-center hover:border-positive/30 transition-colors group">
-            <h3 className="text-base font-semibold mb-2">En argent réel</h3>
-            <p className="text-muted text-sm">ORB H1 tourne sur Hyperliquid avec mon capital. Chaque trade, chaque perte, publié à l&apos;heure.</p>
-            <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir le bot →</span>
-          </Link>
-          <Link href="/overview" className="bg-card border border-border rounded-lg p-8 text-center hover:border-accent/30 transition-colors group">
-            <h3 className="text-base font-semibold mb-2">Les derniers arrivés</h3>
-            <p className="text-muted text-sm">Le 21 août, {waveCount} stratégies choisies par la version d&apos;août de mon moteur de recherche sont entrées en simulation. J&apos;ai corrigé le moteur depuis, et il refait le tour des familles dont elles viennent. Chacune devra aligner ses trades, et tenir, avant le moindre euro réel.</p>
-            <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Voir la flotte →</span>
-          </Link>
-          <Link href="/blog/2026-07-02-pourquoi-mes-bots-ne-tradent-pas" className="bg-card border border-border rounded-lg p-8 text-center hover:border-muted/50 transition-colors group">
-            <h3 className="text-base font-semibold mb-2">Ceux qui dorment</h3>
-            <p className="text-muted text-sm">Mes bots de tendance n&apos;ont presque pas tradé de mai à juillet. C&apos;est voulu : pas de tendance, pas de trade. J&apos;ai vérifié, les forcer serait perdant.</p>
-            <span className="inline-block mt-4 text-sm text-white group-hover:underline">Lire l&apos;enquête →</span>
-          </Link>
         </div>
       </div>
 
@@ -310,7 +284,7 @@ export default async function HomePage() {
             Les dix ci-dessous sont celles qui ont le plus d&apos;historique, pas celles qui gagnent le plus.
           </p>
         </div>
-        <Link href="/overview" className="text-sm text-muted hover:text-white transition-colors">Voir tout →</Link>
+        <Link href="/overview" className={linkClass('inline', 'text-sm')}>Voir tout →</Link>
       </div>
 
       {/* Mobile : liste classement rapide */}
@@ -322,12 +296,12 @@ export default async function HomePage() {
           return (
             <Link key={bot.id} href={`/strategies/bot/${bot.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium truncate">{bot.name}</p>
+                <p className="text-sm font-medium truncate">{bot.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] font-semibold uppercase" style={{ color: familyColor(bot.family) }}>
+                  <span className="text-xs font-semibold uppercase" style={{ color: familyColor(bot.family) }}>
                     {familyLabel(bot.family)}
                   </span>
-                  {hasData && <span className="text-[10px] text-muted">{bot.stats.total_trades} trades</span>}
+                  {hasData && <span className="text-xs text-muted">{bot.stats.total_trades} trades</span>}
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
@@ -340,7 +314,7 @@ export default async function HomePage() {
                 {hasData ? (
                   <>
                     <p className={`text-sm font-bold font-mono ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</p>
-                    <p className={`text-[10px] font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pct)}</p>
+                    <p className={`text-xs font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pct)}</p>
                   </>
                 ) : <span className="text-xs text-muted">—</span>}
               </div>
@@ -353,7 +327,7 @@ export default async function HomePage() {
       <div className="hidden md:block rounded border border-border overflow-hidden mb-6">
         <table className="w-full text-xs">
           <thead className="bg-card">
-            <tr className="text-muted text-[10px] uppercase tracking-widest border-b border-border">
+            <tr className="text-muted text-xs font-semibold uppercase tracking-widest border-b border-border">
               <th className="px-4 py-3 text-left">Stratégie</th>
               <th className="px-4 py-3 text-left">Famille</th>
               <th className="px-4 py-3 text-right">Trades</th>
@@ -371,10 +345,10 @@ export default async function HomePage() {
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
                     <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
-                    <p className="text-muted text-[10px] mt-0.5">{bot.exchange} · {bot.timeframe}</p>
+                    <p className="text-muted text-xs mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: familyColor(bot.family) }}>
+                    <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: familyColor(bot.family) }}>
                       {familyLabel(bot.family)}
                     </span>
                   </td>
@@ -405,7 +379,7 @@ export default async function HomePage() {
                     {hasData ? (
                       <div>
                         <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(pnlEur(bot.stats.latest_capital, bot.start_capital))}</span>
-                        <span className={`block text-[10px] font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
+                        <span className={`block text-xs font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
                       </div>
                     ) : <span className="text-muted">—</span>}
                   </td>
@@ -420,22 +394,22 @@ export default async function HomePage() {
       </div>
 
       <div className="text-center mb-16">
-        <Link href="/overview" className="inline-flex items-center gap-2 text-sm text-muted hover:text-white transition-colors border border-border rounded-lg px-4 py-2 hover:border-muted/50">
+        <Link href="/overview" className="inline-flex items-center gap-2 text-sm border border-border text-foreground hover:border-muted transition-colors rounded-lg px-4 py-2">
           Voir les {bots.length} bots complets →
         </Link>
       </div>
 
       {/* Teaser Apprendre + Performance */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-        <Link href="/blog" className="bg-card border border-border rounded-lg p-8 text-center hover:border-accent/30 transition-colors group">
-          <h2 className="text-xl font-semibold mb-3">Apprendre</h2>
+        <Link href="/blog" className={linkClass('card', 'bg-card p-8 text-center')}>
+          <h2 className="text-xl font-semibold mb-3 group-hover:text-accent transition-colors">Apprendre</h2>
           <p className="text-muted text-sm">Journal de bord, revues hebdo, autopsies de stratégies, fiscalité et MiCA. Tout est documenté.</p>
-          <span className="inline-block mt-4 text-sm text-accent group-hover:underline">Lire les articles →</span>
+          <span className="inline-block mt-4 text-sm text-muted group-hover:text-foreground">Lire les articles →</span>
         </Link>
-        <Link href="/overview" className="bg-card border border-border rounded-lg p-8 text-center hover:border-positive/30 transition-colors group">
-          <h2 className="text-xl font-semibold mb-3">La flotte</h2>
+        <Link href="/overview" className={linkClass('card', 'bg-card p-8 text-center')}>
+          <h2 className="text-xl font-semibold mb-3 group-hover:text-accent transition-colors">La flotte</h2>
           <p className="text-muted text-sm">Ce qui tourne, avec quel argent, et le bilan brut.</p>
-          <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Voir les résultats →</span>
+          <span className="inline-block mt-4 text-sm text-muted group-hover:text-foreground">Voir les résultats →</span>
         </Link>
       </div>
 

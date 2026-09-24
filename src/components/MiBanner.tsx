@@ -81,7 +81,7 @@ export default function MiBanner() {
               {snap.is_safe ? '✅ Trading autorisé' : '🔴 Trading bloqué'}
             </span>
           </div>
-          <span className="text-[10px] text-muted flex-shrink-0">màj il y a {ageMin} min</span>
+          <span className="text-xs text-muted flex-shrink-0">màj il y a {ageMin} min</span>
         </div>
 
         {/* Pillar scores */}
@@ -90,7 +90,7 @@ export default function MiBanner() {
             const val = snap[p.key] as number | null
             return (
               <div key={p.key} className="px-4 py-3 text-center">
-                <p className="text-[10px] text-muted uppercase tracking-wider mb-1">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">
                   {p.label} <span className="opacity-50">{p.weight}</span>
                 </p>
                 <p className="font-mono font-bold text-base" style={{ color: p.color }}>

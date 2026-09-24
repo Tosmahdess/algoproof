@@ -45,8 +45,7 @@ test('below 30 head trades alone, the PF gap is still withheld', () => {
 })
 
 // The wave was chosen by the August engine, whose execution had known defects
-// and has been corrected since. The encart names that generation, like the
-// homepage card does (session recipe-replay-0918).
+// and has been corrected since. The encart names that generation.
 test('names the engine generation that chose the wave', () => {
   render(<WaveExperiment waveBotCount={75} measure={null} />)
   const text = screen.getByTestId('wave-experiment').textContent ?? ''

@@ -7,6 +7,7 @@
 // initial render still happens server-side, so the full list stays in the
 // served HTML for crawlers — the search only ever narrows it after hydration).
 import { useMemo, useState } from 'react'
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import SearchInput from '@/components/SearchInput'
 
@@ -71,7 +72,7 @@ export default function StrategiesRegister({ groups }: { groups: FicheGroup[] })
           <button
             type="button"
             onClick={() => setQuery('')}
-            className="mt-3 text-xs text-accent underline"
+            className="mt-3 text-sm text-accent underline"
           >
             Tout réafficher
           </button>
@@ -79,17 +80,17 @@ export default function StrategiesRegister({ groups }: { groups: FicheGroup[] })
       ) : (
         visible.map(g => (
           <section key={g.family} className="mb-10">
-            <h2 className="text-xs uppercase tracking-wider text-muted mb-3">{g.label}</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">{g.label}</h2>
             <p className="text-xs text-muted mb-4 max-w-2xl">{g.description}</p>
             <ul className="space-y-2">
               {g.fiches.map(f => (
                 <li key={f.slug}>
                   <Link
                     href={`/strategies/${f.slug}`}
-                    className="block bg-card border border-border rounded-lg p-4 hover:border-accent transition-colors"
+                    className={linkClass('card', 'bg-card p-4')}
                   >
                     <div className="flex items-baseline justify-between gap-4">
-                      <span className="text-sm">{f.title}</span>
+                      <span className="text-base font-semibold group-hover:text-accent transition-colors">{f.title}</span>
                       <span className="text-xs text-muted font-mono">
                         {f.botCount === 0 ? 'aucun bot' : `${f.botCount} bot${f.botCount > 1 ? 's' : ''}`}
                       </span>

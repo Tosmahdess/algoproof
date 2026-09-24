@@ -9,7 +9,7 @@ export default function TechnicalArticle({ sections }: { sections: TechnicalSect
           <h3 className="text-xs font-semibold uppercase tracking-widest text-muted mb-2">
             {section.title}
           </h3>
-          <p className="text-sm leading-relaxed text-foreground/80">
+          <p className="text-sm leading-relaxed">
             {section.body}
           </p>
           {section.code && <CodeSnippet code={section.code} />}

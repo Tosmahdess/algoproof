@@ -55,7 +55,7 @@ export function Stat({ label, value, change, subtext, intent, trend }: StatProps
   const valueIntent = resolveValueIntent(value, intent, trend)
   return (
     <div className="not-prose flex-1 min-w-[140px] border-l-2 border-border pl-4 py-1">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted font-semibold mb-1">
+      <div className="text-xs uppercase tracking-[0.18em] text-muted font-semibold mb-1">
         {label}
       </div>
       <div className="flex items-baseline gap-2 flex-wrap">

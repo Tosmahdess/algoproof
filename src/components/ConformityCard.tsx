@@ -106,7 +106,7 @@ export default function ConformityCard({
       )}
 
       {stats.total_trades === 0 && expectations.dormancyNote && (
-        <p className="text-sm text-muted mb-5">{expectations.dormancyNote}</p>
+        <p className="text-sm leading-relaxed mb-5">{expectations.dormancyNote}</p>
       )}
 
       <h3 className="text-base font-semibold mb-2">Quand ce bot sera coupé</h3>
@@ -115,7 +115,7 @@ export default function ConformityCard({
           // The last one written wins: decisions are appended, never edited.
           const decision = expectations.decisions?.filter(d => d.rule === rule).at(-1)
           return (
-            <li key={rule} className="text-sm text-muted flex gap-2">
+            <li key={rule} className="text-sm leading-relaxed flex gap-2">
               <span className="text-negative shrink-0">✕</span>
               <span>
                 {rule}

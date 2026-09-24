@@ -10,13 +10,11 @@ import TrackView from '@/components/TrackView'
 import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
 import DiscussionTab from '@/components/DiscussionTab'
-import ExchangeAlert from '@/components/ExchangeAlert'
 import ConformityCard from '@/components/ConformityCard'
 import PathToRealCard from '@/components/PathToRealCard'
 import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
-import RecipeReplayCard from '@/components/RecipeReplayCard'
 import SampleNote from '@/components/SampleNote'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
@@ -25,7 +23,6 @@ import { getProvenanceForBot } from '@/lib/screening'
 import { ficheSlugForBot } from '@/lib/strategy-keys'
 import { getStrategyFiche } from '@/lib/strategy-library'
 import { provenanceSentence, dossierHref } from '@/lib/provenance'
-import { recipeReplayFor } from '@/lib/recipe-replay'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -63,9 +60,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   // returns null both when this bot was never screened and when the screening tables
   // don't exist yet in this environment.
   const provenance = await getProvenanceForBot(bot.slug)
-  // Wave-1 bots only (engine origin + unit key): what the replay on the
-  // repaired execution gives for this bot's recipe. Null for any other bot.
-  const replay = recipeReplayFor(bot)
   // The `orb` fiche describes the Labo's ORB: a cap on trades per day and a session end
   // where every position is closed. The engine's ORB closes nothing at session end and can
   // fire several times in one session (audit 2026-09-10). Pointing an engine-born ORB bot
@@ -101,7 +95,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             </Link>
           </p>
         )}
-        <p className="text-xs text-muted mb-4 max-w-2xl">
+        <p className="text-sm text-muted mb-4 max-w-2xl">
           Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
           La plupart de mes bots sont en <TermPopover id="paper-trading">paper trading</TermPopover> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
         </p>
@@ -125,11 +119,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {provenance && (
         <BotProvenance campaign={provenance.campaign} candidate={provenance.candidate} />
       )}
-
-      {replay && <RecipeReplayCard view={replay} tradedAssets={bot.assets.length} />}
-
-      {/* Exchange alert — Binance Futures bloqué FR */}
-      <ExchangeAlert exchange={bot.exchange} />
 
       {/* Novice layer: plain-FR summary (only for bots with a documented envelope) */}
       {expectations?.threeSentences && <ThreeSentences data={expectations.threeSentences} />}
@@ -200,7 +189,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             if (bot.engine_unit_key) {
               const dossier = bot.engine_unit_key.split('|')[0].toLowerCase()
               return (
-                <div className="text-xs">
+                <div className="text-sm space-y-2">
                   <p className="text-muted mb-2">
                     La configuration exacte de ce bot (valeurs des paramètres et combinaison
                     de filtres retenues par le gantelet) est réservée aux membres du labo.
@@ -213,7 +202,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
               )
             }
             return (
-              <p className="text-muted italic text-xs">
+              <p className="text-sm text-muted italic">
                 Paramètres techniques en cours de documentation.
               </p>
             )
@@ -230,7 +219,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
       {/* Bridge to the lab */}
       <div className="bg-card border border-border rounded-lg p-6 mb-8 text-center">
-        <p className="text-sm text-muted mb-3">
+        <p className="text-sm mb-3">
           Envie de tester une idée avec la même rigueur ? Le labo applique mes contrôles anti-overfit à tes propres backtests.
         </p>
         <a

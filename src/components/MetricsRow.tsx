@@ -8,7 +8,7 @@ function MetricCell({ label, value, positive }: Metric) {
   return (
     <div className="flex flex-col gap-0.5">
       <span className="text-xs text-muted uppercase tracking-wide">{label}</span>
-      <span className={`font-mono font-semibold text-base ${positive === undefined ? 'text-white' : positive ? 'text-positive' : 'text-negative'}`}>
+      <span className={`font-mono font-semibold text-base ${positive === undefined ? 'text-foreground' : positive ? 'text-positive' : 'text-negative'}`}>
         {value}
       </span>
     </div>

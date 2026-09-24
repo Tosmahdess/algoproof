@@ -158,7 +158,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     <div data-testid="fleet-register" className="space-y-12">
       {/* ---------- Stage 2 : the laboratory register ---------- */}
       <section className="space-y-4">
-        <h2 className="text-xs uppercase tracking-wider text-muted">Laboratoire · simulation</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">Laboratoire · simulation</h2>
 
         <StickyFilterBar activeCount={activeFilterCount(state)} onReset={reset}>
           <FleetFilterBar
@@ -174,7 +174,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
         {emptyMessage ? (
           <div data-testid="fleet-empty" className="bg-card border border-border rounded-lg p-6 text-sm">
             <p>{emptyMessage}</p>
-            <button type="button" onClick={reset} className="mt-3 text-xs text-accent underline">
+            <button type="button" onClick={reset} className="mt-3 text-sm text-accent underline">
               Retirer les filtres
             </button>
           </div>
@@ -182,7 +182,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           <div className="space-y-8">
             {timeframeGroups.map(group => (
               <section key={group.tf} data-testid={`fleet-tf-${group.tf}`}>
-                <h3 className="text-xs uppercase tracking-wider text-muted mb-3">
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
                   {`${group.tf} : ${group.bots.length} stratégie${group.bots.length > 1 ? 's' : ''}`}
                 </h3>
                 <BotTable bots={group.bots} showTf={false} />
@@ -193,7 +193,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
 
         {archivedVisible.length > 0 && (
           <details data-testid="fleet-archived" className="bg-card border border-border rounded-lg">
-            <summary className="cursor-pointer px-4 py-3 text-xs uppercase tracking-wider text-muted">
+            <summary className="cursor-pointer px-4 py-3 text-xs font-semibold uppercase tracking-widest text-muted">
               {`Archivés (${archivedVisible.length})`}
             </summary>
             <ul className="px-4 pb-4 divide-y divide-border">

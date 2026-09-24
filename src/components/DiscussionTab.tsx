@@ -72,9 +72,9 @@ export default function DiscussionTab({ slug }: Props) {
             <div key={c.id} className="border-b border-border/50 pb-4 last:border-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs font-semibold">{c.pseudo}</span>
-                <span className="text-[10px] text-muted">{fmt(c.created_at)}</span>
+                <span className="text-xs text-muted">{fmt(c.created_at)}</span>
               </div>
-              <p className="text-xs text-muted/90 leading-relaxed">{c.message}</p>
+              <p className="text-sm leading-relaxed">{c.message}</p>
             </div>
           ))}
         </div>

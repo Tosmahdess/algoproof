@@ -15,6 +15,7 @@ import { Verdict } from './Verdict'
 import { Stat, StatRow } from './Stat'
 import { DataCard, DataCardGroup } from './DataCard'
 import { CompactTable, Row } from './CompactTable'
+import { isNumeric, detectSign } from './cellKind'
 
 // ---------- helpers ----------
 
@@ -28,26 +29,6 @@ function extractText(node: ReactNode): string {
     return extractText(node.props.children)
   }
   return ''
-}
-
-/** Decide if a string represents a numerical value worth styling.
- *  Looks for digits with optional sign or units (%, USDT, etc.). */
-function isNumeric(s: string): boolean {
-  return /[+\-−]?\s*\d/.test(s.trim())
-}
-
-/** Detect sign for color coding.
- *  Returns 'positive' if starts with + or contains "+XX" pattern;
- *  'negative' if starts with − / - / – (any dash variant);
- *  'neutral' otherwise. */
-function detectSign(s: string): 'positive' | 'negative' | 'neutral' {
-  const trimmed = s.trim()
-  if (/^[+]/.test(trimmed)) return 'positive'
-  if (/^[−–-]\s*\d/.test(trimmed)) return 'negative'
-  // Search for an embedded explicit sign like "Δ +120" or "Δ −80"
-  const match = trimmed.match(/[Δδ]\s*([+−–-])/)
-  if (match) return match[1] === '+' ? 'positive' : 'negative'
-  return 'neutral'
 }
 
 // ---------- table primitives ----------
@@ -90,10 +71,13 @@ function MDXTr(props: HTMLAttributes<HTMLTableRowElement>) {
 }
 
 function MDXTh(props: HTMLAttributes<HTMLTableCellElement>) {
+  const right = props.style?.textAlign === 'right'
   return (
     <th
       {...props}
-      className="px-3 py-2.5 text-left font-semibold uppercase tracking-wider text-[10px] sm:text-xs text-muted whitespace-nowrap"
+      className={`px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-muted ${
+        right ? 'text-right whitespace-nowrap' : 'text-left'
+      }`}
     />
   )
 }
@@ -103,15 +87,15 @@ function MDXTd(props: HTMLAttributes<HTMLTableCellElement>) {
   const numeric = isNumeric(text)
   const sign = detectSign(text)
 
-  const base = 'px-3 py-2.5 align-top'
+  const base = 'px-3 sm:px-4 py-2.5 align-top'
   const fontClass = numeric ? 'font-mono tabular-nums' : ''
   const colorClass =
     sign === 'positive'
       ? 'text-positive'
       : sign === 'negative'
         ? 'text-negative'
-        : 'text-foreground/90'
-  const alignClass = numeric ? 'text-right whitespace-nowrap' : 'text-left'
+        : 'text-foreground'
+  const alignClass = numeric ? 'text-right whitespace-nowrap' : 'text-left whitespace-normal break-words min-w-0'
 
   return (
     <td
@@ -145,7 +129,7 @@ function MDXH3(props: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
       {...props}
-      className="mt-10 mb-3 text-base sm:text-lg font-semibold tracking-tight text-foreground/90"
+      className="mt-10 mb-3 text-base sm:text-lg font-semibold tracking-tight text-foreground"
     />
   )
 }
@@ -154,7 +138,7 @@ function MDXBlockquote(props: HTMLAttributes<HTMLQuoteElement>) {
   return (
     <blockquote
       {...props}
-      className="my-6 border-l-2 border-muted/60 pl-4 italic text-foreground/80 not-prose"
+      className="my-6 border-l-2 border-muted/60 pl-4 italic text-foreground not-prose"
     />
   )
 }

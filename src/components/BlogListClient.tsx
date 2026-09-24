@@ -41,16 +41,16 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
       <div className="mb-10">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">Apprendre en pratique, dans le labo</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <a href="https://lab.algoproof.fr/apprendre" className="bg-card border border-border rounded-lg p-4 hover:border-positive/30 transition-colors">
-            <div className="font-bold text-sm mb-1">🎓 Les tutoriels</div>
+          <a href="https://lab.algoproof.fr/apprendre" className={linkClass('card', 'bg-card p-4')}>
+            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">🎓 Les tutoriels</h3>
             <p className="text-xs text-muted">Cinq pas-à-pas interactifs, de zéro à ton premier verdict, plus le guide du Cockpit.</p>
           </a>
-          <a href="/strategies" className="bg-card border border-border rounded-lg p-4 hover:border-positive/30 transition-colors">
-            <div className="font-bold text-sm mb-1">📚 Les stratégies</div>
+          <a href="/strategies" className={linkClass('card', 'bg-card p-4')}>
+            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">📚 Les stratégies</h3>
             <p className="text-xs text-muted">Les {STRATEGY_FICHES.length} stratégies expliquées : quand ça marche, quand ça meurt, et les bots qui les incarnent.</p>
           </a>
-          <a href="https://lab.algoproof.fr/agents" className="bg-card border border-border rounded-lg p-4 hover:border-positive/30 transition-colors">
-            <div className="font-bold text-sm mb-1">🤖 Pour ton agent IA</div>
+          <a href="https://lab.algoproof.fr/agents" className={linkClass('card', 'bg-card p-4')}>
+            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">🤖 Pour ton agent IA</h3>
             <p className="text-xs text-muted">Le serveur MCP public : ton agent backteste et reçoit le bulletin anti-overfit.</p>
           </a>
         </div>
@@ -65,9 +65,9 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
               <Link
                 key={a.slug}
                 href={`/blog/${a.slug}`}
-                className="bg-card border border-border rounded-lg p-5 hover:border-positive/30 transition-colors group"
+                className={linkClass('card', 'bg-card p-5')}
               >
-                <h3 className="text-base font-semibold group-hover:text-positive transition-colors mb-1.5">{a.title}</h3>
+                <h3 className="text-base font-semibold group-hover:text-accent transition-colors mb-1.5">{a.title}</h3>
                 <p className="text-muted text-xs">{a.summary}</p>
               </Link>
             ))}

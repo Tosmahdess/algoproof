@@ -38,7 +38,7 @@ export function EquityFichePanel({ fiche, market }: { fiche: GatableFicheSummary
         </div>
       </div>
       {fiche.verdict_reason && (
-        <p className="mt-4 border-l-2 border-accent pl-3 text-foreground/80 italic">{sanitizeProse(fiche.verdict_reason)}</p>
+        <p className="mt-4 border-l-2 border-accent pl-3 text-sm leading-relaxed italic">{sanitizeProse(fiche.verdict_reason)}</p>
       )}
     </section>
   )

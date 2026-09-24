@@ -48,7 +48,7 @@ function CustomTooltip({ active, payload, label }: any) {
         {payload.map((p: any) => p.value != null && (
           <div key={p.dataKey} className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: p.color }} />
-            <span className="text-muted text-[10px]">{p.name}</span>
+            <span className="text-muted text-xs">{p.name}</span>
             <span className="font-mono ml-auto" style={{ color: p.color }}>
               {(p.value as number).toFixed(1)}
             </span>
@@ -56,12 +56,12 @@ function CustomTooltip({ active, payload, label }: any) {
         ))}
       </div>
       {d?.sentiment_regime && (
-        <p className="text-muted text-[10px] pt-1 border-t border-border">
+        <p className="text-muted text-xs pt-1 border-t border-border">
           Régime sentiment : {sentimentFr(d.sentiment_regime)}
         </p>
       )}
       {d?.market_bias && (
-        <p className="text-muted text-[10px]">Biais : {biasFr(d.market_bias)}</p>
+        <p className="text-muted text-xs">Biais : {biasFr(d.market_bias)}</p>
       )}
     </div>
   )
@@ -127,7 +127,7 @@ export default function MiHistoryChart({ data }: Props) {
       </div>
 
       {/* Pilier weights note */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-[10px] font-mono">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-xs font-mono">
         {[
           { label: 'Sentiment', weight: '30%', color: PILLAR_COLORS.sentiment_score },
           { label: 'Dérivés',   weight: '40%', color: PILLAR_COLORS.derivatives_score },
@@ -136,7 +136,7 @@ export default function MiHistoryChart({ data }: Props) {
         ].map(p => (
           <div key={p.label} className="rounded border border-border py-1.5 px-1">
             <p style={{ color: p.color }} className="font-semibold">{p.weight}</p>
-            <p className="text-muted mt-0.5 text-[9px]">{p.label}</p>
+            <p className="text-muted mt-0.5 text-xs">{p.label}</p>
           </div>
         ))}
       </div>

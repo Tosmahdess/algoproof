@@ -1,5 +1,6 @@
 'use client'
 
+import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import type { GrowthAsset, Verdict } from '@/lib/types'
 import { PrixNonPublie } from './PrixNonPublie'
@@ -47,23 +48,26 @@ function PickCard({ asset, fiche }: { asset: GrowthAsset; fiche: FicheLite | und
     <Link
       href={`/wealth/${encodeURIComponent(asset.ticker)}`}
       title={`Voir mon analyse de ${asset.asset_name}`}
-      className="block rounded-lg border bg-card px-3 py-3 transition-colors hover:bg-card/60"
+      className={linkClass('card', 'bg-card px-3 py-3')}
       style={{ borderColor: v.color + '55' }}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-mono font-bold leading-none" style={{ color: asset.tier === 1 ? 'var(--positive)' : '#e4e4e7' }}>
+            <span
+              className={`text-sm font-mono font-bold leading-none ${asset.tier === 1 ? '' : 'text-foreground'}`}
+              style={asset.tier === 1 ? { color: 'var(--positive)' } : undefined}
+            >
               {asset.ticker}<span aria-hidden> ↗</span>
             </span>
             {asset.tier === 2 && (
-              <span className="text-[9px] px-1 py-0.5 rounded bg-card text-muted">T2</span>
+              <span className="text-xs px-1 py-0.5 rounded bg-card text-muted">T2</span>
             )}
           </div>
-          <div className="text-[11px] text-muted leading-tight mt-1 truncate">{asset.asset_name}</div>
+          <div className="text-xs text-muted leading-tight mt-1 truncate">{asset.asset_name}</div>
         </div>
         <span
-          className="text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
+          className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0"
           style={{ color: v.color, background: v.color + '1f' }}
         >
           {v.label}

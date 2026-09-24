@@ -54,7 +54,7 @@ export function SignalProgressBar({ triggerPct, drawdownPct }: Props) {
         {[33.33, 66.67].map(pos => (
           <div
             key={pos}
-            className="absolute top-0 h-full w-px bg-zinc-600"
+            className="absolute top-0 h-full w-px bg-muted"
             style={{ left: `${pos}%` }}
           />
         ))}
@@ -63,7 +63,7 @@ export function SignalProgressBar({ triggerPct, drawdownPct }: Props) {
         {labels.map(({ pct, label }) => (
           <span
             key={pct}
-            className="absolute text-[9px] text-muted transform -translate-x-1/2"
+            className="absolute text-xs text-muted transform -translate-x-1/2"
             style={{ left: `${pct}%` }}
           >
             {label}

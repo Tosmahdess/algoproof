@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`bg-bg text-white ${jetbrainsMono.variable}`}>
+    <html lang="fr" className={`bg-bg ${jetbrainsMono.variable}`}>
       <body className="min-h-screen flex flex-col">
         <JsonLd data={organizationJsonLd()} />
         {/* First focusable element on every page. Invisible until focused (see

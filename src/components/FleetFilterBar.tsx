@@ -47,7 +47,7 @@ function Pill({ label, count, active, onClick }: {
       aria-pressed={active}
       className={[
         'px-3 py-1.5 text-xs font-mono border rounded transition-colors',
-        active ? 'bg-accent text-bg border-accent' : 'bg-bg text-muted border-border hover:text-white',
+        active ? 'bg-accent text-bg border-accent' : 'bg-bg text-muted border-border hover:text-foreground',
         count === 0 && !active ? 'opacity-40' : '',
       ].join(' ')}
     >
@@ -66,7 +66,7 @@ export default function FleetFilterBar({
           `display:` on a <summary> removes the native disclosure triangle, which
           on a block closed by default is the only affordance that says it opens —
           so the badge is inline-block, never flex. */}
-      <summary className="cursor-pointer px-4 py-3 text-xs uppercase tracking-wider text-muted">
+      <summary className="cursor-pointer px-4 py-3 text-xs font-semibold uppercase tracking-widest text-muted">
         {activeCount === 0 ? 'Filtrer la flotte' : `Filtrer la flotte : ${activeCount} filtre(s) actif(s)`}
       </summary>
 
@@ -83,7 +83,7 @@ export default function FleetFilterBar({
             any old shared link that carries them; they are just never read
             here or by FleetRegister's rendering anymore. */}
         <div>
-          <div className="text-xs uppercase tracking-wider text-muted mb-2">Famille</div>
+          <div className="text-xs font-semibold uppercase tracking-widest text-muted mb-2">Famille</div>
           <div className="flex flex-wrap gap-2">
             {FAMILY_ORDER.map(f => (
               <Pill
@@ -103,7 +103,7 @@ export default function FleetFilterBar({
             every row to « — ». Two pills, mutually exclusive; clicking the
             active one returns to all. */}
         <div>
-          <div className="text-xs uppercase tracking-wider text-muted mb-2">Sens des trades</div>
+          <div className="text-xs font-semibold uppercase tracking-widest text-muted mb-2">Sens des trades</div>
           <div className="flex flex-wrap gap-2">
             {(['long', 'short'] as const).map(side => (
               <Pill
@@ -123,7 +123,7 @@ export default function FleetFilterBar({
             slice the register anymore. */}
 
         {activeCount > 0 && (
-          <button type="button" onClick={onReset} className="text-xs text-accent underline">
+          <button type="button" onClick={onReset} className="text-sm text-accent underline">
             Tout effacer
           </button>
         )}

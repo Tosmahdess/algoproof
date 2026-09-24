@@ -59,7 +59,7 @@ export default function FleetDayTable({ rows }: { rows: DayRow[] }) {
         <button
           type="button"
           onClick={() => setExpanded(v => !v)}
-          className="mt-3 text-xs text-accent underline"
+          className="mt-3 text-sm text-accent underline"
         >
           {expanded
             ? 'Afficher moins'

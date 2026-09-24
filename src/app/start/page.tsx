@@ -41,7 +41,7 @@ export default function StartPage() {
               Recommandé débutants
             </span>
           </div>
-          <ul className="space-y-1.5 text-sm text-muted">
+          <ul className="space-y-1.5 text-sm leading-relaxed">
             <li>✓ Exchange centralisé (CEX), interface familière</li>
             <li>✓ Dépôt fiat (virement, carte bancaire)</li>
             <li>✓ KYC standard, disponible en France</li>
@@ -77,7 +77,7 @@ export default function StartPage() {
               Avancé
             </span>
           </div>
-          <ul className="space-y-1.5 text-sm text-muted">
+          <ul className="space-y-1.5 text-sm leading-relaxed">
             <li>✓ Exchange décentralisé (DEX), non-custodial</li>
             <li>✓ Dépôt USDC via Arbitrum</li>
             <li>✓ Frais taker 0.065%, maker rebate</li>
@@ -113,7 +113,7 @@ export default function StartPage() {
               Mon bot spot tourne ici
             </span>
           </div>
-          <ul className="space-y-1.5 text-sm text-muted">
+          <ul className="space-y-1.5 text-sm leading-relaxed">
             <li>✓ Disponible en France (cadre MiCA)</li>
             <li>✓ Dépôt EUR par virement SEPA</li>
             <li>✓ Exchange historique (2011), réputation sécurité solide</li>
@@ -135,7 +135,7 @@ export default function StartPage() {
             location="start"
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-foreground transition-colors hover:border-positive hover:text-positive"
+            className="block w-full rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-foreground hover:border-muted transition-colors"
           >
             Découvrir Kraken →
           </TrackedLink>
@@ -188,7 +188,7 @@ export default function StartPage() {
       {/* Why not Binance */}
       <div className="rounded-lg border border-border bg-card p-6 space-y-3">
         <h2 className="text-base font-semibold">Pourquoi pas Binance ?</h2>
-        <p className="text-sm text-muted leading-relaxed">
+        <p className="text-sm leading-relaxed">
           Depuis 2023, l&apos;AMF (Autorité des Marchés Financiers) a demandé aux plateformes de dérivés crypto
           de restreindre l&apos;accès aux résidents français : Binance Futures est bloqué depuis. Et le
           1er juillet 2026, avec la fin de la période de transition MiCA, Binance a cessé de servir les
@@ -200,7 +200,7 @@ export default function StartPage() {
             trois semaines. Même phrase et mêmes deux sources que le labo ; seules
             les URL relevées dans production-evidence.md (audit 2026-09-09, §10)
             figurent ici. */}
-        <p className="text-sm text-muted leading-relaxed">
+        <p className="text-sm leading-relaxed">
           Au 10 septembre 2026, rien n&apos;a repris : Binance vise un retour par un nouveau dépôt
           auprès de l&apos;AMF, qui doit se prononcer avant le 1er octobre (
           <a href="https://www.cointribune.com/deux-mois-apres-mica-binance-vise-un-retour-en-france-via-lamf/" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>Cointribune, 8 septembre 2026</a>
@@ -208,7 +208,7 @@ export default function StartPage() {
           <a href="https://www.moneyvox.fr/placement/actualites/109356/binance-suspend-ses-activites-en-france-les-consequences-pour-vos-crypto-ici-le-1er-juillet-2026" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>MoneyVox</a>
           . Si l&apos;AMF dit oui, je le noterai ici.
         </p>
-        <p className="text-sm text-muted leading-relaxed">
+        <p className="text-sm leading-relaxed">
           <strong className="text-foreground">À ne pas faire :</strong> utiliser un VPN pour contourner la restriction
           expose ton compte au gel et t\'engage juridiquement.
         </p>
@@ -218,7 +218,7 @@ export default function StartPage() {
       <div className="text-center">
         <Link
           href="/strategies"
-          className="inline-block rounded-lg border border-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-positive hover:text-positive"
+          className="inline-block rounded-lg border border-border px-6 py-3 text-sm font-medium text-foreground hover:border-muted transition-colors"
         >
           Voir toutes les stratégies →
         </Link>

@@ -37,7 +37,7 @@ export default function AProposPage() {
 
       <section>
         <h2 className="text-xl font-semibold mb-3">Pourquoi en public</h2>
-        <p className="text-muted leading-relaxed">
+        <p className="text-sm leading-relaxed">
           La plupart des gens ne montrent que leurs réussites. Moi je montre aussi mes pertes, mes mauvaises semaines
           et les stratégies que je rejette. C&apos;est plus utile et plus honnête : une méthode qui tient se prouve
           dans la durée, pas avec une capture d&apos;écran. Ce site est mon laboratoire ouvert, pas une vitrine de gains.
@@ -48,8 +48,8 @@ export default function AProposPage() {
         <h2 className="text-xl font-semibold mb-3">Comment les pièces s&apos;articulent</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {PIECES.map((p) => (
-            <Link key={p.href} href={p.href} className="block bg-card border border-border rounded-lg p-4 hover:border-positive/30 transition-colors group">
-              <h3 className="text-base font-semibold mb-1 group-hover:text-positive transition-colors">{p.title}</h3>
+            <Link key={p.href} href={p.href} className={linkClass('card', 'bg-card p-4')}>
+              <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">{p.title}</h3>
               <p className="text-sm text-muted">{p.desc}</p>
             </Link>
           ))}
@@ -58,7 +58,7 @@ export default function AProposPage() {
 
       <section>
         <h2 className="text-xl font-semibold mb-3">Paper ou argent réel ?</h2>
-        <p className="text-muted leading-relaxed">
+        <p className="text-sm leading-relaxed">
           La plupart de mes bots tournent en <strong>paper trading</strong> (simulation sur données réelles, frais et slippage compris,
           sans argent réel) : c&apos;est ainsi qu&apos;on valide une stratégie sans risque. Les bots qui passent en
           argent réel sont marqués « Argent réel ». Le statut de chaque bot est toujours affiché. Pour le
@@ -68,7 +68,7 @@ export default function AProposPage() {
 
       <section>
         <h2 className="text-xl font-semibold mb-3">Gratuit ou payant ?</h2>
-        <p className="text-muted leading-relaxed">
+        <p className="text-sm leading-relaxed">
           Regarder est gratuit : trades, pertes, courbes, historique, cimetière. Sur les sociétés dont je lis
           les comptes, les sept contrôles et leurs alertes, les chiffres et le rapport annuel le sont
           aussi. Le{' '}

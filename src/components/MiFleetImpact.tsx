@@ -33,7 +33,7 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
   return (
     <section>
       <h2 className="text-xl font-semibold mb-3">Est-ce que ça marche ?</h2>
-      <div className="border border-border rounded-lg p-6 space-y-3 text-sm text-muted leading-relaxed">
+      <div className="border border-border rounded-lg p-6 space-y-3 text-sm leading-relaxed">
         <p>
           Chaque semaine, je rejoue mes {impact.nPresets} configurations de flotte sur la
           fenêtre que couvre mon flux météo, une fois avec les règles, une fois sans. Ce sont

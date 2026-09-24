@@ -120,13 +120,13 @@ export default async function IntelligencePage() {
         <h1 className="text-3xl font-semibold tracking-tight mb-3">
           Risque ON ou risque OFF, tous les jours
         </h1>
-        <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
+        <p className="text-sm max-w-2xl leading-relaxed mb-3">
           Chaque jour, je résume l&apos;état du marché : <strong>risque ON</strong> (favorable) ou <strong>risque OFF</strong> (prudence). Le « régime » agrège sentiment, dérivés, actualités et macro en un seul indicateur lisible.
         </p>
-        <p className="text-sm text-muted max-w-2xl leading-relaxed mb-3">
+        <p className="text-sm max-w-2xl leading-relaxed mb-3">
           Pourquoi ça compte : quand le risque passe à OFF, mes bots se font plus prudents (positions réduites, défense active). La météo du marché n&apos;est pas décorative, elle pilote des décisions. Termes expliqués dans le <a href="/lexique" className={linkClass('inline')}>lexique</a>.
         </p>
-        <p className="text-sm text-muted max-w-2xl leading-relaxed">
+        <p className="text-sm max-w-2xl leading-relaxed">
           Chaque bot passe par cette couche avant d&apos;entrer en position. Elle réduit la taille quand le contexte se dégrade, et coupe les entrées quand il devient franchement mauvais. Le blocage total, lui, est une sécurité de dernier recours et pas le régime de tous les jours. Ce qu&apos;elle a réellement changé sur mes bots, et ce qu&apos;elle n&apos;a pas changé, est mesuré plus bas sur cette page.
         </p>
       </div>
@@ -151,7 +151,7 @@ export default async function IntelligencePage() {
         <div className="rounded border border-border bg-card px-6 py-5">
           <MiHistoryChart data={miHistory} />
         </div>
-        <p className="text-[10px] text-muted mt-2">
+        <p className="text-xs text-muted mt-2">
           Lignes fines = piliers individuels. Ligne blanche = score global composite.
           Zones pointillées à ±30 = frontières NEUTRAL / GREED / FEAR.
         </p>
@@ -199,7 +199,7 @@ export default async function IntelligencePage() {
             </p>
           }
           technical={
-            <div className="space-y-1 text-xs font-mono">
+            <div className="space-y-1 text-sm">
               <div className="grid grid-cols-[5rem_1fr] gap-x-4 gap-y-1">
                 <span className="font-semibold">Layer 1</span>
                 <span className="text-muted">Taille de position, ajustée selon le score MI</span>
@@ -212,7 +212,7 @@ export default async function IntelligencePage() {
                 <span className="font-semibold">Layer 5</span>
                 <span className="text-muted">Tableau de bord du marché : données périmées, entrées bloquées par défaut</span>
               </div>
-              <p className="pt-2 text-[10px] text-muted">
+              <p className="pt-2 text-xs text-muted">
                 Plage de score : [−100, +100]. Pondérations : Sentiment 30% · Dérivés 40% · Actualités 5% · Macro 25% (re-pondération du 4 juillet 2026).
                 Condition : composite &gt; −30 ET VIX ≤ 30 (les fenêtres pré-événement T1/T2 ont été retirées le 23/07/2026).
               </p>
@@ -233,12 +233,12 @@ export default async function IntelligencePage() {
 
       {/* CTA: test météo on own strategy */}
       <section>
-        <a href="https://lab.algoproof.fr/lab" className="block border border-border rounded-lg p-8 bg-card/40 hover:border-positive/30 transition-colors group text-center">
-          <h2 className="text-xl font-semibold mb-3">Teste la météo sur ta stratégie</h2>
-          <p className="text-sm text-muted max-w-2xl mx-auto">
+        <a href="https://lab.algoproof.fr/lab" className={linkClass('card', 'p-8 bg-card/40 text-center')}>
+          <h2 className="text-xl font-semibold mb-3 group-hover:text-accent transition-colors">Teste la météo sur ta stratégie</h2>
+          <p className="text-sm max-w-2xl mx-auto">
             Le labo rejoue mes règles réelles sur ton backtest, avec et sans la météo.
           </p>
-          <span className="inline-block mt-4 text-sm text-positive group-hover:underline">Ouvrir le labo →</span>
+          <span className="inline-block mt-4 text-sm text-muted group-hover:text-foreground">Ouvrir le labo →</span>
         </a>
       </section>
     </main>

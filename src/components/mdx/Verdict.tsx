@@ -43,10 +43,10 @@ export function Verdict({ status, label, children }: VerdictProps) {
           {defaultText[status]}
         </span>
         {label && (
-          <span className="text-[10px] uppercase tracking-[0.18em] text-muted font-semibold">{label}</span>
+          <span className="text-xs uppercase tracking-[0.18em] text-muted font-semibold">{label}</span>
         )}
       </div>
-      <div className="text-[15px] text-foreground/90 leading-relaxed [&_p]:my-1 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-accent/90 [&_strong]:text-foreground [&_strong]:font-semibold">
+      <div className="text-sm text-foreground leading-relaxed [&_p]:my-1 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-accent/90 [&_strong]:text-foreground [&_strong]:font-semibold">
         {children}
       </div>
     </aside>

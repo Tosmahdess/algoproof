@@ -20,7 +20,7 @@ export default function LexiquePage() {
         {GLOSSARY.map((t) => (
           <div key={t.id} id={t.id} className="scroll-mt-24 border-l-2 border-border pl-4">
             <dt className="font-bold text-base">{t.term}</dt>
-            <dd className="text-sm text-muted mt-1 leading-relaxed">{t.definition}</dd>
+            <dd className="text-sm mt-1 leading-relaxed">{t.definition}</dd>
           </div>
         ))}
       </dl>

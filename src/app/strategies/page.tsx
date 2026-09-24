@@ -56,7 +56,7 @@ export default async function StrategiesIndexPage() {
       {/* Computer only: there the search sits at 1 141 px on a 900 px screen.
           On a phone the method folds and the search is already in view. */}
       <a href="#registre"
-         className="max-sm:hidden inline-block mb-8 text-sm text-muted hover:text-foreground transition-colors">
+         className={linkClass('nav', 'max-sm:hidden inline-block mb-8 text-sm')}>
         Aller aux stratégies ↓
       </a>
 

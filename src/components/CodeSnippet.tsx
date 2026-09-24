@@ -39,13 +39,13 @@ export default function CodeSnippet({ code }: CodeSnippetProps) {
 
   return (
     <div className="mt-6">
-      <p className="text-[10px] font-semibold tracking-widest uppercase text-muted mb-2">
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-2">
         Logique signal
       </p>
       <div className="relative">
         <button
           onClick={handleCopy}
-          className="absolute top-2 right-2 z-10 text-[10px] px-2 py-0.5 rounded bg-card border border-border text-muted hover:text-foreground transition-colors"
+          className="absolute top-2 right-2 z-10 text-xs px-2 py-0.5 rounded bg-card border border-border text-muted hover:text-foreground transition-colors"
         >
           {copied ? 'Copié !' : 'Copier'}
         </button>
