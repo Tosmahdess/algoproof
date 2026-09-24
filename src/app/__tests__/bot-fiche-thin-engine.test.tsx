@@ -33,7 +33,8 @@ describe('bot fiche — functional tab for engine bots', () => {
     })
     render(await StrategyPage({ params: Promise.resolve({ slug: current.slug }) }))
     expect(screen.queryByText(REPEATED)).toBeNull()
-    const link = screen.getByRole('link', { name: /ce que fait cette stratégie/i })
+    // Since 2026-09-24 the tab also carries the summary inline (EngineBotSummary).
+    const link = screen.getByRole('link', { name: /fiche complète de la stratégie/i })
     expect(link).toHaveAttribute('href', '/strategies/ma-cross')
   })
 
@@ -41,7 +42,7 @@ describe('bot fiche — functional tab for engine bots', () => {
     current = mkBot({ slug: 'v1-spot', description: 'Texte écrit à la main.' })
     render(await StrategyPage({ params: Promise.resolve({ slug: current.slug }) }))
     expect(screen.getByText('Texte écrit à la main.')).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /ce que fait cette stratégie/i })).toBeNull()
+    expect(screen.queryByRole('link', { name: /fiche complète de la stratégie/i })).toBeNull()
   })
 
   it('falls back to the description when an engine base has no concept page', async () => {
