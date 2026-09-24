@@ -36,16 +36,31 @@ describe('toBotParams', () => {
 
   it('labels known filters in French and keeps unknown ones under their raw key', () => {
     const rows = flat(recipe)
-    expect(rows).toContain('Filtres|force de tendance (ADX)|adx_period 11 · adx_min 17|')
-    expect(rows).toContain('Filtres|zone du RSI|mode no_extreme|')
+    expect(rows).toContain('Filtres|force de tendance (ADX)|période 11 · seuil 17|')
+    expect(rows).toContain('Filtres|zone du RSI|pas en zone extrême|')
     expect(rows).toContain('Filtres|brand_new_filter|knob 3|')
+  })
+
+  it('no wave-1 filter key or mode reaches the reader raw (user rule 24/09)', () => {
+    const wave1: BotRecipe = { ...recipe, filters: {
+      adx_min: { adx_min: 25, adx_period: 14 }, atr_ratio: { ratio_min: 1.2, ratio_max: 0.8 },
+      buffer_zone: { buffer_atr: 0.2, buffer_pct: 0.02 }, dist_ma_max: { max_atr: 2 },
+      ema_slope: { slope_lookback: 10, slope_period: 200 }, ichimoku_cloud: { kijun: 26, senkou: 52, tenkan: 9 },
+      ma_stack: { stack: '20-50-200' }, macd_hist: { mode: 'sign_rising' }, mfi_gate: { mode: 'align' },
+      min_range: { min_range_pct: 0.01 }, mtf_align: { depth: 2 }, obv_slope: { obv_mode: 'above_ma20', slope_lb: 10 },
+      rsi_gate: { mode: 'no_extreme' }, session: { session: 'London' }, squeeze_release: { mode: 'released' },
+      supertrend_side: { st_mult: 3 }, volume_confirm: { vol_mult: 1.5 }, vwap_dir: { vwap_mode: 'session' },
+    } }
+    const filters = flat(wave1).filter(r => r.startsWith('Filtres|')).join(' ')
+    expect(filters).not.toMatch(/[a-z]+_[a-z0-9_]+/)
+    expect(filters).not.toMatch(/\b(mode|depth|stack|kijun|senkou|tenkan|align|released|session)\b/)
   })
 
   it('renders the exit, and says so when the engine default applies', () => {
     expect(flat(recipe)).toContain('Sortie|Stop loss|ATR × 2.5|')
     expect(flat(recipe)).toContain('Sortie|R:R minimal|1 : 3|')
-    expect(flat({ ...recipe, exit: null })).toContain('Sortie|Sortie|par défaut du moteur|')
-    expect(flat({ ...recipe, exit: { atr_mult: 2, atr_period: 21 } })).toContain('Sortie|atr_period|21|')
+    expect(flat({ ...recipe, exit: null })).toContain('Sortie|Sortie|stop et cible propres à la stratégie|')
+    expect(flat({ ...recipe, exit: { atr_mult: 2, atr_period: 21 } })).toContain('Sortie|période de l’ATR|21|')
   })
 
   it('says when there is no filter at all rather than dropping the group', () => {
@@ -53,6 +68,8 @@ describe('toBotParams', () => {
   })
 
   it('names the engine generation it came from', () => {
-    expect(flat(recipe)).toContain('Provenance|Génération|data_20990101|moteur feedbeef')
+    // User rule 24/09: no engine jargon, a dated dataset reads as a date.
+    expect(flat(recipe)).toContain('Provenance|Données|jusqu’au 01/01/2099|version feedbeef')
+    expect(flat(recipe).join(' ')).not.toMatch(/moteur|data_/)
   })
 })

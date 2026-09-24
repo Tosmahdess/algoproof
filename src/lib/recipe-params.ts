@@ -60,10 +60,51 @@ const PARAM_NAME_FR: Record<string, string> = {
   session_anchor: "session d'ancrage",
 }
 
+// Inner filter keys and text modes of the wave-1 recipes (2026-09-24, all 25
+// keys found on the VPS). An empty label renders the value alone: « mode
+// no_extreme » reads « pas en zone extrême ». Same rule as above: a key or
+// value missing here renders raw, never dropped.
+const FILTER_KEY_FR: Record<string, string> = {
+  adx_min: 'seuil', adx_period: 'période',
+  ratio_min: 'minimum', ratio_max: 'maximum',
+  buffer_atr: 'marge en ATR', buffer_pct: 'marge relative',
+  max_atr: 'écart maximal en ATR',
+  slope_lookback: 'recul en bougies', slope_period: 'moyenne sur',
+  kijun: 'Kijun', senkou: 'Senkou', tenkan: 'Tenkan',
+  stack: 'moyennes',
+  mode: '', obv_mode: '', vwap_mode: '',
+  min_range_pct: 'amplitude minimale',
+  depth: 'horizons vérifiés',
+  slope_lb: 'recul en bougies',
+  session: 'séance',
+  st_mult: 'multiplicateur',
+  vol_mult: 'volume moyen ×',
+}
+const FILTER_VALUE_FR: Record<string, string> = {
+  sign_rising: 'histogramme du bon signe et croissant',
+  align: 'dans le sens du trade',
+  no_extreme: 'pas en zone extrême',
+  above_ma20: 'au-dessus de sa moyenne 20',
+  slope: 'pente dans le sens du trade',
+  London: 'Londres',
+  in: 'en compression',
+  released: 'compression relâchée',
+  session: 'VWAP de la séance',
+}
+
 const kv = (o: Record<string, Scalar>) =>
-  Object.entries(o).map(([k, v]) => `${k} ${v}`).join(' · ')
+  Object.entries(o).map(([k, v]) => {
+    const label = FILTER_KEY_FR[k] ?? k
+    const value = typeof v === 'string' ? FILTER_VALUE_FR[v] ?? v : v
+    return label ? `${label} ${value}` : `${value}`
+  }).join(' · ')
 
 const ticker = (a: string) => a.split('/')[0]
+
+function datasetLabel(dataset: string): string {
+  const m = /^data_(\d{4})(\d{2})(\d{2})$/.exec(dataset)
+  return m ? `jusqu’au ${m[3]}/${m[2]}/${m[1]}` : dataset
+}
 
 export function toBotParams(r: BotRecipe): BotParams {
   const signal: ParamGroup['items'] = Object.entries(r.params ?? {}).map(([k, v]) => ({
@@ -82,14 +123,14 @@ export function toBotParams(r: BotRecipe): BotParams {
 
   const exit: ParamGroup['items'] = []
   if (!r.exit) {
-    exit.push({ label: 'Sortie', value: 'par défaut du moteur' })
+    exit.push({ label: 'Sortie', value: 'stop et cible propres à la stratégie' })
   } else {
     if (r.exit.atr_mult != null) exit.push({ label: 'Stop loss', value: `ATR × ${r.exit.atr_mult}` })
     if (r.exit.rr != null) exit.push({ label: 'R:R minimal', value: `1 : ${r.exit.rr}` })
     if (r.exit.trail_mult != null) exit.push({ label: 'Stop suiveur', value: `ATR × ${r.exit.trail_mult}` })
     // Any other exit key (atr_period is allowed by the engine) renders raw, never dropped.
     for (const [k, v] of Object.entries(r.exit)) {
-      if (!['atr_mult', 'rr', 'trail_mult'].includes(k)) exit.push({ label: k, value: String(v) })
+      if (!['atr_mult', 'rr', 'trail_mult'].includes(k)) exit.push({ label: k === 'atr_period' ? 'période de l’ATR' : k, value: String(v) })
     }
   }
 
@@ -102,7 +143,9 @@ export function toBotParams(r: BotRecipe): BotParams {
   if (p?.dataset) {
     groups.push({
       title: 'Provenance',
-      items: [{ label: 'Génération', value: p.dataset, note: p.engine_fingerprint ? `moteur ${p.engine_fingerprint}` : undefined }],
+      // No engine jargon on the fiche (user rule 24/09): « data_20260802 »
+      // reads as the date the data stops, the fingerprint as a version.
+      items: [{ label: 'Données', value: datasetLabel(p.dataset), note: p.engine_fingerprint ? `version ${p.engine_fingerprint}` : undefined }],
     })
   }
   return { groups }
