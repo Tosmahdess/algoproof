@@ -13,7 +13,7 @@ describe('FleetKpiCards', () => {
     expect(cards).toHaveLength(2)
     expect(cards[0]).toHaveTextContent(/Bots en service/i)
     expect(cards[0]).toHaveTextContent('92')
-    expect(cards[1]).toHaveTextContent(/En argent réel/i)
+    expect(cards[1]).toHaveTextContent(/Dont en argent réel/i)
     expect(cards[1]).toHaveTextContent('3')
   })
 

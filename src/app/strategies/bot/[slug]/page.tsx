@@ -83,7 +83,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           <span className="text-muted text-sm">{bot.exchange} · {bot.timeframe} · {bot.assets.join(', ')}</span>
         </div>
         <h1 className="text-3xl font-semibold tracking-tight mb-3">{bot.name}</h1>
-        <p className="text-muted">{bot.strategy}</p>
+        {/* An engine bot's name already reads strategy, TF, platform (24/09):
+            its `strategy` line would repeat the h1 one line lower. */}
+        {!bot.engine_unit_key && <p className="text-muted">{bot.strategy}</p>}
         {/* The third edge of the graph. /overview groups this bot under its
             strategy and /strategies/<concept> explains that strategy and lists
             this bot — and from here there was no way back to either. Absent,

@@ -49,11 +49,11 @@ function KpiCard({ tone, label, value, icon }: { tone: string; label: string; va
             {icon}
           </svg>
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: tone }}>
+        <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: tone }}>
           {label}
         </span>
       </dt>
-      <dd className="text-[32px] leading-none font-semibold tabular-nums lg:text-[40px]">{nf.format(value)}</dd>
+      <dd className="text-3xl leading-none font-semibold tabular-nums lg:text-4xl">{nf.format(value)}</dd>
     </div>
   )
 }
@@ -63,7 +63,7 @@ export default function FleetKpiCards({ counts }: { counts: FunnelCounts | null 
   return (
     <dl aria-label="Ma flotte" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <KpiCard tone="var(--accent)" label="Bots en service" value={counts.n_promoted} icon={ICON_FLEET} />
-      <KpiCard tone="var(--foreground)" label="En argent réel" value={counts.n_live} icon={ICON_LIVE} />
+      <KpiCard tone="var(--foreground)" label="Dont en argent réel" value={counts.n_live} icon={ICON_LIVE} />
     </dl>
   )
 }

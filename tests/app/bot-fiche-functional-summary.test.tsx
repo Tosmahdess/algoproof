@@ -67,6 +67,16 @@ describe('Fonctionnel tab of an engine-born bot', () => {
     expect(own).toHaveTextContent(/onglet Technique, que je réserve aux membres/)
   })
 
+  it('an engine bot does not repeat its strategy line under the h1; a hand-deployed bot keeps it', async () => {
+    state.bot = { ...keltner(), strategy: 'Cassure Keltner · H4' }
+    const { unmount } = render(await StrategyPage({ params: Promise.resolve({ slug: 'arm-keltnerbreak-h4-head03' }) }))
+    expect(screen.queryByText('Cassure Keltner · H4')).toBeNull()
+    unmount()
+    state.bot = mkBot({ slug: 'hmacross-bf22', origin: 'manual', engine_unit_key: null, strategy: 'HMA Cross sur Binance' })
+    render(await StrategyPage({ params: Promise.resolve({ slug: 'hmacross-bf22' }) }))
+    expect(screen.getByText('HMA Cross sur Binance')).toBeInTheDocument()
+  })
+
   it('never renders the Lab parameter names of the fiche on a wave bot', async () => {
     state.bot = keltner()
     await renderFiche()
