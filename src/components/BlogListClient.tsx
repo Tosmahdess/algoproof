@@ -28,7 +28,7 @@ const PILL = (active: boolean) =>
   `inline-flex items-center h-10 px-3 text-sm rounded border transition-colors ${
     active
       ? 'border-accent text-accent'
-      : 'border-border text-muted hover:text-foreground hover:border-border-strong'
+      : 'border-border text-muted hover:text-foreground'
   }`
 
 export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
@@ -155,7 +155,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
             <button
               type="button"
               onClick={() => setAllWeekly(true)}
-              className="mt-3 inline-flex items-center h-10 px-3 text-sm rounded border border-border text-muted hover:text-foreground hover:border-border-strong transition-colors"
+              className="mt-3 inline-flex items-center h-10 px-3 text-sm rounded border border-border text-muted hover:text-foreground transition-colors"
             >
               Afficher les {weeklyHidden} autres
             </button>

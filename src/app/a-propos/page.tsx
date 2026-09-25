@@ -66,7 +66,7 @@ export default async function AProposPage() {
         <h2 className="text-xl font-semibold mb-3">Comment c&apos;est financé</h2>
         <p className="text-base leading-relaxed">
           Deux choses me rapportent de l&apos;argent ici, et rien d&apos;autre. L&apos;abonnement au{' '}
-          <a href="https://lab.algoproof.fr" className={linkClass('inline')}>labo</a>, à {membershipPrice()} :
+          <a href="https://lab.algoproof.fr" className={linkClass('inline')}>labo</a>, à {membershipPrice()}{' '}:
           il lève les quotas de backtest et ouvre la configuration exacte des bots, deux paragraphes
           d&apos;analyse par société et les fonctions de calcul du labo. Et un lien d&apos;affiliation vers
           Bybit sur <Link href="/start" className={linkClass('inline')}>la page Démarrer</Link> : si tu
@@ -94,7 +94,9 @@ export default async function AProposPage() {
             casser sur des données qu&apos;elle n&apos;a jamais vues.
           </li>
           <li>
-            {frNumber(horsPerimetre, 0)} sociétés de ma liste sont hors du périmètre de mes contrôles,
+            {/* {' '} after the interpolation: RSC drops the ambient space that follows
+                an expression in mixed text (« 27sociétés » on the dev build). */}
+            {frNumber(horsPerimetre, 0)}{' '}sociétés de ma liste sont hors du périmètre de mes contrôles,
             la plupart parce qu&apos;elles ne sont pas cotées aux États-Unis et ne déposent donc rien que je
             puisse lire. Leur fiche le dit, et ne porte ni chiffre ni contrôle.
           </li>
