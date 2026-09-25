@@ -51,13 +51,16 @@ describe('count', () => {
   // no round trip through an editor or a rewrite that normalises whitespace (it was lost once,
   // on 2026-09-12, and this test caught it). The escape pins the same codepoint, which is the
   // byte a browser renders.
-  const NARROW_NBSP = ' '
+  const GROUP_SPACE = ' '
+const NARROW_NBSP = ' '
   const ASCII_SPACE = ' '
 
-  it('groups thousands with a narrow no-break space, never a plain ASCII space', () => {
+  // Lot 5 of the design audit (2026-09-25): the regular no-break space, the same
+  // GROUP_SPACE as display.ts, because Inter renders the narrow one under 2 px.
+  it('groups thousands with a regular no-break space, never a narrow or a plain ASCII space', () => {
     const formatted = count(73770)
-    expect(formatted).toBe(`73${NARROW_NBSP}770`)
-    expect(formatted).toContain(NARROW_NBSP)
+    expect(formatted).toBe(`73${GROUP_SPACE}770`)
+    expect(formatted.includes(NARROW_NBSP)).toBe(false)
     expect(formatted.includes(ASCII_SPACE)).toBe(false)
   })
 

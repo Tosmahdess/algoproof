@@ -147,7 +147,7 @@ export default function StrategyDetail({ bot }: Props) {
         )}
         {bot.status === 'paper' && (
           <p className="text-xs text-muted mt-3 text-center">
-            ⚠ Paper trading : exécution simulée, aucun capital réel exposé
+            Paper trading : exécution simulée, aucun capital réel exposé
           </p>
         )}
       </div>

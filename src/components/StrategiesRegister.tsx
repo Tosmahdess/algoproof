@@ -32,6 +32,8 @@ function normalize(s: string): string {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 }
 
+const botsOf = (g: FicheGroup) => g.fiches.reduce((n, f) => n + f.botCount, 0)
+
 export default function StrategiesRegister({ groups }: { groups: FicheGroup[] }) {
   const [query, setQuery] = useState('')
 
@@ -79,8 +81,13 @@ export default function StrategiesRegister({ groups }: { groups: FicheGroup[] })
         </div>
       ) : (
         visible.map(g => (
-          <section key={g.family} className="mb-10">
-            <h2 className="text-xs font-semibold text-muted mb-3">{g.label}</h2>
+          <section key={g.family} data-testid={`family-${g.family}`} className="mb-10">
+            <h2 className="text-sm font-semibold mb-1">
+              {g.label}
+              <span className="text-muted font-normal">
+                {` · ${g.fiches.length} stratégie${g.fiches.length > 1 ? 's' : ''} · ${botsOf(g)} bot${botsOf(g) > 1 ? 's' : ''}`}
+              </span>
+            </h2>
             <p className="text-xs text-muted mb-4 max-w-2xl">{g.description}</p>
             <ul className="space-y-2">
               {g.fiches.map(f => (
@@ -91,9 +98,10 @@ export default function StrategiesRegister({ groups }: { groups: FicheGroup[] })
                   >
                     <div className="flex items-baseline justify-between gap-4">
                       <span className="text-base font-semibold group-hover:text-accent transition-colors">{f.title}</span>
-                      <span className="text-xs text-muted font-mono">
-                        {f.botCount === 0 ? 'aucun bot' : `${f.botCount} bot${f.botCount > 1 ? 's' : ''}`}
-                      </span>
+                      {/* A state, not a figure: muted, no mono (lot 5, conception §5.3). */}
+                      {f.botCount === 0
+                        ? <span className="text-xs text-muted shrink-0">pas encore de bot</span>
+                        : <span className="text-xs text-muted font-mono shrink-0">{`${f.botCount} bot${f.botCount > 1 ? 's' : ''}`}</span>}
                     </div>
                     <p className="text-xs text-muted mt-1">{f.oneLiner}</p>
                   </Link>

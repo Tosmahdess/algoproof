@@ -25,6 +25,7 @@ import { getProvenanceForBot } from '@/lib/screening'
 import { ficheSlugForBot } from '@/lib/strategy-keys'
 import { getStrategyFiche } from '@/lib/strategy-library'
 import { provenanceSentence, dossierHref } from '@/lib/provenance'
+import { familyLabel } from '@/lib/families'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -76,13 +77,26 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Analytics: view_bot on mount (client leaf, keeps the page server-rendered) */}
       <TrackView slug={slug} />
 
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+      {/* Header. Lot 5 (conception §5.6): a long asset list folds under « N actifs »
+          (25 tickers used to run across the first screen), the family reads under
+          the name in muted text. */}
+      <div data-testid="bot-header" className="mb-8">
+        <div className="flex items-center gap-3 mb-2 flex-wrap text-muted text-sm">
           <StatusBadge status={bot.status} />
-          <span className="text-muted text-sm">{bot.exchange} · {bot.timeframe} · {bot.assets.join(', ')}</span>
+          <span>{bot.exchange} · {bot.timeframe}</span>
+          {bot.assets.length > 3 ? (
+            <details data-testid="bot-assets" className="inline-block">
+              <summary className="cursor-pointer list-none inline-flex items-center min-h-10 hover:text-foreground">
+                {bot.assets.length} actifs ▾
+              </summary>
+              <span className="block font-mono text-xs leading-relaxed max-w-2xl">{bot.assets.join(', ')}</span>
+            </details>
+          ) : (
+            <span>· {bot.assets.join(', ')}</span>
+          )}
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight mb-3">{bot.name}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight mb-1">{bot.name}</h1>
+        <p data-testid="bot-family" className="text-sm text-muted mb-3">{familyLabel(bot.family)}</p>
         {/* An engine bot's name already reads strategy, TF, platform (24/09):
             its `strategy` line would repeat the h1 one line lower. */}
         {!bot.engine_unit_key && <p className="text-muted">{bot.strategy}</p>}

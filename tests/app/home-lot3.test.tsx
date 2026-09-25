@@ -147,9 +147,9 @@ describe('/ — the engine funnel, as bars', () => {
   it('splits the verdicts into recalées, en sursis and candidates with their share of the judged', async () => {
     render(await HomePage())
     const verdicts = screen.getByTestId('funnel-verdicts')
-    expect(verdicts.textContent).toMatch(/1 490 926 recalées · 84 %/)
-    expect(verdicts.textContent).toMatch(/259 782 en sursis · 14 %/)
-    expect(verdicts.textContent).toMatch(/3 536 candidates/)
+    expect(verdicts.textContent).toMatch(/1 490 926 recalées · 84 %/)
+    expect(verdicts.textContent).toMatch(/259 782 en sursis · 14 %/)
+    expect(verdicts.textContent).toMatch(/3 536 candidates/)
   })
 
   it('writes the fleet beside the funnel, outside it (D059), as a total and its real-money part', async () => {
