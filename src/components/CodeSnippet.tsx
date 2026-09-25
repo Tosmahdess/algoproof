@@ -39,7 +39,7 @@ export default function CodeSnippet({ code }: CodeSnippetProps) {
 
   return (
     <div className="mt-6">
-      <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-2">
+      <p className="text-xs font-semibold text-muted mb-2">
         Logique signal
       </p>
       <div className="relative">

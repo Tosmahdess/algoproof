@@ -158,7 +158,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     <div data-testid="fleet-register" className="space-y-12">
       {/* ---------- Stage 2 : the laboratory register ---------- */}
       <section className="space-y-4">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">Laboratoire · simulation</h2>
+        <h2 className="text-xs font-semibold text-muted">Laboratoire · simulation</h2>
 
         <StickyFilterBar activeCount={activeFilterCount(state)} onReset={reset}>
           <FleetFilterBar
@@ -187,7 +187,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
               const { proven, rodage } = splitBySample(group.bots)
               return (
                 <section key={group.tf} data-testid={`fleet-tf-${group.tf}`}>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+                  <h3 className="text-xs font-semibold text-muted mb-3">
                     {`${group.tf} : ${group.bots.length} stratégie${group.bots.length > 1 ? 's' : ''}`}
                   </h3>
                   {proven.length > 0 && <BotTable bots={proven} showTf={false} />}
@@ -209,7 +209,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
 
         {archivedVisible.length > 0 && (
           <details data-testid="fleet-archived" className="bg-card border border-border rounded-lg">
-            <summary className="cursor-pointer px-4 py-3 text-xs font-semibold uppercase tracking-widest text-muted">
+            <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-muted">
               {`Archivés (${archivedVisible.length})`}
             </summary>
             <ul className="px-4 pb-4 divide-y divide-border">

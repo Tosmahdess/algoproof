@@ -39,7 +39,7 @@ const LEVELS = [
 export function ExplainerSignal() {
   return (
     <div className="mb-4 rounded-lg border border-border bg-card px-4 py-4">
-      <p className="text-sm font-medium text-foreground mb-3">📖 Comment les signaux sont calculés</p>
+      <p className="text-sm font-medium text-foreground mb-3">Comment les signaux sont calculés</p>
 
       <p className="text-xs text-muted mb-4 leading-relaxed">
         Chaque actif a un <strong className="text-foreground">seuil de déclenchement</strong> calibré
@@ -69,15 +69,15 @@ export function ExplainerSignal() {
 
       <div className="text-xs text-muted space-y-1.5 leading-relaxed">
         <p>
-          🕐 <strong className="text-foreground">Surveillance toutes les 4h</strong> ·
+          <strong className="text-foreground">Surveillance toutes les 4h</strong> ·
           Fenêtre 180 jours · Cooldown 14 jours après alerte
         </p>
         <p>
-          📊 <strong className="text-foreground">Régime MI ajuste le sizing</strong> :
+          <strong className="text-foreground">Régime MI ajuste le sizing</strong> :
           Bull (MI &gt; −15) → 150 à 600€ · Uncertain → 100 à 400€ · Bear (&lt; −50) → 50 à 300€
         </p>
         <p>
-          🔼 <strong className="text-foreground">Upgrade ATH</strong> : les compounders long terme
+          <strong className="text-foreground">Upgrade ATH</strong> : les compounders long terme
           bénéficient d&apos;un upgrade de niveau si leur recul depuis l&apos;ATH 2 ans est aussi
           significatif, garde-fou anti falling-knife intégré.
         </p>

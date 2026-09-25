@@ -37,7 +37,7 @@ export default function StartPage() {
         <div className="rounded-lg border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Bybit</h2>
-            <span className="rounded-full bg-positive/10 border border-positive/30 px-2.5 py-0.5 text-xs font-medium text-positive">
+            <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted">
               Recommandé débutants
             </span>
           </div>
@@ -63,7 +63,7 @@ export default function StartPage() {
             location="start"
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full rounded-lg bg-positive py-2.5 text-center text-sm font-semibold text-black transition-opacity hover:opacity-90"
+            className="block w-full rounded-lg bg-foreground py-2.5 text-center text-sm font-semibold text-bg transition-opacity hover:opacity-90"
           >
             Ouvrir un compte Bybit →
           </TrackedLink>
@@ -109,7 +109,7 @@ export default function StartPage() {
         <div className="rounded-lg border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Kraken</h2>
-            <span className="rounded-full bg-positive/10 border border-positive/30 px-2.5 py-0.5 text-xs font-medium text-positive">
+            <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted">
               Mon bot spot tourne ici
             </span>
           </div>

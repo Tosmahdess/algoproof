@@ -73,19 +73,19 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
       <p className="text-sm text-muted mb-8">{fiche.oneLiner}</p>
 
       <section className="mb-8">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Comment ça marche</h2>
+        <h2 className="text-xs font-semibold text-muted mb-3">Comment ça marche</h2>
         {fiche.logic.map((p, i) => <p key={i} className="text-sm mb-3">{p}</p>)}
       </section>
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Quand ça marche</h2>
+          <h2 className="text-xs font-semibold text-muted mb-3">Quand ça marche</h2>
           <ul className="text-sm leading-relaxed space-y-2">
             {fiche.worksWhen.map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </section>
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Quand ça meurt</h2>
+          <h2 className="text-xs font-semibold text-muted mb-3">Quand ça meurt</h2>
           <ul className="text-sm leading-relaxed space-y-2">
             {fiche.diesWhen.map((p, i) => <li key={i}>{p}</li>)}
           </ul>
@@ -93,7 +93,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
       </div>
 
       <section className="mb-8">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Les réglages qui comptent</h2>
+        <h2 className="text-xs font-semibold text-muted mb-3">Les réglages qui comptent</h2>
         <ul className="space-y-3">
           {fiche.params.map(p => (
             <li key={p.name} className="text-sm">
@@ -119,7 +119,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
       {/* The inverse join. A concept asks the fleet what runs it, so promoting a
           bot never requires editing this page. */}
       <section data-testid="concept-incarnations" className="mb-8">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+        <h2 className="text-xs font-semibold text-muted mb-3">
           Ce qui tourne chez moi
         </h2>
         {incarnations.length === 0 ? (
@@ -139,7 +139,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
         href={fiche.labHref}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-block bg-positive text-black font-semibold rounded-lg px-4 py-2 text-sm"
+        className="inline-block bg-foreground text-bg font-semibold rounded-lg px-4 py-2 text-sm"
       >
         Tester cette stratégie dans le labo
       </a>

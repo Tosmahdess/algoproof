@@ -7,7 +7,7 @@ export default function BotParams({ params }: { params: BotParams }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {params.groups.map(group => (
           <div key={group.title}>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+            <h3 className="text-xs font-semibold text-muted mb-3">
               {group.title}
             </h3>
             <div className="space-y-2">

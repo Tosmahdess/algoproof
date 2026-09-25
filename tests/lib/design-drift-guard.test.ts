@@ -73,8 +73,10 @@ const RULES: Rule[] = [
   },
   // C9: uppercase tracked labels only in table headers.
   {
-    re: /^(?!.*<th\b).*uppercase tracking-wid(?:er|est)/, why: 'uppercase tracking label outside a <th> — section labels are sentence case, 13 px, medium',
-    sample: '<h2 className="text-xs uppercase tracking-wider text-muted">',
+    // Order-insensitive (« tracking-widest uppercase » slipped through the first
+    // spelling); a <th>, or a <tr> / <thead> header row, keeps its tracking.
+    re: /^(?!.*<(?:th|tr|thead)\b)(?=.*\buppercase\b).*tracking-wid(?:er|est)/, why: 'uppercase tracking label outside a <th> — section labels are sentence case, 13 px, medium',
+    sample: '<h2 className="text-xs tracking-wider uppercase text-muted">',
     allow: CHROME_LOT_2,
   },
   // §3.1: family colours belong to chart series, never to a text label.
@@ -105,7 +107,8 @@ describe('design drift guard', () => {
     const ok = [
       'text-foreground', 'text-muted', 'group-hover:text-accent', 'text-xs', 'rounded-lg', 'rounded-full',
       'bg-positive/10', "className={`font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}",
-      '<th className="text-xs uppercase tracking-wider text-muted">', 'stroke: familyColor(family)',
+      '<th className="text-xs uppercase tracking-wider text-muted">', '<tr className="text-muted uppercase tracking-wider border-b">',
+      'stroke: familyColor(family)',
       'Échantillon faible ⚠', 'bg-foreground text-bg',
     ]
     for (const s of ok) expect(RULES.some((r) => r.re.test(s)), s).toBe(false)

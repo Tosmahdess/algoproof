@@ -39,18 +39,18 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
 
       {/* Apprendre en pratique : les entrees du labo (2e chemin de decouverte) */}
       <div className="mb-10">
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">Apprendre en pratique, dans le labo</h2>
+        <h2 className="text-xs font-semibold text-muted mb-3">Apprendre en pratique, dans le labo</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <a href="https://lab.algoproof.fr/apprendre" className={linkClass('card', 'bg-card p-4')}>
-            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">🎓 Les tutoriels</h3>
+            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">Les tutoriels</h3>
             <p className="text-xs text-muted">Cinq pas-à-pas interactifs, de zéro à ton premier verdict, plus le guide du Cockpit.</p>
           </a>
           <a href="/strategies" className={linkClass('card', 'bg-card p-4')}>
-            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">📚 Les stratégies</h3>
+            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">Les stratégies</h3>
             <p className="text-xs text-muted">Les {STRATEGY_FICHES.length} stratégies expliquées : quand ça marche, quand ça meurt, et les bots qui les incarnent.</p>
           </a>
           <a href="https://lab.algoproof.fr/agents" className={linkClass('card', 'bg-card p-4')}>
-            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">🤖 Pour ton agent IA</h3>
+            <h3 className="text-base font-semibold mb-1 group-hover:text-accent transition-colors">Pour ton agent IA</h3>
             <p className="text-xs text-muted">Le serveur MCP public : ton agent backteste et reçoit le bulletin anti-overfit.</p>
           </a>
         </div>
@@ -59,7 +59,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
       {/* Pinned articles */}
       {pinned.length > 0 && (
         <div className="mb-10">
-          <h2 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">À lire d&apos;abord</h2>
+          <h2 className="text-xs font-semibold text-muted mb-3">À lire d&apos;abord</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {pinned.map(a => (
               <Link
@@ -121,7 +121,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
           return (
             <article key={a.slug} className="border-b border-border pb-8">
               <div className="flex items-center gap-2 text-xs text-muted mb-2">
-                <span className={`px-2 py-0.5 rounded border text-[10px] font-semibold uppercase tracking-wider ${catMeta.color}`}>
+                <span className={`px-2 py-0.5 rounded border text-xs font-semibold ${catMeta.color}`}>
                   {catMeta.label}
                 </span>
                 <time>{new Date(a.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</time>

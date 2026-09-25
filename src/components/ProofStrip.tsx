@@ -11,7 +11,7 @@ export default function ProofStrip({ proof }: { proof: FleetProof }) {
     { testid: 'proof-bots', value: int(proof.nWithData), label: 'bots en labo ouvert' },
   ]
   return (
-    <div className="rounded-2xl border border-border bg-card p-6">
+    <div className="rounded-lg border border-border bg-card p-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {stats.map(s => (
           <div key={s.label} className="text-center">

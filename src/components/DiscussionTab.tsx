@@ -81,12 +81,12 @@ export default function DiscussionTab({ slug }: Props) {
       )}
 
       {submitted ? (
-        <p className="text-xs text-positive">
+        <p className="text-xs text-foreground">
           Message publié, merci !
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3 border-t border-border pt-4">
-          <p className="text-xs font-semibold text-muted uppercase tracking-widest">
+          <p className="text-xs font-semibold text-muted">
             Poser une question
           </p>
           {/* Honeypot: hidden from users, bots fill it → server drops the submit. */}

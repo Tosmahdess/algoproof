@@ -73,12 +73,7 @@ function MDXTr(props: HTMLAttributes<HTMLTableRowElement>) {
 function MDXTh(props: HTMLAttributes<HTMLTableCellElement>) {
   const right = props.style?.textAlign === 'right'
   return (
-    <th
-      {...props}
-      className={`px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-muted ${
-        right ? 'text-right whitespace-nowrap' : 'text-left'
-      }`}
-    />
+    <th {...props} className={`px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-muted ${right ? 'text-right whitespace-nowrap' : 'text-left'}`} />
   )
 }
 

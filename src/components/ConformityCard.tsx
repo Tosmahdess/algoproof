@@ -51,7 +51,7 @@ export default function ConformityCard({
       // règle concernée ») or admits no decision: the rules must be in view.
       // ORB is in that state (final review 2026-09-19).
       ouvertParDefaut={result.status === 'breach'}
-      titre="📏 Conformité au backtest"
+      titre="Conformité au backtest"
       className="bg-card border border-border rounded-lg p-6 mb-8"
       titreClassName="text-xl font-semibold"
       // Below sm the badge goes under the title: sharing the row left the

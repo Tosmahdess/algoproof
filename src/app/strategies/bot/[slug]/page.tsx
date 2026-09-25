@@ -231,7 +231,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
       {/* Discussion */}
       <div className="bg-card border border-border rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-3">💬 Discussion</h2>
+        <h2 className="text-xl font-semibold mb-3">Discussion</h2>
         <DiscussionTab slug={slug} />
       </div>
 
@@ -240,7 +240,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           have a toggle on a computer too. */}
       <details className="bg-card border border-border rounded-lg p-6">
         <summary className="cursor-pointer">
-          <h2 className="inline text-xl font-semibold">🔗 Partager ce bot</h2>
+          <h2 className="inline text-xl font-semibold">Partager ce bot</h2>
         </summary>
         <div className="space-y-3 mt-3">
           <div>

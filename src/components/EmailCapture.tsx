@@ -48,7 +48,7 @@ export default function EmailCapture({
       <p className="text-sm font-bold mb-1">{title}</p>
       <p className="text-xs text-muted leading-relaxed mb-4">{description}</p>
       {submitted ? (
-        <p className="text-xs text-positive">C&apos;est noté, à bientôt.</p>
+        <p className="text-xs text-foreground">C&apos;est noté, à bientôt.</p>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
           <input

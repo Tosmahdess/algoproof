@@ -67,7 +67,7 @@ export default function CapitalSimulator({
             Pire mois{result.worstMonthLabel ? ` (${fmtMonthLabel(result.worstMonthLabel)})` : ''}
           </p>
           {result.worstMonthEur === 0 ? (
-            <p className="text-sm font-mono text-positive pt-1.5">aucun mois négatif</p>
+            <p className="text-sm font-mono text-foreground pt-1.5">aucun mois négatif</p>
           ) : (
             <p className="text-xl font-mono text-negative">{fmtEur(result.worstMonthEur)}</p>
           )}

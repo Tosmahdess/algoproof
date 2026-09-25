@@ -118,7 +118,7 @@ export default async function IntelligencePage() {
       ])} />
       {/* Hero */}
       <div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-positive mb-2">
+        <p className="text-xs font-semibold text-muted mb-2">
           Météo du marché
         </p>
         <h1 className="text-3xl font-semibold tracking-tight mb-3">
@@ -181,7 +181,7 @@ export default async function IntelligencePage() {
         {reportContent ? (
           <div className="rounded border border-border bg-card px-6 py-5 prose prose-sm prose-invert max-w-none
             prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
-            prose-h1:text-lg prose-h2:text-sm prose-h2:uppercase prose-h2:tracking-widest prose-h2:text-muted prose-h2:mt-6
+            prose-h1:text-lg prose-h2:text-sm prose-h2:font-medium prose-h2:text-muted prose-h2:mt-6
             prose-p:text-sm prose-p:text-foreground prose-p:leading-relaxed
             prose-strong:text-foreground prose-blockquote:border-border prose-blockquote:text-muted prose-blockquote:text-xs">
             {reportContent}

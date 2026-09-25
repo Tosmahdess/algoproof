@@ -28,7 +28,7 @@ export function MagicLinkForm({ redirectTo }: { redirectTo: string }) {
 
   if (sent) {
     return (
-      <p className="text-sm text-positive">
+      <p className="text-sm text-foreground">
         Regarde ta boîte mail : je t&apos;ai envoyé un lien de connexion.
       </p>
     )
@@ -44,7 +44,7 @@ export function MagicLinkForm({ redirectTo }: { redirectTo: string }) {
       {error && <p className="text-xs text-negative">{error}</p>}
       <button
         type="submit" disabled={busy}
-        className="w-full rounded-lg bg-positive px-4 py-2 text-sm font-semibold text-bg hover:bg-positive/90 disabled:opacity-40"
+        className="w-full rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-bg hover:opacity-90 disabled:opacity-40"
       >
         {busy ? '...' : 'Recevoir mon lien de connexion'}
       </button>

@@ -17,8 +17,8 @@ export async function GET(
   const isLive = bot.status === 'live'
 
   const metrics = [
-    { label: 'T. GAIN',   value: fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate), color: '#e6edf3' },
-    { label: 'F. PROFIT', value: fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor), color: bot.stats.profit_factor >= 1 ? '#3fb950' : '#ff4444' },
+    { label: 'WR', value: fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate), color: '#e6edf3' },
+    { label: 'PF', value: fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor), color: bot.stats.profit_factor >= 1 ? '#3fb950' : '#ff4444' },
     // Red only when there is a drawdown to show; « 0.0% » is neutral (display.ts).
     { label: 'DRAWDOWN',  value: fmtDrawdown(bot.stats.max_drawdown), color: drawdownIsLoss(bot.stats.max_drawdown) ? '#ff4444' : '#e6edf3' },
     { label: 'P&L',       value: fmtEur(eur),                                 color: eur >= 0 ? '#3fb950' : '#ff4444' },

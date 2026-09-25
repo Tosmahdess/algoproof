@@ -211,7 +211,7 @@ function SignalView({ assets, lastAlerts, verdictByTicker }: Props) {
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b border-border text-muted text-xs font-semibold uppercase tracking-widest">
+        <tr className="border-b border-border text-muted text-xs font-semibold uppercase tracking-wider">
           <th className="py-2.5 px-3 text-left font-medium">Actif</th>
           <th className="py-2.5 px-3 text-left font-medium">Signal</th>
           <th className="py-2.5 px-3 text-left font-medium">vs pic 180j</th>
@@ -225,7 +225,7 @@ function SignalView({ assets, lastAlerts, verdictByTicker }: Props) {
           <>
             <tr className="bg-card/60">
               <td colSpan={6} className="py-1.5 px-3 text-xs text-muted">
-                🔴 En alerte · {alerted.length} actif{alerted.length > 1 ? 's' : ''}
+                En alerte · {alerted.length} actif{alerted.length > 1 ? 's' : ''}
               </td>
             </tr>
             {alerted.map(a => (
@@ -271,7 +271,7 @@ function SecteurView({ assets, lastAlerts, verdictByTicker }: Props) {
       {entries.map(([cat, catAssets]) => (
         <div key={cat}>
           <div className="flex items-center gap-2 mb-2 px-1">
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted">
+            <span className="text-xs font-semibold text-muted">
               {categoryLabel(cat)}
             </span>
             <span className="text-muted text-xs font-normal">
@@ -285,7 +285,7 @@ function SecteurView({ assets, lastAlerts, verdictByTicker }: Props) {
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border text-muted text-xs font-semibold uppercase tracking-widest">
+              <tr className="border-b border-border text-muted text-xs font-semibold uppercase tracking-wider">
                 <th className="py-1.5 px-3 text-left font-medium">Actif</th>
                 <th className="py-1.5 px-3 text-left font-medium">Signal</th>
                 <th className="py-1.5 px-3 text-left font-medium">vs pic 180j</th>
@@ -312,11 +312,11 @@ export function SignalTable({ assets, lastAlerts, verdictByTicker }: Props) {
   return (
     <div>
       <p className="text-xs text-muted mb-3 leading-relaxed">
-        🟢 <span className="text-foreground">MINEUR / MAJEUR / KRACH</span> = quand &amp; combien <span className="font-bold text-foreground">acheter sur repli</span> ·{' '}
-        🎯 <span className="text-foreground">Plan de vente</span> = quand &amp; combien <span className="font-bold text-foreground">vendre en plus-value</span>
+        <span className="text-foreground">MINEUR / MAJEUR / KRACH</span> = quand &amp; combien <span className="font-bold text-foreground">acheter sur repli</span> ·{' '}
+        <span className="text-foreground">Plan de vente</span> = quand &amp; combien <span className="font-bold text-foreground">vendre en plus-value</span>
       </p>
       <div className="flex gap-2 mb-4">
-        {([['signal', '⚡ Par signal'], ['secteur', '📂 Par secteur']] as const).map(([key, label]) => (
+        {([['signal', 'Par signal'], ['secteur', 'Par secteur']] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}

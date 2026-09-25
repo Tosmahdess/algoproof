@@ -8,7 +8,7 @@ import TVTickerTapeIsland from '@/components/TVTickerTapeIsland'
 import EngineBand from '@/components/EngineBand'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { getFunnelCounts } from '@/lib/funnel'
-import { familyColor, familyLabel } from '@/lib/families'
+import { familyLabel } from '@/lib/families'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 import { sortFleet } from '@/lib/fleet-sort'
@@ -127,7 +127,7 @@ export default async function HomePage() {
                   ici. « sans compte » reste vrai : middleware.ts de algolab garde
                   /lab hors de WALLED_PATHS (seuls /runs et /compare sont murés),
                   vérifié le 2026-09-20. */}
-              <TrackedLink href="https://lab.algoproof.fr/lab" event="cta_lab" location="home-hero" className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
+              <TrackedLink href="https://lab.algoproof.fr/lab" event="cta_lab" location="home-hero" className="inline-block px-5 py-2.5 bg-foreground text-bg font-semibold rounded-lg hover:opacity-90 transition-colors text-sm">
                 Tester ta stratégie, sans compte →
               </TrackedLink>
               <Link href="/overview" className={linkClass('inline', 'block mt-3 text-sm')}>
@@ -167,7 +167,7 @@ export default async function HomePage() {
                   un examinateur de sociétés qui n'existe pas — vit dans le
                   LIBELLÉ, qui ne bouge pas : « Voir les sociétés que je lis »
                   reste une lecture, jamais un verbe d'outil. */}
-              <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-block px-5 py-2.5 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors text-sm">
+              <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-block px-5 py-2.5 bg-foreground text-bg font-semibold rounded-lg hover:opacity-90 transition-colors text-sm">
                 Voir les sociétés que je lis →
               </TrackedLink>
               <Link href="/investir#methode" className={linkClass('inline', 'block mt-3 text-sm')}>
@@ -235,7 +235,7 @@ export default async function HomePage() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{bot.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs font-semibold uppercase" style={{ color: familyColor(bot.family) }}>
+                  <span className="text-xs text-muted">
                     {familyLabel(bot.family)}
                   </span>
                   {hasData && <span className="text-xs text-muted">{bot.stats.total_trades} trade{bot.stats.total_trades > 1 ? 's' : ''}</span>}
@@ -264,12 +264,12 @@ export default async function HomePage() {
       <div className="hidden md:block rounded-lg border border-border overflow-hidden mb-6">
         <table className="w-full text-xs">
           <thead className="bg-card">
-            <tr className="text-muted text-xs font-semibold uppercase tracking-widest border-b border-border">
+            <tr className="text-muted text-xs font-semibold uppercase tracking-wider border-b border-border">
               <th className="px-4 py-3 text-left">Stratégie</th>
               <th className="px-4 py-3 text-left">Famille</th>
               <th className="px-4 py-3 text-right">Trades</th>
-              <th className="px-4 py-3 text-right hidden lg:table-cell">T. gain</th>
-              <th className="px-4 py-3 text-right hidden lg:table-cell">F. profit</th>
+              <th className="px-4 py-3 text-right hidden lg:table-cell">WR</th>
+              <th className="px-4 py-3 text-right hidden lg:table-cell">PF</th>
               <th className="px-4 py-3 text-right hidden lg:table-cell">Drawdown</th>
               <th className="px-4 py-3 text-right font-bold">P&amp;L (€)</th>
               <th className="px-4 py-3 text-center">Statut</th>
@@ -285,7 +285,7 @@ export default async function HomePage() {
                     <p className="text-muted text-xs mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: familyColor(bot.family) }}>
+                    <span className="text-xs text-muted">
                       {familyLabel(bot.family)}
                     </span>
                   </td>
@@ -363,7 +363,7 @@ export default async function HomePage() {
 
       {/* CTA final — distinct from hero (onboarding, not the lab) */}
       <div className="text-center">
-        <a href="/start" className="inline-flex items-center gap-2 px-6 py-3 bg-positive text-black font-semibold rounded-lg hover:bg-positive/90 transition-colors">
+        <a href="/start" className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-bg font-semibold rounded-lg hover:opacity-90 transition-colors">
           Où trader en règle depuis la France →
         </a>
         {/* « Commence ici » promettait un début et menait à l'ouverture d'un

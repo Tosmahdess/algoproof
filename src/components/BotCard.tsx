@@ -28,12 +28,12 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
           {[
-            { label: 'T. gain',   value: hasData ? fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate) : '—' },
-            { label: 'F. profit', value: hasData ? fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor) : '—' },
+            { label: 'WR', value: hasData ? fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate) : '—' },
+            { label: 'PF', value: hasData ? fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor) : '—' },
             { label: 'Drawdown',  value: hasData ? fmtDrawdown(stats.max_drawdown) : '—' },
             { label: 'Trades',    value: hasData ? String(stats.total_trades) : '—' },
           ].map(m => (
-            <div key={m.label} className="bg-bg rounded-lg p-2 text-center">
+            <div key={m.label} className="bg-card-2 rounded-md p-3 text-center">
               <div className="text-xs text-muted">{m.label}</div>
               <div className="font-mono font-semibold text-sm mt-0.5">{m.value}</div>
             </div>

@@ -38,7 +38,7 @@ export default function InvestirPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-12 space-y-12">
       <div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-positive mb-2">
+        <p className="text-xs font-semibold text-muted mb-2">
           Investir
         </p>
         <h1 className="text-3xl font-semibold tracking-tight mb-3">
@@ -81,7 +81,7 @@ export default function InvestirPage() {
         ] as const).map(([label, valeur]) => (
           <div key={label} className="rounded border border-border bg-card px-4 py-3">
             <p className="text-2xl font-semibold text-foreground">{valeur}</p>
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted mt-1">{label}</p>
+            <p className="text-xs font-semibold text-muted mt-1">{label}</p>
           </div>
         ))}
       </section>
@@ -116,7 +116,7 @@ export default function InvestirPage() {
           id="hors-perimetre"
           titre={`${dehors.length} sociétés que je ne lis pas`}
           className="rounded-lg border border-border bg-card px-5 py-4"
-          titreClassName="text-sm font-semibold uppercase tracking-widest text-muted"
+          titreClassName="text-sm font-semibold text-muted"
           corpsClassName="mt-2"
         >
           <p className="text-xs text-muted leading-relaxed mb-3">

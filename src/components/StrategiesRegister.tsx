@@ -80,7 +80,7 @@ export default function StrategiesRegister({ groups }: { groups: FicheGroup[] })
       ) : (
         visible.map(g => (
           <section key={g.family} className="mb-10">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">{g.label}</h2>
+            <h2 className="text-xs font-semibold text-muted mb-3">{g.label}</h2>
             <p className="text-xs text-muted mb-4 max-w-2xl">{g.description}</p>
             <ul className="space-y-2">
               {g.fiches.map(f => (

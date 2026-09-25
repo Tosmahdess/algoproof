@@ -43,7 +43,7 @@ import FleetDayTable from '@/components/FleetDayTable'
 export default function FleetBalance({ aggregate }: { aggregate: FleetAggregate }) {
   return (
     <section data-testid="fleet-balance" className="bg-card border border-border rounded-lg p-6">
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">Le bilan</h2>
+      <h2 className="text-xs font-semibold text-muted mb-4">Le bilan</h2>
       <div className="grid grid-cols-2 gap-6">
         <div>
           <div className="text-xs text-muted">Argent réel</div>

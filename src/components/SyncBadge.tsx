@@ -12,7 +12,7 @@ function ageMinutes(iso: string): number {
 export default function SyncBadge({ lastSyncAt, className = '' }: Props) {
   if (!lastSyncAt) {
     return (
-      <span className={`inline-flex items-center gap-1 text-[10px] text-muted ${className}`}>
+      <span className={`inline-flex items-center gap-1 text-xs text-muted ${className}`}>
         <span className="w-1.5 h-1.5 rounded-full bg-muted" />
         Jamais synchronisé
       </span>
@@ -36,7 +36,7 @@ export default function SyncBadge({ lastSyncAt, className = '' }: Props) {
   }
 
   return (
-    <span className={`inline-flex items-center gap-1 text-[10px] text-muted ${className}`}>
+    <span className={`inline-flex items-center gap-1 text-xs text-muted ${className}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
       {label}
     </span>

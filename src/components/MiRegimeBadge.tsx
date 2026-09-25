@@ -79,7 +79,7 @@ export default function MiRegimeBadge() {
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ background: riskColor }} />
-          <span className="text-xs font-bold tracking-widest uppercase" style={{ color: riskColor }}>
+          <span className="text-xs font-bold" style={{ color: riskColor }}>
             {regimeFr(snap.regime)}
           </span>
         </div>
@@ -95,7 +95,7 @@ export default function MiRegimeBadge() {
 
       {/* Row 2 — Trading status */}
       <p className="text-xs text-muted">
-        {snap.is_safe ? '✅ Trading autorisé' : '🔴 Trading bloqué'}
+        {snap.is_safe ? 'Trading autorisé' : 'Trading bloqué'}
         {snap.is_macro_safe === false && ' (filtre macro actif)'}
       </p>
 
@@ -103,7 +103,7 @@ export default function MiRegimeBadge() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono">
         {PILLARS.map(p => (
           <div key={p.key} className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted leading-tight">{p.label}</p>
+            <p className="text-xs font-semibold text-muted leading-tight">{p.label}</p>
             <p className="font-bold mt-1 text-xs" style={{ color: p.color }}>
               {snap[p.key] != null ? (snap[p.key] as number).toFixed(1) : '—'}
             </p>
