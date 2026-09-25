@@ -26,6 +26,7 @@ import { ficheSlugForBot } from '@/lib/strategy-keys'
 import { getStrategyFiche } from '@/lib/strategy-library'
 import { provenanceSentence, dossierHref } from '@/lib/provenance'
 import { familyLabel } from '@/lib/families'
+import { labUrl } from '@/lib/lab-links'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -125,7 +126,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         {dossierHref(bot) && (
           <>
             {' '}
-            <a href={dossierHref(bot)!} className={linkClass('inline')}
+            <a href={labUrl(dossierHref(bot)!, 'fiche-bot-dossier')} className={linkClass('inline')}
                target="_blank" rel="noopener noreferrer">
               Voir le dossier de validation
             </a>
@@ -234,7 +235,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           Envie de tester une idée avec la même rigueur ? Le labo applique mes contrôles anti-overfit à tes propres backtests.
         </p>
         <a
-          href="https://lab.algoproof.fr/lab"
+          href={labUrl('https://lab.algoproof.fr/lab', 'fiche-bot')}
           target="_blank"
           rel="noopener noreferrer"
           className={linkClass('inline', 'text-sm')}

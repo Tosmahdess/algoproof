@@ -125,11 +125,11 @@ describe('/ — the two entries sit directly under the message', () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-strategies')
     const hrefs = [...card.querySelectorAll('a')].map(a => a.getAttribute('href'))
-    expect(hrefs).toContain('https://lab.algoproof.fr/lab')
+    expect(hrefs).toContain('https://lab.algoproof.fr/lab?ref=home-hero')
     expect(hrefs).toContain('/overview')
     // The lab is the primary action, so it comes first in the DOM, which is
     // also the reading order on a phone.
-    expect(hrefs.indexOf('https://lab.algoproof.fr/lab')).toBeLessThan(hrefs.indexOf('/overview'))
+    expect(hrefs.indexOf('https://lab.algoproof.fr/lab?ref=home-hero')).toBeLessThan(hrefs.indexOf('/overview'))
   })
 
   // The failure this pins is silent: `https://lab.algoproof.fr` is a perfectly
@@ -141,14 +141,17 @@ describe('/ — the two entries sit directly under the message', () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-strategies')
     const hrefs = [...card.querySelectorAll('a')].map(a => a.getAttribute('href'))
-    expect(hrefs).not.toContain('https://lab.algoproof.fr')
-    expect(hrefs).not.toContain('https://lab.algoproof.fr/')
+    // Lot 8: lab links carry ?ref=, so the landing would read `https://lab.algoproof.fr/?ref=…`.
+    // The check reads the URL's path, not the literal: a bare host or `/` is the pitch.
+    const labPaths = hrefs.filter((h): h is string => !!h && h.startsWith('https://lab.algoproof.fr')).map(h => new URL(h).pathname)
+    expect(labPaths.length).toBeGreaterThan(0)
+    expect(labPaths).not.toContain('/')
   })
 
   it('the lab link keeps the cta_lab analytics series intact', async () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-strategies')
-    const lab = [...card.querySelectorAll('a')].find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab')!
+    const lab = [...card.querySelectorAll('a')].find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab?ref=home-hero')!
     expect(lab.textContent).toMatch(/Tester ta stratégie/)
     // « sans compte » stays in the card (small print), out of the button (lot 3).
     expect(card.textContent).toMatch(/[Ss]ans compte/)
@@ -300,7 +303,7 @@ describe('/ — the two entries are a matched pair', () => {
   it('both entry buttons carry the same green treatment', async () => {
     render(await HomePage())
     const lab = [...screen.getByTestId('entry-strategies').querySelectorAll('a')]
-      .find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab')!
+      .find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab?ref=home-hero')!
     const investir = [...screen.getByTestId('entry-companies').querySelectorAll('a')]
       .find(a => a.getAttribute('href') === '/investir')!
     expect(lab.getAttribute('class')).toContain('bg-foreground')

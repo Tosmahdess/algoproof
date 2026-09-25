@@ -8,6 +8,7 @@ import type { ArticleMeta } from '@/app/blog/page'
 import { BLOG_CATEGORIES, CATEGORY_ORDER, type BlogCategory } from '@/lib/blog-categories'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
 import { mediumDate } from '@/lib/format-date'
+import { labUrl } from '@/lib/lab-links'
 
 const PINNED_SLUGS = [
   '2026-06-25-momentum-crypto-de-grossing',
@@ -64,11 +65,11 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
       {/* Apprendre en pratique : the lab's entries, one line of links (2e chemin de decouverte) */}
       <p data-testid="apprendre-en-pratique" className="text-sm text-muted mb-10">
         Apprendre en pratique :{' '}
-        <a href="https://lab.algoproof.fr/apprendre" className={linkClass('inline')}>les tutoriels du labo</a>
+        <a href={labUrl('https://lab.algoproof.fr/apprendre', 'blog')} className={linkClass('inline')}>les tutoriels du labo</a>
         {' · '}
         <a href="/strategies" className={linkClass('inline')}>les {STRATEGY_FICHES.length} stratégies expliquées</a>
         {' · '}
-        <a href="https://lab.algoproof.fr/agents" className={linkClass('inline')}>le serveur MCP pour ton agent IA</a>
+        <a href={labUrl('https://lab.algoproof.fr/agents', 'blog')} className={linkClass('inline')}>le serveur MCP pour ton agent IA</a>
       </p>
 
       {/* Pinned articles: title and one sentence, the full summary is in the article */}

@@ -4,6 +4,7 @@ import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { Analytics } from '@vercel/analytics/react'
+import PageHit from '@/components/PageHit'
 import JsonLd from '@/components/JsonLd'
 import { organizationJsonLd } from '@/lib/jsonld'
 
@@ -52,6 +53,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="contenu" className="flex-1">{children}</main>
         <Footer />
         <Analytics />
+        {/* Lot 8: the first-party page counter (page_hits); Vercel Web Analytics
+            was never enabled on this project. */}
+        <PageHit site="algoproof" />
       </body>
     </html>
   )

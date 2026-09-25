@@ -1,5 +1,6 @@
 import { linkClass } from '@/lib/link-roles'
 import type { FunnelCounts } from '@/lib/funnel'
+import { labUrl } from '@/lib/lab-links'
 
 const nf = new Intl.NumberFormat('fr-FR')
 
@@ -49,7 +50,7 @@ export default function FunnelCounter({
         nombres est le seul qui compte. Les plateformes
         qui vendent des stratégies publient leurs gagnantes, jamais le nombre de
         tentatives.{' '}
-        <a href="https://lab.algoproof.fr/cockpit/cimetiere"
+        <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'funnel-counter')}
            className={linkClass('inline')} target="_blank" rel="noopener noreferrer">
           Voir le cimetière
         </a>

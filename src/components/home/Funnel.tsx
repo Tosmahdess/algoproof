@@ -11,6 +11,7 @@ import { frNumber } from '@/lib/display'
 import { funnelWidths } from '@/lib/home-data'
 import { heroRatio } from '@/lib/hero-ratio'
 import { floorSharePct } from '@/lib/cockpit-share'
+import { labUrl } from '@/lib/lab-links'
 
 const n = (v: number) => frNumber(v, 0)
 
@@ -83,7 +84,7 @@ export default function Funnel({ counts, live, paper }: { counts: FunnelCounts |
       <div className="bg-card border border-border rounded-b-lg px-5 sm:px-6 py-4">
         <p data-testid="home-fleet-line" className="text-xs text-muted leading-relaxed">
           Hors de cet entonnoir, la flotte : <strong className="text-foreground font-mono">{live + paper}</strong> bots en service, dont ceux déployés à la main avant le moteur, et <strong className="text-foreground font-mono">{live}</strong> avec mon argent. Les plateformes qui vendent des stratégies publient leurs gagnantes, jamais le nombre de tentatives.{' '}
-          <a href="https://lab.algoproof.fr/cockpit/cimetiere" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>Voir le cimetière</a>
+          <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'funnel')} target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>Voir le cimetière</a>
           {' · '}
           <Link href="/strategies#comment-je-decide" className={linkClass('inline')}>Comment je décide</Link>
         </p>

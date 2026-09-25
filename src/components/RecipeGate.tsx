@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import BotParamsSection from '@/components/BotParams'
 import { linkClass } from '@/lib/link-roles'
 import { toBotParams, type BotRecipe } from '@/lib/recipe-params'
+import { labUrl } from '@/lib/lab-links'
 
 type Answer = {
   entitlement?: 'guest' | 'free' | 'paid'
@@ -48,7 +49,7 @@ export default function RecipeGate({ slug, dossierBase }: { slug: string; dossie
         La configuration exacte de ce bot (valeurs des paramètres et combinaison
         de filtres que j&apos;ai gardée après le tri) est réservée aux membres du labo.
       </p>
-      <a href={`https://lab.algoproof.fr/cockpit/dossier/${dossierBase}`}
+      <a href={labUrl(`https://lab.algoproof.fr/cockpit/dossier/${dossierBase}`, 'fiche-bot-recette')}
          className={linkClass('inline')}>
         Voir le dossier de la stratégie
       </a>

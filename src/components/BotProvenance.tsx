@@ -1,5 +1,6 @@
 import { linkClass } from '@/lib/link-roles'
 import { count, fr, frDate, type ScreeningCampaign, type ScreeningCandidate } from '@/lib/screening'
+import { labUrl } from '@/lib/lab-links'
 
 // The random-control line used to read « Celle-ci tient sa barre de hasard à 95,16 pour une
 // barre à 95 (un souffle) ». The bar is one of the judge's CLASSIFIED thresholds, and it was
@@ -26,7 +27,7 @@ export default function BotProvenance({ campaign, candidate }: {
         {' '}Elle est en observation : {candidate.forward_trades} trade{candidate.forward_trades > 1 ? 's' : ''} forward à ce jour.
       </p>
       <a
-        href="https://lab.algoproof.fr/cockpit/survivants"
+        href={labUrl('https://lab.algoproof.fr/cockpit/survivants', 'fiche-bot-provenance')}
         target="_blank"
         rel="noopener noreferrer"
         className={linkClass('inline')}

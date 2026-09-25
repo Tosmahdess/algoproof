@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { labUrl } from '@/lib/lab-links'
 
 type Blocs = { lecture: string | null; risques: string | null }
 
@@ -128,7 +129,7 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
           mesuré, audit 2026-09-09). Sombre sur accent : 6,64:1. */}
       <div className="mt-4 flex flex-wrap gap-3">
         <a
-          href="https://lab.algoproof.fr/membre"
+          href={labUrl('https://lab.algoproof.fr/membre', 'investir-recit')}
           className="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-bg hover:opacity-90 transition-opacity"
         >
           Voir l’abonnement

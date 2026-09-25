@@ -26,7 +26,7 @@ describe('Footer sitemap', () => {
     render(<Footer />)
     const col = screen.getByRole('heading', { name: 'Comprendre', level: 3 }).parentElement!
     const hrefs = within(col).getAllByRole('link').map(a => a.getAttribute('href'))
-    expect(hrefs).toEqual(['/preuve', '/lexique', '/faq', 'https://lab.algoproof.fr/cockpit/cimetiere'])
+    expect(hrefs).toEqual(['/preuve', '/lexique', '/faq', 'https://lab.algoproof.fr/cockpit/cimetiere?ref=footer'])
   })
 
   it('« Le labo » opens the app, the tutorials, the agents, the membership, the account, and keeps the landing', () => {
@@ -34,12 +34,13 @@ describe('Footer sitemap', () => {
     const col = screen.getByRole('heading', { name: 'Le labo ↗', level: 3 }).parentElement!
     const links = within(col).getAllByRole('link').map(a => [a.textContent?.trim(), a.getAttribute('href')])
     expect(links).toEqual([
-      ['Tester une stratégie', 'https://lab.algoproof.fr/lab'],
-      ['Tutoriels', 'https://lab.algoproof.fr/apprendre'],
-      ['Agents IA (MCP)', 'https://lab.algoproof.fr/agents'],
-      ['Abonnement', 'https://lab.algoproof.fr/membre'],
-      ['Compte', 'https://lab.algoproof.fr/account'],
-      ['Découvrir le labo', 'https://lab.algoproof.fr'],
+      // Lot 8: every lab link carries ref=footer (labUrl).
+      ['Tester une stratégie', 'https://lab.algoproof.fr/lab?ref=footer'],
+      ['Tutoriels', 'https://lab.algoproof.fr/apprendre?ref=footer'],
+      ['Agents IA (MCP)', 'https://lab.algoproof.fr/agents?ref=footer'],
+      ['Abonnement', 'https://lab.algoproof.fr/membre?ref=footer'],
+      ['Compte', 'https://lab.algoproof.fr/account?ref=footer'],
+      ['Découvrir le labo', 'https://lab.algoproof.fr/?ref=footer'],
     ])
   })
 

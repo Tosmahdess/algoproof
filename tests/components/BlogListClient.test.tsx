@@ -67,9 +67,9 @@ describe('BlogListClient — the shape of the list (lot 7)', () => {
     const line = screen.getByTestId('apprendre-en-pratique')
     const links = within(line).getAllByRole('link')
     expect(links.map(a => a.getAttribute('href'))).toEqual([
-      'https://lab.algoproof.fr/apprendre',
+      'https://lab.algoproof.fr/apprendre?ref=blog',
       '/strategies',
-      'https://lab.algoproof.fr/agents',
+      'https://lab.algoproof.fr/agents?ref=blog',
     ])
     expect(line.querySelectorAll('h3').length).toBe(0)
   })

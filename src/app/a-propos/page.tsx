@@ -8,6 +8,7 @@ import { listeHorsPerimetre } from '@/lib/investir'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { longDate } from '@/lib/format-date'
 import { frNumber } from '@/lib/display'
+import { labUrl } from '@/lib/lab-links'
 
 export const metadata: Metadata = {
   title: 'À propos : mes bots de trading et les comptes de sociétés, en public',
@@ -66,7 +67,7 @@ export default async function AProposPage() {
         <h2 className="text-xl font-semibold mb-3">Comment c&apos;est financé</h2>
         <p className="text-base leading-relaxed">
           Deux choses me rapportent de l&apos;argent ici, et rien d&apos;autre. L&apos;abonnement au{' '}
-          <a href="https://lab.algoproof.fr" className={linkClass('inline')}>labo</a>, à {membershipPrice()}{' '}:
+          <a href={labUrl('https://lab.algoproof.fr', 'a-propos')} className={linkClass('inline')}>labo</a>, à {membershipPrice()}{' '}:
           il lève les quotas de backtest et ouvre la configuration exacte des bots, deux paragraphes
           d&apos;analyse par société et les fonctions de calcul du labo. Et un lien d&apos;affiliation vers
           Bybit sur <Link href="/start" className={linkClass('inline')}>la page Démarrer</Link> : si tu

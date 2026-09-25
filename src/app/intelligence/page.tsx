@@ -13,6 +13,7 @@ import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib
 import { getFleetImpact } from '@/lib/mi-fleet-impact'
 import { withFrenchRegimes, withoutRecommendation } from '@/lib/macro-report'
 import { mediumDate } from '@/lib/format-date'
+import { labUrl } from '@/lib/lab-links'
 
 export const metadata: Metadata = {
   title: 'Météo du marché : calme, tendu ou stress, chaque jour',
@@ -210,7 +211,7 @@ export default async function IntelligencePage() {
 
         <p className="text-xs text-muted">
           Tu peux suivre chaque signal accepté ou rejeté, en direct.{' '}
-          <a href="https://lab.algoproof.fr/terminal" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>
+          <a href={labUrl('https://lab.algoproof.fr/terminal', 'intelligence')} target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>
             Voir le terminal →
           </a>
         </p>
@@ -241,7 +242,7 @@ export default async function IntelligencePage() {
 
       {/* CTA: test météo on own strategy */}
       <section>
-        <a href="https://lab.algoproof.fr/lab" className={linkClass('card', 'p-8 bg-card/40 text-center')}>
+        <a href={labUrl('https://lab.algoproof.fr/lab', 'intelligence')} className={linkClass('card', 'p-8 bg-card/40 text-center')}>
           <h2 className="text-xl font-semibold mb-3 group-hover:text-accent transition-colors">Teste la météo sur ta stratégie</h2>
           <p className="text-sm max-w-2xl mx-auto">
             Le labo rejoue mes règles réelles sur ton backtest, avec et sans la météo.
