@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { getLatestMiSnapshot } from '@/lib/queries'
 import type { MiSnapshot } from '@/lib/types'
 import { regimeFr, biasFr, trendFr } from '@/lib/regime-labels'
-import { frNumber, frSigned, fmtPct } from '@/lib/display'
+import { frNumber, fmtPct, MINUS } from '@/lib/display'
 
 const RISK_COLOR: Record<string, string> = {
   GREEN:  'var(--positive)',
@@ -38,6 +38,11 @@ const PILLARS: { key: keyof MiSnapshot; label: string; color: string }[] = [
 // its score is in the row below.
 function capitalise(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+// « 12,1 » and « −6,2 » (spec 5.4): the real minus sign, no plus sign, one decimal.
+function score1(n: number): string {
+  return n < 0 && Number(Math.abs(n).toFixed(1)) !== 0 ? `${MINUS}${frNumber(n, 1)}` : frNumber(n, 1)
 }
 
 function freshness(snapshotAt: string): string {
@@ -104,7 +109,7 @@ export default function MiRegimeBadge() {
         </div>
         <span className="text-muted text-xs">·</span>
         <span className="text-sm text-muted font-mono">
-          score {snap.composite_score != null ? frSigned(snap.composite_score, 1) : '—'}
+          score {snap.composite_score != null ? score1(snap.composite_score) : '—'}
         </span>
         <span className="ml-auto text-xs text-muted">{freshness(snap.snapshot_at)}</span>
       </div>
@@ -115,7 +120,7 @@ export default function MiRegimeBadge() {
           <div key={p.key} className="text-center">
             <p className="text-xs text-muted leading-tight">{p.label}</p>
             <p className="font-semibold mt-1 text-sm" style={{ color: p.color }}>
-              {snap[p.key] != null ? frSigned(snap[p.key] as number, 1) : '—'}
+              {snap[p.key] != null ? score1(snap[p.key] as number) : '—'}
             </p>
           </div>
         ))}
