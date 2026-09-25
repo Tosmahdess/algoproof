@@ -12,6 +12,7 @@ import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib
 import { getFleetImpact } from '@/lib/mi-fleet-impact'
 import { withoutRecommendation } from '@/lib/macro-report'
 import { trendFr } from '@/lib/regime-labels'
+import { mediumDate } from '@/lib/format-date'
 
 export const metadata: Metadata = {
   title: 'La météo du marché : régime, risque ON/OFF, en français',
@@ -167,7 +168,7 @@ export default async function IntelligencePage() {
           <h2 className="text-xl font-semibold">Analyse macro du jour</h2>
           {report && (
             <span className="text-xs text-muted font-mono">
-              {report.date}
+              {mediumDate(report.date)}
               {report.score != null && (
                 <> · score <span className={report.score >= 0 ? 'text-positive' : 'text-negative'}>{report.score.toFixed(1)}</span></>
               )}

@@ -44,17 +44,17 @@ import { GET as cardGET } from '@/app/api/card/[slug]/route'
 
 describe('drawdownIsLoss reads the figure the reader sees', () => {
   it('a zero drawdown is not a loss', () => {
-    expect(fmtDrawdown(0)).toBe('0.0%')
+    expect(fmtDrawdown(0)).toBe('0,0 %')
     expect(drawdownIsLoss(0)).toBe(false)
   })
 
   it('a drawdown that rounds to « 0.0% » is not painted as a loss either', () => {
-    expect(fmtDrawdown(0.0004)).toBe('0.0%')
+    expect(fmtDrawdown(0.0004)).toBe('0,0 %')
     expect(drawdownIsLoss(0.0004)).toBe(false)
   })
 
   it('any drawdown the reader can see is a loss', () => {
-    expect(fmtDrawdown(0.084)).toBe('8.4%')
+    expect(fmtDrawdown(0.084)).toBe('8,4 %')
     expect(drawdownIsLoss(0.084)).toBe(true)
     expect(drawdownIsLoss(0.001)).toBe(true)
   })
@@ -63,30 +63,30 @@ describe('drawdownIsLoss reads the figure the reader sees', () => {
 describe('no surface paints « 0.0% » red', () => {
   it('home page table', async () => {
     render(await HomePage())
-    expect(screen.getByText('0.0%')).not.toHaveClass('text-negative')
-    expect(screen.getByText('8.4%')).toHaveClass('text-negative')
+    expect(screen.getByText(/0,0 %/)).not.toHaveClass('text-negative')
+    expect(screen.getByText(/8,4 %/)).toHaveClass('text-negative')
   })
 
   it('fleet table (BotTable)', () => {
     render(<BotTable bots={FLEET} showTf={false} />)
-    expect(screen.getByText('0.0%')).not.toHaveClass('text-negative')
-    expect(screen.getByText('8.4%')).toHaveClass('text-negative')
+    expect(screen.getByText(/0,0 %/)).not.toHaveClass('text-negative')
+    expect(screen.getByText(/8,4 %/)).toHaveClass('text-negative')
   })
 
   it('bot fiche metrics (MetricsRow)', () => {
     const { unmount } = render(<MetricsRow stats={ZERO.stats} family="carry" />)
-    expect(screen.getByText('0.0%')).not.toHaveClass('text-negative')
+    expect(screen.getByText(/0,0 %/)).not.toHaveClass('text-negative')
     unmount()
     render(<MetricsRow stats={REAL.stats} family="trend" />)
-    expect(screen.getByText('8.4%')).toHaveClass('text-negative')
+    expect(screen.getByText(/8,4 %/)).toHaveClass('text-negative')
   })
 
   it('embed', async () => {
     const { unmount } = render(await EmbedPage({ params: Promise.resolve({ slug: 'zero-dd' }) }))
-    expect(screen.getByText('0.0%')).not.toHaveStyle({ color: '#ff4444' })
+    expect(screen.getByText(/0,0 %/)).not.toHaveStyle({ color: '#ff4444' })
     unmount()
     render(await EmbedPage({ params: Promise.resolve({ slug: 'real-dd' }) }))
-    expect(screen.getByText('8.4%')).toHaveStyle({ color: '#ff4444' })
+    expect(screen.getByText(/8,4 %/)).toHaveStyle({ color: '#ff4444' })
   })
 
   it('social card', async () => {
@@ -107,8 +107,8 @@ describe('no surface paints « 0.0% » red', () => {
     await cardGET(req, { params: Promise.resolve({ slug: 'zero-dd' }) })
     await cardGET(req, { params: Promise.resolve({ slug: 'real-dd' }) })
     expect(composed).toHaveLength(2)
-    const zero = find(composed[0], '0.0%')
-    const real = find(composed[1], '8.4%')
+    const zero = find(composed[0], '0,0 %')
+    const real = find(composed[1], '8,4 %')
     expect(zero, 'the zero drawdown must be on the card').toBeTruthy()
     expect(real, 'the real drawdown must be on the card').toBeTruthy()
     expect(zero!.props!.style!.color).not.toBe('#ff4444')

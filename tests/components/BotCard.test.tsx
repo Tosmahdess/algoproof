@@ -31,6 +31,6 @@ describe('BotCard', () => {
   })
   it('shows win rate', () => {
     render(<BotCard bot={bot} />)
-    expect(screen.getByText('52.0%')).toBeInTheDocument()
+    expect(screen.getByText(/52,0 %/)).toBeInTheDocument()
   })
 })

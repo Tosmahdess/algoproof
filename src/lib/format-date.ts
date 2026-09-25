@@ -30,6 +30,11 @@ export function shortDatePadded(iso: string | number | Date): string {
   return new Date(iso).toLocaleDateString('fr-FR', withZone({ day: '2-digit', month: 'short' }))
 }
 
+/** « 24 sept. 2026 » : the one date format for a dated row or figure (lot 1, C4). */
+export function mediumDate(iso: string | number | Date): string {
+  return new Date(iso).toLocaleDateString('fr-FR', withZone({ day: 'numeric', month: 'short', year: 'numeric' }))
+}
+
 /** "3 septembre 2026 à 09:14" — a fiche's completion instant.
  *
  *  Del. Reg. 2016/958 asks a recommendation to carry the date AND time it was
