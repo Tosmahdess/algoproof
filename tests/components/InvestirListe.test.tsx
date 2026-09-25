@@ -205,4 +205,127 @@ describe('InvestirListe', () => {
 
     expect(screen.queryByText(/sans ancre/i)).toBeNull()
   })
+
+  // Lot 6 (2026-09-25, conception §5.5, C3.1 of the arbitration): the search
+  // indexes the ticker too. FicheIndex carried `symbole` all along; the filter
+  // read `name` only, so « AAPL » found nothing while « Apple » found two.
+  it('finds a company by its ticker, whatever the case', () => {
+    monter()
+
+    fireEvent.change(screen.getByRole('searchbox', { name: /Chercher une société/ }),
+                     { target: { value: 'crwd' } })
+
+    expect(noms().length).toBe(1)
+    expect(noms()[0]).toContain('CROWDSTRIKE')
+  })
+
+  it('still finds a company by its name', () => {
+    monter()
+
+    fireEvent.change(screen.getByRole('searchbox', { name: /Chercher une société/ }),
+                     { target: { value: 'amazon' } })
+
+    expect(noms().length).toBe(1)
+    expect(noms()[0]).toContain('AMAZON')
+  })
+
+  it('says in the field that a ticker works too', () => {
+    monter()
+
+    expect(screen.getByPlaceholderText('Chercher une société ou un ticker…')).toBeTruthy()
+  })
+})
+
+// Lot 6: the list is paged on the client, 50 rows at a time. The page stays
+// force-static and the index still travels whole; only the DOM is bounded
+// (138 313 px of page on a computer before, 148 723 px on a phone).
+const PAGE = 50
+
+function beaucoup(n: number): FicheIndex[] {
+  return Array.from({ length: n }, (_, i) => ({
+    slug: `societe-${i}`, cik: 1000 + i, name: `Société ${String(i).padStart(4, '0')}`,
+    currency: 'USD', core: i % 2 === 0, famille: 'Logiciel', symbole: `S${i}`,
+    alertes: i % 3 === 0 ? ['pertes_recurrentes'] : [], non_lus: [], n_lus: 7,
+  }))
+}
+
+describe('InvestirListe, pagination', () => {
+  it('renders the first 50 rows only, and says how many there are in all', () => {
+    render(<InvestirListe lignes={beaucoup(1203)} contexte={CONTEXTE} />)
+
+    expect(screen.getAllByRole('listitem').length).toBe(PAGE)
+    // French figures: a narrow no-break space as the thousands separator. A
+    // function matcher, because the library's normaliser folds U+202F into a
+    // plain space before comparing with a string.
+    expect(screen.getByText((_, el) =>
+      el?.tagName === 'P' && el.textContent === '1 203 sociétés sur 1 203')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Afficher 50 de plus' })).toBeTruthy()
+  })
+
+  it('adds 50 rows per click and drops the button once everything is shown', () => {
+    render(<InvestirListe lignes={beaucoup(120)} contexte={CONTEXTE} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Afficher 50 de plus' }))
+    expect(screen.getAllByRole('listitem').length).toBe(100)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Afficher 50 de plus' }))
+    expect(screen.getAllByRole('listitem').length).toBe(120)
+    expect(screen.queryByRole('button', { name: 'Afficher 50 de plus' })).toBeNull()
+  })
+
+  it('shows no button when the list fits in one page', () => {
+    render(<InvestirListe lignes={beaucoup(50)} contexte={CONTEXTE} />)
+
+    expect(screen.getAllByRole('listitem').length).toBe(50)
+    expect(screen.queryByRole('button', { name: 'Afficher 50 de plus' })).toBeNull()
+  })
+
+  it('goes back to the first page when a filter changes', () => {
+    // Two pages open, then a filter that keeps 40 rows: the reader must not
+    // land on an empty second page, nor keep 100 rows of a list that has 40.
+    render(<InvestirListe lignes={beaucoup(120)} contexte={CONTEXTE} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Afficher 50 de plus' }))
+    expect(screen.getAllByRole('listitem').length).toBe(100)
+
+    fireEvent.click(screen.getByRole('button', { name: /pertes récurrentes.*\(40\)/ }))
+    expect(screen.getAllByRole('listitem').length).toBe(40)
+    expect(screen.getByText('40 sociétés sur 120')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: /pertes récurrentes.*\(40\)/ }))
+    expect(screen.getAllByRole('listitem').length).toBe(PAGE)
+  })
+})
+
+// Lot 6, §3.3 / §6: every target is 40 px high at least (pills, the field,
+// the select, the buttons), pills are `rounded`, fields and buttons `rounded-md`.
+describe('InvestirListe, targets and radii', () => {
+  it('gives every filter control a 40 px minimum height', () => {
+    const { container } = render(<InvestirListe lignes={beaucoup(60)} contexte={CONTEXTE} />)
+
+    const controles = [
+      ...container.querySelectorAll('input, select, button'),
+    ] as HTMLElement[]
+    expect(controles.length).toBeGreaterThan(5)
+    for (const c of controles) {
+      expect(c.className, `${c.tagName} « ${c.textContent || c.getAttribute('aria-label')} »`)
+        .toMatch(/\bmin-h-10\b/)
+    }
+  })
+
+  it('rounds pills with `rounded`, the field, the select and the paging button with `rounded-md`', () => {
+    const { container } = render(<InvestirListe lignes={beaucoup(60)} contexte={CONTEXTE} />)
+
+    const champ = container.querySelector('input')!
+    const select = container.querySelector('select')!
+    const plus = screen.getByRole('button', { name: 'Afficher 50 de plus' })
+    for (const el of [champ, select, plus]) expect(el.className).toMatch(/\brounded-md\b/)
+
+    const pilules = screen.getAllByRole('button', { pressed: false })
+      .filter(b => b !== plus)
+    expect(pilules.length).toBeGreaterThan(2)
+    for (const p of pilules) {
+      expect(p.className).toMatch(/\brounded\b/)
+      expect(p.className).not.toMatch(/\brounded-(?:md|lg)\b/)
+    }
+  })
 })

@@ -69,8 +69,12 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
 
   return (
     <section className="rounded-lg border border-border bg-card px-5 py-4">
+      {/* Lot 6 (2026-09-25): under the list, and the title says what this
+          block is made of. « Creux repérés récemment » sat in the first screen
+          right under « je ne lis aucun cours de bourse », a contradiction
+          the reader met before the list. */}
       <h2 className="text-sm font-semibold text-muted mb-1">
-        Creux repérés récemment
+        Ce que les cours disent, et que mes contrôles ne lisent pas
       </h2>
       <p className="text-xs text-muted leading-relaxed mb-3">
         Le pourcentage est le recul <strong>depuis le plus haut des six derniers

@@ -6,7 +6,8 @@ import { CreuxDachat } from '@/components/CreuxDachat'
 import InvestirListe from '@/components/InvestirListe'
 import { asOf, contexte, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
 import { INVESTIR_VOCAB } from '@/lib/investir-vocab'
-import { longDate } from '@/lib/format-date'
+import { frNumber } from '@/lib/display'
+import { mediumDate } from '@/lib/format-date'
 
 // Rendu statique. Le paquet est un fichier commité : la page ne dépend d'aucun
 // service, et le contenu publié se relit dans l'historique du dépôt.
@@ -24,6 +25,13 @@ const SEPT_CONTROLES = [
   ['trésorerie', 'face aux pertes du dernier exercice'],
 ] as const
 
+// Lot 6 of the design audit (2026-09-25, conception §5.5): the page is a
+// search product. Title and short intro, the three counts beside them on a
+// computer (7/5 grid, C12 hub template) and under them on a phone, then the
+// search and its facets AT ONCE — they sat 2 326 px down on a computer and
+// 1 764 px down on a phone. The list is paged (50 rows). The price-based dips
+// go under the list, under a title that no longer contradicts « je ne lis
+// aucun cours » in the same screen. The four folds close the page.
 export default function InvestirPage() {
   const lignes = listeInvestir()
   const dehors = listeHorsPerimetre()
@@ -36,62 +44,68 @@ export default function InvestirPage() {
   const avecAlerte = lignes.filter(l => l.alertes.length > 0).length
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12 space-y-12">
-      <div>
-        <p className="text-xs font-semibold text-muted mb-2">
-          Investir
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight mb-3">
-          Je lis le dernier rapport annuel de {lignes.length} sociétés, et je te dis
-          ce que j’y trouve.
-        </h1>
-        <p className="text-sm text-muted max-w-2xl leading-relaxed">
-          Sept contrôles indépendants, tous lus dans un seul rapport annuel déposé auprès
-          du régulateur américain. Chacun dit s’il a pu être lu, et s’il l’a été, il nomme
-          le fait qui l’alerte. Il n’y a pas de mot au bout : je ne classe pas une société
-          en « solide » ou « fragile », je te donne les faits et le compte de ce que j’ai
-          pu lire. Ouvre le même document, tu refais mes contrôles en dix minutes.
-        </p>
-        <p className="text-sm max-w-2xl leading-relaxed mt-3">
-          Ce n’est pas un conseil d’achat, et pas seulement pour la forme : je ne lis aucun
-          cours de bourse, donc rien ici ne peut dire si un titre est cher aujourd’hui.
-        </p>
-        <p className="text-xs text-muted mt-3">
-          Dernier calcul le {longDate(asOf)}.
-        </p>
-        {/* The list starts two screens below the fold on a computer, and
-            further on a phone even with the explanations folded. */}
-        <a href="#societes"
-           className={linkClass('nav', 'inline-block mt-3 text-sm')}>
-          Aller aux sociétés ↓
-        </a>
-      </div>
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-12 space-y-8 sm:space-y-12">
+      <header className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        <div className="lg:col-span-7">
+          <p className="text-xs font-medium text-muted mb-2">
+            Sociétés
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight mb-3">
+            Je lis le dernier rapport annuel de {frNumber(lignes.length, 0)} sociétés,
+            et je te dis ce que j’y trouve.
+          </h1>
+          <p className="text-sm text-muted max-w-[68ch] leading-relaxed">
+            Sept contrôles, lus dans un seul rapport annuel déposé auprès du régulateur
+            américain, et pas de mot au bout : chaque contrôle nomme le fait qui l’alerte.
+            La méthode et ses limites sont sous la liste.
+          </p>
+          <p className="text-sm max-w-[68ch] leading-relaxed mt-3">
+            Ce n’est pas un conseil d’achat : je ne lis aucun cours de bourse, donc rien
+            ici ne dit si un titre est cher aujourd’hui.
+          </p>
+          <p className="text-xs text-muted mt-3">
+            Dernier calcul le {mediumDate(asOf)}.
+          </p>
+        </div>
 
-      {/* Aucune de ces trois cartes ne compte les sociétés SANS alerte, et ce
-          n'est pas un oubli : un « N sociétés sans rien à signaler » en chiffre
-          héros est un blanc-seing, et il porte plus loin qu'un adjectif parce
-          qu'il a l'air d'une mesure. Ce qui se compte ici, c'est ce que j'ai lu
-          et ce que j'ai trouvé — jamais ce que je n'ai rien trouvé à
-          reprocher. */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {([
-          ['Sociétés lues', `${lignes.length}`],
-          ['Contrôles lus par fiche, en médiane', `${medianeLus} sur 7`],
-          ['Fiches portant au moins une alerte', `${avecAlerte}`],
-        ] as const).map(([label, valeur]) => (
-          <div key={label} className="rounded border border-border bg-card px-4 py-3">
-            <p className="text-2xl font-semibold text-foreground">{valeur}</p>
-            <p className="text-xs font-semibold text-muted mt-1">{label}</p>
-          </div>
-        ))}
+        {/* Aucune de ces trois tuiles ne compte les sociétés SANS alerte, et ce
+            n'est pas un oubli : un « N sociétés sans rien à signaler » en chiffre
+            héros est un blanc-seing, et il porte plus loin qu'un adjectif parce
+            qu'il a l'air d'une mesure. Ce qui se compte ici, c'est ce que j'ai lu
+            et ce que j'ai trouvé — jamais ce que je n'ai rien trouvé à
+            reprocher. */}
+        {/* On a phone the three tiles are one row each (value, then label on
+            the same line): stacked as cards they pushed the search field to
+            840 px, under the fold of a 844 px screen. */}
+        <section
+          aria-label="Ce que j’ai lu"
+          className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2 lg:gap-3 self-start"
+        >
+          {([
+            ['Sociétés lues', frNumber(lignes.length, 0)],
+            ['Contrôles lus par fiche, en médiane', `${medianeLus} sur 7`],
+            ['Fiches portant au moins une alerte', frNumber(avecAlerte, 0)],
+          ] as const).map(([label, valeur]) => (
+            <div key={label} className="rounded-lg border border-border bg-card px-4 py-2 lg:py-3 flex items-baseline gap-3 sm:block">
+              <p className="font-mono text-xl font-medium text-foreground shrink-0">{valeur}</p>
+              <p className="text-xs text-muted sm:mt-1">{label}</p>
+            </div>
+          ))}
+        </section>
+      </header>
+
+      <section>
+        {/* The heading structures the page for assistive tech and keeps the
+            /investir#societes anchor; the title and the count line above the
+            list already say it, so it is not drawn. */}
+        <h2 id="societes" className="sr-only scroll-mt-20">Les sociétés</h2>
+        <InvestirListe lignes={lignes} contexte={contexte} />
       </section>
 
       <CreuxDachat index={lignes} />
 
-      {/* The four long explanatory blocks below fold on a phone and stay as
-          they were on a computer (Repli, user decision 2026-09-19): on a 390 px
-          phone the company search came after ~3 000 px of explanation. The
-          hero, the counts and the recent dips stay open. */}
+      {/* The four long explanatory blocks fold on a phone and stay as they
+          were on a computer (Repli, user decision 2026-09-19). */}
       <Repli
         id="mots-investir"
         titre="Les mots employés dans les fiches"
@@ -103,7 +117,7 @@ export default function InvestirPage() {
         </p>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {INVESTIR_VOCAB.map(([terme, definition]) => (
-            <div key={terme} className="rounded border border-border bg-card px-4 py-3">
+            <div key={terme} className="rounded-lg border border-border bg-card px-4 py-3">
               <dt className="text-sm font-semibold text-foreground">{terme}</dt>
               <dd className="text-sm leading-relaxed mt-1">{definition}</dd>
             </div>
@@ -161,6 +175,11 @@ export default function InvestirPage() {
                 fiche avec une alerte sur sept. Elle est moins lue, c’est tout.
               </p>
               <p>
+                Il n’y a pas de mot au bout : je ne classe pas une société en « solide »
+                ou « fragile », je te donne les faits et le compte de ce que j’ai pu lire.
+                Ouvre le même document, tu refais mes contrôles en dix minutes.
+              </p>
+              <p>
                 Un point que je préfère dire ici plutôt que le laisser découvrir. Un
                 rapport annuel est une photographie du passé, déposée soixante à quatre-
                 vingt-dix jours après la clôture. Qui le lit en novembre lit des comptes
@@ -192,15 +211,10 @@ export default function InvestirPage() {
         />
       </Repli>
 
-      <section>
-        <h2 id="societes" className="text-xl font-semibold mb-3 scroll-mt-20">Les sociétés</h2>
-        <InvestirListe lignes={lignes} contexte={contexte} />
-      </section>
-
       <Repli
         id="hors-liste"
         titre="Ce que cette liste ne contient pas, et pourquoi"
-        className="rounded border border-border bg-card px-5 py-4 text-sm leading-relaxed"
+        className="rounded-lg border border-border bg-card px-5 py-4 text-sm leading-relaxed"
         titreClassName="text-base font-semibold text-foreground"
         corpsClassName="mt-2 space-y-2"
       >
