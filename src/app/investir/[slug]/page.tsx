@@ -9,7 +9,7 @@ import {
   horsPerimetreParSlug, listeHorsPerimetre, tousLesSlugs,
   type FicheHorsPerimetre,
 } from '@/lib/investir'
-import { longDate } from '@/lib/format-date'
+import { mediumDate } from '@/lib/format-date'
 
 export const dynamic = 'force-static'
 
@@ -38,7 +38,7 @@ function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
           <strong>Je ne lis pas les comptes de cette société.</strong> Elle ne
           dépose pas de rapport annuel auprès du régulateur américain, donc mes
           sept contrôles n’ont aucun document à lire. Ce qui suit vient d’une
-          analyse écrite à partir de données de marché le {longDate(fiche.as_of)} :
+          analyse écrite à partir de données de marché le {mediumDate(fiche.as_of)} :
           aucun de ses chiffres n’est adossé à un dépôt, et tu ne peux pas les
           vérifier comme sur les autres fiches.
         </p>
@@ -58,7 +58,7 @@ function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
       <RecitInvestir slug={fiche.slug} nom={fiche.name} horsPerimetre />
 
       <p className="mt-10 text-xs text-muted">
-        Analyse du {longDate(fiche.as_of)}. Elle n’est pas recalculée chaque mois,
+        Analyse du {mediumDate(fiche.as_of)}. Elle n’est pas recalculée chaque mois,
         contrairement aux sociétés dont je lis le rapport annuel.
       </p>
       <EquityDisclosure generatedAt={fiche.as_of} horsPerimetre />
@@ -200,15 +200,49 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
           </section>
         ))}
 
+        {/* Lot 6 (2026-09-25, conception §5.5 and §1 bis): the free proof
+            comes BEFORE the paid reading. « Les comptes en détail » is what a
+            reader can check against the filing; it used to sit under the
+            price widget, two blocks after the offer. */}
+        {comptes.length > 0 && (
+          <details className="rounded-lg border border-border bg-card px-5 py-4">
+            <summary className="cursor-pointer text-sm font-semibold text-muted py-2.5 -my-2.5">
+              Les comptes en détail
+            </summary>
+            <div className="mt-5 space-y-5">
+              {comptes.map(({ cle, titre }) => (
+                <section key={cle}>
+                  <h3 className="text-xs font-semibold text-muted mb-1">
+                    {titre}
+                  </h3>
+                  <p className="text-sm text-foreground leading-relaxed">{fiche.blocs[cle]}</p>
+                </section>
+              ))}
+            </div>
+          </details>
+        )}
+
         {/* Les deux paragraphes que l'abonnement vend. Ils ne sont PAS dans
             cette page : elle est statique, donc son HTML est le même pour tout
             le monde. Le composant les demande à une route qui lit l'abonnement
-            avant d'aller les chercher. */}
+            avant d'aller les chercher. Déplacé sous les comptes au lot 6, pas
+            modifié : la route et l'abonnement ne bougent pas. */}
         <RecitInvestir slug={fiche.slug} nom={fiche.name} />
       </div>
 
+      {fiche.blocs.source && (
+        <details className="mt-8 rounded-lg border border-border px-5 py-4">
+          <summary className="cursor-pointer text-sm font-semibold text-muted py-2.5 -my-2.5">
+            Refais-le toi-même
+          </summary>
+          <p className="mt-4 text-sm text-foreground leading-relaxed">{fiche.blocs.source}</p>
+        </details>
+      )}
+
+      {/* Last block (C8: no third-party dependency above the fold). The widget
+          is a third party's, and it draws prices this page says it never reads. */}
       {fiche.ticker && (
-        <section className="mt-10 rounded border border-border bg-card px-5 py-4">
+        <section className="mt-8 rounded-lg border border-border bg-card px-5 py-4">
           <h2 className="text-sm font-semibold text-muted mb-3">
             Le cours du titre
           </h2>
@@ -219,33 +253,6 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
             ouvrir un autre onglet.
           </p>
         </section>
-      )}
-
-      {comptes.length > 0 && (
-        <details className="mt-10 rounded border border-border bg-card px-5 py-4">
-          <summary className="cursor-pointer text-sm font-semibold text-muted">
-            Les comptes en détail
-          </summary>
-          <div className="mt-5 space-y-5">
-            {comptes.map(({ cle, titre }) => (
-              <section key={cle}>
-                <h3 className="text-xs font-semibold text-muted mb-1">
-                  {titre}
-                </h3>
-                <p className="text-sm text-foreground leading-relaxed">{fiche.blocs[cle]}</p>
-              </section>
-            ))}
-          </div>
-        </details>
-      )}
-
-      {fiche.blocs.source && (
-        <details className="mt-4 rounded border border-border px-5 py-4">
-          <summary className="cursor-pointer text-sm font-semibold text-muted">
-            Refais-le toi-même
-          </summary>
-          <p className="mt-4 text-sm text-foreground leading-relaxed">{fiche.blocs.source}</p>
-        </details>
       )}
 
       {!fiche.blocs.activite && (
@@ -259,7 +266,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
         {/* La page disait « refait chaque mois » alors que rien ne le refaisait :
             une promesse que personne ne tenait. Elle dit maintenant la date, qui
             est vérifiable, et l'intention, qui ne se déguise plus en garantie. */}
-        Calcul du {longDate(asOf)}. Je le refais quand les comptes bougent, en
+        Calcul du {mediumDate(asOf)}. Je le refais quand les comptes bougent, en
         visant une fois par mois.
       </p>
 

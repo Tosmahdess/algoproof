@@ -4,6 +4,20 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import type { Contexte, FicheIndex } from '@/lib/investir'
 import { compteParAlerte, compteParCouverture, residuDe } from '@/lib/investir'
+import { frNumber } from '@/lib/display'
+
+// Lot 6 (2026-09-25, conception §5.5): 50 rows reach the DOM at a time. The
+// page stays force-static and the whole index still travels (it did already);
+// what is bounded is the rendered list — 1 406 rows made a 138 313 px page on
+// a computer and 148 723 px on a phone. « Afficher 50 de plus » extends it.
+const PAGE = 50
+
+// Pills, field, select and buttons: 40 px high at least (§6 rule 2), on every
+// screen — the same class everywhere so the guard of the tests can read it.
+const CIBLE = 'min-h-10'
+const PILULE = `rounded border px-3 ${CIBLE} text-xs font-semibold transition-colors`
+const PILULE_ACTIVE = 'text-accent border-accent/40 bg-accent/10'
+const PILULE_REPOS = 'border-border text-muted hover:text-foreground'
 
 // Ne reçoit que l'index : nom, alertes, couverture. Aucune prose ne transite
 // par ce composant, et c'est délibéré — un composant client livre tout ce
@@ -63,7 +77,10 @@ export default function InvestirListe({
   const visibles = useMemo(() => {
     const q = recherche.trim().toLowerCase()
     return lignes.filter(l => {
-      if (q && !l.name.toLowerCase().includes(q)) return false
+      // Name OR ticker (C3.1 of the arbitration): « Apple » and « AAPL » find
+      // the same page. The ticker is compared whole-string, lower-cased, like
+      // the name; 142 rows have none and are searched by name only.
+      if (q && !l.name.toLowerCase().includes(q) && !(l.symbole ?? '').toLowerCase().includes(q)) return false
       // OU au sein du groupe : cocher deux alertes élargit, comme le lecteur
       // s'y attend d'une liste de signaux.
       if (alertes.size && !l.alertes.some(a => alertes.has(a))) return false
@@ -73,6 +90,17 @@ export default function InvestirListe({
       return true
     })
   }, [lignes, recherche, alertes, couverture, grandes, famille])
+
+  // How many rows are shown, keyed by the filter state that opened them: any
+  // change of a filter brings the reader back to the first page, also on the
+  // way back to a state already seen (a filter released after two pages
+  // opened must not restore a hundred rows). Reset during the render, the
+  // pattern React documents for state derived from a previous render.
+  const cleFiltres = JSON.stringify([recherche, [...alertes].sort(), [...couverture].sort(), grandes, famille])
+  const [pages, setPages] = useState({ cle: cleFiltres, n: PAGE })
+  if (pages.cle !== cleFiltres) setPages({ cle: cleFiltres, n: PAGE })
+  const limite = pages.cle === cleFiltres ? pages.n : PAGE
+  const rendues = visibles.slice(0, limite)
 
   function bascule<T>(valeur: T, courant: Set<T>, poser: (s: Set<T>) => void) {
     const suivant = new Set(courant)
@@ -88,17 +116,17 @@ export default function InvestirListe({
           type="search"
           value={recherche}
           onChange={e => setRecherche(e.target.value)}
-          placeholder="Chercher une société…"
-          aria-label="Chercher une société"
-          className="flex-1 min-w-56 rounded border border-border bg-card px-3 py-2 text-sm
-                     placeholder:text-muted focus:outline-none focus:border-accent"
+          placeholder="Chercher une société ou un ticker…"
+          aria-label="Chercher une société ou un ticker"
+          className={`flex-1 min-w-56 rounded-md border border-border bg-card px-3 ${CIBLE} text-sm
+                     placeholder:text-muted focus:outline-none focus:border-accent`}
         />
         <select
           value={famille}
           onChange={e => setFamille(e.target.value)}
           aria-label="Filtrer par secteur"
-          className="rounded border border-border bg-card px-3 py-2 text-xs font-semibold
-                     text-muted focus:outline-none focus:border-accent max-w-56"
+          className={`rounded-md border border-border bg-card px-3 ${CIBLE} text-xs font-semibold
+                     text-muted focus:outline-none focus:border-accent max-w-52`}
         >
           <option value="">Tous les secteurs</option>
           {familles.map(([nom, n]) => (
@@ -109,9 +137,7 @@ export default function InvestirListe({
           onClick={() => setGrandes(!grandes)}
           aria-pressed={grandes}
           title="Flottant d'au moins deux milliards de dollars, ou chiffre d'affaires d'au moins trois milliards"
-          className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
-            grandes ? 'text-accent border-accent/40 bg-accent/10' : 'border-border text-muted hover:text-foreground'
-          }`}
+          className={`${PILULE} ${grandes ? PILULE_ACTIVE : PILULE_REPOS}`}
         >
           Grandes sociétés
         </button>
@@ -124,7 +150,7 @@ export default function InvestirListe({
           names the active alerts in clear, in chip order: it counts motifs,
           never companies, so it cannot turn into a tally. Coverage stays
           outside, open: it is what shows how much each filing let me read. */}
-      <details className="mb-3">
+      <details className="mb-2">
         <summary className="cursor-pointer text-xs font-semibold text-muted mb-2">
           Alerte relevée dans le dépôt · {puces.length} motif{puces.length > 1 ? 's' : ''}
           {alertes.size > 0 && (
@@ -143,11 +169,7 @@ export default function InvestirListe({
                 key={motif}
                 onClick={() => bascule(motif, alertes, setAlertes)}
                 aria-pressed={alertes.has(motif)}
-                className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
-                  alertes.has(motif)
-                    ? 'text-accent border-accent/40 bg-accent/10'
-                    : 'border-border text-muted hover:text-foreground'
-                }`}
+                className={`${PILULE} ${alertes.has(motif) ? PILULE_ACTIVE : PILULE_REPOS}`}
               >
                 {contexte.libelles[motif] ?? motif} ({n})
               </button>
@@ -156,7 +178,7 @@ export default function InvestirListe({
         </fieldset>
       </details>
 
-      <fieldset className="mb-4 border-0 p-0 m-0">
+      <fieldset className="mb-3 border-0 p-0 m-0">
         <legend className="text-xs font-semibold text-muted mb-2">
           Couverture — combien des sept contrôles ce dépôt a permis de lire
         </legend>
@@ -166,11 +188,7 @@ export default function InvestirListe({
               key={lus}
               onClick={() => bascule(lus, couverture, setCouverture)}
               aria-pressed={couverture.has(lus)}
-              className={`rounded border px-3 py-2 text-xs font-semibold transition-colors ${
-                couverture.has(lus)
-                  ? 'text-accent border-accent/40 bg-accent/10'
-                  : 'border-border text-muted hover:text-foreground'
-              }`}
+              className={`${PILULE} ${couverture.has(lus) ? PILULE_ACTIVE : PILULE_REPOS}`}
             >
               {lus} contrôles lus ({n})
             </button>
@@ -178,16 +196,16 @@ export default function InvestirListe({
         </div>
       </fieldset>
 
-      <p className="text-xs text-muted mb-3">
-        {visibles.length} société{visibles.length > 1 ? 's' : ''} sur {lignes.length}
+      <p className="text-xs text-muted mb-2">
+        {frNumber(visibles.length, 0)} société{visibles.length > 1 ? 's' : ''} sur {frNumber(lignes.length, 0)}
       </p>
 
       <ul className="divide-y divide-border border-y border-border">
-        {visibles.map(l => (
+        {rendues.map(l => (
           <li key={l.cik}>
             <Link
               href={`/investir/${l.slug}`}
-              className="flex flex-col gap-1 px-1 py-3 hover:bg-card/60 transition-colors"
+              className="flex flex-col gap-0.5 px-1 py-2 hover:bg-card/60 transition-colors"
             >
               <span className="font-medium">{l.name}</span>
               {/* La phrase du MOTEUR, pas une phrase d'ici : le compte ne se
@@ -213,6 +231,17 @@ export default function InvestirListe({
         <p className="text-sm text-muted py-8 text-center">
           Aucune société ne correspond. Retire un filtre.
         </p>
+      )}
+
+      {visibles.length > limite && (
+        <button
+          type="button"
+          onClick={() => setPages({ cle: cleFiltres, n: limite + PAGE })}
+          className={`mt-4 w-full sm:w-auto rounded-md border border-border px-4 ${CIBLE} text-sm
+                      font-semibold text-foreground hover:border-muted transition-colors`}
+        >
+          Afficher 50 de plus
+        </button>
       )}
     </div>
   )
