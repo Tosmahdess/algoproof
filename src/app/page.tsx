@@ -235,7 +235,7 @@ export default async function HomePage() {
                   <span className="text-xs font-semibold uppercase" style={{ color: familyColor(bot.family) }}>
                     {familyLabel(bot.family)}
                   </span>
-                  {hasData && <span className="text-xs text-muted">{bot.stats.total_trades} trades</span>}
+                  {hasData && <span className="text-xs text-muted">{bot.stats.total_trades} trade{bot.stats.total_trades > 1 ? 's' : ''}</span>}
                 </div>
               </div>
               <div className="text-right flex-shrink-0">

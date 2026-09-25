@@ -20,12 +20,15 @@ import { reasonFr } from '@/lib/regime-labels'
 import { shortDatePadded } from '@/lib/format-date'
 
 export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }) {
-  if (trades.length === 0) return null
+  // Served « LES 1 DERNIERS TRADES » on 2026-09-25 (audit P0-6): the count was
+  // interpolated into a plural sentence. The heading names the feed, the count sits
+  // in parentheses, and under three rows there is no feed worth a section.
+  if (trades.length < 3) return null
 
   return (
     <section data-testid="fleet-recent-trades" className="bg-card border border-border rounded-lg p-6">
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
-        Les {trades.length} derniers trades, tous bots
+        Derniers trades ({trades.length})
       </h2>
       <div className="-mx-2 overflow-x-auto">
         <table className="w-full text-xs min-w-[480px]">

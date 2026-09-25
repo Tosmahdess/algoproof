@@ -65,8 +65,13 @@ describe('fmtPfDisplay / fmtWinRateDisplay and the low-sample threshold', () => 
     expect(fmtWinRateDisplay('carry', 500, 0.5)).toBe('—')
   })
 
-  it('still renders a loss-free profit factor as infinity, not as a number', () => {
-    expect(fmtPfDisplay('trend', 3, 1000)).toBe('∞')
+  // Served as « ∞ » until 2026-09-25 (audit P0-5): a bot with two winning trades and
+  // no loss printed an infinite profit factor in the same column as real ones. A PF
+  // with nothing to divide by is not a figure, it is an absent denominator: the same
+  // em dash as the carry bots, whose PF is absent for the same reason.
+  it('renders a loss-free profit factor as an absent figure, not as a number', () => {
+    expect(fmtPfDisplay('trend', 3, 1000)).toBe('—')
+    expect(fmtPfDisplay('trend', 40, 999)).toBe('—')
   })
 
   // isLowSample is now the ONLY carrier of the caveat, so its bounds matter more

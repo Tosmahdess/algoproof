@@ -20,7 +20,7 @@
 import { ficheSlugForBot } from './strategy-keys'
 import { getStrategyFiche } from './strategy-library'
 import type { FicheSlug } from './strategy-library'
-import { pnlEur } from './display'
+import { LOW_SAMPLE_TRADES, pnlEur } from './display'
 import type { BotWithStats } from './types'
 
 export interface GroupableBot {
@@ -118,16 +118,29 @@ export interface RankableBot {
   stats: { total_trades: number; latest_capital: number }
 }
 
-export function byGainDesc(a: RankableBot, z: RankableBot): number {
-  const aTraded = a.stats.total_trades > 0
-  const zTraded = z.stats.total_trades > 0
-  if (aTraded !== zTraded) return aTraded ? -1 : 1
-  if (aTraded) {
-    const diff = pnlEur(z.stats.latest_capital, z.start_capital)
-      - pnlEur(a.stats.latest_capital, a.start_capital)
-    if (diff !== 0) return diff
-  }
+/** Register row order since 2026-09-25 (audit P0-5, conception C7): HISTORY first.
+ *
+ * Ranked by gain (2026-08-20 to 2026-09-25), the register put bots with one or two
+ * trades in its top rows: the page whose thesis is that a small sample proves
+ * nothing opened on the luckiest small samples. Trades descending is the rule the
+ * home already applied (« celles qui ont le plus d'historique, pas celles qui gagnent
+ * le plus »); the gain only breaks a tie, then the name. An untraded bot has the
+ * shortest history there is and sorts last by the same rule, no special case needed. */
+export function byHistoryDesc(a: RankableBot, z: RankableBot): number {
+  if (a.stats.total_trades !== z.stats.total_trades) return z.stats.total_trades - a.stats.total_trades
+  const diff = pnlEur(z.stats.latest_capital, z.start_capital)
+    - pnlEur(a.stats.latest_capital, a.start_capital)
+  if (diff !== 0) return diff
   return a.name.localeCompare(z.name)
+}
+
+/** Bots under LOW_SAMPLE_TRADES (untraded included) are shown apart, folded: a PF
+ *  on 2 trades is not a figure to rank. Order is preserved; the caller sorts. */
+export function splitBySample<T extends { stats: { total_trades: number } }>(bots: T[]): { proven: T[]; rodage: T[] } {
+  return {
+    proven: bots.filter(b => b.stats.total_trades >= LOW_SAMPLE_TRADES),
+    rodage: bots.filter(b => b.stats.total_trades < LOW_SAMPLE_TRADES),
+  }
 }
 
 export interface TimeframeGroup<T = BotWithStats> {
@@ -146,5 +159,5 @@ export function groupByTimeframe<T extends RankableBot & { timeframe: string }>(
   }
   return [...byTf.entries()]
     .sort(([a], [z]) => tfRank(a) - tfRank(z) || a.localeCompare(z))
-    .map(([tf, list]) => ({ tf, bots: [...list].sort(byGainDesc) }))
+    .map(([tf, list]) => ({ tf, bots: [...list].sort(byHistoryDesc) }))
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { groupByStrategy, groupByTimeframe } from '@/lib/fleet-grouping'
+import { groupByStrategy, groupByTimeframe, splitBySample } from '@/lib/fleet-grouping'
 import { EMA_CROSS_SLUGS, prodBot, mkBot } from '../fixtures/bots'
 
 describe('groupByStrategy', () => {
@@ -126,77 +126,54 @@ describe('groupByTimeframe', () => {
 // biggest gain first. It used to be (family, then name) -- an order that carries
 // no information a reader wants, and that buried the best and worst performers
 // in the middle of an alphabet.
-describe('groupByTimeframe row order — by gain, descending', () => {
-  const withPnl = (name: string, latest: number, opts: Partial<{ trades: number; start: number; family: string }> = {}) =>
+// 2026-09-25 (audit P0-5, conception C7): the register was ranked by gain, so bots
+// with one or two trades sat in the top rows of the page whose thesis is that a
+// small sample proves nothing. Row order is now HISTORY first (trades, descending),
+// the same rule the home already applied; gain only breaks a tie. Bots under
+// LOW_SAMPLE_TRADES are split out by `splitBySample` and folded by the register.
+describe('groupByTimeframe row order — by history, descending', () => {
+  const withTrades = (name: string, trades: number, latest = 1000) =>
     mkBot({
-      slug: name.toLowerCase(),
-      name,
-      timeframe: 'H4',
-      family: (opts.family ?? 'trend') as never,
-      start_capital: opts.start ?? 1000,
-      stats: {
-        win_rate: 0.5,
-        profit_factor: 1.4,
-        max_drawdown: 0.08,
-        total_trades: opts.trades ?? 60,
-        latest_capital: latest,
-      },
+      slug: name.toLowerCase(), name, timeframe: 'H4', family: 'trend' as never, start_capital: 1000,
+      stats: { win_rate: 0.5, profit_factor: 1.4, max_drawdown: 0.08, total_trades: trades, latest_capital: latest },
     })
 
-  it('puts the biggest gain first and the biggest loss last', () => {
+  it('puts the longest history first, whatever the gain', () => {
     const [group] = groupByTimeframe([
-      withPnl('Middling', 1050),
-      withPnl('Loser', 820),
-      withPnl('Winner', 1400),
+      withTrades('Lucky', 2, 1082),
+      withTrades('Veteran', 280, 935),
+      withTrades('Steady', 68, 1198),
     ])
-
-    expect(group.bots.map(b => b.name)).toEqual(['Winner', 'Middling', 'Loser'])
+    expect(group.bots.map(b => b.name)).toEqual(['Veteran', 'Steady', 'Lucky'])
   })
 
-  it('ranks on the GAIN, not on the capital the bot happens to hold', () => {
-    // Big starts +100, Small starts +300: sorting on latest_capital alone would
-    // put Big first because 5100 > 1300.
+  it('breaks an equal history by gain, then by name', () => {
     const [group] = groupByTimeframe([
-      withPnl('Big', 5100, { start: 5000 }),
-      withPnl('Small', 1300, { start: 1000 }),
+      withTrades('Zeta', 40, 1100),
+      withTrades('Alpha', 40, 1100),
+      withTrades('Mid', 40, 1300),
     ])
+    expect(group.bots.map(b => b.name)).toEqual(['Mid', 'Alpha', 'Zeta'])
+  })
+})
 
-    expect(group.bots.map(b => b.name)).toEqual(['Small', 'Big'])
+describe('splitBySample', () => {
+  const withTrades = (name: string, trades: number) =>
+    mkBot({
+      slug: name.toLowerCase(), name, timeframe: 'H4', family: 'trend' as never, start_capital: 1000,
+      stats: { win_rate: 0.5, profit_factor: 1.4, max_drawdown: 0.08, total_trades: trades, latest_capital: 1000 },
+    })
+
+  it('keeps bots with 20 trades or more, folds the rest (untraded included)', () => {
+    const { proven, rodage } = splitBySample([
+      withTrades('Twenty', 20), withTrades('Nineteen', 19), withTrades('Zero', 0), withTrades('Many', 280),
+    ])
+    expect(proven.map(b => b.name)).toEqual(['Twenty', 'Many'])
+    expect(rodage.map(b => b.name)).toEqual(['Nineteen', 'Zero'])
   })
 
-  it('sorts a bot that has never traded LAST, behind even a losing one', () => {
-    // A bot with no trades has not gained zero -- it has measured nothing, and
-    // ranking it among the results would read as a flat performance it never had.
-    // Named so the OLD (family, then name) order would put the untraded one
-    // first: this test must be unable to pass by alphabetical accident.
-    const [group] = groupByTimeframe([
-      withPnl('Aardvark', 1000, { trades: 0 }),
-      withPnl('Zulu', 700),
-    ])
-
-    expect(group.bots.map(b => b.name)).toEqual(['Zulu', 'Aardvark'])
-  })
-
-  it('breaks an exact tie by name, so the order never depends on input order', () => {
-    // Families chosen so the OLD rule (family first) would answer Zeta, Alpha.
-    const pair = () => [
-      withPnl('Zeta', 1200, { family: 'breakout' }),
-      withPnl('Alpha', 1200, { family: 'trend' }),
-    ]
-    const forward = groupByTimeframe(pair())
-    const reverse = groupByTimeframe(pair().reverse())
-
-    expect(forward[0].bots.map(b => b.name)).toEqual(['Alpha', 'Zeta'])
-    expect(reverse[0].bots.map(b => b.name)).toEqual(['Alpha', 'Zeta'])
-  })
-
-  it('orders untraded bots among themselves by name rather than arbitrarily', () => {
-    // Same guard: under (family, then name), Yankee/breakout would come first.
-    const [group] = groupByTimeframe([
-      withPnl('Yankee', 1000, { trades: 0, family: 'breakout' }),
-      withPnl('Xray', 1000, { trades: 0, family: 'trend' }),
-    ])
-
-    expect(group.bots.map(b => b.name)).toEqual(['Xray', 'Yankee'])
+  it('does not reorder: the caller sorts', () => {
+    const { proven } = splitBySample([withTrades('B', 30), withTrades('A', 50)])
+    expect(proven.map(b => b.name)).toEqual(['B', 'A'])
   })
 })

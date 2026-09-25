@@ -62,7 +62,9 @@ export function fmtWinRateForFamily(family: string | null | undefined, winRate: 
 // no longer a gate on these two strings.
 export function fmtPfDisplay(family: string | null | undefined, totalTrades: number, pf: number): string {
   if (isCarryFamily(family)) return '—'
-  if (pf >= 999) return '∞'
+  // No loss to divide by is an absent denominator, not an infinite figure. Served
+  // as « ∞ » next to real PFs until 2026-09-25 (audit P0-5); same dash as carry.
+  if (pf >= 999) return '—'
   return pf.toFixed(2)
 }
 

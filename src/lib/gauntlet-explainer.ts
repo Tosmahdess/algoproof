@@ -37,7 +37,7 @@
  * French, first person, reader is « tu », no em/en dashes.
  */
 
-import { fr, variantsPhrase, type SearchSpace } from '@/lib/engine-search-space'
+import { fr, hasGrid, variantsPhrase, type SearchSpace } from '@/lib/engine-search-space'
 import { membershipPriceShort } from '@/lib/launch-offer'
 
 export const GAUNTLET_EXPLAINER_TITLE = 'Comment je décide qu’une stratégie mérite un bot'
@@ -60,9 +60,14 @@ export const GAUNTLET_EXPLAINER_TITLE = 'Comment je décide qu’une stratégie 
  *     a design document and in NO report field, so it cannot be derived at all. Publishing
  *     it would be asserting a measurement nobody made. */
 export function gauntletFunnel(space: SearchSpace | null): readonly string[] {
-  const sweep = space
+  // Three shapes, by what the engine published (engine-search-space.ts): the grid
+  // sizes and the product; the corpus count alone (since 2026-08-24 the publisher
+  // writes no grid); nothing at all.
+  const sweep = space && hasGrid(space)
     ? `mon moteur y balaie ${fr(space.nParams)} jeux de périodes, ${fr(space.nFilterConfigs)} combinaisons de filtres d’entrée et ${fr(space.nExits)} façons de sortir, ce qui donne ${variantsPhrase(space)} de variantes pour un seul horizon de temps. Personne ne lit ça à la main.`
-    : 'mon moteur y balaie toutes les périodes, toutes les combinaisons de filtres d’entrée et toutes les façons de sortir, ce qui donne des dizaines de millions de variantes pour un seul horizon de temps. Personne ne lit ça à la main.'
+    : space
+      ? `mon moteur y balaie toutes les périodes, toutes les combinaisons de filtres d’entrée et toutes les façons de sortir, ce qui donne ${fr(space.nBehaviors)} comportements distincts pour un seul horizon de temps, une fois retirées les variantes qui font exactement les mêmes trades. Personne ne lit ça à la main.`
+      : 'mon moteur y balaie toutes les périodes, toutes les combinaisons de filtres d’entrée et toutes les façons de sortir, ce qui donne des dizaines de millions de variantes pour un seul horizon de temps. Personne ne lit ça à la main.'
 
   const judged = space
     ? `j’envoie les ${fr(space.nJudged)} premières au gantelet`

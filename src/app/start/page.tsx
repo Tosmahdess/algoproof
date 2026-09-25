@@ -210,7 +210,7 @@ export default function StartPage() {
         </p>
         <p className="text-sm leading-relaxed">
           <strong className="text-foreground">À ne pas faire :</strong> utiliser un VPN pour contourner la restriction
-          expose ton compte au gel et t\'engage juridiquement.
+          expose ton compte au gel et t&apos;engage juridiquement.
         </p>
       </div>
 

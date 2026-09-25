@@ -50,7 +50,7 @@ import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
 } from '@/lib/bot-filters'
-import { byGainDesc, groupByTimeframe } from '@/lib/fleet-grouping'
+import { byHistoryDesc, groupByTimeframe, splitBySample } from '@/lib/fleet-grouping'
 import { sliceBotStats } from '@/lib/stats'
 import FleetFilterBar from '@/components/FleetFilterBar'
 import BotTable from '@/components/BotTable'
@@ -145,7 +145,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
   const archivedVisible = useMemo(
     () => viewBots
       .filter(b => b.status === 'archived')
-      .sort(byGainDesc),
+      .sort(byHistoryDesc),
     [viewBots],
   )
 
@@ -180,14 +180,30 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           </div>
         ) : (
           <div className="space-y-8">
-            {timeframeGroups.map(group => (
-              <section key={group.tf} data-testid={`fleet-tf-${group.tf}`}>
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
-                  {`${group.tf} : ${group.bots.length} stratégie${group.bots.length > 1 ? 's' : ''}`}
-                </h3>
-                <BotTable bots={group.bots} showTf={false} />
-              </section>
-            ))}
+            {timeframeGroups.map(group => {
+              // Audit 2026-09-25, P0-5: bots under 20 trades used to sit in the
+              // ranked table (a PF of 8,84 on 4 trades at row 3). They keep their
+              // rows, inside a closed fold under the table, headed by their count.
+              const { proven, rodage } = splitBySample(group.bots)
+              return (
+                <section key={group.tf} data-testid={`fleet-tf-${group.tf}`}>
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+                    {`${group.tf} : ${group.bots.length} stratégie${group.bots.length > 1 ? 's' : ''}`}
+                  </h3>
+                  {proven.length > 0 && <BotTable bots={proven} showTf={false} />}
+                  {rodage.length > 0 && (
+                    <details data-testid={`fleet-rodage-${group.tf}`} className="mt-3 bg-card border border-border rounded-lg">
+                      <summary className="cursor-pointer px-4 py-3 text-xs text-muted">
+                        {`En rodage · ${rodage.length} bot${rodage.length > 1 ? 's' : ''} sous 20 trades : un taux de gain ou un facteur de profit ne veut encore rien dire ici.`}
+                      </summary>
+                      <div className="px-4 pb-4">
+                        <BotTable bots={rodage} showTf={false} />
+                      </div>
+                    </details>
+                  )}
+                </section>
+              )
+            })}
           </div>
         )}
 
