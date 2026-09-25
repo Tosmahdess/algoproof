@@ -43,7 +43,9 @@ describe('FleetRegister', () => {
   // the timeframe tables. When that order became "biggest gain first" (2026-08-20)
   // the promise had to follow, or a reader scanning down the page would meet two
   // different rankings without being told.
-  it('orders archived bots by gain too, biggest first, untraded last', () => {
+  // 2026-09-25 (audit P0-5): the order became HISTORY first, on the tables and on
+  // this list alike, so a reader scanning down the page meets one ranking.
+  it('orders archived bots by history too, longest first, untraded last', () => {
     const arch = (name: string, latest: number, trades = 40, family = 'trend') =>
       mkBot({
         slug: name.toLowerCase(), name, status: 'archived',
@@ -51,14 +53,33 @@ describe('FleetRegister', () => {
         stats: { win_rate: 0.5, profit_factor: 1.1, max_drawdown: 0.1,
                  total_trades: trades, latest_capital: latest },
       })
-    // Families and names chosen so the OLD (family, then name) order would answer
-    // Aardvark, Zulu, Middling -- this test cannot pass by alphabetical accident.
+    // Gains chosen so the OLD (gain first) order would answer Zulu, Middling, Aardvark.
     render(<FleetRegister
-      bots={[arch('Aardvark', 1000, 0, 'breakout'), arch('Zulu', 1500), arch('Middling', 1100)]}
+      bots={[arch('Aardvark', 1000, 0, 'breakout'), arch('Zulu', 1500, 12), arch('Middling', 1100, 90)]}
       initialState={EMPTY_FILTERS} />)
 
     const rows = within(screen.getByTestId('fleet-archived')).getAllByRole('link')
-    expect(rows.map(r => r.textContent)).toEqual(['Zulu', 'Middling', 'Aardvark'])
+    expect(rows.map(r => r.textContent)).toEqual(['Middling', 'Zulu', 'Aardvark'])
+  })
+
+  it('folds bots under 20 trades in a closed « En rodage » group under their timeframe table', () => {
+    const bot = (name: string, trades: number) =>
+      mkBot({
+        slug: name.toLowerCase(), name, status: 'paper', timeframe: 'H4', family: 'trend' as never,
+        start_capital: 1000,
+        stats: { win_rate: 0.5, profit_factor: 1.1, max_drawdown: 0.1, total_trades: trades, latest_capital: 1010 },
+      })
+    render(<FleetRegister bots={[bot('Seasoned', 42), bot('Fresh', 2), bot('Newborn', 0)]} initialState={EMPTY_FILTERS} />)
+
+    const section = screen.getByTestId('fleet-tf-H4')
+    const fold = within(section).getByTestId('fleet-rodage-H4') as HTMLDetailsElement
+    expect(fold.open).toBe(false)
+    expect(within(fold).getByText(/En rodage · 2 bots sous 20 trades/)).toBeTruthy()
+    // the seasoned bot is in the open table, the two others only inside the fold
+    const foldHtml = fold.innerHTML
+    expect(foldHtml).toContain('Fresh')
+    expect(foldHtml).toContain('Newborn')
+    expect(section.innerHTML.replace(foldHtml, '')).not.toContain('Fresh')
   })
 
   it('lists a deployed bot that has never traded', () => {

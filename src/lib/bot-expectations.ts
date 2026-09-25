@@ -151,6 +151,20 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
           'À cette date, la règle est franchie et je n’ai pas gelé le bot. Je n’ai pas encore décidé si je le coupe ou si je le garde : la décision est en suspens, et je n’ai publié aucune autopsie.',
         reviewBy: '2026-09-22',
       },
+      // User decision 2026-09-25 (design audit, P0-2): ORB is KEPT. Still no motive,
+      // because none was given; the text says so instead of inventing one. Appended,
+      // never edited: the card shows the last decision on the rule. The review date
+      // is the next monthly ORB judgement (FUTURE_CHECKS.md), and the decisions test
+      // goes red the day after it until a new decision is appended.
+      {
+        rule: 'Hors enveloppe (DD > 20 % ou PF < 1.0 après 20 trades) → bot gelé, autopsie publiée sur le blog.',
+        date: '2026-09-25',
+        status: 'kept',
+        scope: 'tout l’historique en argent réel affiché sur cette fiche',
+        text:
+          'Le 25 septembre, je le garde. Je n’ai pas de motif chiffré à t’écrire : la règle publiée disait gelé, je ne l’applique pas, et je préfère l’écrire ici que réécrire la règle. Il continue en argent réel, chaque trade publié, et je le rejuge au prochain examen mensuel.',
+        reviewBy: '2026-10-22',
+      },
     ],
     threeSentences: {
       entry:

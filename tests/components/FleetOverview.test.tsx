@@ -32,6 +32,11 @@ const RECENT: TradeWithBot[] = [
   { id: 'tr-2', opened_at: '2026-07-29T08:00:00Z', closed_at: '2026-07-29T20:00:00Z',
     asset: 'ETH/USDC', side: 'short', pnl: -4.25, reason: 'stop loss',
     bots: { name: 'MACD Vol', slug: 'macd-vol', family: 'momentum', status: 'paper' } },
+  // Three rows: under three the feed renders nothing (FleetRecentTrades, 2026-09-25,
+  // audit P0-6 « Les 1 derniers trades »). Its own test pins that rule.
+  { id: 'tr-3', opened_at: '2026-07-28T08:00:00Z', closed_at: '2026-07-28T20:00:00Z',
+    asset: 'SOL/USDC', side: 'long', pnl: 3.1, reason: 'take profit',
+    bots: { name: 'ORB H1 HL', slug: 'orb-bf25', family: 'breakout', status: 'live' } },
 ]
 
 // FIX round 2: FleetRegister (rendered by FleetOverview) no longer calls
