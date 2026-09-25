@@ -43,8 +43,20 @@ describe('/strategies — the gauntlet explainer lives on the index', () => {
     render(await StrategiesIndexPage())
     const link = screen
       .getAllByRole('link')
-      .find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/membre')
+      .find(a => a.getAttribute('href')?.startsWith('https://lab.algoproof.fr/membre'))
     expect(link, 'no link to the membership page').toBeTruthy()
+  })
+
+  // Lot 8: rendered, not grepped. Every link the index sends to the lab carries
+  // its ref, whichever module the URL came from (the membership link came from
+  // gauntlet-explainer.ts and shipped bare on 26/09).
+  it('every lab link the index renders carries a ref', async () => {
+    bots.current = []
+    const { container } = render(await StrategiesIndexPage())
+    const bare = [...container.querySelectorAll('a[href^="https://lab.algoproof.fr"]')]
+      .map(a => a.getAttribute('href')!)
+      .filter(h => !/[?&]ref=/.test(h))
+    expect(bare).toEqual([])
   })
 })
 

@@ -32,7 +32,9 @@ describe('every lab link a page renders carries the ref', () => {
         const lines = fs.readFileSync(file, 'utf8').split('\n')
         lines.forEach((line, i) => {
           const isHref = /href\s*=/.test(line)
-          const toLab = /lab\.algoproof\.fr|LAB_URL|LAB_ORIGIN|labHref|presetHref|dossierHref|ACCOUNT_URL|LAB_APP_URL/.test(line)
+          // Data modules that hold a lab URL under a field are named here too: the
+          // membership link of the method (GAUNTLET_ACCESS.href) shipped bare on 26/09.
+          const toLab = /lab\.algoproof\.fr|LAB_URL|LAB_ORIGIN|labHref|presetHref|dossierHref|ACCOUNT_URL|LAB_APP_URL|GAUNTLET_ACCESS/.test(line)
           if (isHref && toLab && !/labUrl\(/.test(line)) {
             offenders.push(`${path.relative(SRC, file).replace(/\\/g, '/')}:${i + 1}`)
           }
