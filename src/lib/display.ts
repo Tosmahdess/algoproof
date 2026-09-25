@@ -20,12 +20,35 @@ export function pnlPct(latestCapital: number, startCapital: number = DEFAULT_PAP
   return ((latestCapital - startCapital) / startCapital) * 100
 }
 
+// Conception C4 (2026-09-25): French figures everywhere the reader sees a number.
+// Decimal comma, narrow no-break space (U+202F) between thousands and before the
+// unit, the real minus sign (U+2212). Written by hand rather than through
+// Intl.NumberFormat: the runtime's ICU data returns U+202F or U+00A0 depending on
+// the platform, and a test that passed on one machine failed on the next
+// (src/lib/screening.ts learnt the same lesson for `count`).
+export const NARROW_NBSP = ' '
+export const MINUS = '−'
+
+/** |n| with `decimals` decimals, French: `1 234,50`. No sign. */
+export function frNumber(n: number, decimals: number): string {
+  const [int, frac] = Math.abs(n).toFixed(decimals).split('.')
+  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, NARROW_NBSP)
+  return frac === undefined ? grouped : `${grouped},${frac}`
+}
+
+/** Signed French number: `+272,73`, `−64,74`. A rounded zero is a flat result: `+0,00`. */
+export function frSigned(n: number, decimals: number): string {
+  const body = frNumber(n, decimals)
+  const negative = n < 0 && Number(Math.abs(n).toFixed(decimals)) !== 0
+  return `${negative ? MINUS : '+'}${body}`
+}
+
 export function fmtEur(n: number, decimals = 2): string {
-  return `${n >= 0 ? '+' : ''}${n.toFixed(decimals)}€`
+  return `${frSigned(n, decimals)}${NARROW_NBSP}€`
 }
 
 export function fmtPct(n: number, decimals = 1): string {
-  return `${n >= 0 ? '+' : ''}${n.toFixed(decimals)}%`
+  return `${frSigned(n, decimals)}${NARROW_NBSP}%`
 }
 
 // Profit factor and win rate are meaningless for carry/portage bots (grid, funding-rate
@@ -39,11 +62,11 @@ export function isCarryFamily(family: string | null | undefined): boolean {
 }
 
 export function fmtPfForFamily(family: string | null | undefined, pf: number): string {
-  return isCarryFamily(family) ? '—' : pf.toFixed(2)
+  return isCarryFamily(family) ? '—' : frNumber(pf, 2)
 }
 
 export function fmtWinRateForFamily(family: string | null | undefined, winRate: number): string {
-  return isCarryFamily(family) ? '—' : `${(winRate * 100).toFixed(1)}%`
+  return isCarryFamily(family) ? '—' : `${frNumber(winRate * 100, 1)}${NARROW_NBSP}%`
 }
 
 // Unified display rule: PF/WR are meaningless for carry bots (no win/loss
@@ -65,12 +88,12 @@ export function fmtPfDisplay(family: string | null | undefined, totalTrades: num
   // No loss to divide by is an absent denominator, not an infinite figure. Served
   // as « ∞ » next to real PFs until 2026-09-25 (audit P0-5); same dash as carry.
   if (pf >= 999) return '—'
-  return pf.toFixed(2)
+  return frNumber(pf, 2)
 }
 
 export function fmtWinRateDisplay(family: string | null | undefined, totalTrades: number, winRate: number): string {
   if (isCarryFamily(family)) return '—'
-  return `${(winRate * 100).toFixed(1)}%`
+  return `${frNumber(winRate * 100, 1)}${NARROW_NBSP}%`
 }
 
 // A drawdown is painted as a loss only when there is one to show. The tables,
@@ -82,9 +105,10 @@ export function fmtWinRateDisplay(family: string | null | undefined, totalTrades
 // is not red either: colour and text come from this pair, which is why every
 // surface formats the figure through fmtDrawdown.
 export function fmtDrawdown(maxDrawdown: number): string {
-  return `${(maxDrawdown * 100).toFixed(1)}%`
+  return `${frNumber(maxDrawdown * 100, 1)}${NARROW_NBSP}%`
 }
 
 export function drawdownIsLoss(maxDrawdown: number): boolean {
-  return Number.parseFloat(fmtDrawdown(maxDrawdown)) !== 0
+  // Read back from the string the reader sees (comma decimal, U+202F groups).
+  return Number.parseFloat(fmtDrawdown(maxDrawdown).replace(NARROW_NBSP, '').replace(',', '.')) !== 0
 }

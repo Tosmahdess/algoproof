@@ -80,9 +80,12 @@ export default async function HomePage() {
             l'écran. Mesuré sur le build de production servi en local, 390x664 ;
             un garde ne peut pas tenir ça, seule une remesure le peut. */}
         <img src="/logo.svg" alt="" width={44} height={44} className="mx-auto mb-3 sm:mb-5 w-9 h-9 sm:w-11 sm:h-11" />
-        <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight mb-4 sm:mb-6">
+        {/* Display size is 4xl (40 px) in the lot 1 scale; the second line lost
+            its green on 2026-09-25 (C5): brand green lives in the wordmark only,
+            green on a title line reads as a gain. */}
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-4 sm:mb-6">
           Des stratégies testées.<br />
-          <span className="text-positive">Des comptes de sociétés examinés.</span>
+          Des comptes de sociétés examinés.
         </h1>
         <p className="text-base sm:text-lg text-muted max-w-3xl mx-auto mb-6 sm:mb-10">
           Je teste des stratégies de trading et je publie les résultats de mes bots, gains

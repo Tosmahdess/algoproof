@@ -13,8 +13,11 @@
      same tokens as the Tailwind utility classes, instead of duplicating hex. */
   --bg: #0a0a0a;
   --card: #111111;
+  --card-2: #161616;
   --border: #1e1e1e;
-  --muted: #888888;
+  --border-strong: #2a2a2a;
+  --muted: #8a8a8a;
+  --brand: #4ade80;
   --positive: #4ade80;
   --negative: #f87171;
   --accent: #818cf8;
@@ -29,7 +32,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Inter via next/font (layout.tsx); system-ui only while it loads. Until lot 1
+     the body was system-ui, so Windows, macOS and Android rendered three sites. */
+  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
 }
 
 .font-mono {
