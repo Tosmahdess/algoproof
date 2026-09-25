@@ -26,7 +26,7 @@ export default async function EmbedPage({ params }: { params: Promise<{ slug: st
     { label: 'WR', value: fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate), neutral: true },
     { label: 'PF', value: fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor), pos: bot.stats.profit_factor >= 1 },
     // Red only when there is a drawdown to show; « 0.0% » is neutral (display.ts).
-    { label: 'DRAWDOWN',  value: fmtDrawdown(bot.stats.max_drawdown), neutral: !drawdownIsLoss(bot.stats.max_drawdown), pos: false },
+    { label: 'DD', value: fmtDrawdown(bot.stats.max_drawdown), neutral: !drawdownIsLoss(bot.stats.max_drawdown), pos: false },
     { label: 'P&L',       value: fmtEur(eur),                                 pos: eur >= 0 },
   ]
 

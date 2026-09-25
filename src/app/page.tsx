@@ -217,7 +217,7 @@ export default async function HomePage() {
         <div>
           <h2 className="text-xl font-semibold">Stratégies actives</h2>
           <p className="text-sm text-muted mt-0.5">
-            {bots.length} expériences actives, {bots.filter(b => b.stats.total_trades > 0).length} avec des trades.
+            {bots.length} expériences actives, {bots.filter(b => b.stats.total_trades > 0).length}{' '}avec des trades.
             Les dix ci-dessous sont celles qui ont le plus d&apos;historique, pas celles qui gagnent le plus.
           </p>
         </div>
@@ -270,7 +270,7 @@ export default async function HomePage() {
               <th className="px-4 py-3 text-right">Trades</th>
               <th className="px-4 py-3 text-right hidden lg:table-cell">WR</th>
               <th className="px-4 py-3 text-right hidden lg:table-cell">PF</th>
-              <th className="px-4 py-3 text-right hidden lg:table-cell">Drawdown</th>
+              <th className="px-4 py-3 text-right hidden lg:table-cell">DD</th>
               <th className="px-4 py-3 text-right font-bold">P&amp;L (€)</th>
               <th className="px-4 py-3 text-center">Statut</th>
             </tr>

@@ -30,7 +30,7 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
           {[
             { label: 'WR', value: hasData ? fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate) : '—' },
             { label: 'PF', value: hasData ? fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor) : '—' },
-            { label: 'Drawdown',  value: hasData ? fmtDrawdown(stats.max_drawdown) : '—' },
+            { label: 'DD', value: hasData ? fmtDrawdown(stats.max_drawdown) : '—' },
             { label: 'Trades',    value: hasData ? String(stats.total_trades) : '—' },
           ].map(m => (
             <div key={m.label} className="bg-card-2 rounded-md p-3 text-center">

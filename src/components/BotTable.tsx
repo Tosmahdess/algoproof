@@ -70,7 +70,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
               <th className="px-4 py-3 text-right">Trades</th>
               <th className="px-4 py-3 text-right hidden lg:table-cell">WR</th>
               <th className="px-4 py-3 text-right hidden lg:table-cell">PF</th>
-              <th className="px-4 py-3 text-right hidden lg:table-cell">Drawdown</th>
+              <th className="px-4 py-3 text-right hidden lg:table-cell">DD</th>
               <th className="px-4 py-3 text-right font-bold">P&amp;L (€)</th>
               <th className="px-4 py-3 text-center">Statut</th>
             </tr>
