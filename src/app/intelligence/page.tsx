@@ -12,6 +12,7 @@ import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib
 import { getFleetImpact } from '@/lib/mi-fleet-impact'
 import { withoutRecommendation } from '@/lib/macro-report'
 import { trendFr } from '@/lib/regime-labels'
+import { mediumDate } from '@/lib/format-date'
 
 export const metadata: Metadata = {
   title: 'La météo du marché : régime, risque ON/OFF, en français',
@@ -118,7 +119,7 @@ export default async function IntelligencePage() {
       ])} />
       {/* Hero */}
       <div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-positive mb-2">
+        <p className="text-xs font-semibold text-muted mb-2">
           Météo du marché
         </p>
         <h1 className="text-3xl font-semibold tracking-tight mb-3">
@@ -167,7 +168,7 @@ export default async function IntelligencePage() {
           <h2 className="text-xl font-semibold">Analyse macro du jour</h2>
           {report && (
             <span className="text-xs text-muted font-mono">
-              {report.date}
+              {mediumDate(report.date)}
               {report.score != null && (
                 <> · score <span className={report.score >= 0 ? 'text-positive' : 'text-negative'}>{report.score.toFixed(1)}</span></>
               )}
@@ -181,7 +182,7 @@ export default async function IntelligencePage() {
         {reportContent ? (
           <div className="rounded border border-border bg-card px-6 py-5 prose prose-sm prose-invert max-w-none
             prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
-            prose-h1:text-lg prose-h2:text-sm prose-h2:uppercase prose-h2:tracking-widest prose-h2:text-muted prose-h2:mt-6
+            prose-h1:text-lg prose-h2:text-sm prose-h2:font-medium prose-h2:text-muted prose-h2:mt-6
             prose-p:text-sm prose-p:text-foreground prose-p:leading-relaxed
             prose-strong:text-foreground prose-blockquote:border-border prose-blockquote:text-muted prose-blockquote:text-xs">
             {reportContent}

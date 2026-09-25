@@ -1,11 +1,20 @@
 import type { Metadata } from 'next'
-import { JetBrains_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { Analytics } from '@vercel/analytics/react'
 import JsonLd from '@/components/JsonLd'
 import { organizationJsonLd } from '@/lib/jsonld'
+
+// One grotesque for the body (lot 1 of the design audit, §3.2). Three weights,
+// no more: regular for prose, medium for labels, semibold for headings.
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-sans',
+  display: 'swap',
+})
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -32,7 +41,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`bg-bg ${jetbrainsMono.variable}`}>
+    <html lang="fr" className={`bg-bg ${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen flex flex-col">
         <JsonLd data={organizationJsonLd()} />
         {/* First focusable element on every page. Invisible until focused (see

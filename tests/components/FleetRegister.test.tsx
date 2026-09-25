@@ -204,8 +204,8 @@ describe('FleetRegister — one table per timeframe', () => {
     const row = screen.getAllByText('Seasoned Bot')
       .map(el => el.closest('tr'))
       .find((el): el is HTMLTableRowElement => el !== null)!
-    expect(within(row).getByText(/1\.42/)).toBeTruthy()
-    expect(within(row).getByText(/\+100/)).toBeTruthy()
+    expect(within(row).getByText(/1,42/)).toBeTruthy()
+    expect(within(row).getByText(/\+100,00/)).toBeTruthy()
   })
 
   it('shows PF and win rate on a low-sample row, and marks the sample instead', () => {
@@ -221,8 +221,8 @@ describe('FleetRegister — one table per timeframe', () => {
     const row = screen.getAllByText('Fresh Bot')
       .map(el => el.closest('tr'))
       .find((el): el is HTMLTableRowElement => el !== null)!
-    expect(within(row).getByText(/9\.00/)).toBeTruthy()
-    expect(within(row).getByText(/100\.0%/)).toBeTruthy()
+    expect(within(row).getByText(/9,00/)).toBeTruthy()
+    expect(within(row).getByText(/100,0 %/)).toBeTruthy()
     expect(within(row).getByText(/⚠/)).toBeTruthy()
   })
 })

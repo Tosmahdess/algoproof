@@ -36,7 +36,7 @@ export default function DirectionFilterPills({ value, onChange, longCount, short
             }`}
           >
             {p.label}
-            {count !== undefined && <span className="ml-1 text-[10px] opacity-70">({count})</span>}
+            {count !== undefined && <span className="ml-1 text-xs opacity-70">({count})</span>}
           </button>
         )
       })}

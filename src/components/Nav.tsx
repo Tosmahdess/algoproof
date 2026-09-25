@@ -168,7 +168,7 @@ export default function Nav() {
             href={LAB_APP_URL}
             event="cta_lab"
             location="nav"
-            className="text-xs font-semibold tracking-widest border rounded px-3 py-1 transition-colors border-positive text-positive hover:bg-positive hover:text-black"
+            className="text-xs font-semibold rounded-md px-3 py-1.5 bg-foreground text-bg hover:opacity-90 transition-opacity"
           >
             LE LABO
           </TrackedLink>

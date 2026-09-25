@@ -39,7 +39,7 @@ export function Verdict({ status, label, children }: VerdictProps) {
   return (
     <aside className={`not-prose my-8 border-l-2 ${s.border} ${s.bg} pl-5 pr-5 py-4 rounded-r-md`}>
       <div className="flex items-center gap-3 mb-2">
-        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-mono font-semibold tracking-wider ${s.badge}`}>
+        <span className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-semibold tracking-wider ${s.badge}`}>
           {defaultText[status]}
         </span>
         {label && (

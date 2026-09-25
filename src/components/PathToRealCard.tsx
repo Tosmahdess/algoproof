@@ -33,7 +33,6 @@ export default function PathToRealCard({ status, stats, liveGate }: Props) {
   return (
     <div className="bg-card border border-border rounded-lg p-6 mb-8">
       <div className="flex items-center gap-3 mb-5">
-        <span className="text-xl">{allMet ? '🔓' : '🔒'}</span>
         <div>
           <p className="font-semibold text-sm">Avant le moindre euro réel</p>
           <p className="text-xs text-muted">Le même gate que tous mes bots : 4 critères, publics, non négociables.</p>

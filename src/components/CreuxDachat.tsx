@@ -69,7 +69,7 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
 
   return (
     <section className="rounded-lg border border-border bg-card px-5 py-4">
-      <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-1">
+      <h2 className="text-sm font-semibold text-muted mb-1">
         Creux repérés récemment
       </h2>
       <p className="text-xs text-muted leading-relaxed mb-3">

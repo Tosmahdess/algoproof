@@ -27,13 +27,13 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
 
   return (
     <section data-testid="fleet-recent-trades" className="bg-card border border-border rounded-lg p-6">
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+      <h2 className="text-xs font-semibold text-muted mb-4">
         Derniers trades ({trades.length})
       </h2>
       <div className="-mx-2 overflow-x-auto">
         <table className="w-full text-xs min-w-[480px]">
           <thead>
-            <tr className="text-muted uppercase tracking-wider border-b border-border">
+            <tr className="text-xs font-medium uppercase tracking-wider text-muted border-b border-border">
               <th className="px-2 py-2 text-left">Date</th>
               <th className="px-2 py-2 text-left">Bot</th>
               <th className="px-2 py-2 text-left hidden sm:table-cell">Actif</th>

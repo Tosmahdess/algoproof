@@ -64,8 +64,8 @@ describe('FleetBalance — stage 0', () => {
     render(<FleetBalance aggregate={AGG} />)
     const stage0 = screen.getByTestId('fleet-balance')
     // Newest first: 2026-07-02 (laboratory loss, -60) then 2026-07-01 (real win, +40).
-    expect(within(stage0).getByText('2/7/2026')).toBeTruthy()
-    expect(within(stage0).getByText('1/7/2026')).toBeTruthy()
+    expect(within(stage0).getByText('2 juil. 2026')).toBeTruthy()
+    expect(within(stage0).getByText('1 juil. 2026')).toBeTruthy()
 
     const table = within(stage0).getByTestId('fleet-balance-table')
     // FIX (final whole-branch review, I7): four columns, not six. « Taux de
@@ -83,8 +83,8 @@ describe('FleetBalance — stage 0', () => {
     // of 1/7, -60 on the laboratory side of 2/7, and each exactly once.
     const rows = within(table).getAllByRole('row').slice(1) // drop the header row
     const cells = (i: number) => within(rows[i]).getAllByRole('cell').map(c => c.textContent)
-    expect(cells(0)).toEqual(['2/7/2026', '1', '+0.00€', '-60.00€'])
-    expect(cells(1)).toEqual(['1/7/2026', '1', '+40.00€', '+0.00€'])
+    expect(cells(0)).toEqual(['2 juil. 2026', '1', '+0,00 €', '−60,00 €'])
+    expect(cells(1)).toEqual(['1 juil. 2026', '1', '+40,00 €', '+0,00 €'])
   })
 
   // AGG mixes cohorts: one live trade and one laboratory trade, on different
@@ -118,8 +118,8 @@ describe('FleetBalance — day-by-day table pagination', () => {
   it('leaves the headline balance and totals unchanged after expanding the day table', () => {
     render(<FleetBalance aggregate={MANY_DAYS} />)
     const stage0 = screen.getByTestId('fleet-balance')
-    const headlineBefore = within(stage0).getByText(fmtEur(MANY_DAYS.totalPnlReal)).textContent
-    const laboBefore = within(stage0).getByText(fmtEur(MANY_DAYS.totalPnlLabo)).textContent
+    const headlineBefore = within(stage0).getByText(/\+50,00 €/).textContent
+    const laboBefore = within(stage0).getByText(/\+40,00 €/).textContent
     const tradesLineBefore = screen.getByText(/trades depuis le début/).textContent
 
     fireEvent.click(screen.getByRole('button', { name: /Afficher plus/ }))
@@ -131,8 +131,8 @@ describe('FleetBalance — day-by-day table pagination', () => {
 
     // But the balance sheet above it — the thing FleetBalance actually owns —
     // never moved.
-    expect(within(stage0).getByText(fmtEur(MANY_DAYS.totalPnlReal)).textContent).toBe(headlineBefore)
-    expect(within(stage0).getByText(fmtEur(MANY_DAYS.totalPnlLabo)).textContent).toBe(laboBefore)
+    expect(within(stage0).getByText(/\+50,00 €/).textContent).toBe(headlineBefore)
+    expect(within(stage0).getByText(/\+40,00 €/).textContent).toBe(laboBefore)
     expect(screen.getByText(/trades depuis le début/).textContent).toBe(tradesLineBefore)
   })
 

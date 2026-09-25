@@ -72,7 +72,7 @@ export function EquityDisclosure({
 }) {
   return (
     <section className="mt-12 border-t border-border pt-6 text-xs text-muted leading-relaxed space-y-3">
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
+      <h2 className="text-xs font-semibold text-muted">
         Qui écrit ceci, et dans quel cadre
       </h2>
 

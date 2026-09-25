@@ -56,7 +56,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         {article.meta.category && (() => {
           const cat = BLOG_CATEGORIES[article.meta.category as BlogCategory]
           return cat ? (
-            <span className={`px-2 py-0.5 rounded border text-[10px] font-semibold uppercase tracking-wider ${cat.color}`}>
+            <span className={`px-2 py-0.5 rounded border text-xs font-semibold ${cat.color}`}>
               {cat.label}
             </span>
           ) : null

@@ -19,7 +19,7 @@ export default function AssetFilterSelect({ options, value, onChange, label = 'A
   return (
     // Hidden on mobile to declutter (direction pills + per-strategy asset list suffice on phones).
     <div className="hidden sm:block">
-      <div className="text-xs font-semibold uppercase tracking-widest text-muted mb-1.5">{label}</div>
+      <div className="text-xs font-semibold text-muted mb-1.5">{label}</div>
       <select
         value={value}
         onChange={e => onChange(e.target.value)}

@@ -36,7 +36,7 @@ export function Row({ values, _colCount, _aligns, _isSummary, _widths, _headers 
           const color = numeric ? signColor[detectSign(cell)] : 'text-foreground'
           return (
             <div key={j} className="flex gap-2 text-sm">
-              <dt className="shrink-0 text-xs font-semibold uppercase tracking-widest text-muted pt-0.5">{_headers?.[j + 1]}</dt>
+              <dt className="shrink-0 text-xs font-semibold text-muted pt-0.5">{_headers?.[j + 1]}</dt>
               <dd className={`min-w-0 break-words ${numeric ? 'font-mono tabular-nums' : ''} ${color}`}>{cell}</dd>
             </div>
           )
@@ -113,7 +113,7 @@ export function CompactTable({ cols, widths, aligns, summary, children }: Compac
               return (
                 <div
                   key={i}
-                  className={`px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-muted ${
+                  className={`px-3 sm:px-4 py-2.5 text-xs font-semibold text-muted ${
                     right ? 'text-right whitespace-nowrap' : 'text-left'
                   }`}
                 >

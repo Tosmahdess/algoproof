@@ -18,7 +18,7 @@ type Tab = 'functional' | 'technical' | 'discussion'
 const BODY_TEXT = 'text-sm leading-relaxed'
 
 const TAB_STYLE = (active: boolean) =>
-  `px-6 py-3 text-xs font-semibold tracking-widest uppercase border-b-2 -mb-px transition-colors ${
+  `px-6 py-3 text-xs font-semibold border-b-2 -mb-px transition-colors ${
     active
       ? 'text-foreground border-accent'
       : 'text-muted border-transparent hover:text-foreground'
@@ -51,14 +51,14 @@ export default function ExplainerBox({
     <div className="rounded border border-border overflow-hidden">
       <div className="flex border-b border-border bg-card">
         <button data-tab="functional" onClick={() => setActive('functional')} className={TAB_STYLE(active === 'functional')}>
-          📖 Fonctionnel
+          Fonctionnel
         </button>
         <button data-tab="technical" onClick={() => setActive('technical')} className={TAB_STYLE(active === 'technical')}>
           ⚙️ Technique
         </button>
         {showDiscussion && (
           <button data-tab="discussion" onClick={() => setActive('discussion')} className={TAB_STYLE(active === 'discussion')}>
-            💬 Discussion
+            Discussion
           </button>
         )}
       </div>

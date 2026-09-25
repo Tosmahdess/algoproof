@@ -76,7 +76,8 @@ describe('/ — the home opens on both activities, not on the lab alone', () => 
     render(await HomePage())
     const cls = screen.getByRole('heading', { level: 1 }).className
     expect(cls, cls).toMatch(/(^|\s)text-3xl(\s|$)/)
-    expect(cls, cls).toMatch(/(^|\s)sm:text-5xl(\s|$)/)
+    // 4xl (40 px) since the lot 1 scale closed at 4xl; the phone size is still first.
+    expect(cls, cls).toMatch(/(^|\s)sm:text-4xl(\s|$)/)
   })
 
   it('the hero says what I publish on both sides', async () => {
@@ -302,7 +303,7 @@ describe('/ — the two entries are a matched pair', () => {
       .find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab')!
     const investir = [...screen.getByTestId('entry-companies').querySelectorAll('a')]
       .find(a => a.getAttribute('href') === '/investir')!
-    expect(lab.getAttribute('class')).toContain('bg-positive')
+    expect(lab.getAttribute('class')).toContain('bg-foreground')
     expect(investir.getAttribute('class')).toBe(lab.getAttribute('class'))
   })
 

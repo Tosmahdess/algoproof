@@ -33,7 +33,7 @@ export default function EngineBotSummary({ fiche, conceptSlug, slug, timeframe, 
       <dl className="space-y-2.5">
         {rows.map(r => (
           <div key={r.label} className="flex flex-col sm:flex-row sm:gap-3">
-            <dt className="text-xs font-semibold uppercase tracking-widest text-muted sm:w-36 shrink-0 sm:pt-0.5">{r.label}</dt>
+            <dt className="text-xs font-semibold text-muted sm:w-36 shrink-0 sm:pt-0.5">{r.label}</dt>
             <dd className="text-sm leading-relaxed">{r.text}</dd>
           </div>
         ))}

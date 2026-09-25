@@ -6,7 +6,7 @@
 import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
-import { familyColor, familyLabel } from '@/lib/families'
+import { familyLabel } from '@/lib/families'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 import type { FleetBot } from '@/lib/types'
 
@@ -35,7 +35,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium truncate">{bot.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs font-semibold uppercase" style={{ color: familyColor(bot.family) }}>
+                  <span className="text-xs text-muted">
                     {familyLabel(bot.family)}
                   </span>
                   {showTf && <span className="text-xs text-muted">{bot.timeframe}</span>}
@@ -63,14 +63,14 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
       <div className="hidden md:block rounded border border-border overflow-hidden mb-6">
         <table className="w-full text-xs">
           <thead className="bg-card">
-            <tr className="text-xs font-semibold uppercase tracking-widest text-muted border-b border-border">
+            <tr className="text-xs font-semibold uppercase tracking-wider text-muted border-b border-border">
               <th className="px-4 py-3 text-left">Stratégie</th>
               <th className="px-4 py-3 text-left">Famille</th>
               {showTf && <th className="px-4 py-3 text-left">TF</th>}
               <th className="px-4 py-3 text-right">Trades</th>
-              <th className="px-4 py-3 text-right hidden lg:table-cell">T. gain</th>
-              <th className="px-4 py-3 text-right hidden lg:table-cell">F. profit</th>
-              <th className="px-4 py-3 text-right hidden lg:table-cell">Drawdown</th>
+              <th className="px-4 py-3 text-right hidden lg:table-cell">WR</th>
+              <th className="px-4 py-3 text-right hidden lg:table-cell">PF</th>
+              <th className="px-4 py-3 text-right hidden lg:table-cell">DD</th>
               <th className="px-4 py-3 text-right font-bold">P&amp;L (€)</th>
               <th className="px-4 py-3 text-center">Statut</th>
             </tr>
@@ -85,7 +85,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                     <p className="text-muted text-xs mt-0.5">{bot.exchange} · {bot.timeframe}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: familyColor(bot.family) }}>
+                    <span className="text-xs text-muted">
                       {familyLabel(bot.family)}
                     </span>
                   </td>

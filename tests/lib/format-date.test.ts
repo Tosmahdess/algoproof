@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { shortDate, shortDatePadded, longDate, numericDate, formatDate, SITE_TIME_ZONE } from '@/lib/format-date'
+import { shortDate, shortDatePadded, mediumDate, longDate, numericDate, formatDate, SITE_TIME_ZONE } from '@/lib/format-date'
 
 /**
  * Every call site passed 'fr-FR' and none passed a timeZone. Vercel renders in
@@ -34,6 +34,10 @@ describe('format-date', () => {
 
   it('keeps the early hours of a day on that day', () => {
     expect(numericDate('2026-09-04T00:30:00Z')).toBe('04/09/2026')
+  })
+
+  it('formats a dated row or figure with the site-wide medium date', () => {
+    expect(mediumDate('2026-09-24T10:00:00Z')).toContain('24 sept. 2026')
   })
 
   it('formatDate carries the zone through arbitrary options', () => {

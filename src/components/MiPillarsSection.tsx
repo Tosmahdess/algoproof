@@ -19,7 +19,7 @@ interface Props {
 }
 
 const TAB_STYLE = (active: boolean) =>
-  `px-4 py-2 text-xs font-semibold tracking-widest uppercase rounded transition-colors whitespace-nowrap ${
+  `px-4 py-2 text-xs font-semibold rounded transition-colors whitespace-nowrap ${
     active
       ? 'bg-card text-foreground'
       : 'text-muted hover:text-foreground'
@@ -63,13 +63,13 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
       {activePillar && (
         <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
           <div className="px-6 py-5">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+            <p className="text-xs font-semibold text-muted mb-3">
               En pratique
             </p>
             <p className="text-sm leading-relaxed">{activePillar.functional}</p>
           </div>
           <div className="px-6 py-5 bg-card">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+            <p className="text-xs font-semibold text-muted mb-3">
               Technique
             </p>
             <p className="text-sm leading-relaxed">{activePillar.technical}</p>

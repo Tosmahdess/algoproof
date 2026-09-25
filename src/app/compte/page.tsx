@@ -40,7 +40,7 @@ export default async function ComptePage() {
             complets. Sur ce site, elle donne aussi accès à deux paragraphes d&apos;analyse par
             société : ce que ses chiffres veulent dire pour son métier, et ce qui peut mal tourner.
           </p>
-          <a href="https://lab.algoproof.fr/membre" className="inline-block rounded-lg bg-positive px-4 py-2 text-sm font-semibold text-bg">
+          <a href="https://lab.algoproof.fr/membre" className="inline-block rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-bg">
             Voir l&apos;abonnement
           </a>
         </div>
@@ -48,7 +48,7 @@ export default async function ComptePage() {
 
       {entitlement === 'paid' && (
         <div className="space-y-4">
-          <p className="text-sm text-positive">Abonnement actif. Tout est ouvert.</p>
+          <p className="text-sm text-foreground">Abonnement actif. Tout est ouvert.</p>
           <a href="/investir" className={linkClass('inline', 'text-sm')}>Aller aux analyses</a>
         </div>
       )}

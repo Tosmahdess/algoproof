@@ -71,14 +71,14 @@ export default function MiBanner() {
         <div className="px-5 py-3 flex items-center gap-4" style={{ background: color + '12' }}>
           <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ background: color }} />
           <div className="flex-1 flex items-center gap-4 flex-wrap">
-            <span className="text-sm font-bold tracking-widest uppercase" style={{ color }}>
+            <span className="text-sm font-bold" style={{ color }}>
               {label}
             </span>
             <span className="font-mono text-xs text-muted">
               Score composite : {snap.composite_score?.toFixed(2) ?? '—'}
             </span>
             <span className="text-xs text-muted">
-              {snap.is_safe ? '✅ Trading autorisé' : '🔴 Trading bloqué'}
+              {snap.is_safe ? 'Trading autorisé' : 'Trading bloqué'}
             </span>
           </div>
           <span className="text-xs text-muted flex-shrink-0">màj il y a {ageMin} min</span>
@@ -90,7 +90,7 @@ export default function MiBanner() {
             const val = snap[p.key] as number | null
             return (
               <div key={p.key} className="px-4 py-3 text-center">
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-1">
+                <p className="text-xs font-semibold text-muted mb-1">
                   {p.label} <span className="opacity-50">{p.weight}</span>
                 </p>
                 <p className="font-mono font-bold text-base" style={{ color: p.color }}>

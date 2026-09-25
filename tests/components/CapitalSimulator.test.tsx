@@ -17,15 +17,15 @@ describe('CapitalSimulator', () => {
   it('renders scaled results at the default 500 € preset', () => {
     render(<CapitalSimulator perfDaily={perf} startCapital={1000} />)
     // +40 on 1000 → +20 on 500
-    expect(screen.getByText('+20.00€')).toBeInTheDocument()
+    expect(screen.getByText(/\+20,00 €/)).toBeInTheDocument()
     // worst month −60 → −30 ; max drawdown (peak 1050 → 990) −60 → −30 too
-    expect(screen.getAllByText('-30.00€')).toHaveLength(2)
+    expect(screen.getAllByText(/−30,00 €/)).toHaveLength(2)
   })
 
   it('rescales when another preset is clicked', () => {
     render(<CapitalSimulator perfDaily={perf} startCapital={1000} />)
     fireEvent.click(screen.getByText('2500 €'))
-    expect(screen.getByText('+100.00€')).toBeInTheDocument()
+    expect(screen.getByText(/\+100,00 €/)).toBeInTheDocument()
   })
 
   it('carries the non-projection disclaimer', () => {

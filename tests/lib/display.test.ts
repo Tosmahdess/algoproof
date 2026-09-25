@@ -1,5 +1,43 @@
 import { describe, it, expect } from 'vitest'
-import { isCarryFamily, fmtPfForFamily, fmtWinRateForFamily, fmtPfDisplay, fmtWinRateDisplay, isLowSample, LOW_SAMPLE_TRADES } from '@/lib/display'
+import { isCarryFamily, fmtPfForFamily, fmtWinRateForFamily, fmtPfDisplay, fmtWinRateDisplay, isLowSample, LOW_SAMPLE_TRADES, fmtEur, fmtPct, fmtDrawdown, drawdownIsLoss } from '@/lib/display'
+
+// Conception C4 (2026-09-25): every number the reader sees is French. Decimal comma,
+// a narrow no-break space (U+202F) before € and % and between thousands, the real
+// minus sign (U+2212), an explicit plus on a gain. Until then the same page printed
+// « 41 333 092 » (fr-FR) next to « +272.73€ » (toFixed).
+const NB = ' '
+const MINUS = '−'
+
+describe('fmtEur / fmtPct — French figures', () => {
+  it('writes a gain with a plus, a comma and a spaced euro sign', () => {
+    expect(fmtEur(272.73)).toBe(`+272,73${NB}€`)
+  })
+  it('writes a loss with the real minus sign', () => {
+    expect(fmtEur(-64.74)).toBe(`${MINUS}64,74${NB}€`)
+  })
+  it('groups thousands with a narrow no-break space', () => {
+    expect(fmtEur(1234.5)).toBe(`+1${NB}234,50${NB}€`)
+    expect(fmtEur(-12345.678, 0)).toBe(`${MINUS}12${NB}346${NB}€`)
+  })
+  it('keeps zero positive, as a flat result', () => {
+    expect(fmtEur(0)).toBe(`+0,00${NB}€`)
+  })
+  it('formats a percentage the same way', () => {
+    expect(fmtPct(27.3)).toBe(`+27,3${NB}%`)
+    expect(fmtPct(-6.54)).toBe(`${MINUS}6,5${NB}%`)
+  })
+})
+
+describe('fmtDrawdown — French, unsigned, still readable by drawdownIsLoss', () => {
+  it('writes the drawdown as a French percentage without a sign', () => {
+    expect(fmtDrawdown(0.291)).toBe(`29,1${NB}%`)
+    expect(fmtDrawdown(0)).toBe(`0,0${NB}%`)
+  })
+  it('paints only a non-zero drawdown as a loss', () => {
+    expect(drawdownIsLoss(0.291)).toBe(true)
+    expect(drawdownIsLoss(0.0004)).toBe(false)
+  })
+})
 
 describe('isCarryFamily', () => {
   it('returns true only for the carry family', () => {
@@ -20,8 +58,8 @@ describe('fmtPfForFamily', () => {
   })
 
   it('renders the formatted profit factor for non-carry families', () => {
-    expect(fmtPfForFamily('trend', 2.0021170102143877)).toBe('2.00')
-    expect(fmtPfForFamily(null, 1.5)).toBe('1.50')
+    expect(fmtPfForFamily('trend', 2.0021170102143877)).toBe('2,00')
+    expect(fmtPfForFamily(null, 1.5)).toBe('1,50')
   })
 })
 
@@ -33,7 +71,7 @@ describe('fmtWinRateForFamily', () => {
   })
 
   it('renders the formatted win rate for non-carry families', () => {
-    expect(fmtWinRateForFamily('trend', 0.5384615384615384)).toBe('53.8%')
+    expect(fmtWinRateForFamily('trend', 0.5384615384615384)).toBe('53,8 %')
   })
 })
 
@@ -47,15 +85,15 @@ describe('fmtPfDisplay / fmtWinRateDisplay and the low-sample threshold', () => 
   // moved to isLowSample, which still marks the trade count — so the reader gets
   // the figure AND the warning, where before they got neither.
   it('shows the profit factor even below the threshold', () => {
-    expect(fmtPfDisplay('trend', LOW_SAMPLE_TRADES - 1, 1.5)).toBe('1.50')
-    expect(fmtPfDisplay('trend', 1, 1.5)).toBe('1.50')
-    expect(fmtPfDisplay('trend', LOW_SAMPLE_TRADES, 1.5)).toBe('1.50')
+    expect(fmtPfDisplay('trend', LOW_SAMPLE_TRADES - 1, 1.5)).toBe('1,50')
+    expect(fmtPfDisplay('trend', 1, 1.5)).toBe('1,50')
+    expect(fmtPfDisplay('trend', LOW_SAMPLE_TRADES, 1.5)).toBe('1,50')
   })
 
   it('shows the win rate even below the threshold', () => {
-    expect(fmtWinRateDisplay('trend', LOW_SAMPLE_TRADES - 1, 0.5)).toBe('50.0%')
-    expect(fmtWinRateDisplay('trend', 1, 0.5)).toBe('50.0%')
-    expect(fmtWinRateDisplay('trend', LOW_SAMPLE_TRADES, 0.5)).toBe('50.0%')
+    expect(fmtWinRateDisplay('trend', LOW_SAMPLE_TRADES - 1, 0.5)).toBe('50,0 %')
+    expect(fmtWinRateDisplay('trend', 1, 0.5)).toBe('50,0 %')
+    expect(fmtWinRateDisplay('trend', LOW_SAMPLE_TRADES, 0.5)).toBe('50,0 %')
   })
 
   // The guards that DID survive, pinned so that lifting the sample gate is not

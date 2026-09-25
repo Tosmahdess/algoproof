@@ -25,7 +25,7 @@ function BlocsRendus({ blocs }: { blocs: Partial<Blocs> }) {
       {CLES.map(cle =>
         blocs[cle] ? (
           <section key={cle}>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
+            <h2 className="text-sm font-semibold text-muted mb-2">
               {TITRES[cle]}
             </h2>
             <p className="text-foreground leading-relaxed">{blocs[cle]}</p>
@@ -100,7 +100,7 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
 
   return (
     <section className="rounded-lg border border-accent/30 bg-accent/5 px-5 py-5">
-      <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-3">
+      <h2 className="text-sm font-semibold text-muted mb-3">
         Ce que j’en retiens
       </h2>
       {/* La même phrase que /preuve, la FAQ et la page d'abonnement du labo :
@@ -129,7 +129,7 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
       <div className="mt-4 flex flex-wrap gap-3">
         <a
           href="https://lab.algoproof.fr/membre"
-          className="rounded-lg bg-positive px-4 py-2 text-sm font-semibold text-black hover:opacity-90 transition-opacity"
+          className="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-bg hover:opacity-90 transition-opacity"
         >
           Voir l’abonnement
         </a>

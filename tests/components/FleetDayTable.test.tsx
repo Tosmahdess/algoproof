@@ -8,7 +8,8 @@ import type { DayRow } from '@/lib/fleet-aggregate'
 // React key here; the component never parses it.
 function mkRows(n: number): DayRow[] {
   return Array.from({ length: n }, (_, i) => ({
-    date: `day-${n - i}`,
+    // Real dates: the column renders mediumDate(row.date) since lot 1 (« 23 juil. 2026 »).
+    date: `2026-07-${String(n - i).padStart(2, '0')}`,
     dateFr: `Jour ${n - i}`,
     trades: 1,
     pnlReal: i,
@@ -21,8 +22,8 @@ describe('FleetDayTable', () => {
     render(<FleetDayTable rows={mkRows(23)} />)
     // 1 header row + 7 data rows.
     expect(screen.getAllByRole('row')).toHaveLength(8)
-    expect(screen.getByText('Jour 23')).toBeTruthy()
-    expect(screen.getByText('Jour 17')).toBeTruthy()
+    expect(screen.getByText('23 juil. 2026')).toBeTruthy()
+    expect(screen.getByText('17 juil. 2026')).toBeTruthy()
     expect(screen.queryByText('Jour 16')).toBeNull()
   })
 
@@ -35,7 +36,7 @@ describe('FleetDayTable', () => {
     render(<FleetDayTable rows={mkRows(23)} />)
     fireEvent.click(screen.getByRole('button', { name: /Afficher plus/ }))
     expect(screen.getAllByRole('row')).toHaveLength(24)
-    expect(screen.getByText('Jour 1')).toBeTruthy()
+    expect(screen.getByText('1 juil. 2026')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Afficher moins' })).toBeTruthy()
     expect(screen.queryByRole('button', { name: /Afficher plus/ })).toBeNull()
   })

@@ -56,11 +56,11 @@ export default function StickyFilterBar(
           onClick={() => setOpen(v => !v)}
           aria-expanded={open}
           aria-controls={panelId}
-          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted hover:text-foreground"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-muted hover:text-foreground"
         >
           Filtres
           {activeCount > 0 && (
-            <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold text-accent">
+            <span className="rounded-full bg-accent/20 px-2 py-0.5 text-xs font-bold text-accent">
               {activeCount}
             </span>
           )}

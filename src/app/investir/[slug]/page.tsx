@@ -46,7 +46,7 @@ function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
 
       {fiche.description && (
         <section className="mb-8">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
+          <h2 className="text-sm font-semibold text-muted mb-2">
             Ce que fait l’entreprise
           </h2>
           <p className="text-foreground leading-relaxed">{fiche.description}</p>
@@ -184,7 +184,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
           ['Marge nette', c.marge],
         ] as const).map(([label, valeur]) => (
           <div key={label} className="bg-card px-4 py-3">
-            <dt className="text-xs font-semibold uppercase tracking-widest text-muted">{label}</dt>
+            <dt className="text-xs font-semibold text-muted">{label}</dt>
             <dd className="text-sm font-semibold font-mono mt-1">{valeur ?? '—'}</dd>
           </div>
         ))}
@@ -193,7 +193,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
       <div className="space-y-8">
         {recit.map(({ cle, titre }) => (
           <section key={cle}>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-2">
+            <h2 className="text-sm font-semibold text-muted mb-2">
               {titre}
             </h2>
             <p className="text-foreground leading-relaxed">{fiche.blocs[cle]}</p>
@@ -209,7 +209,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
 
       {fiche.ticker && (
         <section className="mt-10 rounded border border-border bg-card px-5 py-4">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted mb-3">
+          <h2 className="text-sm font-semibold text-muted mb-3">
             Le cours du titre
           </h2>
           <CoursTradingView symbole={fiche.ticker} />
@@ -223,13 +223,13 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
 
       {comptes.length > 0 && (
         <details className="mt-10 rounded border border-border bg-card px-5 py-4">
-          <summary className="cursor-pointer text-sm font-semibold uppercase tracking-widest text-muted">
+          <summary className="cursor-pointer text-sm font-semibold text-muted">
             Les comptes en détail
           </summary>
           <div className="mt-5 space-y-5">
             {comptes.map(({ cle, titre }) => (
               <section key={cle}>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                <h3 className="text-xs font-semibold text-muted mb-1">
                   {titre}
                 </h3>
                 <p className="text-sm text-foreground leading-relaxed">{fiche.blocs[cle]}</p>
@@ -241,7 +241,7 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
 
       {fiche.blocs.source && (
         <details className="mt-4 rounded border border-border px-5 py-4">
-          <summary className="cursor-pointer text-sm font-semibold uppercase tracking-widest text-muted">
+          <summary className="cursor-pointer text-sm font-semibold text-muted">
             Refais-le toi-même
           </summary>
           <p className="mt-4 text-sm text-foreground leading-relaxed">{fiche.blocs.source}</p>

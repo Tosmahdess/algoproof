@@ -7,15 +7,15 @@ const stats = { win_rate: 0.52, profit_factor: 1.84, max_drawdown: 0.064, total_
 describe('MetricsRow', () => {
   it('renders win rate as percentage', () => {
     render(<MetricsRow stats={stats} />)
-    expect(screen.getByText('52.0%')).toBeInTheDocument()
+    expect(screen.getByText(/52,0 %/)).toBeInTheDocument()
   })
   it('renders profit factor', () => {
     render(<MetricsRow stats={stats} />)
-    expect(screen.getByText('1.84')).toBeInTheDocument()
+    expect(screen.getByText('1,84')).toBeInTheDocument()
   })
   it('renders max drawdown as percentage', () => {
     render(<MetricsRow stats={stats} />)
-    expect(screen.getByText('6.4%')).toBeInTheDocument()
+    expect(screen.getByText(/6,4 %/)).toBeInTheDocument()
   })
   it('renders trade count', () => {
     render(<MetricsRow stats={stats} />)
