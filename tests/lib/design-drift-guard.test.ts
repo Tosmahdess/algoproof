@@ -33,11 +33,14 @@ interface Rule {
   allow?: string[]
 }
 
-// Lot 2 rewrites the navigation and the footer (six flat links, one button, four
-// columns); their chrome is exempt here until then, not forever.
-const CHROME_LOT_2 = ['components/Nav.tsx', 'components/Footer.tsx']
+// Lot 2 (2026-09-25) rewrote the navigation and the footer: no chrome is exempt
+// any more.
+const CHROME_LOT_2: string[] = []
 
 const RULES: Rule[] = [
+  // C5: the brand green lives in the wordmark only. `text-brand` has the same
+  // value as `text-positive`; its own name is what lets this rule exist.
+  { re: /\btext-brand\b/, why: 'text-brand — the wordmark only (Nav.tsx)', sample: '<span className="text-brand">PROOF</span>', allow: ['components/Nav.tsx'] },
   { re: /(?<![\w:-])text-white\b/, why: 'text-white — use text-foreground', sample: 'className="text-white"' },
   { re: /hover:text-white\b/, why: 'hover:text-white — use a linkClass role or hover:text-foreground', sample: 'className="a hover:text-white"' },
   { re: /text-foreground\/\d+/, why: 'text-foreground/NN — prose is foreground or muted, nothing in between', sample: 'text-foreground/80' },

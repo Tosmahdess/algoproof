@@ -1,48 +1,84 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import Footer from '@/components/Footer'
 
+// Lot 2 of the design audit (conception §2.4): four columns instead of six, titles
+// in sentence case, the same five words as the bar, the lab's links under one
+// heading that says it leaves the site.
 describe('Footer sitemap', () => {
-  it('renders all 5 hub column titles', () => {
+  it('renders the four column titles, in sentence case', () => {
     render(<Footer />)
-    for (const t of ['Mes bots', 'Investir', 'Météo du marché', 'Apprendre', 'Le labo']) {
-      expect(screen.getByRole('heading', { name: t, level: 3 })).toBeDefined()
-    }
+    const titles = screen.getAllByRole('heading', { level: 3 })
+    expect(titles.map(h => h.textContent?.trim())).toEqual(['Le site', 'Comprendre', 'Le labo ↗', 'Le projet'])
+    for (const h of titles) expect(h.className).not.toMatch(/\buppercase\b|tracking-wid/)
   })
 
-  it('links the previously-orphan pages', () => {
+  it('« Le site » lists the five destinations of the bar, with the bar’s words', () => {
     render(<Footer />)
-    expect(screen.getByRole('link', { name: /en règle/i })).toBeDefined()       // /mica
-    expect(screen.getByRole('link', { name: /ma méthode/i })).toBeDefined()     // /preuve
-    expect(screen.getByRole('link', { name: /démarrer/i })).toBeDefined()       // /start
+    const col = screen.getByRole('heading', { name: 'Le site', level: 3 }).parentElement!
+    expect(within(col).getAllByRole('link').map(a => [a.textContent?.trim(), a.getAttribute('href')])).toEqual([
+      ['La flotte', '/overview'], ['Stratégies', '/strategies'], ['Sociétés', '/investir'],
+      ['Météo', '/intelligence'], ['Articles', '/blog'],
+    ])
   })
 
-  // D053: « Backtester » names the tool, so it opens the tool; « Découvrir le
-  // labo » names the pitch, so it keeps the landing at the lab root.
-  it('opens the backtester in the app and keeps « Découvrir le labo » on the landing', () => {
+  it('« Comprendre » links the method, the lexicon, the FAQ and the graveyard', () => {
     render(<Footer />)
-    expect(screen.getByRole('link', { name: /backtester/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
-    expect(screen.getByRole('link', { name: /découvrir le labo/i }).getAttribute('href')).toBe('https://lab.algoproof.fr')
+    const col = screen.getByRole('heading', { name: 'Comprendre', level: 3 }).parentElement!
+    const hrefs = within(col).getAllByRole('link').map(a => a.getAttribute('href'))
+    expect(hrefs).toEqual(['/preuve', '/lexique', '/faq', 'https://lab.algoproof.fr/cockpit/cimetiere'])
   })
 
-  // /journal was removed 2026-08-08 — guard the removal so a copy/paste never revives a link
-  // to a page that now 301s to the home.
+  it('« Le labo » opens the app, the tutorials, the agents, the membership, the account, and keeps the landing', () => {
+    render(<Footer />)
+    const col = screen.getByRole('heading', { name: 'Le labo ↗', level: 3 }).parentElement!
+    const links = within(col).getAllByRole('link').map(a => [a.textContent?.trim(), a.getAttribute('href')])
+    expect(links).toEqual([
+      ['Tester une stratégie', 'https://lab.algoproof.fr/lab'],
+      ['Tutoriels', 'https://lab.algoproof.fr/apprendre'],
+      ['Agents IA (MCP)', 'https://lab.algoproof.fr/agents'],
+      ['Abonnement', 'https://lab.algoproof.fr/membre'],
+      ['Compte', 'https://lab.algoproof.fr/account'],
+      ['Découvrir le labo', 'https://lab.algoproof.fr'],
+    ])
+  })
+
+  it('« Le projet » links about, the platforms, MiCA and X', () => {
+    render(<Footer />)
+    const col = screen.getByRole('heading', { name: 'Le projet', level: 3 }).parentElement!
+    const links = within(col).getAllByRole('link').map(a => [a.textContent?.trim(), a.getAttribute('href')])
+    expect(links.slice(0, 3)).toEqual([
+      ['À propos', '/a-propos'], ['Démarrer (plateformes)', '/start'], ['MiCA & fiscalité', '/mica'],
+    ])
+    expect(links[3][0]).toMatch(/X/)
+  })
+
   it('no longer links the removed public journal', () => {
     render(<Footer />)
     expect(screen.queryByRole('link', { name: /ce qui a changé/i })).toBeNull()
   })
 
-  // Pre-launch audit 2026-09-09: the financial disclaimer — the site's default
-  // rule, on every page — was the least readable line of the site, measured at
-  // 2,20:1 (text-xs text-muted/50). Full opacity, 13 px minimum. The contrast
-  // of `muted` itself is checked from the tokens in tests/lib/design-contrast.
+  it('keeps the site sentence and says « simulation », the word of the badges, not « paper trading »', () => {
+    render(<Footer />)
+    expect(screen.getByText(/chaque trade, chaque perte/i)).toBeDefined()
+    const p = screen.getByText(/pas un conseil financier/i)
+    expect(p.textContent).toMatch(/simulation/)
+    expect(p.textContent).not.toMatch(/paper trading/)
+  })
+
   it('renders the financial disclaimer at full opacity and at least 13 px', () => {
     render(<Footer />)
     const p = screen.getByText(/pas un conseil financier/i)
     const cls = p.className
     expect(cls).not.toMatch(/text-muted\/\d+/)
     expect(cls).not.toMatch(/\bopacity-\d+/)
-    expect(cls).toMatch(/text-\[(1[3-9]|[2-9]\d)px\]|text-(sm|base|lg)\b/)
-    expect(cls).not.toMatch(/\btext-(xs|\[1[0-2]px\])/)
+    expect(cls).toMatch(/text-\[(1[3-9]|[2-9]\d)px\]|text-(xs|sm|base|lg)\b/)
+  })
+
+  it('keeps the legal links, on the lab', () => {
+    render(<Footer />)
+    for (const name of [/mentions légales/i, /confidentialité/i, /conditions/i]) {
+      expect(screen.getByRole('link', { name }).getAttribute('href')).toMatch(/^https:\/\/lab\.algoproof\.fr\//)
+    }
   })
 })

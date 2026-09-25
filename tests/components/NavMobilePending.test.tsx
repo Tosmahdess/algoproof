@@ -65,9 +65,9 @@ describe('the mobile menu during a navigation', () => {
     path.value = '/blog'
     render(<Nav />)
 
-    const current = screen.getAllByRole('link', { name: /apprendre/i })
+    const current = screen.getAllByRole('link', { name: /articles/i })
       .find(a => a.getAttribute('href') === '/blog')!
-    const other = screen.getAllByRole('link', { name: /investir/i })
+    const other = screen.getAllByRole('link', { name: /sociétés/i })
       .find(a => a.getAttribute('href') === '/investir')!
 
     expect(current).toHaveAttribute('aria-current', 'page')
