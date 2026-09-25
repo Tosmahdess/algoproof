@@ -130,8 +130,9 @@ describe('the Binance claim is dated and sourced', () => {
     'https://www.francecryptos.fr/articles/binance-suspend-ses-services-en-france-le-1er-juillet-2026-ce-que-doivent-faire--756231',
     'https://cryptoast.fr/binance-quitte-france-cryptos/',
   ]
+  // Lot 3 (2026-09-25): the home no longer ends on the exchange call to action,
+  // so it no longer states the claim; /start, /mica and the article still do.
   const SURFACES = [
-    'src/app/page.tsx',
     'src/app/start/page.tsx',
     'src/app/mica/page.tsx',
     'content/blog/2026-07-10-ton-bot-binance-est-mort-le-1er-juillet.mdx',

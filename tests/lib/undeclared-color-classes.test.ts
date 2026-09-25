@@ -40,7 +40,32 @@ const NOT_A_COLOUR: Record<string, Set<string>> = {
 // `(?<!\[)`: an arbitrary PROPERTY such as `[text-transform:inherit]` is not a
 // colour utility, whatever its property name starts with (false positive on
 // Repli's button, 2026-09-19). `text-background`, `hover:text-foo` still match.
-const CLASS_RE = /(?<!\[)\b(text|bg|border)-([a-z][a-z0-9]*)(?=[\s/'"`:\]}]|$)/g
+// The name may carry hyphens: `border-strong` is a declared token (lot 1 of the
+// design audit), so `bg-border-strong` names it whole. Until 2026-09-25 the name
+// stopped at the first hyphen and the guard read `border-strong` as the colour
+// « strong » (lot 6 could not write the token and fell back to border-muted).
+// A hyphenated name is tried whole first, then by its head (`border-b-0`,
+// `bg-gradient-to-r`, `text-zinc-500` resolve by their head).
+const CLASS_RE = /(?<!\[)\b(text|bg|border)-([a-z][a-z0-9]*(?:-[a-z0-9]+)*)(?=[\s/'"`:\]}]|$)/g
+
+function known(prefix: string, name: string): boolean {
+  if (DECLARED.has(name)) return true
+  const head = name.split('-')[0]
+  // A site token never takes a hyphenated suffix (opacity goes after `/`):
+  // `bg-border-strongest` is a typo, not a shade. Tailwind families do
+  // (`zinc-500`), and so do the non-colour utilities (`border-b-0`).
+  return TAILWIND_DEFAULT.has(head) || NOT_A_COLOUR[prefix].has(head)
+}
+
+// One file's offenders, as `text-foo` tokens (the walker adds file:line).
+export function offendersIn(src: string): string[] {
+  const out: string[] = []
+  for (const m of src.matchAll(CLASS_RE)) {
+    const [, prefix, name] = m
+    if (!known(prefix, name)) out.push(m[0])
+  }
+  return out
+}
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -64,12 +89,23 @@ describe('every colour utility in src/ names a colour that exists', () => {
         .replace(/^\s*\/\/.*$/gm, '')
       for (const m of src.matchAll(CLASS_RE)) {
         const [, prefix, name] = m
-        if (DECLARED.has(name) || TAILWIND_DEFAULT.has(name) || NOT_A_COLOUR[prefix].has(name)) continue
+        if (known(prefix, name)) continue
         const line = src.slice(0, m.index).split('\n').length
         offenders.push(`${path.relative(root, file).replace(/\\/g, '/')}:${line} ${m[0]}`)
       }
     }
     expect(offenders).toEqual([])
+  })
+
+  // The matcher itself, on strings: what it must catch and what it must let
+  // through. Mutating `known` to accept any declared head turns the fourth
+  // line red; dropping the hyphens from CLASS_RE turns the first one red.
+  it('reads a hyphenated token whole, and a typo on a token as an offender', () => {
+    expect(offendersIn('className="bg-border-strong hover:border-border-strong bg-card-2"')).toEqual([])
+    expect(offendersIn('className="border-b-0 bg-gradient-to-r text-zinc-500 text-2xl"')).toEqual([])
+    expect(offendersIn('className="text-background bg-background"')).toEqual(['text-background', 'bg-background'])
+    expect(offendersIn('className="bg-border-strongest text-foreground-2"')).toEqual(['bg-border-strongest', 'text-foreground-2'])
+    expect(offendersIn('style="[text-transform:inherit]"')).toEqual([])
   })
 
   it('the tokens this site writes with are declared (guards the config, not the pages)', () => {

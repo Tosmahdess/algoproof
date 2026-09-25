@@ -27,6 +27,11 @@ const FLEET = [
 
 vi.mock('@/lib/queries', () => ({ getAllBotsWithStats: async () => FLEET }))
 vi.mock('@/lib/funnel', () => ({ getFunnelCounts: async () => null }))
+vi.mock('@/lib/mi-fleet-impact', () => ({
+  pct: (f: number) => `${(f * 100).toFixed(1).replace('.', ',')} %`,
+  getFleetImpact: async () => null,
+}))
+vi.mock('@/lib/articles', () => ({ getArticles: () => [] }))
 
 import HomePage from '@/app/page'
 import BotTable from '@/components/BotTable'
@@ -57,9 +62,18 @@ function expectStatusBeforeFigure(rows: HTMLAnchorElement[]) {
 }
 
 describe('every fleet row carries its regime before the figure, on mobile too', () => {
-  it('home page, mobile list', async () => {
+  // Lot 3: the home lists the real-money bots only, in a strip on a phone. The
+  // rule holds there too: the regime word before the figure, on every row.
+  it('home page, real-money strip', async () => {
     const { container } = render(await HomePage())
-    expectStatusBeforeFigure(mobileRows(container))
+    const strip = container.querySelector('[data-testid="home-real-strip"]')!
+    const rows = [...strip.querySelectorAll<HTMLAnchorElement>('a[href^="/strategies/bot/"]')]
+    expect(rows.length).toBe(FLEET.filter(b => b.status === 'live').length)
+    for (const row of rows) {
+      const text = row.textContent ?? ''
+      expect(text.search(STATUS_WORD), `no status on row « ${text} »`).toBeGreaterThanOrEqual(0)
+      expect(text.search(STATUS_WORD)).toBeLessThan(text.search(/%/))
+    }
   })
 
   it('BotTable, mobile list (overview, concept pages)', () => {
@@ -67,8 +81,8 @@ describe('every fleet row carries its regime before the figure, on mobile too', 
     expectStatusBeforeFigure(mobileRows(container))
   })
 
-  it('a bot with no trade still shows its regime (« toujours affiché »)', async () => {
-    const { container } = render(await HomePage())
+  it('a bot with no trade still shows its regime (« toujours affiché »)', () => {
+    const { container } = render(<BotTable bots={FLEET} showTf={false} />)
     const dormant = mobileRows(container).find(r => r.getAttribute('href') === '/strategies/bot/dormant')!
     expect(dormant.textContent).toMatch(STATUS_WORD)
     expect(dormant.textContent).not.toMatch(EURO)

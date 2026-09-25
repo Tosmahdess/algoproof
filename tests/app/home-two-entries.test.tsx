@@ -51,6 +51,14 @@ vi.mock('@/lib/funnel', () => ({
   }),
 }))
 
+// Lot 3 (2026-09-25): the home also reads the market-weather measure and the
+// article index; both build clients at import time and are mocked whole.
+vi.mock('@/lib/mi-fleet-impact', () => ({
+  pct: (f: number) => `${(f * 100).toFixed(1).replace('.', ',')} %`,
+  getFleetImpact: async () => null,
+}))
+vi.mock('@/lib/articles', () => ({ getArticles: () => [] }))
+
 import HomePage from '@/app/page'
 
 describe('/ — the home opens on both activities, not on the lab alone', () => {
@@ -83,24 +91,25 @@ describe('/ — the home opens on both activities, not on the lab alone', () => 
   it('the hero says what I publish on both sides', async () => {
     render(await HomePage())
     const hero = screen.getByTestId('home-hero')
-    expect(hero.textContent).toMatch(/je publie les résultats de mes bots, gains comme pertes/)
-    expect(hero.textContent).toMatch(/sept contrôles/)
-    expect(hero.textContent).toMatch(/pour que tu puisses vérifier/)
+    // Lot 3 lead (PASS 4): three read numbers, then the one promise, losses included.
+    expect(hero.textContent).toMatch(/bots, dont \d+ avec mon argent/)
+    expect(hero.textContent).toMatch(/rapports annuels lus par sept contrôles/)
+    expect(hero.textContent).toMatch(/Chaque trade et chaque alerte publiés, y compris ce qui perd/)
   })
 })
 
 describe('/ — the two entries sit directly under the message', () => {
-  it('the entries are ordered strategies, companies, then the counters', async () => {
+  // Lot 3, variant A: the real-money strip (phone) comes first, then the two entries.
+  it('the entries sit in the hero, strategies then companies, under the real-money strip', async () => {
     render(await HomePage())
     const hero = screen.getByTestId('home-hero')
     const strategies = screen.getByTestId('entry-strategies')
     const companies = screen.getByTestId('entry-companies')
     expect(hero.contains(strategies)).toBe(true)
     expect(hero.contains(companies)).toBe(true)
-    // The counters must follow the entries, not separate them.
     const order = [...hero.querySelectorAll('[data-testid]')].map(e => e.getAttribute('data-testid'))
+    expect(order.indexOf('home-real-strip')).toBeLessThan(order.indexOf('entry-strategies'))
     expect(order.indexOf('entry-strategies')).toBeLessThan(order.indexOf('entry-companies'))
-    expect(order.indexOf('entry-companies')).toBeLessThan(order.indexOf('fleet-counters'))
   })
 
   // The user's own arbitration (2026-09-20): the strategies entry carries BOTH
@@ -200,13 +209,14 @@ describe('/ — the two entries sit directly under the message', () => {
 })
 
 describe('/ — bots are counted once, and the total shows its parts', () => {
-  it('the one counter line reads total, real money and simulation', async () => {
+  // Lot 3: the one place that counts bots is the fleet line beside the funnel
+  // (outside it, D059), total with its real-money part.
+  it('the one counter line reads total and real money, beside the funnel', async () => {
     render(await HomePage())
-    const line = screen.getByTestId('fleet-counters')
-    // 2 live + 3 paper = 5. The archived bot is not in any of them.
-    expect(line.textContent).toMatch(/5\s*bots en service/)
-    expect(line.textContent).toMatch(/2\s*en argent réel/)
-    expect(line.textContent).toMatch(/3\s*en simulation/)
+    const line = screen.getByTestId('home-fleet-line')
+    expect(line.textContent).toMatch(/5 bots en service/)
+    expect(line.textContent).toMatch(/2 avec mon argent/)
+    expect(screen.getByTestId('home-funnel').contains(line)).toBe(false)
   })
 
   it('no second block on this page counts bots', async () => {
@@ -216,30 +226,27 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
     expect(screen.queryByText('Bots en service (simulation ou argent réel)')).toBeNull()
   })
 
-  it('the engine band counts configurations the way the cockpit does', async () => {
+  it('the funnel counts configurations the way the cockpit does, and no bot', async () => {
     render(await HomePage())
-    const funnel = screen.getByTestId('funnel-counter')
-    for (const label of ['Configurations balayées', 'Jugées au gantelet', 'Recalées', 'En sursis', 'Candidates']) {
+    const funnel = screen.getByTestId('home-funnel')
+    for (const label of ['Configurations balayées', 'Jugées au gantelet', 'Leurs verdicts', 'Candidates']) {
       expect(within(funnel).getByText(label), label).toBeTruthy()
     }
-    const text = funnel.textContent!.replace(/\s/g, ' ')
-    expect(text).toMatch(/330\s000/)
-    expect(text).toMatch(/93 % des jugées/) // floor(100 * 330000 / 351359) = 93
+    expect(funnel.textContent!.replace(/\s/g, ' ')).toMatch(/330 000 recalées · 93 %/) // floor(100 * 330000 / 351359) = 93
     expect(funnel.textContent).not.toMatch(/bots? en service/i)
   })
 
   // Cockpit spec §9.3, carried over: « 713 » alone reads as 713 winners.
   it('the candidate count never renders without its denominator', async () => {
     render(await HomePage())
-    const funnel = screen.getByTestId('funnel-counter')
-    expect(funnel.textContent).toMatch(/1 sur 500 jugées/)
+    expect(screen.getByTestId('home-funnel').textContent).toMatch(/1 sur 500 jugées/)
   })
 
   // Owner, 2026-09-24: no cimetière link on this band.
-  it('the band carries no link to the cimetière', async () => {
+  it('the funnel itself carries no link to the cimetière; the fleet line beside it does', async () => {
     render(await HomePage())
-    const band = screen.getByTestId('engine-band')
-    expect(band.querySelector('a[href*="cimetiere"]')).toBeNull()
+    expect(screen.getByTestId('home-funnel').querySelector('a[href*="cimetiere"]')).toBeNull()
+    expect(screen.getByTestId('home-fleet-line').querySelector('a[href*="cimetiere"]')).not.toBeNull()
   })
 
   // Vocabulary decision (2026-09-20): « le labo » is the TOOL, « simulation »
@@ -256,7 +263,7 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
 // Owner, 2026-09-24, desktop pass: the three text links under the counters, the
 // manifesto card and the « IA » card are gone. The ticker leads straight to the
 // strategies table. Météo and Apprendre stay in the nav, /preuve in the footer.
-describe('/ — from the counters, the ticker, then straight to the strategies', () => {
+describe('/ — no side links in the hero, no retired blocks (lot 3)', () => {
   it('the hero no longer carries the three text links', async () => {
     render(await HomePage())
     const hrefs = [...screen.getByTestId('home-hero').querySelectorAll('a')].map(a => a.getAttribute('href'))
@@ -265,27 +272,18 @@ describe('/ — from the counters, the ticker, then straight to the strategies',
     expect(hrefs).not.toContain('/strategies')
   })
 
-  it('neither the manifesto nor the IA card sits between the ticker and the table', async () => {
+  it('carries neither the manifesto, nor the IA card, nor the ranking table, nor the teasers', async () => {
     const { container } = render(await HomePage())
     expect(container.textContent).not.toMatch(/Lire le manifeste/)
     expect(container.textContent).not.toMatch(/Faire vérifier une stratégie écrite par une IA/)
-    const headings = [...container.querySelectorAll('h2')].map(h => h.textContent)
-    expect(headings).toContain('Stratégies actives')
+    expect(container.querySelector('table')).toBeNull()
+    expect(screen.queryByTestId('teaser-learn')).toBeNull()
+    expect(screen.queryByTestId('teaser-fleet')).toBeNull()
   })
 
   // Same recipe as the two entries: background, border, padding, title, white
   // prose. Comparing class attributes, not grepping one token, so the pair
   // cannot drift apart in either direction.
-  it('Apprendre and La flotte are dressed like the two entries', async () => {
-    render(await HomePage())
-    const entry = screen.getByTestId('entry-strategies')
-    for (const id of ['teaser-learn', 'teaser-fleet']) {
-      const card = screen.getByTestId(id)
-      expect(card.getAttribute('class'), id).toBe(entry.getAttribute('class'))
-      expect(card.querySelector('h2')!.getAttribute('class'), id).toBe(entry.querySelector('h2')!.getAttribute('class'))
-      expect(card.querySelector('p')!.getAttribute('class'), id).toBe(entry.querySelector('p')!.getAttribute('class'))
-    }
-  })
 })
 
 // The 2026-09-20 second pass (user). Three of the four asks were about the two
