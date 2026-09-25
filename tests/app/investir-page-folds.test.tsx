@@ -141,10 +141,10 @@ describe('/investir as a search product (lot 6)', () => {
     // the narrow no-break space, never « 1203 » nor « 1,203 ».
     const tuile = screen.getByText('Sociétés lues').closest('div')!
     expect(tuile.className).toMatch(/\brounded-lg\b/)
-    expect(tuile.textContent).toBe('1 203Sociétés lues')
+    expect(tuile.textContent).toBe('1 203Sociétés lues')
     // Function matcher: the library's normaliser folds U+202F into a plain space.
     expect(screen.getByText((_, el) =>
-      el?.tagName === 'P' && el.textContent === '1 203 sociétés sur 1 203')).toBeTruthy()
+      el?.tagName === 'P' && el.textContent === '1 203 sociétés sur 1 203')).toBeTruthy()
   })
 
   it('dates the last computation with the medium date', () => {

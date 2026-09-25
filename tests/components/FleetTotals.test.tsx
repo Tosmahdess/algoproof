@@ -35,7 +35,8 @@ describe('FleetTotals', () => {
     const labo = screen.getByTestId('fleet-total-labo')
     expect(within(labo).getByText('Simulation')).toBeTruthy()
     expect(labo.textContent).toContain(fmtEur(1175))
-    expect(labo.textContent!.replace(/\u202F/g, ' ')).toMatch(/1 234 bots/)
+    // Lot 5: thousands take U+00A0 (Inter renders U+202F under 2 px); compared on a plain space.
+    expect(labo.textContent!.replace(/[\u202F\u00A0]/g, ' ')).toMatch(/1 234 bots/)
     expect(labo.textContent).toMatch(/3 trades/)
   })
 

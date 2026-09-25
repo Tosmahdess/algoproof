@@ -5,7 +5,7 @@ import { STRATEGY_FICHES, getStrategyFiche } from '@/lib/strategy-library'
 import { familyLabel } from '@/lib/families'
 import { getAllBotsWithStats, getBotSlugs } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
-import { tfRank } from '@/lib/fleet-grouping'
+import { byHistoryDesc, splitBySample } from '@/lib/fleet-grouping'
 import { excludeArchived } from '@/lib/cohort'
 import { resolveStrategyRoute } from '@/lib/strategy-routing'
 import { GAUNTLET_EXPLAINER_TITLE } from '@/lib/gauntlet-explainer'
@@ -61,6 +61,8 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
   // the two call sites rather than inside incarnationsOf.
   const bots = excludeArchived(await getAllBotsWithStats())
   const incarnations = incarnationsOf(fiche, bots)
+  // Lot 5 (C6, C7): by history, whatever the timeframe; the small samples fold.
+  const { proven, rodage } = splitBySample([...incarnations].sort(byHistoryDesc))
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
@@ -127,32 +129,47 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
             Aucun bot ne fait tourner cette stratégie en ce moment.
           </p>
         ) : (
-          <BotTable
-            bots={[...incarnations].sort((a, z) =>
-              tfRank(a.timeframe) - tfRank(z.timeframe) || a.name.localeCompare(z.name))}
-            showTf
-          />
+          <>
+            {proven.length > 0 && (
+              <div data-testid="concept-table">
+                <BotTable bots={proven} showTf />
+              </div>
+            )}
+            {rodage.length > 0 && (
+              <details data-testid="concept-rodage" className="bg-card border border-border rounded-lg">
+                <summary className="cursor-pointer px-4 py-3 text-xs text-muted min-h-10">
+                  {`En rodage · ${rodage.length} bot${rodage.length > 1 ? 's' : ''} sous 20 trades : un taux de gain ou un facteur de profit ne veut encore rien dire ici.`}
+                </summary>
+                <div className="px-4 pb-4 pt-2">
+                  <BotTable bots={rodage} showTf />
+                </div>
+              </details>
+            )}
+          </>
         )}
       </section>
 
-      <a
-        href={fiche.labHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-block bg-foreground text-bg font-semibold rounded-lg px-4 py-2 text-sm"
-      >
-        Tester cette stratégie dans le labo
-      </a>
-      {fiche.presetHref && (
+      <div className="flex flex-wrap gap-3">
         <a
-          href={fiche.presetHref}
+          href={fiche.labHref}
           target="_blank"
           rel="noopener noreferrer"
-          className={linkClass('inline', 'inline-block ml-3 text-sm')}
+          className="inline-flex h-10 items-center bg-foreground text-bg font-semibold rounded-md px-4 text-sm hover:opacity-90 transition-opacity"
         >
-          Reproduire ma config réelle
+          Tester cette stratégie dans le labo
         </a>
-      )}
+        {/* Only when a preset of MY real config exists for this fiche (lot 5). */}
+        {fiche.presetHref && (
+          <a
+            href={fiche.presetHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-semibold text-foreground hover:border-border-strong transition-colors"
+          >
+            Rejouer dans le labo, avec ma config réelle
+          </a>
+        )}
+      </div>
     </main>
   )
 }

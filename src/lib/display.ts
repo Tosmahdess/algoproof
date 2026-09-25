@@ -27,12 +27,17 @@ export function pnlPct(latestCapital: number, startCapital: number = DEFAULT_PAP
 // the platform, and a test that passed on one machine failed on the next
 // (src/lib/screening.ts learnt the same lesson for `count`).
 export const NARROW_NBSP = ' '
+// Lot 5 (2026-09-25, lot 6's leftover): Inter renders U+202F under 2 px at 13 px,
+// so « 1 406 » read « 1406 » outside the mono font. The thousands take a regular
+// no-break space (U+00A0): unbreakable, and visibly a space in every face. The
+// narrow one stays before € and %, where the glyph beside it carries the gap.
+export const GROUP_SPACE = ' '
 export const MINUS = '−'
 
 /** |n| with `decimals` decimals, French: `1 234,50`. No sign. */
 export function frNumber(n: number, decimals: number): string {
   const [int, frac] = Math.abs(n).toFixed(decimals).split('.')
-  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, NARROW_NBSP)
+  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, GROUP_SPACE)
   return frac === undefined ? grouped : `${grouped},${frac}`
 }
 

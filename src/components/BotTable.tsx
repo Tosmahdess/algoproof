@@ -91,7 +91,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                     {hasData ? (
                       <span className={isLowSample(bot.stats.total_trades) ? 'text-warning/90' : ''}
                         title={isLowSample(bot.stats.total_trades) ? 'Échantillon faible (<20 trades) : métriques peu fiables' : undefined}>
-                        {bot.stats.total_trades}{isLowSample(bot.stats.total_trades) && ' ⚠'}
+                        {bot.stats.total_trades}
                       </span>
                     ) : <span className="text-muted">—</span>}
                   </td>

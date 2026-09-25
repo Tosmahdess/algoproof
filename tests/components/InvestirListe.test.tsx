@@ -258,7 +258,7 @@ describe('InvestirListe, pagination', () => {
     // function matcher, because the library's normaliser folds U+202F into a
     // plain space before comparing with a string.
     expect(screen.getByText((_, el) =>
-      el?.tagName === 'P' && el.textContent === '1 203 sociétés sur 1 203')).toBeTruthy()
+      el?.tagName === 'P' && el.textContent === '1 203 sociétés sur 1 203')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Afficher 50 de plus' })).toBeTruthy()
   })
 

@@ -8,6 +8,8 @@
 // `aside` and `entete`), so a folded card never shows a bare « Dans
 // l'enveloppe ». On a computer nothing changes.
 import Repli from '@/components/Repli'
+import DecisionNote from '@/components/DecisionNote'
+import { mediumDate } from '@/lib/format-date'
 import type { BotExpectations } from '@/lib/bot-expectations'
 import { assessConformity, ConformityStatus, RealizedStats } from '@/lib/conformity'
 
@@ -37,9 +39,12 @@ const STATUS_CONFIG: Record<ConformityStatus, { label: string; classes: string; 
 export default function ConformityCard({
   expectations,
   stats,
+  today,
 }: {
   expectations: BotExpectations
   stats: RealizedStats
+  /** YYYY-MM-DD for the review-date guard; defaults to the render date. */
+  today?: string
 }) {
   const result = assessConformity(expectations, stats)
   const { label, classes, dot } = STATUS_CONFIG[result.status]
@@ -119,21 +124,7 @@ export default function ConformityCard({
               <span className="text-negative shrink-0">✕</span>
               <span>
                 {rule}
-                {decision && (
-                  <span
-                    className={`block mt-1.5 border-l-2 pl-3 ${
-                      decision.status === 'pending' ? 'border-warning' : 'border-border'
-                    }`}
-                  >
-                    <span className="block text-xs">
-                      Décision du {decision.date} · {decision.scope}
-                    </span>
-                    <span className="block text-foreground">{decision.text}</span>
-                    {decision.reviewBy && (
-                      <span className="block text-xs mt-1">Réexamen le {decision.reviewBy}.</span>
-                    )}
-                  </span>
-                )}
+                {decision && <DecisionNote decision={decision} today={today} className="mt-1.5" />}
               </span>
             </li>
           )
@@ -141,7 +132,7 @@ export default function ConformityCard({
       </ul>
 
       <p className="text-xs text-muted">
-        Critères pré-enregistrés le {expectations.registeredAt} et versionnés publiquement
+        Critères pré-enregistrés le {mediumDate(expectations.registeredAt)} et versionnés publiquement
         (tout changement est daté). Source des chiffres : {expectations.source}
       </p>
     </Repli>

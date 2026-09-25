@@ -6,6 +6,11 @@ import { isCarryFamily, fmtPfForFamily, fmtWinRateForFamily, fmtPfDisplay, fmtWi
 // minus sign (U+2212), an explicit plus on a gain. Until then the same page printed
 // « 41 333 092 » (fr-FR) next to « +272.73€ » (toFixed).
 const NB = ' '
+// Lot 5 of the design audit (2026-09-25, lot 6's leftover): Inter renders U+202F
+// under 2 px at 13 px, so « 1 406 » read « 1406 » outside the mono font. The
+// thousands take a regular no-break space (U+00A0, unbreakable, visibly a space);
+// the narrow one stays before € and %, where the glyph beside it carries the gap.
+const NBSP = ' '
 const MINUS = '−'
 
 describe('fmtEur / fmtPct — French figures', () => {
@@ -15,9 +20,10 @@ describe('fmtEur / fmtPct — French figures', () => {
   it('writes a loss with the real minus sign', () => {
     expect(fmtEur(-64.74)).toBe(`${MINUS}64,74${NB}€`)
   })
-  it('groups thousands with a narrow no-break space', () => {
-    expect(fmtEur(1234.5)).toBe(`+1${NB}234,50${NB}€`)
-    expect(fmtEur(-12345.678, 0)).toBe(`${MINUS}12${NB}346${NB}€`)
+  it('groups thousands with a regular no-break space, never a narrow one', () => {
+    expect(fmtEur(1234.5)).toBe(`+1${NBSP}234,50${NB}€`)
+    expect(fmtEur(-12345.678, 0)).toBe(`${MINUS}12${NBSP}346${NB}€`)
+    expect(fmtEur(1234.5)).not.toContain(`1${NB}234`)
   })
   it('keeps zero positive, as a flat result', () => {
     expect(fmtEur(0)).toBe(`+0,00${NB}€`)

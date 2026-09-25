@@ -19,6 +19,7 @@
 // is applied by hand, the columns are still readable by anyone with the anon key:
 // the site no longer asks for them, which is necessary and not sufficient.
 import { supabase } from './supabase'
+import { GROUP_SPACE } from './display'
 
 export type ScreeningState = 'judged' | 'running' | 'queued' | 'never'
 
@@ -83,8 +84,10 @@ export function frDate(d: string | null): string {
 /**
  * French thousands separator. toLocaleString('fr-FR') groups with a narrow no-break space
  * (U+202F), sometimes falling back to a regular no-break space (U+00A0) depending on the
- * runtime's ICU data. Both are normalised to the canonical U+202F so every renderer of a
- * screening count is guaranteed the same character regardless of the runtime.
+ * runtime's ICU data. Both are normalised to ONE character so every renderer of a
+ * screening count is guaranteed the same one regardless of the runtime: GROUP_SPACE
+ * (U+00A0, lot 5 of the design audit, 2026-09-25), the same as display.ts's frNumber,
+ * because Inter renders U+202F under 2 px at 13 px and « 1 406 » read « 1406 ».
  *
  * Single source of truth for this: a previous per-component copy in ScreeningDossier.tsx used a
  * character class of three plain ASCII spaces instead of the non-breaking variants, so its
@@ -94,7 +97,7 @@ export function frDate(d: string | null): string {
  */
 export function count(n: number | null): string {
   if (n === null || n === undefined) return '—'
-  return n.toLocaleString('fr-FR').replace(/[  ]/g, ' ')
+  return n.toLocaleString('fr-FR').replace(/[  ]/g, GROUP_SPACE)
 }
 
 /**

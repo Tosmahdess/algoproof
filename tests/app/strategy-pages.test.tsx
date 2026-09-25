@@ -17,6 +17,8 @@ vi.mock('next/navigation', () => ({
 }))
 
 const bots = vi.hoisted(() => ({ current: [] as unknown[] }))
+vi.mock('@/lib/funnel', () => ({ getFunnelCounts: async () => null }))
+vi.mock('@/lib/engine-search-space', () => ({ getSearchSpace: async () => null }))
 vi.mock('@/lib/queries', () => ({
   getAllBotsWithStats: async () => bots.current,
   getBotSlugs: async () => [],
@@ -73,9 +75,9 @@ describe('/strategies — the incarnation count next to each fiche', () => {
     expect(emaLink().textContent).not.toContain('2 bots')
   })
 
-  it('reads « aucun bot » when every bot for the fiche is archived', async () => {
+  it('reads « pas encore de bot » when every bot for the fiche is archived', async () => {
     bots.current = [RETIRED]
     render(await StrategiesIndexPage())
-    expect(emaLink().textContent).toContain('aucun bot')
+    expect(emaLink().textContent).toContain('pas encore de bot')
   })
 })

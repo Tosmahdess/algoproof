@@ -3,6 +3,7 @@
 // market-weather measure that fails to prove the weather is useful. Failures are
 // the proof of seriousness on this site, not a thing to hide under the fold.
 import Link from 'next/link'
+import DecisionNote from '@/components/DecisionNote'
 import { linkClass } from '@/lib/link-roles'
 import type { BotWithStats } from '@/lib/types'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -28,7 +29,10 @@ function DecisionBlock({ bot }: { bot: BotWithStats }) {
         </div>
         <div>
           <p className="text-xs text-muted font-medium">Décision</p>
-          <p>{decision ? decision.text : 'Je n’ai publié aucune décision à ce jour.'}{' '}<Link href={`/strategies/bot/${bot.slug}`} className={linkClass('inline')}>La fiche, tout l’historique</Link></p>
+          {decision
+            ? <DecisionNote decision={decision} className="mt-1" />
+            : <p>Je n’ai publié aucune décision à ce jour.</p>}
+          <p className="mt-1.5"><Link href={`/strategies/bot/${bot.slug}`} className={linkClass('inline')}>La fiche, tout l’historique</Link></p>
         </div>
       </div>
     </div>
