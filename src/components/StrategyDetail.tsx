@@ -12,6 +12,8 @@ import { computeBotStats, countByDirection, filterTrades, type DirectionFilter }
 import { assetOptionsFromTrades } from '@/lib/asset'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 import BacktestSegmentLegend from '@/components/BacktestSegmentLegend'
+import BacktestBlock from '@/components/BacktestBlock'
+import { longDate } from '@/lib/format-date'
 import { joinSegments, type BacktestSegment } from '@/lib/backtest-segment'
 
 /** Recent trades shown on a phone before « Voir les N derniers » (D057). */
@@ -77,11 +79,13 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
 
   // A filter rebuilds the paper curve from a subset of trades; the backtest has no such
   // subset, so it is shown on the whole-bot view only.
-  const segmentRows = useMemo(() => (
-    unfiltered && backtestSegment
-      ? joinSegments(backtestSegment, bot.perf_daily, startCapital)
-      : null
-  ), [unfiltered, backtestSegment, bot.perf_daily, startCapital])
+  const joined = useMemo(() => (
+    backtestSegment ? joinSegments(backtestSegment, bot.perf_daily, startCapital) : null
+  ), [backtestSegment, bot.perf_daily, startCapital])
+  const segmentRows = unfiltered ? joined : null
+  // The backtest's own block does not depend on the filter, only on the file agreeing
+  // with the paper ledger (joinSegments refuses otherwise).
+  const segment = joined ? backtestSegment : null
 
   const tradesShown = useMemo(() => (
     unfiltered
@@ -128,12 +132,17 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
 
       {/* Key metrics — recomputed when filter changes */}
       <div className="mb-8">
+        {segment && (
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-2">
+            Simulation depuis le lancement du {longDate(segment.launchDate)}
+          </p>
+        )}
         <MetricsRow stats={stats} family={bot.family} />
       </div>
 
       {/* Equity curve */}
       <div className="bg-card border border-border rounded-lg p-6 mb-8">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 mb-4">
           <h2 className="text-xl font-semibold">
             Courbe d&apos;équité
             {!unfiltered && (
@@ -145,18 +154,21 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
               </span>
             )}
           </h2>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="text-muted">Départ : {startCapital}€</span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <span className="text-muted whitespace-nowrap">
+              Départ : {startCapital}€{segmentRows ? ' le 1er janvier' : ''}
+            </span>
+            {segmentRows && <span className="text-muted whitespace-nowrap">simulation :</span>}
             <span className={`font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
               {fmtEur(eur)} ({fmtPct(pct)})
             </span>
           </div>
         </div>
-        {segmentRows && backtestSegment ? (
+        {segmentRows && segment ? (
           <>
             <EquityCurve data={equityData} startCapital={startCapital}
-              segments={segmentRows} launchDate={backtestSegment.launchDate} />
-            <BacktestSegmentLegend launchDate={backtestSegment.launchDate} />
+              segments={segmentRows} launchDate={segment.launchDate} />
+            <BacktestSegmentLegend launchDate={segment.launchDate} />
           </>
         ) : equityData.length > 0 ? (
           <EquityCurve data={equityData} startCapital={startCapital} />
@@ -170,10 +182,12 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
         )}
       </div>
 
+      {segment && <BacktestBlock segment={segment} />}
+
       {/* Recent trades */}
       <div className="bg-card border border-border rounded-lg p-6 mb-8">
         <h2 className="text-xl font-semibold mb-3">
-          Trades récents
+          Trades récents{segment ? ' de la simulation' : ''}
           <span className="text-muted text-sm font-normal ml-2">
             {/* The counter says what THIS screen shows: « 5 sur 20 » on a phone
                 while folded, « 20 affichés » everywhere else. */}

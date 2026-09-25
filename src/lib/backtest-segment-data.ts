@@ -4,11 +4,20 @@
 // which a client component imports: importing the JSON there would ship every bot's series
 // to every visitor of every bot page.
 import segments from '@/data/backtest-segments.json'
-import type { BacktestSegment } from '@/lib/backtest-segment'
+import type { BacktestSegment, BacktestTrade } from '@/lib/backtest-segment'
 
-type FileEntry = { launchDate: string; points: { date: string; capital: number }[] }
+type FileEntry = {
+  startDate: string
+  launchDate: string
+  startCapital: number
+  points: { date: string; capital: number }[]
+  trades: BacktestTrade[]
+}
 
 export function getBacktestSegment(slug: string): BacktestSegment | null {
-  const e = (segments as Record<string, FileEntry>)[slug]
-  return e ? { slug, launchDate: e.launchDate, points: e.points } : null
+  const e = (segments as unknown as Record<string, FileEntry>)[slug]
+  return e
+    ? { slug, startDate: e.startDate, launchDate: e.launchDate, startCapital: e.startCapital,
+        points: e.points, trades: e.trades }
+    : null
 }

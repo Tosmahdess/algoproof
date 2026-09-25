@@ -19,8 +19,9 @@ describe('BacktestSegmentLegend', () => {
 
   it('says the backtest was seen during selection and stays out of the figures', () => {
     const t = text()
-    expect(t).toMatch(/déjà vu/)
-    expect(t).toMatch(/ne comptent que/)
+    expect(t).toMatch(/déjà vu ces données pendant sa sélection/)
+    expect(t).toMatch(/ne comptent que ce trait plein/)
+    expect(t).toContain('1 000 € le 1er janvier')
   })
 
   it('carries no em dash (site-wide ban)', () => {

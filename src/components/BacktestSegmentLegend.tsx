@@ -9,15 +9,15 @@ export default function BacktestSegmentLegend({ launchDate }: { launchDate: stri
     <div className="mt-3 space-y-1 text-xs text-muted">
       <p>
         <span className="inline-block w-5 border-t-2 border-dashed border-[#94a3b8] align-middle mr-2" />
-        Pointillé : le backtest du 1er janvier au {longDate(launchDate)}, jour du lancement.
-        Ce sont les trades que la stratégie aurait pris sur des données qu&apos;elle avait déjà vues
-        pendant sa sélection, donc un historique forcément flatteur, avec la même taille de
-        position que la simulation.
+        Pointillé : le backtest, parti de 1 000 € le 1er janvier jusqu&apos;au lancement du{' '}
+        {longDate(launchDate)}. La stratégie avait déjà vu ces données pendant sa sélection,
+        donc cette partie est flatteuse par construction. Ses chiffres sont dans le bloc
+        « Backtest » plus bas.
       </p>
       <p>
         <span className="inline-block w-5 border-t-2 border-positive align-middle mr-2" />
-        Trait plein : la simulation (paper) depuis le lancement. Les chiffres au-dessus du
-        graphique ne comptent que ce trait plein.
+        Trait plein : la simulation (paper) depuis le lancement, qui repart du niveau atteint par
+        le backtest. Les chiffres en haut de page ne comptent que ce trait plein.
       </p>
     </div>
   )

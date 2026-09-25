@@ -1,938 +1,1122 @@
 {
  "arm-kamacross-d1-head00": {
   "launchDate": "2026-08-21",
+  "startDate": "2026-01-01",
+  "startCapital": 1000,
   "points": [
    {
     "date": "2026-01-01",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-02",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-03",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-04",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-05",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-06",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-07",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-08",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-09",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-10",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-11",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-12",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-13",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-14",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-15",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-16",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-17",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-18",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-19",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-20",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-21",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-22",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-23",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-24",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-25",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-26",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-27",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-28",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-29",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-30",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-01-31",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-01",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-02",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-03",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-04",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-05",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-06",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-07",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-08",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-09",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-10",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-11",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-12",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-13",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-14",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-15",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-16",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-17",
-    "capital": 891.39
+    "capital": 1000.0
    },
    {
     "date": "2026-02-18",
-    "capital": 900.21
+    "capital": 1009.89
    },
    {
     "date": "2026-02-19",
-    "capital": 909.03
+    "capital": 1019.78
    },
    {
     "date": "2026-02-20",
-    "capital": 909.03
+    "capital": 1019.78
    },
    {
     "date": "2026-02-21",
-    "capital": 909.03
+    "capital": 1019.78
    },
    {
     "date": "2026-02-22",
-    "capital": 909.03
+    "capital": 1019.78
    },
    {
     "date": "2026-02-23",
-    "capital": 935.4
+    "capital": 1049.37
    },
    {
     "date": "2026-02-24",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-02-25",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-02-26",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-02-27",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-02-28",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-03-01",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-03-02",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-03-03",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-03-04",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-03-05",
-    "capital": 944.32
+    "capital": 1059.37
    },
    {
     "date": "2026-03-06",
-    "capital": 953.62
+    "capital": 1069.8
    },
    {
     "date": "2026-03-07",
-    "capital": 953.62
+    "capital": 1069.8
    },
    {
     "date": "2026-03-08",
-    "capital": 972.26
+    "capital": 1090.72
    },
    {
     "date": "2026-03-09",
-    "capital": 972.26
+    "capital": 1090.72
    },
    {
     "date": "2026-03-10",
-    "capital": 972.26
+    "capital": 1090.72
    },
    {
     "date": "2026-03-11",
-    "capital": 972.26
+    "capital": 1090.72
    },
    {
     "date": "2026-03-12",
-    "capital": 972.26
+    "capital": 1090.72
    },
    {
     "date": "2026-03-13",
-    "capital": 962.57
+    "capital": 1079.85
    },
    {
     "date": "2026-03-14",
-    "capital": 962.57
+    "capital": 1079.85
    },
    {
     "date": "2026-03-15",
-    "capital": 962.57
+    "capital": 1079.85
    },
    {
     "date": "2026-03-16",
-    "capital": 962.57
+    "capital": 1079.85
    },
    {
     "date": "2026-03-17",
-    "capital": 962.57
+    "capital": 1079.85
    },
    {
     "date": "2026-03-18",
-    "capital": 962.57
+    "capital": 1079.85
    },
    {
     "date": "2026-03-19",
-    "capital": 962.57
+    "capital": 1079.85
    },
    {
     "date": "2026-03-20",
-    "capital": 962.57
+    "capital": 1079.85
    },
    {
     "date": "2026-03-21",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-22",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-23",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-24",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-25",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-26",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-27",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-28",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-29",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-30",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-03-31",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-01",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-02",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-03",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-04",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-05",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-06",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-07",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-08",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-09",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-10",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-11",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-12",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-13",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-14",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-15",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-16",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-17",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-18",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-19",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-20",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-21",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-22",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-23",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-24",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-25",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-26",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-27",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-28",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-29",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-04-30",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-05-01",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-05-02",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-05-03",
-    "capital": 972.02
+    "capital": 1090.45
    },
    {
     "date": "2026-05-04",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-05",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-06",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-07",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-08",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-09",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-10",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-11",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-12",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-13",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-14",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-15",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-16",
-    "capital": 981.57
+    "capital": 1101.16
    },
    {
     "date": "2026-05-17",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-18",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-19",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-20",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-21",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-22",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-23",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-24",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-25",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-26",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-27",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-28",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-29",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-30",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-05-31",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-01",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-02",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-03",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-04",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-05",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-06",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-07",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-08",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-09",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-10",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-11",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-12",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-13",
-    "capital": 991.23
+    "capital": 1112.0
    },
    {
     "date": "2026-06-14",
-    "capital": 981.18
+    "capital": 1100.73
    },
    {
     "date": "2026-06-15",
-    "capital": 981.18
+    "capital": 1100.73
    },
    {
     "date": "2026-06-16",
-    "capital": 981.18
+    "capital": 1100.73
    },
    {
     "date": "2026-06-17",
-    "capital": 981.18
+    "capital": 1100.73
    },
    {
     "date": "2026-06-18",
-    "capital": 981.18
+    "capital": 1100.73
    },
    {
     "date": "2026-06-19",
-    "capital": 990.84
+    "capital": 1111.56
    },
    {
     "date": "2026-06-20",
-    "capital": 990.84
+    "capital": 1111.56
    },
    {
     "date": "2026-06-21",
-    "capital": 990.84
+    "capital": 1111.56
    },
    {
     "date": "2026-06-22",
-    "capital": 990.84
+    "capital": 1111.56
    },
    {
     "date": "2026-06-23",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-06-24",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-06-25",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-06-26",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-06-27",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-06-28",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-06-29",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-06-30",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-07-01",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-07-02",
-    "capital": 1010.26
+    "capital": 1133.34
    },
    {
     "date": "2026-07-03",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-04",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-05",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-06",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-07",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-08",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-09",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-10",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-11",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-12",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-13",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-14",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-15",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-16",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-17",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-18",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-19",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-20",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-21",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-22",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-23",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-24",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-25",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-26",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-27",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-28",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-29",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-30",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-07-31",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-01",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-02",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-03",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-04",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-05",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-06",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-07",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-08",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-09",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-10",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-11",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-12",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-13",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-14",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-15",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-16",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-17",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-18",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-19",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-20",
-    "capital": 1000.0
+    "capital": 1121.84
    },
    {
     "date": "2026-08-21",
-    "capital": 1000.0
+    "capital": 1121.84
+   }
+  ],
+  "trades": [
+   {
+    "asset": "OP-USDT",
+    "side": "short",
+    "opened_at": "2026-02-16",
+    "closed_at": "2026-02-18",
+    "entry_price": 0.18924321,
+    "exit_price": 0.17099998461,
+    "reason": "tp_hit",
+    "pnl": 9.8892
+   },
+   {
+    "asset": "ARB-USDT",
+    "side": "short",
+    "opened_at": "2026-02-16",
+    "closed_at": "2026-02-19",
+    "entry_price": 0.11446565,
+    "exit_price": 0.10322412434233856,
+    "reason": "tp_hit",
+    "pnl": 9.8913
+   },
+   {
+    "asset": "ADA-USDT",
+    "side": "short",
+    "opened_at": "2026-02-18",
+    "closed_at": "2026-02-23",
+    "entry_price": 0.28081573,
+    "exit_price": 0.2591928338155,
+    "reason": "tp_hit",
+    "pnl": 9.8607
+   },
+   {
+    "asset": "AVAX-USDT",
+    "side": "short",
+    "opened_at": "2026-02-16",
+    "closed_at": "2026-02-23",
+    "entry_price": 9.2752166,
+    "exit_price": 8.555142087180002,
+    "reason": "tp_hit",
+    "pnl": 9.8618
+   },
+   {
+    "asset": "DOT-USDT",
+    "side": "short",
+    "opened_at": "2026-02-18",
+    "closed_at": "2026-02-23",
+    "entry_price": 1.3455962000000001,
+    "exit_price": 1.2405068350083148,
+    "reason": "tp_hit",
+    "pnl": 9.8626
+   },
+   {
+    "asset": "DOT-USDT",
+    "side": "short",
+    "opened_at": "2026-02-23",
+    "closed_at": "2026-02-24",
+    "entry_price": 1.3096070000000002,
+    "exit_price": 1.235770837892525,
+    "reason": "tp_hit",
+    "pnl": 10.0029
+   },
+   {
+    "asset": "ADA-USDT",
+    "side": "short",
+    "opened_at": "2026-02-28",
+    "closed_at": "2026-03-06",
+    "entry_price": 0.27741675000000005,
+    "exit_price": 0.2578000205718142,
+    "reason": "tp_hit",
+    "pnl": 10.4327
+   },
+   {
+    "asset": "ARB-USDT",
+    "side": "short",
+    "opened_at": "2026-03-06",
+    "closed_at": "2026-03-08",
+    "entry_price": 0.10276916000000001,
+    "exit_price": 0.0943367956190865,
+    "reason": "tp_hit",
+    "pnl": 10.4553
+   },
+   {
+    "asset": "OP-USDT",
+    "side": "short",
+    "opened_at": "2026-03-06",
+    "closed_at": "2026-03-08",
+    "entry_price": 0.12516244,
+    "exit_price": 0.11453432793560032,
+    "reason": "tp_hit",
+    "pnl": 10.4601
+   },
+   {
+    "asset": "ETH-USDT",
+    "side": "short",
+    "opened_at": "2026-03-07",
+    "closed_at": "2026-03-13",
+    "entry_price": 1977.066702,
+    "exit_price": 2118.31338078035,
+    "reason": "sl_hit",
+    "pnl": -10.8667
+   },
+   {
+    "asset": "OP-USDT",
+    "side": "short",
+    "opened_at": "2026-03-19",
+    "closed_at": "2026-03-21",
+    "entry_price": 0.12626211,
+    "exit_price": 0.11894998929450001,
+    "reason": "tp_hit",
+    "pnl": 10.5976
+   },
+   {
+    "asset": "ARB-USDT",
+    "side": "short",
+    "opened_at": "2026-05-01",
+    "closed_at": "2026-05-04",
+    "entry_price": 0.12356292,
+    "exit_price": 0.11603468178461762,
+    "reason": "tp_hit",
+    "pnl": 10.7118
+   },
+   {
+    "asset": "ARB-USDT",
+    "side": "short",
+    "opened_at": "2026-05-16",
+    "closed_at": "2026-05-17",
+    "entry_price": 0.12466259,
+    "exit_price": 0.11587141814300002,
+    "reason": "tp_hit",
+    "pnl": 10.8438
+   },
+   {
+    "asset": "ADA-USDT",
+    "side": "short",
+    "opened_at": "2026-06-13",
+    "closed_at": "2026-06-14",
+    "entry_price": 0.16954912,
+    "exit_price": 0.18340712635049997,
+    "reason": "sl_hit",
+    "pnl": -11.2736
+   },
+   {
+    "asset": "AVAX-USDT",
+    "side": "short",
+    "opened_at": "2026-06-18",
+    "closed_at": "2026-06-19",
+    "entry_price": 6.7599713999999995,
+    "exit_price": 6.315070860215,
+    "reason": "tp_hit",
+    "pnl": 10.8274
+   },
+   {
+    "asset": "ADA-USDT",
+    "side": "short",
+    "opened_at": "2026-06-18",
+    "closed_at": "2026-06-23",
+    "entry_price": 0.16674996,
+    "exit_price": 0.1534562720746143,
+    "reason": "tp_hit",
+    "pnl": 10.8592
+   },
+   {
+    "asset": "ARB-USDT",
+    "side": "short",
+    "opened_at": "2026-06-20",
+    "closed_at": "2026-06-23",
+    "entry_price": 0.083844839,
+    "exit_price": 0.07849356436415,
+    "reason": "tp_hit",
+    "pnl": 10.9282
+   },
+   {
+    "asset": "AVAX-USDT",
+    "side": "short",
+    "opened_at": "2026-06-28",
+    "closed_at": "2026-07-03",
+    "entry_price": 6.4260716,
+    "exit_price": 6.899429862058214,
+    "reason": "sl_hit",
+    "pnl": -11.5068
    }
   ],
   "provenance": {

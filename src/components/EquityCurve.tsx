@@ -78,6 +78,16 @@ export default function EquityCurve({ data, startCapital = 1000, segments, launc
   )
 }
 
+/** The paper's colour follows ITS result since launch, not the curve's level: the paper
+ *  continues from the backtest's end, so comparing it with the starting capital would
+ *  paint a losing paper green whenever the backtest had gained. */
+export function paperIsUp(rows: JoinedRow[], launchDate: string): boolean {
+  const atLaunch = rows.find(r => r.date === launchDate)?.paper
+  const last = [...rows].reverse().find(r => r.paper !== null)?.paper
+  if (atLaunch == null || last == null) return true
+  return last >= atLaunch
+}
+
 function SegmentTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   const row = payload[0].payload as JoinedRow
@@ -98,8 +108,7 @@ function SegmentedCurve({ rows, startCapital, launchDate }: {
   const values = rows.flatMap(r => [r.backtest, r.paper]).filter((v): v is number => v !== null)
   const min = Math.min(...values) * 0.98
   const max = Math.max(...values) * 1.02
-  const lastPaper = [...rows].reverse().find(r => r.paper !== null)?.paper ?? startCapital
-  const paperColour = lastPaper >= startCapital ? '#4ade80' : '#f87171'
+  const paperColour = paperIsUp(rows, launchDate) ? '#4ade80' : '#f87171'
   return (
     <ChartFrame>
       <ResponsiveContainer width="100%" height="100%">
