@@ -7,10 +7,17 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import ChartFrame from '@/components/ChartFrame'
+import type { JoinedRow } from '@/lib/backtest-segment'
+
+// Backtest segment colour (pilot 2026-09-25): neutral, dashed, never the paper's green/red.
+const BACKTEST_STROKE = '#94a3b8'
 
 interface Props {
   data: PerfDaily[]
   startCapital?: number
+  /** Backtest before launch + paper after it, as built by joinSegments. */
+  segments?: JoinedRow[] | null
+  launchDate?: string
 }
 
 function CustomTooltip({ active, payload, label }: any) {
@@ -28,7 +35,10 @@ function CustomTooltip({ active, payload, label }: any) {
   )
 }
 
-export default function EquityCurve({ data, startCapital = 1000 }: Props) {
+export default function EquityCurve({ data, startCapital = 1000, segments, launchDate }: Props) {
+  if (segments && launchDate) {
+    return <SegmentedCurve rows={segments} startCapital={startCapital} launchDate={launchDate} />
+  }
   const formatted = data.map(d => ({
     ...d,
     date: d.date.slice(5),
@@ -62,6 +72,54 @@ export default function EquityCurve({ data, startCapital = 1000 }: Props) {
             strokeWidth={2}
             fill="url(#equity)"
           />
+        </AreaChart>
+      </ResponsiveContainer>
+    </ChartFrame>
+  )
+}
+
+function SegmentTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  const row = payload[0].payload as JoinedRow
+  const isPaper = row.paper !== null && row.backtest === null
+  const value = isPaper ? row.paper : (row.backtest ?? row.paper)
+  return (
+    <div className="bg-card border border-border rounded p-2 text-xs">
+      <p className="text-muted mb-1">{label} · {isPaper ? 'simulation' : 'backtest'}</p>
+      <p className="text-foreground font-mono">€{Number(value).toFixed(2)}</p>
+    </div>
+  )
+}
+
+function SegmentedCurve({ rows, startCapital, launchDate }: {
+  rows: JoinedRow[]; startCapital: number; launchDate: string
+}) {
+  const formatted = rows.map(r => ({ ...r, date: r.date.slice(5) }))
+  const values = rows.flatMap(r => [r.backtest, r.paper]).filter((v): v is number => v !== null)
+  const min = Math.min(...values) * 0.98
+  const max = Math.max(...values) * 1.02
+  const lastPaper = [...rows].reverse().find(r => r.paper !== null)?.paper ?? startCapital
+  const paperColour = lastPaper >= startCapital ? '#4ade80' : '#f87171'
+  return (
+    <ChartFrame>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={formatted} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+          <defs>
+            <linearGradient id="equity-paper" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={paperColour} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={paperColour} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+          <YAxis domain={[min, max]} tick={{ fill: '#888', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `€${v.toFixed(0)}`} width={55} />
+          <Tooltip content={<SegmentTooltip />} />
+          <ReferenceLine y={startCapital} stroke="#444" strokeDasharray="4 2" />
+          <ReferenceLine x={launchDate.slice(5)} stroke="#888"
+            label={{ value: 'Lancement', position: 'insideTopRight', fill: '#888', fontSize: 10 }} />
+          <Area type="monotone" dataKey="backtest" stroke={BACKTEST_STROKE} strokeWidth={2}
+            strokeDasharray="5 4" fill="none" connectNulls={false} isAnimationActive={false} />
+          <Area type="monotone" dataKey="paper" stroke={paperColour} strokeWidth={2}
+            fill="url(#equity-paper)" connectNulls={false} />
         </AreaChart>
       </ResponsiveContainer>
     </ChartFrame>

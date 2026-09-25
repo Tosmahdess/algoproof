@@ -18,6 +18,7 @@ import BotProvenance from '@/components/BotProvenance'
 import SampleNote from '@/components/SampleNote'
 import RecipeGate from '@/components/RecipeGate'
 import EngineBotSummary from '@/components/EngineBotSummary'
+import { getBacktestSegment } from '@/lib/backtest-segment-data'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -139,7 +140,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       <SampleNote totalTrades={bot.stats.total_trades} />
 
       {/* Filter + metrics + equity curve + trades — interactive client island */}
-      <StrategyDetail bot={bot} />
+      <StrategyDetail bot={bot} backtestSegment={getBacktestSegment(bot.slug)} />
 
       {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
       {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}

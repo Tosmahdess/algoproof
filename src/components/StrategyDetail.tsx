@@ -11,12 +11,16 @@ import AlsoLiveBadge from '@/components/AlsoLiveBadge'
 import { computeBotStats, countByDirection, filterTrades, type DirectionFilter } from '@/lib/stats'
 import { assetOptionsFromTrades } from '@/lib/asset'
 import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
+import BacktestSegmentLegend from '@/components/BacktestSegmentLegend'
+import { joinSegments, type BacktestSegment } from '@/lib/backtest-segment'
 
 /** Recent trades shown on a phone before « Voir les N derniers » (D057). */
 const TRADES_MOBILE = 5
 
 interface Props {
   bot: BotWithStats
+  /** Backtest drawn before the paper launch (pilot 2026-09-25). Unfiltered view only. */
+  backtestSegment?: BacktestSegment | null
 }
 
 /**
@@ -50,7 +54,7 @@ function reconstructPerfDaily(trades: Trade[], startCapital: number): PerfDaily[
   })
 }
 
-export default function StrategyDetail({ bot }: Props) {
+export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
   const [direction, setDirection] = useState<DirectionFilter>('all')
   const [asset, setAsset] = useState<string>('all')
   const startCapital = bot.start_capital
@@ -70,6 +74,14 @@ export default function StrategyDetail({ bot }: Props) {
       ? bot.perf_daily
       : reconstructPerfDaily(filterTrades(bot.all_trades, direction, asset), startCapital)
   ), [bot.all_trades, bot.perf_daily, direction, asset, startCapital, unfiltered])
+
+  // A filter rebuilds the paper curve from a subset of trades; the backtest has no such
+  // subset, so it is shown on the whole-bot view only.
+  const segmentRows = useMemo(() => (
+    unfiltered && backtestSegment
+      ? joinSegments(backtestSegment, bot.perf_daily, startCapital)
+      : null
+  ), [unfiltered, backtestSegment, bot.perf_daily, startCapital])
 
   const tradesShown = useMemo(() => (
     unfiltered
@@ -140,7 +152,13 @@ export default function StrategyDetail({ bot }: Props) {
             </span>
           </div>
         </div>
-        {equityData.length > 0 ? (
+        {segmentRows && backtestSegment ? (
+          <>
+            <EquityCurve data={equityData} startCapital={startCapital}
+              segments={segmentRows} launchDate={backtestSegment.launchDate} />
+            <BacktestSegmentLegend launchDate={backtestSegment.launchDate} />
+          </>
+        ) : equityData.length > 0 ? (
           <EquityCurve data={equityData} startCapital={startCapital} />
         ) : (
           <p className="text-muted text-sm text-center py-12">Aucun trade à afficher pour ce filtre.</p>
