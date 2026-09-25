@@ -66,7 +66,7 @@ describe('computeFleetAggregate', () => {
     expect('totalWr' in a).toBe(false)
     expect('totalPf' in a).toBe(false)
     expect(Object.keys(a).sort()).toEqual(
-      ['rows', 'totalPnlLabo', 'totalPnlReal', 'totalTrades'],
+      ['rows', 'totalPnlLabo', 'totalPnlReal', 'totalTrades', 'tradesLabo', 'tradesReal'],
     )
   })
 
@@ -145,7 +145,34 @@ describe('computeFleetAggregate', () => {
   it('returns an empty but well-formed result for no trades', () => {
     const a = computeFleetAggregate([], [])
     expect(a).toEqual({
-      rows: [], totalTrades: 0, totalPnlReal: 0, totalPnlLabo: 0,
+      rows: [], totalTrades: 0, totalPnlReal: 0, totalPnlLabo: 0, tradesReal: 0, tradesLabo: 0,
     })
+  })
+})
+
+// Lot 4 of the design audit (2026-09-25): the two totals on /overview carry their
+// denominators (bots, trades), so the trade count is split by the SAME rule as the
+// P&L, from the same rows. A count read from the bots' stats would disagree with
+// the P&L on every promoted bot's paper past.
+describe('computeFleetAggregate — trade counts per cohort', () => {
+  it('splits the trade count the way it splits the P&L', () => {
+    const agg = computeFleetAggregate(
+      [
+        t('bot', 45, '2026-04-20T10:00:00Z'), // paper past of a promoted bot
+        t('bot', 10, '2026-05-08T10:00:00Z'),
+        t('bot', -4, '2026-05-09T10:00:00Z'),
+        t('lab', 3, '2026-05-09T10:00:00Z'),
+      ],
+      [{ id: 'bot', live_since: '2026-05-08T00:00:00Z' }],
+    )
+    expect(agg.tradesReal).toBe(2)
+    expect(agg.tradesLabo).toBe(2)
+    expect(agg.tradesReal + agg.tradesLabo).toBe(agg.totalTrades)
+  })
+
+  it('counts zero on both sides for no trades', () => {
+    const agg = computeFleetAggregate([], [])
+    expect(agg.tradesReal).toBe(0)
+    expect(agg.tradesLabo).toBe(0)
   })
 })

@@ -1,23 +1,24 @@
 'use client'
-// The filter controls. They live visually BELOW the balance sheet so the
-// relationship "these filters drive the register, not the balance" reads
-// without explanation.
+// The filter controls of the register. Every option carries its count, so a
+// visitor never selects a combination that cannot exist.
 //
-// Every option carries its count. That is the primary zero-result prevention
-// mechanism: a visitor never selects a combination that cannot exist.
+// Lot 4 of the design audit (2026-09-25, conception §5.2): the timeframes,
+// which used to head one table each (« H4 : 55 stratégies »), are a facet here.
+// The register is one table for every horizon, and a visitor who wants only
+// the H1 bots filters for them.
 //
 // Only classes declared in tailwind.config.ts theme.extend.colors are used
-// here. Tailwind emits no rule for an undeclared colour and warns about
-// nothing, so `bg-bg`, `bg-card`, `text-muted`, `border-border` and
-// `bg-accent` are the vocabulary; `bg-background` does not exist.
+// here: Tailwind emits no rule for an undeclared colour and warns about nothing.
 import { FAMILY_ORDER, familyLabel, type Family } from '@/lib/families'
 import type { FleetFilterState, OptionCounts } from '@/lib/bot-filters'
+import { tfRank } from '@/lib/fleet-grouping'
 
 interface Props {
   state: FleetFilterState
   counts: OptionCounts
   activeCount: number
   onToggleFamily: (f: Family) => void
+  onToggleTimeframe: (tf: string) => void
   onToggleSide: (side: 'long' | 'short') => void
   onReset: () => void
 }
@@ -25,29 +26,16 @@ interface Props {
 function Pill({ label, count, active, onClick }: {
   label: string; count: number; active: boolean; onClick: () => void
 }) {
-  // FIX (brief bug, flagged in task-6-report.md): the brief's verbatim code set
-  // the native `disabled` attribute on a zero-count option. In FIXTURE_FLEET no
-  // register (non-live) bot runs on Kraken, so that pill is at 0 from the very
-  // first render — permanently unclickable, and jsdom (like real browsers)
-  // never dispatches a click to a disabled control. That makes describeEmptyResult's
-  // own worked example (two independently-restrictive facets, e.g. family=carry
-  // AND venue=kraken, each narrowing to a different single bot) unreachable
-  // through this bar, which defeats the reason that empty-state escape hatch
-  // exists. The zero count still discourages the pick — via dimmed opacity —
-  // but the click itself must go through.
-  //
-  // FIX (final review, Minor): `cursor-not-allowed` went with the `disabled`
-  // attribute and should have left with it. The same commit deliberately made
-  // this pill clickable, so a "you can't click this" cursor was simply false.
-  // `opacity-40` stays: dimming says "nothing here", which is true.
+  // A zero-count option stays clickable (dimmed, never `disabled`): the
+  // empty-state message that names the responsible filter must stay reachable.
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
       className={[
-        'px-3 py-1.5 text-xs font-mono border rounded transition-colors',
-        active ? 'bg-accent text-bg border-accent' : 'bg-bg text-muted border-border hover:text-foreground',
+        'inline-flex items-center h-10 px-3 text-xs font-mono border rounded-md transition-colors',
+        active ? 'bg-accent text-bg border-accent' : 'bg-bg text-muted border-border hover:text-foreground hover:border-border-strong',
         count === 0 && !active ? 'opacity-40' : '',
       ].join(' ')}
     >
@@ -57,31 +45,17 @@ function Pill({ label, count, active, onClick }: {
 }
 
 export default function FleetFilterBar({
-  state, counts, activeCount, onToggleFamily, onToggleSide, onReset,
+  state, counts, activeCount, onToggleFamily, onToggleTimeframe, onToggleSide, onReset,
 }: Props) {
+  const timeframes = Object.keys(counts.timeframe).sort((a, z) => tfRank(a) - tfRank(z) || a.localeCompare(z))
   return (
     <details data-testid="fleet-filters" className="bg-card border border-border rounded-lg">
-      {/* The summary must remain a SINGLE text-bearing node: the test asserts it
-          as one string, and a nested span would match getByText twice. A
-          `display:` on a <summary> removes the native disclosure triangle, which
-          on a block closed by default is the only affordance that says it opens —
-          so the badge is inline-block, never flex. */}
+      {/* One text-bearing node in the summary: the test reads it as one string. */}
       <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-muted">
         {activeCount === 0 ? 'Filtrer la flotte' : `Filtrer la flotte : ${activeCount} filtre(s) actif(s)`}
       </summary>
 
       <div className="px-4 pb-4 space-y-4">
-        {/* FIX (per-timeframe rebuild, task 6): the sort control is GONE, not
-            hidden. It reordered rows within a strategy group; the register no
-            longer has one — each timeframe table is ordered by
-            groupByTimeframe (biggest gain first, untraded last -- 2026-08-20)
-            -- the order a reader actually came for, and one the tables
-            share with every other per-TF view on the site. A `<select>` that
-            changed nothing on screen would be the exact defect `direction`
-            was deleted for in bot-filters.ts. `state.sort` / `state.dir`
-            still round-trip through the URL (bot-filters.ts, robots.ts) for
-            any old shared link that carries them; they are just never read
-            here or by FleetRegister's rendering anymore. */}
         <div>
           <div className="text-xs font-semibold text-muted mb-2">Famille</div>
           <div className="flex flex-wrap gap-2">
@@ -97,11 +71,25 @@ export default function FleetFilterBar({
           </div>
         </div>
 
-        {/* Side is a SLICE (bot-filters.ts header): every row stays, its
-            stats are recomputed on that side. The count is "bots with at
-            least one trade on this side", so a 0 means the pill would turn
-            every row to « — ». Two pills, mutually exclusive; clicking the
-            active one returns to all. */}
+        {timeframes.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold text-muted mb-2">Horizon</div>
+            <div className="flex flex-wrap gap-2">
+              {timeframes.map(tf => (
+                <Pill
+                  key={tf}
+                  label={tf}
+                  count={counts.timeframe[tf] ?? 0}
+                  active={state.timeframe.includes(tf)}
+                  onClick={() => onToggleTimeframe(tf)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Side is a SLICE (bot-filters.ts header): every row stays, its stats are
+            recomputed on that side. Two pills, mutually exclusive. */}
         <div>
           <div className="text-xs font-semibold text-muted mb-2">Sens des trades</div>
           <div className="flex flex-wrap gap-2">
@@ -116,11 +104,6 @@ export default function FleetFilterBar({
             ))}
           </div>
         </div>
-
-        {/* The « Où ça tourne » (venue) facet lived here until 2026-08-08 —
-            removed on user call, plumbing included (see bot-filters.ts). The
-            venue still shows on each bot's own fiche; it just is not a way to
-            slice the register anymore. */}
 
         {activeCount > 0 && (
           <button type="button" onClick={onReset} className="text-sm text-accent underline">

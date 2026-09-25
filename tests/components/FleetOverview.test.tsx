@@ -3,28 +3,23 @@ import { render, screen, fireEvent, within } from '@testing-library/react'
 import FleetOverview from '@/components/FleetOverview'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
-import type { TradeWithBot } from '@/lib/types'
+import type { TradeWithBot, PerfDaily } from '@/lib/types'
 import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
-import type { PerfDaily } from '@/lib/types'
 
-// FIX (re-review, residual 2): GlobalEquityCurve is a client component, so
-// whatever FleetOverview puts in its props crosses the RSC boundary and is
-// serialized into the payload. Capturing the props is the only way to assert
-// that the 30-day window is applied BEFORE the boundary rather than inside the
-// chart. The mock keeps the wrapper section's own assertions intact — the
-// `fleet-equity-curves` testid lives on FleetOverview's <section>, not here.
-const curveProps: { bots: { slug: string; data: { date: string }[] }[] }[] = []
+// Lot 4 of the design audit (2026-09-25, conception §5.2). The page reads, in
+// order: the two totals, the real-money cards, the single register, then the
+// folded journal and the folded 30-day curves, then the recent trades. Gone: the
+// market-weather banner (a copy of /intelligence, fetched client-side in the
+// first screen) and the twelve-colour equity chart.
+type Curve = { slug: string; name: string; color: string; data: { date: string; capital: number }[] }
+const curveProps: { bots: Curve[] }[] = []
 vi.mock('@/components/GlobalEquityCurve', () => ({
-  default: (props: { bots: { slug: string; data: { date: string }[] }[] }) => {
+  default: (props: { bots: Curve[] }) => {
     curveProps.push(props)
     return <div data-testid="equity-curve-stub" />
   },
 }))
 
-// FIX (final review, I1+I2): stage 0 now also carries the market-intelligence
-// banner, the 30-day equity curves and the fleet-wide recent-trades feed —
-// three pieces the retired /overview page had and that vanished with
-// OverviewClient without anyone deciding to retire them.
 const RECENT: TradeWithBot[] = [
   { id: 'tr-1', opened_at: '2026-07-30T08:00:00Z', closed_at: '2026-07-30T12:00:00Z',
     asset: 'BTC/USDC', side: 'long', pnl: 12.5, reason: 'take profit',
@@ -32,15 +27,11 @@ const RECENT: TradeWithBot[] = [
   { id: 'tr-2', opened_at: '2026-07-29T08:00:00Z', closed_at: '2026-07-29T20:00:00Z',
     asset: 'ETH/USDC', side: 'short', pnl: -4.25, reason: 'stop loss',
     bots: { name: 'MACD Vol', slug: 'macd-vol', family: 'momentum', status: 'paper' } },
-  // Three rows: under three the feed renders nothing (FleetRecentTrades, 2026-09-25,
-  // audit P0-6 « Les 1 derniers trades »). Its own test pins that rule.
   { id: 'tr-3', opened_at: '2026-07-28T08:00:00Z', closed_at: '2026-07-28T20:00:00Z',
     asset: 'SOL/USDC', side: 'long', pnl: 3.1, reason: 'take profit',
     bots: { name: 'ORB H1 HL', slug: 'orb-bf25', family: 'breakout', status: 'live' } },
 ]
 
-// FIX round 2: FleetRegister (rendered by FleetOverview) no longer calls
-// useSearchParams(), so this mock only needs usePathname.
 vi.mock('next/navigation', () => ({
   usePathname: () => '/overview',
 }))
@@ -54,259 +45,126 @@ const AGG = computeFleetAggregate(
 )
 
 beforeEach(() => {
-  // MiBanner (restored into stage 0) fetches /api/mi on mount.
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => null }))
+  curveProps.length = 0
+  window.history.replaceState(null, '', '/overview')
 })
 
-// Fix round 1, I3: the original invariant test only asserted the balance sheet
-// didn't move. That assertion stays true even when filtering is completely
-// inert (exactly the bug fixed in the first round — the click never applied
-// because state was reset from a non-memoized searchParams on every render),
-// so a passing test told us nothing. It now also asserts the register DID
-// change, so the test can't go green while filtering is broken.
+type Props = Parameters<typeof FleetOverview>[0]
+const renderFleet = (over: Partial<Props> = {}) => render(
+  <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} minutes={26} {...over} />,
+)
+
 describe('FleetOverview — stage 0 invariant', () => {
-  it('does not move the balance sheet when a filter is applied, and the register does', () => {
-    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
-    const balanceBefore = screen.getByTestId('fleet-balance').textContent
+  it('does not move the totals when a filter is applied, and the register does', () => {
+    renderFleet()
+    const totalsBefore = screen.getByTestId('fleet-totals').textContent
     const registerBefore = screen.getByTestId('fleet-register').textContent
-
     fireEvent.click(screen.getByRole('button', { name: /Cassure/ }))
-
-    expect(screen.getByTestId('fleet-balance').textContent).toBe(balanceBefore)
+    expect(screen.getByTestId('fleet-totals').textContent).toBe(totalsBefore)
     expect(screen.getByTestId('fleet-register').textContent).not.toBe(registerBefore)
   })
 
-  // Fix round 1, I4: `indexOf` returns -1 for a missing node, and `-1 < 5` is
-  // true — so this test could not fail even if stage 0 were deleted entirely.
-  // Assert both testids are actually present (index >= 0) before comparing.
-  it('renders the balance sheet before the filter controls in document order', () => {
-    const { container } = render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
-    )
+  it('renders the totals before the filter controls in document order', () => {
+    const { container } = renderFleet()
     const html = container.innerHTML
-    const balanceIdx = html.indexOf('data-testid="fleet-balance"')
-    const filtersIdx = html.indexOf('data-testid="fleet-filters"')
-    expect(balanceIdx).toBeGreaterThanOrEqual(0)
-    expect(filtersIdx).toBeGreaterThanOrEqual(0)
-    expect(balanceIdx).toBeLessThan(filtersIdx)
+    expect(html.indexOf('data-testid="fleet-totals"')).toBeLessThan(html.indexOf('data-testid="fleet-filters"'))
   })
 })
 
-// FIX (layout, real-money cards hoisted): `fleet-real` used to render inside
-// FleetRegister — a descendant of `fleet-register`, fed by a `splitCohorts`
-// call inside the client component that owns the filter state. It now
-// renders in FleetOverview itself, immediately after `fleet-balance`, on the
-// server side of the tree. This is the invariant that move buys: `fleet-real`
-// is a SIBLING of `fleet-register`, not something reachable by walking down
-// into it — a structural fact any future contributor can see just by reading
-// this component's JSX, not something they have to trust a `splitCohorts`
-// call inside a different file to uphold.
-describe('FleetOverview — real-money cards hoisted out of the register', () => {
-  it('renders fleet-real as a sibling of fleet-register, not a descendant of it', () => {
-    const { container } = render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
-    )
+describe('FleetOverview — the sections, in order', () => {
+  it('renders totals, real money, register, journal, curves, recent trades, and no weather', () => {
+    const { container } = renderFleet()
+    const html = container.innerHTML
+    const order = ['fleet-totals', 'fleet-real', 'fleet-register', 'fleet-journal', 'fleet-equity-curves', 'fleet-recent-trades']
+      .map(id => ({ id, at: html.indexOf(`data-testid="${id}"`) }))
+    for (const { id, at } of order) expect(at, `${id} is absent`).toBeGreaterThanOrEqual(0)
+    const positions = order.map(o => o.at)
+    expect(positions, order.map(o => o.id).join(' < ')).toEqual([...positions].sort((a, b) => a - b))
+    expect(screen.queryByTestId('fleet-mi')).toBeNull()
+    expect(container.textContent).not.toMatch(/Météo du marché|Trading autorisé/)
+  })
+
+  it('renders fleet-real as a sibling of fleet-register, with the lot 3 cards and the freshness', () => {
+    renderFleet()
     const real = screen.getByTestId('fleet-real')
     const register = screen.getByTestId('fleet-register')
     expect(register.contains(real)).toBe(false)
-    // Both present, both children of the same top-level container.
-    expect(container.contains(real)).toBe(true)
-    expect(container.contains(register)).toBe(true)
+    expect(real.contains(register)).toBe(false)
+    const cards = within(real).getAllByTestId('fleet-bot-card')
+    expect(cards).toHaveLength(FIXTURE_FLEET.filter(b => b.status === 'live').length)
+    expect(real.textContent).toMatch(/il y a 26 min/)
+    expect(within(real).getAllByTestId('home-bot-rule').length).toBe(cards.length)
   })
 
-  it('renders the sections in the owner-specified order', () => {
-    // Owner's call 2026-08-01: real money sits between the market weather and
-    // the balance sheet, so the two live bots are the first thing read after
-    // the regime banner. Asserting the whole sequence rather than one adjacency
-    // means any future reorder has to state its intent here.
-    const { container } = render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
-    )
-    const html = container.innerHTML
-    const order = ['fleet-mi', 'fleet-real', 'fleet-balance', 'fleet-equity-curves', 'fleet-register']
-      .map(id => ({ id, at: html.indexOf(`data-testid="${id}"`) }))
-
-    for (const { id, at } of order) {
-      expect(at, `${id} is absent from the rendered output`).toBeGreaterThanOrEqual(0)
-    }
-    const positions = order.map(o => o.at)
-    expect(positions, order.map(o => o.id).join(' < ')).toEqual([...positions].sort((a, b) => a - b))
-  })
-
-  it('still shows the live bots that used to render inside the register', () => {
-    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
-    const real = screen.getByTestId('fleet-real')
-    expect(within(real).getByText('EMA Cross H4 Kraken Spot')).toBeTruthy()
-    expect(within(real).getByText('ORB H1 HL')).toBeTruthy()
-  })
-
-  // Owner decision 2026-08-20. A real-money bot used to be a CARD and nothing
-  // else: the register below never received it, so the fleet's only H1 bot had
-  // no H1 table to appear in and the register — the thing that reads as "every
-  // bot I run" — silently omitted the two that matter most.
-  it('also lists a real-money bot in its timeframe table, not only as a card', () => {
-    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
-
-    // BotTable renders each row twice (a mobile card and a desktop row), so the
-    // assertion is on presence, not on a single node.
-    expect(within(screen.getByTestId('fleet-tf-H1')).getAllByText('ORB H1 HL').length).toBeGreaterThan(0)
-    // and STILL a card up top: the two placements are not alternatives
-    expect(within(screen.getByTestId('fleet-real')).getAllByText('ORB H1 HL').length).toBeGreaterThan(0)
-  })
-})
-
-// Fix round 2 (new Important finding): the whole point of seeding filter
-// state server-side is that the register's real content — bot cards,
-// /strategies links — is present in a single synchronous render() with no
-// Suspense/CSR bailout anywhere in the tree. These two tests are the
-// verification the ruling asked for in place of a browser-driven `next
-// build` check (which can't run against real Supabase in this environment).
-describe('FleetOverview — server-rendered register (fix round 2)', () => {
-  it('renders the register\'s bot links in a single synchronous render, no Suspense involved', () => {
-    render(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
-    // A representative /strategies link from the filterable register — if the
-    // CSR bailout were still happening, this component tree would contain an
-    // animate-pulse fallback instead of this link, and getByRole would fail
-    // synchronously rather than resolving after a suspended child settles.
-    // FIX (layout, real-money cards hoisted): the original pick here, ORB H1
-    // HL, is a `live`-status bot — since the hoist it never enters the
-    // register at all (see FleetRegister's file header), so it can no longer
-    // stand in for "a register link". MACD Volume H4 BF is `paper`, the
-    // momentum family's sole member in the fixture, so it is unambiguous.
-    // getAllByRole, not getByRole: BotTable (per-timeframe rebuild, task 6)
-    // always renders both the mobile list and the desktop table — toggled by
-    // CSS media queries jsdom does not evaluate — so the link exists twice.
+  it('also lists a real-money bot in the register table, not only as a card', () => {
+    renderFleet()
     const register = screen.getByTestId('fleet-register')
-    const links = within(register).getAllByRole('link', { name: /MACD Volume H4 BF/ })
-    expect(links.length).toBeGreaterThan(0)
-    expect(links.every(l => l.getAttribute('href') === '/strategies/bot/macdvolume-bf11')).toBe(true)
+    expect(within(register).getAllByRole('link', { name: 'ORB H1 HL' }).length).toBeGreaterThan(0)
   })
 
-  it('seeds the register from a non-empty initial filter state (server-parsed searchParams)', () => {
-    render(
-      <FleetOverview
-        bots={FIXTURE_FLEET}
-        aggregate={AGG}
-        recentTrades={RECENT}
-        initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }}
-      />,
-    )
+  it('folds the journal and the curves; the curves carry the live bots and one simulation series', () => {
+    renderFleet()
+    const journal = screen.getByTestId('fleet-journal')
+    expect(within(journal).getByRole('button', { name: /Le journal des jours/ }).getAttribute('aria-expanded')).toBe('false')
+    const curves = screen.getByTestId('fleet-equity-curves')
+    expect(within(curves).getByRole('button', { name: /Courbes 30 jours/ }).getAttribute('aria-expanded')).toBe('false')
+    const drawn = curveProps.at(-1)!.bots
+    // Longest history first, the same order as the cards (C7).
+    const liveSlugs = FIXTURE_FLEET.filter(b => b.status === 'live')
+      .sort((a, b) => b.stats.total_trades - a.stats.total_trades).map(b => b.slug)
+    expect(drawn.map(b => b.slug)).toEqual([...liveSlugs, 'simulation'])
+    expect(drawn.length).toBeLessThanOrEqual(4)
+    expect(drawn.at(-1)!.name).toMatch(/Simulation/)
+  })
+
+  it('keeps totals, real money, journal, curves and feed outside the register, so no filter can reach them', () => {
+    renderFleet()
     const register = screen.getByTestId('fleet-register')
-    // Breakout-family register bots: atrchannel-k3, donchian-bf17 — and ORB
-    // since 2026-08-20, when real-money bots joined the register. That is why
-    // the family count below reads 3, not the 2 it read before: the counter is
-    // over the register set, and the register set grew by the live cohort.
-    // The timeframe-table rebuild (task 6) dropped the fiche group headers
-    // (« Donchian Breakout » linking to /strategies/donchian) along with the
-    // strategy grouping itself: each row now links straight to its own bot
-    // fiche, and the section heading names the timeframe, not the strategy.
-    expect(within(register).getAllByText(/ATR Channel K3/).length).toBeGreaterThan(0)
-    expect(within(register).getAllByText(/Donchian/).length).toBeGreaterThan(0)
-    expect(within(register).queryByText(/Ichimoku/)).toBeNull()
-    expect(screen.getByRole('button', { name: /Cassure \(3\)/ })).toHaveAttribute('aria-pressed', 'true')
-  })
-})
-
-// FIX (final review, I1+I2): GlobalEquityCurve and MiBanner had zero importers
-// after OverviewClient was deleted, and the fleet-wide recent-trades feed
-// existed on no page at all. Nobody decided to retire any of the three. They
-// are restored into stage 0 — page-level, unfiltered, cohort-safe — and these
-// tests pin that they are there AND that they sit outside the filter pipeline.
-describe('FleetOverview — restored stage-0 content', () => {
-  it('renders the market-intelligence banner, the equity curves and the recent-trades feed', () => {
-    render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
-    )
-    expect(screen.getByTestId('fleet-mi')).toBeTruthy()
-    expect(screen.getByTestId('fleet-equity-curves')).toBeTruthy()
-    const feed = screen.getByTestId('fleet-recent-trades')
-    expect(within(feed).getByText('BTC/USDC')).toBeTruthy()
-    expect(within(feed).getByRole('link', { name: 'MACD Vol' }).getAttribute('href'))
-      .toBe('/strategies/bot/macd-vol')
-  })
-
-  it('keeps all three outside the register, so no filter can reach them', () => {
-    render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
-    )
-    const register = screen.getByTestId('fleet-register')
-    for (const id of ['fleet-mi', 'fleet-equity-curves', 'fleet-recent-trades', 'fleet-balance', 'fleet-real']) {
+    for (const id of ['fleet-totals', 'fleet-real', 'fleet-journal', 'fleet-equity-curves', 'fleet-recent-trades']) {
       expect(register.contains(screen.getByTestId(id))).toBe(false)
     }
-
     const feedBefore = screen.getByTestId('fleet-recent-trades').textContent
-    const curvesBefore = screen.getByTestId('fleet-equity-curves').textContent
     fireEvent.click(screen.getByRole('button', { name: /Cassure/ }))
     expect(screen.getByTestId('fleet-recent-trades').textContent).toBe(feedBefore)
-    expect(screen.getByTestId('fleet-equity-curves').textContent).toBe(curvesBefore)
-  })
-
-  // FIX (re-review, residual 2): FleetOverview used to map `b.perf_daily` in
-  // full into the curve props and let the client component apply the 30-day
-  // cutoff — shipping twelve bots' entire history across the boundary to draw
-  // thirty days of it. Same principle FleetBalance states two files away.
-  it('windows the equity-curve data to 30 days before it crosses the client boundary', () => {
-    const day = (offset: number) =>
-      new Date(Date.now() - offset * 86400_000).toISOString().slice(0, 10)
-    const perf = (dates: string[]): PerfDaily[] =>
-      dates.map((date, i) => ({
-        id: `p${i}`, bot_id: 'b', date, capital: 1000 + i,
-        pnl_day: 0, win_rate: null, profit_factor: null,
-      }))
-    const bot = mkBot({
-      slug: 'long-history',
-      // two rows inside the window, three well outside it
-      perf_daily: perf([day(400), day(200), day(90), day(10), day(1)]),
-    })
-
-    curveProps.length = 0
-    render(
-      <FleetOverview bots={[bot]} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />,
-    )
-
-    const drawn = curveProps.at(-1)!.bots.find(b => b.slug === 'long-history')!
-    expect(drawn.data.map(d => d.date)).toEqual([day(10), day(1)])
   })
 
   it('omits the feed entirely rather than printing an empty table', () => {
-    render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={[]} initialState={EMPTY_FILTERS} />,
-    )
+    renderFleet({ recentTrades: [] })
     expect(screen.queryByTestId('fleet-recent-trades')).toBeNull()
   })
 })
 
-// Fix round 3, Finding A: FleetRegister seeds useState(initialState) ONCE and
-// never resyncs from the prop afterwards — correct for a real navigation
-// (server remounts, fresh initialState arrives with it), but the App Router
-// keys a page segment WITHOUT its search params, so a search-params-only
-// navigation (e.g. clicking a plain nav <Link href="/overview"> while already
-// on /overview?family=breakout) re-renders this same FleetRegister instance
-// instead of remounting it — the filter would stay stuck on-screen even
-// though the server just sent EMPTY_FILTERS. The fix is a `key` on
-// <FleetRegister> in FleetOverview, derived from the serialized
-// initialState: a new value is a new key, which forces React to unmount the
-// stale instance and mount a fresh one. rerender() with a new initialState is
-// the test-level equivalent of "the server sent something different this
-// time" — exactly what a real client-side navigation to a new /overview URL
-// looks like from FleetOverview's perspective.
-describe('FleetOverview — remounts on a new server-sent filter state (fix round 3, Finding A)', () => {
+describe('FleetOverview — what crosses the client boundary', () => {
+  const day = (offset: number) => new Date(Date.now() - offset * 86400_000).toISOString().slice(0, 10)
+  const perf = (dates: string[], base = 1000): PerfDaily[] =>
+    dates.map((date, i) => ({ id: `p${i}`, bot_id: 'b', date, capital: base + i, pnl_day: 0, win_rate: null, profit_factor: null }))
+
+  it('windows the live curves to 30 days before the boundary, and sums the paper bots into one series', () => {
+    const live = mkBot({ slug: 'live-history', status: 'live', live_since: '2026-01-01T00:00:00Z',
+      perf_daily: perf([day(400), day(200), day(90), day(10), day(1)]) })
+    const paperA = mkBot({ slug: 'paper-a', status: 'paper', start_capital: 1000, perf_daily: perf([day(10), day(1)], 1010) })
+    const paperB = mkBot({ slug: 'paper-b', status: 'paper', start_capital: 1000, perf_daily: perf([day(5)], 990) })
+    renderFleet({ bots: [live, paperA, paperB] })
+    const drawn = curveProps.at(-1)!.bots
+    expect(drawn.find(b => b.slug === 'live-history')!.data.map(d => d.date)).toEqual([day(10), day(1)])
+    const sim = drawn.find(b => b.slug === 'simulation')!
+    expect(sim.data).toEqual([
+      { date: day(10), capital: 10 },
+      { date: day(5), capital: 0 },
+      { date: day(1), capital: 1 },
+    ])
+  })
+})
+
+describe('FleetOverview — remounts on a new server-sent filter state', () => {
   it('drops a stale filter when a new (empty) initialState arrives via rerender', () => {
     const { rerender } = render(
-      <FleetOverview
-        bots={FIXTURE_FLEET}
-        aggregate={AGG}
-        recentTrades={RECENT}
-        initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }}
-      />,
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }} minutes={null} />,
     )
-    expect(screen.getByRole('button', { name: /Cassure \(3\)/ })).toHaveAttribute('aria-pressed', 'true')
-    expect(within(screen.getByTestId('fleet-register')).queryAllByText(/Ichimoku/)).toHaveLength(0)
-
-    rerender(<FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} />)
-
-    expect(screen.getByRole('button', { name: /Cassure \(3\)/ })).toHaveAttribute('aria-pressed', 'false')
-    expect(within(screen.getByTestId('fleet-register')).getAllByText(/Ichimoku/).length)
-      .toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: /Cassure/ })).toHaveAttribute('aria-pressed', 'true')
+    rerender(
+      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} minutes={null} />,
+    )
+    expect(screen.getByRole('button', { name: /Cassure/ })).toHaveAttribute('aria-pressed', 'false')
   })
 })

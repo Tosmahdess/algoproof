@@ -1,187 +1,140 @@
-// « La flotte » — composes stage 0 + stage 1 (server-rendered, unfilterable)
-// with stage 2 (client, filterable, but now seeded server-side — see below).
-// Deliberately NOT `'use client'` and NOT `async`: it is plain, synchronous
-// JSX so it renders inside the server component tree
-// (`src/app/overview/page.tsx`) exactly like any other server component, and
-// so it stays trivially testable with a synchronous render() call — no data
-// fetching to mock, just props in, markup out.
+// « La flotte », composed (lot 4 of the design audit, 2026-09-25, conception
+// §5.2). In reading order: the two totals, the real-money cards (the lot 3 card,
+// with its 30-day line and the state of its published rule), the register, then
+// the journal and the 30-day curves folded, then the recent trades.
 //
-// FIX round 2 (new Important finding): no more `<Suspense>` here, and no
-// more fallback component. The Suspense boundary existed only to satisfy
-// Next's requirement that a client component calling useSearchParams() sit
-// inside one — but that requirement exists BECAUSE useSearchParams() forces
-// a client-side-only render (a "CSR bailout") of everything inside the
-// boundary, which meant the fallback's two `animate-pulse` placeholder divs
-// were literally what got served to crawlers instead of the register's bot
-// cards and /strategies links. `FleetRegister` no longer calls
-// useSearchParams() at all — filter state is parsed server-side in
-// `overview/page.tsx` and passed down as `initialState` — so there is no
-// bailout left to contain, and the boundary would only have been decorative.
+// Gone with this lot: the market-weather banner (a copy of /intelligence,
+// fetched client-side in the first screen), « Le bilan » as an open block (its
+// totals moved up, its table folded) and the twelve-colour equity chart (the
+// curves now carry the real-money bots and ONE simulation series).
 //
-// FIX (final review, I1+I2): three pieces of content the retired /overview page
-// carried — the market-intelligence banner, « Courbes d'équité — 30 jours » and
-// the fleet-wide recent-trades feed — vanished with OverviewClient without
-// anyone deciding to retire them (GlobalEquityCurve and MiBanner were left in
-// the tree with zero importers; the trades feed existed on no page at all).
-// They are restored HERE, in stage 0, alongside the balance sheet: all three
-// are page-level, unfiltered and cohort-safe, and keeping them on this side of
-// the client boundary means none of them can re-enter the filter pipeline.
-//
-// FIX (layout, real-money cards hoisted): stage 1 (the `fleet-real` section,
-// « Argent réel ») used to render INSIDE FleetRegister — the client component
-// that owns the filter state. That made "real money never enters the filter
-// pipeline" a convention held by a `splitCohorts` call inside the filtering
-// component, not a structural fact. It is computed and rendered HERE now, for
-// the same reason the balance sheet lives here: FleetRegister has no prop
-// path to it at all, so there is nothing left inside the client boundary that
-// could accidentally fold it into a sort or a filter.
+// Deliberately NOT `'use client'` and NOT `async`: plain JSX inside the server
+// component tree. Everything but FleetRegister renders on this side of the
+// client boundary, so no filter has a prop path to the totals, the cards, the
+// journal or the curves: the stage-0 invariant is structural, not a convention.
 import type { BotWithStats, FleetBot } from '@/lib/types'
 import type { TradeWithBot } from '@/lib/types'
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import { serializeFleetFilters, type FleetFilterState } from '@/lib/bot-filters'
 import { splitCohorts } from '@/lib/cohort'
-import BotCard from '@/components/BotCard'
-import FleetBalance from '@/components/FleetBalance'
+import { familyColor } from '@/lib/families'
+import { last30Capital } from '@/lib/home-data'
+import { simulationTotalSeries } from '@/lib/fleet-curves'
+import { RealMoneyCard } from '@/components/home/HomeRealMoney'
+import FleetTotals from '@/components/FleetTotals'
+import FleetJournal from '@/components/FleetJournal'
 import FleetRecentTrades from '@/components/FleetRecentTrades'
 import FleetRegister from '@/components/FleetRegister'
 import GlobalEquityCurve from '@/components/GlobalEquityCurve'
-import MiBanner from '@/components/MiBanner'
+import Repli from '@/components/Repli'
 
 export interface FleetOverviewProps {
   bots: BotWithStats[]
   aggregate: FleetAggregate
   recentTrades: TradeWithBot[]
   initialState: FleetFilterState
+  /** Minutes since the freshest sync, null when unknown. */
+  minutes: number | null
 }
-
-// Same palette the retired page used, so a returning visitor recognises the
-// curves. Twelve entries for the twelve most-traded bots.
-const CURVE_COLORS = [
-  '#3fb950', '#58a6ff', '#ff6b35', '#d2a8ff', '#f6c90e', '#40c4ff',
-  '#ff4444', '#4ade80', '#fb923c', '#a78bfa', '#14b8a6', '#7c3aed',
-]
 
 const CURVE_DAYS = 30
 
+const fresh = (minutes: number | null) => (minutes === null ? null : minutes < 2 ? 'à l’instant' : `il y a ${minutes} min`)
+
 export default function FleetOverview({
-  bots, aggregate, recentTrades, initialState,
+  bots, aggregate, recentTrades, initialState, minutes,
 }: FleetOverviewProps) {
-  // FIX (re-review, residual 2): the 30-day cutoff is applied HERE, before the
-  // prop is built, not inside GlobalEquityCurve — which is `'use client'`, so
-  // mapping `b.perf_daily` in full serialized twelve bots' entire history into
-  // the RSC payload to draw thirty days of it. Same principle FleetBalance
-  // states two files away: never ship a row set to the browser that the browser
-  // will not use. GlobalEquityCurve still applies its own `days` cutoff, which
-  // is now a no-op on this data rather than the only thing standing between
-  // full history and the wire.
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - CURVE_DAYS)
   const cutoffStr = cutoff.toISOString().slice(0, 10)
 
-  // Stage 1 (real money) is split out here, server-side, to render as its own
-  // cards above the balance sheet.
-  //
-  // The register below receives the WHOLE fleet, live included (owner decision
-  // 2026-08-20). It used to receive `[...paper, ...archived]` only, so a
-  // real-money bot was a card and nothing else — and since ORB is the fleet's
-  // only H1 bot, the register had no H1 table at all. A register that reads as
-  // "every bot I run" while omitting the two that run real money is worse than
-  // one that lists them twice.
-  //
-  // The cost, taken knowingly: `live` now enters the filter pipeline, so a
-  // family filter can remove ORB from its table. It cannot remove it from the
-  // page — the cards above are outside the filter boundary and stay put, which
-  // is the property the old split existed to protect.
   const { live, paper, archived } = splitCohorts(bots)
-  // The SECOND application of the rule stated above for GlobalEquityCurve, and
-  // the one that was missing: FleetRegister is `'use client'` too, so whatever
-  // is handed to it is serialized into the page. Measured on 2026-09-23, this
-  // line used to send 10 197 whole trade rows and 92 perf_daily series across
-  // the boundary — 5.92 MB of HTML — so that a facet could count two booleans
-  // per bot and sliceBotStats could re-derive stats from `pnl`.
-  //
-  // New objects, not a cast: `Pick<>` narrows the TYPE, but the rows Supabase
-  // returns carry columns this app's `Trade` interface does not even declare
-  // (`created_at`, `entry_event_id`, seen in the served payload). A cast would
-  // have left every one of them on the wire. FleetRegisterPayload.test.tsx
-  // asserts the exact key set for that reason.
+  // Longest history first, the same rule as the home and the table (C7).
+  const liveByHistory = [...live].sort((a, b) => b.stats.total_trades - a.stats.total_trades)
+
+  // What crosses into the client register: the trade fields the browser reads,
+  // and a 30-value window for the row's sparkline. Never perf_daily, never
+  // recent_trades (measured 2026-09-23: 5.92 MB of HTML before this projection).
   const registerBots: FleetBot[] = [...live, ...paper, ...archived].map(b => {
-    const { perf_daily: _pd, recent_trades: _rt, all_trades, ...rest } = b
+    const { perf_daily, recent_trades: _rt, all_trades, ...rest } = b
     return {
       ...rest,
       all_trades: all_trades.map(t => ({
         side: t.side, pnl: t.pnl, asset: t.asset, closed_at: t.closed_at,
       })),
+      spark30: last30Capital(perf_daily),
     }
   })
 
-  // Archived bots are excluded from every aggregate on this page, and a dead
-  // bot's flat line is noise on a 30-day chart. Same rule as the balance sheet.
-  const curveBots = bots
-    .filter(b => b.status !== 'archived' && b.stats.total_trades > 0)
-    .sort((a, b) => b.stats.total_trades - a.stats.total_trades)
-    .slice(0, 12)
-    .map((b, i) => ({
-      slug: b.slug,
-      name: b.name,
-      color: CURVE_COLORS[i % CURVE_COLORS.length],
-      data: b.perf_daily
-        .filter(p => p.date >= cutoffStr)
-        .map(p => ({ date: p.date, capital: p.capital })),
-    }))
+  // Four series at most: each real-money bot in its family colour, the
+  // simulation as one grey total. The window is applied HERE, before the
+  // boundary: GlobalEquityCurve is a client component.
+  const curves = [
+    ...liveByHistory.map(b => {
+      // A chart series, not a text label: §3.1 keeps family colours for curves.
+      const stroke = familyColor(b.family)
+      return {
+        slug: b.slug,
+        name: b.name,
+        color: stroke,
+        data: b.perf_daily
+          .filter(p => p.date >= cutoffStr)
+          .map(p => ({ date: p.date, capital: p.capital })),
+      }
+    }),
+    {
+      slug: 'simulation',
+      name: 'Simulation, P&L total',
+      color: 'var(--muted)',
+      data: simulationTotalSeries(paper, cutoffStr),
+    },
+  ]
+  const f = fresh(minutes)
 
   return (
-    <div className="space-y-12">
-      <section data-testid="fleet-mi" className="space-y-3">
-        <h2 className="text-xs font-semibold text-muted">Météo du marché</h2>
-        <MiBanner />
-      </section>
+    <div className="space-y-10">
+      <FleetTotals aggregate={aggregate} liveCount={live.length} paperCount={paper.length} />
 
-      <section data-testid="fleet-real" className="space-y-4">
-        <h2 className="text-xs font-semibold text-muted">Argent réel</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          {live.map(bot => <BotCard key={bot.slug} bot={bot} />)}
-        </div>
-      </section>
-
-      <FleetBalance aggregate={aggregate} />
-
-      {/* ---------- Stage 1 : real money ---------- */}
-
-      {curveBots.length > 0 && (
-        <section data-testid="fleet-equity-curves" className="bg-card border border-border rounded-lg p-6">
-          <div className="flex items-baseline gap-3 mb-4">
-            <h2 className="text-xs font-semibold text-muted">Courbes d&apos;équité : 30 jours</h2>
-            <span className="text-xs text-muted">{curveBots.length} bots les plus actifs</span>
+      {live.length > 0 && (
+        <section data-testid="fleet-real" aria-label="Argent réel">
+          <div className="flex items-baseline justify-between gap-4 mb-3">
+            <h2 className="text-base font-semibold">Argent réel</h2>
+            {f && <span className="text-xs text-muted">{f}</span>}
           </div>
-          <GlobalEquityCurve bots={curveBots} days={CURVE_DAYS} />
+          {/* `grid-cols-1` is not decoration: an implicit auto track is sized by the
+              widest nowrap child of a card, and the column overflowed to 459 px at
+              390 px (same trap as the home hero, lot 3). */}
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {liveByHistory.map(bot => <RealMoneyCard key={bot.slug} bot={bot} testId="fleet-bot-card" />)}
+          </div>
         </section>
       )}
 
-      <FleetRecentTrades trades={recentTrades} />
-      {/*
-        FIX round 3 (Finding A, reviewer ruling): FleetRegister seeds its
-        state ONCE from `initialState` (useState(initialState), no resync
-        from the prop). That's correct for a real navigation — the server
-        component remounts and a fresh initialState arrives with it — but the
-        App Router keys a page segment WITHOUT its search params, so a
-        search-params-only navigation (e.g. clicking a plain `<Link
-        href="/overview">` in the nav while already on a filtered
-        /overview?family=breakout) re-renders this same component instance
-        instead of remounting it. FleetRegister would then keep its stale
-        filtered state while the server-sent initialState silently went back
-        to EMPTY_FILTERS underneath it.
-        `key` forces the issue: a new initialState value serializes to a
-        different key, which IS enough to make React unmount the old
-        FleetRegister and mount a fresh one, re-seeding useState(initialState)
-        from scratch. One line, can't go stale (it's derived from the exact
-        value being seeded, not tracked separately), needs no effect.
-      */}
+      {/* `key`: a search-params-only navigation re-renders this instance instead
+          of remounting it; a new initialState serialises to a new key, so the
+          register re-seeds instead of keeping a stale filter. */}
       <FleetRegister
         key={serializeFleetFilters(initialState).toString()}
         bots={registerBots}
         initialState={initialState}
       />
+
+      <FleetJournal rows={aggregate.rows} />
+
+      <Repli
+        id="courbes"
+        testId="fleet-equity-curves"
+        titre="Courbes 30 jours"
+        resume={`${live.length} ${live.length > 1 ? 'bots réels' : 'bot réel'} et le total simulation, en P&L`}
+        toujoursPliable
+        className="bg-card border border-border rounded-lg p-5 sm:p-6"
+        titreClassName="text-base font-semibold"
+        corpsClassName="mt-4"
+      >
+        <GlobalEquityCurve bots={curves} days={CURVE_DAYS} />
+      </Repli>
+
+      <FleetRecentTrades trades={recentTrades} />
     </div>
   )
 }

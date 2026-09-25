@@ -32,7 +32,9 @@ export function ruleState(bot: BotWithStats): RuleState {
 
 const fresh = (minutes: number | null) => (minutes === null ? null : minutes < 2 ? 'à l’instant' : `il y a ${minutes} min`)
 
-function Card({ bot }: { bot: BotWithStats }) {
+/** One real-money bot, with its 30-day line and the state of its published rule.
+ *  Shared with /overview since lot 4 (same card, `testId` tells the two apart). */
+export function RealMoneyCard({ bot, testId = 'home-bot-card' }: { bot: BotWithStats; testId?: string }) {
   const pct = pnlPct(bot.stats.latest_capital, bot.start_capital)
   const eur = pnlEur(bot.stats.latest_capital, bot.start_capital)
   const sign: 1 | -1 = pct < 0 ? -1 : 1
@@ -41,7 +43,7 @@ function Card({ bot }: { bot: BotWithStats }) {
   const delta30 = spark.length >= 2 ? spark[spark.length - 1] - spark[0] : null
   const rule = ruleState(bot)
   return (
-    <div data-testid="home-bot-card" className="bg-card border border-border rounded-lg p-4 flex flex-col gap-2.5">
+    <div data-testid={testId} className="bg-card border border-border rounded-lg p-4 flex flex-col gap-2.5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'text-sm leading-snug')}>{bot.name}</Link>
@@ -81,7 +83,7 @@ export function RealMoneyPanel({ bots, minutes }: { bots: BotWithStats[]; minute
         {f && <span className="text-xs text-muted">{f}</span>}
       </div>
       <div className="grid gap-3">
-        {bots.map(b => <Card key={b.slug} bot={b} />)}
+        {bots.map(b => <RealMoneyCard key={b.slug} bot={b} />)}
       </div>
       <p className="mt-3 text-sm"><Link href="/overview" className={linkClass('inline')}>Toute la flotte, simulation comprise →</Link></p>
     </aside>

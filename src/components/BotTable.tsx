@@ -1,66 +1,59 @@
 // src/components/BotTable.tsx
-// Reusable fleet table, transposed verbatim from the home page's desktop table +
-// mobile list (src/app/page.tsx ~170-260). Same classes, same helpers — the home stays
-// on its own inline markup (controller decision: zero visible-change regression risk),
-// this is for the other surfaces that need the same table.
+// The fleet table, shared by /overview and the strategy pages. Lot 4 of the
+// design audit (2026-09-25, conception §5.2 and §6.3): a 30-day sparkline per row
+// when the row brings one (`spark30`, windowed server-side), no rank (« #1 » was
+// a ranking on the page whose thesis is that a ranking proves nothing), and on a
+// phone a row is name · status · % · three metrics, never a compressed table.
 import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
+import Sparkline from '@/components/Sparkline'
 import { familyLabel } from '@/lib/families'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 import type { FleetBot } from '@/lib/types'
 
 interface BotTableProps {
   // FleetBot, not BotWithStats: this table reads `stats`, `start_capital`,
-  // `family`, `slug`, `name`, `status` and `timeframe` and nothing else, and a
-  // BotWithStats satisfies it structurally — so /overview can hand it rows
-  // stripped of the trade history the browser never reads, while /strategies
-  // keeps passing whole bots unchanged.
+  // `family`, `slug`, `name`, `status`, `timeframe` and `spark30` and nothing
+  // else, and a BotWithStats satisfies it structurally.
   bots: FleetBot[]
   showTf: boolean
 }
 
 export default function BotTable({ bots, showTf }: BotTableProps) {
+  const withSpark = bots.some(b => (b.spark30?.length ?? 0) >= 2)
   return (
     <>
-      {/* Mobile : liste classement rapide */}
-      <div className="md:hidden rounded border border-border overflow-hidden divide-y divide-border mb-6">
-        {bots.map((bot, i) => {
+      {/* Phone: one row per bot, the regime word before the figure (audit 2026-09-09). */}
+      <div className="md:hidden rounded-lg border border-border overflow-hidden divide-y divide-border mb-6">
+        {bots.map(bot => {
           const hasData = bot.stats.total_trades > 0
-          const eur     = pnlEur(bot.stats.latest_capital, bot.start_capital)
           const pct     = pnlPct(bot.stats.latest_capital, bot.start_capital)
           return (
-            <Link key={bot.id} href={`/strategies/bot/${bot.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-card/40 transition-colors">
-              <span className="text-xs text-muted font-mono w-6 flex-shrink-0">#{i + 1}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium truncate">{bot.name}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-muted">
-                    {familyLabel(bot.family)}
-                  </span>
-                  {showTf && <span className="text-xs text-muted">{bot.timeframe}</span>}
-                  {hasData && <span className="text-xs text-muted">{bot.stats.total_trades} trades</span>}
-                </div>
-              </div>
-              <div className="text-right flex-shrink-0">
-                {/* Regime before the figure, same as the home list (audit 2026-09-09). */}
-                <div className="flex justify-end mb-1">
-                  <StatusBadge status={bot.status} />
-                </div>
+            <Link key={bot.id} href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'flex flex-col gap-1 px-4 py-3 min-h-10')}>
+              <span className="flex items-center gap-2">
+                <span className="min-w-0 flex-1 text-sm leading-snug line-clamp-2">{bot.name}</span>
+                <StatusBadge status={bot.status} />
+                {hasData
+                  ? <span className={`shrink-0 font-mono text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
+                  : <span className="shrink-0 text-xs text-muted">—</span>}
+              </span>
+              <span className="text-xs text-muted font-mono">
+                {familyLabel(bot.family)}{showTf && ` · ${bot.timeframe}`}
                 {hasData ? (
                   <>
-                    <p className={`text-sm font-bold font-mono ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</p>
-                    <p className={`text-xs font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pct)}</p>
+                    {` · ${bot.stats.total_trades} trades · PF ${fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor)} · `}
+                    <span className={drawdownIsLoss(bot.stats.max_drawdown) ? 'text-negative' : undefined}>DD {fmtDrawdown(bot.stats.max_drawdown)}</span>
                   </>
-                ) : <span className="text-xs text-muted">—</span>}
-              </div>
+                ) : ' · pas encore de trade'}
+              </span>
             </Link>
           )
         })}
       </div>
 
-      {/* Desktop : table complète */}
-      <div className="hidden md:block rounded border border-border overflow-hidden mb-6">
+      {/* Desktop: the full table */}
+      <div className="hidden md:block rounded-lg border border-border overflow-hidden mb-6">
         <table className="w-full text-xs">
           <thead className="bg-card">
             <tr className="text-xs font-semibold uppercase tracking-wider text-muted border-b border-border">
@@ -73,16 +66,18 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
               <th className="px-4 py-3 text-right hidden lg:table-cell">DD</th>
               <th className="px-4 py-3 text-right font-bold">P&amp;L (€)</th>
               <th className="px-4 py-3 text-center">Statut</th>
+              {withSpark && <th className="px-4 py-3 text-left hidden lg:table-cell">30 j</th>}
             </tr>
           </thead>
           <tbody>
             {bots.map(bot => {
               const hasData = bot.stats.total_trades > 0
+              const eur = pnlEur(bot.stats.latest_capital, bot.start_capital)
               return (
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
                     <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
-                    <p className="text-muted text-xs mt-0.5">{bot.exchange} · {bot.timeframe}</p>
+                    <p className="text-muted text-xs mt-0.5">{bot.exchange}{!showTf && ` · ${bot.timeframe}`}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-xs text-muted">
@@ -90,7 +85,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                     </span>
                   </td>
                   {showTf && (
-                    <td className="px-4 py-3">{bot.timeframe}</td>
+                    <td className="px-4 py-3 font-mono">{bot.timeframe}</td>
                   )}
                   <td className="px-4 py-3 text-right font-mono">
                     {hasData ? (
@@ -118,7 +113,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                   <td className="px-4 py-3 text-right">
                     {hasData ? (
                       <div>
-                        <span className={`font-mono font-bold ${pnlEur(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(pnlEur(bot.stats.latest_capital, bot.start_capital))}</span>
+                        <span className={`font-mono font-bold ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</span>
                         <span className={`block text-xs font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
                       </div>
                     ) : <span className="text-muted">—</span>}
@@ -126,6 +121,13 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
                   <td className="px-4 py-3 text-center">
                     <StatusBadge status={bot.status} />
                   </td>
+                  {withSpark && (
+                    // The line inherits the colour of the gain (currentColor): decoration
+                    // for scanning, the figures on the row carry the facts.
+                    <td data-testid="bot-spark" className={`px-4 py-2 hidden lg:table-cell ${eur < 0 ? 'text-negative' : 'text-positive'}`}>
+                      {bot.spark30 && bot.spark30.length >= 2 && <Sparkline values={bot.spark30} width={88} height={20} />}
+                    </td>
+                  )}
                 </tr>
               )
             })}
