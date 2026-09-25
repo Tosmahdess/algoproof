@@ -1,179 +1,135 @@
-import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
-import Nav from '@/components/Nav'
+import { render, screen, fireEvent, within } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { trackCtaLab } from '@/lib/analytics'
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/' }))
+// Lot 2 of the design audit (2026-09-25, conception §2.2 and §2.3, decided by the
+// user): five flat links, one button, no dropdown, no uppercase. « Mes bots ▾ »
+// hid the two pages the site exists for behind a hover; « Investir » was the one
+// word of the bar that promised advice; « Apprendre » led to a page titled
+// « Articles ».
+const path = { value: '/' }
+vi.mock('next/navigation', () => ({ usePathname: () => path.value }))
 vi.mock('@/lib/analytics', () => ({ trackCtaLab: vi.fn(), trackOutboundExchange: vi.fn() }))
+const { default: Nav } = await import('@/components/Nav')
 
-// Pre-launch audit 2026-09-09 (§4, keyboard navigation): the « MES BOTS »
-// menu opened on hover only. A keyboard user tabbed onto the button, pressed
-// Enter, and nothing happened: /overview and /strategies were unreachable
-// from the nav without a mouse. The button now owns the open state, exposes
-// it (aria-expanded / aria-controls), opens on click, Enter and Space, closes
-// on Escape (focus back on the button) and on a click outside. Hover keeps
-// working through the group-hover classes.
-describe('Nav — « MES BOTS » is usable from the keyboard', () => {
-  const button = () => screen.getByRole('button', { name: /mes bots/i })
+const LINKS: [string, string][] = [
+  ['La flotte', '/overview'],
+  ['Stratégies', '/strategies'],
+  ['Sociétés', '/investir'],
+  ['Météo', '/intelligence'],
+  ['Articles', '/blog'],
+]
 
-  it('is closed by default and exposes its state', () => {
+beforeEach(() => { path.value = '/' })
+
+describe('Nav — five flat links, one button', () => {
+  it('renders the five destinations as plain links, in this order, with these words', () => {
     render(<Nav />)
-    const b = button()
-    expect(b).toHaveAttribute('aria-expanded', 'false')
-    const menuId = b.getAttribute('aria-controls')
-    expect(menuId).toBeTruthy()
-    expect(document.getElementById(menuId!)).not.toBeNull()
-    // WAI-ARIA disclosure pattern: the list is plain links, not role="menu",
-    // so the button does not announce a popup menu (2026-09-11 review).
-    expect(b).not.toHaveAttribute('aria-haspopup')
+    const bar = screen.getByTestId('nav-desktop')
+    const links = within(bar).getAllByRole('link').filter(a => a.getAttribute('href')?.startsWith('/') && a.getAttribute('href') !== '/')
+    expect(links.map(a => [a.textContent?.trim(), a.getAttribute('href')])).toEqual(LINKS)
   })
 
-  it('opens and closes on click', () => {
+  it('has no dropdown and no shouted label', () => {
     render(<Nav />)
-    fireEvent.click(button())
-    expect(button()).toHaveAttribute('aria-expanded', 'true')
-    fireEvent.click(button())
-    expect(button()).toHaveAttribute('aria-expanded', 'false')
-  })
-
-  it('opens and closes on Enter and on Space', () => {
-    render(<Nav />)
-    fireEvent.keyDown(button(), { key: 'Enter' })
-    expect(button()).toHaveAttribute('aria-expanded', 'true')
-    fireEvent.keyDown(button(), { key: 'Enter' })
-    expect(button()).toHaveAttribute('aria-expanded', 'false')
-    fireEvent.keyDown(button(), { key: ' ' })
-    expect(button()).toHaveAttribute('aria-expanded', 'true')
-    fireEvent.keyDown(button(), { key: ' ' })
-    expect(button()).toHaveAttribute('aria-expanded', 'false')
-  })
-
-  it('Escape closes the menu and returns focus to the button', () => {
-    render(<Nav />)
-    fireEvent.click(button())
-    const menu = document.getElementById(button().getAttribute('aria-controls')!)!
-    const first = menu.querySelector('a')!
-    first.focus()
-    fireEvent.keyDown(first, { key: 'Escape' })
-    expect(button()).toHaveAttribute('aria-expanded', 'false')
-    expect(document.activeElement).toBe(button())
-  })
-
-  it('a click outside closes the menu', () => {
-    render(<Nav />)
-    fireEvent.click(button())
-    expect(button()).toHaveAttribute('aria-expanded', 'true')
-    fireEvent.mouseDown(document.body)
-    expect(button()).toHaveAttribute('aria-expanded', 'false')
-  })
-
-  it('the menu is visible when open, hidden when closed, and still opens on hover', () => {
-    render(<Nav />)
-    const menu = document.getElementById(button().getAttribute('aria-controls')!)!
-    expect(menu.className).toMatch(/\binvisible\b/)
-    expect(menu.className).toMatch(/group-hover:visible/)
-    fireEvent.click(button())
-    expect(menu.className).toMatch(/\bvisible\b/)
-    expect(menu.className).not.toMatch(/\binvisible\b/)
-  })
-})
-
-describe('Nav — 4 hubs + Labo CTA', () => {
-  it('renders the 4 hub labels', () => {
-    render(<Nav />)
-    expect(screen.getByText(/mes bots/i)).toBeDefined()
-    expect(screen.getByText(/investir/i)).toBeDefined()
-    expect(screen.getByText(/météo du marché/i)).toBeDefined()
-    expect(screen.getByText(/apprendre/i)).toBeDefined()
-  })
-
-  // 2026-08-21 (user decision): LE LABO is a plain link, no dropdown. The old
-  // sub-links (tutoriels, agents, vote, membres) are gone from the nav.
-  it('renders the Labo CTA as a plain link, without the old dropdown', () => {
-    render(<Nav />)
-    const cta = screen.getAllByRole('link').find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab' && /le labo/i.test(a.textContent ?? ''))
-    expect(cta).toBeDefined()
-    for (const label of [/tutoriels/i, /agents ia/i, /vote du labo/i, /membres/i]) {
-      expect(screen.queryByText(label)).toBeNull()
+    expect(screen.queryByRole('button', { name: /mes bots/i })).toBeNull()
+    expect(screen.queryByText(/mes bots/i)).toBeNull()
+    expect(screen.queryByText(/^investir$/i)).toBeNull()
+    expect(screen.queryByText(/^apprendre$/i)).toBeNull()
+    expect(screen.queryByText(/météo du marché/i)).toBeNull()
+    const bar = screen.getByTestId('nav-desktop')
+    for (const a of within(bar).getAllByRole('link')) {
+      expect(a.className, a.textContent ?? '').not.toMatch(/\buppercase\b|tracking-wid/)
     }
   })
 
-  // 2026-09-19 (D053): LE LABO opens the app (/lab), not the landing at the
-  // lab root. Going through the pitch on every visit was one extra click each
-  // time. The click is counted, so the routing can be judged on facts.
-  it('sends LE LABO straight into the app and counts the click as nav', () => {
+  it('marks the current page with aria-current, and nothing else', () => {
+    path.value = '/strategies/ema-cross'
+    render(<Nav />)
+    const bar = screen.getByTestId('nav-desktop')
+    const current = within(bar).getAllByRole('link').filter(a => a.getAttribute('aria-current') === 'page')
+    expect(current.map(a => a.getAttribute('href'))).toEqual(['/strategies'])
+  })
+
+  it('carries the lab as the one button of the bar, into the app, counted as nav', () => {
     vi.mocked(trackCtaLab).mockClear()
     render(<Nav />)
-    const cta = screen.getByText('LE LABO').closest('a')!
+    // One button on every width, outside the desktop list: its label shortens on a
+    // phone through two spans, so the accessible name carries both words.
+    const cta = within(screen.getByTestId('nav-bar')).getByRole('link', { name: /tester une stratégie/i })
     expect(cta.getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
+    expect(cta.className).toMatch(/bg-foreground/)
     cta.addEventListener('click', e => e.preventDefault())
     fireEvent.click(cta)
     expect(trackCtaLab).toHaveBeenCalledWith('nav')
+    expect(screen.queryByText(/^le labo$/i)).toBeNull()
   })
 
-  it('sends the mobile « Ouvrir le labo » into the app and counts it as nav-mobile', () => {
+  it('keeps « Compte » reachable, as a text link that says it leaves for the lab', () => {
+    render(<Nav />)
+    const compte = within(screen.getByTestId('nav-desktop')).getByRole('link', { name: /compte/i })
+    expect(compte.getAttribute('href')).toBe('https://lab.algoproof.fr/account')
+    expect(compte.textContent).toMatch(/↗/)
+    expect(compte.className).not.toMatch(/bg-foreground/)
+  })
+
+  it('is 56 px tall (--nav-h)', () => {
+    render(<Nav />)
+    expect(screen.getByTestId('nav-bar').className).toMatch(/\bh-14\b/)
+  })
+
+  it('shows the wordmark with the brand green on PROOF, and nowhere else', () => {
+    const { container } = render(<Nav />)
+    const brand = [...container.querySelectorAll('.text-brand')]
+    expect(brand.map(el => el.textContent)).toEqual(['PROOF'])
+    expect(container.querySelector('.text-positive')).toBeNull()
+  })
+})
+
+describe('Nav — the phone drawer', () => {
+  const openMenu = () => fireEvent.click(screen.getByRole('button', { name: /menu/i }))
+
+  it('opens on the menu button with the same five links, flat, 48 px each', () => {
+    render(<Nav />)
+    expect(screen.queryByTestId('mobile-menu')).toBeNull()
+    openMenu()
+    const menu = screen.getByTestId('mobile-menu')
+    expect(menu.querySelector('details')).toBeNull()
+    expect(within(menu).queryByText(/explorer/i)).toBeNull()
+    const links = within(menu).getAllByRole('link').filter(a => a.getAttribute('href')?.startsWith('/'))
+    expect(links.map(a => [a.textContent?.replace(/\s+/g, ' ').trim(), a.getAttribute('href')])).toEqual(LINKS)
+    for (const a of links) expect(a.className, a.textContent ?? '').toMatch(/\bh-12\b/)
+  })
+
+  it('keeps the lab button in the bar on a phone, and the lab and account at the foot of the drawer', () => {
     vi.mocked(trackCtaLab).mockClear()
     render(<Nav />)
-    fireEvent.click(screen.getByRole('button', { name: /menu/i }))
-    const open = screen.getByText(/ouvrir le labo/i).closest('a')!
+    const barButton = within(screen.getByTestId('nav-bar')).getByRole('link', { name: /^tester/i })
+    expect(barButton.getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
+    openMenu()
+    const menu = screen.getByTestId('mobile-menu')
+    const open = within(menu).getByRole('link', { name: /ouvrir le labo/i })
     expect(open.getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
     open.addEventListener('click', e => e.preventDefault())
     fireEvent.click(open)
     expect(trackCtaLab).toHaveBeenCalledWith('nav-mobile')
-  })
-
-  // The account lives on the lab (magic link + subscription state); this site
-  // has no auth of its own, so COMPTE must point at lab.algoproof.fr/account.
-  it('links COMPTE to the lab account page', () => {
-    render(<Nav />)
-    const compte = screen.getAllByRole('link').find(a => /^compte$/i.test(a.textContent ?? ''))
-    expect(compte).toBeDefined()
-    expect(compte!.getAttribute('href')).toBe('https://lab.algoproof.fr/account')
-  })
-
-  // The library moved to this site on 2026-07-31: linking the lab's
-  // /bibliotheque would 308 straight back here.
-  it('no longer links the lab bibliotheque (the library lives here now)', () => {
-    render(<Nav />)
-    expect(screen.queryByText(/bibliothèque/i)).toBeNull()
-    const hrefs = screen.getAllByRole('link').map(a => a.getAttribute('href') ?? '')
-    expect(hrefs.some(h => h.includes('/bibliotheque'))).toBe(false)
-    expect(hrefs).toContain('/strategies')
-  })
-
-  it('drops the old jargon top-level items', () => {
-    render(<Nav />)
-    expect(screen.queryByText(/patrimoine/i)).toBeNull()
-    expect(screen.queryByText(/^analyses$/i)).toBeNull()
-    expect(screen.queryByText(/^intelligence$/i)).toBeNull()
+    expect(within(menu).getByRole('link', { name: /compte/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/account')
   })
 })
 
-// 2026-09-23, external review: "quand on clique sur un lien de la nav, indiquer
-// que c'est en cours de chargement". Every internal nav destination carries a
-// LinkPending hint, so adding a nav entry without one fails here rather than
-// shipping a link that gives no sign it was clicked.
-//
-// The external entries (LE LABO, COMPTE) are deliberately excluded: they leave
-// for lab.algoproof.fr, and useLinkStatus reports on client navigations only —
-// a hint there would be permanently dark and would lie about what it measures.
 describe('Nav — every internal link shows that it was clicked', () => {
   it('carries a pending hint on each internal destination', () => {
     const { container } = render(<Nav />)
     const internal = [...container.querySelectorAll('a[href^="/"]')]
       .filter(a => a.getAttribute('href') !== '/')   // le logo
-
     expect(internal.length).toBeGreaterThanOrEqual(5)
     const without = internal.filter(a => a.querySelector('[data-testid="link-pending"]') === null)
     expect(without.map(a => a.getAttribute('href'))).toEqual([])
   })
 
-  // The mobile menu is unmounted while closed, so the assertion above cannot
-  // see it: a hint missing there would have shipped silently.
-  it('carries it on the mobile entries too, once the menu is open', () => {
+  it('carries it on the drawer entries too, once open', () => {
     const { container } = render(<Nav />)
     fireEvent.click(screen.getByRole('button', { name: /menu/i }))
-
     const internal = [...container.querySelectorAll('a[href^="/"]')]
       .filter(a => a.getAttribute('href') !== '/')
     const without = internal.filter(a => a.querySelector('[data-testid="link-pending"]') === null)

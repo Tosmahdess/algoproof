@@ -4,54 +4,48 @@ import { TWITTER_URL } from '@/lib/constants'
 
 const LAB_URL = 'https://lab.algoproof.fr'
 
+// Lot 2 of the design audit (conception §2.4): four columns instead of six, the
+// five words of the bar under « Le site », the lab under one heading that says it
+// leaves the domain. « Découvrir le labo » (the landing) stays: the landing is the
+// pitch for cold traffic (D051), the app is where the nav sends warm traffic (D053).
 const SITEMAP: { title: string; links: { href: string; label: string; external?: boolean }[] }[] = [
   {
-    title: 'Mes bots',
+    title: 'Le site',
     links: [
-      { href: '/overview',    label: 'La flotte' },
-      { href: '/strategies',  label: 'Les stratégies' },
+      { href: '/overview',     label: 'La flotte' },
+      { href: '/strategies',   label: 'Stratégies' },
+      { href: '/investir',     label: 'Sociétés' },
+      { href: '/intelligence', label: 'Météo' },
+      { href: '/blog',         label: 'Articles' },
     ],
   },
   {
-    title: 'Investir',
+    title: 'Comprendre',
     links: [
-      { href: '/investir',        label: 'Les sociétés dont je lis les comptes' },
+      { href: '/preuve',  label: 'Ma méthode' },
+      { href: '/lexique', label: 'Lexique' },
+      { href: '/faq',     label: 'FAQ' },
+      { href: `${LAB_URL}/cockpit/cimetiere`, label: 'Cimetière ↗', external: true },
     ],
   },
   {
-    title: 'Météo du marché',
+    title: 'Le labo ↗',
     links: [
-      { href: '/intelligence', label: 'Météo du marché' },
-    ],
-  },
-  {
-    title: 'Apprendre',
-    links: [
-      { href: '/blog',   label: 'Blog' },
-      { href: '/preuve', label: 'Ma méthode' },
-      { href: '/mica',   label: 'En règle : MiCA & fiscalité' },
-      { href: '/start',  label: 'Démarrer' },
-    ],
-  },
-  {
-    title: 'Le labo',
-    links: [
-      // The tool opens the tool (D053); « Découvrir le labo » below keeps the landing.
-      { href: `${LAB_URL}/lab`, label: 'Backtester', external: true },
-      { href: `${LAB_URL}/apprendre`, label: 'Tutoriels', external: true },
-      // "Bibliothèque des stratégies" dropped 2026-07-31: the library moved
-      // here and is already linked as /strategies in the "Mes bots" group.
-      { href: `${LAB_URL}/agents`, label: 'Agents IA (MCP)', external: true },
-      { href: `${LAB_URL}/membre`, label: 'Mode gratuit & membres', external: true },
+      { href: `${LAB_URL}/lab`,       label: 'Tester une stratégie', external: true },
+      { href: `${LAB_URL}/apprendre`, label: 'Tutoriels',            external: true },
+      { href: `${LAB_URL}/agents`,    label: 'Agents IA (MCP)',      external: true },
+      { href: `${LAB_URL}/membre`,    label: 'Abonnement',           external: true },
+      { href: `${LAB_URL}/account`,   label: 'Compte',               external: true },
+      { href: LAB_URL,                label: 'Découvrir le labo',    external: true },
     ],
   },
   {
     title: 'Le projet',
     links: [
       { href: '/a-propos', label: 'À propos' },
-      { href: LAB_URL,     label: 'Découvrir le labo', external: true },
-      { href: '/lexique',  label: 'Lexique' },
-      { href: '/faq',      label: 'FAQ' },
+      { href: '/start',    label: 'Démarrer (plateformes)' },
+      { href: '/mica',     label: 'MiCA & fiscalité' },
+      { href: TWITTER_URL, label: 'X / Twitter', external: true },
     ],
   },
 ]
@@ -59,11 +53,11 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
 export default function Footer() {
   return (
     <footer className="border-t border-border mt-24 py-12">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {SITEMAP.map(col => (
             <div key={col.title}>
-              <h3 className="text-xs font-semibold tracking-widest uppercase text-muted mb-3">{col.title}</h3>
+              <h3 className="text-xs font-medium text-muted mb-3">{col.title}</h3>
               <ul className="space-y-2">
                 {col.links.map(l => (
                   <li key={l.href}>
@@ -79,32 +73,30 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <span className="text-sm text-muted">AlgoProof : mes bots de trading et les comptes de sociétés que je lis, en public. Chaque trade, chaque perte.</span>
-          <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className={linkClass('nav', 'text-sm')}>X / Twitter</a>
+        <div className="mt-10 pt-6 border-t border-border">
+          <p className="text-sm text-muted">AlgoProof : mes bots de trading et les comptes de sociétés que je lis, en public. Chaque trade, chaque perte.</p>
         </div>
-        {/* The site's default rule (« paper trading sauf mention contraire »)
-            and its legal reserve were the least readable line of the site:
-            text-xs at 50 % opacity, 2,20:1 measured (audit 2026-09-09). Full
-            opacity, 13 px: 5,6:1 on this ground, computed in
-            tests/lib/design-contrast.test.ts. */}
-        <p className="mt-4 text-sm text-muted">
-          Ceci n&apos;est pas un conseil financier. Toutes les performances sont en paper trading sauf mention contraire.
+        {/* The site's default rule and its legal reserve, at full opacity and
+            13 px (5,6:1 on this ground, tests/lib/design-contrast.test.ts). « en
+            simulation » is the word of the badges (C2); « paper trading » lives in
+            the lexicon. */}
+        <p className="mt-4 text-xs text-muted">
+          Ceci n&apos;est pas un conseil financier. Toutes les performances sont en simulation sauf mention « Argent réel ».
           Je ne touche jamais à ton argent : pas de dépôt, pas de clé d&apos;exchange, tout est en lecture seule.
         </p>
 
         {/* Legal links point at lab.algoproof.fr: same publisher, one set of legal
-            pages for both sites, and algoproof.fr has none of its own yet. */}
+            pages for both sites (D039). */}
         <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-          <a href="https://lab.algoproof.fr/mentions-legales" target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
+          <a href={`${LAB_URL}/mentions-legales`} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
             Mentions légales
           </a>
           <span>·</span>
-          <a href="https://lab.algoproof.fr/privacy" target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
+          <a href={`${LAB_URL}/privacy`} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
             Confidentialité
           </a>
           <span>·</span>
-          <a href="https://lab.algoproof.fr/terms" target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
+          <a href={`${LAB_URL}/terms`} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
             Conditions
           </a>
         </div>

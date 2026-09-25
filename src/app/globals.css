@@ -5,7 +5,7 @@
 :root {
   --background: #0a0a0a;
   --foreground: #f5f5f5;
-  --nav-h: 44px;
+  --nav-h: 56px; /* lot 2 : la barre fait h-14 */
 
   /* Design tokens, mirroring tailwind.config.ts theme.extend.colors — kept in
      sync by hand (see that file's comment). Exist as CSS variables so inline

@@ -69,9 +69,13 @@ describe('no page still says it grades companies', () => {
     for (const re of RETIRED) expect(hits(re), String(re)).toEqual([])
   })
 
-  it('the footer names the Investir page by what it does', () => {
+  // Lot 2 (2026-09-25, conception §2.2): the bar and the footer share five words,
+  // and the word for /investir is « Sociétés », a thing, never « Investir », a verb
+  // that promises advice. What the page does is on the page's own H1.
+  it('the footer names the Investir page by what it is, never by the verb', () => {
     expect(read('src/components/Footer.tsx'))
-      .toMatch(/href: '\/investir',\s*label: 'Les sociétés dont je lis les comptes'/)
+      .toMatch(/href: '\/investir',\s*label: 'Sociétés'/)
+    expect(read('src/components/Footer.tsx')).not.toMatch(/label: 'Investir'/)
   })
 })
 
