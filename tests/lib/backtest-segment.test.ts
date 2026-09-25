@@ -4,7 +4,7 @@
 // runs the recipe's backtest to the paper launch, then the paper continues from there. The
 // backtest has its own figures and never enters a paper figure.
 import { describe, it, expect } from 'vitest'
-import { backtestStats, joinSegments, type BacktestSegment } from '@/lib/backtest-segment'
+import { backtestStats, joinSegments, paperScale, type BacktestSegment } from '@/lib/backtest-segment'
 import { getBacktestSegment } from '@/lib/backtest-segment-data'
 import { paperIsUp } from '@/components/EquityCurve'
 import type { PerfDaily } from '@/lib/types'
@@ -39,9 +39,9 @@ describe('joinSegments', () => {
     expect(rows.map(r => r.date)).toEqual(
       ['2026-08-19', '2026-08-20', '2026-08-21', '2026-08-22', '2026-08-23', '2026-08-24'])
     expect(rows.map(r => r.backtest)).toEqual([1000, 1030, 1100, null, null, null])
-    // the paper's euros are added on top of the backtest's end, one row per day, so the
-    // curve and the paper trade list tell the same amounts
-    expect(rows.map(r => r.paper)).toEqual([null, null, 1100, 1100, 1090, 1108.77])
+    // the paper sizes 1 % of equity per trade, so starting on 1100 instead of 1000 scales
+    // its whole path by 1.1 (user, 2026-09-25): 990 -> 1089, 1008.77 -> 1109.65
+    expect(rows.map(r => r.paper)).toEqual([null, null, 1100, 1100, 1089, 1109.65])
   })
 
   it('refuses a bot whose capital is not the one the backtest starts on', () => {
@@ -61,6 +61,12 @@ describe('joinSegments', () => {
   it('draws the backtest with a flat paper when the bot has not closed a trade yet', () => {
     const rows = joinSegments(seg, [], 1000)!
     expect(rows.at(-1)).toEqual({ date: '2026-08-21', backtest: 1100, paper: 1100 })
+  })
+})
+
+describe('paperScale', () => {
+  it('is the backtest end over the starting capital', () => {
+    expect(paperScale(seg)).toBeCloseTo(1.1)
   })
 })
 
@@ -95,9 +101,9 @@ describe('getBacktestSegment', () => {
 
 describe('paperIsUp', () => {
   it('reads the paper against its own launch level, not the starting capital', () => {
-    // backtest gained to 1100, then the paper LOST 10: still above 1000, must be red
+    // backtest gained to 1100, then the paper LOST 1 %: still above 1000, must be red
     const rows = joinSegments(seg, [pd('2026-08-23', 990)], 1000)!
-    expect(rows.at(-1)!.paper).toBe(1090)
+    expect(rows.at(-1)!.paper).toBe(1089)
     expect(paperIsUp(rows, seg.launchDate)).toBe(false)
     const up = joinSegments(seg, [pd('2026-08-23', 1010)], 1000)!
     expect(paperIsUp(up, seg.launchDate)).toBe(true)

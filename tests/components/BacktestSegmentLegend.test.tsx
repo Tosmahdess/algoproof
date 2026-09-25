@@ -22,6 +22,7 @@ describe('BacktestSegmentLegend', () => {
     expect(t).toMatch(/déjà vu ces données pendant sa sélection/)
     expect(t).toMatch(/ne comptent que ce trait plein/)
     expect(t).toContain('1 000 € le 1er janvier')
+    expect(t).toContain('positions dimensionnées sur ce capital')
   })
 
   it('carries no em dash (site-wide ban)', () => {

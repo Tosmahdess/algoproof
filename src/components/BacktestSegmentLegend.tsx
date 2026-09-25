@@ -16,8 +16,9 @@ export default function BacktestSegmentLegend({ launchDate }: { launchDate: stri
       </p>
       <p>
         <span className="inline-block w-5 border-t-2 border-positive align-middle mr-2" />
-        Trait plein : la simulation (paper) depuis le lancement, qui repart du niveau atteint par
-        le backtest. Les chiffres en haut de page ne comptent que ce trait plein.
+        Trait plein : la simulation (paper) depuis le lancement. Elle repart du niveau atteint par
+        le backtest, avec des positions dimensionnées sur ce capital. Les chiffres en haut de
+        page ne comptent que ce trait plein.
       </p>
     </div>
   )

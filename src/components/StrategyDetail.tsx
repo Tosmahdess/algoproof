@@ -14,7 +14,7 @@ import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 import BacktestSegmentLegend from '@/components/BacktestSegmentLegend'
 import BacktestBlock from '@/components/BacktestBlock'
 import { longDate } from '@/lib/format-date'
-import { joinSegments, type BacktestSegment } from '@/lib/backtest-segment'
+import { joinSegments, paperScale, type BacktestSegment } from '@/lib/backtest-segment'
 
 /** Recent trades shown on a phone before « Voir les N derniers » (D057). */
 const TRADES_MOBILE = 5
@@ -100,6 +100,10 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
 
   const pct = pnlPct(stats.latest_capital, startCapital)
   const eur = pnlEur(stats.latest_capital, startCapital)
+  // On the two-segment curve the paper trades from the capital the backtest reached, so
+  // its euros are the ledger's times that factor; the percentage is the same either way.
+  const scale = segment ? paperScale(segment) : 1
+  const curveEur = segmentRows ? eur * scale : eur
 
   return (
     <>
@@ -160,7 +164,7 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
             </span>
             {segmentRows && <span className="text-muted whitespace-nowrap">simulation :</span>}
             <span className={`font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
-              {fmtEur(eur)} ({fmtPct(pct)})
+              {fmtEur(curveEur)} ({fmtPct(pct)})
             </span>
           </div>
         </div>
@@ -204,6 +208,15 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
           </span>
         </h2>
         <TradesTable trades={tradesShown} limiteMobile={limiteMobile} />
+        {segment && (
+          <p className="text-xs text-muted mt-3">
+            Montants du ledger, calculés sur {startCapital} € au lancement. Sur la courbe, qui
+            repart des {Math.round(startCapital * scale).toLocaleString('fr-FR')} € atteints par
+            le backtest, chaque position est{' '}
+            {(Math.abs(scale - 1) * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} %
+            {scale >= 1 ? ' plus grosse.' : ' plus petite.'}
+          </p>
+        )}
         {limiteMobile !== undefined && (
           <button
             type="button"
