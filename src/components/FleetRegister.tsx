@@ -1,84 +1,53 @@
 'use client'
-// « La flotte » — stage 2: the laboratory register. Filterable (family, and a
-// side slice — see below), grouped by TIMEFRAME (one table per H4/D1/H1/…), archived
-// collapsed at the bottom.
+// « La flotte », the register: every bot in ONE table, sorted by history
+// (trades descending, C7), every timeframe in it, filterable by family,
+// timeframe and side. Lot 4 of the design audit (2026-09-25, conception §5.2):
+// the per-timeframe sections (« H4 : 55 stratégies ») are gone, a visitor looks
+// for a bot, not a horizon. Bots between 1 and 19 trades fold under the table
+// (« En rodage »: a PF on 4 trades is not a figure to rank, audit P0-5), the
+// bots that never traded under their own line, the archived ones last.
 //
-// Renamed from FleetClient (fix round 1, C1): this component no longer
-// receives `aggregate` at all — the balance sheet (stage 0) moved to the
-// server component `FleetBalance`, which renders outside this client
-// boundary entirely. That is what makes "filters cannot reach the balance"
-// a structural fact again instead of only a convention backed by a test:
-// there is no prop path from here to there.
+// What this component does NOT hold, by construction: the two totals, the
+// real-money cards, the journal, the curves and the recent trades all render in
+// FleetOverview, outside this client boundary, so no filter has a prop path to
+// them. `bots` here IS the register set (live included since 2026-08-20), rows
+// projected to what the browser reads (FleetRegisterPayload.test.tsx).
 //
-// FIX (layout, real-money cards hoisted): stage 1 (real money, `fleet-real`)
-// used to render here too, fed by a `splitCohorts(bots)` call — meaning "real
-// money never enters the filter pipeline" only held because nothing below
-// this comment happened to read `live`. It is gone from this file now.
-// `FleetOverview` computes the split server-side and hands this component
-// only the bots it is actually meant to filter: no `live` cohort, no prop
-// path to it, nothing to accidentally sort or paginate. `bots` below IS the
-// register set — the whole fleet since 2026-08-20, live included — not the
-// full fleet.
-//
-// FIX round 2 (new Important finding): no `useSearchParams()` here at all
-// anymore, and no `<Suspense>` boundary around this component either (see
-// FleetOverview). useSearchParams() forces a client-side-only render of
-// everything inside its nearest Suspense boundary — the CSR bailout — which
-// meant this page served crawlers two empty `animate-pulse` placeholders
-// instead of the register's bot cards and every `/strategies/...` link,
-// undercutting the FAQ JSON-LD this page carries specifically to be indexed.
-// Filter state is now parsed server-side, in `overview/page.tsx`, from the
-// route's `searchParams`, and handed down as `initialState`.
-//
-// FIX (per-timeframe rebuild, task 6): the card register — grouped by
-// strategy via groupByStrategy, one <details> per fiche, dense rows with a
-// sparkline — is gone. Replaced by one <BotTable> per timeframe
-// (groupByTimeframe), the same table component the home page and the concept
-// pages use. The sort control is gone with it (see FleetFilterBar's own
-// comment): it reordered rows within a strategy group, and groupByTimeframe's
-// order is fixed -- biggest gain first since 2026-08-20 -- so a sort `<select>` would change
-// nothing on screen. The family filter survives — filtering by family before
-// grouping by timeframe is a clean composition, unlike sort — as does the
-// archived section, which was never grouped by strategy in the first place.
+// Filter state is seeded once from the server-parsed `initialState` (no
+// useSearchParams(): it forced a client-only render that served crawlers two
+// placeholders instead of the register). `push()` updates the URL with
+// replaceState, popstate re-parses it for back/forward.
 import StickyFilterBar from '@/components/StickyFilterBar'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { FleetBot } from '@/lib/types'
 import type { Family } from '@/lib/families'
+import { familyLabel } from '@/lib/families'
+import { linkClass } from '@/lib/link-roles'
+import { frNumber } from '@/lib/display'
 import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
 } from '@/lib/bot-filters'
-import { byHistoryDesc, groupByTimeframe, splitBySample } from '@/lib/fleet-grouping'
+import { byHistoryDesc, splitBySample } from '@/lib/fleet-grouping'
 import { sliceBotStats } from '@/lib/stats'
 import FleetFilterBar from '@/components/FleetFilterBar'
 import BotTable from '@/components/BotTable'
+import StatusBadge from '@/components/StatusBadge'
 
 export interface FleetRegisterProps {
-  /** The laboratory register set only — paper + archived, already combined
-   * by `FleetOverview`. Never includes a `live` bot; there is no `live`
-   * cohort to derive here anymore. */
+  /** The register set: the whole fleet, live included, archived included. */
   bots: FleetBot[]
   initialState: FleetFilterState
 }
 
+const plural = (n: number, one: string, many: string) => (n > 1 ? many : one)
+
 export default function FleetRegister({ bots, initialState }: FleetRegisterProps) {
   const pathname = usePathname()
-
-  // Seeded once from the server-parsed prop — no useSearchParams() read here,
-  // by design (see file header). `state` is this component's own source of
-  // truth from then on: `push()` below updates it directly and synchronously.
   const [state, setState] = useState<FleetFilterState>(initialState)
 
-  // FIX round 2: the old string-keyed resync effect (keyed on
-  // searchParams.toString()) is gone along with useSearchParams() itself.
-  // Back/forward navigation still needs to update `state` from OUTSIDE this
-  // component's own `push()` calls, so listen for `popstate` directly and
-  // re-parse the URL ourselves. `push()`'s own `window.history.replaceState`
-  // calls don't fire `popstate` (only real navigation — back/forward,
-  // history.go — does), so this can't fight our own optimistic update the
-  // way the old effect risked doing.
   useEffect(() => {
     function onPopState() {
       setState(parseFleetFilters(new URLSearchParams(window.location.search)))
@@ -90,14 +59,6 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
   const push = useCallback((next: FleetFilterState) => {
     setState(next)
     const qs = serializeFleetFilters(next).toString()
-    // FIX round 1 (I1+I2, reviewer ruling), still the right call in round 2:
-    // `router.replace()` triggered a full RSC round trip on every single pill
-    // click even though no server-rendered prop here depends on these params.
-    // `window.history.replaceState` (supported by the App Router since Next
-    // 14.1 for exactly this shallow-routing case) updates the URL directly,
-    // synchronously, with no round trip — and after round 2 removed the
-    // searchParams-sync effect entirely, there is no longer any counterpart
-    // for it to race against.
     window.history.replaceState(null, '', qs ? `${pathname}?${qs}` : pathname)
   }, [pathname])
 
@@ -108,128 +69,138 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     })
   }, [state, push])
 
+  const toggleTimeframe = useCallback((tf: string) => {
+    push({
+      ...state,
+      timeframe: state.timeframe.includes(tf) ? state.timeframe.filter(x => x !== tf) : [...state.timeframe, tf],
+    })
+  }, [state, push])
+
   const toggleSide = useCallback((side: 'long' | 'short') => {
     push({ ...state, side: state.side === side ? 'all' : side })
   }, [state, push])
 
   const reset = useCallback(() => push(EMPTY_FILTERS), [push])
 
-  // `bots` IS the register set (see FleetRegisterProps) — no split, no
-  // `live` cohort to exclude here, because FleetOverview never included it.
-  // `state.sort` / `state.dir` still round-trip in `filtered` via
-  // applyFleetFilters's type (FleetFilterState carries them) but are never
-  // read by anything below — see the file header and FleetFilterBar.
   const filtered = useMemo(() => applyFleetFilters(bots, state), [bots, state])
   const counts = useMemo(() => optionCounts(bots, state), [bots, state])
   const emptyMessage = useMemo(() => describeEmptyResult(bots, state), [bots, state])
 
-  // The slice. `filtered` decides WHICH bots are rows; `viewBots` decides
-  // what each row SHOWS. With no side and no asset this is `filtered` with
-  // the same stats objects (sliceBotStats returns bot.stats by reference), so
-  // the default render is unchanged. BotTable is not told about any of this:
-  // it renders the stats it is given, and its `total_trades === 0` → « — »
-  // rule is what makes an empty slice honest.
-  const viewBots = useMemo(
-    () => filtered.map(b => ({ ...b, stats: sliceBotStats(b, state.side, state.asset) })),
-    [filtered, state.side, state.asset],
-  )
+  // `filtered` decides WHICH bots are rows and, by their WHOLE history, which
+  // group they sit in. The side slice only changes what a row SHOWS: a bot with
+  // forty trades and no short stays a proven row with « — » cells, it does not
+  // fall into « Sans trade encore » (sliceBotStats returns bot.stats by
+  // reference when nothing is sliced).
+  const { proven, rodage, untraded, archived } = useMemo(() => {
+    const slice = (b: FleetBot) => ({ ...b, stats: sliceBotStats(b, state.side, state.asset) })
+    const order = (list: FleetBot[]) => list.map(slice).sort(byHistoryDesc)
+    const active = filtered.filter(b => b.status !== 'archived')
+    const { proven, rodage: small } = splitBySample(active)
+    return {
+      proven: order(proven),
+      rodage: order(small.filter(b => b.stats.total_trades > 0)),
+      untraded: order(small.filter(b => b.stats.total_trades === 0)),
+      archived: order(filtered.filter(b => b.status === 'archived')),
+    }
+  }, [filtered, state.side, state.asset])
 
-  const timeframeGroups = useMemo(
-    () => groupByTimeframe(viewBots.filter(b => b.status !== 'archived')),
-    [viewBots],
-  )
-  // The archived section was always flat, never grouped by strategy — it
-  // stays flat here too, just re-sorted the same way groupByTimeframe orders
-  // within a group (biggest gain first, untraded last), so a visitor scanning down the page
-  // sees one consistent ordering rule everywhere.
-  const archivedVisible = useMemo(
-    () => viewBots
-      .filter(b => b.status === 'archived')
-      .sort(byHistoryDesc),
-    [viewBots],
-  )
+  // The experiment line counts the UNFILTERED register: what runs here, and where
+  // it came from. Engine-born bots carry an engine_unit_key; the others were
+  // deployed by hand before the engine existed.
+  const inService = bots.filter(b => b.status !== 'archived')
+  const engineBorn = inService.filter(b => b.engine_unit_key !== null).length
+  const byHand = inService.length - engineBorn
 
   return (
-    // data-testid added in fix round 1 (I3): the stage-0 invariant test needs
-    // a handle on "did the register actually change" as well as "did the
-    // balance stay the same" — otherwise a test that only checks the balance
-    // is inert to the exact bug that round found (filtering silently doing
-    // nothing).
-    <div data-testid="fleet-register" className="space-y-12">
-      {/* ---------- Stage 2 : the laboratory register ---------- */}
-      <section className="space-y-4">
-        <h2 className="text-xs font-semibold text-muted">Laboratoire · simulation</h2>
+    <div data-testid="fleet-register" className="space-y-4">
+      <div className="flex items-baseline justify-between gap-4 flex-wrap">
+        <h2 className="text-base font-semibold">
+          Tous les bots · <span className="font-mono">{frNumber(inService.length, 0)}</span>
+        </h2>
+        <span className="text-xs text-muted">argent réel et simulation, triés par nombre de trades</span>
+      </div>
 
-        <StickyFilterBar activeCount={activeFilterCount(state)} onReset={reset}>
-          <FleetFilterBar
-            state={state}
-            counts={counts}
-            activeCount={activeFilterCount(state)}
-            onToggleFamily={toggleFamily}
-            onToggleSide={toggleSide}
-            onReset={reset}
-          />
-        </StickyFilterBar>
+      <p data-testid="fleet-experiment" className="text-xs text-muted leading-relaxed border-l-2 border-border-strong pl-3">
+        <span className="text-foreground font-medium">Expérience en cours.</span>{' '}
+        <span className="font-mono text-foreground">{frNumber(engineBorn, 0)}</span> configurations issues du gantelet tournent ici sans tri par résultat,
+        à côté de <span className="font-mono text-foreground">{frNumber(byHand, 0)}</span> {plural(byHand, 'bot déployé', 'bots déployés')} à la main avant le moteur.{' '}
+        <Link href="/strategies#comment-je-decide" className={linkClass('inline')}>Le protocole →</Link>
+      </p>
 
-        {emptyMessage ? (
-          <div data-testid="fleet-empty" className="bg-card border border-border rounded-lg p-6 text-sm">
-            <p>{emptyMessage}</p>
-            <button type="button" onClick={reset} className="mt-3 text-sm text-accent underline">
-              Retirer les filtres
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {timeframeGroups.map(group => {
-              // Audit 2026-09-25, P0-5: bots under 20 trades used to sit in the
-              // ranked table (a PF of 8,84 on 4 trades at row 3). They keep their
-              // rows, inside a closed fold under the table, headed by their count.
-              const { proven, rodage } = splitBySample(group.bots)
-              return (
-                <section key={group.tf} data-testid={`fleet-tf-${group.tf}`}>
-                  <h3 className="text-xs font-semibold text-muted mb-3">
-                    {`${group.tf} : ${group.bots.length} stratégie${group.bots.length > 1 ? 's' : ''}`}
-                  </h3>
-                  {proven.length > 0 && <BotTable bots={proven} showTf={false} />}
-                  {rodage.length > 0 && (
-                    <details data-testid={`fleet-rodage-${group.tf}`} className="mt-3 bg-card border border-border rounded-lg">
-                      <summary className="cursor-pointer px-4 py-3 text-xs text-muted">
-                        {`En rodage · ${rodage.length} bot${rodage.length > 1 ? 's' : ''} sous 20 trades : un taux de gain ou un facteur de profit ne veut encore rien dire ici.`}
-                      </summary>
-                      <div className="px-4 pb-4">
-                        <BotTable bots={rodage} showTf={false} />
-                      </div>
-                    </details>
-                  )}
-                </section>
-              )
-            })}
-          </div>
-        )}
+      <StickyFilterBar activeCount={activeFilterCount(state)} onReset={reset}>
+        <FleetFilterBar
+          state={state}
+          counts={counts}
+          activeCount={activeFilterCount(state)}
+          onToggleFamily={toggleFamily}
+          onToggleTimeframe={toggleTimeframe}
+          onToggleSide={toggleSide}
+          onReset={reset}
+        />
+      </StickyFilterBar>
 
-        {archivedVisible.length > 0 && (
-          <details data-testid="fleet-archived" className="bg-card border border-border rounded-lg">
-            <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-muted">
-              {`Archivés (${archivedVisible.length})`}
-            </summary>
-            <ul className="px-4 pb-4 divide-y divide-border">
-              {/*
-                FIX (brief bug, flagged in task-6-report.md): the brief's verbatim
-                archived row rendered only `bot.name`. The archived section is
-                intentionally flat (not grouped), so the strategy label — the
-                thing that lets a visitor recognise a retired bot's family of
-                trading logic — is otherwise nowhere in this row.
-              */}
-              {archivedVisible.map(bot => (
-                <li key={bot.slug} className="py-3 text-sm opacity-60 flex items-center justify-between gap-4">
-                  <Link href={`/strategies/bot/${bot.slug}`}>{bot.name}</Link>
-                  <span className="text-xs text-muted">{bot.strategy}</span>
-                </li>
-              ))}
-            </ul>
-          </details>
-        )}
-      </section>
+      {emptyMessage ? (
+        <div data-testid="fleet-empty" className="bg-card border border-border rounded-lg p-6 text-sm">
+          <p>{emptyMessage}</p>
+          <button type="button" onClick={reset} className="mt-3 text-sm text-accent underline">
+            Retirer les filtres
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {proven.length > 0 && (
+            <div data-testid="fleet-table">
+              <BotTable bots={proven} showTf />
+            </div>
+          )}
+
+          {rodage.length > 0 && (
+            <details data-testid="fleet-rodage" className="bg-card border border-border rounded-lg">
+              <summary className="cursor-pointer px-4 py-3 text-xs text-muted min-h-10">
+                {`En rodage · ${rodage.length} ${plural(rodage.length, 'bot', 'bots')} entre 1 et 19 trades : un taux de gain ou un facteur de profit ne veut encore rien dire ici.`}
+              </summary>
+              <div className="px-4 pb-4 pt-2">
+                <BotTable bots={rodage} showTf />
+              </div>
+            </details>
+          )}
+
+          {untraded.length > 0 && (
+            <details data-testid="fleet-untraded" className="bg-card border border-border rounded-lg">
+              <summary className="cursor-pointer px-4 py-3 text-xs text-muted min-h-10">
+                {`Sans trade encore · ${untraded.length} ${plural(untraded.length, 'bot', 'bots')}. Pas de tendance, pas de trade : c’est voulu.`}
+              </summary>
+              <ul className="px-4 pb-4 divide-y divide-border">
+                {untraded.map(bot => (
+                  <li key={bot.slug} className="py-2.5 text-sm flex items-center justify-between gap-3">
+                    <span className="min-w-0">
+                      <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
+                      <span className="block text-xs text-muted font-mono">{familyLabel(bot.family)} · {bot.timeframe}</span>
+                    </span>
+                    <StatusBadge status={bot.status} />
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+
+      {archived.length > 0 && (
+        <details data-testid="fleet-archived" className="bg-card border border-border rounded-lg">
+          <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-muted min-h-10">
+            {`Archivés (${archived.length})`}
+          </summary>
+          <ul className="px-4 pb-4 divide-y divide-border">
+            {archived.map(bot => (
+              <li key={bot.slug} className="py-3 text-sm opacity-60 flex items-center justify-between gap-4">
+                <Link href={`/strategies/bot/${bot.slug}`}>{bot.name}</Link>
+                <span className="text-xs text-muted">{bot.strategy}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </div>
   )
 }

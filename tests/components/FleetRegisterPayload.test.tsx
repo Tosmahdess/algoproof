@@ -66,6 +66,7 @@ function renderWith(bots: BotWithStats[]) {
       aggregate={AGG}
       recentTrades={[]}
       initialState={EMPTY_FILTERS}
+      minutes={null}
     />,
   )
   return registerProps[0]!.bots
@@ -103,5 +104,24 @@ describe('the register prop that crosses the RSC boundary', () => {
     ])
 
     expect(rows[0]).not.toHaveProperty('recent_trades')
+  })
+})
+
+// Lot 4 of the design audit (2026-09-25): the register rows draw a 30-day
+// sparkline, so they carry `spark30`, a window of at most 30 capital values,
+// computed HERE before the boundary. Still no perf_daily: thirty numbers per bot
+// cross, not a bot's whole history.
+describe('the register prop carries a 30-day window, not the history', () => {
+  it('ships spark30 with at most 30 values, oldest first, and still no perf_daily', () => {
+    const perf = Array.from({ length: 45 }, (_, i) => ({
+      id: `p${i}`, bot_id: 'b1', date: `2026-07-${String(1 + (i % 28)).padStart(2, '0')}`,
+      capital: 1000 + i, pnl_day: 0, win_rate: null, profit_factor: null,
+    })).map((p, i) => ({ ...p, date: new Date(Date.UTC(2026, 6, 1 + i)).toISOString().slice(0, 10) }))
+    const rows = renderWith([mkBot({ status: 'paper', all_trades: [trade()], perf_daily: perf })])
+    expect(rows[0]).not.toHaveProperty('perf_daily')
+    const spark = (rows[0] as unknown as { spark30: number[] }).spark30
+    expect(spark).toHaveLength(30)
+    expect(spark[0]).toBe(1015)
+    expect(spark[29]).toBe(1044)
   })
 })

@@ -95,6 +95,9 @@ export type StatsTrade = Pick<Trade, 'side' | 'pnl' | 'asset' | 'closed_at'>
  *  use" — which had been applied to one of the two client props and not the
  *  other. */
 export type FleetBot = Omit<BotWithStats, 'all_trades' | 'perf_daily' | 'recent_trades'> & {
+  /** Lot 4 (2026-09-25): the row's 30-day capital window, at most 30 values,
+   *  oldest first, computed server-side (never the whole perf_daily). */
+  spark30?: number[]
   all_trades: StatsTrade[]
 }
 

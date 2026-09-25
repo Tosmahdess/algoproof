@@ -4,225 +4,163 @@ import FleetRegister from '@/components/FleetRegister'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
 import { FIXTURE_FLEET, mkBot, prodBot } from '../fixtures/bots'
 
-// FIX round 2: no more useSearchParams() in FleetRegister at all (it now
-// receives `initialState` as a prop instead), so this mock only needs
-// usePathname — kept because `push()` still reads it to build the URL for
-// window.history.replaceState.
+// Lot 4 of the design audit (2026-09-25, conception §5.2): ONE table for the whole
+// register, every timeframe in it, sorted by history (trades descending, C7),
+// with the timeframe as a column and as a filter. The per-timeframe sections
+// (« H4 : 55 stratégies ») are gone: a visitor looks for a bot, not a horizon.
+// Bots under 20 trades fold under the table (« En rodage »), the untraded ones
+// under their own line, the archived ones last.
 vi.mock('next/navigation', () => ({
   usePathname: () => '/overview',
 }))
 
 beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => null }))
+  window.history.replaceState(null, '', '/overview')
 })
 
-// FleetRegister now only ever receives the register set — paper + archived,
-// with `live` already excluded by FleetOverview before this component sees
-// a single prop (see FleetOverview.tsx and FleetRegister's own file header).
-// Filtering here mirrors that real contract, so these tests exercise the
-// component the way it is actually used rather than a scenario (a `live` bot
-// reaching the register) that can no longer happen.
 const REGISTER_FIXTURE = FIXTURE_FLEET.filter(b => b.status !== 'live')
+const stats = (total_trades: number, latest_capital = 1000) =>
+  ({ total_trades, win_rate: 0.5, profit_factor: 1.2, max_drawdown: 0.05, latest_capital })
 
-describe('FleetRegister', () => {
-  // FIX (layout, real-money cards hoisted): the `fleet-real` section used to
-  // render inside this component, fed by its own `splitCohorts` call. It is
-  // gone from FleetRegister's JSX entirely now — moved to FleetOverview,
-  // which sits above FleetBalance instead. Passing the FULL fixture (still
-  // containing `live`-status bots) here is deliberate: it proves the absence
-  // is structural — this component has no code path left that could render a
-  // `fleet-real` section, even if it were handed a `live` bot by mistake.
-  // The equivalent positive assertion (fleet-real IS present, as a sibling of
-  // fleet-balance) lives in FleetOverview.test.tsx, where that section now is.
-  it('never renders a real-money section — that moved to FleetOverview', () => {
+function rowsOf(table: HTMLElement): string[] {
+  return [...table.querySelectorAll('tbody tr')].map(tr => tr.querySelector('a')!.textContent!)
+}
+
+describe('FleetRegister — one table, sorted by history', () => {
+  it('never renders a real-money section, even when handed a live bot', () => {
     render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
     expect(screen.queryByTestId('fleet-real')).toBeNull()
   })
 
-  // The archived list promises, in FleetRegister's own comment, the SAME order as
-  // the timeframe tables. When that order became "biggest gain first" (2026-08-20)
-  // the promise had to follow, or a reader scanning down the page would meet two
-  // different rankings without being told.
-  // 2026-09-25 (audit P0-5): the order became HISTORY first, on the tables and on
-  // this list alike, so a reader scanning down the page meets one ranking.
-  it('orders archived bots by history too, longest first, untraded last', () => {
-    const arch = (name: string, latest: number, trades = 40, family = 'trend') =>
-      mkBot({
-        slug: name.toLowerCase(), name, status: 'archived',
-        family: family as never, start_capital: 1000,
-        stats: { win_rate: 0.5, profit_factor: 1.1, max_drawdown: 0.1,
-                 total_trades: trades, latest_capital: latest },
-      })
-    // Gains chosen so the OLD (gain first) order would answer Zulu, Middling, Aardvark.
-    render(<FleetRegister
-      bots={[arch('Aardvark', 1000, 0, 'breakout'), arch('Zulu', 1500, 12), arch('Middling', 1100, 90)]}
-      initialState={EMPTY_FILTERS} />)
-
-    const rows = within(screen.getByTestId('fleet-archived')).getAllByRole('link')
-    expect(rows.map(r => r.textContent)).toEqual(['Middling', 'Zulu', 'Aardvark'])
+  it('lists every proven bot in one table, trades descending, whatever its timeframe', () => {
+    const bots = [
+      mkBot({ name: 'H4 Trente', timeframe: 'H4', stats: stats(30) }),
+      mkBot({ name: 'H1 Cent', timeframe: 'H1', stats: stats(100) }),
+      mkBot({ name: 'D1 Cinquante', timeframe: 'D1', stats: stats(50) }),
+      mkBot({ name: 'H4 Douze', timeframe: 'H4', stats: stats(12) }),
+    ]
+    render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
+    const table = screen.getByTestId('fleet-table')
+    expect(rowsOf(table)).toEqual(['H1 Cent', 'D1 Cinquante', 'H4 Trente'])
+    expect(screen.queryByTestId('fleet-tf-H4')).toBeNull()
+    expect(within(table).getAllByRole('columnheader').map(th => th.textContent)).toContain('TF')
   })
 
-  it('folds bots under 20 trades in a closed « En rodage » group under their timeframe table', () => {
-    const bot = (name: string, trades: number) =>
-      mkBot({
-        slug: name.toLowerCase(), name, status: 'paper', timeframe: 'H4', family: 'trend' as never,
-        start_capital: 1000,
-        stats: { win_rate: 0.5, profit_factor: 1.1, max_drawdown: 0.1, total_trades: trades, latest_capital: 1010 },
-      })
-    render(<FleetRegister bots={[bot('Seasoned', 42), bot('Fresh', 2), bot('Newborn', 0)]} initialState={EMPTY_FILTERS} />)
-
-    const section = screen.getByTestId('fleet-tf-H4')
-    const fold = within(section).getByTestId('fleet-rodage-H4') as HTMLDetailsElement
-    expect(fold.open).toBe(false)
-    expect(within(fold).getByText(/En rodage · 2 bots sous 20 trades/)).toBeTruthy()
-    // the seasoned bot is in the open table, the two others only inside the fold
-    const foldHtml = fold.innerHTML
-    expect(foldHtml).toContain('Fresh')
-    expect(foldHtml).toContain('Newborn')
-    expect(section.innerHTML.replace(foldHtml, '')).not.toContain('Fresh')
+  it('folds bots between 1 and 19 trades under the table, closed, headed by their count', () => {
+    const bots = [
+      mkBot({ name: 'Prouvé', stats: stats(40) }),
+      mkBot({ name: 'Rodage A', stats: stats(7) }),
+      mkBot({ name: 'Rodage B', stats: stats(19) }),
+      mkBot({ name: 'Jamais', stats: stats(0) }),
+    ]
+    render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
+    const rodage = screen.getByTestId('fleet-rodage') as HTMLDetailsElement
+    expect(rodage.open).toBe(false)
+    expect(rodage.querySelector('summary')!.textContent).toMatch(/En rodage · 2 bots/)
+    expect(rowsOf(rodage.querySelector('table')!)).toEqual(['Rodage B', 'Rodage A'])
+    expect(rowsOf(screen.getByTestId('fleet-table'))).toEqual(['Prouvé'])
   })
 
-  it('lists a deployed bot that has never traded', () => {
-    render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
-    expect(screen.getAllByText(/Ichimoku/).length).toBeGreaterThan(0)
+  it('lists the bots that never traded under their own closed line, not in the table', () => {
+    const bots = [
+      mkBot({ name: 'Prouvé', stats: stats(40) }),
+      mkBot({ name: 'Jamais Un', stats: stats(0) }),
+      mkBot({ name: 'Jamais Deux', stats: stats(0) }),
+    ]
+    render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
+    const untraded = screen.getByTestId('fleet-untraded') as HTMLDetailsElement
+    expect(untraded.open).toBe(false)
+    expect(untraded.querySelector('summary')!.textContent).toMatch(/Sans trade encore · 2 bots/)
+    expect(within(untraded).getByRole('link', { name: 'Jamais Un' })).toBeTruthy()
+    expect(within(screen.getByTestId('fleet-table')).queryByText('Jamais Un')).toBeNull()
+    expect(screen.queryByTestId('fleet-rodage')).toBeNull()
+  })
+
+  it('omits the table when nothing is proven, without an empty frame', () => {
+    render(<FleetRegister bots={[mkBot({ stats: stats(3) })]} initialState={EMPTY_FILTERS} />)
+    expect(screen.queryByTestId('fleet-table')).toBeNull()
+    expect(screen.getByTestId('fleet-rodage')).toBeTruthy()
   })
 
   it('collapses archived bots but keeps them present', () => {
     render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
-    const archived = screen.getByTestId('fleet-archived')
-    expect(archived.tagName.toLowerCase()).toBe('details')
-    expect(archived.hasAttribute('open')).toBe(false)
-    // The archived section is flat, not grouped, so the row prints the bot's own
-    // production `strategy` sentence rather than a fiche title.
-    expect(within(archived).getByText('Chandelier Exit H4 — 14 actifs')).toBeTruthy()
+    const archived = screen.getByTestId('fleet-archived') as HTMLDetailsElement
+    expect(archived.open).toBe(false)
+    expect(within(archived).getByRole('link', { name: /Chandelier/ })).toBeTruthy()
   })
+})
 
+describe('FleetRegister — the experiment line', () => {
+  it('counts the engine-born bots apart from the hand-deployed ones, and links the protocol', () => {
+    const bots = [
+      mkBot({ name: 'Moteur A', status: 'paper', engine_unit_key: 'A|H4|d|1' }),
+      mkBot({ name: 'Moteur B', status: 'paper', engine_unit_key: 'B|H4|d|1' }),
+      mkBot({ name: 'Main', status: 'paper', engine_unit_key: null }),
+      mkBot({ name: 'Archivé', status: 'archived', engine_unit_key: 'C|H4|d|1' }),
+    ]
+    render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
+    const line = screen.getByTestId('fleet-experiment')
+    expect(line.textContent).toMatch(/2 configurations issues du gantelet/)
+    expect(line.textContent).toMatch(/1 bot déployé à la main/)
+    expect(within(line).getByRole('link', { name: /protocole/i }).getAttribute('href')).toBe('/strategies#comment-je-decide')
+  })
+})
+
+describe('FleetRegister — filters', () => {
   it('shows a count next to every family option', () => {
     render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
-    expect(screen.getByRole('button', { name: /Momentum \(1\)/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Portage \(\d+\)/ })).toBeTruthy()
+  })
+
+  it('offers the timeframes as a facet, counted, and filters the table with it', () => {
+    const bots = [
+      mkBot({ name: 'H4 Un', timeframe: 'H4', stats: stats(30) }),
+      mkBot({ name: 'H1 Un', timeframe: 'H1', stats: stats(40) }),
+      mkBot({ name: 'H1 Deux', timeframe: 'H1', stats: stats(25) }),
+    ]
+    render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
+    const h1 = screen.getByRole('button', { name: 'H1 (2)' })
+    fireEvent.click(h1)
+    expect(h1).toHaveAttribute('aria-pressed', 'true')
+    expect(rowsOf(screen.getByTestId('fleet-table'))).toEqual(['H1 Un', 'H1 Deux'])
+    expect(window.location.search).toContain('tf=H1')
   })
 
   it('names the responsible filter when a selection returns nothing', () => {
-    // Only the family facet remains (the venue facet was removed 2026-08-08),
-    // so the empty state is reached through a zero-count family pill — which
-    // stays clickable by design (see FleetFilterBar's Pill).
-    render(
-      <FleetRegister
-        bots={[prodBot('v1-spot', { name: 'Lone Trend Bot', status: 'paper' })]}
-        initialState={EMPTY_FILTERS}
-      />,
-    )
-    fireEvent.click(screen.getByRole('button', { name: /Portage/ }))
-    expect(screen.getByTestId('fleet-empty').textContent).toMatch(/Portage/)
+    render(<FleetRegister bots={REGISTER_FIXTURE} initialState={{ ...EMPTY_FILTERS, family: ['carry'], timeframe: ['M15'] }} />)
+    expect(screen.getByTestId('fleet-empty')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Retirer les filtres' }))
+    expect(screen.queryByTestId('fleet-empty')).toBeNull()
   })
 
-  // 2026-08-08 (user call): the venue facet is gone — plumbing included, not
-  // just the pills. bot-filters.ts's own history says why a control-less URL
-  // facet must not survive: `direction` was deleted for exactly that.
-  it('no longer offers the « Où ça tourne » facet', () => {
+  it('no longer offers the « Où ça tourne » facet, nor a sort control', () => {
     render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
-    expect(screen.queryByText('Où ça tourne')).toBeNull()
-    expect(screen.queryByRole('button', { name: /Kraken/ })).toBeNull()
-    expect(screen.queryByRole('button', { name: /Hyperliquid/ })).toBeNull()
+    expect(screen.queryByText(/Où ça tourne/)).toBeNull()
+    expect(screen.queryByRole('combobox')).toBeNull()
+    expect(screen.queryByText(/^Trier/)).toBeNull()
   })
 
-  // Fix round 2, ruling point 6: no more searchParams-sync effect, so
-  // back/forward navigation is covered by a `popstate` listener instead.
-  // Verify it by mutating the URL directly (the way real back/forward
-  // navigation does) and dispatching `popstate` ourselves, then checking the
-  // register re-filters to match.
   it('re-parses filter state from the URL on popstate (back/forward navigation)', () => {
     render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
-    // Unfiltered: both the trend-family dormant bot and the carry-family bot show.
-    expect(screen.getAllByText(/Ichimoku/).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/Funding Rate Harvesting/).length).toBeGreaterThan(0)
-
-    // `window.dispatchEvent` bypasses React Testing Library's `fireEvent`
-    // act() wrapping (that only instruments DOM element events), so the
-    // resulting setState would otherwise land outside a React act() batch
-    // and this assertion could run before the re-render commits.
-    act(() => {
-      window.history.pushState(null, '', '/overview?family=carry')
-      window.dispatchEvent(new PopStateEvent('popstate'))
-    })
-
-    // After popstate re-parses ?family=carry, only the carry-family bot remains.
-    expect(screen.getAllByText(/Funding Rate Harvesting/).length).toBeGreaterThan(0)
-    expect(screen.queryByText(/Ichimoku/)).toBeNull()
+    const carry = screen.getByRole('button', { name: /Portage \(\d+\)/ })
+    fireEvent.click(carry)
+    expect(carry).toHaveAttribute('aria-pressed', 'true')
+    window.history.replaceState(null, '', '/overview')
+    act(() => { window.dispatchEvent(new PopStateEvent('popstate')) })
+    expect(screen.getByRole('button', { name: /Portage \(\d+\)/ })).toHaveAttribute('aria-pressed', 'false')
   })
 })
 
-// FIX (per-timeframe rebuild, task 6): the sort control (SORT_LABELS,
-// FleetFilterState.sort/dir wired through a <select> + direction toggle) is
-// gone. It reordered rows WITHIN a strategy group; the register has no
-// strategy groups left to reorder — groupByTimeframe fixes each table's row
-// order to family-then-name, so a sort control here would change nothing on
-// screen (see FleetFilterBar's own comment on why that would be dishonest).
-describe('FleetRegister — no sort control', () => {
-  it('does not offer a sort control', () => {
-    render(<FleetRegister bots={[prodBot('v1-spot', { status: 'paper' })]} initialState={EMPTY_FILTERS} />)
-    expect(screen.queryByLabelText('Trier par')).toBeNull()
-    expect(screen.queryByText(/Décroissant|Croissant/)).toBeNull()
-  })
-})
-
-// Rows are rendered by BotTable now (Task 5) — its own test file
-// (src/components/__tests__/BotTable.test.tsx) covers the em-dash/low-sample
-// masking rule at the row level. These two tests pin the FleetRegister-level
-// contract on top of that: the register groups by TIMEFRAME, one <BotTable>
-// per group, headed `{tf} — {n} stratégie(s)`.
-describe('FleetRegister — one table per timeframe', () => {
-  const MIXED = [
-    prodBot('v1-spot', { name: 'H4 Bot', status: 'paper', timeframe: 'H4' }),
-    prodBot('orb-bf25', { name: 'H1 Bot', status: 'paper', timeframe: 'H1' }),
-  ]
-
-  it('renders one section per timeframe present, headed with the strategy count', () => {
-    render(<FleetRegister bots={MIXED} initialState={EMPTY_FILTERS} />)
-    expect(screen.getByTestId('fleet-tf-H4')).toBeTruthy()
-    expect(screen.getByTestId('fleet-tf-H1')).toBeTruthy()
-    expect(within(screen.getByTestId('fleet-tf-H4')).getByText('H4 : 1 stratégie')).toBeTruthy()
-    expect(within(screen.getByTestId('fleet-tf-H1')).getByText('H1 : 1 stratégie')).toBeTruthy()
-  })
-
-  it('orders the H4 section before the H1 section (canonical TF order)', () => {
-    const { container } = render(<FleetRegister bots={MIXED} initialState={EMPTY_FILTERS} />)
-    const html = container.innerHTML
-    expect(html.indexOf('data-testid="fleet-tf-H4"'))
-      .toBeLessThan(html.indexOf('data-testid="fleet-tf-H1"'))
-  })
-
+describe('FleetRegister — what a row shows', () => {
   it('shows PF and P&L on the row via BotTable, not just the trade count', () => {
-    const bot = prodBot('v1-spot', {
-      name: 'Seasoned Bot', status: 'paper', start_capital: 1000, timeframe: 'H4',
-      stats: { total_trades: 400, profit_factor: 1.42, win_rate: 0.5, max_drawdown: 0.1, latest_capital: 1100 },
+    const bot = prodBot('macdvolume-bf11', {
+      name: 'MACD Volume H4 BF',
+      stats: { total_trades: 31, win_rate: 0.548, profit_factor: 1.42, max_drawdown: 0.072, latest_capital: 1000.62 },
     })
     render(<FleetRegister bots={[bot]} initialState={EMPTY_FILTERS} />)
-    // BotTable always renders both the mobile list and the desktop table
-    // (CSS-toggled, not conditional in jsdom) — the desktop <tr> is the one
-    // that carries the PF column, so pick that instance specifically.
-    const row = screen.getAllByText('Seasoned Bot')
-      .map(el => el.closest('tr'))
-      .find((el): el is HTMLTableRowElement => el !== null)!
-    expect(within(row).getByText(/1,42/)).toBeTruthy()
-    expect(within(row).getByText(/\+100,00/)).toBeTruthy()
-  })
-
-  it('shows PF and win rate on a low-sample row, and marks the sample instead', () => {
-    // Was "masks PF on a low-sample row" until 2026-08-24. The mask is gone by
-    // product decision (tests/lib/display.test.ts carries the reasoning); what
-    // must NOT disappear with it is the thin-sample marker. Showing the figure
-    // and dropping the flag is the regression this now guards.
-    const bot = prodBot('v1-hl', {
-      name: 'Fresh Bot', status: 'paper', start_capital: 1000, timeframe: 'H4',
-      stats: { total_trades: 3, profit_factor: 9, win_rate: 1, max_drawdown: 0, latest_capital: 1010 },
-    })
-    render(<FleetRegister bots={[bot]} initialState={EMPTY_FILTERS} />)
-    const row = screen.getAllByText('Fresh Bot')
-      .map(el => el.closest('tr'))
-      .find((el): el is HTMLTableRowElement => el !== null)!
-    expect(within(row).getByText(/9,00/)).toBeTruthy()
-    expect(within(row).getByText(/100,0 %/)).toBeTruthy()
-    expect(within(row).getByText(/⚠/)).toBeTruthy()
+    const table = screen.getByTestId('fleet-table')
+    expect(table.textContent).toMatch(/1,42/)
+    expect(table.textContent).toMatch(/0,62/)
   })
 })

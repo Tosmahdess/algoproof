@@ -75,8 +75,10 @@ describe('no surface paints « 0.0% » red', () => {
 
   it('fleet table (BotTable)', () => {
     render(<BotTable bots={FLEET} showTf={false} />)
-    expect(screen.getByText(/0,0 %/)).not.toHaveClass('text-negative')
-    expect(screen.getByText(/8,4 %/)).toHaveClass('text-negative')
+    // Lot 4: the phone row carries the figure too (« DD 8,4 % »), so every
+    // element that prints it is checked, not the first one found.
+    for (const el of screen.getAllByText(/0,0 %/)) expect(el).not.toHaveClass('text-negative')
+    for (const el of screen.getAllByText(/8,4 %/)) expect(el).toHaveClass('text-negative')
   })
 
   it('bot fiche metrics (MetricsRow)', () => {

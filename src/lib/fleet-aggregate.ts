@@ -64,6 +64,11 @@ export interface FleetAggregate {
   totalTrades: number
   totalPnlReal: number
   totalPnlLabo: number
+  /** Lot 4 (2026-09-25): the two totals on /overview carry their denominators.
+   *  Split by the SAME rule as the P&L, from the same rows, so the count and
+   *  the money can never disagree on a promoted bot's paper past. */
+  tradesReal: number
+  tradesLabo: number
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100
@@ -136,10 +141,14 @@ export function computeFleetAggregate(
 
   const sumPnl = (rs: AggregateTradeRow[]) => round2(rs.reduce((s, t) => s + (t.pnl || 0), 0))
 
+  const real = trades.filter(isRealMoney)
+  const labo = trades.filter(t => !isRealMoney(t))
   return {
     rows,
     totalTrades: trades.length,
-    totalPnlReal: sumPnl(trades.filter(isRealMoney)),
-    totalPnlLabo: sumPnl(trades.filter(t => !isRealMoney(t))),
+    totalPnlReal: sumPnl(real),
+    totalPnlLabo: sumPnl(labo),
+    tradesReal: real.length,
+    tradesLabo: labo.length,
   }
 }
