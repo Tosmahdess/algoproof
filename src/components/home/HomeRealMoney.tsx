@@ -100,11 +100,13 @@ export function RealMoneyStrip({ bots, minutes }: { bots: BotWithStats[]; minute
         const pct = pnlPct(b.stats.latest_capital, b.start_capital)
         const rule = ruleState(b)
         return (
-          <Link key={b.slug} href={`/strategies/bot/${b.slug}`} className={linkClass('record', 'flex h-10 items-center gap-2 px-3 border-t border-border')}>
-            <span className="min-w-0 flex-1 truncate text-sm">{b.name}</span>
+          <Link key={b.slug} href={`/strategies/bot/${b.slug}`} className={linkClass('record', 'flex min-h-10 items-center gap-2 px-3 py-1.5 border-t border-border')}>
+            {/* Two lines rather than an ellipsis: truncated, the two EMA bots read
+                the same (« Croisement EMA H4 … ») and the strip stops telling them apart. */}
+            <span className="min-w-0 flex-1 text-sm leading-snug line-clamp-2">{b.name}</span>
             <StatusBadge status={b.status} />
-            <span className={`font-mono text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
-            {rule.kind === 'crossed' && <span className="text-severe text-xs" aria-label="règle d’arrêt franchie">✕</span>}
+            <span className={`shrink-0 font-mono text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
+            {rule.kind === 'crossed' && <span className="shrink-0 text-severe text-xs" aria-label="règle d’arrêt franchie">✕</span>}
           </Link>
         )
       })}

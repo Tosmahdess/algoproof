@@ -53,7 +53,10 @@ export default async function HomePage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-20 sm:pt-12">
 
       {/* ---------- Hero: message on the left, proof on the right ---------- */}
-      <section data-testid="home-hero" className="grid gap-8 lg:grid-cols-12 lg:gap-10 items-start mb-12 sm:mb-16">
+      {/* `grid-cols-1` is not decoration: an implicit auto track is sized by the
+          longest bot name in the phone strip (nowrap), and the whole column
+          overflowed to 525 px at 390 px. minmax(0, 1fr) lets the names truncate. */}
+      <section data-testid="home-hero" className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10 items-start mb-12 sm:mb-16">
         <div className="lg:col-span-7 text-left">
           {/* The mark, decorative: the bar already names the site (D060). */}
           <img src="/logo.svg" alt="" width={44} height={44} className="mb-3 sm:mb-4 w-9 h-9 sm:w-11 sm:h-11" />
@@ -91,13 +94,16 @@ export default async function HomePage() {
                     /lab is the backtester, not the landing (D053, D060); « sans compte »
                     holds, /lab is outside the lab's walled paths. */}
                 <TrackedLink href="https://lab.algoproof.fr/lab" event="cta_lab" location="home-hero" className="inline-flex h-10 items-center px-4 bg-foreground text-bg font-semibold rounded-md hover:opacity-90 transition-opacity text-sm">
-                  Tester ta stratégie, sans compte →
+                  Tester ta stratégie →
                 </TrackedLink>
                 <Link href="/overview" className={linkClass('inline', 'block mt-3 text-sm')}>
                   Voir mes bots
                 </Link>
+                {/* « Sans compte » lives here, not in the button: with the two
+                    entries side by side the longer label wrapped its arrow alone
+                    onto a second line at 1280 px. */}
                 <p className="mt-3 text-xs text-muted">
-                  Un backtester, pas un broker. Rien à déposer, aucune clé à donner.
+                  Sans compte. Un backtester, pas un broker. Rien à déposer, aucune clé à donner.
                 </p>
               </div>
             </div>

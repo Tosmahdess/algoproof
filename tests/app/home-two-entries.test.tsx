@@ -149,7 +149,9 @@ describe('/ — the two entries sit directly under the message', () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-strategies')
     const lab = [...card.querySelectorAll('a')].find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab')!
-    expect(lab.textContent).toMatch(/Tester ta stratégie, sans compte/)
+    expect(lab.textContent).toMatch(/Tester ta stratégie/)
+    // « sans compte » stays in the card (small print), out of the button (lot 3).
+    expect(card.textContent).toMatch(/[Ss]ans compte/)
   })
 
   it('the strategies entry keeps what the lab actually tells you', async () => {
