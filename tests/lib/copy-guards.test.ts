@@ -258,13 +258,15 @@ describe('Investir is described as the page it is', () => {
     expect(filesMatching(/accumulation long terme \(DCA\)/i)).toEqual([])
   })
 
-  it('/a-propos opens /investir and describes graded accounts, with no number typed by hand', () => {
+  // Lot 7 (2026-09-25): the navigation cards left /a-propos. The sentence that
+  // describes the companies side now sits in the first section, and the rule
+  // holds on it: seven checks the reader can redo, no company count typed by hand.
+  it('/a-propos describes the company accounts as seven checks, with no number typed by hand', () => {
     const page = read(path.join(ROOT, 'src/app/a-propos/page.tsx')).replace(/\s+/g, ' ')
-    const card = page.match(/\{ href: '([^']*)', title: 'Investir', desc: '([^']*)' \}/)
-    expect(card, 'the Investir card').toBeTruthy()
-    expect(card![1]).toBe('/investir')
-    expect(card![2]).toMatch(/comptes de sociétés cotées, lus par sept contrôles que tu peux refaire/)
-    expect(card![2]).not.toMatch(/\d/)
+    const sentence = page.match(/[^.]*sept contrôles que tu peux refaire[^.]*\./)
+    expect(sentence, 'the seven-checks sentence').toBeTruthy()
+    expect(sentence![0]).not.toMatch(/\d/)
+    expect(page).toMatch(/href="\/investir"/)
   })
 })
 
@@ -278,16 +280,20 @@ describe('no surface points at a reference price the fiche does not show', () =>
     expect(filesMatching(/prix de r[ée]f[ée]rence affich/i)).toEqual([])
   })
 
+  // Lot 7 (2026-09-25): the author lines live in AuthorIdentity, mounted by the
+  // fiche disclosure AND /a-propos. The fiche still passes its day in.
   it('the disclosure block still says who wrote it and when', () => {
+    const identity = read(path.join(ROOT, 'src/components/AuthorIdentity.tsx')).replace(/\s+/g, ' ')
     const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
-    expect(block).toMatch(/Thomas Dessombs, à titre individuel/)
+    expect(identity).toMatch(/Thomas Dessombs, à titre individuel/)
+    expect(block).toMatch(/<AuthorIdentity version=\{generatedAt\}>/)
     // 2026-09-11 review (P6): the value passed in is `as_of`, a date with no
     // time, and longDateTime printed it « à 02:00, heure de Paris ». A day only.
     // « Version du », not « Calcul du »: the line above the block already says
     // « Calcul du » on a graded fiche, and an out-of-scope fiche is no calculation.
-    expect(block).toMatch(/Version du \{longDate\(generatedAt\)\}\./)
-    expect(block).not.toMatch(/longDateTime/)
-    expect(block).not.toMatch(/heure de Paris/)
+    expect(identity).toMatch(/Version du \{longDate\(version\)\}\./)
+    expect(identity).not.toMatch(/longDateTime/)
+    expect(identity).not.toMatch(/heure de Paris/)
     // No fiche prints a market price any more (D048).
     expect(filesMatching(/chiffres de march[ée] viennent des donn/i)).toEqual([])
   })
@@ -298,7 +304,7 @@ describe('no surface points at a reference price the fiche does not show', () =>
   it('the disclosure scopes the holdings sentence to the watchlist (author\'s wording, 2026-09-11)', () => {
     expect(filesMatching(/Je peux détenir les titres dont je parle/)).toEqual([])
     expect(filesMatching(/c(?:\\'|'|’|&apos;)est même en général la raison pour laquelle je les suis/)).toEqual([])
-    const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
+    const block = read(path.join(ROOT, 'src/components/AuthorIdentity.tsx')).replace(/\s+/g, ' ')
     // « notés » became « cités » on 2026-09-19 (D058), approved by the author:
     // the fiches no longer grade anything.
     expect(block).toMatch(
@@ -308,7 +314,7 @@ describe('no surface points at a reference price the fiche does not show', () =>
 
   it('the disclosure says the watchlist is a small part of what I grade (author\'s wording, 2026-09-11)', () => {
     expect(filesMatching(/ma propre liste de suivi long terme et sur mes versements mensuels/)).toEqual([])
-    const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
+    const block = read(path.join(ROOT, 'src/components/AuthorIdentity.tsx')).replace(/\s+/g, ' ')
     expect(block).toMatch(new RegExp(
       `Je lis les comptes de bien plus de sociétés que je n${APOS}en suis pour moi : ma liste de suivi long terme n${APOS}en est qu${APOS}une petite partie\\.`,
     ))
