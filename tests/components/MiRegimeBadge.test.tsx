@@ -30,29 +30,51 @@ const mockSnap = {
   created_at: new Date().toISOString(),
 }
 
+const text = () => document.body.textContent?.replace(/\s+/g, ' ') ?? ''
+
 describe('MiRegimeBadge', () => {
-  it('shows Current Regime label initially', () => {
+  // Spec §3.4: no « Chargement… » sentence in a first screen, a skeleton of the
+  // final height instead.
+  it('shows a skeleton, not a loading sentence, before the data arrives', () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    expect(screen.getByText('Régime actuel')).toBeDefined()
+    expect(screen.getByTestId('mi-regime-skeleton')).toBeDefined()
+    expect(text()).not.toMatch(/Chargement/)
   })
 
-  it('shows regime name after data loads', async () => {
+  // One state, one word (spec §4): the word of the lexicon, capitalised, as the
+  // first thing read. Not the sentiment enum beside it.
+  it('writes the regime with the lexicon word, capitalised', async () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    await waitFor(() => expect(screen.getByText('calme')).toBeDefined())
+    await waitFor(() => expect(screen.getByText('Calme')).toBeDefined())
+    expect(text()).not.toMatch(/NEUTRAL|neutre/)
   })
 
-  it('shows score after data loads', async () => {
+  it('writes the score and the pillars in French figures', async () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    await waitFor(() => expect(screen.getByText(/12\.5/)).toBeDefined())
+    await waitFor(() => expect(screen.getByText(/12,5/)).toBeDefined())
+    expect(text()).toContain('−5,0')
+    expect(text()).not.toMatch(/\d\.\d/)
   })
 
-  it('shows trading enabled when is_safe is true', async () => {
+  it('says what the state changes for the bots today, when entries are open', async () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    await waitFor(() => expect(screen.getByText(/Trading autorisé/)).toBeDefined())
+    await waitFor(() =>
+      expect(screen.getByText(/Les bots entrent normalement, taille de position normale/)).toBeDefined(),
+    )
+    expect(text()).toContain('Ce que ça change pour mes bots aujourd’hui')
+    expect(text()).not.toMatch(/Trading autorisé/)
+  })
+
+  it('says the entries are blocked when is_safe is false', async () => {
+    vi.mocked(getLatestMiSnapshot).mockResolvedValue({ ...mockSnap, is_safe: false, regime: 'RED' as const })
+    render(<MiRegimeBadge />)
+    await waitFor(() => expect(screen.getByText('Stress')).toBeDefined())
+    expect(text()).toMatch(/Les bots n’entrent pas/)
+    expect(text()).not.toMatch(/Trading bloqué/)
   })
 
   it('shows no data message when snapshot is null', async () => {
@@ -67,7 +89,7 @@ describe('MiRegimeBadge', () => {
     // even though the snapshot type/mock still carries the (unused) field.
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    await waitFor(() => expect(screen.getByText('calme')).toBeDefined())
+    await waitFor(() => expect(screen.getByText('Calme')).toBeDefined())
     expect(screen.queryByText('Institutionnel')).toBeNull()
   })
 })

@@ -42,4 +42,22 @@ describe('EquityDisclosure', () => {
     expect(text).toContain('Aucune société citée ne me rémunère')
     expect(text).toContain('pas un conseil en investissement personnalisé')
   })
+
+  // Lot 7 (spec 5.7): the identity lines are shared with /a-propos through
+  // AuthorIdentity. The fiche keeps its own heading, its version line and its
+  // figures sentence, in that order, around the shared lines.
+  it('keeps its heading, then the author line with the version, the holdings, the figures, the not-advice line', () => {
+    const text = textOf(<EquityDisclosure generatedAt="2026-09-07" />)
+    const order = [
+      'Qui écrit ceci, et dans quel cadre',
+      'Thomas Dessombs, à titre individuel (entrepreneur individuel, sous le nom commercial AlgoProof). Version du 7 septembre 2026.',
+      'Aucune société citée ne me rémunère',
+      'Les chiffres viennent du rapport annuel',
+      'pas un conseil en investissement personnalisé',
+      'Mentions légales',
+    ]
+    const at = order.map(s => text.indexOf(s))
+    expect(at.every(i => i >= 0), text).toBe(true)
+    expect([...at].sort((a, b) => a - b)).toEqual(at)
+  })
 })

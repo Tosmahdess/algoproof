@@ -42,7 +42,7 @@ export default function MicaPage() {
     })),
   }
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16 space-y-14">
+    <main className="mx-auto max-w-3xl px-6 py-12 space-y-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
       {/* Hero */}
@@ -64,7 +64,7 @@ export default function MicaPage() {
           {MICA_POINTS.map(([title, body]) => (
             <div key={title} className="rounded-lg border border-border bg-card p-5">
               <h3 className="text-base font-semibold text-foreground mb-1">{title}</h3>
-              <p className="text-sm leading-relaxed">{body}</p>
+              <p className="text-base leading-relaxed">{body}</p>
             </div>
           ))}
         </div>

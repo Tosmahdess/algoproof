@@ -16,19 +16,19 @@ export default function PreuvePage() {
       <header>
         <h1 className="text-3xl font-semibold tracking-tight mb-3">Ma méthode</h1>
         <p className="text-base text-muted leading-relaxed">
-          Un backtest qui gagne ne prouve rien. Ce qui compte, c&apos;est ce qui tient en réel. Voici comment je
-          travaille, et pourquoi je montre aussi ce qui échoue.
+          Ce qui compte, c&apos;est ce qui tient en réel. Voici comment je travaille, et pourquoi je
+          montre aussi ce qui échoue.
         </p>
       </header>
 
       <section id="validation" className="scroll-mt-24">
-        <h2 className="text-xl font-semibold mb-3">Comment je valide une stratégie</h2>
+        <h2 className="text-xl font-semibold mb-3">Un backtest gagnant ne prouve rien</h2>
         {/* Which rule applies to which bots: the list below is my own gate, and the
             engine-born bots pass its gauntlet on top of it (Fable review 2026-09-12).
             2026-09-19: the intro said « the bots I deployed by hand » while two
             of the four points spoke of the engine. Author's answer: one rule
             for every bot, so the intro says so and the points drop « moteur ». */}
-        <p className="text-sm leading-relaxed mb-3">
+        <p className="text-base leading-relaxed mb-3">
           Tout ce que je déploie suit la règle ci-dessous. Les bots qui
           sortent de mon moteur passent en plus les quatre épreuves de son gantelet,
           expliquées sur <Link href="/strategies" className={linkClass('inline')}>la page des stratégies</Link>.
@@ -48,7 +48,7 @@ export default function PreuvePage() {
 
       <section id="pertes" className="scroll-mt-24">
         <h2 className="text-xl font-semibold mb-3">Pourquoi je montre chaque perte</h2>
-        <p className="text-sm leading-relaxed">
+        <p className="text-base leading-relaxed">
           Montrer uniquement ses gains, c&apos;est facile et ça ne prouve rien. J&apos;expose donc les drawdowns,
           les mauvaises semaines et les stratégies que j&apos;ai abandonnées. Accessoirement, ça me sert autant
           qu&apos;à toi : quand je sais qu&apos;une perte sera publiée, je me discipline mieux que quand elle reste
@@ -64,7 +64,7 @@ export default function PreuvePage() {
             offres, un prix, et c'est le document contractuel qui l'emportait.
             L'adhésion couvre le labo en entier. La frontière est la même partout :
             ce que je produis est gratuit, comment je l'ai produit se paie. */}
-        <p className="text-sm leading-relaxed mb-3">
+        <p className="text-base leading-relaxed mb-3">
           Tout ce que mes bots font restera public, gratuitement, pour toujours :
           leurs trades, leurs pertes, leur historique, et le cimetière des
           stratégies que j&apos;ai tuées. Tu pourras toujours les voir tourner, avec
@@ -72,7 +72,7 @@ export default function PreuvePage() {
           sept contrôles et leurs alertes, les chiffres et le rapport annuel
           sont ouverts, et ils le resteront.
         </p>
-        <p className="text-sm leading-relaxed mb-3">
+        <p className="text-base leading-relaxed mb-3">
           Ce qui se paie, c&apos;est comment j&apos;y suis arrivé. Pour un bot :
           la configuration exacte, les paramètres, les filtres, et la preuve étape par
           étape de la façon dont cette configuration a été retenue contre les milliers
@@ -81,23 +81,23 @@ export default function PreuvePage() {
           et ce qui peut mal tourner. Et le labo lui-même, l&apos;outil avec lequel je produis tout
           ça, sans quota journalier et avec ses grilles.
         </p>
-        <p className="text-sm leading-relaxed mb-3">
+        <p className="text-base leading-relaxed mb-3">
           Dit autrement :{' '}
           <strong>ce que je fais reste gratuit, comment je l&apos;ai fait se paie.</strong>
         </p>
-        <p className="text-sm leading-relaxed mb-3">
+        <p className="text-base leading-relaxed mb-3">
           Le labo s&apos;ouvre sans compte, et un compte gratuit permet de lancer des
           backtests avec des quotas. Un dossier de validation, celui de l&apos;EMA cross,
           est ouvert en entier à tout le monde : va voir à quoi ça ressemble avant de
           payer quoi que ce soit.
         </p>
-        <p className="text-sm leading-relaxed mb-3">
+        <p className="text-base leading-relaxed mb-3">
           Je ne cacherai aucun résultat. Le cimetière restera ouvert à tout le
           monde : les stratégies qui meurent sont la partie la plus utile de ce
           site, et personne ne devrait avoir à payer pour savoir ce qui ne marche
           pas.
         </p>
-        <p className="text-sm leading-relaxed">
+        <p className="text-base leading-relaxed">
           L&apos;adhésion donne accès à de la recherche et à un outil. Elle ne
           promet aucun gain, ne donne aucun conseil, et ne s&apos;occupe
           jamais de l&apos;argent de qui que ce soit.

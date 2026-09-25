@@ -49,6 +49,18 @@ describe('the five machine surfaces name both activities', () => {
     expect(desc, desc).toMatch(COMPTES)
   })
 
+  // Lot 7 (spec 5.7): /a-propos said « mon labo de trading en public » alone in
+  // its <title> and its description until 2026-09-25. Same rule as the home.
+  it('the /a-propos <title> and description name both', () => {
+    const title = field('src/app/a-propos/page.tsx', 'title')
+    const desc = field('src/app/a-propos/page.tsx', 'description')
+    for (const s of [title, desc]) {
+      expect(s, s).toMatch(STRATEGIES)
+      expect(s, s).toMatch(COMPTES)
+      expect(s, s).not.toMatch(/labo de trading/i)
+    }
+  })
+
   // The site-wide default: every page without its own description inherits it,
   // and it is what a link preview shows for those pages.
   it('the layout default description names both', () => {
