@@ -179,3 +179,36 @@ describe('Repli', () => {
     expect(corps().className).toContain('max-sm:hidden')
   })
 })
+
+// Lot 7 (spec 5.4): the generated report and the three « what the weather does »
+// paragraphs fold on EVERY screen, closed by default. A Repli that only folds on
+// a phone would leave 600 px of generated prose open on a computer.
+describe('Repli, folded on every screen (toujoursPliable)', () => {
+  const monterPliable = (ouvert = false) =>
+    render(
+      <Repli id="rapport" titre="Rapport généré du jour" toujoursPliable ouvertParDefaut={ouvert}>
+        <p>Le rapport.</p>
+      </Repli>,
+    )
+
+  it('hides the body on a computer too, until opened', () => {
+    monterPliable()
+    const corps = screen.getByText('Le rapport.').parentElement!
+    expect(corps.className.split(/\s+/)).toContain('hidden')
+    expect(corps.className).not.toContain('max-sm:hidden')
+  })
+
+  it('shows its toggle on a computer (no sm:hidden on the button)', () => {
+    monterPliable()
+    const bouton = screen.getByRole('button')
+    expect(bouton.getAttribute('aria-expanded')).toBe('false')
+    expect(bouton.className).not.toContain('sm:hidden')
+  })
+
+  it('opens on click and drops the hidden class', () => {
+    monterPliable()
+    fireEvent.click(screen.getByRole('button'))
+    const corps = screen.getByText('Le rapport.').parentElement!
+    expect(corps.className.split(/\s+/)).not.toContain('hidden')
+  })
+})

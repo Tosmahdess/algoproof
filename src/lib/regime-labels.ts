@@ -4,11 +4,13 @@
 // always go through the matching *Fr() helper below so a reader sees French
 // words instead of an API enum. Unmapped values fall back to '—'.
 
+// One state, one word (design audit §4, 2026-09-25): the lexicon says « calme,
+// tendu ou en stress », so RED is « stress », not a two-word phrase.
 export const REGIME_LABEL_FR: Record<string, string> = {
   GREEN:  'calme',
   YELLOW: 'tendu',
   ORANGE: 'alerte',
-  RED:    'sous tension',
+  RED:    'stress',
 }
 
 export const SENTIMENT_LABEL_FR: Record<string, string> = {

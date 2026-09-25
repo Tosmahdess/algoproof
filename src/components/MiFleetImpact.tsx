@@ -20,6 +20,7 @@
 // branches on the measurement. Frozen prose beside a live number is worse than a stale
 // number, because the reader sees both at once.
 import { gatePhrase, regimePhrase, verdictPhrase, pct, type FleetImpact } from '@/lib/mi-fleet-impact'
+import Callout from '@/components/Callout'
 
 export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null }) {
   // No data, no section. Never a stale or invented claim on a page whose argument is
@@ -32,8 +33,10 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
 
   return (
     <section>
+      {/* Lot 7 (spec 5.4): framed as a negative result, red left border. It is the
+          most honest block of the page, so it sits second, right under the regime. */}
+      <Callout tone="negative-result" className="space-y-3 text-sm leading-relaxed">
       <h2 className="text-xl font-semibold mb-3">Est-ce que ça marche ?</h2>
-      <div className="border border-border rounded-lg p-6 space-y-3 text-sm leading-relaxed">
         <p>
           Chaque semaine, je rejoue mes {impact.nPresets} configurations de flotte sur la
           fenêtre que couvre mon flux météo, une fois avec les règles, une fois sans. Ce sont
@@ -66,7 +69,7 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
           garder une règle que la mesure ne soutient pas. Oui. C&apos;est pour ça que je
           publie le contrôle qui la met en cause, et que je le republierai chaque semaine.
         </p>
-      </div>
+      </Callout>
     </section>
   )
 }

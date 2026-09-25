@@ -28,6 +28,9 @@ import { useEffect, useState, type ReactNode } from 'react'
  * - `print:block`: printing a page shows all of it.
  * - Known limit: the browser's find-in-page does not see a folded body on a
  *   phone (display: none).
+ * - `toujoursPliable` (lot 7, 2026-09-25): folds on EVERY screen, closed by
+ *   default. For a block nobody should have to scroll past on a computer either
+ *   (the generated daily report on /intelligence, 600 px of machine prose).
  */
 export default function Repli({
   id,
@@ -40,6 +43,7 @@ export default function Repli({
   asideClassName = 'flex items-center justify-between gap-3 flex-wrap',
   entete,
   ouvertParDefaut = false,
+  toujoursPliable = false,
   titreClassName = 'text-xl font-semibold',
   corpsClassName = 'mt-3',
   children,
@@ -67,6 +71,8 @@ export default function Repli({
   /** Start open, on a phone too. For a block whose visible lead points INTO
    *  its body (ConformityCard in breach: « écrit sous la règle concernée »). */
   ouvertParDefaut?: boolean
+  /** Fold on a computer too (closed by default there as well). */
+  toujoursPliable?: boolean
   titreClassName?: string
   corpsClassName?: string
   children: ReactNode
@@ -88,7 +94,7 @@ export default function Repli({
           aria-expanded={ouvert}
           aria-controls={corpsId}
           onClick={() => setOuvert(o => !o)}
-          className="sm:hidden flex w-full items-start justify-between gap-3 text-left [text-transform:inherit]"
+          className={`${toujoursPliable ? '' : 'sm:hidden '}flex w-full items-start justify-between gap-3 text-left [text-transform:inherit]`}
         >
           <span>
             {titre}
@@ -105,7 +111,7 @@ export default function Repli({
             ▾
           </span>
         </button>
-        <span className="hidden sm:inline">{titre}</span>
+        {!toujoursPliable && <span className="hidden sm:inline">{titre}</span>}
       </h2>
   )
 
@@ -115,7 +121,7 @@ export default function Repli({
       {entete}
       <div
         id={corpsId}
-        className={`${corpsClassName} ${ouvert ? '' : 'max-sm:hidden print:block'}`}
+        className={`${corpsClassName} ${ouvert ? '' : toujoursPliable ? 'hidden print:block' : 'max-sm:hidden print:block'}`}
       >
         {children}
       </div>

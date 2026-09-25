@@ -119,3 +119,14 @@ describe('voice', () => {
     }
   })
 })
+
+// Lot 7 (spec 5.4): the most honest content of the page moves up, framed as a
+// negative result: the page-level Callout, red left border.
+describe('MiFleetImpactSection, framed as a negative result', () => {
+  it('renders inside the negative-result callout', () => {
+    const { container } = render(<MiFleetImpactSection impact={IMPACT} />)
+    const box = container.querySelector('[data-tone="negative-result"]')
+    expect(box).not.toBeNull()
+    expect(box!.textContent).toContain('Est-ce que ça marche ?')
+  })
+})

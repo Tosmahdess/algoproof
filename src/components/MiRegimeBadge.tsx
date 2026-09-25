@@ -3,21 +3,14 @@
 import { useEffect, useState } from 'react'
 import { getLatestMiSnapshot } from '@/lib/queries'
 import type { MiSnapshot } from '@/lib/types'
-import { regimeFr, sentimentFr, biasFr, trendFr } from '@/lib/regime-labels'
+import { regimeFr, biasFr, trendFr } from '@/lib/regime-labels'
+import { frNumber, frSigned, fmtPct } from '@/lib/display'
 
 const RISK_COLOR: Record<string, string> = {
   GREEN:  'var(--positive)',
   YELLOW: 'var(--warning)',
   ORANGE: 'var(--severe)',
   RED:    'var(--negative)',
-}
-
-const SENTIMENT_COLOR: Record<string, string> = {
-  EXTREME_GREED: '#00d4aa',
-  GREED:         'var(--positive)',
-  NEUTRAL:       'var(--muted)',
-  FEAR:          'var(--warning)',
-  EXTREME_FEAR:  'var(--negative)',
 }
 
 const BIAS_COLOR: Record<string, string> = {
@@ -36,9 +29,31 @@ const BIAS_COLOR: Record<string, string> = {
 const PILLARS: { key: keyof MiSnapshot; label: string; color: string }[] = [
   { key: 'sentiment_score',     label: 'Sentiment',      color: 'var(--severe)' },
   { key: 'derivatives_score',   label: 'Dérivés',        color: 'var(--accent)' },
-  { key: 'news_score',          label: 'News',           color: 'var(--positive)' },
+  { key: 'news_score',          label: 'Actualités',     color: 'var(--positive)' },
   { key: 'macro_score',         label: 'Macro',          color: 'var(--pillar-macro)' },
 ]
+
+// One state, one word (design audit §4): the lexicon word, capitalised, as the first
+// thing read. The sentiment enum that used to sit beside it is a pillar, not a state:
+// its score is in the row below.
+function capitalise(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+function freshness(snapshotAt: string): string {
+  const min = Math.max(0, Math.round((Date.now() - new Date(snapshotAt).getTime()) / 60000))
+  return min < 120 ? `il y a ${min} min` : `il y a ${Math.round(min / 60)} h`
+}
+
+// What the state changes for the bots today, from is_safe alone (spec 5.4, lot 7).
+// The substance of the weather is frozen: this is the gate's own answer, worded for
+// a reader, not a new rule.
+function todayForBots(snap: MiSnapshot): string {
+  if (snap.is_safe) return 'Les bots entrent normalement, taille de position normale.'
+  return snap.is_macro_safe === false
+    ? 'Les bots n’entrent pas : entrées bloquées, filtre macro actif.'
+    : 'Les bots n’entrent pas : entrées bloquées tant que ça dure.'
+}
 
 export default function MiRegimeBadge() {
   const [snap, setSnap] = useState<MiSnapshot | null | undefined>(undefined)
@@ -48,13 +63,19 @@ export default function MiRegimeBadge() {
   }, [])
 
   if (snap === undefined) {
+    // A skeleton of the final height, never a « Chargement… » sentence in a first
+    // screen (spec §3.4).
     return (
-      <div className="rounded border border-border p-6 flex items-center gap-4">
-        <div className="h-3 w-3 rounded-full bg-positive animate-pulse flex-shrink-0" />
-        <div>
-          <p className="text-xs font-semibold">Régime actuel</p>
-          <p className="text-xs text-muted mt-0.5">Chargement...</p>
+      <div
+        data-testid="mi-regime-skeleton"
+        aria-busy="true"
+        className="rounded border border-border p-6 space-y-5 animate-pulse"
+      >
+        <div className="h-5 w-40 rounded bg-card-2" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {PILLARS.map(p => <div key={p.key} className="h-10 rounded bg-card-2" />)}
         </div>
+        <div className="h-4 w-72 max-w-full rounded bg-card-2" />
       </div>
     )
   }
@@ -67,56 +88,51 @@ export default function MiRegimeBadge() {
     )
   }
 
-  const riskColor      = RISK_COLOR[snap.regime ?? ''] ?? '#888'
-  const sentimentColor = SENTIMENT_COLOR[snap.sentiment_regime ?? ''] ?? '#888'
-  const biasColor      = BIAS_COLOR[snap.market_bias ?? ''] ?? '#888'
-  const ageMin         = Math.round((Date.now() - new Date(snap.snapshot_at).getTime()) / 60000)
+  const riskColor = RISK_COLOR[snap.regime ?? ''] ?? '#888'
+  const biasColor = BIAS_COLOR[snap.market_bias ?? ''] ?? '#888'
 
   return (
     <div className="rounded border border-border p-6 space-y-5">
 
-      {/* Row 1 — Risk level + sentiment regime + age */}
+      {/* Row 1 — the state, one word, its score, its freshness */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ background: riskColor }} />
-          <span className="text-xs font-bold" style={{ color: riskColor }}>
-            {regimeFr(snap.regime)}
+          <span className="text-xl font-semibold" style={{ color: riskColor }}>
+            {capitalise(regimeFr(snap.regime))}
           </span>
         </div>
         <span className="text-muted text-xs">·</span>
-        <span className="text-xs font-semibold tracking-wide" style={{ color: sentimentColor }}>
-          {sentimentFr(snap.sentiment_regime)}
+        <span className="text-sm text-muted font-mono">
+          score {snap.composite_score != null ? frSigned(snap.composite_score, 1) : '—'}
         </span>
-        <span className="text-xs text-muted font-mono">
-          score {snap.composite_score?.toFixed(1) ?? '—'}
-        </span>
-        <span className="ml-auto text-xs text-muted">il y a {ageMin} min</span>
+        <span className="ml-auto text-xs text-muted">{freshness(snap.snapshot_at)}</span>
       </div>
 
-      {/* Row 2 — Trading status */}
-      <p className="text-xs text-muted">
-        {snap.is_safe ? 'Trading autorisé' : 'Trading bloqué'}
-        {snap.is_macro_safe === false && ' (filtre macro actif)'}
-      </p>
-
-      {/* Row 3 — 4 pillar scores */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono">
+      {/* Row 2 — 4 pillar scores */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 font-mono">
         {PILLARS.map(p => (
           <div key={p.key} className="text-center">
-            <p className="text-xs font-semibold text-muted leading-tight">{p.label}</p>
-            <p className="font-bold mt-1 text-xs" style={{ color: p.color }}>
-              {snap[p.key] != null ? (snap[p.key] as number).toFixed(1) : '—'}
+            <p className="text-xs text-muted leading-tight">{p.label}</p>
+            <p className="font-semibold mt-1 text-sm" style={{ color: p.color }}>
+              {snap[p.key] != null ? frSigned(snap[p.key] as number, 1) : '—'}
             </p>
           </div>
         ))}
       </div>
+
+      {/* Row 3 — what it changes for the bots today */}
+      <p className="text-sm leading-relaxed">
+        <span className="text-muted">Ce que ça change pour mes bots aujourd’hui : </span>
+        {todayForBots(snap)}
+      </p>
 
       {/* Row 4 — Directional filter */}
       {snap.market_bias && (
         <div className="border-t border-border pt-3 flex items-center gap-4 flex-wrap text-xs">
           <div className="flex items-center gap-1.5">
             <span className="text-muted">Biais</span>
-            <span className="font-bold tracking-wide" style={{ color: biasColor }}>
+            <span className="font-semibold" style={{ color: biasColor }}>
               {biasFr(snap.market_bias)}
             </span>
           </div>
@@ -125,7 +141,7 @@ export default function MiRegimeBadge() {
             <span className="font-mono">{trendFr(snap.trend_regime)}</span>
             {snap.btc_vs_ema200_pct != null && (
               <span className={`font-mono text-xs ${snap.btc_vs_ema200_pct >= 0 ? 'text-positive' : 'text-negative'}`}>
-                ({snap.btc_vs_ema200_pct > 0 ? '+' : ''}{snap.btc_vs_ema200_pct.toFixed(1)}% vs moyenne 200 j)
+                ({fmtPct(snap.btc_vs_ema200_pct, 1)} vs moyenne {frNumber(200, 0)} j)
               </span>
             )}
           </div>
