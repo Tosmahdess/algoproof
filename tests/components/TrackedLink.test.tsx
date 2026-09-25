@@ -34,7 +34,8 @@ describe('TrackedLink', () => {
     )
     expect(screen.getByRole('link', { name: 'Aller au labo' })).toHaveAttribute(
       'href',
-      'https://lab.algoproof.fr',
+      // Lot 8: a cta_lab link carries the ref of its location.
+      'https://lab.algoproof.fr/?ref=labo',
     )
   })
 

@@ -157,7 +157,7 @@ describe('/ — the engine funnel, as bars', () => {
     const line = screen.getByTestId('home-fleet-line')
     expect(line.textContent).toMatch(/5 bots en service/)
     expect(line.textContent).toMatch(/3 avec mon argent/)
-    expect(within(line).getByRole('link', { name: /cimetière/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere')
+    expect(within(line).getByRole('link', { name: /cimetière/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=funnel')
     expect(within(line).getByRole('link', { name: /comment je décide/i }).getAttribute('href')).toBe('/strategies#comment-je-decide')
   })
 })
@@ -198,7 +198,7 @@ describe('/ — method, transparency, articles, graveyard', () => {
     render(await HomePage())
     const g = screen.getByTestId('home-graveyard')
     expect(g.textContent.replace(/\s/g, '')).toMatch(/1490926/)
-    expect(within(g).getByRole('link').getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere')
+    expect(within(g).getByRole('link').getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=home-cimetiere')
   })
 
   it('carries none of the retired blocks', async () => {

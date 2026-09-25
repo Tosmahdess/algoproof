@@ -10,6 +10,7 @@ import { excludeArchived } from '@/lib/cohort'
 import { resolveStrategyRoute } from '@/lib/strategy-routing'
 import { GAUNTLET_EXPLAINER_TITLE } from '@/lib/gauntlet-explainer'
 import BotTable from '@/components/BotTable'
+import { labUrl } from '@/lib/lab-links'
 
 export const revalidate = 300
 export const dynamicParams = true // NOT false: unknown slugs must reach this handler
@@ -151,7 +152,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
 
       <div className="flex flex-wrap gap-3">
         <a
-          href={fiche.labHref}
+          href={labUrl(fiche.labHref, `concept-${fiche.slug}`)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex h-10 items-center bg-foreground text-bg font-semibold rounded-md px-4 text-sm hover:opacity-90 transition-opacity"
@@ -161,7 +162,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
         {/* Only when a preset of MY real config exists for this fiche (lot 5). */}
         {fiche.presetHref && (
           <a
-            href={fiche.presetHref}
+            href={labUrl(fiche.presetHref, `concept-${fiche.slug}-preset`)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-semibold text-foreground hover:border-border-strong transition-colors"

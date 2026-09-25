@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { trackCtaLab, trackCtaInvestir, trackOutboundExchange, type Exchange } from '@/lib/analytics'
+import { labUrl } from '@/lib/lab-links'
 
 type Common = {
   href: string
@@ -24,7 +25,9 @@ type Props = Common &
   )
 
 export default function TrackedLink(props: Props) {
-  const { href, className, target, rel, children } = props
+  const { className, target, rel, children } = props
+  // Lot 8: a lab CTA carries `ref=<location>` (labUrl is a no-op elsewhere).
+  const href = props.event === 'cta_lab' ? labUrl(props.href, props.location) : props.href
   const ariaLabel = props['aria-label']
 
   const fire = () => {

@@ -57,7 +57,7 @@ describe('Nav — five flat links, one button', () => {
     // One button on every width, outside the desktop list: its label shortens on a
     // phone through two spans, so the accessible name carries both words.
     const cta = within(screen.getByTestId('nav-bar')).getByRole('link', { name: /tester une stratégie/i })
-    expect(cta.getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
+    expect(cta.getAttribute('href')).toBe('https://lab.algoproof.fr/lab?ref=nav')
     expect(cta.className).toMatch(/bg-foreground/)
     cta.addEventListener('click', e => e.preventDefault())
     fireEvent.click(cta)
@@ -68,7 +68,7 @@ describe('Nav — five flat links, one button', () => {
   it('keeps « Compte » reachable, as a text link that says it leaves for the lab', () => {
     render(<Nav />)
     const compte = within(screen.getByTestId('nav-desktop')).getByRole('link', { name: /compte/i })
-    expect(compte.getAttribute('href')).toBe('https://lab.algoproof.fr/account')
+    expect(compte.getAttribute('href')).toBe('https://lab.algoproof.fr/account?ref=nav')
     expect(compte.textContent).toMatch(/↗/)
     expect(compte.className).not.toMatch(/bg-foreground/)
   })
@@ -105,15 +105,15 @@ describe('Nav — the phone drawer', () => {
     vi.mocked(trackCtaLab).mockClear()
     render(<Nav />)
     const barButton = within(screen.getByTestId('nav-bar')).getByRole('link', { name: /^tester/i })
-    expect(barButton.getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
+    expect(barButton.getAttribute('href')).toBe('https://lab.algoproof.fr/lab?ref=nav')
     openMenu()
     const menu = screen.getByTestId('mobile-menu')
     const open = within(menu).getByRole('link', { name: /ouvrir le labo/i })
-    expect(open.getAttribute('href')).toBe('https://lab.algoproof.fr/lab')
+    expect(open.getAttribute('href')).toBe('https://lab.algoproof.fr/lab?ref=nav')
     open.addEventListener('click', e => e.preventDefault())
     fireEvent.click(open)
     expect(trackCtaLab).toHaveBeenCalledWith('nav-mobile')
-    expect(within(menu).getByRole('link', { name: /compte/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/account')
+    expect(within(menu).getByRole('link', { name: /compte/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/account?ref=nav')
   })
 })
 

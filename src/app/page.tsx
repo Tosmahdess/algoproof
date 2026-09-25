@@ -28,6 +28,7 @@ import { listeInvestir } from '@/lib/investir'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { frNumber } from '@/lib/display'
 import { minutesSince } from '@/lib/home-data'
+import { labUrl } from '@/lib/lab-links'
 
 export const revalidate = 1800
 
@@ -93,7 +94,7 @@ export default async function HomePage() {
                 {/* `event` and `location` unchanged: the analytics series must not break.
                     /lab is the backtester, not the landing (D053, D060); « sans compte »
                     holds, /lab is outside the lab's walled paths. */}
-                <TrackedLink href="https://lab.algoproof.fr/lab" event="cta_lab" location="home-hero" className="inline-flex h-10 items-center px-4 bg-foreground text-bg font-semibold rounded-md hover:opacity-90 transition-opacity text-sm">
+                <TrackedLink href={labUrl('https://lab.algoproof.fr/lab', 'home-hero')} event="cta_lab" location="home-hero" className="inline-flex h-10 items-center px-4 bg-foreground text-bg font-semibold rounded-md hover:opacity-90 transition-opacity text-sm">
                   Tester ta stratégie →
                 </TrackedLink>
                 <Link href="/overview" className={linkClass('inline', 'block mt-3 text-sm')}>
@@ -150,7 +151,7 @@ export default async function HomePage() {
             <p className="font-mono text-2xl font-medium leading-tight">{frNumber(funnel.n_no_go, 0)}</p>
             <p className="text-xs text-muted">configurations recalées par le moteur, chacune avec son motif</p>
           </div>
-          <a href="https://lab.algoproof.fr/cockpit/cimetiere" target="_blank" rel="noopener noreferrer"
+          <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'home-cimetiere')} target="_blank" rel="noopener noreferrer"
              className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-semibold text-foreground hover:border-border-strong transition-colors">
             Voir le cimetière ↗
           </a>

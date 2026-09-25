@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import TrackedLink from '@/components/TrackedLink'
 import LinkPending from '@/components/LinkPending'
 import { trackCtaLab } from '@/lib/analytics'
+import { labUrl } from '@/lib/lab-links'
 
 // Lot 2 of the design audit (2026-09-25, conception §2.2 and §2.3, user decision
 // of the same day): five flat links, one button, no dropdown, no shouted label.
@@ -66,7 +67,7 @@ export default function Nav() {
               </Link>
             )
           })}
-          <a href={ACCOUNT_URL} className={linkClass('nav', 'text-sm')} title="Ton compte est sur lab.algoproof.fr">
+          <a href={labUrl(ACCOUNT_URL, 'nav')} className={linkClass('nav', 'text-sm')} title="Ton compte est sur lab.algoproof.fr">
             Compte ↗
           </a>
         </div>
@@ -74,7 +75,7 @@ export default function Nav() {
         {/* The one button of the bar, on every width: short word on a phone. */}
         <div className="flex items-center gap-2">
           <TrackedLink
-            href={LAB_APP_URL}
+            href={labUrl(LAB_APP_URL, 'nav')}
             event="cta_lab"
             location="nav"
             className="inline-flex h-9 items-center rounded-md bg-foreground px-3.5 text-sm font-semibold text-bg hover:opacity-90 transition-opacity whitespace-nowrap"
@@ -121,12 +122,12 @@ export default function Nav() {
             })}
           </div>
           <div className="flex flex-col gap-1 px-4 pb-4 pt-3 text-sm">
-            <a href={LAB_APP_URL} target="_blank" rel="noopener noreferrer"
+            <a href={labUrl(LAB_APP_URL, 'nav')} target="_blank" rel="noopener noreferrer"
                className={linkClass('nav', 'flex h-10 items-center')}
                onClick={() => { trackCtaLab('nav-mobile'); setMobileOpen(false) }}>
               Ouvrir le labo ↗
             </a>
-            <a href={ACCOUNT_URL} target="_blank" rel="noopener noreferrer"
+            <a href={labUrl(ACCOUNT_URL, 'nav')} target="_blank" rel="noopener noreferrer"
                className={linkClass('nav', 'flex h-10 items-center')}
                onClick={() => setMobileOpen(false)}>
               Compte ↗

@@ -1,6 +1,7 @@
 import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { TWITTER_URL } from '@/lib/constants'
+import { labUrl } from '@/lib/lab-links'
 
 const LAB_URL = 'https://lab.algoproof.fr'
 
@@ -25,18 +26,18 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
       { href: '/preuve',  label: 'Ma méthode' },
       { href: '/lexique', label: 'Lexique' },
       { href: '/faq',     label: 'FAQ' },
-      { href: `${LAB_URL}/cockpit/cimetiere`, label: 'Cimetière ↗', external: true },
+      { href: labUrl(`${LAB_URL}/cockpit/cimetiere`, 'footer'), label: 'Cimetière ↗', external: true },
     ],
   },
   {
     title: 'Le labo ↗',
     links: [
-      { href: `${LAB_URL}/lab`,       label: 'Tester une stratégie', external: true },
-      { href: `${LAB_URL}/apprendre`, label: 'Tutoriels',            external: true },
-      { href: `${LAB_URL}/agents`,    label: 'Agents IA (MCP)',      external: true },
-      { href: `${LAB_URL}/membre`,    label: 'Abonnement',           external: true },
-      { href: `${LAB_URL}/account`,   label: 'Compte',               external: true },
-      { href: LAB_URL,                label: 'Découvrir le labo',    external: true },
+      { href: labUrl(`${LAB_URL}/lab`, 'footer'),       label: 'Tester une stratégie', external: true },
+      { href: labUrl(`${LAB_URL}/apprendre`, 'footer'), label: 'Tutoriels',            external: true },
+      { href: labUrl(`${LAB_URL}/agents`, 'footer'),    label: 'Agents IA (MCP)',      external: true },
+      { href: labUrl(`${LAB_URL}/membre`, 'footer'),    label: 'Abonnement',           external: true },
+      { href: labUrl(`${LAB_URL}/account`, 'footer'),   label: 'Compte',               external: true },
+      { href: labUrl(LAB_URL, 'footer'),                label: 'Découvrir le labo',    external: true },
     ],
   },
   {
@@ -88,15 +89,15 @@ export default function Footer() {
         {/* Legal links point at lab.algoproof.fr: same publisher, one set of legal
             pages for both sites (D039). */}
         <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-          <a href={`${LAB_URL}/mentions-legales`} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
+          <a href={labUrl(`${LAB_URL}/mentions-legales`, 'footer')} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
             Mentions légales
           </a>
           <span>·</span>
-          <a href={`${LAB_URL}/privacy`} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
+          <a href={labUrl(`${LAB_URL}/privacy`, 'footer')} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
             Confidentialité
           </a>
           <span>·</span>
-          <a href={`${LAB_URL}/terms`} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
+          <a href={labUrl(`${LAB_URL}/terms`, 'footer')} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
             Conditions
           </a>
         </div>

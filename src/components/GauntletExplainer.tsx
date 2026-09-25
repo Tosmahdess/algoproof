@@ -15,6 +15,7 @@ import {
   GAUNTLET_ACCESS,
 } from '@/lib/gauntlet-explainer'
 import type { SearchSpace } from '@/lib/engine-search-space'
+import { labUrl } from '@/lib/lab-links'
 
 // `space` comes from the page, which reads it server-side. Passed in rather than fetched
 // here so this file stays markup-only and the copy guards keep a single target.
@@ -73,7 +74,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
 
       <p className="text-xs text-muted">
         <a
-          href="https://lab.algoproof.fr/cockpit/survivants"
+          href={labUrl('https://lab.algoproof.fr/cockpit/survivants', 'strategies-methode')}
           target="_blank"
           rel="noopener noreferrer"
           className={linkClass('inline')}
@@ -82,7 +83,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
         </a>
         {' · '}
         <a
-          href="https://lab.algoproof.fr/cockpit/dossier/emacross"
+          href={labUrl('https://lab.algoproof.fr/cockpit/dossier/emacross', 'strategies-methode')}
           target="_blank"
           rel="noopener noreferrer"
           className={linkClass('inline')}

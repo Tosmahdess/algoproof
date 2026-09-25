@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { linkClass } from '@/lib/link-roles'
 import { longDate } from '@/lib/format-date'
+import { labUrl } from '@/lib/lab-links'
 
 /**
  * Who writes this site, and in what capacity. ONE copy, mounted under every
@@ -72,7 +73,7 @@ export function AuthorIdentity({
         </Link>
         {' · '}
         <a
-          href="https://lab.algoproof.fr/mentions-legales"
+          href={labUrl('https://lab.algoproof.fr/mentions-legales', 'mentions')}
           className={linkClass('inline')}
         >
           Mentions légales

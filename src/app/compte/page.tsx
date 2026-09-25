@@ -2,6 +2,7 @@ import { linkClass } from '@/lib/link-roles'
 import { createSupabaseAuthServer } from '@/lib/supabase-auth'
 import { getEntitlement } from '@/lib/entitlement'
 import { MagicLinkForm } from '@/components/MagicLinkForm'
+import { labUrl } from '@/lib/lab-links'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -40,7 +41,7 @@ export default async function ComptePage() {
             complets. Sur ce site, elle donne aussi accès à deux paragraphes d&apos;analyse par
             société : ce que ses chiffres veulent dire pour son métier, et ce qui peut mal tourner.
           </p>
-          <a href="https://lab.algoproof.fr/membre" className="inline-block rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-bg">
+          <a href={labUrl('https://lab.algoproof.fr/membre', 'compte')} className="inline-block rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-bg">
             Voir l&apos;abonnement
           </a>
         </div>
