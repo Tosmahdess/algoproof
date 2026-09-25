@@ -9,6 +9,8 @@
 // number, case or accent) up to the next heading of the same or higher level, or the
 // end of the document. Everything before is returned untouched.
 
+import { REGIME_LABEL_FR, SENTIMENT_LABEL_FR, TREND_LABEL_FR } from './regime-labels'
+
 const HEADING = /^(#{1,6})\s+(?:\d+\s*[.)]\s*)?biais\s+recommand[ée]/i
 
 export function withoutRecommendation(markdown: string): string {
@@ -29,4 +31,16 @@ export function withoutRecommendation(markdown: string): string {
     out.push(line)
   }
   return out.join('\n')
+}
+
+// The same generator writes its regimes as the machine enums (« Régime : NEUTRAL »,
+// « tendance BULL ») and two of them survived lot 7 of the design audit in the
+// served text of /intelligence (2026-09-25). Translated here with the maps the
+// rest of the site renders from (regime-labels.ts): whole upper-case words only,
+// so tickers, prose and the English words in lower case stay untouched.
+const ENUM_FR: Record<string, string> = { ...REGIME_LABEL_FR, ...SENTIMENT_LABEL_FR, ...TREND_LABEL_FR }
+const ENUM_RE = new RegExp(`\\b(${Object.keys(ENUM_FR).sort((a, b) => b.length - a.length).join('|')})\\b`, 'g')
+
+export function withFrenchRegimes(markdown: string): string {
+  return markdown.replace(ENUM_RE, (w) => ENUM_FR[w] ?? w)
 }

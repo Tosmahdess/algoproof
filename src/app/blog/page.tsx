@@ -15,26 +15,10 @@ export const metadata: Metadata = {
   description: 'Des articles pour comprendre comment je travaille : débuter, ma méthode de recherche, la fiscalité crypto 2026 et la conformité MiCA en France.',
 }
 
-export interface ArticleMeta {
-  slug: string
-  title: string
-  date: string
-  summary: string
-  tags: string[]
-  category: BlogCategory
-}
-
-function getArticles(): ArticleMeta[] {
-  const dir = path.join(process.cwd(), 'content/blog')
-  if (!fs.existsSync(dir)) return []
-  return fs.readdirSync(dir)
-    .filter(f => f.endsWith('.mdx'))
-    .map(f => {
-      const { data } = matter(fs.readFileSync(path.join(dir, f), 'utf8'))
-      return { slug: f.replace('.mdx', ''), ...data } as ArticleMeta
-    })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-}
+// The index moved to lib/articles.ts (lot 3): the home lists three articles too.
+// Re-exported so BlogListClient keeps its import path.
+export type { ArticleMeta } from '@/lib/articles'
+import { getArticles } from '@/lib/articles'
 
 export default function BlogPage() {
   const articles = getArticles()

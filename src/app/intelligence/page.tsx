@@ -11,7 +11,7 @@ import MiPillarsSection from '@/components/MiPillarsSection'
 import { MiFleetImpactSection } from '@/components/MiFleetImpact'
 import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib/queries'
 import { getFleetImpact } from '@/lib/mi-fleet-impact'
-import { withoutRecommendation } from '@/lib/macro-report'
+import { withFrenchRegimes, withoutRecommendation } from '@/lib/macro-report'
 import { mediumDate } from '@/lib/format-date'
 
 export const metadata: Metadata = {
@@ -94,7 +94,8 @@ export default async function IntelligencePage() {
         // The generated report ends with a « Biais recommandé » section: a
         // recommendation, on a site that gives none (audit 2026-09-25, P0-1).
         // Stripped here, at render time, whatever the generator writes.
-        source: withoutRecommendation(report.content),
+        // Its regime enums (« Régime : NEUTRAL ») become the site's French words.
+        source: withFrenchRegimes(withoutRecommendation(report.content)),
         // The generated report carries its own h1 title: demote it so the page
         // keeps a single h1 (it was rendering 3, near-duplicated back to back).
         // h3, since the report now lives under the h2 of its fold.

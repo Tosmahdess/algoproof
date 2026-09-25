@@ -17,9 +17,10 @@ import { mkBot } from '../fixtures/bots'
 
 const { composed } = vi.hoisted(() => ({ composed: [] as unknown[] }))
 
-const ZERO = mkBot({ slug: 'zero-dd', name: 'Zero DD Bot', family: 'carry',
+// Both live (lot 3): the home shows its real-money bots, and their DD, in the first screen.
+const ZERO = mkBot({ slug: 'zero-dd', name: 'Zero DD Bot', family: 'carry', status: 'live',
   stats: { win_rate: 0.9, profit_factor: 5, max_drawdown: 0, total_trades: 40, latest_capital: 1050 } })
-const REAL = mkBot({ slug: 'real-dd', name: 'Real DD Bot',
+const REAL = mkBot({ slug: 'real-dd', name: 'Real DD Bot', status: 'live',
   stats: { win_rate: 0.45, profit_factor: 1.2, max_drawdown: 0.084, total_trades: 80, latest_capital: 1020 } })
 const FLEET = [ZERO, REAL]
 
@@ -29,6 +30,11 @@ vi.mock('@/lib/queries', () => ({
   getBotSlugs: async () => FLEET.map(b => b.slug),
 }))
 vi.mock('@/lib/funnel', () => ({ getFunnelCounts: async () => null }))
+vi.mock('@/lib/mi-fleet-impact', () => ({
+  pct: (f: number) => `${(f * 100).toFixed(1).replace('.', ',')} %`,
+  getFleetImpact: async () => null,
+}))
+vi.mock('@/lib/articles', () => ({ getArticles: () => [] }))
 vi.mock('next/og', () => ({
   ImageResponse: class {
     constructor(element: unknown) { composed.push(element) }
@@ -61,7 +67,7 @@ describe('drawdownIsLoss reads the figure the reader sees', () => {
 })
 
 describe('no surface paints « 0.0% » red', () => {
-  it('home page table', async () => {
+  it('home page, real-money cards', async () => {
     render(await HomePage())
     expect(screen.getByText(/0,0 %/)).not.toHaveClass('text-negative')
     expect(screen.getByText(/8,4 %/)).toHaveClass('text-negative')
