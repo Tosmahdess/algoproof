@@ -62,7 +62,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
       <p className="text-xs text-muted mb-3">
         {GAUNTLET_ACCESS.before}
         <a
-          href={GAUNTLET_ACCESS.href}
+          href={labUrl(GAUNTLET_ACCESS.href, 'strategies-methode')}
           target="_blank"
           rel="noopener noreferrer"
           className={linkClass('inline')}
