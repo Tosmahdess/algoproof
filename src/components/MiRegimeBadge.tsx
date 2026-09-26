@@ -88,7 +88,7 @@ export default function MiRegimeBadge() {
   if (snap === null) {
     return (
       <div className="rounded-lg border border-border p-4 sm:p-5 text-center">
-        <p className="text-xs text-muted">Pas encore de données : synchronisation VPS toutes les heures.</p>
+        <p className="text-xs text-muted">Pas encore de données. La mise à jour se fait toutes les heures.</p>
       </div>
     )
   }

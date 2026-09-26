@@ -42,7 +42,7 @@ export function provenanceSentence(bot: ProvenanceBot): string {
 
   if (bot.origin === 'engine') {
     const paper = fr(bot.paper_since)
-    if (paper) parts.push(`En paper depuis le ${paper}.`)
+    if (paper) parts.push(`En simulation depuis le ${paper}.`)
   }
 
   const live = fr(bot.live_since)

@@ -115,8 +115,8 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           </p>
         )}
         <p className="text-sm text-muted mb-4 max-w-[68ch]">
-          Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
-          La plupart de mes bots sont en <TermPopover id="paper-trading">paper trading</TermPopover> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
+          Ce bot suit des règles et trade sans intervention. Le trading comporte un risque de perte.
+          La plupart de mes bots sont en simulation (<TermPopover id="paper-trading">paper trading</TermPopover>) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
         </p>
       </div>
 

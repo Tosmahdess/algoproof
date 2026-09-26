@@ -26,11 +26,11 @@ export default async function Image() {
   // than a card without a count. getFunnelCounts() already resolves to null on
   // error rather than throwing, but wrap it anyway and fall back to wording
   // with no number at all if the fetch fails for any reason.
-  let botLine = 'données live · zéro faux screenshot'
+  let botLine = 'résultats mis à jour · aucun résultat fabriqué'
   try {
     const funnel = await getFunnelCounts()
     if (funnel && Number.isFinite(funnel.n_promoted)) {
-      botLine = `${funnel.n_promoted} bots · données live · zéro faux screenshot`
+      botLine = `${funnel.n_promoted} bots · résultats mis à jour · aucun résultat fabriqué`
     }
   } catch {
     // keep the numberless fallback

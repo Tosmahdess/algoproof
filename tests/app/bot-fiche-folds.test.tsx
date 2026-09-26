@@ -96,7 +96,7 @@ describe('/strategies/bot/[slug] — share, order, live date', () => {
   it('puts the capital simulator after what the bot does', async () => {
     await monter(3)
     const simulateur = screen.getByText(/Et sur mon capital/)
-    const fonctionnel = screen.getByText(/Fonctionnel/)
+    const fonctionnel = screen.getByText(/Comment il fonctionne/)
     expect(fonctionnel.compareDocumentPosition(simulateur) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 

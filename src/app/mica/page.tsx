@@ -52,8 +52,8 @@ export default function MicaPage() {
         </span>
         <h1 className="mt-4 text-3xl font-semibold tracking-tight mb-3">Crypto en règle : ce que MiCA change pour toi</h1>
         <p className="mt-3 text-muted leading-relaxed">
-          Le règlement européen MiCA s&apos;applique pleinement depuis le 1er juillet 2026. Voici ce qui change concrètement,
-          comment rester en règle depuis la France, et combien tu paieras d&apos;impôts sur tes plus-values.
+          Le règlement européen MiCA s&apos;applique pleinement depuis le 1er juillet 2026. Cette page présente ce qui change
+        pour les particuliers en France et permet d’estimer l’impôt sur les plus-values.
         </p>
       </div>
 

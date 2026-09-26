@@ -113,7 +113,7 @@ export const GAUNTLET_TRIALS: readonly { readonly name: string; readonly plain: 
       'Je découpe l’historique en trimestres civils et je regarde le PF du pire d’entre eux, parmi ceux qui comptent assez de trades. S’il y en a trop peu, je prends le PF de tout l’historique à la place. Ce n’est pas un test hors échantillon : ces trimestres font partie de l’historique qui a servi à choisir la configuration.',
   },
   {
-    name: 'Battre le hasard, pas seulement le marché',
+    name: 'Faire mieux que des signaux décalés',
     plain:
       'Je décale ses signaux d’entrée dans le temps, jusqu’à une centaine de fois, pour fabriquer des versions de la même stratégie qui entrent à d’autres moments, avec le même nombre d’entrées. Je le fais sur un seul marché témoin, pas sur tous. Si la vraie ne sort pas nettement du lot, elle ne prouve rien. Quand les autres épreuves ont déjà tranché, je saute celle-ci.',
   },
@@ -123,9 +123,9 @@ export const GAUNTLET_TRIALS: readonly { readonly name: string; readonly plain: 
       'Ici, je ne relance aucun calcul. La règle revient à exiger un marché qualifié de plus que l’épreuve suivante, pour que le retrait de n’importe lequel en laisse encore assez.',
   },
   {
-    name: 'Convaincre assez de marchés',
+    name: 'Fonctionner sur assez de marchés',
     plain:
-      'Combien d’actifs sont réellement d’accord avec elle. Deux qui marchent et vingt qui traînent, ça ne suffit pas.',
+      'Je compte les actifs sur lesquels elle fonctionne. Deux qui marchent ne suffisent pas si elle peine sur les vingt autres.',
   },
 ]
 
@@ -138,7 +138,7 @@ export const GAUNTLET_VERDICTS: readonly string[] = [
 ]
 
 export const GAUNTLET_HONESTY: readonly string[] = [
-  'Reste une limite que je préfère écrire noir sur blanc plutôt que de la laisser se découvrir. Après autant d’essais, prouver qu’une configuration ne doit rien à la chance demanderait une barre statistique plus haute que ce que mon test sait mesurer. Je te montre donc des candidates, et je publie combien j’en ai essayé. Les plateformes qui vendent des stratégies publient leurs gagnantes, jamais leur nombre de tentatives.',
+  'Après autant d’essais, il faudrait un seuil statistique plus exigeant que ce que mon test sait mesurer pour prouver qu’une configuration ne doit rien à la chance. Je ne peux donc pas le prouver. Je publie les candidates avec le nombre de configurations essayées, pour que tu puisses lire les résultats avec cette limite en tête.',
   'Toutes les stratégies de cette bibliothèque ne sont pas encore passées par là : le moteur avance stratégie par stratégie, horizon par horizon, et publie au fil de l’eau. Ce qu’il a jugé jusqu’ici est public, et l’EMA cross est ouverte en entier pour que tu voies à quoi ressemble un dossier complet.',
 ]
 

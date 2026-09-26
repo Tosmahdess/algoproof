@@ -82,13 +82,13 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <section>
-          <h2 className="text-xl font-semibold mb-3">Quand ça marche</h2>
+          <h2 className="text-xl font-semibold mb-3">Conditions favorables</h2>
           <ul className="text-sm leading-relaxed space-y-2">
             {fiche.worksWhen.map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </section>
         <section>
-          <h2 className="text-xl font-semibold mb-3">Quand ça meurt</h2>
+          <h2 className="text-xl font-semibold mb-3">Limites</h2>
           <ul className="text-sm leading-relaxed space-y-2">
             {fiche.diesWhen.map((p, i) => <li key={i}>{p}</li>)}
           </ul>

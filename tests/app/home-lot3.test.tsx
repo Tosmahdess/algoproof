@@ -87,8 +87,8 @@ describe('/ — the proof is in the first screen', () => {
     expect(within(orb).getByTestId('home-bot-rule').textContent).toMatch(/je le garde/)
     // v1-hl has no pre-registered envelope (bot-expectations.ts): the card says so
     // rather than pretending it is inside one.
-    expect(within(hl).getByTestId('home-bot-rule').textContent).toMatch(/pas d’enveloppe/)
-    expect(within(spot).getByTestId('home-bot-rule').textContent).toMatch(/dans l’enveloppe/)
+    expect(within(hl).getByTestId('home-bot-rule').textContent).toMatch(/pas de limites fixées à l’avance/)
+    expect(within(spot).getByTestId('home-bot-rule').textContent).toMatch(/dans les limites attendues/)
   })
 
   it('names the panel « Argent réel » with its freshness, and links the whole fleet', async () => {
@@ -116,8 +116,8 @@ describe('/ — the proof is in the first screen', () => {
     render(await HomePage())
     const lead = screen.getByTestId('home-lead')
     expect(lead.textContent).toMatch(/5 bots, dont 3 avec mon argent/)
-    expect(lead.textContent).toMatch(/rapports annuels lus par sept contrôles/)
-    expect(lead.textContent).toMatch(/y compris ce qui perd/)
+    expect(lead.textContent).toMatch(/rapports annuels à travers sept contrôles/)
+    expect(lead.textContent).toMatch(/y compris quand les bots perdent/)
   })
 })
 
@@ -131,7 +131,7 @@ describe('/ — the engine, as a balance sheet in the hero', () => {
     expect(screen.getByTestId('home-hero').contains(engine)).toBe(true)
     const text = engine.textContent!.replace(/\s/g, ' ')
     expect(text).toMatch(/Sur 1 754 244 configurations jugées/)
-    expect(text).toMatch(/41 333 092 balayées/)
+    expect(text).toMatch(/41 333 092 configurations recensées/)
     expect(engine.textContent).not.toMatch(/bots? en service|en argent réel/)
   })
 
@@ -153,7 +153,7 @@ describe('/ — the engine, as a balance sheet in the hero', () => {
     render(await HomePage())
     const line = screen.getByTestId('home-fleet-line')
     expect(line.textContent).toMatch(/5 bots en service/)
-    expect(line.textContent).toMatch(/3 avec mon argent/)
+    expect(line.textContent).toMatch(/3 tournent avec mon argent/)
     expect(within(line).getByRole('link', { name: /cimetière/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=funnel')
     expect(within(line).getByRole('link', { name: /comment je décide/i }).getAttribute('href')).toBe('/strategies#comment-je-decide')
   })
@@ -164,7 +164,7 @@ describe('/ — method, transparency, articles, graveyard', () => {
     render(await HomePage())
     const tiles = within(screen.getByTestId('home-method')).getAllByTestId('method-tile')
     expect(tiles.map(t => within(t).getByRole('heading', { level: 3 }).textContent)).toEqual([
-      'Tenir sur son pire trimestre', 'Battre le hasard, pas seulement le marché', 'Ne pas dépendre d’un seul marché', 'Convaincre assez de marchés',
+      'Tenir sur son pire trimestre', 'Faire mieux que des signaux décalés', 'Ne pas dépendre d’un seul marché', 'Fonctionner sur assez de marchés',
     ])
     expect(within(screen.getByTestId('home-method')).getByRole('link', { name: /méthode complète/i }).getAttribute('href')).toBe('/strategies#comment-je-decide')
   })

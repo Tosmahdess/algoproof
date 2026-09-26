@@ -47,7 +47,7 @@ const FICHES = [
     title: "EMA Cross",
     family: "trend",
     oneLiner:
-      "Le suivi de tendance le plus simple qui existe : deux moyennes mobiles, un croisement, une direction.",
+      "Le suivi de tendance avec deux moyennes mobiles. Leur croisement donne le sens du trade.",
     logic: [
       "Deux moyennes mobiles exponentielles suivent le prix : une rapide, réactive, et une lente, qui donne la tendance de fond. Quand la rapide croise la lente vers le haut, le mouvement de fond est en train de tourner haussier : j'entre long. Croisement vers le bas : short, ou sortie quand le marché ne permet pas de shorter.",
       "Tout l'intérêt est dans le retard assumé : l'EMA cross n'attrape jamais le plancher ni le sommet. Elle vise le milieu du mouvement, quand il existe. C'est la stratégie que je fais tourner en argent réel sur mon bot V1 spot, en 4h.",
@@ -94,7 +94,7 @@ const FICHES = [
     title: "Ichimoku",
     family: "trend",
     oneLiner:
-      "Un système japonais complet : tendance, momentum et zones de contrôle dans un seul indicateur.",
+      "L’Ichimoku réunit la tendance, le momentum et les zones de contrôle dans un même système japonais.",
     logic: [
       "L'Ichimoku superpose trois lectures. La Tenkan (moyenne courte) et la Kijun (moyenne longue) donnent le signal par leur croisement. Le nuage, projeté en avant, dit si le terrain est haussier, baissier ou indécis.",
       "La règle que j'utilise : un croisement Tenkan/Kijun DANS le sens du nuage. Le nuage sert de filtre : un signal long sous un nuage baissier est ignoré, peu importe sa netteté.",
@@ -138,7 +138,7 @@ const FICHES = [
     title: "RSI Divergence",
     family: "mean-reversion",
     oneLiner:
-      "Chercher le moment où le prix ment : il inscrit un nouvel extrême, mais le momentum n'y croit plus.",
+      "Repérer un possible retournement quand le prix atteint un nouvel extrême que le momentum ne confirme pas.",
     logic: [
       "Le RSI mesure la force du mouvement. Une divergence apparaît quand le prix fait un nouveau plus bas alors que le RSI, lui, remonte : les vendeurs poussent encore le prix, mais avec de moins en moins de conviction. C'est le signal d'un retournement possible, dans les deux sens.",
       "La stratégie scanne les dernières bougies à la recherche de cette contradiction et entre au retournement supposé, stop derrière l'extrême qui vient d'être inscrit.",
@@ -176,7 +176,7 @@ const FICHES = [
     title: "MA Cross",
     family: "trend",
     oneLiner:
-      "Le croisement de moyennes générique : la même mécanique que l'EMA cross, avec le type de moyenne en paramètre.",
+      "Comparer plusieurs types de moyennes avec la même règle de croisement que l’EMA cross.",
     logic: [
       "Même principe que l'EMA cross : une moyenne rapide croise une moyenne lente et donne la direction. La différence tient au type de moyenne, qui peut être simple (SMA), exponentielle (EMA), pondérée (WMA), de Hull (HMA) ou triple exponentielle (TEMA). Chaque type arbitre autrement entre réactivité et lissage.",
       "C'est la fiche à utiliser pour comparer les types de moyennes entre eux, à périodes égales : le Lab permet de mettre les cinq dans une même grille et de voir si la différence survit aux frais.",
@@ -218,7 +218,7 @@ const FICHES = [
     title: "KAMA Cross",
     family: "trend",
     oneLiner:
-      "Une moyenne qui change de vitesse toute seule : rapide quand le marché est directionnel, lente quand il bruite.",
+      "Une moyenne qui réagit vite dans un marché directionnel et ralentit quand le prix hésite.",
     logic: [
       "La KAMA (moyenne adaptative de Kaufman) mesure d'abord l'efficacité du mouvement : est-ce que le prix va quelque part, ou est-ce qu'il fait du surplace ? Quand le mouvement est efficace, la moyenne accélère et colle au prix ; quand c'est du bruit, elle ralentit et s'aplatit.",
       "Le signal est le passage du prix au-dessus ou en dessous de cette ligne adaptative. L'idée séduisante : une moyenne qui filtre les ranges d'elle-même, sans paramètre de période à deviner.",
@@ -260,7 +260,7 @@ const FICHES = [
     title: "EMA Ribbon",
     family: "trend",
     oneLiner:
-      "Quatre moyennes alignées comme un ruban : on n'entre que quand toutes racontent la même histoire.",
+      "Attendre que les quatre moyennes du ruban soient alignées avant d’entrer.",
     logic: [
       "Quatre EMA de périodes croissantes forment un ruban. Quand elles sont parfaitement ordonnées (la plus rapide au-dessus, la plus lente en dessous), la tendance est propre et alignée sur tous les horizons : c'est le signal d'entrée.",
       "La sortie optionnelle sur cassure du ruban (exit_on_ribbon_break) referme la position dès que l'alignement se défait, sans attendre le stop : le ruban sert alors de trailing de tendance.",
@@ -305,7 +305,7 @@ const FICHES = [
       "Une ligne unique sous ou sur le prix, calée sur la volatilité : au-dessus tu es long, en dessous tu es short.",
     logic: [
       "Le Supertrend trace une bande à une distance du prix proportionnelle à l'ATR. Tant que le prix reste du bon côté, la ligne suit le mouvement comme un trailing stop ; quand le prix la traverse, la tendance est déclarée retournée et la ligne saute de l'autre côté.",
-      "C'est un indicateur binaire et lisible : une seule ligne, une seule couleur, pas d'interprétation. Sa popularité vient de là, ses limites aussi.",
+      "L’indicateur donne une direction avec une seule ligne et une seule couleur. Cette simplicité le rend facile à lire, mais limite les nuances possibles.",
     ],
     worksWhen: [
       "Les tendances soutenues avec des pullbacks modérés : la bande ATR absorbe la respiration sans lâcher la position.",
@@ -347,7 +347,7 @@ const FICHES = [
       "Des bougies lissées qui gomment le bruit : on entre après une série de bougies de la même couleur.",
     logic: [
       "Les bougies Heikin Ashi sont recalculées à partir de moyennes des bougies classiques : les petites hésitations disparaissent et les phases directionnelles ressortent en séries de bougies uniformes.",
-      "La stratégie compte les bougies consécutives de même couleur (le paramètre consec) et entre quand la série atteint le seuil : une tendance assez têtue pour durer plusieurs bougies lissées mérite d'être suivie.",
+      "La stratégie compte les bougies consécutives de même couleur avec le paramètre consec. Elle entre quand la série atteint le seuil fixé.",
     ],
     worksWhen: [
       "Les tendances régulières, sans cassures brutales : le lissage y est un avantage pur.",
@@ -383,7 +383,7 @@ const FICHES = [
     title: "Chandelier Exit",
     family: "trend",
     oneLiner:
-      "Un trailing stop suspendu au plus haut du mouvement : la sortie est la stratégie.",
+      "Un trailing stop suit le plus haut du mouvement et détermine la sortie.",
     logic: [
       "Le Chandelier Exit accroche un stop à une distance ATR sous le plus haut récent (ou au-dessus du plus bas pour un short). Le stop monte avec le mouvement, jamais l'inverse : tu rends une part fixe de volatilité, pas plus.",
       "Dans le Lab, l'entrée se fait sur cassure des extrêmes récents et la sortie optionnelle exit_on_chandelier applique le trailing : c'est une philosophie complète où l'on ne prédit pas la fin du mouvement, on se laisse sortir par elle.",
@@ -433,7 +433,7 @@ const FICHES = [
     worksWhen: [
       "Les vrais départs de tendance : par construction, la stratégie ne rate jamais un grand mouvement, elle est déjà dedans.",
       "Les actifs qui font des plus hauts en série une fois lancés (crypto majors en régime directionnel).",
-      "Quand tu veux une stratégie sans opinion : elle ne prédit rien, elle suit ce qui casse.",
+      "Quand tu veux suivre une cassure sans avoir à prédire le mouvement.",
     ],
     diesWhen: [
       "Les fausses cassures : le range qui déborde d'un tick, te fait entrer, et referme. C'est le coût structurel de la stratégie.",
@@ -468,7 +468,7 @@ const FICHES = [
     title: "Keltner Channel",
     family: "breakout",
     oneLiner:
-      "Un canal centré sur une EMA, aux bords en ATR : la sortie du canal signale l'anomalie qui commence.",
+      "Un canal autour d’une EMA, avec des bandes calculées en ATR. La stratégie entre quand le prix sort du canal.",
     logic: [
       "Le canal de Keltner entoure une EMA centrale de deux bandes distantes d'un multiple d'ATR. Tant que le prix vit dans le canal, il est « normal » ; quand il en sort, il fait statistiquement mieux que sa volatilité récente, et c'est ce déséquilibre qu'on trade.",
       "À la différence des Bollinger (écart-type), les bandes ATR réagissent plus doucement aux chocs isolés : le canal est plus stable, les sorties plus rares et plus franches. C'est la stratégie de mon bot or (XAU) sur Hyperliquid, qui tourne en simulation.",
@@ -511,7 +511,7 @@ const FICHES = [
     title: "ATR Channel",
     family: "breakout",
     oneLiner:
-      "Le cousin du Keltner sur moyenne simple : un canal de volatilité autour d'une SMA, cassé = suivi.",
+      "Un canal de volatilité autour d’une SMA, proche du Keltner. La stratégie suit la cassure du canal.",
     logic: [
       "Une SMA centrale, deux bandes à un multiple d'ATR : quand le prix clôture au-delà de la bande, on entre dans le sens de la cassure. La construction est presque identique au Keltner ; la moyenne simple rend le centre un peu plus lent et les cassures un peu plus rares.",
       "L'intérêt de l'avoir en fiche séparée est justement la comparaison : mêmes périodes, même multiplicateur, et des résultats différents. C'est un bon exercice de sensibilité aux choix « anodins ».",
@@ -559,7 +559,7 @@ const FICHES = [
     title: "Williams Volatility Breakout",
     family: "breakout",
     oneLiner:
-      "Une bougie beaucoup plus grande que d'habitude, prise dans le sens de sa couleur.",
+      "Entrer après une bougie beaucoup plus grande que d’habitude, long si elle est verte, short si elle est rouge.",
     logic: [
       "Chaque bougie est mesurée du plus haut au plus bas, puis comparée à l'ATR des 14 dernières, c'est-à-dire à la taille d'une bougie ordinaire. Si elle le dépasse d'un certain multiple, elle est jugée explosive et j'entre dès qu'elle est terminée : long si elle est verte, short si elle est rouge. Seule la première bougie explosive d'une série de même couleur déclenche, les suivantes ne font rien.",
       "L'idée vient de Larry Williams, qui achetait quand le prix dépassait l'ouverture d'une fraction de l'amplitude de la veille. Mon bot D1 écrit à la main en garde une forme proche (la clôture doit dépasser celle de la veille d'une demi-amplitude de la veille). La version de mon moteur, que le labo reproduit, mesure la bougie contre l'ATR. Ce ne sont pas les mêmes signaux, et un résultat sur l'une ne dit rien de l'autre.",
@@ -604,7 +604,7 @@ const FICHES = [
       "Les bandes en écart-type : le même indicateur sert à trader la cassure ou le retour au centre, et le mode change tout.",
     logic: [
       "Les bandes de Bollinger entourent une moyenne de deux écarts-types des prix récents. Quand la volatilité monte, elles s'écartent ; quand elle s'éteint, elles se resserrent en « squeeze ».",
-      "Le paramètre bb_mode choisit la philosophie : trader la cassure des bandes (le squeeze qui explose) ou le retour vers le centre (le prix étiré qui revient). Les deux lectures sont opposées, et c'est le régime de marché qui décide laquelle gagne : c'est LA démonstration qu'un indicateur n'est pas une stratégie.",
+      "Le paramètre bb_mode permet de choisir entre la cassure des bandes après un squeeze et le retour vers leur centre. Ces deux stratégies utilisent le même indicateur, mais réagissent différemment selon le régime de marché.",
     ],
     worksWhen: [
       "Mode cassure : après un squeeze long, quand l'énergie comprimée se libère d'un coup.",
@@ -644,7 +644,7 @@ const FICHES = [
     title: "TTM Squeeze",
     family: "breakout",
     oneLiner:
-      "Le détecteur de compression : quand les Bollinger rentrent DANS le Keltner, l'explosion se prépare.",
+      "Repérer une compression de volatilité quand les bandes de Bollinger passent à l’intérieur du canal de Keltner, avant leur expansion.",
     logic: [
       "Le TTM Squeeze croise deux canaux : quand les bandes de Bollinger (écart-type) passent à l'intérieur du canal de Keltner (ATR), la volatilité est anormalement comprimée : c'est le « squeeze ». Le marché recharge.",
       "On n'entre pas pendant le squeeze : on attend sa libération, et un momentum (mom_period) donne la direction du mouvement qui démarre. C'est une stratégie de patience : elle passe la plupart du temps à ne rien faire.",
@@ -687,7 +687,7 @@ const FICHES = [
     title: "ORB (Opening Range Breakout)",
     family: "breakout",
     oneLiner:
-      "Le range d'ouverture d'une session, puis sa cassure : une stratégie intraday avec un début et une fin de journée.",
+      "Attendre la cassure du range d’ouverture d’une session. Cette stratégie intraday a un début et une fin de journée.",
     logic: [
       "L'ORB observe les premières minutes d'une session (range_start_hh_mm + range_duration_min), enregistre le haut et le bas de ce range d'ouverture, puis trade sa cassure : l'idée est que la direction prise en début de session engage souvent le reste de la journée.",
       "Tout est borné : un nombre maximal de trades par jour, une fin de session (session_end_hh_mm) où tout est soldé. C'est la seule stratégie du Lab qui vit à l'heure des sessions plutôt qu'en continu. Je la fais tourner en réel sur Hyperliquid.",
@@ -742,7 +742,7 @@ const FICHES = [
     diesWhen: [
       "Les ranges : le MACD oscille autour de zéro et croise son signal en permanence.",
       "Les ralentissements sans retournement : l'élan baisse, le MACD croise à la baisse, et le prix repart de plus belle sans toi.",
-      "Les réglages courts sur du bruit : 12/26/9 sur du 5 minutes ne mesure plus un élan, il mesure la friture.",
+      "Les réglages courts sur du bruit. Avec 12/26/9 sur du 5 minutes, les croisements peuvent surtout refléter les petites variations de prix.",
     ],
     params: [
       {
@@ -772,7 +772,7 @@ const FICHES = [
     title: "ROC (Rate of Change)",
     family: "momentum",
     oneLiner:
-      "Le momentum le plus nu qui existe : de combien le prix a changé en N bougies, et dans quel sens.",
+      "Mesurer la variation du prix sur N bougies, en pourcentage, pour suivre son momentum.",
     logic: [
       "Le ROC compare simplement le prix actuel au prix d'il y a N bougies, en pourcentage. Positif, le marché a monté ; négatif, il a baissé. Pas de lissage, pas de dérivé : le momentum brut.",
       "Deux modes d'entrée : le passage de la ligne zéro (le marché bascule de baisse en hausse sur la fenêtre) ou le croisement d'une moyenne du ROC (signal_period), plus lissé. La simplicité est le propos : si une idée de momentum ne marche pas en ROC, ses versions compliquées méritent la question « pourquoi ? ».",
@@ -827,7 +827,7 @@ const FICHES = [
     diesWhen: [
       "Les marchés rapides : le double lissage a un coût en retard, et les mouvements courts sont finis avant que le TSI ne les voie.",
       "Les ranges longs : même doublement lissé, un momentum sans direction finit par osciller autour de zéro.",
-      "L'excès de confiance dans la douceur de la courbe : une ligne lisse dans le backtest n'est pas un edge, c'est un filtre.",
+      "La courbe est lissée par le filtre. Sa douceur dans le backtest ne suffit pas à montrer un edge.",
     ],
     params: [
       {
@@ -856,7 +856,7 @@ const FICHES = [
     title: "RSI Mean Reversion",
     family: "mean-reversion",
     oneLiner:
-      "Acheter la peur, vendre l'euphorie : le RSI aux extrêmes comme signal de retour à la normale.",
+      "Utiliser les extrêmes du RSI pour chercher un retour à la moyenne, en achetant la peur et en vendant l’euphorie.",
     logic: [
       "Le RSI résume la force relative des hausses et des baisses récentes entre 0 et 100. Sous le seuil bas (oversold), le marché a été verticalement vendeur : on parie sur la détente. Au-dessus du seuil haut (overbought), l'inverse.",
       "C'est la stratégie contrarienne de base : elle vend ce que tout le monde achète. Sa rentabilité dépend presque entièrement du régime : en range elle encaisse, en tendance elle se fait rouler dessus. Un objectif court (tp_r inférieur à 1) est cohérent avec la thèse : on vise la détente, pas le retournement complet.",
@@ -905,7 +905,7 @@ const FICHES = [
     ],
     worksWhen: [
       "Les ranges bien bornés, son habitat naturel : la sortie de zone extrême y date bien les rotations.",
-      "En timing fin d'un signal plus lent : le stochastique dit « maintenant » quand la thèse dit « bientôt ».",
+      "Pour préciser le moment d’entrée donné par un signal plus lent.",
       "Les actifs cycliques qui respirent régulièrement entre leurs bornes.",
     ],
     diesWhen: [
@@ -943,7 +943,7 @@ const FICHES = [
       "Le trou laissé par une bougie violente, retesté plus tard : la thèse ICT passée au backtest mécanique.",
     logic: [
       "Un Fair Value Gap apparaît quand une bougie est si directionnelle que son voisinage laisse un vide de cotation : une zone que le prix a traversée sans s'y arrêter. La thèse (popularisée par le courant ICT) : le prix revient combler ces zones, et le retest est tradable.",
-      "Le Lab en fait une version mécanique et testable : taille minimale du gap en ATR (fvg_min_size_atr), fenêtre de retest, exigence de mitigation. Aucune interprétation discrétionnaire : c'est précisément ce qui permet de la juger. Ma campagne ICT/SMC (58 configs) est au cimetière : les résultats mécaniques n'ont pas confirmé le folklore.",
+      "Le labo propose une version mécanique du FVG, avec une taille minimale du gap en ATR (fvg_min_size_atr), une fenêtre de retest et une exigence de mitigation. Ces règles permettent de tester la stratégie sans interpréter le graphique au cas par cas. Ma campagne ICT/SMC de 58 configurations est au cimetière ; les résultats n’ont pas confirmé la thèse.",
     ],
     worksWhen: [
       "Les gaps larges nés d'un vrai choc (news, liquidation) sur des actifs liquides : le vide a une réalité de carnet d'ordres.",
@@ -994,7 +994,7 @@ const FICHES = [
     ],
     diesWhen: [
       "Le filtre qui affame : exiger la confluence divise les signaux, et un échantillon trop maigre ne prouve plus rien (règle n<20).",
-      "Les retournements de timeframe supérieur : la confluence d'hier est le contre-sens d'aujourd'hui.",
+      "Lors d’un retournement sur le timeframe supérieur, le signal confirmé la veille peut se retrouver dans le mauvais sens.",
       "Même verdict de fond que le FVG simple : ma campagne mécanique ICT/SMC n'a pas trouvé d'edge net, confluence comprise. Les verdicts sont au cimetière, datés.",
     ],
     params: [

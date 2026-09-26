@@ -48,7 +48,7 @@ export default function ExplainerBox({
     <div className="rounded border border-border overflow-hidden">
       <div className="flex border-b border-border bg-card">
         <button data-tab="functional" onClick={() => setActive('functional')} className={TAB_STYLE(active === 'functional')}>
-          Fonctionnel
+          Comment il fonctionne
         </button>
         <button data-tab="technical" onClick={() => setActive('technical')} className={TAB_STYLE(active === 'technical')}>
           ⚙️ Technique

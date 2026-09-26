@@ -88,8 +88,8 @@ export default function StartPage() {
             <p className="font-medium text-foreground">3 étapes pour démarrer :</p>
             <ol className="list-decimal list-inside space-y-1">
               <li>Installer MetaMask et acheter de l&apos;USDC</li>
-              <li>Bridger l&apos;USDC vers Arbitrum et déposer sur HL</li>
-              <li>Créer un agent wallet avec permissions trade-only</li>
+              <li>Transférer l&apos;USDC vers Arbitrum, puis le déposer sur Hyperliquid</li>
+              <li>Créer un portefeuille agent autorisé uniquement à passer des trades</li>
             </ol>
           </div>
           <TrackedLink
@@ -169,7 +169,7 @@ export default function StartPage() {
                 ['Frais taker',        '~0.055%',         '0.065%',           '~0.26% spot*'],
                 ['Futures FR',         '✓ Oui',           '✓ Oui',            '✗ Non'],
                 ['Spot FR',            '✓ Oui',           '—',                '✓ Oui'],
-                ['Complexité setup',   'Facile',          'Avancée',          'Facile'],
+                ['Installation',   'Facile',          'Avancée',          'Facile'],
                 ['Custodial',          'Oui',             'Non',              'Oui'],
               ].map(([label, bybit, hl, kraken]) => (
                 <tr key={label} className="hover:bg-card/30 transition-colors">

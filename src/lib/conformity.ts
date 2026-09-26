@@ -99,13 +99,13 @@ function buildNarrative(status: ConformityStatus, checks: ConformityCheck[], dec
       // One sentence, and only the true one: a pointer to a decision that does not exist
       // would sit 8 lines above the card admitting there is none (Fable review 2026-09-19).
       return decided
-        ? `Le réalisé sort de l’enveloppe attendue (${failing}). Ce que j’en ai décidé est écrit sous la règle concernée.`
-        : `Le réalisé sort de l’enveloppe attendue (${failing}). Je n’ai publié aucune décision à ce jour.`
+        ? `Le bot dépasse les limites attendues (${failing}). Ma décision figure sous la règle concernée.`
+        : `Le bot dépasse les limites attendues (${failing}). Je n’ai publié aucune décision à ce jour.`
     case 'watch':
-      return `Le réalisé approche la limite de l’enveloppe (${failing}) : sous surveillance, pas de rupture à ce stade.`
+      return `Le bot approche des limites attendues (${failing}). Je le surveille ; il ne les a pas encore dépassées.`
     case 'insufficient':
       return `Moins de ${LOW_SAMPLE_TRADES} trades : trop tôt pour juger la conformité au backtest. Le drawdown, lui, est surveillé dès le premier trade.`
     case 'ok':
-      return 'Le réalisé reste dans l’enveloppe attendue du backtest.'
+      return 'Le bot reste dans les limites attendues du backtest.'
   }
 }

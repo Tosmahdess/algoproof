@@ -23,8 +23,8 @@ export default function EngineBotSummary({ fiche, conceptSlug, slug, timeframe, 
   // fiches restate the oneLiner in logic[0], and side by side it read twice.
   const rows = [
     { label: 'Comment ça marche', text: fiche.logic[0] },
-    { label: 'Où ça marche', text: fiche.worksWhen[0] },
-    { label: 'Où ça meurt', text: fiche.diesWhen[0] },
+    { label: 'Conditions favorables', text: fiche.worksWhen[0] },
+    { label: 'Limites', text: fiche.diesWhen[0] },
   ].filter(r => r.text)
 
   return (
@@ -46,12 +46,12 @@ export default function EngineBotSummary({ fiche, conceptSlug, slug, timeframe, 
           ? <>C&apos;est une configuration que j&apos;ai retenue pour cette stratégie en {timeframe}, </>
           : <>Il tourne en {timeframe}, </>}
         sur {assetCount} marchés {exchange}.
-        {' '}{head ? 'Ce qui la distingue' : 'Ce qui le distingue'} des autres configurations de la même stratégie (les réglages, les filtres
-        que j&apos;ai gardés après le tri, le stop et la cible) est dans l&apos;onglet Technique
+        {' '}{head ? 'Ce qui la distingue' : 'Ce qui le distingue'} des autres configurations de la même stratégie se voit dans les réglages, les filtres
+        que j&apos;ai gardés après le tri, le stop et la cible. Ces détails sont dans l&apos;onglet Technique
         {technicalIsPublic ? '.' : <>, que je réserve aux membres du labo.</>}
       </p>
       <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline', 'text-sm')}>
-        Ce que dit la fiche complète de la stratégie&nbsp;→
+        Lire la fiche complète de la stratégie&nbsp;→
       </Link>
     </div>
   )

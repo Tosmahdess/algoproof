@@ -47,7 +47,7 @@ describe('/opengraph-image', () => {
     funnel.impl = async () => { throw new Error('supabase unreachable') }
     await expect(Image()).resolves.toBeTruthy()
     const html = renderToStaticMarkup(captured.element!)
-    expect(html).toContain('données live · zéro faux screenshot')
+    expect(html).toContain('résultats mis à jour · aucun résultat fabriqué')
     expect(html).not.toMatch(/\d+ bots/)
   })
 
@@ -55,7 +55,7 @@ describe('/opengraph-image', () => {
     funnel.impl = async () => null as never
     await Image()
     const html = renderToStaticMarkup(captured.element!)
-    expect(html).toContain('données live · zéro faux screenshot')
+    expect(html).toContain('résultats mis à jour · aucun résultat fabriqué')
     expect(html).not.toMatch(/\d+ bots/)
   })
 })

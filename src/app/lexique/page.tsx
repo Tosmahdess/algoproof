@@ -14,7 +14,7 @@ export default function LexiquePage() {
       <JsonLd data={definedTermSetJsonLd(GLOSSARY)} />
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Lexique</h1>
       <p className="text-sm text-muted mb-8 max-w-2xl">
-        Tout le vocabulaire que j&apos;utilise sur le site, expliqué simplement. Pas besoin d&apos;être expert pour comprendre ce que je fais.
+        Les termes que j&apos;utilise pour décrire mes bots et leurs résultats.
       </p>
       <dl className="space-y-6">
         {GLOSSARY.map((t) => (

@@ -7,10 +7,10 @@ import { linkClass } from '@/lib/link-roles'
 import { GAUNTLET_TRIALS } from '@/lib/gauntlet-explainer'
 
 const GLOSS = [
-  'Le PF de son pire trimestre civil. Pas un test hors échantillon, et je l’écris.',
-  'Ses signaux décalés une centaine de fois. Si la vraie ne sort pas du lot, elle ne prouve rien.',
-  'Le retrait de n’importe quel marché doit en laisser assez.',
-  'Deux qui marchent et vingt qui traînent, ça ne suffit pas.',
+  'Le profit factor de son pire trimestre civil. Ce trimestre fait partie du backtest, ce n’est pas un test hors échantillon.',
+  'Je décale ses signaux une centaine de fois pour voir si les entrées d’origine font mieux que ces décalages.',
+  'Après le retrait de n’importe quel marché, il doit rester assez de marchés qualifiés.',
+  'Deux marchés où la stratégie marche ne suffisent pas si elle peine sur les vingt autres.',
 ]
 
 export default function MethodTiles() {
@@ -30,7 +30,7 @@ export default function MethodTiles() {
         ))}
       </div>
       <p className="text-xs text-muted mt-3">
-        Au bout, trois issues : recalée, en sursis, candidate. Une candidate n’est pas une gagnante, elle a gagné le droit d’être surveillée.{' '}
+        Les trois issues sont recalée, en sursis ou candidate. Une candidate peut être suivie en simulation ; cela ne garantit pas qu’elle gagnera.{' '}
         <Link href="/strategies#comment-je-decide" className={linkClass('inline')}>La méthode complète</Link>
       </p>
     </section>

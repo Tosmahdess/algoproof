@@ -38,7 +38,7 @@ export default function FleetTotals({ aggregate, liveCount, paperCount }: {
                bots={paperCount} trades={aggregate.tradesLabo} note="de l’argent qui n’existe pas, dépensé pour apprendre" />
       </div>
       <p className="text-xs text-muted mt-2">
-        Ces deux totaux ne se fusionnent jamais et ne bougent pas avec les filtres du registre.
+        Je compte séparément l’argent réel et la simulation. Les filtres de la liste ne changent pas ces totaux.
       </p>
     </section>
   )

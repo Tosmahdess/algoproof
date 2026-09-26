@@ -5,7 +5,7 @@ import ExplainerBox from '@/components/ExplainerBox'
 describe('ExplainerBox', () => {
   it('renders the Fonctionnel tab button', () => {
     render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
-    expect(screen.getByRole('button', { name: /fonctionnel/i })).toBeDefined()
+    expect(screen.getByRole('button', { name: /comment il fonctionne/i })).toBeDefined()
   })
 
   it('renders the Technique tab button', () => {
@@ -29,7 +29,7 @@ describe('ExplainerBox', () => {
   it('clicking Fonctionnel tab after Technique shows functional again', () => {
     render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
     fireEvent.click(screen.getByRole('button', { name: /technique/i }))
-    fireEvent.click(screen.getByRole('button', { name: /fonctionnel/i }))
+    fireEvent.click(screen.getByRole('button', { name: /comment il fonctionne/i }))
     expect(screen.getByText('Plain text.')).toBeDefined()
     expect(screen.queryByText('Tech detail.')).toBeNull()
   })

@@ -93,8 +93,8 @@ describe('/ — the home opens on both activities, not on the lab alone', () => 
     const hero = screen.getByTestId('home-hero')
     // Lot 3 lead (PASS 4): three read numbers, then the one promise, losses included.
     expect(hero.textContent).toMatch(/bots, dont \d+ avec mon argent/)
-    expect(hero.textContent).toMatch(/rapports annuels lus par sept contrôles/)
-    expect(hero.textContent).toMatch(/Chaque trade et chaque alerte publiés, y compris ce qui perd/)
+    expect(hero.textContent).toMatch(/rapports annuels à travers sept contrôles/)
+    expect(hero.textContent).toMatch(/Je publie chaque trade et chaque alerte, y compris quand les bots perdent/)
   })
 })
 
@@ -165,7 +165,7 @@ describe('/ — the two entries sit directly under the message', () => {
     // account receives. It is the only concrete benefit of the tool on this
     // page, and it does not survive a rewrite by accident.
     expect(card.textContent).toMatch(/fragile, et pourquoi/)
-    expect(card.textContent).toMatch(/Un backtester, pas un broker/)
+    expect(card.textContent).toMatch(/Le labo n’est pas un broker/)
   })
 
   it('the companies entry opens the list AND the method', async () => {
@@ -220,7 +220,7 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
     render(await HomePage())
     const line = screen.getByTestId('home-fleet-line')
     expect(line.textContent).toMatch(/5 bots en service/)
-    expect(line.textContent).toMatch(/2 avec mon argent/)
+    expect(line.textContent).toMatch(/2 tournent avec mon argent/)
     expect(screen.getByTestId('home-funnel').contains(line)).toBe(false)
   })
 
@@ -236,7 +236,7 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
     const funnel = screen.getByTestId('home-funnel')
     const text = funnel.textContent!.replace(/\s/g, ' ')
     // Since 2026-09-26 the verdicts are counts, not truncated shares (Astra's proposal).
-    expect(text).toMatch(/balayées/)
+    expect(text).toMatch(/configurations recensées/)
     expect(text).toMatch(/Sur 351 359 configurations jugées/)
     expect(text).toMatch(/Recalées\s*330 000/)
     expect(funnel.textContent).not.toMatch(/bots? en service/i)
@@ -247,7 +247,7 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
     render(await HomePage())
     const text = screen.getByTestId('home-funnel').textContent!.replace(/\s/g, ' ')
     expect(text).toMatch(/≈ 1 sur 500/)
-    expect(text).toMatch(/configurations jugées devient candidate/)
+    expect(text).toMatch(/configuration retenue comme candidate/)
   })
 
   // Owner, 2026-09-24: no cimetière link on this band.
@@ -321,9 +321,9 @@ describe('/ — the two entries are a matched pair', () => {
   it('each entry ends on its own reassurance line', async () => {
     render(await HomePage())
     expect(screen.getByTestId('entry-strategies').textContent)
-      .toMatch(/Un backtester, pas un broker\. Rien à déposer, aucune clé à donner\./)
+      .toMatch(/Tu peux faire un backtest sans déposer d’argent ni donner de clé\. Le labo n’est pas un broker\./)
     expect(screen.getByTestId('entry-companies').textContent)
-      .toMatch(/Des lectures, pas des conseils\. Aucune recommandation d'achat ou de vente\./)
+      .toMatch(/Je partage mes lectures sans recommander d'achat ni de vente\. Ce ne sont pas des conseils\./)
   })
 
   // D058 retired the company grade and verdict on 2026-09-19, but no sentence

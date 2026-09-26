@@ -168,7 +168,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           {untraded.length > 0 && (
             <details data-testid="fleet-untraded" className="bg-card border border-border rounded-lg">
               <summary className="cursor-pointer px-4 py-3 text-xs text-muted min-h-10">
-                {`Sans trade encore · ${untraded.length} ${plural(untraded.length, 'bot', 'bots')}. Pas de tendance, pas de trade : c’est voulu.`}
+                {`Sans trade encore · ${untraded.length} ${plural(untraded.length, 'bot', 'bots')}. Ces bots attendent leur signal.`}
               </summary>
               <ul className="px-4 pb-4 divide-y divide-border">
                 {untraded.map(bot => (

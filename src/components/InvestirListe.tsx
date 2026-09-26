@@ -180,7 +180,7 @@ export default function InvestirListe({
 
       <fieldset className="mb-3 border-0 p-0 m-0">
         <legend className="text-xs font-semibold text-muted mb-2">
-          Couverture — combien des sept contrôles ce dépôt a permis de lire
+          Nombre de contrôles possibles sur les sept, d’après ce dépôt
         </legend>
         <div className="flex flex-wrap gap-2">
           {paliers.map(([lus, n]) => (
