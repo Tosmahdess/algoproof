@@ -1,6 +1,6 @@
 // Lot 3 of the design audit (2026-09-25, conception §5.1, mock-ups of PASS 4, variant A
 // chosen by the user): the home shows its proof in the first screen. The three bots in
-// real money, the losing one first, with their real figures; the engine funnel as bars;
+// real money, the losing one first, with their real figures; the engine as a unit chart (bars until the 2026-09-26 counter-audit);
 // the method as four tiles; the two things the site publishes when it does not work
 // (the ORB decision, the market-weather measure); three articles; the graveyard.
 // Gone: the ticker, the ten-row table, the two teaser cards, the exchange call to action.
@@ -121,35 +121,32 @@ describe('/ — the proof is in the first screen', () => {
   })
 })
 
-describe('/ — the engine funnel, as bars', () => {
-  it('has four steps: swept, judged, the verdicts bar, candidates; never a bot count inside', async () => {
+// Counter-audit 2026-09-26: the four bars became a typographic balance sheet in
+// the hero (Codex Astra's proposal, chosen by the owner). The numbers and their
+// rules stay: configurations only, the denominator always beside the ratio.
+describe('/ — the engine, as a balance sheet in the hero', () => {
+  it('sits inside the hero and counts configurations, never a bot', async () => {
     render(await HomePage())
-    const funnel = screen.getByTestId('home-funnel')
-    const steps = within(funnel).getAllByTestId('funnel-step')
-    expect(steps.map(s => within(s).getByTestId('funnel-label').textContent)).toEqual([
-      'Configurations balayées', 'Jugées au gantelet', 'Leurs verdicts', 'Candidates',
-    ])
-    expect(within(steps[0]).getByTestId('funnel-value').textContent.replace(/\s/g, '')).toBe('41333092')
-    expect(within(steps[3]).getByTestId('funnel-value').textContent.replace(/\s/g, '')).toBe('3536')
-    expect(funnel.textContent).not.toMatch(/bots? en service|en argent réel/)
+    const engine = screen.getByTestId('home-funnel')
+    expect(screen.getByTestId('home-hero').contains(engine)).toBe(true)
+    const text = engine.textContent!.replace(/\s/g, ' ')
+    expect(text).toMatch(/Sur 1 754 244 configurations jugées/)
+    expect(text).toMatch(/41 333 092 balayées/)
+    expect(engine.textContent).not.toMatch(/bots? en service|en argent réel/)
   })
 
-  it('draws the bars on a log scale, so the last step is still visible', async () => {
+  it('draws no bar and no dot', async () => {
     render(await HomePage())
-    const bars = within(screen.getByTestId('home-funnel')).getAllByTestId('funnel-bar')
-    const widths = bars.map(b => Number.parseFloat((b.getAttribute('style') ?? '').match(/width:\s*([\d.]+)%/)?.[1] ?? '0'))
-    expect(widths[0]).toBe(100)
-    expect(widths[1]).toBeGreaterThan(80)
-    expect(widths[2]).toBeGreaterThan(40)
-    expect(widths[2]).toBeLessThan(widths[1])
+    expect(screen.queryAllByTestId('funnel-bar')).toHaveLength(0)
+    expect(screen.getByTestId('home-funnel').querySelector('[data-dot]')).toBeNull()
   })
 
-  it('splits the verdicts into recalées, en sursis and candidates with their share of the judged', async () => {
+  it('gives the three verdicts as counts', async () => {
     render(await HomePage())
-    const verdicts = screen.getByTestId('funnel-verdicts')
-    expect(verdicts.textContent).toMatch(/1 490 926 recalées · 84 %/)
-    expect(verdicts.textContent).toMatch(/259 782 en sursis · 14 %/)
-    expect(verdicts.textContent).toMatch(/3 536 candidates/)
+    const verdicts = screen.getByTestId('funnel-verdicts').textContent!.replace(/\s/g, ' ')
+    expect(verdicts).toMatch(/Recalées\s*1 490 926/)
+    expect(verdicts).toMatch(/En sursis\s*259 782/)
+    expect(verdicts).toMatch(/Candidates\s*3 536/)
   })
 
   it('writes the fleet beside the funnel, outside it (D059), as a total and its real-money part', async () => {
@@ -172,19 +169,14 @@ describe('/ — method, transparency, articles, graveyard', () => {
     expect(within(screen.getByTestId('home-method')).getByRole('link', { name: /méthode complète/i }).getAttribute('href')).toBe('/strategies#comment-je-decide')
   })
 
-  it('publishes the ORB decision under its rule, and the market-weather measure that says no', async () => {
+  // Owner, 2026-09-26: the « Ce que je publie aussi quand ça ne marche pas » section
+  // leaves the home. The decision is still one click away: the losing bot's card
+  // keeps its « la décision » link to the sheet, where DecisionNote is published.
+  it('no longer carries the transparency section, and still links the ORB decision from its card', async () => {
     render(await HomePage())
-    const t = screen.getByTestId('home-transparency')
-    const decision = within(t).getByTestId('home-decision')
-    expect(decision.textContent).toMatch(/DD > 20 % ou PF < 1\.0/)
-    expect(decision.textContent).toMatch(/DD 29,1 %/)
-    expect(decision.textContent).toMatch(/PF 0,95/)
-    expect(decision.textContent).toMatch(/Le 25 septembre, je le garde/)
-    const weather = within(t).getByTestId('home-weather-measure')
-    expect(weather.textContent).toMatch(/137 jours/)
-    expect(weather.textContent).toMatch(/0 signal/)
-    expect(weather.textContent).toMatch(/409/)
-    expect(within(weather).getByRole('link').getAttribute('href')).toBe('/intelligence')
+    expect(screen.queryByTestId('home-transparency')).toBeNull()
+    const [orb] = within(screen.getByTestId('home-real')).getAllByTestId('home-bot-card')
+    expect(within(orb).getByRole('link', { name: /la décision/ }).getAttribute('href')).toBe('/strategies/bot/orb-bf25')
   })
 
   it('lists the three latest articles that are not a daily journal nor a weekly review', async () => {

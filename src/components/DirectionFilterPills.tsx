@@ -17,7 +17,7 @@ const PILLS: Array<{ key: DirectionFilter; label: string }> = [
 
 export default function DirectionFilterPills({ value, onChange, longCount, shortCount }: Props) {
   return (
-    <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card p-1">
+    <div className="inline-flex items-center gap-1 rounded-md bg-card-2">
       {PILLS.map(p => {
         const active = p.key === value
         const count = p.key === 'long' ? longCount : p.key === 'short' ? shortCount : undefined
@@ -25,14 +25,11 @@ export default function DirectionFilterPills({ value, onChange, longCount, short
           <button
             key={p.key}
             onClick={() => onChange(p.key)}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+            aria-pressed={active}
+            className={`h-10 px-3 rounded-md text-xs font-medium transition-colors ${
               active
-                ? p.key === 'long'
-                  ? 'bg-positive/15 text-positive'
-                  : p.key === 'short'
-                  ? 'bg-negative/15 text-negative'
-                  : 'bg-foreground text-bg'
-                : 'text-muted hover:text-foreground'
+                ? 'bg-foreground text-bg'
+                : 'bg-card-2 text-muted hover:text-foreground'
             }`}
           >
             {p.label}

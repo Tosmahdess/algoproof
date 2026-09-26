@@ -94,7 +94,7 @@ export default function Repli({
           aria-expanded={ouvert}
           aria-controls={corpsId}
           onClick={() => setOuvert(o => !o)}
-          className={`${toujoursPliable ? '' : 'sm:hidden '}flex w-full items-start justify-between gap-3 text-left [text-transform:inherit]`}
+          className={`${toujoursPliable ? '' : 'sm:hidden '}flex min-h-10 w-full items-center justify-between gap-3 text-left [text-transform:inherit]`}
         >
           <span>
             {titre}

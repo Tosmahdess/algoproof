@@ -44,7 +44,7 @@ export default function InvestirPage() {
   const avecAlerte = lignes.filter(l => l.alertes.length > 0).length
 
   return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-12 space-y-8 sm:space-y-12">
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 space-y-8 sm:space-y-12">
       <header className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         <div className="lg:col-span-7">
           <p className="text-xs font-medium text-muted mb-2">

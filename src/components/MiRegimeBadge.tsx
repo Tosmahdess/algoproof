@@ -74,7 +74,7 @@ export default function MiRegimeBadge() {
       <div
         data-testid="mi-regime-skeleton"
         aria-busy="true"
-        className="rounded border border-border p-6 space-y-5 animate-pulse"
+        className="rounded-lg border border-border p-4 sm:p-5 space-y-5 animate-pulse"
       >
         <div className="h-5 w-40 rounded bg-card-2" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -87,7 +87,7 @@ export default function MiRegimeBadge() {
 
   if (snap === null) {
     return (
-      <div className="rounded border border-border p-6 text-center">
+      <div className="rounded-lg border border-border p-4 sm:p-5 text-center">
         <p className="text-xs text-muted">Pas encore de données : synchronisation VPS toutes les heures.</p>
       </div>
     )
@@ -97,7 +97,7 @@ export default function MiRegimeBadge() {
   const biasColor = BIAS_COLOR[snap.market_bias ?? ''] ?? '#888'
 
   return (
-    <div className="rounded border border-border p-6 space-y-5">
+    <div className="rounded-lg border border-border p-4 sm:p-5 space-y-5">
 
       {/* Row 1 — the state, one word, its score, its freshness */}
       <div className="flex items-center gap-3 flex-wrap">

@@ -33,8 +33,8 @@ describe('/strategies — the funnel first, then the method, then the register',
     expect(at('home-funnel')).toBeGreaterThan(-1)
     expect(at('home-funnel')).toBeLessThan(at('index-gauntlet'))
     expect(at('index-gauntlet')).toBeLessThan(at('strategies-register'))
-    // the fleet line beside the funnel counts the bots the page received
-    expect(screen.getByTestId('home-fleet-line').textContent).toMatch(/2 bots en service/)
+    // Since 2026-09-26 the fleet is not recounted here: the introduction links it.
+    expect(screen.queryByTestId('home-fleet-line')).toBeNull()
   })
 
   it('renders no funnel when the counts are missing, and still the rest', async () => {

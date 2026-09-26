@@ -29,6 +29,33 @@
   --severe: #ff6b35;
 }
 
+h1, h2 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* The fleet table also lives in narrow prose containers on wide screens. */
+.bot-table {
+  container-type: inline-size;
+}
+
+.bot-table-desktop {
+  display: none;
+}
+
+@container (min-width: 48rem) {
+  .bot-table-mobile {
+    display: none;
+  }
+
+  .bot-table-desktop {
+    display: block;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

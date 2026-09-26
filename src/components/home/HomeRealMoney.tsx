@@ -5,6 +5,7 @@
 // (variant A, chosen by the user on 2026-09-25 against the button's position).
 // No aggregate, no average: R1 forbids a hero figure that fuses bots.
 import Link from 'next/link'
+import MetricsLegend from '@/components/MetricsLegend'
 import { linkClass } from '@/lib/link-roles'
 import StatusBadge from '@/components/StatusBadge'
 import HomeSpark from '@/components/home/HomeSpark'
@@ -43,17 +44,17 @@ export function RealMoneyCard({ bot, testId = 'home-bot-card' }: { bot: BotWithS
   const delta30 = spark.length >= 2 ? spark[spark.length - 1] - spark[0] : null
   const rule = ruleState(bot)
   return (
-    <div data-testid={testId} className="bg-card border border-border rounded-lg p-4 flex flex-col gap-2.5">
-      <div className="flex items-start justify-between gap-3">
+    <div data-testid={testId} className="bg-card border border-border rounded-lg p-4 min-w-0 w-full flex flex-col gap-2.5">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'text-sm leading-snug')}>{bot.name}</Link>
-          <p className="text-xs text-muted mt-0.5 truncate">{bot.strategy}</p>
         </div>
         <StatusBadge status={bot.status} />
       </div>
-      <div className="flex items-baseline justify-between gap-3">
+      <p className="text-xs text-muted whitespace-normal">{bot.strategy}</p>
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
         <span className={`font-mono text-2xl font-medium leading-none ${tone}`}>{fmtPct(pct)}</span>
-        <span className="text-xs text-muted font-mono">{fmtEur(eur)} depuis le départ</span>
+        <span className="text-xs text-muted font-mono">{fmtEur(eur)}{' '}depuis le départ</span>
       </div>
       <HomeSpark values={spark} sign={sign} startCapital={bot.start_capital} />
       <div className="flex justify-between text-xs text-muted">
@@ -61,14 +62,14 @@ export function RealMoneyCard({ bot, testId = 'home-bot-card' }: { bot: BotWithS
         {delta30 !== null && <span className={`font-mono ${delta30 < 0 ? 'text-negative' : 'text-positive'}`}>{fmtEur(delta30)}</span>}
       </div>
       <p className="font-mono text-xs text-muted flex flex-wrap gap-x-3">
-        <span><b className="text-foreground font-medium">{bot.stats.total_trades}</b> trades</span>
+        <span><b className="text-foreground font-medium">{bot.stats.total_trades}</b>{' '}trades</span>
         <span>PF <b className="text-foreground font-medium">{fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor)}</b></span>
         <span>WR <b className="text-foreground font-medium">{fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate)}</b></span>
         <span>DD <b className={`font-medium ${drawdownIsLoss(bot.stats.max_drawdown) ? 'text-negative' : 'text-foreground'}`}>{fmtDrawdown(bot.stats.max_drawdown)}</b></span>
       </p>
       <p data-testid="home-bot-rule" className={`text-xs ${rule.kind === 'crossed' ? 'text-severe' : 'text-muted'}`}>
         {rule.kind === 'crossed' ? '✕ ' : rule.kind === 'inside' ? '✓ ' : ''}{rule.text}
-        {rule.kind === 'crossed' && <> <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('inline')}>la décision</Link></>}
+        {rule.kind === 'crossed' && <>{' '}<Link href={`/strategies/bot/${bot.slug}`} className={linkClass('inline')}>la décision</Link></>}
       </p>
     </div>
   )
@@ -77,14 +78,15 @@ export function RealMoneyCard({ bot, testId = 'home-bot-card' }: { bot: BotWithS
 export function RealMoneyPanel({ bots, minutes }: { bots: BotWithStats[]; minutes: number | null }) {
   const f = fresh(minutes)
   return (
-    <aside data-testid="home-real" aria-label="Argent réel" className="hidden lg:block lg:col-span-5">
+    <aside data-testid="home-real" aria-label="Argent réel" className="hidden lg:block lg:col-span-5 min-w-0">
       <div className="flex items-baseline justify-between mb-2.5">
         <span className="text-xs font-medium text-muted">Argent réel</span>
         {f && <span className="text-xs text-muted">{f}</span>}
       </div>
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {bots.map(b => <RealMoneyCard key={b.slug} bot={b} />)}
       </div>
+      <MetricsLegend className="mt-3" />
       <p className="mt-3 text-sm"><Link href="/overview" className={linkClass('inline')}>Toute la flotte, simulation comprise →</Link></p>
     </aside>
   )
@@ -102,13 +104,17 @@ export function RealMoneyStrip({ bots, minutes }: { bots: BotWithStats[]; minute
         const pct = pnlPct(b.stats.latest_capital, b.start_capital)
         const rule = ruleState(b)
         return (
-          <Link key={b.slug} href={`/strategies/bot/${b.slug}`} className={linkClass('record', 'flex min-h-10 items-center gap-2 px-3 py-1.5 border-t border-border')}>
+          <Link key={b.slug} href={`/strategies/bot/${b.slug}`} className={linkClass('record', 'grid grid-cols-[minmax(0,1fr)_auto] min-h-10 items-center gap-x-3 gap-y-1 px-3 py-2 border-t border-border')}>
             {/* Two lines rather than an ellipsis: truncated, the two EMA bots read
                 the same (« Croisement EMA H4 … ») and the strip stops telling them apart. */}
-            <span className="min-w-0 flex-1 text-sm leading-snug line-clamp-2">{b.name}</span>
-            <StatusBadge status={b.status} />
-            <span className={`shrink-0 font-mono text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
-            {rule.kind === 'crossed' && <span className="shrink-0 text-severe text-xs" aria-label="règle d’arrêt franchie">✕</span>}
+            <span className="min-w-0 text-sm leading-snug line-clamp-2">{b.name}</span>
+            {/* Status before the figure (audit 2026-09-09), each in its own column so
+                badges and percentages line up from one row to the next (counter-audit H-M1). */}
+            <span className="justify-self-end"><StatusBadge status={b.status} /></span>
+            <span className="min-w-0 text-xs text-severe">
+              {rule.kind === 'crossed' ? '✕ règle d’arrêt franchie' : ''}
+            </span>
+            <span className={`text-right whitespace-nowrap tabular-nums font-mono text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
           </Link>
         )
       })}

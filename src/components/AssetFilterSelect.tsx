@@ -23,7 +23,7 @@ export default function AssetFilterSelect({ options, value, onChange, label = 'A
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="bg-card border border-border rounded-md px-2.5 py-1 text-xs text-foreground focus:border-accent focus:outline-none"
+        className="bg-card border border-border rounded-md h-10 px-2.5 text-xs text-foreground focus:border-accent focus:outline-none"
       >
         <option value="all">Tous les actifs</option>
         {options.map(o => (

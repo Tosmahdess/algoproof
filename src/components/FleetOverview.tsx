@@ -21,6 +21,7 @@ import { familyColor } from '@/lib/families'
 import { last30Capital } from '@/lib/home-data'
 import { simulationTotalSeries } from '@/lib/fleet-curves'
 import { RealMoneyCard } from '@/components/home/HomeRealMoney'
+import MetricsLegend from '@/components/MetricsLegend'
 import FleetTotals from '@/components/FleetTotals'
 import FleetJournal from '@/components/FleetJournal'
 import FleetRecentTrades from '@/components/FleetRecentTrades'
@@ -107,6 +108,7 @@ export default function FleetOverview({
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {liveByHistory.map(bot => <RealMoneyCard key={bot.slug} bot={bot} testId="fleet-bot-card" />)}
           </div>
+          <MetricsLegend className="mt-3 max-w-[70ch]" />
         </section>
       )}
 

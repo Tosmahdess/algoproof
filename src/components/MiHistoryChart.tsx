@@ -82,7 +82,7 @@ export default function MiHistoryChart({ data }: Props) {
   }))
 
   // Show every Nth label to avoid crowding
-  const tickInterval = Math.max(1, Math.floor(data.length / 12))
+  const tickInterval = Math.max(1, Math.floor(data.length / 6))
 
   return (
     <div className="space-y-6">
@@ -94,14 +94,14 @@ export default function MiHistoryChart({ data }: Props) {
           <ComposedChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 9, fill: 'var(--muted)' }}
+              tick={{ fontSize: 12, fill: 'var(--muted)' }}
               interval={tickInterval}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={[-50, 50]}
-              tick={{ fontSize: 9, fill: 'var(--muted)' }}
+              tick={{ fontSize: 12, fill: 'var(--muted)' }}
               axisLine={false}
               tickLine={false}
             />
@@ -119,7 +119,7 @@ export default function MiHistoryChart({ data }: Props) {
             <Line dataKey="composite_score" name="Global" stroke="#ffffff" strokeWidth={2} dot={false} />
 
             <Legend
-              wrapperStyle={{ fontSize: '9px', color: 'var(--muted)', paddingTop: '8px' }}
+              wrapperStyle={{ fontSize: '12px', color: 'var(--muted)', paddingTop: '8px' }}
               iconSize={6}
             />
           </ComposedChart>
@@ -134,7 +134,7 @@ export default function MiHistoryChart({ data }: Props) {
           { label: 'News',      weight: '5%', color: PILLAR_COLORS.news_score },
           { label: 'Macro',     weight: '25%', color: PILLAR_COLORS.macro_score },
         ].map(p => (
-          <div key={p.label} className="rounded border border-border py-1.5 px-1">
+          <div key={p.label} className="rounded-md border border-border py-1.5 px-1">
             <p style={{ color: p.color }} className="font-semibold">{p.weight}</p>
             <p className="text-muted mt-0.5 text-xs">{p.label}</p>
           </div>

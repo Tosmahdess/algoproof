@@ -6,10 +6,7 @@
 // No `revalidate` export on purpose: reading `searchParams` makes this route
 // dynamic, so a shared filtered URL renders its filtered content on first paint.
 // The data calls are cached in src/lib/queries.ts (unstable_cache, 30 min).
-import TermPopover from '@/components/TermPopover'
-import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBots, getRecentTrades } from '@/lib/queries'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { parseFleetFilters } from '@/lib/bot-filters'
@@ -58,7 +55,7 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
   const f = fresh(minutes)
 
   return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-12">
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12">
       <JsonLd data={faqJsonLd([
         { question: 'Les résultats sont-ils réels ?', answer: 'Oui. Les bots tournent en continu et chaque trade est enregistré automatiquement, gains comme pertes. Les chiffres sont mis à jour toutes les heures.' },
         { question: 'Qu\'est-ce que le profit factor ?', answer: 'C\'est le rapport entre l\'argent gagné et l\'argent perdu. Un PF de 1,5 signifie 1,50 € gagné pour 1 € perdu.' },
@@ -80,13 +77,6 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
         minutes={minutes}
       />
 
-      <p className="text-xs text-muted max-w-[70ch] mt-10 leading-relaxed">
-        Comment lire : le <TermPopover id="profit-factor">PF</TermPopover> (profit factor) mesure
-        les gains divisés par les pertes, au-dessus de 1 la stratégie gagne. Le{' '}
-        <TermPopover id="win-rate">WR</TermPopover> (win rate) est la part de trades gagnants, le{' '}
-        <TermPopover id="drawdown">DD</TermPopover> (drawdown) la pire baisse depuis un sommet. Plus de définitions
-        dans le <Link href="/lexique" className={linkClass('inline')}>lexique</Link>.
-      </p>
     </main>
   )
 }

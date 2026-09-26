@@ -105,7 +105,7 @@ describe('FleetOverview — the sections, in order', () => {
   it('folds the journal and the curves; the curves carry the live bots and one simulation series', () => {
     renderFleet()
     const journal = screen.getByTestId('fleet-journal')
-    expect(within(journal).getByRole('button', { name: /Le journal des jours/ }).getAttribute('aria-expanded')).toBe('false')
+    expect(within(journal).getByRole('button', { name: /Jour par jour/ }).getAttribute('aria-expanded')).toBe('false')
     const curves = screen.getByTestId('fleet-equity-curves')
     expect(within(curves).getByRole('button', { name: /Courbes 30 jours/ }).getAttribute('aria-expanded')).toBe('false')
     const drawn = curveProps.at(-1)!.bots

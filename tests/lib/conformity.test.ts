@@ -84,7 +84,8 @@ describe('assessConformity', () => {
     expect(dd?.expected).toContain('15')
     expect(dd?.realized).toContain('5')
     const pf = r.checks.find(c => c.label.toLowerCase().includes('rentabilit'))
-    expect(pf?.expected).toContain('1.2')
-    expect(pf?.realized).toContain('1.5')
+    // French figures, like every other number on the site (counter-audit 2026-09-26, S7).
+    expect(pf?.expected).toContain('1,2')
+    expect(pf?.realized).toContain('1,5')
   })
 })

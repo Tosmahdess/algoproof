@@ -18,14 +18,14 @@ export default function SearchInput({ value, onChange, placeholder = 'Rechercher
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
+          className="w-full h-10 rounded-md border border-border bg-card pl-3 pr-12 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
         />
         {value && (
           <button
             type="button"
             aria-label="Effacer la recherche"
             onClick={() => onChange('')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
+            className="absolute min-h-10 min-w-10 right-0 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
           >
             ×
           </button>

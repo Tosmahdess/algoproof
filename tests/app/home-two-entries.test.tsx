@@ -234,17 +234,20 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
   it('the funnel counts configurations the way the cockpit does, and no bot', async () => {
     render(await HomePage())
     const funnel = screen.getByTestId('home-funnel')
-    for (const label of ['Configurations balayées', 'Jugées au gantelet', 'Leurs verdicts', 'Candidates']) {
-      expect(within(funnel).getByText(label), label).toBeTruthy()
-    }
-    expect(funnel.textContent!.replace(/\s/g, ' ')).toMatch(/330 000 recalées · 93 %/) // floor(100 * 330000 / 351359) = 93
+    const text = funnel.textContent!.replace(/\s/g, ' ')
+    // Since 2026-09-26 the verdicts are counts, not truncated shares (Astra's proposal).
+    expect(text).toMatch(/balayées/)
+    expect(text).toMatch(/Sur 351 359 configurations jugées/)
+    expect(text).toMatch(/Recalées\s*330 000/)
     expect(funnel.textContent).not.toMatch(/bots? en service/i)
   })
 
   // Cockpit spec §9.3, carried over: « 713 » alone reads as 713 winners.
   it('the candidate count never renders without its denominator', async () => {
     render(await HomePage())
-    expect(screen.getByTestId('home-funnel').textContent).toMatch(/1 sur 500 jugées/)
+    const text = screen.getByTestId('home-funnel').textContent!.replace(/\s/g, ' ')
+    expect(text).toMatch(/≈ 1 sur 500/)
+    expect(text).toMatch(/configurations jugées devient candidate/)
   })
 
   // Owner, 2026-09-24: no cimetière link on this band.

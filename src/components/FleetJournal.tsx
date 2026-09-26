@@ -15,8 +15,8 @@ export default function FleetJournal({ rows }: { rows: DayRow[] }) {
     <Repli
       id="journal"
       testId="fleet-journal"
-      titre="Le journal des jours"
-      resume={`${frNumber(rows.length, 0)} jours · trades et P&L par jour, argent réel et simulation séparés`}
+      titre="Jour par jour"
+      resume={`${frNumber(rows.length, 0)} jours de résultats : les trades et le P&L de chaque jour, argent réel et simulation séparés`}
       toujoursPliable
       className="bg-card border border-border rounded-lg p-5 sm:p-6"
       titreClassName="text-base font-semibold"

@@ -34,6 +34,9 @@ export interface FunnelCounts {
   n_no_go: number
   n_promoted: number
   n_live: number
+  /** Per strategy, from the same rows as the totals. Optional: callers and
+   *  fixtures that only need the totals may leave it out. */
+  by_base?: BaseSurvival[]
 }
 
 export interface VerdictCountRow {
@@ -132,6 +135,50 @@ export function verdictTotals(rows: VerdictCountRow[]): Omit<FunnelCounts, 'n_pr
 }
 
 
+/** One engine strategy (`base`), summed over its rungs. */
+export interface BaseSurvival {
+  base: string
+  judged: number
+  retained: number
+  /** The timeframes it was judged on, each once, shortest first (« H1 », « D1 »). */
+  timeframes: string[]
+}
+
+// Shortest horizon first; a timeframe not listed sorts last, by name.
+const TF_ORDER = ['M1', 'M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1', 'W1']
+const tfRank = (tf: string) => { const i = TF_ORDER.indexOf(tf); return i === -1 ? TF_ORDER.length : i }
+
+/** Below this many judged configurations a strategy's share retained is noise:
+ *  the ranking on the home leaves it out (the full list still shows it). */
+export const MIN_JUDGED_FOR_RANKING = 10_000
+
+/**
+ * The funnel, per strategy: which ones survive the gauntlet (counter-audit
+ * 2026-09-26 — the four bars said nothing the numbers did not).
+ *
+ * Same rows, same two rules as verdictTotals, in the same order: freshness first,
+ * then the newest generation per rung. A per-strategy sum computed any other way
+ * would disagree with the total printed beside it, the drift this file has
+ * already fixed twice. Sorted by share retained, highest first.
+ */
+export function survivalByBase(rows: VerdictCountRow[]): BaseSurvival[] {
+  const byBase = new Map<string, BaseSurvival>()
+  for (const r of selectNewestPerPair(rows.filter(judgedByCorrectedEngine))) {
+    const b = byBase.get(r.base) ?? { base: r.base, judged: 0, retained: 0, timeframes: [] }
+    b.judged += r.n_go + r.n_marginal + r.n_no_go
+    b.retained += r.n_go
+    if (!b.timeframes.includes(r.tf)) b.timeframes.push(r.tf)
+    byBase.set(r.base, b)
+  }
+  for (const b of byBase.values()) {
+    b.timeframes.sort((x, y) => tfRank(x) - tfRank(y) || x.localeCompare(y))
+  }
+  const share = (b: BaseSurvival) => (b.judged > 0 ? b.retained / b.judged : 0)
+  return [...byBase.values()]
+    .filter(b => b.judged > 0)
+    .sort((x, y) => share(y) - share(x) || y.judged - x.judged)
+}
+
 export async function getFunnelCounts(): Promise<FunnelCounts | null> {
   try {
     const [botCounts, verdictRows] = await Promise.all([
@@ -153,6 +200,7 @@ export async function getFunnelCounts(): Promise<FunnelCounts | null> {
     if (botCounts.error || !botCounts.data) return null
     return {
       ...verdictTotals(verdictRows),
+      by_base: survivalByBase(verdictRows),
       n_promoted: botCounts.data.n_promoted,
       n_live: botCounts.data.n_live,
     }

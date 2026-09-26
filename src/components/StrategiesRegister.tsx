@@ -80,23 +80,25 @@ export default function StrategiesRegister({ groups }: { groups: FicheGroup[] })
           </button>
         </div>
       ) : (
+        // Families stack full width; their cards pair up on a computer. Two families
+        // side by side left a 900 px hole under the shorter one (8 cards beside 3).
         visible.map(g => (
           <section key={g.family} data-testid={`family-${g.family}`} className="mb-10">
-            <h2 className="text-sm font-semibold mb-1">
+            <h2 className="text-xl font-semibold mb-1">
               {g.label}
               <span className="text-muted font-normal">
                 {` · ${g.fiches.length} stratégie${g.fiches.length > 1 ? 's' : ''} · ${botsOf(g)} bot${botsOf(g) > 1 ? 's' : ''}`}
               </span>
             </h2>
-            <p className="text-xs text-muted mb-4 max-w-2xl">{g.description}</p>
-            <ul className="space-y-2">
+            <p className="text-xs text-muted mb-4 max-w-[68ch]">{g.description}</p>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {g.fiches.map(f => (
-                <li key={f.slug}>
+                <li key={f.slug} className="min-w-0">
                   <Link
                     href={`/strategies/${f.slug}`}
-                    className={linkClass('card', 'bg-card p-4')}
+                    className={linkClass('card', 'bg-card p-4 h-full')}
                   >
-                    <div className="flex items-baseline justify-between gap-4">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <span className="text-base font-semibold group-hover:text-accent transition-colors">{f.title}</span>
                       {/* A state, not a figure: muted, no mono (lot 5, conception §5.3). */}
                       {f.botCount === 0

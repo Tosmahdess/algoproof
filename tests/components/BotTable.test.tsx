@@ -37,7 +37,7 @@ describe('BotTable', () => {
 
   it('gives a phone row its three metrics after the status and the figure', () => {
     const { container } = render(<BotTable bots={[withSpark]} showTf />)
-    const row = container.querySelector('.md\\:hidden a[href="/strategies/bot/' + withSpark.slug + '"]')!
+    const row = container.querySelector('.bot-table-mobile a[href="/strategies/bot/' + withSpark.slug + '"]')!
     // fmtDrawdown writes a narrow no-break space before %: compared on a plain space.
     const text = row.textContent!.replace(/\u202F/g, ' ')
     expect(text).toMatch(/40 trades/)

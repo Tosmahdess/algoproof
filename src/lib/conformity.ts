@@ -10,7 +10,7 @@
 // - Global status = worst check; 'insufficient' when < 20 trades and nothing worse.
 
 import type { BotExpectations } from './bot-expectations'
-import { LOW_SAMPLE_TRADES } from './display'
+import { LOW_SAMPLE_TRADES, frNumber, NARROW_NBSP } from './display'
 
 export type CheckStatus = 'ok' | 'watch' | 'breach'
 export type ConformityStatus = CheckStatus | 'insufficient'
@@ -38,7 +38,8 @@ const DD_BREACH_MULT = 1.25
 const DD_WATCH_MULT = 0.8
 
 function pct(x: number): string {
-  return `${(x * 100).toFixed(1).replace(/\.0$/, '')} %`
+  // French figures like the rest of the site (« 29,1 % », not « 29.1 % »).
+  return `${frNumber(x * 100, 1).replace(/,0$/, '')}${NARROW_NBSP}%`
 }
 
 export function assessConformity(exp: BotExpectations, stats: RealizedStats): ConformityResult {
@@ -64,8 +65,8 @@ export function assessConformity(exp: BotExpectations, stats: RealizedStats): Co
       : 'ok'
     checks.push({
       label: 'Rentabilité (facteur de profit)',
-      expected: `≥ ${exp.pfFloor}`,
-      realized: stats.profit_factor.toFixed(2),
+      expected: `≥ ${String(exp.pfFloor).replace('.', ',')}`,
+      realized: frNumber(stats.profit_factor, 2),
       status,
     })
   }

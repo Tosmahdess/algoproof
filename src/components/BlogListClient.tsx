@@ -56,7 +56,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
     .filter((a): a is ArticleMeta => a !== undefined)
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-12">
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Articles</h1>
       <p data-testid="blog-intro" className="text-base text-muted max-w-2xl mb-4">
         Ce que je fais, comment je le vérifie, et ce que ça donne, semaine après semaine.
@@ -67,7 +67,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
         Apprendre en pratique :{' '}
         <a href={labUrl('https://lab.algoproof.fr/apprendre', 'blog')} className={linkClass('inline')}>les tutoriels du labo</a>
         {' · '}
-        <a href="/strategies" className={linkClass('inline')}>les {STRATEGY_FICHES.length} stratégies expliquées</a>
+        <a href="/strategies" className={linkClass('inline')}>les {STRATEGY_FICHES.length}{' '}stratégies expliquées</a>
         {' · '}
         <a href={labUrl('https://lab.algoproof.fr/agents', 'blog')} className={linkClass('inline')}>le serveur MCP pour ton agent IA</a>
       </p>
@@ -81,9 +81,9 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
               <Link
                 key={a.slug}
                 href={`/blog/${a.slug}`}
-                className={linkClass('card', 'bg-card p-5')}
+                className={linkClass('card', 'bg-card p-4 sm:p-5 sm:row-span-2 sm:grid sm:grid-rows-subgrid sm:gap-y-1.5')}
               >
-                <h3 className="text-base font-semibold group-hover:text-accent transition-colors mb-1.5">{a.title}</h3>
+                <h3 className="text-base font-semibold group-hover:text-accent transition-colors mb-1.5 sm:mb-0">{a.title}</h3>
                 <p className="text-muted text-sm">{firstSentence(a.summary)}</p>
               </Link>
             ))}
@@ -107,7 +107,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
               onClick={() => setFilter(filter === cat ? null : cat)}
               className={PILL(filter === cat)}
             >
-              {meta.label} ({count})
+              {meta.label}{' '}({count})
             </button>
           )
         })}
@@ -146,8 +146,8 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
           </h2>
           <ul className="divide-y divide-border border-y border-border">
             {weeklyShown.map(a => (
-              <li key={a.slug} data-testid="weekly-row" className="flex items-baseline gap-4 py-2.5 text-sm">
-                <time dateTime={a.date} className="shrink-0 font-mono text-xs text-muted w-24">{mediumDate(a.date)}</time>
+              <li key={a.slug} data-testid="weekly-row" className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 py-2.5 text-sm">
+                <time dateTime={a.date} className="shrink-0 font-mono text-xs text-muted whitespace-nowrap sm:w-32">{mediumDate(a.date)}</time>
                 <Link href={`/blog/${a.slug}`} className={linkClass('record')}>{a.title}</Link>
               </li>
             ))}
@@ -158,7 +158,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
               onClick={() => setAllWeekly(true)}
               className="mt-3 inline-flex items-center h-10 px-3 text-sm rounded border border-border text-muted hover:text-foreground transition-colors"
             >
-              Afficher les {weeklyHidden} autres
+              Afficher les {weeklyHidden}{' '}autres
             </button>
           )}
         </section>

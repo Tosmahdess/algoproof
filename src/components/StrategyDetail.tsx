@@ -10,7 +10,7 @@ import AssetFilterSelect from '@/components/AssetFilterSelect'
 import AlsoLiveBadge from '@/components/AlsoLiveBadge'
 import { computeBotStats, countByDirection, filterTrades, type DirectionFilter } from '@/lib/stats'
 import { assetOptionsFromTrades } from '@/lib/asset'
-import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, frNumber } from '@/lib/display'
 
 /** Recent trades shown on a phone before « Voir les N derniers » (D057). */
 const TRADES_MOBILE = 5
@@ -120,8 +120,9 @@ export default function StrategyDetail({ bot }: Props) {
       </div>
 
       {/* Equity curve */}
-      <div className="bg-card border border-border rounded-lg p-6 mb-8">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
+        {/* Title and figures stack on a phone: sharing one row left the title 113 px (O-M2). */}
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
           <h2 className="text-xl font-semibold">
             Courbe d&apos;équité
             {!unfiltered && (
@@ -134,7 +135,7 @@ export default function StrategyDetail({ bot }: Props) {
             )}
           </h2>
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-muted">Départ : {startCapital}€</span>
+            <span className="text-muted whitespace-nowrap">Départ : {frNumber(startCapital, 0)}{' '}€</span>
             <span className={`font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
               {fmtEur(eur)} ({fmtPct(pct)})
             </span>
@@ -153,7 +154,7 @@ export default function StrategyDetail({ bot }: Props) {
       </div>
 
       {/* Recent trades */}
-      <div className="bg-card border border-border rounded-lg p-6 mb-8">
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
         <h2 className="text-xl font-semibold mb-3">
           Trades récents
           <span className="text-muted text-sm font-normal ml-2">

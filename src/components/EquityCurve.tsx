@@ -7,6 +7,8 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import ChartFrame from '@/components/ChartFrame'
+import { fmtEur, frNumber } from '@/lib/display'
+import { shortDate } from '@/lib/format-date'
 
 interface Props {
   data: PerfDaily[]
@@ -20,9 +22,9 @@ function CustomTooltip({ active, payload, label }: any) {
   return (
     <div className="bg-card border border-border rounded p-2 text-xs">
       <p className="text-muted mb-1">{label}</p>
-      <p className="text-foreground font-mono">€{d.capital.toFixed(2)}</p>
+      <p className="text-foreground font-mono">{frNumber(Number(d.capital), 2)} €</p>
       <p className={`font-mono ${pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
-        {pnl >= 0 ? '+' : ''}{pnl.toFixed(2)}
+        {fmtEur(pnl)}
       </p>
     </div>
   )
@@ -31,7 +33,8 @@ function CustomTooltip({ active, payload, label }: any) {
 export default function EquityCurve({ data, startCapital = 1000 }: Props) {
   const formatted = data.map(d => ({
     ...d,
-    date: d.date.slice(5),
+    // Site date format (« 29 avr. »), not the ISO « 04-29 » (counter-audit S7).
+    date: shortDate(d.date),
     capitalNum: Number(d.capital),
   }))
 
@@ -51,8 +54,8 @@ export default function EquityCurve({ data, startCapital = 1000 }: Props) {
               <stop offset="95%" stopColor={isPositive ? '#4ade80' : '#f87171'} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-          <YAxis domain={[min, max]} tick={{ fill: '#888', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `€${v.toFixed(0)}`} width={55} />
+          <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
+          <YAxis domain={[min, max]} tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
           <Tooltip content={<CustomTooltip />} />
           <ReferenceLine y={startCapital} stroke="#444" strokeDasharray="4 2" />
           <Area
