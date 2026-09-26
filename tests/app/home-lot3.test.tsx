@@ -169,19 +169,14 @@ describe('/ — method, transparency, articles, graveyard', () => {
     expect(within(screen.getByTestId('home-method')).getByRole('link', { name: /méthode complète/i }).getAttribute('href')).toBe('/strategies#comment-je-decide')
   })
 
-  it('publishes the ORB decision under its rule, and the market-weather measure that says no', async () => {
+  // Owner, 2026-09-26: the « Ce que je publie aussi quand ça ne marche pas » section
+  // leaves the home. The decision is still one click away: the losing bot's card
+  // keeps its « la décision » link to the sheet, where DecisionNote is published.
+  it('no longer carries the transparency section, and still links the ORB decision from its card', async () => {
     render(await HomePage())
-    const t = screen.getByTestId('home-transparency')
-    const decision = within(t).getByTestId('home-decision')
-    expect(decision.textContent).toMatch(/DD > 20 % ou PF < 1\.0/)
-    expect(decision.textContent).toMatch(/DD 29,1 %/)
-    expect(decision.textContent).toMatch(/PF 0,95/)
-    expect(decision.textContent).toMatch(/Le 25 septembre, je le garde/)
-    const weather = within(t).getByTestId('home-weather-measure')
-    expect(weather.textContent).toMatch(/137 jours/)
-    expect(weather.textContent).toMatch(/0 signal/)
-    expect(weather.textContent).toMatch(/409/)
-    expect(within(weather).getByRole('link').getAttribute('href')).toBe('/intelligence')
+    expect(screen.queryByTestId('home-transparency')).toBeNull()
+    const [orb] = within(screen.getByTestId('home-real')).getAllByTestId('home-bot-card')
+    expect(within(orb).getByRole('link', { name: /la décision/ }).getAttribute('href')).toBe('/strategies/bot/orb-bf25')
   })
 
   it('lists the three latest articles that are not a daily journal nor a weekly review', async () => {

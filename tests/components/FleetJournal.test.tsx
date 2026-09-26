@@ -18,7 +18,7 @@ describe('FleetJournal', () => {
   it('folds the day table under a title that counts the days', () => {
     render(<FleetJournal rows={rows} />)
     const section = screen.getByTestId('fleet-journal')
-    const toggle = within(section).getByRole('button', { name: /Le journal des jours/ })
+    const toggle = within(section).getByRole('button', { name: /Jour par jour/ })
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
     expect(toggle.textContent).toMatch(/9 jours/)
     // The table is in the document for search engines and print, hidden until opened.

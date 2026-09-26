@@ -25,7 +25,7 @@ import type { FleetBot } from '@/lib/types'
 import type { Family } from '@/lib/families'
 import { familyLabel } from '@/lib/families'
 import { linkClass } from '@/lib/link-roles'
-import { frNumber } from '@/lib/display'
+import { frNumber, LOW_SAMPLE_TRADES } from '@/lib/display'
 import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
@@ -157,7 +157,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           {rodage.length > 0 && (
             <details data-testid="fleet-rodage" className="bg-card border border-border rounded-lg">
               <summary className="cursor-pointer px-4 py-3 text-xs text-muted min-h-10">
-                {`En rodage · ${rodage.length} ${plural(rodage.length, 'bot', 'bots')} entre 1 et 19 trades : un taux de gain ou un facteur de profit ne veut encore rien dire ici.`}
+                {`En rodage · ${rodage.length} ${plural(rodage.length, 'bot', 'bots')} entre 1 et ${LOW_SAMPLE_TRADES - 1} trades : un taux de gain ou un facteur de profit ne veut encore rien dire ici.`}
               </summary>
               <div className="px-4 pb-4 pt-2">
                 <BotTable bots={rodage} showTf />

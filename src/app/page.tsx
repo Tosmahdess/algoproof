@@ -18,12 +18,10 @@ import TrackedLink from '@/components/TrackedLink'
 import EngineSummary from '@/components/home/EngineSummary'
 import FleetLine from '@/components/home/FleetLine'
 import MethodTiles from '@/components/home/MethodTiles'
-import Transparency from '@/components/home/Transparency'
 import HomeArticles from '@/components/home/HomeArticles'
 import { RealMoneyPanel, RealMoneyStrip } from '@/components/home/HomeRealMoney'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { getFunnelCounts } from '@/lib/funnel'
-import { getFleetImpact } from '@/lib/mi-fleet-impact'
 import { getArticles } from '@/lib/articles'
 import { listeInvestir } from '@/lib/investir'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
@@ -41,7 +39,7 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [allBots, funnel, impact] = await Promise.all([getAllBotsWithStats(), getFunnelCounts(), getFleetImpact()])
+  const [allBots, funnel] = await Promise.all([getAllBotsWithStats(), getFunnelCounts()])
   const bots = excludeArchived(allBots)
   const { live, paper } = splitCohorts(bots)
   // Longest history first: the same rule as the fleet (C7). The losing bot leads
@@ -151,8 +149,6 @@ export default async function HomePage() {
       </div>
 
       <MethodTiles />
-
-      <Transparency liveBots={liveByHistory} impact={impact} />
 
       <HomeArticles articles={articles} />
 
