@@ -62,13 +62,13 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
       {/* Pillar content */}
       {activePillar && (
         <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
-          <div className="px-6 py-5">
+          <div className="p-4 sm:p-5">
             <p className="text-xs font-semibold text-muted mb-3">
               En pratique
             </p>
             <p className="text-sm leading-relaxed">{activePillar.functional}</p>
           </div>
-          <div className="px-6 py-5 bg-card">
+          <div className="p-4 sm:p-5 bg-card">
             <p className="text-xs font-semibold text-muted mb-3">
               Technique
             </p>
@@ -79,7 +79,7 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
 
       {/* Changelog */}
       {active === 'changelog' && (
-        <div className="px-6 py-5">
+        <div className="p-4 sm:p-5">
           {/* The « Voir tout le journal Intelligence » link died with /journal (2026-08-08).
               The tab keeps the dated changes in place, where the reader already is. */}
           <ChangelogTab changelogs={changelogs} />

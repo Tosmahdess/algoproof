@@ -51,7 +51,7 @@ export default async function HomePage() {
   const articles = getArticles()
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-20 sm:pt-12">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
 
       {/* ---------- Hero: message on the left, proof on the right ---------- */}
       {/* `grid-cols-1` is not decoration: an implicit auto track is sized by the
@@ -80,7 +80,7 @@ export default async function HomePage() {
           {/* The two entries (D059/D060): not symmetrical, and that is the point.
               Left, a tool the visitor can run; right, readings I have done. */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div data-testid="entry-strategies" className="bg-card border border-border rounded-lg p-5 flex flex-col">
+            <div data-testid="entry-strategies" className="bg-card border border-border rounded-lg p-4 sm:p-5 flex flex-col">
               <h2 className="text-lg font-semibold mb-2">Les stratégies</h2>
               {/* « fragile, et pourquoi » is the word the lab's free diagnostic really
                   returns (globalVerdict), not an image: what a visitor without an
@@ -103,13 +103,13 @@ export default async function HomePage() {
                 {/* « Sans compte » lives here, not in the button: with the two
                     entries side by side the longer label wrapped its arrow alone
                     onto a second line at 1280 px. */}
-                <p className="mt-3 text-xs text-muted">
+                <p className="mt-3 text-xs text-muted md:min-h-[3lh]">
                   Sans compte. Un backtester, pas un broker. Rien à déposer, aucune clé à donner.
                 </p>
               </div>
             </div>
 
-            <div data-testid="entry-companies" className="bg-card border border-border rounded-lg p-5 flex flex-col">
+            <div data-testid="entry-companies" className="bg-card border border-border rounded-lg p-4 sm:p-5 flex flex-col">
               <h2 className="text-lg font-semibold mb-2">Les sociétés</h2>
               {/* D058: no page promises a grade or a verdict; this entry sends new
                   traffic to /investir, so it says it itself. */}
@@ -125,7 +125,7 @@ export default async function HomePage() {
                 <Link href="/investir#methode" className={linkClass('inline', 'block mt-3 text-sm')}>
                   Les sept contrôles, expliqués
                 </Link>
-                <p className="mt-3 text-xs text-muted">
+                <p className="mt-3 text-xs text-muted md:min-h-[3lh]">
                   Des lectures, pas des conseils. Aucune recommandation d&apos;achat ou de vente.
                 </p>
               </div>

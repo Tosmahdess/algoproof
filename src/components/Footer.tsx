@@ -53,7 +53,7 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border mt-24 py-12">
+    <footer className="border-t border-border mt-8 sm:mt-12 py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {SITEMAP.map(col => (

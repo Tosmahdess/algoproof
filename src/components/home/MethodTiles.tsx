@@ -19,9 +19,12 @@ export default function MethodTiles() {
       <h2 id="home-method-title" className="text-xl font-semibold mb-3">Comment un bot gagne le droit de tourner</h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {GAUNTLET_TRIALS.map((t, i) => (
-          <div key={t.name} data-testid="method-tile" className="bg-card border border-border rounded-lg p-4">
-            <p className="font-mono text-accent text-xs mb-1" aria-hidden="true">{i + 1}</p>
-            <h3 className="text-sm font-semibold mb-1">{t.name}</h3>
+          <div key={t.name} data-testid="method-tile" className="bg-card-2 border border-border rounded-md p-3 sm:row-span-2 sm:grid sm:grid-rows-subgrid sm:gap-y-1">
+            {/* Number inline with the title: on its own line it cost each tile 21 px (H-D4). */}
+            <div className="flex items-baseline gap-1.5 mb-1 sm:mb-0">
+              <span className="font-mono text-accent text-xs" aria-hidden="true">{i + 1}</span>
+              <h3 className="text-sm font-semibold">{t.name}</h3>
+            </div>
             <p className="text-xs text-muted leading-relaxed">{GLOSS[i]}</p>
           </div>
         ))}

@@ -111,13 +111,14 @@ export default async function IntelligencePage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12 space-y-12">
+    <>
       <JsonLd data={faqJsonLd([
         { question: 'C\'est quoi un régime de marché ?', answer: 'Une lecture d\'ensemble de l\'humeur du marché (calme, tendu ou en stress) calculée à partir de plusieurs signaux agrégés.' },
         { question: 'À quelle fréquence est-ce mis à jour ?', answer: 'Le rapport macro est régénéré chaque jour, et les signaux live plusieurs fois par heure.' },
         { question: 'Ça sert à quoi ?', answer: 'À savoir quand le contexte est porteur ou risqué, pour les bots comme pour les décisions d\'investissement.' },
       ])} />
 
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 space-y-12">
       {/* First screen: the state, its score, its freshness, and what it changes for the
           bots today. No prose before the first figure. */}
       <div>
@@ -134,7 +135,7 @@ export default async function IntelligencePage() {
         titre="Ce que la météo fait, et ne fait pas"
         toujoursPliable
         titreClassName="text-base font-semibold"
-        corpsClassName="mt-3 space-y-3 text-sm leading-relaxed max-w-2xl"
+        corpsClassName="mt-3 space-y-3 text-sm leading-relaxed max-w-[68ch]"
       >
         <p>
           Chaque jour, je résume l&apos;état du marché en un mot, calme, tendu ou stress, à partir de quatre piliers : sentiment, dérivés, actualités et macro. Les termes sont expliqués dans le <a href="/lexique" className={linkClass('inline')}>lexique</a>.
@@ -157,7 +158,7 @@ export default async function IntelligencePage() {
           <h2 className="text-xl font-semibold">Historique des scores</h2>
           <span className="text-xs text-muted">7 derniers jours · synchronisation toutes les 30 min</span>
         </div>
-        <div className="rounded border border-border bg-card px-6 py-5">
+        <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
           <MiHistoryChart data={miHistory} />
         </div>
         <p className="text-xs text-muted mt-2">
@@ -226,15 +227,15 @@ export default async function IntelligencePage() {
         corpsClassName="mt-4"
       >
         {reportContent ? (
-          <div className="rounded border border-border bg-card px-6 py-5 prose prose-sm prose-invert max-w-none
+          <div className="rounded-lg border border-border bg-card p-4 sm:p-5 prose prose-sm prose-invert max-w-none
             prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
-            prose-h2:text-sm prose-h2:font-medium prose-h2:text-muted prose-h2:mt-6 prose-h3:text-lg
+            prose-h2:text-xl prose-h2:font-semibold prose-h2:text-muted prose-h2:mt-6 prose-h3:text-lg
             prose-p:text-sm prose-p:text-foreground prose-p:leading-relaxed
             prose-strong:text-foreground prose-blockquote:border-border prose-blockquote:text-muted prose-blockquote:text-xs">
             {reportContent}
           </div>
         ) : (
-          <div className="rounded border border-dashed border-border px-6 py-8 text-center">
+          <div className="rounded-lg border border-dashed border-border p-4 sm:p-5 text-center">
             <p className="text-xs text-muted">Rapport non disponible : généré chaque jour à 9h UTC.</p>
           </div>
         )}
@@ -242,14 +243,15 @@ export default async function IntelligencePage() {
 
       {/* CTA: test météo on own strategy */}
       <section>
-        <a href={labUrl('https://lab.algoproof.fr/lab', 'intelligence')} className={linkClass('card', 'p-8 bg-card/40 text-center')}>
+        <a href={labUrl('https://lab.algoproof.fr/lab', 'intelligence')} className={linkClass('card', 'p-4 sm:p-5 bg-card/40 text-center')}>
           <h2 className="text-xl font-semibold mb-3 group-hover:text-accent transition-colors">Teste la météo sur ta stratégie</h2>
-          <p className="text-sm max-w-2xl mx-auto">
+          <p className="text-sm max-w-[68ch] mx-auto">
             Le labo rejoue mes règles réelles sur ton backtest, avec et sans la météo.
           </p>
           <span className="inline-block mt-4 text-sm text-muted group-hover:text-foreground">Ouvrir le labo →</span>
         </a>
       </section>
     </main>
+    </>
   )
 }

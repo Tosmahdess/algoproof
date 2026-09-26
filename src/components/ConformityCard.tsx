@@ -57,7 +57,7 @@ export default function ConformityCard({
       // ORB is in that state (final review 2026-09-19).
       ouvertParDefaut={result.status === 'breach'}
       titre="Conformité au backtest"
-      className="bg-card border border-border rounded-lg p-6 mb-8"
+      className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8"
       titreClassName="text-xl font-semibold"
       // Below sm the badge goes under the title: sharing the row left the
       // title 158 px at 390 px, « 📏 » alone on a line. Computer row unchanged.
@@ -95,8 +95,8 @@ export default function ConformityCard({
               {result.checks.map(check => (
                 <tr key={check.label} className="border-t border-border">
                   <td className="py-2 pr-4 text-muted">{check.label}</td>
-                  <td className="py-2 pr-4 font-mono">{check.expected}</td>
-                  <td className={`py-2 font-mono ${
+                  <td className="py-2 pr-4 font-mono whitespace-nowrap tabular-nums">{check.expected}</td>
+                  <td className={`py-2 font-mono whitespace-nowrap tabular-nums ${
                     check.status === 'breach' ? 'text-negative'
                     : check.status === 'watch' ? 'text-warning'
                     : 'text-positive'
@@ -121,7 +121,11 @@ export default function ConformityCard({
           const decision = expectations.decisions?.filter(d => d.rule === rule).at(-1)
           return (
             <li key={rule} className="text-sm leading-relaxed flex gap-2">
-              <span className="text-negative shrink-0">✕</span>
+              {/* A stated rule is not a failed rule: the cross only marks the rule a
+                  decision was published under, i.e. the one that was crossed (O-D2). */}
+              {decision
+                ? <span className="text-negative shrink-0" aria-label="règle franchie">✕</span>
+                : <span className="text-muted shrink-0" aria-hidden="true">•</span>}
               <span>
                 {rule}
                 {decision && <DecisionNote decision={decision} today={today} className="mt-1.5" />}

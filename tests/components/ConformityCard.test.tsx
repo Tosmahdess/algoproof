@@ -23,7 +23,7 @@ describe('ConformityCard', () => {
     render(<ConformityCard expectations={exp} stats={{ profit_factor: 1.5, max_drawdown: 0.05, total_trades: 40 }} />)
     expect(screen.getByText('Dans l’enveloppe')).toBeInTheDocument()
     expect(screen.getByText('Drawdown max')).toBeInTheDocument()
-    expect(screen.getByText('≥ 1.2')).toBeInTheDocument()
+    expect(screen.getByText('≥ 1,2')).toBeInTheDocument()
   })
 
   it('shows the breach pill when DD blows the envelope', () => {

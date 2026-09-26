@@ -13,7 +13,7 @@ function Bar({ className }: { className: string }) {
 
 export default function Loading() {
   return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-12" aria-busy="true">
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12" aria-busy="true">
       <header className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">La flotte</h1>
         <p className="text-sm sm:text-base text-muted mt-2 max-w-[60ch]">

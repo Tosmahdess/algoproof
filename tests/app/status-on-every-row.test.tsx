@@ -42,7 +42,7 @@ const EURO = /€/
 
 /** The rows of the mobile list (`md:hidden` container), one <a> per bot. */
 function mobileRows(container: HTMLElement): HTMLAnchorElement[] {
-  const lists = [...container.querySelectorAll('[class~="md:hidden"]')]
+  const lists = [...container.querySelectorAll('[class~="md:hidden"], .bot-table-mobile')]
   const rows = lists.flatMap(l => [...l.querySelectorAll<HTMLAnchorElement>('a[href^="/strategies/bot/"]')])
   // guard against a vacuous pass: the fleet above must actually be listed
   expect(rows.length).toBe(FLEET.length)

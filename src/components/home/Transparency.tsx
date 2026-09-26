@@ -17,7 +17,7 @@ function DecisionBlock({ bot }: { bot: BotWithStats }) {
   const rule = exp.killCriteria.find(r => r.startsWith('Hors enveloppe')) ?? exp.killCriteria[0]
   const decision = exp.decisions?.filter(d => d.rule === rule).at(-1)
   return (
-    <div data-testid="home-decision" className="bg-card border border-border rounded-lg p-5">
+    <div data-testid="home-decision" className="h-full bg-card border border-border rounded-lg p-4 sm:p-5">
       <div className="border-l-2 border-severe pl-3.5 grid gap-2.5 text-sm">
         <div>
           <p className="text-xs text-muted font-medium">Règle publiée, fixée le {mediumDate(exp.registeredAt)}</p>
@@ -42,7 +42,7 @@ function DecisionBlock({ bot }: { bot: BotWithStats }) {
 function WeatherMeasure({ impact }: { impact: FleetImpact }) {
   const better = impact.ddConstant > impact.ddBoth
   return (
-    <div data-testid="home-weather-measure" className="bg-card border border-border rounded-lg p-5">
+    <div data-testid="home-weather-measure" className="h-full bg-card border border-border rounded-lg p-4 sm:p-5">
       <div className="border-l-2 border-negative pl-3.5 text-sm leading-relaxed">
         <p className="text-xs text-muted font-medium mb-1">Ma météo du marché, mesurée sur {impact.windowDays} jours</p>
         <p>
@@ -66,9 +66,11 @@ export default function Transparency({ liveBots, impact }: { liveBots: BotWithSt
   return (
     <section data-testid="home-transparency" aria-labelledby="home-transparency-title" className="mb-12">
       <h2 id="home-transparency-title" className="text-xl font-semibold mb-3">Ce que je publie aussi quand ça ne marche pas</h2>
-      <div className="grid gap-4 lg:grid-cols-2">
-        {crossed && <DecisionBlock bot={crossed} />}
-        {impact && <WeatherMeasure impact={impact} />}
+      {/* 3/5 + 2/5: the decision carries three times the text of the weather measure;
+          in two equal columns the weather card stood half empty (counter-audit H-D5). */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+        {crossed && <div className="min-w-0 lg:col-span-3"><DecisionBlock bot={crossed} /></div>}
+        {impact && <div className={`min-w-0 ${crossed ? 'lg:col-span-2' : 'lg:col-span-5'}`}><WeatherMeasure impact={impact} /></div>}
       </div>
     </section>
   )

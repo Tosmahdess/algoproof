@@ -73,7 +73,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const conceptSlug = bot.origin === 'engine' && resolvedConcept === 'orb' ? null : resolvedConcept
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-16">
 
       {/* Analytics: view_bot on mount (client leaf, keeps the page server-rendered) */}
       <TrackView slug={slug} />
@@ -90,7 +90,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
               <summary className="cursor-pointer list-none inline-flex items-center min-h-10 hover:text-foreground">
                 {bot.assets.length} actifs ▾
               </summary>
-              <span className="block font-mono text-xs leading-relaxed max-w-2xl">{bot.assets.join(', ')}</span>
+              <span className="block font-mono text-xs leading-relaxed max-w-[68ch]">{bot.assets.join(', ')}</span>
             </details>
           ) : (
             <span>· {bot.assets.join(', ')}</span>
@@ -114,7 +114,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             </Link>
           </p>
         )}
-        <p className="text-sm text-muted mb-4 max-w-2xl">
+        <p className="text-sm text-muted mb-4 max-w-[68ch]">
           Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
           La plupart de mes bots sont en <TermPopover id="paper-trading">paper trading</TermPopover> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
         </p>
@@ -230,7 +230,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       )}
 
       {/* Bridge to the lab */}
-      <div className="bg-card border border-border rounded-lg p-6 mb-8 text-center">
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8 text-center">
         <p className="text-sm mb-3">
           Envie de tester une idée avec la même rigueur ? Le labo applique mes contrôles anti-overfit à tes propres backtests.
         </p>
@@ -245,7 +245,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Discussion */}
-      <div className="bg-card border border-border rounded-lg p-6 mb-8">
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
         <h2 className="text-xl font-semibold mb-3">Discussion</h2>
         <DiscussionTab slug={slug} />
       </div>
@@ -253,7 +253,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Partager — folded on every screen (D057): embed code, rarely used,
           262 px on a phone. A native <details>, not Repli: this one SHOULD
           have a toggle on a computer too. */}
-      <details className="bg-card border border-border rounded-lg p-6">
+      <details className="bg-card border border-border rounded-lg p-4 sm:p-5">
         <summary className="cursor-pointer">
           <h2 className="inline text-xl font-semibold">Partager ce bot</h2>
         </summary>

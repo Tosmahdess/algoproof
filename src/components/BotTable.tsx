@@ -23,16 +23,16 @@ interface BotTableProps {
 export default function BotTable({ bots, showTf }: BotTableProps) {
   const withSpark = bots.some(b => (b.spark30?.length ?? 0) >= 2)
   return (
-    <>
+    <div className="bot-table min-w-0">
       {/* Phone: one row per bot, the regime word before the figure (audit 2026-09-09). */}
-      <div className="md:hidden rounded-lg border border-border overflow-hidden divide-y divide-border mb-6">
+      <div className="bot-table-mobile rounded-lg border border-border overflow-hidden divide-y divide-border mb-6">
         {bots.map(bot => {
           const hasData = bot.stats.total_trades > 0
           const pct     = pnlPct(bot.stats.latest_capital, bot.start_capital)
           return (
             <Link key={bot.id} href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'flex flex-col gap-1 px-4 py-3 min-h-10')}>
-              <span className="flex items-center gap-2">
-                <span className="min-w-0 flex-1 text-sm leading-snug line-clamp-2">{bot.name}</span>
+              <span className="text-sm leading-snug">{bot.name}</span>
+              <span className="flex items-center justify-between gap-2">
                 <StatusBadge status={bot.status} />
                 {hasData
                   ? <span className={`shrink-0 font-mono text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
@@ -53,7 +53,7 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
       </div>
 
       {/* Desktop: the full table */}
-      <div className="hidden md:block rounded-lg border border-border overflow-hidden mb-6">
+      <div className="bot-table-desktop rounded-lg border border-border overflow-x-auto mb-6">
         <table className="w-full text-xs">
           <thead className="bg-card">
             <tr className="text-xs font-semibold uppercase tracking-wider text-muted border-b border-border">
@@ -134,6 +134,6 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   )
 }

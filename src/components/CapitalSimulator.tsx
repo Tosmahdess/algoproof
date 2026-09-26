@@ -31,7 +31,7 @@ export default function CapitalSimulator({
   if (!result) return null
 
   return (
-    <section className="bg-card border border-border rounded-lg p-6 mb-8">
+    <section className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
       <h2 className="text-xl font-semibold mb-3">Et sur mon capital ?</h2>
       <p className="text-xs text-muted mb-4">
         Le même historique observé ({result.firstDate} → {result.lastDate}), relu à l’échelle
@@ -44,7 +44,7 @@ export default function CapitalSimulator({
           <button
             key={preset}
             onClick={() => setCapital(preset)}
-            className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
+            className={`min-h-10 px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
               capital === preset
                 ? 'bg-accent/10 text-accent border-accent/40'
                 : 'border-border text-muted hover:text-foreground'

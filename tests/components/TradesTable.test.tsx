@@ -13,16 +13,17 @@ const trades: Trade[] = [
 describe('TradesTable', () => {
   it('renders asset names', () => {
     render(<TradesTable trades={trades} />)
-    expect(screen.getByText('BTC/USDT')).toBeInTheDocument()
-    expect(screen.getByText('SOL/USDT')).toBeInTheDocument()
+    // Each trade renders twice: the phone list and the table from sm up.
+    expect(screen.getAllByText('BTC/USDT')).toHaveLength(2)
+    expect(screen.getAllByText('SOL/USDT')).toHaveLength(2)
   })
   it('renders positive pnl with + prefix', () => {
     render(<TradesTable trades={trades} />)
-    expect(screen.getByText('+23.40')).toBeInTheDocument()
+    expect(screen.getAllByText(/^\+23,40\s€$/)).toHaveLength(2)
   })
   it('renders negative pnl with - prefix', () => {
     render(<TradesTable trades={trades} />)
-    expect(screen.getByText('-8.20')).toBeInTheDocument()
+    expect(screen.getAllByText(/^−8,20\s€$/)).toHaveLength(2)
   })
   it('shows empty state when no trades', () => {
     render(<TradesTable trades={[]} />)
@@ -39,15 +40,19 @@ describe('TradesTable phone limit', () => {
 
   it('hides rows past the phone limit below sm only', () => {
     render(<TradesTable trades={many} limiteMobile={5} />)
+    // The limit lives on the phone list; the table (sm and up) shows every row.
+    const items = [...screen.getByTestId('trades-list-mobile').querySelectorAll('li')]
+    expect(items).toHaveLength(8)
+    items.slice(0, 5).forEach(li => expect(li.className.split(/\s+/)).not.toContain('hidden'))
+    items.slice(5).forEach(li => expect(li.className.split(/\s+/)).toContain('hidden'))
     const rows = screen.getAllByRole('row').slice(1)   // skip the header row
     expect(rows).toHaveLength(8)
-    rows.slice(0, 5).forEach(r => expect(r.className).not.toContain('max-sm:hidden'))
-    rows.slice(5).forEach(r => expect(r.className).toContain('max-sm:hidden'))
     rows.forEach(r => expect(r.className.split(/\s+/)).not.toContain('hidden'))
   })
 
   it('hides nothing without a limit', () => {
     render(<TradesTable trades={many} />)
-    screen.getAllByRole('row').slice(1).forEach(r => expect(r.className).not.toContain('max-sm:hidden'))
+    const items = [...screen.getByTestId('trades-list-mobile').querySelectorAll('li')]
+    items.forEach(li => expect(li.className.split(/\s+/)).not.toContain('hidden'))
   })
 })
