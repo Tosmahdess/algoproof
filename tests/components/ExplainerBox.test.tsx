@@ -51,22 +51,16 @@ describe('ExplainerBox', () => {
 // whole surface back. There is no prop that can produce it now, and this asserts the absence.
 describe('ExplainerBox — no changelog tab', () => {
   it('never renders an Historique tab', () => {
-    render(<ExplainerBox functional="F" technical="T" discussionSlug="v1-spot" />)
+    render(<ExplainerBox functional="F" technical="T" />)
     expect(screen.queryByRole('button', { name: /historique/i })).toBeNull()
   })
 })
 
-// Tests for the optional Discussion tab
-describe('ExplainerBox — Discussion tab', () => {
-  it('does not render Discussion tab when discussionSlug is absent', () => {
+// The Discussion tab went with the public comments on 2026-09-26 (bot sheets carry a
+// private question form). No prop can bring it back; this asserts the absence.
+describe('ExplainerBox — no discussion tab', () => {
+  it('never renders a Discussion tab', () => {
     render(<ExplainerBox functional="F" technical="T" />)
     expect(screen.queryByRole('button', { name: /discussion/i })).toBeNull()
-  })
-
-  it('renders Discussion tab button when discussionSlug is provided', () => {
-    // DiscussionTab calls fetch on mount — mock it
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => [] }))
-    render(<ExplainerBox functional="F" technical="T" discussionSlug="v1-spot" />)
-    expect(screen.getByRole('button', { name: /discussion/i })).toBeDefined()
   })
 })

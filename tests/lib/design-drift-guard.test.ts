@@ -92,7 +92,7 @@ const RULES: Rule[] = [
   {
     re: /[\u{1F300}-\u{1FAFF}\u{2705}\u{274C}\u{2714}\u{2728}\u{2B50}]/u, why: 'emoji — the site has no icons',
     sample: '<h2>💬 Discussion</h2>',
-    allow: ['app/api/comments/route.ts', 'app/api/subscribe/route.ts'], // Telegram notifications to the owner, not the site
+    allow: ['app/api/subscribe/route.ts'], // Telegram notifications to the owner, not the site
   },
 ]
 

@@ -1,19 +1,19 @@
 'use client'
 
 import { useState, ReactNode } from 'react'
-import DiscussionTab from './DiscussionTab'
 
 // The « 📋 Historique » tab was removed on 2026-08-08 along with the public /journal page: a
 // visitor judging a bot does not read its change log, and this was the last surface feeding it.
 // ChangelogTab itself still exists — /intelligence mounts it directly for the MI pillars.
+// The « Discussion » tab went on 2026-09-26 with the public comments: no caller passed it,
+// and bot sheets now carry a private question form (BotQuestionForm).
 interface ExplainerBoxProps {
   functional:      ReactNode
   technical:       ReactNode
   stacked?:        boolean
-  discussionSlug?: string
 }
 
-type Tab = 'functional' | 'technical' | 'discussion'
+type Tab = 'functional' | 'technical'
 
 const BODY_TEXT = 'text-sm leading-relaxed'
 
@@ -28,7 +28,6 @@ export default function ExplainerBox({
   functional,
   technical,
   stacked = false,
-  discussionSlug,
 }: ExplainerBoxProps) {
   const [active, setActive] = useState<Tab>('functional')
 
@@ -45,8 +44,6 @@ export default function ExplainerBox({
     )
   }
 
-  const showDiscussion = !!discussionSlug
-
   return (
     <div className="rounded border border-border overflow-hidden">
       <div className="flex border-b border-border bg-card">
@@ -56,11 +53,6 @@ export default function ExplainerBox({
         <button data-tab="technical" onClick={() => setActive('technical')} className={TAB_STYLE(active === 'technical')}>
           ⚙️ Technique
         </button>
-        {showDiscussion && (
-          <button data-tab="discussion" onClick={() => setActive('discussion')} className={TAB_STYLE(active === 'discussion')}>
-            Discussion
-          </button>
-        )}
       </div>
 
       <div className="px-6 py-5">
@@ -69,11 +61,6 @@ export default function ExplainerBox({
         )}
         {active === 'technical' && (
           <div data-section="technical" className={BODY_TEXT}>{technical}</div>
-        )}
-        {active === 'discussion' && showDiscussion && (
-          <div data-section="discussion" className={BODY_TEXT}>
-            <DiscussionTab slug={discussionSlug!} />
-          </div>
         )}
       </div>
     </div>
