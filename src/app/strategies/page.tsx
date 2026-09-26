@@ -4,7 +4,7 @@ import { fichesByFamily } from '@/lib/strategy-library'
 import { familyLabel, familyDescription } from '@/lib/families'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
-import { excludeArchived, splitCohorts } from '@/lib/cohort'
+import { excludeArchived } from '@/lib/cohort'
 import { getFunnelCounts } from '@/lib/funnel'
 import EngineSummary from '@/components/home/EngineSummary'
 import EngineSurvival from '@/components/home/EngineSurvival'
@@ -33,7 +33,6 @@ export default async function StrategiesIndexPage() {
     getSearchSpace(),
     getFunnelCounts(),
   ])
-  const { live, paper } = splitCohorts(bots)
 
   // Serializable projection for the client register: the fiche objects carry
   // readonly tuples and functions live in the libs, so only what the rows
@@ -70,11 +69,12 @@ export default async function StrategiesIndexPage() {
           browses several fiches. Concept pages point at #comment-je-decide. */}
       {/* Lot 5 (conception §5.3): the engine first, the same blocks as the home, so
           the first figure of the page is the engine's, not a fiche count. Since the
-          counter-audit (2026-09-26) that is the unit chart, then who survives. */}
+          counter-audit (2026-09-26) that is the balance sheet, then what the
+          configurations become, strategy by strategy (no fleet line: the intro links it). */}
       <div className="mb-8">
         <EngineSummary counts={funnel} />
       </div>
-      <EngineSurvival counts={funnel} live={live.length} paper={paper.length} />
+      <EngineSurvival counts={funnel} />
 
       <GauntletExplainer space={searchSpace} />
 

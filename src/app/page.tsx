@@ -16,7 +16,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import TrackedLink from '@/components/TrackedLink'
 import EngineSummary from '@/components/home/EngineSummary'
-import EngineSurvival from '@/components/home/EngineSurvival'
+import FleetLine from '@/components/home/FleetLine'
 import MethodTiles from '@/components/home/MethodTiles'
 import Transparency from '@/components/home/Transparency'
 import HomeArticles from '@/components/home/HomeArticles'
@@ -133,9 +133,9 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* The engine's totals as a unit chart, under the two entries: on a computer
-              it fills the 226 px the left column ended above the three real-money
-              cards (counter-audit 2026-09-26); on a phone it follows the entries. */}
+          {/* The engine's balance sheet, under the two entries: on a computer it fills
+              the 226 px the left column ended above the three real-money cards
+              (counter-audit 2026-09-26); on a phone it follows the entries. */}
           <div className="mt-4">
             <EngineSummary counts={funnel} />
           </div>
@@ -144,7 +144,11 @@ export default async function HomePage() {
         {live.length > 0 && <RealMoneyPanel bots={liveByHistory} minutes={minutes} />}
       </section>
 
-      <EngineSurvival counts={funnel} live={live.length} paper={paper.length} />
+      {/* The one line that counts bots, beside the engine's balance sheet and outside
+          it (D059). The per-strategy detail lives on /strategies only (Astra, 26/09). */}
+      <div className="mb-12 -mt-4 sm:-mt-8 border-y border-border py-3">
+        <FleetLine live={live.length} paper={paper.length} />
+      </div>
 
       <MethodTiles />
 

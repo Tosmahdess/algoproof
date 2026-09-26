@@ -1,51 +1,26 @@
-// The engine in the hero, as a unit chart (counter-audit 2026-09-26).
+// The engine's balance sheet, in the hero (counter-audit 2026-09-26, proposal A of
+// Codex Astra, chosen by the owner over a unit chart and over a ranking).
 //
-// It replaces the funnel's four full-width bars: the owner found they said nothing
-// the numbers did not, and the hero's left column ended 226 px above the three
-// real-money cards beside it. One dot per judged configuration of the ratio, one
-// lit: « 1 sur 500 » that can be counted, no axis to read. The ratio is the one
-// the funnel always printed (heroRatio), not a new number.
+// It replaces the funnel's four full-width bars, which the owner found said nothing
+// the numbers did not, and it fills the 226 px the hero's left column ended above
+// the three real-money cards. Typographic on purpose: the ratio first, its
+// denominator beside it, the three verdicts as counts, and two plain sentences for
+// the words a first visitor does not know (configuration, candidate).
 //
 // Same rules as the funnel it replaces: configurations only, never a bot (D059,
-// the fleet line lives in EngineSurvival), and no cimetière link inside.
+// the fleet line is FleetLine, outside this block), no cimetière link inside, and
+// the swept corpus never called « rejected »: most of it was never judged.
+import Link from 'next/link'
 import type { FunnelCounts } from '@/lib/funnel'
 import { frNumber } from '@/lib/display'
 import { heroRatio } from '@/lib/hero-ratio'
-import { floorSharePct } from '@/lib/cockpit-share'
+import { linkClass } from '@/lib/link-roles'
 
 const n = (v: number) => frNumber(v, 0)
-
-// Past this many dots the grid stops being countable (and taller than the column);
-// the figures still say the ratio.
-const MAX_DOTS = 1000
-const COLUMNS = 25
-
-function UnitChart({ total }: { total: number }) {
-  return (
-    <div
-      data-testid="engine-unit-chart"
-      role="img"
-      aria-label={`1 sur ${n(total)} : un point par configuration jugée, un seul retenu`}
-      className="grid gap-[3px] w-max shrink-0"
-      style={{ gridTemplateColumns: `repeat(${COLUMNS}, 5px)` }}
-    >
-      {Array.from({ length: total }, (_, i) => (
-        <span
-          key={i}
-          data-dot={i === total - 1 ? 'lit' : 'off'}
-          className={`block h-[5px] w-[5px] rounded-full ${i === total - 1 ? 'bg-foreground scale-[1.8] ring-2 ring-foreground/25' : 'bg-border-strong'}`}
-        />
-      ))}
-    </div>
-  )
-}
 
 export default function EngineSummary({ counts }: { counts: FunnelCounts | null }) {
   if (!counts || counts.n_swept <= 0) return null
   const ratio = heroRatio(counts.n_go, counts.n_judged)
-  const judgedShare = floorSharePct(counts.n_judged, counts.n_swept)
-  const noGoShare = floorSharePct(counts.n_no_go, counts.n_judged)
-  const marginalShare = floorSharePct(counts.n_marginal, counts.n_judged)
 
   return (
     <section
@@ -53,35 +28,47 @@ export default function EngineSummary({ counts }: { counts: FunnelCounts | null 
       aria-labelledby="home-engine-title"
       className="bg-card border border-border rounded-lg p-4 sm:p-5"
     >
-      <h2 id="home-engine-title" className="text-sm font-semibold mb-3">Ce que mon moteur a jugé</h2>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-        {ratio !== null && ratio <= MAX_DOTS && <UnitChart total={ratio} />}
-        <dl className="grid gap-2 text-xs text-muted">
+      <h2 id="home-engine-title" className="text-sm font-semibold">Ce que je retiens après quatre épreuves</h2>
+      <p className="text-xs text-muted mt-0.5">
+        Sur{' '}<span className="font-mono text-foreground">{n(counts.n_judged)}</span>{' '}configurations jugées
+      </p>
+
+      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-8">
+        {ratio !== null && (
           <div>
-            <dt className="sr-only">Configurations balayées</dt>
-            <dd><span className="font-mono text-base text-foreground tabular-nums">{n(counts.n_swept)}</span>{' '}configurations balayées</dd>
+            <p className="font-mono text-3xl font-medium leading-none tabular-nums">≈ 1 sur {n(ratio)}</p>
+            <p className="text-xs text-muted mt-1.5">configurations jugées devient candidate</p>
           </div>
-          <div>
-            <dt className="sr-only">Jugées</dt>
-            <dd>
-              <span className="font-mono text-base text-foreground tabular-nums">{n(counts.n_judged)}</span>{' '}jugées par mes quatre contrôles
-              {judgedShare !== null && ` (${judgedShare} % des balayées)`}
-            </dd>
-          </div>
-          <div>
-            <dt className="sr-only">Candidates</dt>
-            <dd>
-              <span className="font-mono text-base text-foreground tabular-nums">{n(counts.n_go)}</span>{' '}candidates
-              {ratio !== null && <>, soit{' '}<b className="text-foreground font-medium">1 sur {n(ratio)}{' '}jugées</b></>}
-            </dd>
-          </div>
+        )}
+        <dl data-testid="funnel-verdicts" className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 text-sm sm:max-w-[16rem]">
+          <dt className="text-muted">Recalées</dt>
+          <dd className="font-mono tabular-nums text-right">{n(counts.n_no_go)}</dd>
+          <dt className="text-muted">En sursis</dt>
+          <dd className="font-mono tabular-nums text-right">{n(counts.n_marginal)}</dd>
+          <dt className="text-foreground">Candidates</dt>
+          <dd className="font-mono tabular-nums text-right text-foreground">{n(counts.n_go)}</dd>
         </dl>
       </div>
-      <p data-testid="funnel-verdicts" className="text-xs text-muted mt-3 leading-relaxed">
-        {n(counts.n_no_go)}{' '}recalées{noGoShare !== null && ` · ${noGoShare} %`}, {n(counts.n_marginal)}{' '}en sursis
-        {marginalShare !== null && ` · ${marginalShare} %`}. Une candidate n’est pas une gagnante : elle a gagné le droit
-        d’être surveillée en simulation.
+
+      <p className="text-xs text-muted mt-3 leading-relaxed">
+        Une configuration, c’est une stratégie avec des réglages précis. Une candidate peut être surveillée
+        en simulation, sans argent.
       </p>
+
+      <div className="mt-3 pt-2 border-t border-border flex flex-wrap items-start justify-between gap-x-4">
+        <details className="text-xs text-muted min-w-0">
+          <summary className="cursor-pointer min-h-10 flex items-center">
+            <span><span className="font-mono">{n(counts.n_swept)}</span>{' '}balayées · comprendre le périmètre</span>
+          </summary>
+          <p className="pb-2 max-w-[60ch] leading-relaxed">
+            Mon moteur a énuméré ces configurations.{' '}<span className="font-mono">{n(counts.n_judged)}</span>{' '}ont été
+            jugées par les quatre épreuves. Les autres n’ont pas de verdict de ces quatre épreuves.
+          </p>
+        </details>
+        <Link href="/strategies#comment-je-decide" className={linkClass('inline', 'text-xs min-h-10 inline-flex items-center')}>
+          Comment je décide →
+        </Link>
+      </div>
     </section>
   )
 }

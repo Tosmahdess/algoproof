@@ -34,6 +34,8 @@ describe('survivalByBase', () => {
     const byBase = survivalByBase(rows)
     const keltner = byBase.find(b => b.base === 'KeltnerBreak')!
     expect(keltner).toMatchObject({ judged: 20_000, retained: 100 })
+    // Its horizons, each once, shortest first.
+    expect(keltner.timeframes).toEqual(['H1', 'D1'])
     const ema = byBase.find(b => b.base === 'EMAcross')!
     expect(ema).toMatchObject({ judged: 20_000, retained: 4 })
     expect(byBase.find(b => b.base === 'FVG')).toBeUndefined()

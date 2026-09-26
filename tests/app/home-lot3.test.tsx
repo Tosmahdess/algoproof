@@ -121,33 +121,32 @@ describe('/ — the proof is in the first screen', () => {
   })
 })
 
-// Counter-audit 2026-09-26: the four bars became a unit chart in the hero (the
-// owner: the bars added nothing to the numbers). The numbers and their rules stay.
-describe('/ — the engine, as a unit chart in the hero', () => {
-  it('prints swept, judged and candidates, inside the hero, never a bot count', async () => {
+// Counter-audit 2026-09-26: the four bars became a typographic balance sheet in
+// the hero (Codex Astra's proposal, chosen by the owner). The numbers and their
+// rules stay: configurations only, the denominator always beside the ratio.
+describe('/ — the engine, as a balance sheet in the hero', () => {
+  it('sits inside the hero and counts configurations, never a bot', async () => {
     render(await HomePage())
     const engine = screen.getByTestId('home-funnel')
     expect(screen.getByTestId('home-hero').contains(engine)).toBe(true)
-    const text = engine.textContent!.replace(/\s/g, '')
-    expect(text).toMatch(/41333092configurationsbalayées/)
-    expect(text).toMatch(/3536candidates/)
+    const text = engine.textContent!.replace(/\s/g, ' ')
+    expect(text).toMatch(/Sur 1 754 244 configurations jugées/)
+    expect(text).toMatch(/41 333 092 balayées/)
     expect(engine.textContent).not.toMatch(/bots? en service|en argent réel/)
   })
 
-  it('draws one dot per judged configuration of the ratio, one lit, and no bar', async () => {
+  it('draws no bar and no dot', async () => {
     render(await HomePage())
-    const chart = screen.getByTestId('engine-unit-chart')
-    expect(chart.querySelectorAll('[data-dot="lit"]')).toHaveLength(1)
-    expect(chart.querySelectorAll('[data-dot]')).toHaveLength(500)
     expect(screen.queryAllByTestId('funnel-bar')).toHaveLength(0)
+    expect(screen.getByTestId('home-funnel').querySelector('[data-dot]')).toBeNull()
   })
 
-  it('splits the verdicts into recalées, en sursis and candidates with their share of the judged', async () => {
+  it('gives the three verdicts as counts', async () => {
     render(await HomePage())
-    const verdicts = screen.getByTestId('funnel-verdicts')
-    expect(verdicts.textContent).toMatch(/1 490 926 recalées · 84 %/)
-    expect(verdicts.textContent).toMatch(/259 782 en sursis · 14 %/)
-    expect(screen.getByTestId('home-funnel').textContent).toMatch(/3 536 candidates/)
+    const verdicts = screen.getByTestId('funnel-verdicts').textContent!.replace(/\s/g, ' ')
+    expect(verdicts).toMatch(/Recalées\s*1 490 926/)
+    expect(verdicts).toMatch(/En sursis\s*259 782/)
+    expect(verdicts).toMatch(/Candidates\s*3 536/)
   })
 
   it('writes the fleet beside the funnel, outside it (D059), as a total and its real-money part', async () => {

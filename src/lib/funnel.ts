@@ -140,7 +140,13 @@ export interface BaseSurvival {
   base: string
   judged: number
   retained: number
+  /** The timeframes it was judged on, each once, shortest first (« H1 », « D1 »). */
+  timeframes: string[]
 }
+
+// Shortest horizon first; a timeframe not listed sorts last, by name.
+const TF_ORDER = ['M1', 'M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1', 'W1']
+const tfRank = (tf: string) => { const i = TF_ORDER.indexOf(tf); return i === -1 ? TF_ORDER.length : i }
 
 /** Below this many judged configurations a strategy's share retained is noise:
  *  the ranking on the home leaves it out (the full list still shows it). */
@@ -158,10 +164,14 @@ export const MIN_JUDGED_FOR_RANKING = 10_000
 export function survivalByBase(rows: VerdictCountRow[]): BaseSurvival[] {
   const byBase = new Map<string, BaseSurvival>()
   for (const r of selectNewestPerPair(rows.filter(judgedByCorrectedEngine))) {
-    const b = byBase.get(r.base) ?? { base: r.base, judged: 0, retained: 0 }
+    const b = byBase.get(r.base) ?? { base: r.base, judged: 0, retained: 0, timeframes: [] }
     b.judged += r.n_go + r.n_marginal + r.n_no_go
     b.retained += r.n_go
+    if (!b.timeframes.includes(r.tf)) b.timeframes.push(r.tf)
     byBase.set(r.base, b)
+  }
+  for (const b of byBase.values()) {
+    b.timeframes.sort((x, y) => tfRank(x) - tfRank(y) || x.localeCompare(y))
   }
   const share = (b: BaseSurvival) => (b.judged > 0 ? b.retained / b.judged : 0)
   return [...byBase.values()]
