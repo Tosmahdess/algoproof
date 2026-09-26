@@ -15,7 +15,8 @@ import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import TrackedLink from '@/components/TrackedLink'
-import Funnel from '@/components/home/Funnel'
+import EngineSummary from '@/components/home/EngineSummary'
+import EngineSurvival from '@/components/home/EngineSurvival'
 import MethodTiles from '@/components/home/MethodTiles'
 import Transparency from '@/components/home/Transparency'
 import HomeArticles from '@/components/home/HomeArticles'
@@ -131,12 +132,19 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+
+          {/* The engine's totals as a unit chart, under the two entries: on a computer
+              it fills the 226 px the left column ended above the three real-money
+              cards (counter-audit 2026-09-26); on a phone it follows the entries. */}
+          <div className="mt-4">
+            <EngineSummary counts={funnel} />
+          </div>
         </div>
 
         {live.length > 0 && <RealMoneyPanel bots={liveByHistory} minutes={minutes} />}
       </section>
 
-      <Funnel counts={funnel} live={live.length} paper={paper.length} />
+      <EngineSurvival counts={funnel} live={live.length} paper={paper.length} />
 
       <MethodTiles />
 

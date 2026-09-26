@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { last30Capital, funnelWidths, minutesSince } from '@/lib/home-data'
+import { last30Capital, minutesSince } from '@/lib/home-data'
 
 describe('last30Capital', () => {
   const pts = Array.from({ length: 45 }, (_, i) => ({
@@ -13,19 +13,6 @@ describe('last30Capital', () => {
   })
   it('returns what there is when the history is shorter', () => {
     expect(last30Capital(pts.slice(0, 5) as never)).toEqual([1000, 1001, 1002, 1003, 1004])
-  })
-})
-
-describe('funnelWidths', () => {
-  it('scales on log10 of the count, the first step at 100 %', () => {
-    const w = funnelWidths([41333092, 1754244, 3536])
-    expect(w[0]).toBe(100)
-    expect(w[1]).toBeCloseTo(82, 0)
-    expect(w[2]).toBeCloseTo(47, 0)
-  })
-  it('never draws a bar under 2 % nor over 100 %', () => {
-    expect(funnelWidths([1000, 1])[1]).toBe(2)
-    expect(funnelWidths([5, 5])[1]).toBe(100)
   })
 })
 

@@ -234,8 +234,8 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
   it('the funnel counts configurations the way the cockpit does, and no bot', async () => {
     render(await HomePage())
     const funnel = screen.getByTestId('home-funnel')
-    for (const label of ['Configurations balayées', 'Jugées au gantelet', 'Leurs verdicts', 'Candidates']) {
-      expect(within(funnel).getByText(label), label).toBeTruthy()
+    for (const label of [/configurations balayées/, /jugées par mes quatre contrôles/, /candidates/]) {
+      expect(funnel.textContent, String(label)).toMatch(label)
     }
     expect(funnel.textContent!.replace(/\s/g, ' ')).toMatch(/330 000 recalées · 93 %/) // floor(100 * 330000 / 351359) = 93
     expect(funnel.textContent).not.toMatch(/bots? en service/i)
