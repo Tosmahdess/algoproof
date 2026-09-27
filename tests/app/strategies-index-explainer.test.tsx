@@ -71,7 +71,7 @@ describe('/strategies — the explainer folds on a phone, never on a computer', 
     expect(bouton.getAttribute('aria-expanded')).toBe('false')
     expect(bouton.className).toContain('sm:hidden')
     // The folded card still says what the method admits it cannot prove.
-    expect(bouton.textContent).toContain('la limite que j’écris noir sur blanc')
+    expect(bouton.textContent).toContain('les limites de ces tests')
   })
 
   it('keeps the anchor the concept pages aim at, on the heading the fold reads', async () => {
@@ -99,7 +99,7 @@ describe('/strategies — the explainer folds on a phone, never on a computer', 
   it('sets the honesty paragraphs at body size, and the method at a reading measure (max-w-2xl: max-w-prose cost 307 px on a computer)', async () => {
     bots.current = []
     render(await StrategiesIndexPage())
-    const honnete = screen.getByText(/^Reste une limite que je préfère écrire/)
+    const honnete = screen.getByText(/^Après autant d’essais/)
     expect(honnete.className).toContain('text-sm')
     expect(honnete.className).not.toContain('text-xs')
     expect(honnete.closest('[id="comment-je-decide-corps"]')!.className).toContain('max-w-2xl')

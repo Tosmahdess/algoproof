@@ -35,7 +35,7 @@ export default function PathToRealCard({ status, stats, liveGate }: Props) {
       <div className="flex items-center gap-3 mb-5">
         <div>
           <p className="font-semibold text-sm">Avant le moindre euro réel</p>
-          <p className="text-xs text-muted">Le même gate que tous mes bots : 4 critères, publics, non négociables.</p>
+          <p className="text-xs text-muted">Avant le passage en argent réel, je demande à chaque bot de remplir ces 4 critères publics et obligatoires.</p>
         </div>
       </div>
       <div className="space-y-4">

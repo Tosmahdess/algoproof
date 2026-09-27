@@ -37,7 +37,7 @@ export default function EngineSummary({ counts }: { counts: FunnelCounts | null 
         {ratio !== null && (
           <div>
             <p className="font-mono text-3xl font-medium leading-none tabular-nums">≈ 1 sur {n(ratio)}</p>
-            <p className="text-xs text-muted mt-1.5">configurations jugées devient candidate</p>
+            <p className="text-xs text-muted mt-1.5">configuration retenue comme candidate, parmi celles qui ont été jugées</p>
           </div>
         )}
         <dl data-testid="funnel-verdicts" className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 text-sm sm:max-w-[16rem]">
@@ -58,11 +58,11 @@ export default function EngineSummary({ counts }: { counts: FunnelCounts | null 
       <div className="mt-3 pt-2 border-t border-border flex flex-wrap items-start justify-between gap-x-4">
         <details className="text-xs text-muted min-w-0">
           <summary className="cursor-pointer min-h-10 flex items-center">
-            <span><span className="font-mono">{n(counts.n_swept)}</span>{' '}balayées · comprendre le périmètre</span>
+            <span><span className="font-mono">{n(counts.n_swept)}</span>{' '}configurations recensées · lesquelles ont été jugées ?</span>
           </summary>
           <p className="pb-2 max-w-[60ch] leading-relaxed">
-            Mon moteur a énuméré ces configurations.{' '}<span className="font-mono">{n(counts.n_judged)}</span>{' '}ont été
-            jugées par les quatre épreuves. Les autres n’ont pas de verdict de ces quatre épreuves.
+            Mon moteur a recensé ces configurations.{' '}<span className="font-mono">{n(counts.n_judged)}</span>{' '}ont été
+            jugées par les quatre épreuves. Les autres n’ont pas de verdict à ces épreuves.
           </p>
         </details>
         <Link href="/strategies#comment-je-decide" className={linkClass('inline', 'text-xs min-h-10 inline-flex items-center')}>

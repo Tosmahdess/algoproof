@@ -90,9 +90,9 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
         </table>
       </div>
       <p className="text-xs text-muted mt-4">
-        Tous bots confondus, argent réel et laboratoire mélangés dans la liste
-        mais jamais dans un total. Les bots de portage, qui tournent des dizaines
-        de fois par jour, sont exclus de ce flux pour ne pas le noyer.
+        La liste rassemble les trades en argent réel et en simulation ; leurs totaux restent séparés.
+        J’en exclus les bots de portage, qui tournent des dizaines de fois par jour,
+        pour que tu puisses aussi suivre les autres.
       </p>
     </section>
   )

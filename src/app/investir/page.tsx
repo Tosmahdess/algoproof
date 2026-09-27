@@ -55,9 +55,9 @@ export default function InvestirPage() {
             et je te dis ce que j’y trouve.
           </h1>
           <p className="text-sm text-muted max-w-[68ch] leading-relaxed">
-            Sept contrôles, lus dans un seul rapport annuel déposé auprès du régulateur
-            américain, et pas de mot au bout : chaque contrôle nomme le fait qui l’alerte.
-            La méthode et ses limites sont sous la liste.
+            Je fais sept contrôles à partir d’un seul rapport annuel déposé auprès du régulateur
+            américain. Chaque alerte indique le fait qui l’a déclenchée. Je ne donne pas de verdict global sur la société.
+            Tu trouveras la méthode et ses limites sous la liste.
           </p>
           <p className="text-sm max-w-[68ch] leading-relaxed mt-3">
             Ce n’est pas un conseil d’achat : je ne lis aucun cours de bourse, donc rien
@@ -83,7 +83,7 @@ export default function InvestirPage() {
         >
           {([
             ['Sociétés lues', frNumber(lignes.length, 0)],
-            ['Contrôles lus par fiche, en médiane', `${medianeLus} sur 7`],
+            ['Contrôles possibles par fiche, en médiane', `${medianeLus} sur 7`],
             ['Fiches portant au moins une alerte', frNumber(avecAlerte, 0)],
           ] as const).map(([label, valeur]) => (
             <div key={label} className="rounded-lg border border-border bg-card px-4 py-2 lg:py-3 flex items-baseline gap-3 sm:block">
@@ -175,9 +175,9 @@ export default function InvestirPage() {
                 fiche avec une alerte sur sept. Elle est moins lue, c’est tout.
               </p>
               <p>
-                Il n’y a pas de mot au bout : je ne classe pas une société en « solide »
-                ou « fragile », je te donne les faits et le compte de ce que j’ai pu lire.
-                Ouvre le même document, tu refais mes contrôles en dix minutes.
+                Je ne classe pas une société en « solide » ou « fragile ». Je te donne les faits
+                et le nombre de contrôles que les données ont permis de faire.
+                Avec le même document, tu peux refaire mes contrôles en dix minutes.
               </p>
               <p>
                 Un point que je préfère dire ici plutôt que le laisser découvrir. Un
@@ -229,7 +229,7 @@ export default function InvestirPage() {
           Il n’y a pas non plus de partie « momentum », alors qu’elle existe sur mes
           anciennes analyses. Elle est entièrement faite de cours de bourse, et je n’ai pas
           aujourd’hui de source de cours que j’aie le droit d’afficher publiquement. Je
-          préfère un trou nommé à un chiffre dont je ne peux pas répondre.
+          ne la publie donc pas.
         </p>
         {/* Ce paragraphe finissait sur « Mes analyses long terme et mon
             allocation », un lien vers /wealth. /wealth est supprimée depuis le

@@ -85,7 +85,7 @@ describe('/preuve', () => {
   it('anchors its three sections, and /a-propos lands on the free/paid one', () => {
     for (const id of ['validation', 'pertes', 'gratuit']) expect(page()).toContain(`id="${id}"`)
     expect(read('src/app/a-propos/page.tsx'))
-      .toMatch(/href="\/preuve#gratuit"[^>]*>Où passera la ligne, en détail/)
+      .toMatch(/href="\/preuve#gratuit"[^>]*>Ce qui est gratuit et ce qui est payant/)
   })
 
   it('states one rule for every bot, the engine trials on top (author, 2026-09-19)', () => {

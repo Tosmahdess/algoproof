@@ -15,7 +15,7 @@ import { assessConformity, ConformityStatus, RealizedStats } from '@/lib/conform
 
 const STATUS_CONFIG: Record<ConformityStatus, { label: string; classes: string; dot: string }> = {
   ok: {
-    label: 'Dans l’enveloppe',
+    label: 'Dans les limites attendues',
     classes: 'bg-positive/10 text-positive border-positive/30',
     dot: 'bg-positive',
   },
@@ -25,7 +25,7 @@ const STATUS_CONFIG: Record<ConformityStatus, { label: string; classes: string; 
     dot: 'bg-warning',
   },
   breach: {
-    label: 'Hors enveloppe',
+    label: 'Limites dépassées',
     classes: 'bg-negative/10 text-negative border-negative/30',
     dot: 'bg-negative',
   },
@@ -56,7 +56,7 @@ export default function ConformityCard({
       // règle concernée ») or admits no decision: the rules must be in view.
       // ORB is in that state (final review 2026-09-19).
       ouvertParDefaut={result.status === 'breach'}
-      titre="Conformité au backtest"
+      titre="Le bot respecte-t-il les limites du backtest ?"
       className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8"
       titreClassName="text-xl font-semibold"
       // Below sm the badge goes under the title: sharing the row left the
@@ -71,9 +71,8 @@ export default function ConformityCard({
       entete={
         <>
           <p className="text-xs text-muted mb-4">
-            L’enveloppe attendue vient du backtest et de critères fixés à l’avance ; le réalisé
-            (paper ou live) y est confronté en continu. Si les deux divergent, c’est écrit ici,
-            pas caché.
+            Je compare en continu les résultats du bot, en simulation ou en argent réel, aux limites
+            du backtest et aux critères que j’ai fixés à l’avance. Les écarts apparaissent ici.
           </p>
           <p className="text-sm max-sm:mb-0 mb-4">{result.narrative}</p>
         </>

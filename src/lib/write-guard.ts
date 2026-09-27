@@ -1,13 +1,14 @@
 import { supabaseServer } from '@/lib/supabase-server'
 
 /**
- * Burst guard for the two public write routes.
+ * Burst guard for the public write route.
  *
- * `/api/comments` and `/api/subscribe` accept an anonymous POST, insert a row,
- * and fire one Telegram message per accepted row. Nothing else bounds them: no
- * auth, no rate limit, no moderation, and comments are published immediately.
- * A single script therefore costs unbounded rows, unbounded operator
- * notifications, and unbounded public text on bot pages.
+ * `/api/subscribe` accepts an anonymous POST, inserts a row, and fires one
+ * Telegram message per accepted row. Nothing else bounds it: no auth, no rate
+ * limit. A single script therefore costs unbounded rows and unbounded operator
+ * notifications. (`/api/comments`, the second route, was retired on 2026-09-26:
+ * bot sheets now send a private question to the lab API, which has its own
+ * rate limit.)
  *
  * This counts rows written in the last WINDOW_MINUTES and refuses above
  * WINDOW_MAX. It is a GLOBAL ceiling, not per-IP fairness: it bounds the damage
@@ -19,7 +20,7 @@ export const WINDOW_MAX = 30
 
 export type BurstVerdict = 'ok' | 'over' | 'unknown'
 
-export type GuardedTable = 'comments' | 'email_subscribers'
+export type GuardedTable = 'email_subscribers'
 
 export async function recentWriteVerdict(table: GuardedTable): Promise<BurstVerdict> {
   const since = new Date(Date.now() - WINDOW_MINUTES * 60_000).toISOString()

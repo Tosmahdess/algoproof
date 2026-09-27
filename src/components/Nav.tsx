@@ -72,7 +72,9 @@ export default function Nav() {
           </a>
         </div>
 
-        {/* The one button of the bar, on every width: short word on a phone. */}
+        {/* The one button of the bar, the same words on every width. « Tester une
+            stratégie » / « Tester » read as a verb with no object on a phone; the owner
+            chose the place's own name (2026-09-26, closed vocabulary: le labo). */}
         <div className="flex items-center gap-2">
           <TrackedLink
             href={labUrl(LAB_APP_URL, 'nav')}
@@ -80,8 +82,7 @@ export default function Nav() {
             location="nav"
             className="inline-flex h-9 items-center rounded-md bg-foreground px-3.5 text-sm font-semibold text-bg hover:opacity-90 transition-opacity whitespace-nowrap"
           >
-            <span className="hidden sm:inline">Tester une stratégie</span>
-            <span className="sm:hidden">Tester</span>
+            Le labo
           </TrackedLink>
 
           <button

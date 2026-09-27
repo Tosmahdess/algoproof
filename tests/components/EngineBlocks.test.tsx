@@ -47,8 +47,8 @@ describe('EngineSummary (hero)', () => {
   it('keeps the swept corpus in a fold that never calls the unjudged rejected', () => {
     render(<EngineSummary counts={COUNTS} />)
     const text = screen.getByTestId('home-funnel').textContent!.replace(/\s/g, ' ')
-    expect(text).toMatch(/42 288 798 balayées/)
-    expect(text).toMatch(/Les autres n’ont pas de verdict de ces quatre épreuves/)
+    expect(text).toMatch(/42 288 798 configurations recensées/)
+    expect(text).toMatch(/Les autres n’ont pas de verdict à ces épreuves/)
   })
 
   it('counts no bot and links no cimetière (D059)', () => {
@@ -78,8 +78,8 @@ describe('EngineSurvival (/strategies)', () => {
   it('says the examples are chosen, not a ranking, and that it counts candidates, not gains', () => {
     render(<EngineSurvival counts={COUNTS} />)
     const text = screen.getByTestId('survival-section').textContent!
-    expect(text).toMatch(/Trois exemples choisis, pas un classement/)
-    expect(text).toMatch(/ce tableau ne mesure pas leurs gains/)
+    expect(text).toMatch(/J’ai choisi trois exemples/)
+    expect(text).toMatch(/sans mesurer\s+leurs gains ni les classer/)
   })
 
   it('lists every strategy of the engine alphabetically in the fold, with its horizons', () => {
@@ -114,7 +114,7 @@ describe('FleetLine (home, beside the engine summary, D059)', () => {
     render(<FleetLine live={3} paper={93} />)
     const line = screen.getByTestId('home-fleet-line')
     expect(line.textContent).toMatch(/96 bots en service/)
-    expect(line.textContent).toMatch(/3 avec mon argent/)
+    expect(line.textContent).toMatch(/3 tournent avec mon argent/)
     expect(within(line).getByRole('link', { name: /cimetière/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=funnel')
   })
 })

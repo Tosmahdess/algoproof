@@ -162,8 +162,8 @@ export default async function IntelligencePage() {
           <MiHistoryChart data={miHistory} />
         </div>
         <p className="text-xs text-muted mt-2">
-          Lignes fines = piliers individuels. Ligne blanche = score global composite.
-          Lignes à ±30 = seuils de peur et d&apos;avidité.
+          Les lignes fines représentent les quatre composantes, la ligne blanche leur score global.
+          Les lignes à ±30 marquent les seuils de peur et d&apos;avidité.
         </p>
       </section>
 
@@ -184,7 +184,7 @@ export default async function IntelligencePage() {
           <ExplainerBox stacked
             functional={
               <p>
-                Le bouclier défensif est un filet de protection à cinq couches autour de chaque bot. Chaque couche peut arrêter le trading indépendamment en cas de danger : une couche défaillante ne fait pas tomber le système. Même si le service MI est hors ligne, les bots basculent sur des valeurs prudentes par défaut.
+                Cinq contrôles de sécurité entourent chaque bot. Chacun peut arrêter le trading en cas de danger, même si un autre contrôle tombe en panne. Si ma veille de marché est hors ligne, les bots utilisent des valeurs prudentes par défaut.
               </p>
             }
             technical={
@@ -193,7 +193,7 @@ export default async function IntelligencePage() {
                   <span className="font-semibold">Layer 1</span>
                   <span className="text-muted">Taille de position, ajustée selon le score MI</span>
                   <span className="font-semibold">Layer 2</span>
-                  <span className="text-muted">is_safe_to_trade() : verrou strict, toutes les conditions doivent être remplies</span>
+                  <span className="text-muted">Vérification avant chaque entrée : toutes les conditions de sécurité doivent être remplies</span>
                   <span className="font-semibold">Layer 3</span>
                   <span className="text-muted">VIX &gt; 30 : arrêt complet inconditionnel</span>
                   <span className="font-semibold">Layer 4</span>

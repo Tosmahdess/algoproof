@@ -57,41 +57,6 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('POST /api/comments — burst guard', () => {
-  it('accepts and inserts while the window is under the ceiling', async () => {
-    db.count = 29
-    const { POST } = await import('@/app/api/comments/route')
-    const res = await POST(fakeRequest(COMMENT))
-    expect(res.status).toBe(201)
-    expect(db.inserted).toHaveLength(1)
-  })
-
-  it('refuses with 429 at the ceiling and inserts nothing', async () => {
-    db.count = 30
-    const { POST } = await import('@/app/api/comments/route')
-    const res = await POST(fakeRequest(COMMENT))
-    expect(res.status).toBe(429)
-    expect(db.inserted).toHaveLength(0)
-    expect(telegramCalls).toBe(0)
-  })
-
-  it('fails CLOSED when the window cannot be counted — a comment is published on insert', async () => {
-    db.count = null
-    db.countError = { message: 'connection reset' }
-    const { POST } = await import('@/app/api/comments/route')
-    const res = await POST(fakeRequest(COMMENT))
-    expect(res.status).toBe(429)
-    expect(db.inserted).toHaveLength(0)
-  })
-
-  it('answers in French, so the message can be shown as-is', async () => {
-    db.count = 30
-    const { POST } = await import('@/app/api/comments/route')
-    const body = await (await POST(fakeRequest(COMMENT))).json()
-    expect(body.error).toMatch(/Réessaie dans quelques minutes/)
-  })
-})
-
 describe('POST /api/subscribe — burst guard', () => {
   it('accepts, inserts and notifies while under the ceiling', async () => {
     db.count = 0

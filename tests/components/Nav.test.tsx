@@ -54,15 +54,16 @@ describe('Nav — five flat links, one button', () => {
   it('carries the lab as the one button of the bar, into the app, counted as nav', () => {
     vi.mocked(trackCtaLab).mockClear()
     render(<Nav />)
-    // One button on every width, outside the desktop list: its label shortens on a
-    // phone through two spans, so the accessible name carries both words.
-    const cta = within(screen.getByTestId('nav-bar')).getByRole('link', { name: /tester une stratégie/i })
+    // One button on every width, outside the desktop list, named after the place
+    // it opens (owner, 2026-09-26: « Le labo » rather than « Tester »).
+    const cta = within(screen.getByTestId('nav-bar')).getByRole('link', { name: /^le labo$/i })
     expect(cta.getAttribute('href')).toBe('https://lab.algoproof.fr/lab?ref=nav')
     expect(cta.className).toMatch(/bg-foreground/)
     cta.addEventListener('click', e => e.preventDefault())
     fireEvent.click(cta)
     expect(trackCtaLab).toHaveBeenCalledWith('nav')
-    expect(screen.queryByText(/^le labo$/i)).toBeNull()
+    // The button is the only « Le labo » of the bar: no second entry in the list.
+    expect(within(screen.getByTestId('nav-bar')).getAllByText(/^le labo$/i)).toHaveLength(1)
   })
 
   it('keeps « Compte » reachable, as a text link that says it leaves for the lab', () => {
@@ -104,7 +105,7 @@ describe('Nav — the phone drawer', () => {
   it('keeps the lab button in the bar on a phone, and the lab and account at the foot of the drawer', () => {
     vi.mocked(trackCtaLab).mockClear()
     render(<Nav />)
-    const barButton = within(screen.getByTestId('nav-bar')).getByRole('link', { name: /^tester/i })
+    const barButton = within(screen.getByTestId('nav-bar')).getByRole('link', { name: /^le labo$/i })
     expect(barButton.getAttribute('href')).toBe('https://lab.algoproof.fr/lab?ref=nav')
     openMenu()
     const menu = screen.getByTestId('mobile-menu')

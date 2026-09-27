@@ -9,7 +9,7 @@ import StrategyDetail from '@/components/StrategyDetail'
 import TrackView from '@/components/TrackView'
 import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
-import DiscussionTab from '@/components/DiscussionTab'
+import BotQuestionForm from '@/components/BotQuestionForm'
 import ConformityCard from '@/components/ConformityCard'
 import PathToRealCard from '@/components/PathToRealCard'
 import ThreeSentences from '@/components/ThreeSentences'
@@ -115,8 +115,8 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           </p>
         )}
         <p className="text-sm text-muted mb-4 max-w-[68ch]">
-          Pour qui : ce bot suit une logique systématique, sans intervention. Le trading comporte un risque de perte.
-          La plupart de mes bots sont en <TermPopover id="paper-trading">paper trading</TermPopover> (simulation) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
+          Ce bot suit des règles et trade sans intervention. Le trading comporte un risque de perte.
+          La plupart de mes bots sont en simulation (<TermPopover id="paper-trading">paper trading</TermPopover>) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
         </p>
       </div>
 
@@ -244,11 +244,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         </a>
       </div>
 
-      {/* Discussion */}
-      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
-        <h2 className="text-xl font-semibold mb-3">Discussion</h2>
-        <DiscussionTab slug={slug} />
-      </div>
+      {/* A private question, the lab account page's form (owner, 2026-09-26). It
+          replaces a public, unmoderated Discussion that had no comment in two months. */}
+      <BotQuestionForm botName={bot.name} slug={slug} />
 
       {/* Partager — folded on every screen (D057): embed code, rarely used,
           262 px on a phone. A native <details>, not Repli: this one SHOULD

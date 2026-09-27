@@ -101,7 +101,7 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
         'Long uniquement, exposition brute plafonnée à 0,35 × le capital ; pire drawdown du backtest : 13,8 %.',
     },
     dormancyNote:
-      'Bot lancé en paper le 2026-07-01 : l’historique se construit, les signaux extrêmes sont rares par conception.',
+      'Bot lancé en simulation le 2026-07-01. Il a encore peu d’historique, car il attend des signaux extrêmes, donc rares.',
   },
 
   'hlperps-xsec-degross': {
@@ -118,9 +118,9 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
       entry:
         'Chaque semaine, il classe ~120 perpétuels par momentum relatif et ouvre un panier : long sur les plus forts, short sur les plus faibles, à parts égales (dollar-neutre).',
       exit:
-        'Il ne garde rien d’une semaine sur l’autre : le panier est intégralement reconstruit à chaque rebalance hebdomadaire.',
+        'Il ne garde rien d’une semaine sur l’autre. Il reconstruit entièrement le panier à chaque rééquilibrage hebdomadaire.',
       risk:
-        'Exposition brute plafonnée à 0,35 × le capital, ~6 jambes pondérées inverse-volatilité ; le pari porte sur l’écart entre forts et faibles, pas sur la direction du marché.',
+        'Exposition brute plafonnée à 0,35 × le capital, ~6 positions dont le poids diminue quand leur volatilité augmente ; le pari porte sur l’écart entre forts et faibles, pas sur la direction du marché.',
     },
   },
 

@@ -59,7 +59,7 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-12">
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Articles</h1>
       <p data-testid="blog-intro" className="text-base text-muted max-w-2xl mb-4">
-        Ce que je fais, comment je le vérifie, et ce que ça donne, semaine après semaine.
+        Je raconte mes tests de stratégies et je publie chaque semaine les résultats de mes bots.
       </p>
 
       {/* Apprendre en pratique : the lab's entries, one line of links (2e chemin de decouverte) */}
@@ -116,8 +116,8 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
 
       {filter === null && (counts['journal'] || 0) > 0 && (
         <p className="text-xs text-muted mb-8">
-          Les journaux de bord quotidiens ({counts['journal']}) ne sont plus mis en avant : la synthèse
-          se fait dans la revue hebdo. Ils restent consultables via le filtre « Journal de bord ».
+          Tu trouveras les journaux de bord quotidiens ({counts['journal']}) dans le filtre « Journal de bord ».
+          Je rassemble désormais le suivi dans la revue hebdo.
         </p>
       )}
 

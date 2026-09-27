@@ -73,8 +73,8 @@ export default function EngineSurvival({ counts }: { counts: FunnelCounts | null
     <section data-testid="survival-section" aria-labelledby="survival-title" className="mb-12">
       <h2 id="survival-title" className="text-xl font-semibold mb-1">Ce que mes configurations deviennent, stratégie par stratégie</h2>
       <p className="text-xs text-muted mb-3 max-w-[68ch]">
-        Trois exemples choisis, pas un classement. Je compte les configurations candidates : ce tableau ne mesure pas
-        leurs gains, et chaque stratégie a son propre nombre de réglages essayés.
+        J’ai choisi trois exemples. Le tableau compte les configurations candidates, sans mesurer
+        leurs gains ni les classer. Le nombre de réglages essayés varie d’une stratégie à l’autre.
       </p>
       <div className="bg-card border border-border rounded-lg p-4 sm:p-5">
         <ul data-testid="survival-examples" className="grid grid-cols-1 gap-3 md:grid-cols-3">

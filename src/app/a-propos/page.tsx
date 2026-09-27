@@ -49,9 +49,8 @@ export default async function AProposPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Pourquoi je publie tout</h2>
         <p className="text-base leading-relaxed">
-          La plupart des gens ne montrent que leurs réussites. Moi je montre aussi mes pertes, mes
-          mauvaises semaines et les stratégies que je rejette. C&apos;est plus utile et plus honnête :
-          une méthode qui tient se prouve dans la durée, pas avec une capture d&apos;écran. Et quand je
+          Je montre mes pertes, mes mauvaises semaines et les stratégies que je rejette, pour que tu puisses
+          suivre ce qui tient dans la durée. Une capture d&apos;écran ne suffirait pas à le vérifier. Et quand je
           sais qu&apos;une perte sera publiée, je tiens mieux ma règle que quand elle reste dans un
           fichier chez moi. Les bots qui tradent mon argent portent la mention « Argent réel » ;
           les autres sont en simulation, et le statut est écrit à côté de chaque bot.
@@ -75,7 +74,7 @@ export default async function AProposPage() {
           pub, et aucune société citée ne me paie. Regarder reste gratuit : trades, pertes, courbes,
           historique, cimetière. Sur les sociétés dont je lis les comptes, les sept contrôles et
           leurs alertes, les chiffres et le rapport annuel le sont aussi.{' '}
-          <Link href="/preuve#gratuit" className={linkClass('inline')}>Où passera la ligne, en détail →</Link>
+          <Link href="/preuve#gratuit" className={linkClass('inline')}>Ce qui est gratuit et ce qui est payant →</Link>
         </p>
       </section>
 

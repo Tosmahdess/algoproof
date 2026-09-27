@@ -44,7 +44,7 @@ describe('FleetTotals', () => {
     const { container } = render(<FleetTotals aggregate={AGG} liveCount={3} paperCount={93} />)
     expect(container.textContent).not.toContain(fmtEur(52.5 + 1175))
     expect(container.textContent).not.toMatch(/5 trades/)
-    expect(container.textContent).toMatch(/ne se fusionnent jamais/)
+    expect(container.textContent).toMatch(/Je compte séparément l’argent réel et la simulation/)
   })
 
   it('writes its figures in mono, and the loss in red, the gain in green', () => {

@@ -21,14 +21,14 @@ const exp: BotExpectations = {
 describe('ConformityCard', () => {
   it('shows the in-envelope pill and both checks when conforming', () => {
     render(<ConformityCard expectations={exp} stats={{ profit_factor: 1.5, max_drawdown: 0.05, total_trades: 40 }} />)
-    expect(screen.getByText('Dans l’enveloppe')).toBeInTheDocument()
+    expect(screen.getByText('Dans les limites attendues')).toBeInTheDocument()
     expect(screen.getByText('Drawdown max')).toBeInTheDocument()
     expect(screen.getByText('≥ 1,2')).toBeInTheDocument()
   })
 
   it('shows the breach pill when DD blows the envelope', () => {
     render(<ConformityCard expectations={exp} stats={{ profit_factor: 1.5, max_drawdown: 0.3, total_trades: 40 }} />)
-    expect(screen.getByText('Hors enveloppe')).toBeInTheDocument()
+    expect(screen.getByText('Limites dépassées')).toBeInTheDocument()
   })
 
   it('shows insufficient-sample pill below 20 trades', () => {
@@ -133,7 +133,7 @@ describe('ConformityCard folds its detail on a phone, never its verdict', () => 
 
   it('turns its title into a closed disclosure button, anchored #conformite', () => {
     render(<ConformityCard expectations={exp} stats={ok} />)
-    const bouton = screen.getByRole('button', { name: /Conformité au backtest/ })
+    const bouton = screen.getByRole('button', { name: /respecte-t-il les limites du backtest/ })
     expect(bouton.getAttribute('aria-expanded')).toBe('false')
     expect(bouton.className).toContain('sm:hidden')
     expect(document.getElementById('conformite')!.tagName).toBe('H2')
@@ -142,11 +142,11 @@ describe('ConformityCard folds its detail on a phone, never its verdict', () => 
   it('keeps the status and the verdict sentence outside the folded body', () => {
     render(<ConformityCard expectations={exp} stats={ok} />)
     const corps = document.getElementById('conformite-corps')!
-    const verdict = screen.getByText('Le réalisé reste dans l’enveloppe attendue du backtest.')
+    const verdict = screen.getByText('Le bot reste dans les limites attendues du backtest.')
     expect(corps.contains(verdict)).toBe(false)
-    expect(corps.contains(screen.getByText('Dans l’enveloppe'))).toBe(false)
+    expect(corps.contains(screen.getByText('Dans les limites attendues'))).toBe(false)
     // Said once: not repeated in the phone button.
-    expect(screen.getByRole('button').textContent).not.toContain('Dans l’enveloppe')
+    expect(screen.getByRole('button').textContent).not.toContain('Dans les limites attendues')
   })
 
   it('folds the table, the kill criteria and the source', () => {
@@ -166,7 +166,7 @@ describe('ConformityCard header on a phone', () => {
     const rangee = document.getElementById('conformite')!.parentElement!
     expect(rangee.className).toContain('flex-col')
     for (const c of ['sm:flex-row', 'sm:items-center', 'sm:justify-between']) expect(rangee.className).toContain(c)
-    expect(screen.getByText('Dans l’enveloppe').closest('span.inline-flex')!.className).toContain('self-start')
+    expect(screen.getByText('Dans les limites attendues').closest('span.inline-flex')!.className).toContain('self-start')
   })
 })
 
@@ -188,8 +188,8 @@ describe('ConformityCard in breach opens by itself', () => {
       expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('true')
       const corps = document.getElementById('conformite-corps')!
       expect(corps.className).not.toContain('max-sm:hidden')
-      expect(corps.contains(screen.getByText('Hors enveloppe'))).toBe(false)
-      expect(corps.contains(screen.getByText(/^Le réalisé sort de l’enveloppe/))).toBe(false)
+      expect(corps.contains(screen.getByText('Limites dépassées'))).toBe(false)
+      expect(corps.contains(screen.getByText(/^Le bot dépasse les limites attendues/))).toBe(false)
       expect(corps.contains(screen.getByText('DD > 15 % → gel du bot.'))).toBe(true)
     })
   }

@@ -31,7 +31,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
       id="comment-je-decide"
       testId="index-gauntlet"
       titre={GAUNTLET_EXPLAINER_TITLE}
-      resume="Comment je trie, les quatre épreuves, et la limite que j’écris noir sur blanc."
+      resume="Comment je trie les configurations, les quatre épreuves et les limites de ces tests."
       resumeClassName="text-sm font-normal text-foreground"
       className="mb-10 bg-card border border-border rounded-lg p-5"
       titreClassName="text-xs font-semibold text-muted"
@@ -44,7 +44,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
       {/* The old sentence demanded all four trials, which contradicted « en sursis reste
           publiée » : rater une seule des trois épreuves de robustesse laisse la stratégie
           publiée (audit 2026-09-10). */}
-      <p className="text-sm mb-3">Le gantelet, c’est quatre épreuves. Une candidate les tient toutes.</p>
+      <p className="text-sm mb-3">Une configuration doit passer les quatre épreuves pour devenir candidate.</p>
       <ol className="space-y-3 mb-3">
         {GAUNTLET_TRIALS.map((t, i) => (
           <li key={t.name} className="text-sm">

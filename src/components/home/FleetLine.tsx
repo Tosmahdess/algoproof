@@ -9,9 +9,9 @@ import { labUrl } from '@/lib/lab-links'
 export default function FleetLine({ live, paper }: { live: number; paper: number }) {
   return (
     <p data-testid="home-fleet-line" className="text-xs text-muted leading-relaxed">
-      À part, la flotte : <strong className="text-foreground font-mono">{live + paper}</strong>{' '}bots en service, dont ceux
-      déployés à la main avant le moteur, et <strong className="text-foreground font-mono">{live}</strong>{' '}avec mon argent.
-      Les plateformes qui vendent des stratégies publient leurs gagnantes, jamais le nombre de tentatives.{' '}
+      Les <strong className="text-foreground font-mono">{live + paper}</strong>{' '}bots en service comptent aussi ceux que
+      j’ai déployés à la main avant le moteur ; <strong className="text-foreground font-mono">{live}</strong>{' '}tournent avec mon argent.
+      Je publie aussi les tentatives rejetées pour que tu puisses voir comment je les ai choisies.{' '}
       <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'funnel')} target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>Voir le cimetière</a>
       {' · '}
       <Link href="/strategies#comment-je-decide" className={linkClass('inline')}>Comment je décide</Link>

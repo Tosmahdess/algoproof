@@ -5,7 +5,7 @@ import ExplainerBox from '@/components/ExplainerBox'
 describe('ExplainerBox', () => {
   it('renders the Fonctionnel tab button', () => {
     render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
-    expect(screen.getByRole('button', { name: /fonctionnel/i })).toBeDefined()
+    expect(screen.getByRole('button', { name: /comment il fonctionne/i })).toBeDefined()
   })
 
   it('renders the Technique tab button', () => {
@@ -29,7 +29,7 @@ describe('ExplainerBox', () => {
   it('clicking Fonctionnel tab after Technique shows functional again', () => {
     render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
     fireEvent.click(screen.getByRole('button', { name: /technique/i }))
-    fireEvent.click(screen.getByRole('button', { name: /fonctionnel/i }))
+    fireEvent.click(screen.getByRole('button', { name: /comment il fonctionne/i }))
     expect(screen.getByText('Plain text.')).toBeDefined()
     expect(screen.queryByText('Tech detail.')).toBeNull()
   })
@@ -51,22 +51,16 @@ describe('ExplainerBox', () => {
 // whole surface back. There is no prop that can produce it now, and this asserts the absence.
 describe('ExplainerBox — no changelog tab', () => {
   it('never renders an Historique tab', () => {
-    render(<ExplainerBox functional="F" technical="T" discussionSlug="v1-spot" />)
+    render(<ExplainerBox functional="F" technical="T" />)
     expect(screen.queryByRole('button', { name: /historique/i })).toBeNull()
   })
 })
 
-// Tests for the optional Discussion tab
-describe('ExplainerBox — Discussion tab', () => {
-  it('does not render Discussion tab when discussionSlug is absent', () => {
+// The Discussion tab went with the public comments on 2026-09-26 (bot sheets carry a
+// private question form). No prop can bring it back; this asserts the absence.
+describe('ExplainerBox — no discussion tab', () => {
+  it('never renders a Discussion tab', () => {
     render(<ExplainerBox functional="F" technical="T" />)
     expect(screen.queryByRole('button', { name: /discussion/i })).toBeNull()
-  })
-
-  it('renders Discussion tab button when discussionSlug is provided', () => {
-    // DiscussionTab calls fetch on mount — mock it
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => [] }))
-    render(<ExplainerBox functional="F" technical="T" discussionSlug="v1-spot" />)
-    expect(screen.getByRole('button', { name: /discussion/i })).toBeDefined()
   })
 })

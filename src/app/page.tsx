@@ -67,10 +67,10 @@ export default async function HomePage() {
           {/* The three numbers are read, never typed (D059: a typed count goes stale
               in silence). */}
           <p data-testid="home-lead" className="text-sm sm:text-base text-muted max-w-[60ch] mb-4 sm:mb-6 leading-relaxed">
-            <strong className="text-foreground font-mono font-medium">{bots.length}</strong> bots, dont{' '}
-            <strong className="text-foreground font-mono font-medium">{live.length}</strong> avec mon argent.{' '}
-            <strong className="text-foreground font-mono font-medium">{frNumber(companies, 0)}</strong> rapports annuels lus par sept contrôles.
-            Chaque trade et chaque alerte publiés, y compris ce qui perd.
+            Je fais tourner <strong className="text-foreground font-mono font-medium">{bots.length}</strong>{' '}bots, dont{' '}
+            <strong className="text-foreground font-mono font-medium">{live.length}</strong>{' '}avec mon argent. Je passe aussi{' '}
+            <strong className="text-foreground font-mono font-medium">{frNumber(companies, 0)}</strong>{' '}rapports annuels à travers sept contrôles.
+            Je publie chaque trade et chaque alerte, y compris quand les bots perdent.
           </p>
 
           {/* Phone only: the real-money strip ABOVE the entries (variant A). */}
@@ -85,9 +85,8 @@ export default async function HomePage() {
                   returns (globalVerdict), not an image: what a visitor without an
                   account receives. Pinned by tests/app/home-two-entries.test.tsx. */}
               <p className="text-sm text-muted leading-relaxed">
-                Mes bots tournent en simulation et en argent réel, chaque trade publié. Le labo
-                où je les teste est ouvert : tu y passes la tienne, il la rejoue et te dit si
-                elle est fragile, et pourquoi.
+                Mes bots tournent en argent réel et en simulation. Je publie chaque trade. Tu peux aussi tester ta stratégie
+                dans le labo que j’utilise. Il la rejoue et t’indique si elle est fragile, et pourquoi.
               </p>
               <div className="mt-auto pt-4">
                 {/* `event` and `location` unchanged: the analytics series must not break.
@@ -103,7 +102,7 @@ export default async function HomePage() {
                     entries side by side the longer label wrapped its arrow alone
                     onto a second line at 1280 px. */}
                 <p className="mt-3 text-xs text-muted md:min-h-[3lh]">
-                  Sans compte. Un backtester, pas un broker. Rien à déposer, aucune clé à donner.
+                  Sans compte. Tu peux faire un backtest sans déposer d’argent ni donner de clé. Le labo n’est pas un broker.
                 </p>
               </div>
             </div>
@@ -113,7 +112,7 @@ export default async function HomePage() {
               {/* D058: no page promises a grade or a verdict; this entry sends new
                   traffic to /investir, so it says it itself. */}
               <p className="text-sm text-muted leading-relaxed">
-                Pour chaque société cotée que je lis, son dernier rapport annuel passe sept
+                Je passe le dernier rapport annuel de chaque société cotée que j’étudie à travers sept
                 contrôles. Je publie les alertes et les chiffres, avec la page du rapport pour
                 refaire le calcul. Pas de note, pas de verdict.
               </p>
@@ -125,7 +124,7 @@ export default async function HomePage() {
                   Les sept contrôles, expliqués
                 </Link>
                 <p className="mt-3 text-xs text-muted md:min-h-[3lh]">
-                  Des lectures, pas des conseils. Aucune recommandation d&apos;achat ou de vente.
+                  Je partage mes lectures sans recommander d&apos;achat ni de vente. Ce ne sont pas des conseils.
                 </p>
               </div>
             </div>

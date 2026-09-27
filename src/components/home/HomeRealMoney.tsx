@@ -23,9 +23,9 @@ export interface RuleState {
 /** What the card says under the figures about the bot's published rule. */
 export function ruleState(bot: BotWithStats): RuleState {
   const exp = getBotExpectations(bot.slug)
-  if (!exp) return { kind: 'none', text: 'pas d’enveloppe pré-enregistrée' }
+  if (!exp) return { kind: 'none', text: 'pas de limites fixées à l’avance' }
   const result = assessConformity(exp, bot.stats)
-  if (result.status !== 'breach') return { kind: 'inside', text: 'dans l’enveloppe attendue' }
+  if (result.status !== 'breach') return { kind: 'inside', text: 'dans les limites attendues' }
   const decision = exp.decisions?.at(-1)
   const said = decision?.status === 'kept' ? 'je le garde' : decision?.status === 'frozen' ? 'je le gèle' : 'décision en suspens'
   return { kind: 'crossed', text: `règle d’arrêt franchie · ${said}` }
