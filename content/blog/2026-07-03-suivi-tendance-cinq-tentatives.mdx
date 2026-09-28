@@ -6,11 +6,11 @@ tags: ["méthode", "recherche", "backtest", "tendance", "transparence"]
 summary: "Le suivi de tendance est l'idée la plus intuitive du trading : on achète ce qui monte. J'ai essayé de la faire passer mon seuil de déploiement de cinq façons différentes. Sur des backtests honnêtes 2022-2026, aucune n'y arrive. Voici les cinq, les chiffres, et les trois leçons que j'en garde."
 ---
 
-Le suivi de tendance, c'est l'idée la plus intuitive qui soit : on achète ce qui monte, on vend ce qui baisse, et on laisse courir. Sur le papier, ça devrait marcher. J'ai essayé de le faire marcher pour de vrai, en crypto, de cinq façons différentes. Mon seuil pour déployer un bot est simple et public : un facteur de profit d'au moins 1,30 sur deux ans de backtest honnête, frais réalistes compris. Aucune des cinq tentatives ne l'a franchi. Voici lesquelles, et surtout ce qu'elles m'ont appris.
+J’ai testé cinq façons de faire du suivi de tendance en crypto. Le principe est d’acheter ce qui monte, de vendre ce qui baisse et de laisser courir. Pour déployer un bot, je demande un profit factor d’au moins 1,30 sur deux ans de backtest, avec des frais réalistes. Aucune de ces cinq tentatives n’a passé l’ensemble de mes contrôles.
 
 ## Tentative 1 : accélérer mes bots existants
 
-Mes bots de tendance ne tradent presque pas en 2026 (j'en ai parlé ailleurs). La tentation : les rendre plus nerveux. Testé : des réglages plus rapides multiplient les signaux par deux à quatre et font tomber le facteur de profit sous 1. Plus d'activité, tout mangé par le bruit. Non.
+Mes bots de tendance ne tradent presque pas en 2026, comme je l’ai raconté ailleurs. J’ai testé des réglages plus rapides. Ils multiplient les signaux par deux à quatre, mais le profit factor descend sous 1. Je n’ai donc pas retenu ces réglages.
 
 ## Tentatives 2, 3, 4 : trouver le meilleur de ma flotte
 
@@ -22,16 +22,16 @@ Alors je les ai backtestées honnêtement, en rejouant le code exact des bots su
 
 Si aucun signal seul ne suffit, peut-être qu'en n'entrant que quand deux stratégies sont d'accord, on filtre le bruit ? C'est la piste qui a le mieux marché de tout l'effort : facteur de profit 1,350, au-dessus du seuil, et qui tenait même en 2026. Pour la première fois, quelque chose touchait la cible.
 
-Avant de sortir le champagne, je me suis imposé un test que j'avais écrit à l'avance : est-ce que l'edge est réparti, ou porté par une poignée d'actifs ? J'ai retiré un seul token du panier, GALA. Le facteur de profit est tombé à 1,270, sous le seuil. Une règle qui s'effondre quand on enlève une seule crypto n'est pas une règle, c'est une coïncidence bien habillée. Un second contrôle l'a confirmé : la sélection ne battait pas nettement le hasard. Non, encore.
+J’avais prévu de vérifier si le résultat dépendait d’une poignée d’actifs. En retirant GALA du panier, le profit factor est tombé à 1,270, sous mon seuil. Le résultat dépendait donc trop de cette crypto. Le second contrôle n’était pas concluant non plus, puisque la sélection ne battait pas nettement le hasard.
 
 ## Les trois leçons
 
-**Les chiffres faciles mentent.** Paper, live sans frais, in-sample : tout gonfle. La seule question qui compte, c'est ce que ça donne sur deux ans, frais réels, sur des données que je n'ai pas choisies après coup.
+Les chiffres de simulation, les résultats en argent réel calculés sans frais et les résultats sur la période qui a servi aux réglages peuvent tous surestimer ce que j’obtiendrai ensuite. Je les compare donc à deux ans de backtest avec des frais réels, sur des données que je n’ai pas choisies après coup.
 
-**« Ça marche dans tel cas » est presque toujours un mirage.** J'ai passé trois soirées sur une anomalie qui donnait l'illusion d'un edge dans les marchés sans direction. En regardant barre par barre, l'edge apparent n'était qu'un artefact de frais et d'attribution. Je ne l'aurais jamais vu dans le résumé.
+J’ai aussi passé trois soirées sur une anomalie qui semblait donner un edge dans les marchés sans direction. En regardant barre par barre, j’ai trouvé un problème de frais et d’attribution. Le résumé ne permettait pas de le voir.
 
-**Une bonne idée qui dépend d'un seul actif n'est pas une bonne idée.** La fusion mourait en retirant GALA. Le vrai test d'une stratégie, ce n'est pas sa meilleure performance, c'est sa solidité quand on lui enlève ses béquilles.
+Pour la fusion des signaux, retirer GALA a suffi à faire tomber le résultat sous mon seuil. Je ne la retiens donc pas.
 
 ## Alors, le suivi de tendance est mort ?
 
-Non. Ces stratégies imprimaient en 2024 et 2025, quand le marché tenait des tendances. Le problème n'est pas l'idée, c'est qu'elle ne franchit pas mon seuil comme produit déployable sur la période complète, et que je refuse de livrer quelque chose qui ne marche que si je choisis les gagnants après la bataille. Ce serait facile de te vendre l'une de ces cinq tentatives avec son plus beau chiffre. Je préfère te montrer les cinq non, avec les vrais chiffres, et les ranger au cimetière. C'est moins vendeur. C'est plus honnête. Et à long terme, c'est la seule chose qui vaut quelque chose.
+Ces stratégies gagnaient en 2024 et 2025, quand le marché tenait des tendances. Sur la période complète, elles ne passent pas mes critères de déploiement. Choisir après coup leurs meilleurs résultats masquerait cette limite. Je garde les cinq tentatives au cimetière, avec leurs chiffres.

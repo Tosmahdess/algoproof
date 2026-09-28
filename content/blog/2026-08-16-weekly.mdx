@@ -3,7 +3,7 @@ title: "Un marché hésitant qui coûte plus cher en simulation qu'en réel"
 date: "2026-08-16"
 category: "weekly"
 tags: ["weekly", "performance"]
-summary: "Cette semaine, mes bots réels limitent la casse malgré un contexte difficile, pendant que la simulation encaisse les coups et me donne des leçons que l'argent réel n'a pas eu à payer."
+summary: "Cette semaine, mes bots en argent réel perdent 20,26 € sur la base de suivi de 1 000 €. En simulation, le résultat est de -179,57 € fictifs."
 ---
 
 <Callout type="warning" title="Correction du 22 août 2026">
@@ -28,9 +28,9 @@ Le cumul « argent réel » annoncé dans ce billet ne correspondait pas à la b
   <DataCard label="Côté acheteur (long) - bilan" sub="4 trades, 2 gagnants" metrics="P&L: +15,83 € | Taux de réussite: 50 %" intent="neutral" />
 </DataCardGroup>
 
-La semaine est rouge, c'est une réalité. Et elle ramène le cumul à presque rien : depuis le tout début du projet, rodage compris, mes bots réels sont à +6,42 € sur 290 trades. Autant dire à l'équilibre. Ce n'est pas une performance, c'est un capital qui a survécu à un marché peu tendre.
+Le cumul est revenu presque à l’équilibre, à +6,42 € sur 290 trades depuis le début du projet, rodage compris. Le marché a été difficile, mais ce résultat reste trop faible pour parler de performance.
 
-Ce qui me frappe cette semaine, c'est le contraste entre les deux côtés. Les shorts (paris à la baisse) ont pesé lourd : -36,09 € pour 10 trades avec un taux de réussite (WR, proportion de trades gagnants) de seulement 40 %. Les longs, eux, s'en sortent mieux en proportion, grâce surtout au trade LINK-USDC qui a bien fonctionné. Un seul trade peut changer la lecture d'une semaine entière.
+Les shorts ont perdu -36,09 € sur 10 trades, avec un win rate de 40 %. Les longs ont mieux tenu, surtout grâce à LINK-USDC. Le bilan de cette direction dépend donc beaucoup de ce trade.
 
 ---
 
@@ -45,7 +45,7 @@ Le coût de la simulation cette semaine : -179,57 € de monnaie qui n'existe pa
   <Stat label="Pire actif" value="TIA-USDT" subtext="-12,02 € simulés, short" />
 </StatRow>
 
-480 trades simulés avec un WR de 82,9 %, et pourtant le P&L global est négatif. C'est le paradoxe classique des stratégies à fort taux de réussite : quand les pertes arrivent, elles sont suffisamment larges pour effacer beaucoup de petits gains. Cette semaine, les shorts simulés ont particulièrement souffert : 85 trades pour -108,23 €, avec un WR de 61,2 % qui reste correct mais des pertes sur les mauvais trades trop importantes.
+Les 480 trades simulés donnent un win rate de 82,9 %, mais un résultat global négatif. Les pertes ont effacé les nombreux petits gains. Côté shorts, je compte 85 trades, un win rate de 61,2 % et un résultat de -108,23 € fictifs.
 
 Ce que j'observe sur les longs simulés est différent : 395 trades, WR de 87,6 %, mais -71,34 €. Les marchés hésitants punissent les entrées en tendance. Le contexte de la semaine explique en grande partie ce résultat.
 
@@ -65,7 +65,7 @@ L'indicateur de biais de marché pointe dans les deux sens sans conviction marqu
 
 ## Leçon de la semaine
 
-> Un marché sans conviction claire ne récompense pas la patience, il la teste. La simulation paie la facture de l'apprentissage. Le réel, lui, reste à l'équilibre depuis le début, ce qui est déjà une victoire dans ce contexte.
+Je veux comparer le bot de cassure au bot spot Kraken sur ces semaines hésitantes. Je ne l’ai pas encore quantifié proprement sur les données récentes.
 
 ---
 

@@ -6,7 +6,7 @@ tags: ["méthode", "overfit", "backtest", "formation"]
 summary: "Les quatre mensonges qui fabriquent un backtest gagnant : le survivant, le futur, le sur-ajustement et les frais. Avec les preuves de mon propre cimetière, et les exercices pour les voir de tes yeux. Module 0, gratuit, de ma future formation."
 ---
 
-Un backtest gagnant est l'objet le plus facile à fabriquer du monde. Il suffit de se mentir sur un des quatre points suivants, et la plupart des gens se mentent sur les quatre en même temps. Ce texte est le module 0, gratuit, de la formation que je prépare : le socle qui explique pourquoi le Lab existe.
+Quatre erreurs peuvent faire apparaître un backtest gagnant alors que la stratégie ne l’est pas. Je les reprends ici dans le module 0, gratuit, de la formation que je prépare. Elles expliquent les contrôles que j’ai mis dans le labo.
 
 ## Mensonge n°1 : le survivant
 
@@ -16,29 +16,29 @@ Le même biais existe en version stratégie : tu ne testes que les idées qui «
 
 ## Mensonge n°2 : le futur qui fuit
 
-Le look-ahead, c'est utiliser une information qui n'existait pas au moment de la décision : une clôture pas encore imprimée, un indicateur recalculé sur toute l'histoire, des données révisées après coup. Un seul octet de futur suffit à rendre un backtest imbattable et faux.
+Le look-ahead consiste à utiliser une information indisponible au moment où le bot aurait décidé. Ce peut être une clôture encore inconnue, un indicateur recalculé sur tout l’historique ou une donnée révisée après coup. Cela fausse le backtest.
 
-C'est pour ça que le labo travaille en données point-in-time : la stratégie ne voit jamais rien de plus que ce qu'un bot aurait vu ce jour-là.
+Dans le labo, la stratégie ne voit que les informations qu’un bot aurait pu connaître au moment du trade.
 
 ## Mensonge n°3 : le sur-ajustement (l'overfit)
 
-Teste 500 combinaisons de paramètres sur la même fenêtre : la meilleure sera brillante, par construction. Tu as trié 500 tirages et gardé le plus chanceux. Son PF flatteur récompense ton nombre d'essais, pas un edge.
+Si tu testes 500 combinaisons de paramètres sur la même fenêtre et gardes la meilleure des 500, tu risques surtout de retenir celle que cette période a favorisée par chance. Son profit factor ne suffit pas à montrer un edge.
 
 <Callout type="note" title="Vois-le de tes propres yeux, en deux clics">
-Le Lab a une configuration piégée exprès : un suivi de tendance posé pile sur les quatre mois où SOL a explosé fin 2024. PF 1.5, Sharpe 4, tout brille. Puis le bulletin retire les 4 meilleurs trades : le gain disparaît. Et des entrées tirées au hasard font presque aussi bien : c'est la fenêtre qui gagne, pas la stratégie. [Lance « le piège » ici](https://lab.algoproof.fr/lab?firstrun=piege&run=1), c'est gratuit et sans compte.
+Le labo propose une configuration piégée, un suivi de tendance testé sur les quatre mois où SOL a fortement monté fin 2024. Son profit factor est de 1.5 et son Sharpe de 4. Mais quand le bulletin retire les 4 meilleurs trades, le gain disparaît. Des entrées tirées au hasard font presque aussi bien sur cette fenêtre. [Lance « le piège » ici](https://lab.algoproof.fr/lab?firstrun=piege&run=1), gratuitement et sans compte.
 </Callout>
 
 L'overfit se repère à la fragilité. Bouge un paramètre d'un cran : si tout s'effondre, tu as ajusté du bruit. C'est ce que mesurent la sensibilité, le PBO et le Sharpe dégonflé du bulletin.
 
 ## Mensonge n°4 : les frais qu'on oublie
 
-Le mensonge le plus bête et le plus cher. À 0,68 % l'aller-retour (mes frais réels Kraken), une stratégie qui trade 300 fois en deux ans doit d'abord payer plus de deux fois son capital en frais avant de gagner un centime. J'ai [testé 10 stratégies de manuel générées par une IA](/blog/2026-07-11-10-strategies-ia-au-bulletin) à ces frais-là : zéro profitable, et l'adversaire n'était presque jamais la direction. C'étaient les frais, ligne après ligne.
+Le mensonge le plus bête et le plus cher. À 0,68 % l'aller-retour (mes frais réels Kraken), une stratégie qui trade 300 fois en deux ans doit d'abord payer plus de deux fois son capital en frais avant de gagner un centime. J'ai [testé 10 stratégies de manuel générées par une IA](/blog/2026-07-11-10-strategies-ia-au-bulletin) à ces frais-là : une seule à peine au-dessus de l'équilibre (PF 1,02), et l'adversaire n'était presque jamais la direction. C'étaient les frais, ligne après ligne.
 
 Je l'ai aussi appris en réel : mon bot V1 est passé de Binance à Kraken après MiCA, les frais ont triplé, et le backtest re-joué aux nouveaux frais est passé de viable à structurellement perdant. Re-tester aux frais de la venue cible est depuis une règle non négociable de ma méthode.
 
 ## La parade : un bulletin, pas un chiffre
 
-Aucun de ces mensonges ne résiste à une vérification systématique. C'est le travail du [bulletin anti-overfit du Lab](https://lab.algoproof.fr/apprendre/lire-le-bulletin) : dépendance aux meilleurs trades, stress de coûts, sensibilité des paramètres, entrées aléatoires, règle `n<20`. Et c'est la discipline que j'applique à mes propres bots : mon [cimetière public](https://lab.algoproof.fr/galerie) recale bien plus de stratégies que je n'en promeus en argent réel. 16 recalées ou gelées, pour 2 bots passés en réel. Chaque rejet est daté et publié, les pires y sont encore.
+Le [bulletin anti-overfit du labo](https://lab.algoproof.fr/apprendre/lire-le-bulletin) vérifie la dépendance aux meilleurs trades, le stress de coûts, la sensibilité des paramètres et les résultats d’entrées aléatoires. Il applique aussi la règle `n<20`. J’utilise ces contrôles pour mes bots. Dans mon [cimetière public](https://lab.algoproof.fr/galerie), 16 stratégies sont recalées ou gelées, pour 2 bots passés en argent réel. Chaque rejet est daté et publié, y compris les pires.
 
 <StatRow>
   <Stat label="Backtests gagnants illusoires" value="95 %" subtext="mon estimation (mon cimetière dit 89 %)" />
@@ -50,8 +50,8 @@ Le 95 % du titre, c'est mon estimation, pas une étude. Mon propre cimetière di
 
 ## La suite : la formation
 
-Ce module 0 est le socle. La formation complète que je prépare enseigne la méthode entière, dans l'outil : construire une stratégie honnête, la tester sans se mentir, lire chaque drapeau du bulletin, écrire ses règles d'arrêt AVANT de risquer un euro, et faire de l'IA un générateur que TU juges. Deux niveaux (fondations et méthode avancée), des exercices corrigés par le Lab lui-même, et l'accès membre du labo inclus pendant plusieurs mois.
+Après ce module 0, la formation que je prépare montrera comment construire une stratégie, la tester, lire les alertes du bulletin et fixer ses règles d’arrêt avant de risquer un euro. Elle abordera aussi la vérification des stratégies générées par une IA. Deux niveaux sont prévus, fondations et méthode avancée, avec des exercices corrigés par le labo et un accès membre inclus pendant plusieurs mois.
 
-Elle n'est pas encore ouverte : j'écris dans l'ordre et je ne vends pas ce qui n'existe pas.
+Elle n’est pas encore ouverte. Je suis en train de l’écrire et je ne la vends pas avant qu’elle existe.
 
 En attendant, tout ce qui permet d'apprendre est déjà gratuit : [les tutoriels](https://lab.algoproof.fr/apprendre), [la bibliothèque des stratégies](/strategies) et [le Lab](https://lab.algoproof.fr/lab) lui-même. Commence par le piège du mensonge n°3 : deux clics, et tu auras vu de tes yeux tout ce que ce module raconte.

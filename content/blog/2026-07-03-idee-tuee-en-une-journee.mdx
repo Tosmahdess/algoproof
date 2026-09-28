@@ -6,15 +6,15 @@ tags: ["méthode", "recherche", "transparence", "backtest", "crypto"]
 summary: "L'idée : ne pas acheter un token juste avant qu'une grosse vague de jetons soit libérée sur le marché. Ça sonne évident. Je l'ai testée honnêtement, et le verdict est non. Le plus intéressant n'est pas le non, c'est comment j'y suis arrivé sans y passer six mois."
 ---
 
-Voici une idée qui sonne juste. En crypto, beaucoup de projets libèrent leurs jetons petit à petit, selon un calendrier connu à l'avance. Quand une grosse tranche arrive sur le marché, l'offre augmente d'un coup, et le prix a tendance à souffrir. Donc : si un de mes bots s'apprête à acheter un token juste avant une de ces libérations, il devrait peut-être s'abstenir. Ça paraît du bon sens.
+J’ai testé une règle pour mon bot. Comme beaucoup de projets crypto libèrent leurs jetons selon un calendrier connu, une grosse arrivée de tokens peut peser sur le prix. Je voulais savoir si le bot devait éviter d’acheter juste avant.
 
-Le bon sens ne suffit pas. Je l'ai testé. Et en une journée, j'avais ma réponse : non, ça n'aide pas mon bot. Le résultat compte moins que la manière, alors je la déroule, parce que c'est exactement ça que j'essaie de te montrer sur ce site.
+En une journée, j’ai conclu que cette règle ne l’aidait pas assez. Mais j’ai dû corriger mon premier test pour comprendre pourquoi.
 
 ## D'abord, trouver une donnée honnête
 
-Une idée ne vaut rien sans données vérifiables et complètes. J'avais besoin du calendrier historique des libérations de jetons, pas juste celles à venir, mais tout le passé aussi, sinon impossible de rejouer l'idée sur mes trades. Premier réflexe, la source la plus connue : elle fait payer l'accès à cette donnée précise. Je n'allais pas sortir la carte bleue pour une intuition.
+Il me fallait le calendrier complet des libérations de jetons, y compris les anciennes, pour rejouer la règle sur mes trades. La première source que j’ai regardée faisait payer cet historique. Je ne voulais pas payer pour cette seule intuition.
 
-En cherchant, j'ai trouvé mieux et gratuit : les données que ce même acteur affiche publiquement sur son propre site sont servies par un canal ouvert, avec l'historique complet depuis 2022. C'est le genre de détail qui débloque une recherche sans rien dépenser. Leçon que je retiens à chaque fois : avant de payer ou d'abandonner, on regarde où vit vraiment la donnée.
+J’ai ensuite trouvé que ce même acteur servait les données affichées sur son site par un canal ouvert et gratuit, avec l’historique complet depuis 2022. J’ai pu poursuivre le test avec ces données.
 
 ## Ensuite, un test qui juge tout de suite
 
@@ -24,12 +24,12 @@ Premier passage : un seul trade sur 969 tombait dans ma fenêtre de risque, et i
 
 ## Le retournement (et pourquoi il compte)
 
-J'aurais pu m'arrêter là. Mais un doute m'a retenu. En lisant une étude sur 236 libérations de jetons, je tombe sur un fait que j'avais mal intégré : la baisse de prix n'arrive pas le jour de la libération, elle est anticipée, elle se joue surtout dans les jours qui précèdent. Ma fenêtre de test, elle, regardait après. Je visais à côté de la bataille.
+Un doute m’a retenu avant de conclure. Une étude sur 236 libérations de jetons indiquait que la baisse de prix se produisait surtout dans les jours précédents, parce que le marché l’anticipait. Ma fenêtre regardait après la libération. J’avais donc testé le mauvais moment.
 
 Je relance en élargissant la fenêtre au bon endroit. Et là, l'effet apparaît : les quelques trades pris juste avant une grosse libération sont bien perdants en moyenne, et les écarter améliore un peu le résultat. L'idée n'était donc pas absurde. Mais l'effet est minuscule : trois ou quatre trades sur quatre ans, pour un gain de performance négligeable, très loin du seuil qui justifierait d'ajouter cette complexité. Et c'est cohérent avec l'autre moitié de l'étude : sur les gros tokens liquides, ceux que trade mon bot, ces libérations sont déjà digérées par le marché.
 
 ## Verdict : non, mais pour la bonne raison
 
-La conclusion est la même qu'au premier passage, non, je ne déploie pas cette règle. Mais la raison a changé, et la nuance est tout le sujet. Ce n'est pas « l'idée est fausse », c'est « l'effet est réel, correctement mesuré, mais trop petit sur mon univers pour valoir la peine ». Un non pour la mauvaise raison te fait rejeter de bonnes idées. Un non pour la bonne raison t'apprend quelque chose sur ton marché.
+Je ne déploie toujours pas cette règle, mais pour une autre raison qu’au premier test. Après correction de la fenêtre, l’effet apparaît bien. Il reste trop petit sur les actifs que trade mon bot pour justifier l’ajout de cette règle.
 
-Je ne te vends pas cette règle. Je ne te vends aucune règle. Je te montre comment je décide : trouver une donnée honnête, la rejouer sur mes propres trades, écouter ce qui contredit mon premier résultat, et ranger l'idée au bon endroit, avec les chiffres. Celle-ci finit au [cimetière](https://lab.algoproof.fr/cockpit/cimetiere), cette page où je garde tout ce que j'ai testé et recalé. Elle est déjà en ligne.
+Je ne vends aucune règle, y compris celle-ci. Pour la tester, j’ai cherché des données vérifiables, rejoué mes trades et corrigé mon premier résultat. Elle est déjà au [cimetière](https://lab.algoproof.fr/cockpit/cimetiere), où je garde les règles testées puis rejetées, avec leurs chiffres.
