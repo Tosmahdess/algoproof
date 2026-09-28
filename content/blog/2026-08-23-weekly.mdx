@@ -1,5 +1,5 @@
 ---
-title: "Les shorts en simulation saignent : quand le marché te force à regarder en face"
+title: "Semaine du 17 au 23 août : +150,90 € sur la base de suivi du réel, shorts en difficulté dans le labo"
 date: "2026-08-23"
 category: "weekly"
 tags: ["weekly", "performance"]
@@ -29,19 +29,19 @@ Le marché est clairement en territoire haussier cette semaine. Bitcoin navigue 
   <DataCard label="Seul short de la semaine" sub="STX-USDC" metrics="P&L: +5,18 € | Résultat: gagnant" intent="positive" />
 </DataCardGroup>
 
-C'est une belle semaine en réel. Neuf positions à la hausse pour 145,72 EUR de gain net, un unique short sur STX-USDC rentable à 100 %, et une seule vraie entaille : DOGE-USDC qui a mordu à -12,55 EUR. Le taux de réussite (WR, soit le pourcentage de trades gagnants) à 70 % est au-dessus de ce que j'attends en régime normal.
+Les neuf positions long ont rapporté 145,72 EUR. L’unique short, sur STX-USDC, est gagnant, soit 100 % de réussite sur un seul trade. DOGE-USDC a perdu -12,55 EUR. Le win rate total est de 70 %, au-dessus de ce que j’attends en régime normal.
 
 Ce qui me plaît ici : le biais long est cohérent avec le contexte de marché. Mes bots n'ont pas surjoué, ils ont simplement accompagné la tendance sans chercher à anticiper un retournement.
 
-Le cumulé depuis le lancement, rodage inclus, atteint +147,39 EUR sur 300 trades. Ce n'est pas spectaculaire, mais c'est honnête : les premières semaines de rodage pèsent encore sur la moyenne.
+Le cumul depuis le lancement atteint +147,39 EUR sur 300 trades, rodage inclus. Les premières semaines pèsent encore sur ce résultat.
 
 ---
 
 ## Laboratoire (simulation)
 
-> En simulation, l'argent n'existe pas. Une perte paper n'est pas une perte : c'est le coût de l'apprentissage, payé en monnaie fictive.
+> Ces résultats viennent de bots en simulation, sans argent réel.
 
-Le coût de la simulation cette semaine : -74,83 EUR qui n'existent pas, dépensés pour apprendre quelque chose d'important.
+Le résultat simulé est de -74,83 EUR cette semaine. C’est un coût de recherche fictif.
 
 <StatRow>
   <Stat label="Trades simulés" value="606" />
@@ -71,13 +71,13 @@ C'est précisément pour ça que cette asymétrie existe en simulation et pas en
 
 ## Leçon de la semaine
 
-> Un marché haussier ne punit pas les longs, il punit les shorts impatients. Cette semaine, la simulation m'a montré en 131 trades ce que l'intuition aurait mis des mois à formuler.
+Je vais examiner les 131 trades short simulés pour comprendre ce qui a pesé sur leurs résultats, en commençant par les entrées, les actifs choisis et les stop-loss.
 
 ---
 
 ## Prochaines étapes
 
-- Je vais examiner plus finement les 131 shorts simulés perdants : est-ce un problème de timing, de sélection d'actifs, ou de gestion du stop-loss (niveau de prix auquel la position est fermée automatiquement pour limiter la perte) ?
+- Je vais examiner les 131 shorts simulés pour vérifier les entrées, les actifs choisis et le stop-loss, le niveau de prix auquel la position se ferme automatiquement pour limiter la perte.
 - Le seul short réel de la semaine (STX-USDC, +5,18 EUR) est gagnant, ce qui suggère que mes filtres de sécurité font bien leur travail en réel, même si la simulation reste plus permissive.
 - Je surveille l'indicateur de biais en simulation : il signale une configuration prudente sur les deux sens, ce qui pourrait m'amener à réduire la proportion de shorts testés la semaine prochaine.
 - ICP-USDC mérite un regard attentif : +38,50 EUR sur un seul trade en réel, c'est le genre de signal qui justifie d'analyser si cet actif est correctement dimensionné dans ma flotte.

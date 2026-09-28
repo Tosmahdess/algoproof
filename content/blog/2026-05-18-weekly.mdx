@@ -21,7 +21,7 @@ Mardi 13 mai à 08:53 UTC, le processus Docker (containerd, résidu d'un autre p
 
 67 positions étaient ouvertes au moment du crash. Les bots H4 dormaient entre 08:00 et 12:00, donc les SL/TP n'ont pas été surveillés pendant 4h+. Certaines positions auraient dû toucher leur SL dans l'intervalle.
 
-**Ma décision** : archiver les 60 positions orphelines plutôt que de laisser les bots les récupérer avec un trou dans la surveillance. C'est une perte sèche sur le paper trading, mais c'est honnête — je ne veux pas de positions zombie dans les stats.
+**Ma décision** : archiver les 60 positions orphelines plutôt que de laisser les bots les récupérer avec un trou dans la surveillance. Je perds la continuité de mesure de ces positions de simulation (aucun euro réel en jeu), mais je ne veux pas de positions zombie dans les stats.
 
 **Fix structurel** : ajout de 4 GB de swap + swappiness à 10. Le VPS peut maintenant absorber des pics mémoire sans tuer les bots.
 

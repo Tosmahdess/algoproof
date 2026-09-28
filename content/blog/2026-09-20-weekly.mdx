@@ -24,11 +24,11 @@ summary: "Une semaine en demi-teinte sur le réel, dominée par une asymétrie c
   <DataCard label="Pire trade" sub="XRP-USDC, long" metrics="P&L: -10,74 €" intent="negative" />
 </DataCardGroup>
 
-La semaine se résume en deux chiffres : +31 € côté longs, -22 € côté shorts. Le bilan global reste positif à +8,95 €, mais l'histoire derrière ce chiffre est bien plus instructive que le résultat brut.
+Les longs rapportent environ +31 € et les shorts perdent environ -22 €. La semaine reste positive à +8,95 € sur la base de suivi de 1 000 €.
 
-Mes bots ont pris 3 positions short cette semaine, et les 3 ont été perdantes. Le pire est XRP-USDC short à -10,15 €, le "meilleur" short est BNB-USDC à -4,00 €. Zéro gagnant. Ce n'est pas un hasard isolé : c'est un signal que le marché envoie clairement cette semaine, et j'y reviens dans la leçon.
+Mes bots ont pris 3 positions short cette semaine, toutes les 3 perdantes. XRP-USDC short est le pire à -10,15 €, BNB-USDC le moins mauvais à -4,00 €. Je vais regarder si cela tient à cette semaine ou aux paramètres utilisés.
 
-Le cumulé depuis le début atteint +347,35 €, rodage inclus. C'est un chiffre qui inclut des semaines difficiles au démarrage, ce qui le rend d'autant plus significatif aujourd'hui.
+Le cumul depuis le début atteint +347,35 €, rodage inclus. Il comprend aussi les semaines difficiles du démarrage.
 
 ---
 
@@ -38,7 +38,7 @@ Le cumulé depuis le début atteint +347,35 €, rodage inclus. C'est un chiffre
 
 <StatRow>
   <Stat label="Trades simulés" value="661" />
-  <Stat label="Coût de la simulation" value="-77,31 €" subtext="paper money, pas du réel" />
+  <Stat label="Coût de la simulation" value="+77,31 €" subtext="paper money, pas du réel" />
   <Stat label="Taux de réussite" value="80,6 %" subtext="533 trades gagnants sur 661" />
 </StatRow>
 
@@ -49,7 +49,7 @@ Le cumulé depuis le début atteint +347,35 €, rodage inclus. C'est un chiffre
   <DataCard label="Observation à surveiller" sub="SOL-USDT, long" metrics="P&L simulé: -12,85 €" intent="negative" />
 </DataCardGroup>
 
-Ce qui se passe en simulation cette semaine est une confirmation à grande échelle de ce que le réel m'a montré : les longs cartonnent à 86,2 % de réussite, les shorts peinent à 46,8 %. Le coût de la simulation côté shorts est massif, -210 € de paper money, mais c'est précisément pour éviter de prendre ce genre de risque en réel avant d'avoir compris pourquoi.
+En simulation, le win rate est de 86,2 % pour les longs et de 46,8 % pour les shorts. Ces derniers affichent environ -210 € fictifs. Je veux comprendre ces résultats avant d’envisager de risquer de l’argent réel sur ces configurations.
 
 ---
 
@@ -59,13 +59,13 @@ Le marché est en configuration favorable cette semaine. Bitcoin se situe enviro
 
 En pratique : les deux grandes directions (longs et shorts) sont techniquement autorisées pour mes bots actifs. Mais le signal de biais que j'observe dans les données de dérivés et de performance récente dit autre chose. Le marché récompense les acheteurs, pas les vendeurs à découvert cette semaine.
 
-C'est cohérent avec ce que mes chiffres montrent : 0 short gagnant en réel, 46,8 % en simulation. La tendance haussière absorbe les shorts comme une éponge.
+Je compte 0 short gagnant en réel, contre un win rate de 46,8 % en simulation. Cela mérite d’être examiné avec le contexte haussier de la semaine.
 
 ---
 
 ## Leçon de la semaine
 
-> Un marché haussier ne pardonne pas les shorts impatients. Cette semaine, j'ai la preuve chiffrée que mes filtres de sécurité ont raison de peser le contexte avant d'autoriser une position vendeuse : 0 victoire sur 3 en réel, 46,8 % en simulation sur 94 trades. Le biais du marché n'est pas une opinion, c'est une donnée.
+> Je compte 0 victoire sur 3 shorts en réel et un win rate de 46,8 % sur 94 trades en simulation. Je vais vérifier si les paramètres doivent changer dans ces conditions ; ces résultats seuls ne démontrent pas que mes filtres de sécurité font le bon choix.
 
 ---
 
@@ -74,4 +74,4 @@ C'est cohérent avec ce que mes chiffres montrent : 0 short gagnant en réel, 46
 - **Analyser l'asymétrie shorts/longs** : comprendre si ce 0 % en réel est une anomalie de la semaine ou le signe d'un paramétrage à revoir pour les conditions actuelles.
 - **Surveiller XRP** : deux apparitions dans les pires trades cette semaine (long et short), ce qui mérite un regard plus attentif sur le comportement de cet actif avec mes stratégies.
 - **Capitaliser sur SOL-USDC** : meilleur trade réel de la semaine à +13,22 €, je veux comprendre ce qui a bien fonctionné pour éventuellement renforcer cette configuration.
-- **Ne pas toucher aux paramètres en réel** : le cumulé de +347,35 € me dit que la mécanique globale fonctionne. Résister à l'envie de modifier quoi que ce soit sous le coup d'une semaine mitigée.
+- **Ne pas toucher aux paramètres en réel** : je garde la configuration pour l’instant. Le cumul est de +347,35 €, mais ce chiffre seul ne suffit pas à expliquer ce qui fonctionne. Je veux examiner la semaine avant de modifier les réglages.

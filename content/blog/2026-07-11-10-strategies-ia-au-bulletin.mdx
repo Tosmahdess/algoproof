@@ -6,9 +6,9 @@ tags: ["méthode", "IA", "overfit", "backtest"]
 summary: "10 stratégies classiques générées par un LLM, 2 ans de données, frais Kraken réels : neuf perdent, la dixième gagne dix euros portés par cinq trades, et 0 qui survit à un stress de coûts. Ce que ça dit vraiment, et ce que ça ne dit pas."
 ---
 
-Générer une stratégie de trading par une IA ne coûte plus rien, j'en ai eu dix en dix secondes. QuantConnect a son copilote, StrategyQuant génère des centaines de configs, les agents passent des ordres chez Robinhood. Vérifier si tout ça vaut quelque chose, par contre, personne ne se bouscule. C'est pourtant là que ton argent se joue.
+J’ai obtenu dix stratégies en dix secondes auprès d’une IA, sans rien payer. QuantConnect a son copilote, StrategyQuant génère des centaines de configurations et des agents passent des ordres chez Robinhood. J’ai voulu vérifier ce que valaient les propositions reçues.
 
-Alors j'ai fait l'expérience complète, en public.
+J’ai donc testé ces stratégies et publié l’expérience complète.
 
 ## Le protocole
 
@@ -43,15 +43,15 @@ Ensuite, chaque stratégie est passée au [Lab](https://lab.algoproof.fr/lab) da
   <Row values="EMA Ribbon 8/13/21/34 | ETH 4h | 184 | 0.79 | 0 % des voisins profitables : du bruit ajusté" />
 </CompactTable>
 
-La meilleure des dix, l'Ichimoku, affiche un PF de 1.02 : à peine plus de gains bruts que de pertes brutes, en deux ans. L'écart tient dans l'épaisseur du trait. Et le bulletin montre que ces dix euros tiennent à cinq trades chanceux qui pèsent huit fois le gain total. Retire-les, il ne reste rien.
+L’Ichimoku, la meilleure des dix, affiche un profit factor de 1.02 sur deux ans. Elle gagne dix euros, mais ses cinq meilleurs trades représentent huit fois ce gain total. Une fois ces trades retirés, le gain disparaît.
 
 ## Les trois leçons
 
-**1. Les frais sont l'adversaire numéro un, pas la direction.** Aucune de ces stratégies n'est « fausse » dans sa logique. Neuf perdent parce qu'elles tradent trop pour ce qu'elles capturent : 200 à 320 trades en deux ans à 0,68 % l'aller-retour, l'arithmétique est sans appel. Mon bot réel me l'a appris au passage sur Kraken : mêmes signaux, frais triplés, verdict inversé.
+**1. Les frais pèsent sur ces résultats.** La logique de ces stratégies n’est pas nécessairement fausse. Neuf perdent parce que les mouvements capturés ne couvrent pas leurs frais, avec 200 à 320 trades en deux ans à 0,68 % l’aller-retour. J’ai eu le même problème avec mon bot en argent réel lors du passage sur Kraken. Les frais avaient triplé et les mêmes signaux donnaient un backtest perdant.
 
-**2. « Battre le hasard » ne suffit pas.** Trois stratégies battent 97 à 99 % des jeux d'entrées aléatoires du bulletin, tout en perdant de l'argent. Ça veut juste dire que le hasard, aux mêmes frais, perd encore plus qu'elles. Le compte, lui, est vide pareil.
+**2. Battre les entrées aléatoires ne suffit pas à gagner.** Trois stratégies battent 97 à 99 % des jeux d’entrées aléatoires du bulletin, mais perdent quand même. Aux mêmes frais, les entrées aléatoires perdent simplement davantage.
 
-**3. Le régime décide.** 2024-2026 mélange un marché haussier puis un long régime sans tendance, celui qui met mes propres bots de tendance en dormance volontaire depuis des mois. Une fenêtre différente donnerait des chiffres différents, et je n'ai aucune garantie que la mienne soit représentative. C'est la limite de ce test, et je la connais.
+**3. La période testée compte aussi.** Entre 2024-2026, le marché a été haussier, puis longtemps sans tendance. Ce dernier contexte garde mes propres bots de tendance en veille depuis des mois. Une autre fenêtre donnerait d’autres résultats ; je n’ai aucune garantie que celle-ci soit représentative.
 
 <Callout type="warning" title="Ce que ce test ne dit PAS">
 Ce n'est pas « l'IA est nulle en trading ». Un humain qui recopie ces mêmes recettes de manuel obtient exactement les mêmes pertes. La différence, c'est le débit : une IA en sort dix par minute, et presque personne ne prend cinq minutes pour les tester.
@@ -63,6 +63,6 @@ Ce n'est pas « l'IA est nulle en trading ». Un humain qui recopie ces mêmes r
 Aucune des dix stratégies générées ne mérite un euro réel en l'état : neuf perdent aux frais réels, la dixième gagne dix euros portés par cinq trades, zéro survit à un doublement des coûts, et les rares chiffres flatteurs s'effondrent dès qu'on regarde leur dépendance aux meilleurs trades.
 </Verdict>
 
-Si tu utilises une IA pour générer des stratégies, donne-lui aussi l'outil pour les vérifier : le [serveur MCP du labo](https://lab.algoproof.fr/agents) rend le bulletin anti-overfit accessible à n'importe quel agent, gratuitement. Et si tu préfères vérifier toi-même : [le labo](https://lab.algoproof.fr/lab) est gratuit, sans compte, et la [bibliothèque des stratégies](/strategies) explique honnêtement quand chacune de ces recettes marche, et quand elle meurt.
+Si tu génères des stratégies avec une IA, tu peux lui donner le [serveur MCP du labo](https://lab.algoproof.fr/agents) pour accéder gratuitement au bulletin anti-overfit. Tu peux aussi faire les tests toi-même dans [le labo](https://lab.algoproof.fr/lab), gratuitement et sans compte. La [bibliothèque des stratégies](/strategies) décrit les conditions dans lesquelles chaque stratégie fonctionne et celles où elle échoue.
 
 Les dix runs de ce test restent publics dans le labo. Si tu veux vérifier mes chiffres, ou tester la onzième idée de ton LLM, tout est là.
