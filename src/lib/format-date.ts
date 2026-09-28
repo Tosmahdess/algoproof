@@ -64,6 +64,12 @@ export function longDate(iso: string | number | Date): string {
   )
 }
 
+/** longDate with the French ordinal on the first: "1er août 2026", "2 août 2026". */
+export function longDateOrdinal(iso: string | number | Date): string {
+  const s = longDate(iso)
+  return s.startsWith('1 ') ? `1er ${s.slice(2)}` : s
+}
+
 /** "03/09/2026" — a date the reader may want to copy. */
 export function numericDate(iso: string | number | Date): string {
   return new Date(iso).toLocaleDateString(
