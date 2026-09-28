@@ -1,5 +1,4 @@
 // src/app/strategies/bot/[slug]/page.tsx
-import TermPopover from '@/components/TermPopover'
 import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -19,6 +18,7 @@ import SampleNote from '@/components/SampleNote'
 import RecipeGate from '@/components/RecipeGate'
 import EngineBotSummary from '@/components/EngineBotSummary'
 import { getBacktestSegment } from '@/lib/backtest-segment-data'
+import { buildTimeline, timelinePerfDaily } from '@/lib/backtest-segment'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -59,6 +59,12 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const { slug } = await params
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
+  // Engine bots with a backtest segment: one timeline feeds the curve block and the
+  // capital simulator, so both read the same 1 January start (null = plain paper view).
+  const backtestSegment = getBacktestSegment(bot.slug)
+  const timeline = backtestSegment
+    ? buildTimeline(backtestSegment, bot.perf_daily, bot.all_trades, bot.start_capital)
+    : null
 
   const expectations = getBotExpectations(slug)
   // Resolved by bot_slug directly (see getProvenanceForBot) — never breaks the page: it
@@ -115,10 +121,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             </Link>
           </p>
         )}
-        <p className="text-sm text-muted mb-4 max-w-[68ch]">
-          Ce bot suit des règles et trade sans intervention. Le trading comporte un risque de perte.
-          La plupart de mes bots sont en simulation (<TermPopover id="paper-trading">paper trading</TermPopover>) ; ceux qui tournent avec mon argent sont marqués « Argent réel ».
-        </p>
       </div>
 
       {/* Provenance: where this bot came from — engine-born or hand-deployed — and when */}
@@ -155,7 +157,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       <SampleNote totalTrades={bot.stats.total_trades} />
 
       {/* Filter + metrics + equity curve + trades — interactive client island */}
-      <StrategyDetail bot={bot} backtestSegment={getBacktestSegment(bot.slug)} />
+      <StrategyDetail bot={bot} backtestSegment={backtestSegment} />
 
       {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
       {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}
@@ -226,7 +228,13 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* "Sur mon capital" — observed history rescaled to a visitor-chosen
           capital. AFTER the explanation since 2026-09-19 (D057): a reader
           handled amounts before learning what the bot does. */}
-      {bot.perf_daily.length > 0 && (
+      {/* An engine bot with a backtest segment is read from 1 January (user, 2026-09-28),
+          the backtest's share named apart. */}
+      {timeline && backtestSegment ? (
+        <CapitalSimulator perfDaily={timelinePerfDaily(timeline, bot.slug)}
+          startCapital={bot.start_capital} backtestUntil={backtestSegment.freezeDate}
+          backtestEndCapital={timeline.simStartCapital} />
+      ) : bot.perf_daily.length > 0 && (
         <CapitalSimulator perfDaily={bot.perf_daily} startCapital={bot.start_capital} />
       )}
 

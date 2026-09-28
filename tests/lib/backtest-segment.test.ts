@@ -7,7 +7,7 @@
 // launch it is the paper ledger, resized on the capital the curve had reached. The backtest
 // has its own figures and never enters a simulation figure.
 import { describe, it, expect } from 'vitest'
-import { backtestStats, buildTimeline, type BacktestSegment } from '@/lib/backtest-segment'
+import { backtestStats, buildTimeline, timelinePerfDaily, type BacktestSegment } from '@/lib/backtest-segment'
 import { getBacktestSegment } from '@/lib/backtest-segment-data'
 import { paperIsUp } from '@/components/EquityCurve'
 import type { PerfDaily, Trade } from '@/lib/types'
@@ -109,6 +109,18 @@ describe('buildTimeline', () => {
   it('refuses a freeze that is not before the launch or not on the curve', () => {
     expect(buildTimeline({ ...seg, freezeDate: '2026-08-21' }, perf, ledger, 1000)).toBeNull()
     expect(buildTimeline({ ...seg, freezeDate: '2026-08-10' }, perf, ledger, 1000)).toBeNull()
+  })
+})
+
+describe('timelinePerfDaily', () => {
+  it('turns the whole curve, backtest then simulation, into one daily series', () => {
+    const t = buildTimeline(seg, perf, ledger, 1000)!
+    const p = timelinePerfDaily(t, 'arm-test')
+    expect(p.map(x => x.date)).toEqual(t.rows.map(r => r.date))
+    expect(p.map(x => x.capital)).toEqual(
+      [1000, 1030, 1020, 1020, 1100, 1100, 1100, 1089, 1109.65])
+    // pnl_day is the day's move of the curve, so the capital simulator's worst month adds up
+    expect(p.map(x => x.pnl_day)).toEqual([0, 30, -10, 0, 80, 0, 0, -11, 20.65])
   })
 })
 

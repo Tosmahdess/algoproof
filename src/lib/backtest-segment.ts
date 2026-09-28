@@ -119,6 +119,19 @@ export function buildTimeline(
   }
 }
 
+/** The whole curve, backtest then simulation, as one daily series (the capital simulator
+ *  reads it from 1 January, user 2026-09-28). pnl_day is the day's move of the curve. */
+export function timelinePerfDaily(t: Timeline, botId: string): PerfDaily[] {
+  let prev: number | null = null
+  return t.rows.map(r => {
+    const capital = (r.paper ?? r.backtest) as number
+    const pnl_day = prev === null ? 0 : round2(capital - prev)
+    prev = capital
+    return { id: r.date, bot_id: botId, date: r.date, capital, pnl_day,
+      win_rate: null, profit_factor: null }
+  })
+}
+
 /** Win rate, PF, drawdown and trade count of the backtest period alone: trades opened up
  *  to the freeze, curve up to the freeze. */
 export function backtestStats(seg: BacktestSegment): BotStats {
