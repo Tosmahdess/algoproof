@@ -150,7 +150,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
         <div className="space-y-3">
           {proven.length > 0 && (
             <div data-testid="fleet-table">
-              <BotTable bots={proven} showTf />
+              <BotTable bots={proven} showTf fleetTotalAbove />
             </div>
           )}
 
@@ -160,7 +160,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
                 {`En rodage · ${rodage.length} ${plural(rodage.length, 'bot', 'bots')} entre 1 et ${LOW_SAMPLE_TRADES - 1} trades : un taux de gain ou un facteur de profit ne veut encore rien dire ici.`}
               </summary>
               <div className="px-4 pb-4 pt-2">
-                <BotTable bots={rodage} showTf />
+                <BotTable bots={rodage} showTf fleetTotalAbove />
               </div>
             </details>
           )}

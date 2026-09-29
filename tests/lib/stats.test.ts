@@ -85,8 +85,18 @@ describe('computeBotStats', () => {
     expect(s.profit_factor).toBeCloseTo(8.0)
     // synthetic latest_capital = 1000 + 10 - 5 + 30 = 1035
     expect(s.latest_capital).toBe(1035)
-    // DD recomputed from cumulative long pnls: 10 → 5 → 35. Peak 10 → trough 5 = 50% relative drop
-    expect(s.max_drawdown).toBeCloseTo(0.5)
+    // DD on the CAPITAL, from the start capital: 1000 → 1010 → 1005 → 1035, peak 1010 →
+    // trough 1005 = 0.495 %. (It read 50 % until 29/09: the drop was divided by the
+    // cumulative PROFIT, not the capital. Astra audit, D073.)
+    expect(s.max_drawdown).toBeCloseTo(5 / 1010, 6)
+  })
+
+  it('a filtered slice that starts with losses has a drawdown (Astra audit, 29/09)', () => {
+    // KAMA filtered on shorts: -11.37 then -11.46 read DD 0 %, the peak starting at 0
+    const shorts: Trade[] = [makeTrade('a', 'short', -11.37, '2026-08-31'),
+      makeTrade('b', 'short', -11.46, '2026-09-17')]
+    const s = computeBotStats(shorts, [], 'short', 1121.84)
+    expect(s.max_drawdown).toBeCloseTo((11.37 + 11.46) / 1121.84, 6)
   })
 
   it('short filter: synthetic capital reflects only short pnls', () => {

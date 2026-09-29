@@ -68,6 +68,10 @@ export interface BotWithStats extends Bot {
   perf_daily: PerfDaily[]
   recent_trades: Trade[]
   all_trades: Trade[]   // complete trade list, used for client-side long/short filtering
+  /** Engine bots in the fleet view only (D073): the simulation since the freeze on the
+   *  lists' 1 000 EUR base, for the row's sparkline. perf_daily stays the ledger, which
+   *  the fleet totals and the simulation P&L line read. Never sent to the browser. */
+  list_perf_daily?: PerfDaily[]
 }
 
 /** The only fields of a trade the register's arithmetic ever reads: `side` and

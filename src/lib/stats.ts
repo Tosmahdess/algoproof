@@ -41,14 +41,17 @@ export function countByDirection(trades: Trade[]): DirectionBreakdown {
 /**
  * Reconstruct a drawdown from a chronological list of pnls.
  * Used when filtering by direction — the global perf_daily is no longer the right baseline.
+ * The drawdown is a drop of CAPITAL from its peak, starting on the start capital. Until
+ * 29/09 it started from 0 and divided by the cumulative profit: losses first read 0 %,
+ * and +10 then -5 read 50 % (Astra audit, D073).
  */
-function computeDrawdownFromTrades(trades: StatsTrade[]): number {
+function computeDrawdownFromTrades(trades: StatsTrade[], startCapital: number): number {
   if (trades.length === 0) return 0
   const sorted = [...trades].sort((a, b) =>
     new Date(a.closed_at).getTime() - new Date(b.closed_at).getTime()
   )
-  let running = 0
-  let peak = 0
+  let running = startCapital
+  let peak = startCapital
   let maxDd = 0
   for (const t of sorted) {
     running += t.pnl
@@ -104,7 +107,7 @@ export function computeBotStats(
       ? capitals[capitals.length - 1]
       : startCapital + trades.reduce((s, t) => s + t.pnl, 0)
   } else {
-    max_drawdown = computeDrawdownFromTrades(trades)
+    max_drawdown = computeDrawdownFromTrades(trades, startCapital)
     const netPnl = trades.reduce((s, t) => s + t.pnl, 0)
     latest_capital = startCapital + netPnl
   }
@@ -157,7 +160,7 @@ export function sliceBotStats(
   // never a baseline for a subset of trades (same reasoning as above).
   const stats = computeBotStats(pool, [], side, bot.start_capital, 'all')
   if (side !== 'all') return stats
-  return { ...stats, max_drawdown: computeDrawdownFromTrades(pool) }
+  return { ...stats, max_drawdown: computeDrawdownFromTrades(pool, bot.start_capital) }
 }
 
 export function sideLabel(side: TradeSide): string {

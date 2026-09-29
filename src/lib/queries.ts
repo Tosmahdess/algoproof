@@ -1,4 +1,6 @@
 // src/lib/queries.ts
+import { fleetSimulationView } from '@/lib/bot-simulation'
+import { getBacktestSegment } from '@/lib/backtest-segment-data'
 import type { LiveBot } from '@/lib/fleet-aggregate'
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
@@ -190,10 +192,16 @@ export function cacheSizeWarning(slug: string, tradeCount: number): string | nul
  *  clears the whole fleet; the per-slug tag allows clearing one bot alone. */
 function getBotWithStatsCached(slug: string): Promise<BotWithStats | null> {
   return unstable_cache(
-    // The FLEET projection, not the fiche's. A new cache key ('fleet-bot'), so
-    // the oversized entries written under the old one are never read back.
-    () => fetchBotWithStats(slug, TRADE_COLUMNS_FLEET),
-    ['fleet-bot', slug],
+    // The FLEET projection, not the fiche's. A new cache key ('fleet-bot-sim'), so
+    // entries written before the lists counted the simulation are never read back.
+    // An engine bot is counted like its fiche: simulation since the freeze (D073).
+    async () => {
+      const bot = await fetchBotWithStats(slug, TRADE_COLUMNS_FLEET)
+      if (!bot) return null
+      const today = new Date().toISOString().slice(0, 10)
+      return fleetSimulationView(bot, await getBacktestSegment(slug), today)
+    },
+    ['fleet-bot-sim', slug],
     { revalidate: 1800, tags: ['fleet-bots', `bot-stats:${slug}`] },
   )()
 }
