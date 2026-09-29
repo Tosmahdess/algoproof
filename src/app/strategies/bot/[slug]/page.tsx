@@ -17,8 +17,8 @@ import BotProvenance from '@/components/BotProvenance'
 import SampleNote from '@/components/SampleNote'
 import RecipeGate from '@/components/RecipeGate'
 import EngineBotSummary from '@/components/EngineBotSummary'
-import { getBacktestSegment } from '@/lib/backtest-segment-data'
-import { buildTimeline, timelinePerfDaily } from '@/lib/backtest-segment'
+import { getBotSimulation } from '@/lib/bot-simulation'
+import { timelinePerfDaily } from '@/lib/backtest-segment'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
 import { getBotParams } from '@/lib/bot-params'
 import { getBotExpectations } from '@/lib/bot-expectations'
@@ -45,9 +45,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const bot = await getBotWithStats(slug)
   if (!bot) return {}
+  // Same figures as the fiche's tiles: the simulation since the freeze when there is one.
+  const stats = (await getBotSimulation(bot))?.stats ?? bot.stats
   return {
     title: bot.name,
-    description: `${bot.name} : performance live, WR ${(bot.stats.win_rate * 100).toFixed(1)}%, PF ${bot.stats.profit_factor.toFixed(2)}. ${bot.exchange} · ${bot.timeframe}. Chaque trade vérifié sur AlgoProof.`,
+    description: `${bot.name} : performance live, WR ${(stats.win_rate * 100).toFixed(1)}%, PF ${stats.profit_factor.toFixed(2)}. ${bot.exchange} · ${bot.timeframe}. Chaque trade vérifié sur AlgoProof.`,
     openGraph: {
       type: 'website',
       url: `https://algoproof.fr/strategies/bot/${slug}`,
@@ -59,12 +61,12 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const { slug } = await params
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
-  // Engine bots with a backtest segment: one timeline feeds the curve block and the
-  // capital simulator, so both read the same 1 January start (null = plain paper view).
-  const backtestSegment = getBacktestSegment(bot.slug)
-  const timeline = backtestSegment
-    ? buildTimeline(backtestSegment, bot.perf_daily, bot.all_trades, bot.start_capital)
-    : null
+  // Engine bots with a backtest segment (D072): ONE simulation feeds every figure of the
+  // fiche (tiles, zero-trade note, path-to-real card, curve, capital simulator), so none
+  // falls back to the ledger alone while another counts the replay after the freeze.
+  // Null = plain paper view, bot.stats everywhere.
+  const simulation = await getBotSimulation(bot)
+  const stats = simulation?.stats ?? bot.stats
 
   const expectations = getBotExpectations(slug)
   // Resolved by bot_slug directly (see getProvenanceForBot) — never breaks the page: it
@@ -154,20 +156,20 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           is 0 — passing it to both would print it twice on one page (found in
           fix round 1, funding-rev-long). SampleNote keeps its own generic
           "il attend son signal" line either way. */}
-      <SampleNote totalTrades={bot.stats.total_trades} />
+      <SampleNote totalTrades={stats.total_trades} />
 
       {/* Filter + metrics + equity curve + trades — interactive client island */}
-      <StrategyDetail bot={bot} backtestSegment={backtestSegment} />
+      <StrategyDetail bot={bot} simulation={simulation} />
 
       {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
-      {expectations && <ConformityCard expectations={expectations} stats={bot.stats} />}
+      {expectations && <ConformityCard expectations={expectations} stats={stats} />}
 
       {/* Paper→real gate, paper bots only. A live bot's real-money start date
           is on the provenance line above, and only there (D057): the card
           used to repeat it from the same column. */}
       <PathToRealCard
         status={bot.status}
-        stats={bot.stats}
+        stats={stats}
         liveGate={expectations?.liveGate}
       />
 
@@ -230,10 +232,10 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           handled amounts before learning what the bot does. */}
       {/* An engine bot with a backtest segment is read from 1 January (user, 2026-09-28),
           the backtest's share named apart. */}
-      {timeline && backtestSegment ? (
-        <CapitalSimulator perfDaily={timelinePerfDaily(timeline, bot.slug)}
-          startCapital={bot.start_capital} backtestUntil={backtestSegment.freezeDate}
-          backtestEndCapital={timeline.simStartCapital} />
+      {simulation ? (
+        <CapitalSimulator perfDaily={timelinePerfDaily(simulation.timeline, bot.slug)}
+          startCapital={bot.start_capital} backtestUntil={simulation.segment.freezeDate}
+          backtestEndCapital={simulation.timeline.simStartCapital} />
       ) : bot.perf_daily.length > 0 && (
         <CapitalSimulator perfDaily={bot.perf_daily} startCapital={bot.start_capital} />
       )}

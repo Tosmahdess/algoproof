@@ -14,15 +14,15 @@ import { pnlEur, pnlPct, fmtEur, fmtPct, frNumber } from '@/lib/display'
 import BacktestSegmentLegend from '@/components/BacktestSegmentLegend'
 import BacktestBlock from '@/components/BacktestBlock'
 import { longDateOrdinal } from '@/lib/format-date'
-import { buildTimeline, type BacktestSegment } from '@/lib/backtest-segment'
+import type { BotSimulation } from '@/lib/bot-simulation'
 
 /** Recent trades shown on a phone before « Voir les N derniers » (D057). */
 const TRADES_MOBILE = 5
 
 interface Props {
   bot: BotWithStats
-  /** Backtest drawn before the simulation (pilot 2026-09-25). Unfiltered view only. */
-  backtestSegment?: BacktestSegment | null
+  /** Backtest + simulation since the freeze, computed once by the page (D072). */
+  simulation?: BotSimulation | null
 }
 
 /**
@@ -56,50 +56,48 @@ function reconstructPerfDaily(trades: Trade[], startCapital: number): PerfDaily[
   })
 }
 
-export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
+export default function StrategyDetail({ bot, simulation = null }: Props) {
   const [direction, setDirection] = useState<DirectionFilter>('all')
   const [asset, setAsset] = useState<string>('all')
   const startCapital = bot.start_capital
 
-  const breakdown = useMemo(() => countByDirection(bot.all_trades), [bot.all_trades])
-  const assetOptions = useMemo(() => assetOptionsFromTrades(bot.all_trades), [bot.all_trades])
-  const unfiltered = direction === 'all' && asset === 'all'
-
-  // The simulation starts the day after the recipe's dataset ends (user, 2026-09-28): its
+  // The simulation starts the day after the recipe's dataset ends (D071/D072): its
   // figures, curve and trades come from the timeline, the paper amounts resized on the
-  // capital the curve had reached. A filter rebuilds the paper from a subset of ledger
-  // trades, which the backtest has no counterpart for, so it falls back to the ledger view.
-  const timeline = useMemo(() => (
-    backtestSegment
-      ? buildTimeline(backtestSegment, bot.perf_daily, bot.all_trades, startCapital)
-      : null
-  ), [backtestSegment, bot.perf_daily, bot.all_trades, startCapital])
+  // capital the curve had reached. Everything the top of the fiche counts or filters is
+  // the simulation's trades (replay after the freeze + resized ledger), so the counter,
+  // the tiles and a filtered view never disagree on a bot with replay trades.
+  const timeline = simulation?.timeline ?? null
+  const segment = simulation?.segment ?? null
+  const baseTrades = timeline ? timeline.simTrades : bot.all_trades
+  const baseCapital = timeline ? timeline.simStartCapital : startCapital
+
+  const breakdown = useMemo(() => countByDirection(baseTrades), [baseTrades])
+  const assetOptions = useMemo(() => assetOptionsFromTrades(baseTrades), [baseTrades])
+  const unfiltered = direction === 'all' && asset === 'all'
+  // The two-segment curve is the whole bot; a filter draws the simulation's subset alone.
   const sim = unfiltered ? timeline : null
-  // The backtest's own block does not depend on the filter, only on the file agreeing
-  // with the paper ledger (buildTimeline refuses otherwise).
-  const segment = timeline ? backtestSegment : null
 
   const stats = useMemo(() => (
     sim
       ? sim.simStats
       : unfiltered
       ? bot.stats
-      : computeBotStats(bot.all_trades, bot.perf_daily, direction, startCapital, asset)
-  ), [bot.all_trades, bot.perf_daily, bot.stats, direction, asset, startCapital, unfiltered, sim])
+      : computeBotStats(baseTrades, bot.perf_daily, direction, baseCapital, asset)
+  ), [baseTrades, bot.perf_daily, bot.stats, direction, asset, baseCapital, unfiltered, sim])
 
   const equityData = useMemo(() => (
     unfiltered
       ? bot.perf_daily
-      : reconstructPerfDaily(filterTrades(bot.all_trades, direction, asset), startCapital)
-  ), [bot.all_trades, bot.perf_daily, direction, asset, startCapital, unfiltered])
+      : reconstructPerfDaily(filterTrades(baseTrades, direction, asset), baseCapital)
+  ), [baseTrades, bot.perf_daily, direction, asset, baseCapital, unfiltered])
 
   const tradesShown = useMemo(() => (
     sim
       ? sim.simTrades.slice(0, 20)
       : unfiltered
       ? bot.recent_trades
-      : filterTrades(bot.all_trades, direction, asset).slice(0, 20)
-  ), [bot.all_trades, bot.recent_trades, direction, asset, unfiltered, sim])
+      : filterTrades(baseTrades, direction, asset).slice(0, 20)
+  ), [baseTrades, bot.recent_trades, direction, asset, unfiltered, sim])
 
   // Five rows on a phone (D057): twenty took 1 263 px. The choice survives a
   // filter change: a reader who asked for all of them keeps them.
@@ -109,8 +107,10 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
   // The curve header gives the whole curve's result from its start (1 January on a
   // segmented curve); the simulation's own result, read from ITS start, comes second
   // (user, 2026-09-29: « +0,9 % » beside « 1 000 € le 1er janvier » read as the total).
-  const pct = pnlPct(stats.latest_capital, startCapital)
-  const eur = pnlEur(stats.latest_capital, startCapital)
+  // Filtered, a bot with a simulation reads from the simulation's start.
+  const headerBase = sim ? startCapital : baseCapital
+  const pct = pnlPct(stats.latest_capital, headerBase)
+  const eur = pnlEur(stats.latest_capital, headerBase)
   const simPct = sim ? pnlPct(stats.latest_capital, sim.simStartCapital) : 0
   const simEur = sim ? pnlEur(stats.latest_capital, sim.simStartCapital) : 0
 
@@ -172,6 +172,8 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
             <span className="text-muted whitespace-nowrap">
               {sim
                 ? `Depuis ${frNumber(startCapital, 0)} € le 1er janvier :`
+                : timeline
+                ? `Départ : ${frNumber(baseCapital, 2)} € le ${longDateOrdinal(timeline.simStart)}`
                 : `Départ : ${frNumber(startCapital, 0)} €`}
             </span>
             <span className={`font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>

@@ -8,7 +8,6 @@
 // has its own figures and never enters a simulation figure.
 import { describe, it, expect } from 'vitest'
 import { backtestStats, buildTimeline, timelinePerfDaily, type BacktestSegment } from '@/lib/backtest-segment'
-import { getBacktestSegment } from '@/lib/backtest-segment-data'
 import { paperIsUp } from '@/components/EquityCurve'
 import type { PerfDaily, Trade } from '@/lib/types'
 
@@ -17,7 +16,7 @@ const seg: BacktestSegment = {
   slug: 'arm-test',
   startDate: '2026-08-16',
   freezeDate: '2026-08-18',
-  launchDate: '2026-08-21',
+  replayEnd: '2026-08-21',
   startCapital: 1000,
   points: [
     { date: '2026-08-16', capital: 1000 },
@@ -106,6 +105,16 @@ describe('buildTimeline', () => {
     expect(buildTimeline(bad, perf, ledger, 1000)).toBeNull()
   })
 
+  it('files an intraday trade opened on the freeze day under the backtest (dates, not stamps)', () => {
+    // an H4 entry at 20:00 on the freeze day was seen by the engine; compared as a string
+    // '2026-08-18T20:00' > '2026-08-18' would have sent it to the simulation (Fable, 29/09)
+    const h4 = { ...seg, trades: [...seg.trades.slice(0, 2),
+      { ...seg.trades[1], opened_at: '2026-08-18T20:00:00+00:00', closed_at: '2026-08-18T23:00:00+00:00', pnl: 0 },
+      seg.trades[2]] }
+    expect(backtestStats(h4).total_trades).toBe(3)
+    expect(buildTimeline(h4, perf, ledger, 1000)!.simTrades.length).toBe(3)
+  })
+
   it('refuses a freeze that is not before the launch or not on the curve', () => {
     expect(buildTimeline({ ...seg, freezeDate: '2026-08-21' }, perf, ledger, 1000)).toBeNull()
     expect(buildTimeline({ ...seg, freezeDate: '2026-08-10' }, perf, ledger, 1000)).toBeNull()
@@ -132,18 +141,6 @@ describe('backtestStats', () => {
     expect(s.profit_factor).toBeCloseTo(30 / 10)
     expect(s.latest_capital).toBe(1020)
     expect(s.max_drawdown).toBeCloseTo(10 / 1030)
-  })
-})
-
-describe('getBacktestSegment', () => {
-  it('serves the pilot bot, frozen on the last bar of data_20260802, and nothing else', () => {
-    const s = getBacktestSegment('arm-kamacross-d1-head00')!
-    expect(s.freezeDate).toBe('2026-08-01')
-    expect(s.launchDate).toBe('2026-08-21')
-    expect(s.points[0]).toEqual({ date: '2026-01-01', capital: 1000 })
-    expect(s.points.at(-1)!.date).toBe('2026-08-21')
-    expect(s.trades.length).toBe(18)
-    expect(getBacktestSegment('v1-spot')).toBeNull()
   })
 })
 
