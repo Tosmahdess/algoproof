@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
+import { getBotSimulation } from '@/lib/bot-simulation'
 import { pnlEur, fmtEur, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss } from '@/lib/display'
 
 export const revalidate = 3600
@@ -19,14 +20,18 @@ export default async function EmbedPage({ params }: { params: Promise<{ slug: st
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
 
-  const eur = pnlEur(bot.stats.latest_capital, bot.start_capital)
+  // Same figures as the fiche that offers this share (D072): the simulation since the
+  // freeze when the bot has a backtest segment, its P&L read from the simulation's start.
+  const simulation = await getBotSimulation(bot)
+  const stats = simulation?.stats ?? bot.stats
+  const eur = pnlEur(stats.latest_capital, simulation ? simulation.timeline.simStartCapital : bot.start_capital)
   const isLive = bot.status === 'live'
 
   const metrics: Array<{ label: string; value: string; neutral?: boolean; pos?: boolean }> = [
-    { label: 'WR', value: fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate), neutral: true },
-    { label: 'PF', value: fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor), pos: bot.stats.profit_factor >= 1 },
+    { label: 'WR', value: fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate), neutral: true },
+    { label: 'PF', value: fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor), pos: stats.profit_factor >= 1 },
     // Red only when there is a drawdown to show; « 0.0% » is neutral (display.ts).
-    { label: 'DD', value: fmtDrawdown(bot.stats.max_drawdown), neutral: !drawdownIsLoss(bot.stats.max_drawdown), pos: false },
+    { label: 'DD', value: fmtDrawdown(stats.max_drawdown), neutral: !drawdownIsLoss(stats.max_drawdown), pos: false },
     { label: 'P&L',       value: fmtEur(eur),                                 pos: eur >= 0 },
   ]
 

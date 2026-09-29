@@ -69,6 +69,8 @@ export type Timeline = {
  *  ledger disagree (the page then falls back to the plain paper curve). */
 export function buildTimeline(
   seg: BacktestSegment, perfDaily: PerfDaily[], ledgerTrades: Trade[], startCapital: number,
+  /** Today (UTC date): the curve runs flat to it when the ledger stops earlier. */
+  asOf?: string,
 ): Timeline | null {
   const last = seg.points.at(-1)
   if (!last || last.date !== seg.replayEnd) return null
@@ -90,7 +92,8 @@ export function buildTimeline(
   // One row per calendar day after launch, the capital carried over days without a close.
   // The chart's x axis is categorical: a row per CLOSE would squeeze weeks into a sliver.
   const byDate = new Map(perfDaily.map(p => [p.date, Number(p.capital)]))
-  const lastPaperDate = [...byDate.keys()].sort().at(-1)
+  // A bot with no paper close since the replay still ran every day: flat to today.
+  const lastPaperDate = [...byDate.keys(), asOf ?? ''].sort().at(-1)
   let capital = startCapital
   for (let d = nextDay(last.date); lastPaperDate && d <= lastPaperDate; d = nextDay(d)) {
     capital = byDate.get(d) ?? capital
