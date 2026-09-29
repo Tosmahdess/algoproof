@@ -6,11 +6,11 @@
 import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import StrategyDetail from '@/components/StrategyDetail'
-import type { BacktestSegment } from '@/lib/backtest-segment'
+import { buildTimeline, type BacktestSegment } from '@/lib/backtest-segment'
 import type { BotWithStats, PerfDaily, Trade } from '@/lib/types'
 
 const seg: BacktestSegment = {
-  slug: 'arm-test', startDate: '2026-01-01', freezeDate: '2026-08-01', launchDate: '2026-08-21',
+  slug: 'arm-test', startDate: '2026-01-01', freezeDate: '2026-08-01', replayEnd: '2026-08-21',
   startCapital: 1000,
   points: [{ date: '2026-01-01', capital: 1000 }, { date: '2026-08-01', capital: 1100 },
     { date: '2026-08-21', capital: 1100 }],
@@ -32,13 +32,33 @@ const bot = {
   perf_daily: perf, recent_trades: [trade], all_trades: [trade],
 } as unknown as BotWithStats
 
+// what the page computes once and passes down (lib/bot-simulation.ts)
+const simulation = () => {
+  const timeline = buildTimeline(seg, perf, [trade], 1000)!
+  return { segment: seg, timeline, stats: timeline.simStats }
+}
+
 describe('StrategyDetail curve header with a backtest segment', () => {
   it('gives the result since 1 January, then the simulation apart', () => {
-    const t = render(<StrategyDetail bot={bot} backtestSegment={seg} />)
+    const t = render(<StrategyDetail bot={bot} simulation={simulation()} />)
       .container.textContent!.replace(/\s+/g, ' ')
     // curve ends at 1100 + 10 x 1.1 = 1111: +111 € since 1 January
     expect(t).toMatch(/Depuis 1\s000\s€ le 1er janvier :\s*\+111,00\s€ \(\+11,1\s%\)/)
     // the simulation alone: +11 € on the 1100 it started from
     expect(t).toMatch(/dont simulation\s*\+11,00\s€ \(\+1,0\s%\)/)
+  })
+})
+
+describe('StrategyDetail counter with replay trades after the freeze', () => {
+  it('counts the simulation trades at the top, not the ledger alone', () => {
+    // a bridge trade (after the 1 August freeze, before the launch) + the ledger trade
+    const bridged = { ...seg, trades: [...seg.trades, { asset: 'OP-USDT', side: 'short' as const,
+      opened_at: '2026-08-05', closed_at: '2026-08-07', entry_price: 1, exit_price: 0.9,
+      reason: 'tp_hit', pnl: 0 }] }
+    const timeline = buildTimeline(bridged, perf, [trade], 1000)!
+    const t = render(<StrategyDetail bot={bot}
+      simulation={{ segment: bridged, timeline, stats: timeline.simStats }} />)
+      .container.textContent!.replace(/\s+/g, ' ')
+    expect(t).toMatch(/Trades exposés\s*2\s*\(1L · 1S\)/)
   })
 })

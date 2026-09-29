@@ -42,8 +42,9 @@ export type BacktestSegment = {
   startDate: string
   /** Last day of the recipe's selection dataset (UTC date). The backtest ends here. */
   freezeDate: string
-  /** Paper launch day (UTC date). The file's last point is on this day. */
-  launchDate: string
+  /** Last day of the replay (UTC date), the file's last point: the day before the one
+   *  the paper ledger owns from (armada backtest_segment.replay_end_day, D072). */
+  replayEnd: string
   startCapital: number
   points: { date: string; capital: number }[]
   trades: BacktestTrade[]
@@ -70,13 +71,14 @@ export function buildTimeline(
   seg: BacktestSegment, perfDaily: PerfDaily[], ledgerTrades: Trade[], startCapital: number,
 ): Timeline | null {
   const last = seg.points.at(-1)
-  if (!last || last.date !== seg.launchDate) return null
+  if (!last || last.date !== seg.replayEnd) return null
   // The backtest was sized on this capital; another one would make its euros meaningless.
   if (seg.startCapital !== startCapital) return null
-  // A paper point on or before launch would put the file's replay over the paper's own days.
-  if (perfDaily.some(p => p.date <= seg.launchDate)) return null
+  // A paper point on or before the replay's last day would put the replay over the
+  // ledger's own days.
+  if (perfDaily.some(p => p.date <= seg.replayEnd)) return null
   const freeze = seg.points.find(p => p.date === seg.freezeDate)
-  if (!freeze || seg.freezeDate >= seg.launchDate) return null
+  if (!freeze || seg.freezeDate >= seg.replayEnd) return null
 
   const scale = last.capital / startCapital
   const rows: JoinedRow[] = seg.points.map(p => ({
@@ -96,7 +98,7 @@ export function buildTimeline(
   }
 
   const replay: Trade[] = seg.trades
-    .filter(t => t.opened_at > seg.freezeDate)
+    .filter(t => day(t.opened_at) > seg.freezeDate)
     .map((t, i) => ({
       id: `replay-${i}`, bot_id: seg.slug, opened_at: t.opened_at, closed_at: t.closed_at,
       asset: t.asset, side: t.side, pnl: t.pnl, reason: t.reason, is_paper: true,
@@ -143,7 +145,13 @@ export function backtestStats(seg: BacktestSegment): BotStats {
 }
 
 export function backtestTrades(seg: BacktestSegment): BacktestTrade[] {
-  return seg.trades.filter(t => t.opened_at <= seg.freezeDate)
+  return seg.trades.filter(t => day(t.opened_at) <= seg.freezeDate)
+}
+
+/** UTC date of a date or timestamp: an intraday entry at 20:00 on the freeze day belongs
+ *  to that day (a string compare against the bare date would file it after). */
+function day(isoDateOrStamp: string): string {
+  return isoDateOrStamp.slice(0, 10)
 }
 
 function round2(x: number): number {

@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { getBotWithStats } from '@/lib/queries'
+import { getBotSimulation, simulationPerfDaily } from '@/lib/bot-simulation'
 import { fmtPfDisplay, fmtWinRateDisplay } from '@/lib/display'
 
 export const runtime = 'nodejs'
@@ -49,10 +50,15 @@ export default async function Image({ params }: { params: { slug: string } }) {
     )
   }
 
-  const startCapital = bot.start_capital
-  const pnlPct = ((bot.stats.latest_capital - startCapital) / startCapital) * 100
+  // Same figures as the fiche's tiles (D072): the simulation since the freeze when the bot
+  // has a backtest segment, its P&L read from the simulation's own start.
+  const simulation = await getBotSimulation(bot)
+  const stats = simulation?.stats ?? bot.stats
+  const startCapital = simulation ? simulation.timeline.simStartCapital : bot.start_capital
+  const pnlPct = ((stats.latest_capital - startCapital) / startCapital) * 100
   const pnlColor = pnlPct >= 0 ? '#3fb950' : '#ff4444'
-  const sparklineD = buildSparklinePath(bot.perf_daily, 1104, 140)
+  const sparklineD = buildSparklinePath(
+    simulation ? simulationPerfDaily(simulation) : bot.perf_daily, 1104, 140)
 
   return new ImageResponse(
     <div
@@ -112,9 +118,9 @@ export default async function Image({ params }: { params: { slug: string } }) {
       >
         {[
           { label: 'P&L', value: `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`, color: pnlColor },
-          { label: 'Taux de gain', value: fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate), color: '#e6edf3' },
-          { label: 'Facteur de profit', value: fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor), color: '#e6edf3' },
-          { label: 'Trades', value: String(bot.stats.total_trades), color: '#e6edf3' },
+          { label: 'Taux de gain', value: fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate), color: '#e6edf3' },
+          { label: 'Facteur de profit', value: fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor), color: '#e6edf3' },
+          { label: 'Trades', value: String(stats.total_trades), color: '#e6edf3' },
         ].map((stat, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
             <span style={{ color: '#8b949e', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase' }}>

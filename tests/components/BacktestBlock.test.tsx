@@ -9,7 +9,7 @@ import BacktestBlock from '@/components/BacktestBlock'
 import type { BacktestSegment } from '@/lib/backtest-segment'
 
 const seg: BacktestSegment = {
-  slug: 'arm-test', startDate: '2026-01-01', freezeDate: '2026-08-01', launchDate: '2026-08-21',
+  slug: 'arm-test', startDate: '2026-01-01', freezeDate: '2026-08-01', replayEnd: '2026-08-21',
   startCapital: 1000,
   points: [{ date: '2026-01-01', capital: 1000 }, { date: '2026-08-01', capital: 1020 },
     { date: '2026-08-21', capital: 1100 }],
