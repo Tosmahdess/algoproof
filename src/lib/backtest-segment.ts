@@ -107,8 +107,12 @@ export function buildTimeline(
       asset: t.asset, side: t.side, pnl: t.pnl, reason: t.reason, is_paper: true,
       entry_price: t.entry_price, exit_price: t.exit_price,
     }))
-  const paper = ledgerTrades.map(t => ({ ...t, pnl: round2(t.pnl * scale) }))
-  const simTrades = [...replay, ...paper].sort((a, b) => b.closed_at.localeCompare(a.closed_at))
+  const paper = ledgerTrades.map(t => ({ ...t, pnl: t.pnl * scale }))
+  // The listed trades add up to the listed result, to the cent (Astra audit, point 7).
+  const lastSim = rows.at(-1)!.paper as number
+  const simTrades = reconcileCents(
+    [...replay, ...paper].sort((a, b) => b.closed_at.localeCompare(a.closed_at)),
+    lastSim - freeze.capital)
 
   const simPerf: PerfDaily[] = rows
     .filter(r => r.paper !== null)
@@ -149,6 +153,24 @@ export function backtestStats(seg: BacktestSegment): BotStats {
 
 export function backtestTrades(seg: BacktestSegment): BacktestTrade[] {
   return seg.trades.filter(t => day(t.opened_at) <= seg.freezeDate)
+}
+
+/** Whole-cent amounts that add up to `total` rounded to the cent (Astra audit, 29/09:
+ *  five trades each rounded on their own read +9,83 EUR under a +9,84 EUR result). Cents
+ *  go by largest remainder, at most one per trade; a gap wider than one cent per trade is
+ *  not a rounding and is left visible (amounts rounded, not reconciled). */
+export function reconcileCents<T extends { pnl: number }>(trades: T[], total: number): T[] {
+  const cents = trades.map(t => t.pnl * 100)
+  const out = cents.map(c => Math.round(c))
+  const diff = Math.round(total * 100) - out.reduce((s, c) => s + c, 0)
+  if (diff !== 0 && Math.abs(diff) <= trades.length) {
+    const residual = (i: number) => (cents[i] - out[i]) * Math.sign(diff)
+    const order = trades.map((_, i) => i).sort((a, b) => residual(b) - residual(a))
+    for (let k = 0; k < Math.abs(diff); k++) out[order[k]] += Math.sign(diff)
+  } else if (diff !== 0) {
+    return trades
+  }
+  return trades.map((t, i) => ({ ...t, pnl: out[i] / 100 }))
 }
 
 /** UTC date of a date or timestamp: an intraday entry at 20:00 on the freeze day belongs

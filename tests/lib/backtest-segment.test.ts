@@ -65,6 +65,12 @@ describe('buildTimeline', () => {
     expect(t.scale).toBeCloseTo(1.1)
   })
 
+  it('lists simulation trades that add up to the simulation result, to the cent', () => {
+    const t = buildTimeline(seg, perf, ledger, 1000)!
+    const total = Math.round((t.simStats.latest_capital - t.simStartCapital) * 100)
+    expect(Math.round(t.simTrades.reduce((s, x) => s + x.pnl, 0) * 100)).toBe(total)
+  })
+
   it('resizes the paper trades on the capital reached and adds the replay after the freeze', () => {
     const t = buildTimeline(seg, perf, ledger, 1000)!
     // newest first, as the trade table lists them
