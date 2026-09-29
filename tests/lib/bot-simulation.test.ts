@@ -95,6 +95,9 @@ describe('fleetSimulationView', () => {
     // amounts rescaled to the 1000 base: the bridge trade is 22 on 1100 -> 20 on 1000
     expect(v.all_trades.map(t => Math.round(t.pnl * 100) / 100).sort()).toEqual(
       [Math.round(11 * 1.122 * 1000 / 1100 * 100) / 100, 20].sort())
+    // the row's sparkline reads the same simulation, on the same base (Astra audit, 29/09)
+    expect(v.list_perf_daily!.at(-1)!.capital).toBeCloseTo(v.stats.latest_capital, 6)
+    expect(v.list_perf_daily![0].date).toBe('2026-08-02')
     // the fleet's P&L line and totals keep the ledger: never the replay, never the scale
     expect(v.perf_daily).toBe(b.perf_daily)
     expect(v.start_capital).toBe(1000)

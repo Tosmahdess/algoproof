@@ -18,9 +18,14 @@ interface BotTableProps {
   // else, and a BotWithStats satisfies it structurally.
   bots: FleetBot[]
   showTf: boolean
+  /** The fleet register, under the fleet total: say what that total counts. */
+  fleetTotalAbove?: boolean
 }
 
-export default function BotTable({ bots, showTf }: BotTableProps) {
+export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotTableProps) {
+  // D073: an engine bot's row is its simulation since the freeze on a 1 000 EUR base,
+  // while its fiche shows it on the curve's level. Said once, only where it applies.
+  const hasEngineBot = bots.some(b => b.slug.startsWith('arm-'))
   const withSpark = bots.some(b => (b.spark30?.length ?? 0) >= 2)
   return (
     <div className="bot-table min-w-0">
@@ -134,6 +139,15 @@ export default function BotTable({ bots, showTf }: BotTableProps) {
           </tbody>
         </table>
       </div>
+      {hasEngineBot && (
+        <p className="text-xs text-muted mt-2">
+          Bots moteur : chiffres de leur simulation depuis la fin des données qui ont servi à
+          les sélectionner, trades rejoués compris, en euros pour 1 000 € de départ. Leur fiche
+          montre la même simulation sur le capital atteint par sa courbe, d&apos;où des euros un
+          peu différents.
+          {fleetTotalAbove && ' Le total « Simulation » en haut de page ne compte, lui, que les trades enregistrés depuis le lancement de chaque bot.'}
+        </p>
+      )}
     </div>
   )
 }

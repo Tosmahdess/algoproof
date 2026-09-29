@@ -57,13 +57,14 @@ export default function FleetOverview({
   // and a 30-value window for the row's sparkline. Never perf_daily, never
   // recent_trades (measured 2026-09-23: 5.92 MB of HTML before this projection).
   const registerBots: FleetBot[] = [...live, ...paper, ...archived].map(b => {
-    const { perf_daily, recent_trades: _rt, all_trades, ...rest } = b
+    const { perf_daily, list_perf_daily, recent_trades: _rt, all_trades, ...rest } = b
     return {
       ...rest,
       all_trades: all_trades.map(t => ({
         side: t.side, pnl: t.pnl, asset: t.asset, closed_at: t.closed_at,
       })),
-      spark30: last30Capital(perf_daily),
+      // an engine bot's row reads its simulation, like its figures (D073)
+      spark30: last30Capital(list_perf_daily ?? perf_daily),
     }
   })
 

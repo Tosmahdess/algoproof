@@ -36,9 +36,13 @@ export async function getBotSimulation(bot: BotWithStats): Promise<BotSimulation
 
 /** The simulation line alone (freeze day onwards), as a daily series. */
 export function simulationPerfDaily(sim: BotSimulation): PerfDaily[] {
-  return sim.timeline.rows
+  return simulationRows(sim.timeline, sim.segment.slug)
+}
+
+function simulationRows(timeline: Timeline, slug: string): PerfDaily[] {
+  return timeline.rows
     .filter(r => r.paper !== null)
-    .map(r => ({ id: r.date, bot_id: sim.segment.slug, date: r.date, capital: r.paper as number,
+    .map(r => ({ id: r.date, bot_id: slug, date: r.date, capital: r.paper as number,
       pnl_day: 0, win_rate: null, profit_factor: null }))
 }
 
@@ -65,5 +69,6 @@ export function fleetSimulationView(bot: BotWithStats, segment: BacktestSegment 
     stats: { ...s, latest_capital: s.latest_capital * k },
     all_trades: trades,
     recent_trades: trades.slice(0, 20),
+    list_perf_daily: simulationRows(timeline, bot.slug).map(p => ({ ...p, capital: p.capital * k })),
   }
 }
