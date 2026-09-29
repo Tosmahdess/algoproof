@@ -27,6 +27,7 @@ import { getStrategyFiche } from '@/lib/strategy-library'
 import { provenanceSentence, dossierHref } from '@/lib/provenance'
 import { familyLabel } from '@/lib/families'
 import { labUrl } from '@/lib/lab-links'
+import { pnlEur, pnlPct, fmtEur, fmtPct } from '@/lib/display'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -98,6 +99,18 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         </div>
         <h1 className="text-3xl font-semibold tracking-tight mb-1">{bot.name}</h1>
         <p data-testid="bot-family" className="text-sm text-muted mb-3">{familyLabel(bot.family)}</p>
+        {/* The result under the name (counter-audit item 24): on a phone it sat at 1 120 px.
+            Same helpers and same « depuis le départ » as the real-money cards. */}
+        {bot.stats.total_trades > 0 && (
+          <p data-testid="bot-result" className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+            <span className={`font-mono text-2xl font-medium ${pnlPct(bot.stats.latest_capital, bot.start_capital) < 0 ? 'text-negative' : 'text-positive'}`}>
+              {fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}
+            </span>
+            <span className="font-mono text-sm text-muted">
+              {fmtEur(pnlEur(bot.stats.latest_capital, bot.start_capital))}{' '}depuis le départ · {bot.stats.total_trades}{' '}trades
+            </span>
+          </p>
+        )}
         {/* An engine bot's name already reads strategy, TF, platform (24/09):
             its `strategy` line would repeat the h1 one line lower. */}
         {!bot.engine_unit_key && <p className="text-muted">{bot.strategy}</p>}
@@ -238,7 +251,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           href={labUrl('https://lab.algoproof.fr/lab', 'fiche-bot')}
           target="_blank"
           rel="noopener noreferrer"
-          className={linkClass('inline', 'text-sm')}
+          className={linkClass('inline', 'inline-flex min-h-10 items-center text-sm')}
         >
           Ouvrir le labo →
         </a>
@@ -252,7 +265,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           262 px on a phone. A native <details>, not Repli: this one SHOULD
           have a toggle on a computer too. */}
       <details className="bg-card border border-border rounded-lg p-4 sm:p-5">
-        <summary className="cursor-pointer">
+        <summary className="cursor-pointer min-h-10 flex items-center">
           <h2 className="inline text-xl font-semibold">Partager ce bot</h2>
         </summary>
         <div className="space-y-3 mt-3">

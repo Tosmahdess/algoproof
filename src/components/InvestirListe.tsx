@@ -151,7 +151,7 @@ export default function InvestirListe({
           never companies, so it cannot turn into a tally. Coverage stays
           outside, open: it is what shows how much each filing let me read. */}
       <details className="mb-2">
-        <summary className="cursor-pointer text-xs font-semibold text-muted mb-2">
+        <summary className="cursor-pointer min-h-10 flex items-center text-xs font-semibold text-muted mb-2">
           Alerte relevée dans le dépôt · {puces.length} motif{puces.length > 1 ? 's' : ''}
           {alertes.size > 0 && (
             <span className="text-accent">

@@ -30,9 +30,16 @@ export function shortDatePadded(iso: string | number | Date): string {
   return new Date(iso).toLocaleDateString('fr-FR', withZone({ day: '2-digit', month: 'short' }))
 }
 
+/** French writes the first day of a month « 1er », never « 1 » (« 1er janv. 2026 »).
+ *  Intl has no ordinal day, so the day-first formats below go through this. Only a
+ *  leading « 1 » followed by a space: « 11 » and « 21 » stay as they are. */
+function firstOfMonth(formatted: string): string {
+  return formatted.replace(/^1 /, '1er ')
+}
+
 /** « 24 sept. 2026 » : the one date format for a dated row or figure (lot 1, C4). */
 export function mediumDate(iso: string | number | Date): string {
-  return new Date(iso).toLocaleDateString('fr-FR', withZone({ day: 'numeric', month: 'short', year: 'numeric' }))
+  return firstOfMonth(new Date(iso).toLocaleDateString('fr-FR', withZone({ day: 'numeric', month: 'short', year: 'numeric' })))
 }
 
 /** "3 septembre 2026 à 09:14" — a fiche's completion instant.
@@ -44,7 +51,7 @@ export function mediumDate(iso: string | number | Date): string {
  *  could not tell a fiche written before the open from one written after a 6 %
  *  session. Pinned to Europe/Paris like every other date here. */
 export function longDateTime(iso: string | number | Date): string {
-  return new Date(iso).toLocaleString(
+  return firstOfMonth(new Date(iso).toLocaleString(
     'fr-FR',
     withZone({
       day: 'numeric',
@@ -53,15 +60,15 @@ export function longDateTime(iso: string | number | Date): string {
       hour: '2-digit',
       minute: '2-digit',
     }),
-  )
+  ))
 }
 
 /** "3 septembre 2026" — an article or a fiche. */
 export function longDate(iso: string | number | Date): string {
-  return new Date(iso).toLocaleDateString(
+  return firstOfMonth(new Date(iso).toLocaleDateString(
     'fr-FR',
     withZone({ day: 'numeric', month: 'long', year: 'numeric' }),
-  )
+  ))
 }
 
 /** "03/09/2026" — a date the reader may want to copy. */

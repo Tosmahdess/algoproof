@@ -28,7 +28,8 @@ vi.mock('@/lib/queries', () => ({
 
 import BotFichePage from '@/app/strategies/bot/[slug]/page'
 
-const DATE_RE = /En argent réel depuis le (\d{2}\/\d{2}\/\d{4})/g
+// Since 2026-09-29 the fiche writes dates in the site's format (« 17 avr. 2026 »), not 17/04/2026.
+const DATE_RE = /En argent réel depuis le (\d{1,2} [a-zéû]+\.? \d{4})/g
 
 async function datesOnFiche(slug: string, liveSince: string): Promise<string[]> {
   current.bot = prodBot(slug, { status: 'live', live_since: liveSince })
@@ -41,7 +42,7 @@ describe('/strategies/bot/[slug] — one real-money start date per bot', () => {
     const dates = await datesOnFiche('v1-spot', '2026-04-17T00:00:00Z')
     // guard against a vacuous pass: the sentence must exist at least once
     expect(dates.length).toBeGreaterThan(0)
-    expect(new Set(dates)).toEqual(new Set(['17/04/2026']))
+    expect(new Set(dates)).toEqual(new Set(['17 avr. 2026']))
   })
 
   // 2026-09-11 review (P2): provenance.ts formatted in UTC, PathToRealCard in
@@ -50,12 +51,12 @@ describe('/strategies/bot/[slug] — one real-money start date per bot', () => {
   // surface — and it must still print the Paris day.
   it('a live_since late in the UTC day prints the Paris day, once', async () => {
     const dates = await datesOnFiche('v1-spot', '2026-04-16T23:30:00Z')
-    expect(dates).toEqual(['17/04/2026'])
+    expect(dates).toEqual(['17 avr. 2026'])
   })
 
   it('orb-bf25: same rule, the literal in bot-expectations must not resurface', async () => {
     const dates = await datesOnFiche('orb-bf25', '2026-06-18T00:00:00Z')
     expect(dates.length).toBeGreaterThan(0)
-    expect(new Set(dates)).toEqual(new Set(['18/06/2026']))
+    expect(new Set(dates)).toEqual(new Set(['18 juin 2026']))
   })
 })

@@ -6,18 +6,19 @@
 // provenance line, never the right to a page. Both are deployed, both are real,
 // both are listed.
 import type { Bot } from './types'
-import { numericDate } from './format-date'
+import { mediumDate } from './format-date'
 
 type ProvenanceBot = Pick<Bot,
   'origin' | 'found_at' | 'validated_at' | 'paper_since' | 'live_since' | 'status' | 'engine_unit_key'>
 
 // One formatter for every date on a bot fiche. This used to format in UTC
 // while PathToRealCard used numericDate (Europe/Paris), so a live_since at
-// 23:30 UTC printed two different days on the same page.
+// 23:30 UTC printed two different days on the same page. Since 2026-09-29 it is the
+// site's date format (« 26 avr. 2026 », Europe/Paris), not « 26/04/2026 » (audit item 6).
 function fr(iso: string | null): string | null {
   if (!iso) return null
   if (Number.isNaN(new Date(iso).getTime())) return null
-  return numericDate(iso)
+  return mediumDate(iso)
 }
 
 export function provenanceSentence(bot: ProvenanceBot): string {

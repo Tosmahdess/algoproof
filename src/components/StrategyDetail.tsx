@@ -98,7 +98,7 @@ export default function StrategyDetail({ bot }: Props) {
             <span className="font-bold">{breakdown.total}</span>
             {breakdown.total > 0 && (
               <span className="ml-2 text-muted">
-                ({breakdown.long}L · {breakdown.short}S)
+                ({breakdown.long}{' '}long · {breakdown.short}{' '}short)
               </span>
             )}
           </p>
@@ -177,9 +177,9 @@ export default function StrategyDetail({ bot }: Props) {
           <button
             type="button"
             onClick={() => setTousSurMobile(true)}
-            className="sm:hidden mt-4 w-full rounded border border-border px-3 py-2 text-sm text-muted hover:text-foreground transition-colors"
+            className="sm:hidden mt-4 w-full min-h-10 rounded border border-border px-3 py-2 text-sm text-muted hover:text-foreground transition-colors"
           >
-            Voir les {tradesShown.length} derniers
+            Voir les {tradesShown.length}{' '}derniers
           </button>
         )}
       </div>

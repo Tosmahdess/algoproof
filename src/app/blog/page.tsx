@@ -11,7 +11,7 @@ import { faqJsonLd } from '@/lib/jsonld'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Apprendre le trading algo : guides, méthode, fiscalité, MiCA',
+  title: 'Articles : méthode, stratégies testées, fiscalité crypto et MiCA',
   description: 'Des articles pour comprendre comment je travaille : débuter, ma méthode de recherche, la fiscalité crypto 2026 et la conformité MiCA en France.',
 }
 

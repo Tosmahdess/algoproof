@@ -77,9 +77,17 @@ export default function InvestirPage() {
         {/* On a phone the three tiles are one row each (value, then label on
             the same line): stacked as cards they pushed the search field to
             840 px, under the fold of a 844 px screen. */}
+        {/* Phone (counter-audit 2026-09-26, item 31): the three figures in one line, so the
+            search rises by about 100 px; the tiles from sm up. Only one of the two is ever
+            displayed, so assistive tech reads the figures once. */}
+        <p data-testid="investir-figures-line" className="sm:hidden text-xs text-muted">
+          <span className="font-mono text-foreground">{frNumber(lignes.length, 0)}</span>{' '}sociétés lues ·{' '}
+          <span className="font-mono text-foreground">{medianeLus} sur 7</span>{' '}contrôles possibles en médiane ·{' '}
+          <span className="font-mono text-foreground">{frNumber(avecAlerte, 0)}</span>{' '}fiches avec au moins une alerte
+        </p>
         <section
           aria-label="Ce que j’ai lu"
-          className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2 lg:gap-3 self-start"
+          className="hidden sm:grid lg:col-span-5 grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2 lg:gap-3 self-start"
         >
           {([
             ['Sociétés lues', frNumber(lignes.length, 0)],

@@ -168,9 +168,9 @@ const BOT_EXPECTATIONS: Record<string, BotExpectations> = {
     ],
     threeSentences: {
       entry:
-        'Il trade la cassure du range d’ouverture (Opening Range Breakout) en H1 sur ~24 perpétuels Hyperliquid, long ou short selon le sens de la cassure.',
+        'Il repère la fourchette de prix du début de séance (le range d’ouverture), en bougies d’une heure, puis entre dans le sens où le prix en sort : long à la hausse, short à la baisse, sur environ 24 perpétuels Hyperliquid.',
       exit:
-        'Il sécurise au breakeven à +1R puis laisse courir avec un stop suiveur jusqu’à un objectif de 4R.',
+        'Quand le trade a gagné autant qu’il risquait au départ (1R), il remonte son stop au prix d’entrée (breakeven), puis le fait suivre le prix jusqu’à viser quatre fois ce risque (4R).',
       risk:
         'Levier ×2 maximum, 6 positions simultanées maximum, stop initial sur chaque trade ; c’est un bot en argent réel, chaque trade est publié.',
     },

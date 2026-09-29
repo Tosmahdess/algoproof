@@ -54,7 +54,9 @@ function freshness(snapshotAt: string): string {
 // The substance of the weather is frozen: this is the gate's own answer, worded for
 // a reader, not a new rule.
 function todayForBots(snap: MiSnapshot): string {
-  if (snap.is_safe) return 'Les bots entrent normalement, taille de position normale.'
+  // « taille de position normale » was dropped on 2026-09-29: the snapshot carries no size,
+  // and the sizing matrix can shrink positions while entries are open (audit remnant).
+  if (snap.is_safe) return 'Les bots entrent normalement.'
   return snap.is_macro_safe === false
     ? 'Les bots n’entrent pas : entrées bloquées, filtre macro actif.'
     : 'Les bots n’entrent pas : entrées bloquées tant que ça dure.'

@@ -95,7 +95,7 @@ export default async function HomePage() {
                 <TrackedLink href={labUrl('https://lab.algoproof.fr/lab', 'home-hero')} event="cta_lab" location="home-hero" className="inline-flex h-10 items-center px-4 bg-foreground text-bg font-semibold rounded-md hover:opacity-90 transition-opacity text-sm">
                   Tester ta stratégie →
                 </TrackedLink>
-                <Link href="/overview" className={linkClass('inline', 'block mt-3 text-sm')}>
+                <Link href="/overview" className={linkClass('inline', 'flex min-h-10 items-center mt-1 text-sm')}>
                   Voir mes bots
                 </Link>
                 {/* « Sans compte » lives here, not in the button: with the two
@@ -120,7 +120,7 @@ export default async function HomePage() {
                 <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-flex h-10 items-center px-4 bg-foreground text-bg font-semibold rounded-md hover:opacity-90 transition-opacity text-sm">
                   Voir les sociétés que je lis →
                 </TrackedLink>
-                <Link href="/investir#methode" className={linkClass('inline', 'block mt-3 text-sm')}>
+                <Link href="/investir#methode" className={linkClass('inline', 'flex min-h-10 items-center mt-1 text-sm')}>
                   Les sept contrôles, expliqués
                 </Link>
                 <p className="mt-3 text-xs text-muted md:min-h-[3lh]">

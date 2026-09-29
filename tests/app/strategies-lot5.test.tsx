@@ -24,15 +24,15 @@ vi.mock('@/lib/funnel', () => ({ getFunnelCounts: async () => FUNNEL }))
 import StrategiesIndexPage from '@/app/strategies/page'
 import ConceptPage from '@/app/strategies/[concept]/page'
 
-describe('/strategies — the funnel first, then the method, then the register', () => {
-  it('renders the engine funnel before the folded method, and the method before the register', async () => {
+describe('/strategies — the engine first, then the register, then the method', () => {
+  it('renders the engine summary, then the register and its search, then the method (counter-audit item 16)', async () => {
     bots.current = [prodBot('v1-spot', { status: 'live' }), prodBot('macdvolume-bf11')]
     const { container } = render(await StrategiesIndexPage())
     const html = container.innerHTML
     const at = (id: string) => html.indexOf(`data-testid="${id}"`)
     expect(at('home-funnel')).toBeGreaterThan(-1)
-    expect(at('home-funnel')).toBeLessThan(at('index-gauntlet'))
-    expect(at('index-gauntlet')).toBeLessThan(at('strategies-register'))
+    expect(at('home-funnel')).toBeLessThan(at('strategies-register'))
+    expect(at('strategies-register')).toBeLessThan(at('index-gauntlet'))
     // Since 2026-09-26 the fleet is not recounted here: the introduction links it.
     expect(screen.queryByTestId('home-fleet-line')).toBeNull()
   })

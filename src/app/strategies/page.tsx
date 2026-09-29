@@ -52,33 +52,27 @@ export default async function StrategiesIndexPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12">
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Les stratégies</h1>
-      <p className="text-sm sm:text-base text-muted mb-6 sm:mb-3 max-w-[60ch]">
+      <p className="text-sm sm:text-base text-muted mb-6 max-w-[60ch]">
         Comment marche chaque stratégie que je teste, et lesquelles tournent
         vraiment chez moi. Pour voir les bots en direct, va sur{' '}
         <Link href="/overview" className={linkClass('inline')}>La flotte</Link>.
       </p>
-      {/* Computer only: there the search sits at 1 141 px on a 900 px screen.
-          On a phone the method folds and the search is already in view. */}
-      <a href="#registre"
-         className={linkClass('nav', 'max-sm:hidden inline-block mb-8 text-sm')}>
-        Aller aux stratégies ↓
-      </a>
-
-      {/* The engine-process explainer, once for the whole library — it used to
-          repeat on all 22 concept pages, which punished exactly the visitor who
-          browses several fiches. Concept pages point at #comment-je-decide. */}
-      {/* Lot 5 (conception §5.3): the engine first, the same blocks as the home, so
-          the first figure of the page is the engine's, not a fiche count. Since the
-          counter-audit (2026-09-26) that is the balance sheet, then what the
-          configurations become, strategy by strategy (no fleet line: the intro links it). */}
+      {/* Lot 5 (conception §5.3): the engine first, the same block as the home, so
+          the first figure of the page is the engine's, not a fiche count. */}
       <div className="mb-8">
         <EngineSummary counts={funnel} />
       </div>
+
+      {/* Counter-audit 2026-09-26 (item 16): the search and the families come before the
+          long method, which pushed the search to 2 038 px on a computer and 1 292 px on a
+          phone. What the configurations become, then the method, follow the register. */}
+      <StrategiesRegister groups={groups} />
+
       <EngineSurvival counts={funnel} />
 
+      {/* The engine-process explainer, once for the whole library; concept pages and
+          the home point at its anchor #comment-je-decide, which still resolves here. */}
       <GauntletExplainer space={searchSpace} />
-
-      <StrategiesRegister groups={groups} />
     </main>
   )
 }
