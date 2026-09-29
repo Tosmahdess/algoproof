@@ -8,7 +8,7 @@ import { BLOG_CATEGORIES } from '@/lib/blog-categories'
 import { mediumDate } from '@/lib/format-date'
 
 export default function HomeArticles({ articles }: { articles: ArticleMeta[] }) {
-  const picks = articles.filter(a => a.category !== 'journal' && a.category !== 'weekly').slice(0, 3)
+  const picks = articles.filter(a => a.category !== 'journal').slice(0, 3)
   if (picks.length === 0) return null
   return (
     <section data-testid="home-articles" aria-labelledby="home-articles-title" className="mb-12">

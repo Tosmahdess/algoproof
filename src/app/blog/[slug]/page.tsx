@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: (article.meta.summary ?? article.meta.title) as string,
     // Daily LLM journals are near-duplicate scaled content (same regime restated every
     // day) — noindex so they don't dilute; keep follow so their links are still crawled.
-    // The weekly recaps and real articles stay indexable. (D026, 2026-07-03.)
+    // Real articles stay indexable (D026, 2026-07-03); the weekly recaps were retired on 2026-09-29.
     robots: article.meta.category === 'journal' ? { index: false, follow: true } : undefined,
     openGraph: {
       type: 'article',
