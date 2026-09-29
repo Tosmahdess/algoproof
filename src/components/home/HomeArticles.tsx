@@ -14,7 +14,7 @@ export default function HomeArticles({ articles }: { articles: ArticleMeta[] }) 
     <section data-testid="home-articles" aria-labelledby="home-articles-title" className="mb-12">
       <div className="flex items-baseline justify-between gap-4 mb-3">
         <h2 id="home-articles-title" className="text-xl font-semibold">Trois articles</h2>
-        <Link href="/blog" className={linkClass('inline', 'text-sm')}>Tous les articles</Link>
+        <Link href="/blog" className={linkClass('inline', 'inline-flex min-h-10 items-center text-sm')}>Tous les articles</Link>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
         {picks.map(a => (

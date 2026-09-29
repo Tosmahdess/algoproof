@@ -122,7 +122,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
 
       <p data-testid="fleet-experiment" className="text-xs text-muted leading-relaxed border-l-2 border-border-strong pl-3">
         <span className="text-foreground font-medium">Expérience en cours.</span>{' '}
-        <span className="font-mono text-foreground">{frNumber(engineBorn, 0)}</span> configurations issues du gantelet tournent ici sans tri par résultat,
+        <span className="font-mono text-foreground">{frNumber(engineBorn, 0)}</span>{' '}configurations qui ont passé mes quatre épreuves (le gantelet) tournent ici sans tri par résultat,
         à côté de <span className="font-mono text-foreground">{frNumber(byHand, 0)}</span> {plural(byHand, 'bot déployé', 'bots déployés')} à la main avant le moteur.{' '}
         <Link href="/strategies#comment-je-decide" className={linkClass('inline')}>Le protocole →</Link>
       </p>

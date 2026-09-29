@@ -49,3 +49,13 @@ describe('format-date', () => {
     expect(numericDate(Date.parse(lateEvening))).toBe('04/09/2026')
   })
 })
+
+// 2026-09-29: « le 1 janv. 2026 » was served on bot fiches. French writes « 1er ».
+describe('the first day of a month', () => {
+  it('reads « 1er » in the day-first formats, and leaves 11 and 21 alone', () => {
+    expect(mediumDate('2026-01-01T12:00:00Z')).toBe('1er janv. 2026')
+    expect(longDate('2026-12-01T12:00:00Z')).toBe('1er décembre 2026')
+    expect(mediumDate('2026-01-11T12:00:00Z')).toBe('11 janv. 2026')
+    expect(longDate('2026-03-21T12:00:00Z')).toBe('21 mars 2026')
+  })
+})

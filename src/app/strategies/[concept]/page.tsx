@@ -68,7 +68,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
   return (
     <main className="mx-auto max-w-3xl px-4 sm:px-6 pt-12">
       <nav className="text-xs text-muted mb-6">
-        <Link href="/strategies" className={linkClass('nav')}>Les stratégies</Link>
+        <Link href="/strategies" className={linkClass('nav', 'inline-flex min-h-10 items-center')}>Les stratégies</Link>
         {' / '}{familyLabel(fiche.family)}
       </nav>
 

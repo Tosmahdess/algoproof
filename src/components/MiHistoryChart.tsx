@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import {
   ComposedChart, Line, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, ReferenceLine, Legend,
@@ -68,6 +69,18 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export default function MiHistoryChart({ data }: Props) {
+  // The legend isolates a series (counter-audit 2026-09-26, item 23): five lines on one
+  // small chart are hard to read, and the legend was passive. A click hides or shows a
+  // series; the data and the weights are unchanged.
+  const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set())
+  const toggle = (key: string) =>
+    setHidden(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+
   if (!data.length) {
     return (
       <div className="flex items-center justify-center h-32 text-xs text-muted">
@@ -89,7 +102,7 @@ export default function MiHistoryChart({ data }: Props) {
 
       {/* Score global + piliers */}
       <div>
-        <p className="text-xs text-muted mb-3">Score global et piliers (EMA 24h)</p>
+        <p className="text-xs text-muted mb-3">Score global et piliers (EMA 24h). Clique sur un nom pour masquer ou afficher sa courbe.</p>
         <ResponsiveContainer width="100%" height={200}>
           <ComposedChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <XAxis
@@ -111,16 +124,20 @@ export default function MiHistoryChart({ data }: Props) {
             <ReferenceLine y={-30} stroke="rgba(245,158,11,0.13)" strokeWidth={1} />
 
             {/* Pillar lines (thin, semi-transparent) */}
-            <Line dataKey="sentiment_score"   name="Sentiment"      stroke={PILLAR_COLORS.sentiment_score}   strokeWidth={1} dot={false} strokeOpacity={0.6} />
-            <Line dataKey="derivatives_score" name="Dérivés"        stroke={PILLAR_COLORS.derivatives_score} strokeWidth={1} dot={false} strokeOpacity={0.6} />
-            <Line dataKey="news_score"        name="News"           stroke={PILLAR_COLORS.news_score}        strokeWidth={1} dot={false} strokeOpacity={0.6} />
-            <Line dataKey="macro_score"       name="Macro"          stroke={PILLAR_COLORS.macro_score}       strokeWidth={1} dot={false} strokeOpacity={0.6} />
+            <Line hide={hidden.has('sentiment_score')} dataKey="sentiment_score"   name="Sentiment"      stroke={PILLAR_COLORS.sentiment_score}   strokeWidth={1} dot={false} strokeOpacity={0.6} />
+            <Line hide={hidden.has('derivatives_score')} dataKey="derivatives_score" name="Dérivés"        stroke={PILLAR_COLORS.derivatives_score} strokeWidth={1} dot={false} strokeOpacity={0.6} />
+            <Line hide={hidden.has('news_score')} dataKey="news_score"        name="News"           stroke={PILLAR_COLORS.news_score}        strokeWidth={1} dot={false} strokeOpacity={0.6} />
+            <Line hide={hidden.has('macro_score')} dataKey="macro_score"       name="Macro"          stroke={PILLAR_COLORS.macro_score}       strokeWidth={1} dot={false} strokeOpacity={0.6} />
             {/* Global score — bold on top */}
-            <Line dataKey="composite_score" name="Global" stroke="#ffffff" strokeWidth={2} dot={false} />
+            <Line hide={hidden.has('composite_score')} dataKey="composite_score" name="Global" stroke="#ffffff" strokeWidth={2} dot={false} />
 
             <Legend
-              wrapperStyle={{ fontSize: '12px', color: 'var(--muted)', paddingTop: '8px' }}
+              wrapperStyle={{ fontSize: '12px', color: 'var(--muted)', paddingTop: '8px', cursor: 'pointer' }}
               iconSize={6}
+              onClick={entry => { if (typeof entry.dataKey === 'string') toggle(entry.dataKey) }}
+              formatter={(value, entry) => (
+                <span style={{ opacity: typeof entry.dataKey === 'string' && hidden.has(entry.dataKey) ? 0.35 : 1 }}>{value}</span>
+              )}
             />
           </ComposedChart>
         </ResponsiveContainer>

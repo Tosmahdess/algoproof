@@ -40,7 +40,7 @@ describe('ConformityCard', () => {
     render(<ConformityCard expectations={exp} stats={{ profit_factor: 1.5, max_drawdown: 0.05, total_trades: 40 }} />)
     expect(screen.getByText('Quand ce bot sera coupé')).toBeInTheDocument()
     expect(screen.getByText('DD > 15 % → gel du bot.')).toBeInTheDocument()
-    expect(screen.getByText(/1 janv\. 2026/)).toBeInTheDocument()
+    expect(screen.getByText(/1er janv\. 2026/)).toBeInTheDocument()
   })
 
   it('shows the dormancy note only at 0 trades', () => {
@@ -154,7 +154,7 @@ describe('ConformityCard folds its detail on a phone, never its verdict', () => 
     const corps = document.getElementById('conformite-corps')!
     expect(corps.contains(screen.getByText('Drawdown max'))).toBe(true)
     expect(corps.contains(screen.getByText('Quand ce bot sera coupé'))).toBe(true)
-    expect(corps.contains(screen.getByText(/1 janv\. 2026/))).toBe(true)
+    expect(corps.contains(screen.getByText(/1er janv\. 2026/))).toBe(true)
   })
 })
 

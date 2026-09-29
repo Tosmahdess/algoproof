@@ -63,7 +63,7 @@ describe('MiRegimeBadge', () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
     await waitFor(() =>
-      expect(screen.getByText(/Les bots entrent normalement, taille de position normale/)).toBeDefined(),
+      expect(screen.getByText(/^Les bots entrent normalement\.$/)).toBeDefined(),
     )
     expect(text()).toContain('Ce que ça change pour mes bots aujourd’hui')
     expect(text()).not.toMatch(/Trading autorisé/)

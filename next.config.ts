@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // /societes is the word of the navigation; the page lives at /investir (lot 6, URL kept).
+      { source: '/societes', destination: '/investir', permanent: true },
       // The 21 weekly reviews were retired on 2026-09-29 (owner decision): their
       // figures belong to the fleet page, which is live and right. Old links land there.
       { source: '/blog/:slug(\\d{4}-\\d{2}-\\d{2}-weekly)', destination: '/overview', permanent: true },

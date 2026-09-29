@@ -21,6 +21,7 @@
 // number, because the reader sees both at once.
 import { gatePhrase, regimePhrase, verdictPhrase, pct, type FleetImpact } from '@/lib/mi-fleet-impact'
 import Callout from '@/components/Callout'
+import Repli from '@/components/Repli'
 
 export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null }) {
   // No data, no section. Never a stale or invented claim on a page whose argument is
@@ -37,11 +38,11 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
           most honest block of the page, so it sits second, right under the regime. */}
       <Callout tone="negative-result" className="space-y-3 text-sm leading-relaxed">
       <h2 className="text-xl font-semibold mb-3">Est-ce que ça marche ?</h2>
+        {/* Counter-audit 2026-09-26 (item 22): on a phone this block ran 810 px before the
+            chart. The result and the verdict stay in view; how I measure and why I keep the
+            rule fold below sm only (Repli), and stay open on a computer. */}
         <p>
-          Chaque semaine, je rejoue mes {impact.nPresets} configurations de flotte sur la
-          fenêtre que couvre mon flux météo, une fois avec les règles, une fois sans. Ce sont
-          des rejeux de backtest sur des bots de laboratoire, pas des trades en argent réel.
-          Dernier passage, {impact.windowDays} jours :
+          Dernier passage, sur{' '}{impact.windowDays}{' '}jours de rejeux de backtest (pas d&apos;argent réel) :
         </p>
         <ul className="list-disc pl-5 space-y-1">
           <li>le blocage en régime rouge {gatePhrase(impact)} ;</li>
@@ -62,6 +63,17 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
           vingt trades chacune. C&apos;est trop peu pour trancher dans un sens ou dans
           l&apos;autre{regimePhrase(impact)}.
         </p>
+        <Repli
+          id="meteo-mesure"
+          titre="Comment je mesure, et pourquoi je garde la règle"
+          titreClassName="text-sm font-semibold"
+          corpsClassName="mt-2 space-y-3"
+        >
+        <p>
+          Chaque semaine, je rejoue mes {impact.nPresets} configurations de flotte sur la
+          fenêtre que couvre mon flux météo, une fois avec les règles, une fois sans. Ce sont
+          des rejeux de backtest sur des bots de laboratoire, pas des trades en argent réel.
+        </p>
         <p>
           Je garde quand même la politique. Elle coûte peu, et elle couvre un scénario que
           ces {impact.windowDays}{' '}jours n&apos;ont pas contenu (le rouge franc, celui où je
@@ -69,6 +81,7 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
           garder une règle que la mesure ne soutient pas. Oui. C&apos;est pour ça que je
           publie le contrôle qui la met en cause, et que je le republierai chaque semaine.
         </p>
+        </Repli>
       </Callout>
     </section>
   )

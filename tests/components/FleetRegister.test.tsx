@@ -101,7 +101,7 @@ describe('FleetRegister — the experiment line', () => {
     ]
     render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
     const line = screen.getByTestId('fleet-experiment')
-    expect(line.textContent).toMatch(/2 configurations issues du gantelet/)
+    expect(line.textContent).toMatch(/2 configurations qui ont passé mes quatre épreuves \(le gantelet\)/)
     expect(line.textContent).toMatch(/1 bot déployé à la main/)
     expect(within(line).getByRole('link', { name: /protocole/i }).getAttribute('href')).toBe('/strategies#comment-je-decide')
   })
