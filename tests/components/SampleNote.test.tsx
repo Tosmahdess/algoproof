@@ -10,9 +10,11 @@ describe('SampleNote', () => {
     expect(text).not.toMatch(/erreur|panne|bug/i)
   })
 
-  it('warns that a small sample cannot be concluded from', () => {
-    render(<SampleNote totalTrades={7} />)
-    expect(screen.getByTestId('sample-note').textContent).toMatch(/trop tôt/i)
+  it('says nothing about a small sample: the figures just below already warn (user, 2026-09-29)', () => {
+    // MetricsRow prints « Échantillon faible (7 trades, moins de 20) » under the tiles; the
+    // « 7 trades seulement » line above them said it twice.
+    const { container } = render(<SampleNote totalTrades={7} />)
+    expect(container.firstChild).toBeNull()
   })
 
   it('renders nothing once the sample is large enough', () => {
