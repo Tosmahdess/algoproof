@@ -29,8 +29,8 @@ function isPayload(p: unknown): p is Payload {
 }
 
 export async function getBacktestSegment(slug: string): Promise<BacktestSegment | null> {
-  // Only the armada wave bots have a segment; the others never cost a query.
-  if (!slug.startsWith('arm-')) return null
+  // Engine bots and, since D074, some hand-written ones: every fiche asks (one small
+  // indexed read); a bot without a row gets the plain paper view.
   const client = supabasePrivileged()
   if (!client) return null
   try {
@@ -45,8 +45,11 @@ export async function getBacktestSegment(slug: string): Promise<BacktestSegment 
     }
     const p = (data?.[0] as { payload?: unknown } | undefined)?.payload
     if (!isPayload(p)) return null
+    const raw = p as Payload & { paperScaling?: unknown; verdict?: unknown }
     return { slug, startDate: p.startDate, freezeDate: p.freezeDate, replayEnd: p.replayEnd,
-      startCapital: p.startCapital, points: p.points, trades: p.trades }
+      startCapital: p.startCapital, points: p.points, trades: p.trades,
+      paperScaling: raw.paperScaling === 'additive' ? 'additive' : 'proportional',
+      verdict: raw.verdict === 'exploration' || raw.verdict === 'rejected' ? raw.verdict : null }
   } catch (e) {
     console.error(`[backtest-segment] read threw for ${slug}:`, e)
     return null

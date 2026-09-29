@@ -61,7 +61,8 @@ export function fleetSimulationView(bot: BotWithStats, segment: BacktestSegment 
   if (!segment) return bot
   const timeline = buildTimeline(segment, bot.perf_daily, bot.all_trades, bot.start_capital, today)
   if (!timeline) return bot
-  const k = bot.start_capital / timeline.simStartCapital
+  // A fixed-notional bot's amounts are already on its own base (D074): no rescale.
+  const k = segment.paperScaling === 'additive' ? 1 : bot.start_capital / timeline.simStartCapital
   const trades = timeline.simTrades.map(t => ({ ...t, pnl: t.pnl * k }))
   const s = timeline.simStats
   return {

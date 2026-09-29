@@ -48,6 +48,15 @@ export type BacktestSegment = {
   startCapital: number
   points: { date: string; capital: number }[]
   trades: BacktestTrade[]
+  /** How the paper continues from the curve (D074). 'proportional' (engine bots, 1 %
+   *  risk of equity): every paper amount x capital at the replay end / start capital.
+   *  'additive' (fixed-notional bots, the CME D1 ones): positions do not grow with the
+   *  capital, so the paper is ADDED to the level reached, amounts unchanged. */
+  paperScaling?: 'proportional' | 'additive'
+  /** The bot's standing when it was launched: 'exploration' (tested, not a GO),
+   *  'rejected' (failed its own tests, run in paper as a slow refutation). Null for
+   *  engine bots, which passed the gauntlet. */
+  verdict?: 'exploration' | 'rejected' | null
 }
 
 /** One calendar day of the curve. `paper` is the simulation line (replay, then ledger). */
@@ -80,9 +89,11 @@ export function buildTimeline(
   // ledger's own days.
   if (perfDaily.some(p => p.date <= seg.replayEnd)) return null
   const freeze = seg.points.find(p => p.date === seg.freezeDate)
-  if (!freeze || seg.freezeDate >= seg.replayEnd) return null
+  // The freeze may BE the replay's last day (no bridge: the paper starts the next day).
+  if (!freeze || seg.freezeDate > seg.replayEnd) return null
 
-  const scale = last.capital / startCapital
+  const additive = seg.paperScaling === 'additive'
+  const scale = additive ? 1 : last.capital / startCapital
   const rows: JoinedRow[] = seg.points.map(p => ({
     date: p.date,
     backtest: p.date <= seg.freezeDate ? p.capital : null,
@@ -97,7 +108,8 @@ export function buildTimeline(
   let capital = startCapital
   for (let d = nextDay(last.date); lastPaperDate && d <= lastPaperDate; d = nextDay(d)) {
     capital = byDate.get(d) ?? capital
-    rows.push({ date: d, backtest: null, paper: round2(capital * scale) })
+    rows.push({ date: d, backtest: null,
+      paper: round2(additive ? last.capital + (capital - startCapital) : capital * scale) })
   }
 
   const replay: Trade[] = seg.trades
