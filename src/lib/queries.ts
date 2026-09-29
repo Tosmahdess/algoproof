@@ -237,9 +237,8 @@ async function getAllBotsWithStatsUncached(): Promise<BotWithStats[]> {
 // there is no other caching layer in this codebase, so the cache moves HERE,
 // to the data layer, which is where it belonged anyway — a route being
 // dynamic and its data being cacheable are independent facts. Tagged
-// separately from getAllTradesForAggregate's cache below so either can be
-// revalidated on its own (`revalidateTag('fleet-bots')`) without invalidating
-// the other's still-fresh data.
+// 'fleet-bots' so it can be revalidated on its own (`revalidateTag('fleet-bots')`);
+// the fleet totals below are read fresh, uncached, since 2026-09-29 (migration 059).
 // NO `unstable_cache` HERE ANY MORE — that is the fix, not an omission. Wrapping this
 // composition meant asking the data cache to store ~3.5 MB in one entry, which it refuses
 // above 2 MB without raising anything you can catch. The amortisation the comment above
@@ -251,49 +250,19 @@ export const getAllBotsWithStats = getAllBotsWithStatsUncached
 // Lifted from the old /performance page (folded into /overview 2026-07-31, see
 // next.config.ts redirects). Feeds computeFleetAggregate() for stage 0 of « La
 // flotte » — the unfilterable balance sheet.
-async function getAllTradesForAggregateUncached(): Promise<AggregateTradeRow[]> {
-  // Supabase caps a single request at 1000 rows — page through every closed trade,
-  // otherwise the "P&L total" silently reflects only the 1000 most recent trades.
-  const [trades, botsRes] = await Promise.all([
-    paginateAll<AggregateTradeRow>(async (from, to) => {
-      const { data, error } = await supabase
-        .from('trades')
-        .select('pnl,side,closed_at,bot_id,asset')
-        .not('closed_at', 'is', null)
-        .order('closed_at', { ascending: false })
-        .range(from, to)
-      // Fail loud: swallowing the error made paginateAll stop early on a short page,
-      // publishing a truncated P&L total as fact.
-      if (error) throw new Error(`/overview trades fetch failed: ${error.message}`)
-      return (data ?? []) as AggregateTradeRow[]
-    }),
-    supabase.from('bots').select('id,status'),
-  ])
-
-  // A failed bots fetch would leave archived trades uncounted — fail loud instead.
-  if (botsRes.error) throw new Error(`/overview bots fetch failed: ${botsRes.error.message}`)
-
-  // Archived bots stay listed on /strategies but are excluded from every
-  // aggregate: drop their trades from the P&L totals.
-  const archivedIds = new Set(
-    ((botsRes.data ?? []) as { id: string; status: string }[])
-      .filter(b => b.status === 'archived')
-      .map(b => b.id),
-  )
-  return trades.filter(t => !archivedIds.has(t.bot_id))
+//
+// ONE rpc (migration 059), NOT cached (2026-09-29). It used to page through trades
+// 1 000 rows at a time and sit behind a 30-minute unstable_cache: measured that day,
+// /overview served « 6 189 trades » while the table held 6 253 (pages read while the
+// publisher rewrote bots), then « 6 258 » for over 80 minutes as the table moved on
+// (the entry stopped refreshing, nothing logged). One statement is one consistent
+// snapshot (~0.9 MB, ~0.3 s); without the cache, the totals cannot freeze.
+export async function getAllTradesForAggregate(): Promise<AggregateTradeRow[]> {
+  const { data, error } = await supabase.rpc('fleet_aggregate_trades')
+  // Fail loud: a partial or failed read must never be published as the fleet total.
+  if (error) throw new Error(`/overview fleet aggregate failed: ${error.message}`)
+  return (data ?? []) as AggregateTradeRow[]
 }
-
-// FIX round 3 (Finding B): same reasoning as getAllBotsWithStats above — this
-// is a full paginated scan of the trades table, and needs its own 30-minute
-// cache now that the route itself is dynamic. Kept pure
-// (getAllTradesForAggregateUncached) with the cache applied at the boundary,
-// so the underlying logic stays trivially unit-testable without touching
-// Next's cache runtime.
-export const getAllTradesForAggregate = unstable_cache(
-  getAllTradesForAggregateUncached,
-  ['fleet-trades'],
-  { revalidate: 1800, tags: ['fleet-trades'] },
-)
 
 // Live cohort = real money (status 'live': v1-spot, v1-hl, orb-bf25). Passed down so the P&L headline
 // can separate real from laboratoire (simulation) instead of fusing them into
