@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // The 21 weekly reviews were retired on 2026-09-29 (owner decision): their
+      // figures belong to the fleet page, which is live and right. Old links land there.
+      { source: '/blog/:slug(\\d{4}-\\d{2}-\\d{2}-weekly)', destination: '/overview', permanent: true },
       // /wealth supprimée le 2026-09-09. Ses 82 analyses vivaient à côté de
       // /investir, dont 55 en doublon exact ; les 27 que la règle ne peut pas
       // noter y ont été reprises, avec l'avertissement qu'elles méritent. Chaque

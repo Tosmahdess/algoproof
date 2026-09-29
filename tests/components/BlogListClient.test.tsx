@@ -5,15 +5,15 @@ import type { ArticleMeta } from '@/app/blog/page'
 
 const articles: ArticleMeta[] = [
   { slug: '2026-07-02-journal', title: 'Journal du 2 juillet', date: '2026-07-02', category: 'journal', summary: 'snapshot quotidien', tags: [] },
-  { slug: '2026-06-28-weekly', title: 'Semaine du 22 juin', date: '2026-06-28', category: 'weekly', summary: 'revue hebdo', tags: [] },
+  { slug: '2026-06-04-mica-explique', title: 'MiCA expliqué', date: '2026-06-04', category: 'guide', summary: 'le guide', tags: [] },
   { slug: '2026-06-25-momentum-crypto-de-grossing', title: 'De-grossing', date: '2026-06-25', category: 'methode', summary: 'la thèse', tags: [] },
 ] as ArticleMeta[]
 
 describe('BlogListClient — daily journals hidden by default (D026)', () => {
-  it('hides journal articles from the default list, keeps weekly + methode', () => {
+  it('hides journal articles from the default list, keeps guide + methode', () => {
     render(<BlogListClient articles={articles} />)
     expect(screen.queryByText('Journal du 2 juillet')).toBeNull()
-    expect(screen.getByText('Semaine du 22 juin')).toBeInTheDocument()
+    expect(screen.getByText('MiCA expliqué')).toBeInTheDocument()
   })
 
   it('counts only default-visible articles in the "Tous" pill', () => {
@@ -35,13 +35,13 @@ describe('BlogListClient — daily journals hidden by default (D026)', () => {
 
 // Lot 7 of the design audit (spec 5.8, 2026-09-25). Categories and URLs do not
 // change (arbitration of 2026-09-17): only the shape of the list does.
-const weekly = (n: number): ArticleMeta[] =>
+const guides = (n: number): ArticleMeta[] =>
   Array.from({ length: n }, (_, i) => ({
-    slug: `2026-0${1 + Math.floor(i / 9)}-${String(1 + (i % 9)).padStart(2, '0')}-revue-${i}`,
-    title: `Revue ${i + 1}`,
+    slug: `2026-0${1 + Math.floor(i / 9)}-${String(1 + (i % 9)).padStart(2, '0')}-guide-${i}`,
+    title: `Guide ${i + 1}`,
     date: `2026-0${1 + Math.floor(i / 9)}-${String(1 + (i % 9)).padStart(2, '0')}`,
-    category: 'weekly',
-    summary: `Première phrase de la revue ${i + 1}. Deuxième phrase, plus longue, que la liste ne montre pas.`,
+    category: 'guide',
+    summary: `Première phrase du guide ${i + 1}. Deuxième phrase, plus longue, que la liste ne montre pas.`,
     tags: [],
   })) as ArticleMeta[]
 
@@ -83,38 +83,14 @@ describe('BlogListClient — the shape of the list (lot 7)', () => {
   })
 
   it('gives every filter pill a 40 px tap target', () => {
-    render(<BlogListClient articles={[methode, ...weekly(2)]} />)
+    render(<BlogListClient articles={[methode, ...guides(2)]} />)
     const pills = screen.getAllByRole('button', { name: /\(\d+\)$/ })
     expect(pills.length).toBeGreaterThan(1)
     for (const p of pills) expect(p.className.split(/\s+/)).toContain('h-10')
   })
 
-  it('lists the weekly reviews as compact rows (date · title), 8 visible, then the rest on demand', () => {
-    render(<BlogListClient articles={weekly(20)} />)
-    expect(screen.getAllByTestId('weekly-row').length).toBe(8)
-    const more = screen.getByRole('button', { name: 'Afficher les 12 autres' })
-    fireEvent.click(more)
-    expect(screen.getAllByTestId('weekly-row').length).toBe(20)
-    expect(screen.queryByRole('button', { name: /Afficher les/ })).toBeNull()
-  })
-
-  it('writes the row date in the site format and links the title', () => {
-    render(<BlogListClient articles={weekly(1)} />)
-    const row = screen.getByTestId('weekly-row')
-    expect(row.textContent).toContain('1 janv. 2026')
-    expect(within(row).getByRole('link').getAttribute('href')).toBe('/blog/2026-01-01-revue-0')
-    // a row, not a card: no summary
-    expect(row.textContent).not.toContain('Première phrase')
-  })
-
-  it('shows no « Afficher » button when 8 reviews or fewer', () => {
-    render(<BlogListClient articles={weekly(8)} />)
-    expect(screen.getAllByTestId('weekly-row').length).toBe(8)
-    expect(screen.queryByRole('button', { name: /Afficher les/ })).toBeNull()
-  })
-
   it('keeps the other categories as cards: category, date, title, one sentence', () => {
-    render(<BlogListClient articles={[methode, ...weekly(1)]} />)
+    render(<BlogListClient articles={[methode]} />)
     const card = screen.getByTestId('article-card')
     expect(card.textContent).toContain('Méthode')
     expect(card.textContent).toContain('25 juin 2026')
@@ -122,17 +98,16 @@ describe('BlogListClient — the shape of the list (lot 7)', () => {
     expect(card.textContent).toContain('La thèse en une phrase.')
     expect(card.textContent).not.toContain('deuxième')
     expect(card.textContent).not.toMatch(/Lire la suite/)
-    // the weekly one is a row, not a card
     expect(screen.getAllByTestId('article-card').length).toBe(1)
   })
 
-  it('shows only rows when the weekly pill is on, only cards when another is', () => {
-    render(<BlogListClient articles={[methode, ...weekly(3)]} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Revue hebdo (3)' }))
-    expect(screen.getAllByTestId('weekly-row').length).toBe(3)
-    expect(screen.queryByTestId('article-card')).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Méthode (1)' }))
-    expect(screen.queryByTestId('weekly-row')).toBeNull()
-    expect(screen.getAllByTestId('article-card').length).toBe(1)
+  // 2026-09-29: the weekly reviews were retired; the list has no weekly section
+  // and the intro sends the reader to the live fleet page for the bots' results.
+  it('has no weekly section, and points to the fleet for the results', () => {
+    render(<BlogListClient articles={[methode, ...guides(3)]} />)
+    expect(screen.queryByText(/Revues hebdo/)).toBeNull()
+    expect(screen.queryByRole('button', { name: /Revue hebdo/ })).toBeNull()
+    expect(within(screen.getByTestId('blog-intro')).getByRole('link', { name: 'la flotte' }).getAttribute('href')).toBe('/overview')
+    expect(screen.getAllByTestId('article-card').length).toBe(4)
   })
 })

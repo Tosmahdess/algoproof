@@ -46,7 +46,6 @@ vi.mock('@/lib/mi-fleet-impact', () => ({
 }))
 vi.mock('@/lib/articles', () => ({
   getArticles: () => [
-    { slug: '2026-09-20-weekly', title: 'Les shorts : la leçon la plus chère', date: '2026-09-20', summary: 's', tags: [], category: 'weekly' },
     { slug: '2026-09-19-journal', title: 'Journal', date: '2026-09-19', summary: 's', tags: [], category: 'journal' },
     { slug: '2026-07-11-95', title: 'Pourquoi 95 % des backtests mentent', date: '2026-07-11', summary: 's', tags: [], category: 'methode' },
     { slug: '2026-07-02-dorment', title: 'Pourquoi certains de mes bots ne tradent pas', date: '2026-07-02', summary: 's', tags: [], category: 'methode' },
@@ -179,7 +178,7 @@ describe('/ — method, transparency, articles, graveyard', () => {
     expect(within(orb).getByRole('link', { name: /la décision/ }).getAttribute('href')).toBe('/strategies/bot/orb-bf25')
   })
 
-  it('lists the three latest articles that are not a daily journal nor a weekly review', async () => {
+  it('lists the three latest articles that are not a daily journal', async () => {
     render(await HomePage())
     const links = within(screen.getByTestId('home-articles')).getAllByRole('link').filter(a => a.getAttribute('href')?.startsWith('/blog/'))
     expect(links.map(a => a.getAttribute('href'))).toEqual(['/blog/2026-07-11-95', '/blog/2026-07-02-dorment', '/blog/2026-06-25-six'])

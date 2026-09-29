@@ -15,10 +15,6 @@ const PINNED_SLUGS = [
   '2026-07-02-pourquoi-mes-bots-ne-tradent-pas',
 ]
 
-// Lot 7 (spec 5.8): the weekly reviews are compact rows, 8 visible, the rest on
-// demand. The other categories stay cards. Categories and URLs do not change.
-const WEEKLY_VISIBLE = 8
-
 /** The first sentence of a summary: the full one is in the article. */
 function firstSentence(s: string): string {
   const m = s.trim().match(/^[^.!?]*[.!?](?=\s|$)/)
@@ -34,17 +30,16 @@ const PILL = (active: boolean) =>
 
 export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
   const [filter, setFilter] = useState<BlogCategory | null>(null)
-  const [allWeekly, setAllWeekly] = useState(false)
 
   // D026 (2026-07-03): daily journals drowned the real articles — hidden from the
   // default view, still reachable via the « Journal de bord » pill (no URL broken).
   const defaultVisible = articles.filter(a => a.category !== 'journal')
   const filtered = filter ? articles.filter(a => a.category === filter) : defaultVisible
 
-  const cards = filtered.filter(a => a.category !== 'weekly')
-  const weekly = filtered.filter(a => a.category === 'weekly')
-  const weeklyShown = allWeekly ? weekly : weekly.slice(0, WEEKLY_VISIBLE)
-  const weeklyHidden = weekly.length - weeklyShown.length
+  // The weekly reviews were retired on 2026-09-29 (owner): they repeated the fleet page,
+  // their real-money figures had drifted, and nobody read them. Their URLs redirect to
+  // /overview (next.config.ts), which is the one live source of those figures.
+  const cards = filtered
 
   const counts = articles.reduce<Record<string, number>>((acc, a) => {
     acc[a.category] = (acc[a.category] || 0) + 1
@@ -59,7 +54,8 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-12">
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Articles</h1>
       <p data-testid="blog-intro" className="text-base text-muted max-w-2xl mb-4">
-        Je raconte mes tests de stratégies et je publie chaque semaine les résultats de mes bots.
+        Je raconte mes tests de stratégies et ce que j’en garde ; les résultats de mes bots sont en
+        direct sur <Link href="/overview" className={linkClass('inline')}>la flotte</Link>.
       </p>
 
       {/* Apprendre en pratique : the lab's entries, one line of links (2e chemin de decouverte) */}
@@ -117,7 +113,6 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
       {filter === null && (counts['journal'] || 0) > 0 && (
         <p className="text-xs text-muted mb-8">
           Tu trouveras les journaux de bord quotidiens ({counts['journal']}) dans le filtre « Journal de bord ».
-          Je rassemble désormais le suivi dans la revue hebdo.
         </p>
       )}
 
@@ -136,32 +131,6 @@ export function BlogListClient({ articles }: { articles: ArticleMeta[] }) {
             </article>
           ))}
         </div>
-      )}
-
-      {/* Weekly reviews: compact rows, date · title */}
-      {weekly.length > 0 && (
-        <section className={cards.length > 0 ? 'mt-10' : ''}>
-          <h2 className="text-xs font-medium text-muted mb-3">
-            Revues hebdo ({weekly.length})
-          </h2>
-          <ul className="divide-y divide-border border-y border-border">
-            {weeklyShown.map(a => (
-              <li key={a.slug} data-testid="weekly-row" className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 py-2.5 text-sm">
-                <time dateTime={a.date} className="shrink-0 font-mono text-xs text-muted whitespace-nowrap sm:w-32">{mediumDate(a.date)}</time>
-                <Link href={`/blog/${a.slug}`} className={linkClass('record')}>{a.title}</Link>
-              </li>
-            ))}
-          </ul>
-          {weeklyHidden > 0 && (
-            <button
-              type="button"
-              onClick={() => setAllWeekly(true)}
-              className="mt-3 inline-flex items-center h-10 px-3 text-sm rounded border border-border text-muted hover:text-foreground transition-colors"
-            >
-              Afficher les {weeklyHidden}{' '}autres
-            </button>
-          )}
-        </section>
       )}
 
       {filtered.length === 0 && (
