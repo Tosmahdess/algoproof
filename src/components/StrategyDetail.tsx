@@ -106,10 +106,13 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
   const [tousSurMobile, setTousSurMobile] = useState(false)
   const limiteMobile = tousSurMobile || tradesShown.length <= TRADES_MOBILE ? undefined : TRADES_MOBILE
 
-  // The simulation's result is read from ITS start, not from the 1 000 € of 1 January.
-  const base = sim ? sim.simStartCapital : startCapital
-  const pct = pnlPct(stats.latest_capital, base)
-  const eur = pnlEur(stats.latest_capital, base)
+  // The curve header gives the whole curve's result from its start (1 January on a
+  // segmented curve); the simulation's own result, read from ITS start, comes second
+  // (user, 2026-09-29: « +0,9 % » beside « 1 000 € le 1er janvier » read as the total).
+  const pct = pnlPct(stats.latest_capital, startCapital)
+  const eur = pnlEur(stats.latest_capital, startCapital)
+  const simPct = sim ? pnlPct(stats.latest_capital, sim.simStartCapital) : 0
+  const simEur = sim ? pnlEur(stats.latest_capital, sim.simStartCapital) : 0
 
   return (
     <>
@@ -167,12 +170,21 @@ export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
           </h2>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
             <span className="text-muted whitespace-nowrap">
-              Départ : {frNumber(startCapital, 0)}{' '}€{sim ? ' le 1er janvier' : ''}
+              {sim
+                ? `Depuis ${frNumber(startCapital, 0)} € le 1er janvier :`
+                : `Départ : ${frNumber(startCapital, 0)} €`}
             </span>
-            {sim && <span className="text-muted whitespace-nowrap">simulation :</span>}
             <span className={`font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
               {fmtEur(eur)} ({fmtPct(pct)})
             </span>
+            {sim && (
+              <span className="text-muted whitespace-nowrap">
+                dont simulation{' '}
+                <span className={`font-mono ${simPct >= 0 ? 'text-positive' : 'text-negative'}`}>
+                  {fmtEur(simEur)} ({fmtPct(simPct)})
+                </span>
+              </span>
+            )}
           </div>
         </div>
         {sim && segment ? (
