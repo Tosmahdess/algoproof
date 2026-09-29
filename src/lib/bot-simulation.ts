@@ -41,3 +41,29 @@ export function simulationPerfDaily(sim: BotSimulation): PerfDaily[] {
     .map(r => ({ id: r.date, bot_id: sim.segment.slug, date: r.date, capital: r.paper as number,
       pnl_day: 0, win_rate: null, profit_factor: null }))
 }
+
+/** The FLEET view of an engine bot (lists: /overview, register, strategy pages, D073):
+ *  the same simulation since the freeze as its fiche (trade count, WR, PF, DD, return),
+ *  read on the 1 000 EUR base the lists show every bot on. Amounts are divided by the
+ *  capital the simulation started from over the start capital, so a list's P&L is « per
+ *  1 000 EUR » while the fiche's is on the curve's own level; the percentage is the same.
+ *
+ *  perf_daily and start_capital are NOT touched: the fleet's P&L totals and its
+ *  simulation line are built from them (and from raw trades) and must stay the paper as
+ *  executed, without replayed trades or the backtest's scale (R1). Returns the bot as is
+ *  when it has no segment or its segment disagrees with the ledger. */
+export function fleetSimulationView(bot: BotWithStats, segment: BacktestSegment | null,
+  today: string): BotWithStats {
+  if (!segment) return bot
+  const timeline = buildTimeline(segment, bot.perf_daily, bot.all_trades, bot.start_capital, today)
+  if (!timeline) return bot
+  const k = bot.start_capital / timeline.simStartCapital
+  const trades = timeline.simTrades.map(t => ({ ...t, pnl: t.pnl * k }))
+  const s = timeline.simStats
+  return {
+    ...bot,
+    stats: { ...s, latest_capital: s.latest_capital * k },
+    all_trades: trades,
+    recent_trades: trades.slice(0, 20),
+  }
+}

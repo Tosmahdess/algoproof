@@ -68,3 +68,43 @@ describe('simulationPerfDaily', () => {
     expect(p.at(-1)!.capital).toBe(1122)
   })
 })
+
+// --- Lists (D073): /overview, fleet register, strategy pages ---------------------------
+import { fleetSimulationView } from '@/lib/bot-simulation'
+
+describe('fleetSimulationView', () => {
+  const ledgerTrade = (pnl: number, day: string): Trade => ({
+    id: day, bot_id: 'arm-t', opened_at: `${day}T00:00:00+00:00`,
+    closed_at: `${day}T08:00:00+00:00`, asset: 'ETH-USDT', side: 'long', pnl,
+    reason: null, is_paper: true, entry_price: 1, exit_price: 1,
+  })
+  const perfRow = (date: string, capital: number): PerfDaily => ({
+    id: date, bot_id: 'arm-t', date, capital, pnl_day: 0, win_rate: null, profit_factor: null,
+  })
+
+  it('counts what the fiche counts, on the 1 000 EUR base the lists use', () => {
+    const b = bot([ledgerTrade(11, '2026-09-01')], [perfRow('2026-09-01', 1011)])
+    const v = fleetSimulationView(b, seg, '2026-09-02')
+    // the bridge trade (22 on the curve at 1100) + the ledger trade
+    expect(v.stats.total_trades).toBe(2)
+    expect(v.all_trades.length).toBe(2)
+    // curve: 1100 at the freeze -> 1122 after the bridge -> +11 x 1.122 on the ledger
+    // simulation return = (1122 + 12.34) / 1100 - 1; the list reads it on 1000
+    const simLatest = 1122 + Math.round(11 * 1.122 * 100) / 100
+    expect(v.stats.latest_capital).toBeCloseTo(1000 * simLatest / 1100, 6)
+    // amounts rescaled to the 1000 base: the bridge trade is 22 on 1100 -> 20 on 1000
+    expect(v.all_trades.map(t => Math.round(t.pnl * 100) / 100).sort()).toEqual(
+      [Math.round(11 * 1.122 * 1000 / 1100 * 100) / 100, 20].sort())
+    // the fleet's P&L line and totals keep the ledger: never the replay, never the scale
+    expect(v.perf_daily).toBe(b.perf_daily)
+    expect(v.start_capital).toBe(1000)
+  })
+
+  it('leaves a bot without a segment, or whose segment disagrees, untouched', () => {
+    const b = bot([], [])
+    expect(fleetSimulationView(b, null, '2026-09-02')).toBe(b)
+    const early = perfRow('2026-08-15', 990)
+    const bad = bot([], [early])
+    expect(fleetSimulationView(bad, seg, '2026-09-02')).toBe(bad)
+  })
+})

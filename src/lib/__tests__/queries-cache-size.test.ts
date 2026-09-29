@@ -38,7 +38,9 @@ describe('the aggregate reader is not re-wrapped in unstable_cache', () => {
   const src = readFileSync('src/lib/queries.ts', 'utf8')
 
   it('caches per slug, where entries fit under the ceiling', () => {
-    expect(src).toMatch(/unstable_cache\([\s\S]{0,400}?\[['"]fleet-bot['"], slug\]/)
+    // key renamed 'fleet-bot-sim' when the lists started counting the simulation (D073),
+    // so no entry computed under the old rule is read back; still one entry per slug
+    expect(src).toMatch(/unstable_cache\([\s\S]{0,800}?\[['"]fleet-bot-sim['"], slug\]/)
   })
 
   // And the per-slug entry has to STAY under the ceiling. Measured 2026-09-23:
