@@ -30,8 +30,8 @@ export default function BacktestSegmentLegend({ freezeDate, simStart, verdict = 
       <p>
         <span className="inline-block w-5 border-t-2 border-positive align-middle mr-2" />
         Trait plein : la simulation à partir du {longDateOrdinal(simStart)}, sur des jours que
-        le moteur n&apos;avait jamais vus. {sizing} Les chiffres en haut de page ne comptent que
-        ce trait plein.
+        {verdict ? ' la stratégie ' : ' le moteur '}n&apos;avait jamais vus. {sizing} Les chiffres
+        en haut de page ne comptent que ce trait plein.
       </p>
     </div>
   )

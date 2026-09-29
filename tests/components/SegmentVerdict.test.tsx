@@ -45,5 +45,8 @@ describe('legend of a hand-written bot', () => {
     expect(t).toMatch(/données sur lesquelles je l.ai testée/)
     expect(t).toMatch(/même taille/)
     expect(t).not.toMatch(/capital atteint/)
+    // no engine selected these bots: the unseen days are the strategy's, not the engine's
+    expect(t).toMatch(/jours que la stratégie n.avait jamais vus/)
+    expect(t).not.toMatch(/moteur/)
   })
 })

@@ -99,6 +99,7 @@ export default function EquityCurve({ data, startCapital = 1000, segments, freez
             strokeWidth={2}
             fill="url(#equity)"
             connectNulls={false}
+            isAnimationActive={false}
           />
         </AreaChart>
       </ResponsiveContainer>
