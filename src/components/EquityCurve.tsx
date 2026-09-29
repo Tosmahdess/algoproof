@@ -128,8 +128,10 @@ function SegmentedCurve({ rows, startCapital, freezeDate }: {
           <ReferenceLine y={startCapital} stroke="#444" strokeDasharray="4 2" />
           <Area type="monotone" dataKey="backtest" stroke={BACKTEST_STROKE} strokeWidth={2}
             strokeDasharray="5 4" fill="none" connectNulls={false} isAnimationActive={false} />
+          {/* No draw-in animation, like the backtest line: a screenshot or a slow device
+              caught mid-animation showed the backtest alone (29/09). */}
           <Area type="monotone" dataKey="paper" stroke={simColour} strokeWidth={2}
-            fill="url(#equity-sim)" connectNulls={false} />
+            fill="url(#equity-sim)" connectNulls={false} isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
     </ChartFrame>
