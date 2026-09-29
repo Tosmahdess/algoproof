@@ -36,7 +36,7 @@ describe('FleetDayTable', () => {
     render(<FleetDayTable rows={mkRows(23)} />)
     fireEvent.click(screen.getByRole('button', { name: /Afficher plus/ }))
     expect(screen.getAllByRole('row')).toHaveLength(24)
-    expect(screen.getByText('1 juil. 2026')).toBeTruthy()
+    expect(screen.getByText('1er juil. 2026')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Afficher moins' })).toBeTruthy()
     expect(screen.queryByRole('button', { name: /Afficher plus/ })).toBeNull()
   })

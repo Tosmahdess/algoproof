@@ -70,8 +70,8 @@ export function gauntletFunnel(space: SearchSpace | null): readonly string[] {
       : 'mon moteur y balaie toutes les périodes, toutes les combinaisons de filtres d’entrée et toutes les façons de sortir, ce qui donne des dizaines de millions de variantes pour un seul horizon de temps. Personne ne lit ça à la main.'
 
   const judged = space
-    ? `j’envoie les ${fr(space.nJudged)} premières au gantelet`
-    : 'j’envoie les mieux classées au gantelet'
+    ? `j’envoie les ${fr(space.nJudged)} premières aux quatre épreuves (le gantelet)`
+    : 'j’envoie les mieux classées aux quatre épreuves (le gantelet)'
   const total = space
     ? ` Le corpus complet, ${fr(space.nBehaviors)} comportements distincts pour cet exemple, est écrit dans chaque rapport à côté du nombre jugé.`
     : ' Le corpus complet est écrit dans chaque rapport à côté du nombre jugé.'

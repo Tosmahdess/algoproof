@@ -24,17 +24,18 @@ import StrategiesIndexPage from '@/app/strategies/page'
 import { GAUNTLET_EXPLAINER_TITLE } from '@/lib/gauntlet-explainer'
 
 describe('/strategies — the gauntlet explainer lives on the index', () => {
-  it('renders the explainer once, before the strategy groups', async () => {
+  // Counter-audit 2026-09-26 (item 16): the register and its search come first, the
+  // method after it (it pushed the search to 2 038 px on a computer).
+  it('renders the explainer once, after the strategy groups', async () => {
     bots.current = []
     const { container } = render(await StrategiesIndexPage())
     const explainer = screen.getByTestId('index-gauntlet')
     expect(explainer.textContent).toContain(GAUNTLET_EXPLAINER_TITLE)
-    // "en premier" : the explainer block precedes the register of fiches.
     const register = container.querySelector('[data-testid="strategies-register"]')!
     expect(register).toBeTruthy()
     expect(
-      explainer.compareDocumentPosition(register) & Node.DOCUMENT_POSITION_FOLLOWING,
-      'explainer must come before the fiche register',
+      explainer.compareDocumentPosition(register) & Node.DOCUMENT_POSITION_PRECEDING,
+      'the fiche register must come before the explainer',
     ).toBeTruthy()
   })
 
@@ -82,18 +83,10 @@ describe('/strategies — the explainer folds on a phone, never on a computer', 
     expect(screen.getByTestId('index-gauntlet').contains(titre)).toBe(true)
   })
 
-  it('offers a jump to the search on a computer only', async () => {
+  it('needs no jump link to the search any more: the register follows the engine summary', async () => {
     bots.current = []
     render(await StrategiesIndexPage())
-    const lien = screen.getByRole('link', { name: /Aller aux stratégies/ })
-    expect(lien.getAttribute('href')).toBe('#registre')
-    expect(lien.className).toContain('max-sm:hidden')
-    // Sits right under the intro on a computer: the intro keeps its phone
-    // margin only below sm, the link carries the gap to the card.
-    expect(screen.getByText(/Comment marche chaque stratégie/).className).toContain('sm:mb-3')
-    const registre = document.getElementById('registre')!
-    expect(registre.getAttribute('data-testid')).toBe('strategies-register')
-    expect(registre.querySelector('input[type="search"], input')).toBeTruthy()
+    expect(screen.queryByRole('link', { name: /Aller aux stratégies/ })).toBeNull()
   })
 
   it('sets the honesty paragraphs at body size, and the method at a reading measure (max-w-2xl: max-w-prose cost 307 px on a computer)', async () => {

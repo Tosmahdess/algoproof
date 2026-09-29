@@ -30,7 +30,7 @@ export default function PreuvePage() {
             for every bot, so the intro says so and the points drop « moteur ». */}
         <p className="text-base leading-relaxed mb-3">
           Tout ce que je déploie suit la règle ci-dessous. Les bots qui
-          sortent de mon moteur passent en plus les quatre épreuves de son gantelet,
+          sortent de mon moteur passent en plus ses quatre épreuves (le gantelet),
           expliquées sur <Link href="/strategies" className={linkClass('inline')}>la page des stratégies</Link>.
         </p>
         <ul className="space-y-2 text-sm leading-relaxed list-disc pl-5">

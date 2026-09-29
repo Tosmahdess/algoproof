@@ -35,14 +35,16 @@ export default async function AProposPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">AlgoProof, c&apos;est quoi</h2>
         <p className="text-base leading-relaxed">
-          Le 30 juin 2026, j&apos;ai déplacé mon bot en argent réel de Binance vers Kraken, la veille
-          du jour où Binance cessait de servir les résidents français. AlgoProof, c&apos;est ce que je
-          publie autour de ça : des <Link href="/overview" className={linkClass('inline')}>bots</Link> qui
-          tradent en simulation sur données réelles, frais et slippage compris, ou avec mon argent,
-          chaque trade en ligne, gains comme pertes ; et les <Link href="/investir" className={linkClass('inline')}>comptes
-          de sociétés cotées</Link>, lus par sept contrôles que tu peux refaire toi-même, rapport
-          annuel en main. Pas de promesse de gain et pas de chiffre inventé : ce que je vois, et
-          plus bas, ce que je ne sais pas.
+          AlgoProof, c&apos;est deux choses que je publie. Mes <Link href="/overview" className={linkClass('inline')}>bots</Link>{' '}de
+          trading, en simulation sur données réelles, frais et slippage compris, ou avec mon argent, chaque
+          trade en ligne, gains comme pertes. Et les <Link href="/investir" className={linkClass('inline')}>comptes
+          de sociétés cotées</Link>, lus par sept contrôles que tu peux refaire toi-même, rapport annuel en main.
+        </p>
+        <p className="text-base leading-relaxed mt-3">
+          Pas de promesse de gain et pas de chiffre inventé : ce que je vois, et plus bas, ce que je ne sais
+          pas. Le 30 juin 2026, par exemple, j&apos;ai déplacé mon bot en argent réel de Binance vers Kraken,
+          la veille du jour où Binance cessait de servir les résidents français, et je l&apos;ai{' '}
+          <Link href="/blog/2026-07-10-ton-bot-binance-est-mort-le-1er-juillet" className={linkClass('inline')}>raconté ici</Link>.
         </p>
       </section>
 

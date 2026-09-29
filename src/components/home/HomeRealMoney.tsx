@@ -98,7 +98,7 @@ export function RealMoneyStrip({ bots, minutes }: { bots: BotWithStats[]; minute
     <div data-testid="home-real-strip" className="lg:hidden border border-border rounded-lg overflow-hidden mb-4 text-left">
       <div className="flex items-center justify-between px-3 py-2 bg-card text-xs text-muted">
         <span>Argent réel{f ? ` · ${f}` : ''}</span>
-        <Link href="/overview" className={linkClass('inline')}>toute la flotte →</Link>
+        <Link href="/overview" className={linkClass('inline', 'inline-flex min-h-10 items-center')}>toute la flotte →</Link>
       </div>
       {bots.map(b => {
         const pct = pnlPct(b.stats.latest_capital, b.start_capital)
