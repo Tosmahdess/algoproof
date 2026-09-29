@@ -91,6 +91,17 @@ describe('buildTimeline', () => {
     expect(t.simStats.latest_capital).toBe(1020)
   })
 
+  it('carries the curve flat to today when the ledger has not closed anything since', () => {
+    // 22 of the 75 wave bots have no paper trade: without this their curve stopped on the
+    // replay's last day (20 August) and read as a dead bot on 29 September.
+    const t = buildTimeline(seg, [], [], 1000, '2026-08-25')!
+    expect(t.rows.at(-1)).toEqual({ date: '2026-08-25', backtest: null, paper: 1100 })
+    expect(t.rows.map(r => r.date).slice(-4)).toEqual(
+      ['2026-08-22', '2026-08-23', '2026-08-24', '2026-08-25'])
+    // and never shortens a ledger that runs later than the given day
+    expect(buildTimeline(seg, perf, ledger, 1000, '2026-08-22')!.rows.at(-1)!.date).toBe('2026-08-24')
+  })
+
   it('refuses a bot whose capital is not the one the backtest starts on', () => {
     expect(buildTimeline(seg, [pd('2026-08-23', 495)], [], 500)).toBeNull()
   })

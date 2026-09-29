@@ -25,7 +25,8 @@ export type BotSimulation = {
 export async function getBotSimulation(bot: BotWithStats): Promise<BotSimulation | null> {
   const segment = await getBacktestSegment(bot.slug)
   if (!segment) return null
-  const timeline = buildTimeline(segment, bot.perf_daily, bot.all_trades, bot.start_capital)
+  const today = new Date().toISOString().slice(0, 10)
+  const timeline = buildTimeline(segment, bot.perf_daily, bot.all_trades, bot.start_capital, today)
   if (!timeline) {
     console.error(`[bot-simulation] ${bot.slug}: segment and ledger disagree, plain view`)
     return null
