@@ -9,7 +9,7 @@
 import { useMemo, useState } from 'react'
 import MetricsRow from '@/components/MetricsRow'
 import TradesTable from '@/components/TradesTable'
-import { backtestStats, backtestTrades, type BacktestSegment } from '@/lib/backtest-segment'
+import { backtestStats, backtestTrades, reconcileCents, type BacktestSegment } from '@/lib/backtest-segment'
 import { fmtEur, fmtPct, pnlEur, pnlPct } from '@/lib/display'
 import { longDateOrdinal } from '@/lib/format-date'
 import type { Trade } from '@/lib/types'
@@ -19,11 +19,13 @@ const FOLDED = 5
 
 export default function BacktestBlock({ segment }: { segment: BacktestSegment }) {
   const stats = useMemo(() => backtestStats(segment), [segment])
-  const trades: Trade[] = useMemo(() => [...backtestTrades(segment)].reverse().map((t, i) => ({
+  // The listed trades add up to the block's result, to the cent (Astra audit, point 7).
+  const trades: Trade[] = useMemo(() => reconcileCents([...backtestTrades(segment)],
+    stats.latest_capital - segment.startCapital).reverse().map((t, i) => ({
     id: `bt-${i}`, bot_id: segment.slug, opened_at: t.opened_at, closed_at: t.closed_at,
     asset: t.asset, side: t.side, pnl: t.pnl, reason: t.reason, is_paper: true,
     entry_price: t.entry_price, exit_price: t.exit_price,
-  })), [segment])
+  })), [segment, stats])
   const [open, setOpen] = useState(false)
   const eur = pnlEur(stats.latest_capital, segment.startCapital)
   const pct = pnlPct(stats.latest_capital, segment.startCapital)
