@@ -7,6 +7,7 @@ import { useState } from 'react'
 import type { PerfDaily } from '@/lib/types'
 import { simulateOnCapital } from '@/lib/simulator'
 import { fmtEur } from '@/lib/display'
+import { longDateOrdinal } from '@/lib/format-date'
 
 const PRESETS = [250, 500, 1000, 2500]
 
@@ -19,25 +20,52 @@ function fmtMonthLabel(month: string | null): string {
   return names[idx] ? `${names[idx]} ${y}` : month
 }
 
+/** « du 31 août au 28 septembre 2026 », the year written once when both dates share it. */
+function period(first: string, last: string): string {
+  const a = longDateOrdinal(first)
+  const b = longDateOrdinal(last)
+  return first.slice(0, 4) === last.slice(0, 4)
+    ? `du ${a.replace(/ \d{4}$/, '')} au ${b}`
+    : `du ${a} au ${b}`
+}
+
 export default function CapitalSimulator({
   perfDaily,
   startCapital,
+  backtestUntil,
+  backtestEndCapital,
 }: {
   perfDaily: PerfDaily[]
   startCapital: number
+  /** When the curve starts with a backtest (engine bots, 2026-09-28): its last day and
+   *  the capital it reached, so the backtest's share of the result is named apart. */
+  backtestUntil?: string
+  backtestEndCapital?: number
 }) {
   const [capital, setCapital] = useState(500)
   const result = simulateOnCapital(perfDaily, startCapital, capital)
   if (!result) return null
+  const withBacktest = backtestUntil !== undefined && backtestEndCapital !== undefined
+  const backtestEur = withBacktest ? (backtestEndCapital - startCapital) * capital / startCapital : 0
 
   return (
     <section className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
       <h2 className="text-xl font-semibold mb-3">Et sur mon capital ?</h2>
-      <p className="text-xs text-muted mb-4">
-        Le même historique observé ({result.firstDate} → {result.lastDate}), relu à l’échelle
-        d’un capital de départ que tu choisis. C’est une lecture du passé, pas une
-        projection : les résultats passés ne préjugent pas des résultats futurs.
-      </p>
+      {withBacktest ? (
+        <p className="text-xs text-muted mb-4">
+          La courbe ci-dessus, {period(result.firstDate, result.lastDate)}, relue à l’échelle
+          d’un capital de départ que tu choisis. Jusqu’au {longDateOrdinal(backtestUntil)}, c’est
+          le backtest, sur des données que la stratégie avait déjà vues ; la suite est la
+          simulation. C’est une lecture du passé, pas une projection : les résultats passés ne
+          préjugent pas des résultats futurs.
+        </p>
+      ) : (
+        <p className="text-xs text-muted mb-4">
+          Le même historique observé ({period(result.firstDate, result.lastDate)}), relu à
+          l’échelle d’un capital de départ que tu choisis. C’est une lecture du passé, pas une
+          projection : les résultats passés ne préjugent pas des résultats futurs.
+        </p>
+      )}
 
       <div className="flex gap-2 mb-5 flex-wrap">
         {PRESETS.map(preset => (
@@ -57,10 +85,15 @@ export default function CapitalSimulator({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <p className="text-xs text-muted mb-0.5">Résultat sur la période</p>
+          <p className="text-xs text-muted mb-0.5">
+            {withBacktest ? 'Résultat depuis le 1er janvier' : 'Résultat sur la période'}
+          </p>
           <p className={`text-xl font-mono ${result.pnlEur >= 0 ? 'text-positive' : 'text-negative'}`}>
             {fmtEur(result.pnlEur)}
           </p>
+          {withBacktest && (
+            <p className="text-xs text-muted mt-0.5">dont {fmtEur(backtestEur)} de backtest</p>
+          )}
         </div>
         <div>
           <p className="text-xs text-muted mb-0.5">

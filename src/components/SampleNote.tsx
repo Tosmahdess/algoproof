@@ -1,5 +1,3 @@
-import { isLowSample } from '@/lib/display'
-
 /**
  * A deployed bot with zero trades keeps its page (spec §6.5). Several trend bots
  * have not traded since April, and the site publicly defends that as correct
@@ -17,12 +15,7 @@ export default function SampleNote({
       </p>
     )
   }
-  if (isLowSample(totalTrades)) {
-    return (
-      <p data-testid="sample-note" className="text-xs text-muted">
-        {totalTrades} trades seulement : trop tôt pour conclure quoi que ce soit.
-      </p>
-    )
-  }
+  // A small sample is NOT said here (user, 2026-09-29): MetricsRow prints « Échantillon
+  // faible (N trades, moins de 20) » under the figures, a few lines down.
   return null
 }

@@ -11,12 +11,18 @@ import AlsoLiveBadge from '@/components/AlsoLiveBadge'
 import { computeBotStats, countByDirection, filterTrades, type DirectionFilter } from '@/lib/stats'
 import { assetOptionsFromTrades } from '@/lib/asset'
 import { pnlEur, pnlPct, fmtEur, fmtPct, frNumber } from '@/lib/display'
+import BacktestSegmentLegend from '@/components/BacktestSegmentLegend'
+import BacktestBlock from '@/components/BacktestBlock'
+import { longDateOrdinal } from '@/lib/format-date'
+import { buildTimeline, type BacktestSegment } from '@/lib/backtest-segment'
 
 /** Recent trades shown on a phone before « Voir les N derniers » (D057). */
 const TRADES_MOBILE = 5
 
 interface Props {
   bot: BotWithStats
+  /** Backtest drawn before the simulation (pilot 2026-09-25). Unfiltered view only. */
+  backtestSegment?: BacktestSegment | null
 }
 
 /**
@@ -50,7 +56,7 @@ function reconstructPerfDaily(trades: Trade[], startCapital: number): PerfDaily[
   })
 }
 
-export default function StrategyDetail({ bot }: Props) {
+export default function StrategyDetail({ bot, backtestSegment = null }: Props) {
   const [direction, setDirection] = useState<DirectionFilter>('all')
   const [asset, setAsset] = useState<string>('all')
   const startCapital = bot.start_capital
@@ -59,11 +65,27 @@ export default function StrategyDetail({ bot }: Props) {
   const assetOptions = useMemo(() => assetOptionsFromTrades(bot.all_trades), [bot.all_trades])
   const unfiltered = direction === 'all' && asset === 'all'
 
+  // The simulation starts the day after the recipe's dataset ends (user, 2026-09-28): its
+  // figures, curve and trades come from the timeline, the paper amounts resized on the
+  // capital the curve had reached. A filter rebuilds the paper from a subset of ledger
+  // trades, which the backtest has no counterpart for, so it falls back to the ledger view.
+  const timeline = useMemo(() => (
+    backtestSegment
+      ? buildTimeline(backtestSegment, bot.perf_daily, bot.all_trades, startCapital)
+      : null
+  ), [backtestSegment, bot.perf_daily, bot.all_trades, startCapital])
+  const sim = unfiltered ? timeline : null
+  // The backtest's own block does not depend on the filter, only on the file agreeing
+  // with the paper ledger (buildTimeline refuses otherwise).
+  const segment = timeline ? backtestSegment : null
+
   const stats = useMemo(() => (
-    unfiltered
+    sim
+      ? sim.simStats
+      : unfiltered
       ? bot.stats
       : computeBotStats(bot.all_trades, bot.perf_daily, direction, startCapital, asset)
-  ), [bot.all_trades, bot.perf_daily, bot.stats, direction, asset, startCapital, unfiltered])
+  ), [bot.all_trades, bot.perf_daily, bot.stats, direction, asset, startCapital, unfiltered, sim])
 
   const equityData = useMemo(() => (
     unfiltered
@@ -72,18 +94,25 @@ export default function StrategyDetail({ bot }: Props) {
   ), [bot.all_trades, bot.perf_daily, direction, asset, startCapital, unfiltered])
 
   const tradesShown = useMemo(() => (
-    unfiltered
+    sim
+      ? sim.simTrades.slice(0, 20)
+      : unfiltered
       ? bot.recent_trades
       : filterTrades(bot.all_trades, direction, asset).slice(0, 20)
-  ), [bot.all_trades, bot.recent_trades, direction, asset, unfiltered])
+  ), [bot.all_trades, bot.recent_trades, direction, asset, unfiltered, sim])
 
   // Five rows on a phone (D057): twenty took 1 263 px. The choice survives a
   // filter change: a reader who asked for all of them keeps them.
   const [tousSurMobile, setTousSurMobile] = useState(false)
   const limiteMobile = tousSurMobile || tradesShown.length <= TRADES_MOBILE ? undefined : TRADES_MOBILE
 
+  // The curve header gives the whole curve's result from its start (1 January on a
+  // segmented curve); the simulation's own result, read from ITS start, comes second
+  // (user, 2026-09-29: « +0,9 % » beside « 1 000 € le 1er janvier » read as the total).
   const pct = pnlPct(stats.latest_capital, startCapital)
   const eur = pnlEur(stats.latest_capital, startCapital)
+  const simPct = sim ? pnlPct(stats.latest_capital, sim.simStartCapital) : 0
+  const simEur = sim ? pnlEur(stats.latest_capital, sim.simStartCapital) : 0
 
   return (
     <>
@@ -116,6 +145,11 @@ export default function StrategyDetail({ bot }: Props) {
 
       {/* Key metrics — recomputed when filter changes */}
       <div className="mb-8">
+        {sim && (
+          <p className="text-xs font-semibold text-muted mb-2">
+            Simulation depuis le {longDateOrdinal(sim.simStart)}
+          </p>
+        )}
         <MetricsRow stats={stats} family={bot.family} />
       </div>
 
@@ -134,14 +168,32 @@ export default function StrategyDetail({ bot }: Props) {
               </span>
             )}
           </h2>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="text-muted whitespace-nowrap">Départ : {frNumber(startCapital, 0)}{' '}€</span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <span className="text-muted whitespace-nowrap">
+              {sim
+                ? `Depuis ${frNumber(startCapital, 0)} € le 1er janvier :`
+                : `Départ : ${frNumber(startCapital, 0)} €`}
+            </span>
             <span className={`font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
               {fmtEur(eur)} ({fmtPct(pct)})
             </span>
+            {sim && (
+              <span className="text-muted whitespace-nowrap">
+                dont simulation{' '}
+                <span className={`font-mono ${simPct >= 0 ? 'text-positive' : 'text-negative'}`}>
+                  {fmtEur(simEur)} ({fmtPct(simPct)})
+                </span>
+              </span>
+            )}
           </div>
         </div>
-        {equityData.length > 0 ? (
+        {sim && segment ? (
+          <>
+            <EquityCurve data={equityData} startCapital={startCapital}
+              segments={sim.rows} freezeDate={segment.freezeDate} />
+            <BacktestSegmentLegend freezeDate={segment.freezeDate} simStart={sim.simStart} />
+          </>
+        ) : equityData.length > 0 ? (
           <EquityCurve data={equityData} startCapital={startCapital} />
         ) : (
           <p className="text-muted text-sm text-center py-12">Aucun trade à afficher pour ce filtre.</p>
@@ -153,10 +205,12 @@ export default function StrategyDetail({ bot }: Props) {
         )}
       </div>
 
+      {segment && <BacktestBlock segment={segment} />}
+
       {/* Recent trades */}
       <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
         <h2 className="text-xl font-semibold mb-3">
-          Trades récents
+          Trades récents{sim ? ' de la simulation' : ''}
           <span className="text-muted text-sm font-normal ml-2">
             {/* The counter says what THIS screen shows: « 5 sur 20 » on a phone
                 while folded, « 20 affichés » everywhere else. */}
