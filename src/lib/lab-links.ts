@@ -4,6 +4,9 @@
 // lab records it with the page view (page-hit.ts). A bare lab href is a visit
 // the measure cannot attribute; tests/lib/lab-ref-guard.test.ts lists them.
 export const LAB_ORIGIN = 'https://lab.algoproof.fr'
+// The lab's API. The favorite star (components/FavoriteButton.tsx) calls it
+// from the browser with the session's access token, never with a cookie.
+export const LAB_API_ORIGIN = 'https://api-lab.algoproof.fr'
 
 const REF_MAX = 64
 

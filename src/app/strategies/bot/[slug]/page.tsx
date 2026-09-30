@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import StatusBadge from '@/components/StatusBadge'
 import StrategyDetail from '@/components/StrategyDetail'
 import TrackView from '@/components/TrackView'
+import FavoriteButton from '@/components/FavoriteButton'
 import BotParamsSection from '@/components/BotParams'
 import ExplainerBox from '@/components/ExplainerBox'
 import BotQuestionForm from '@/components/BotQuestionForm'
@@ -105,7 +106,12 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             <span>· {bot.assets.join(', ')}</span>
           )}
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight mb-1">{bot.name}</h1>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-1">
+          <h1 className="text-3xl font-semibold tracking-tight">{bot.name}</h1>
+          {/* Client island: the page stays static and public, the star alone
+              asks who is reading (espace-direct lot A). */}
+          <FavoriteButton slug={bot.slug} />
+        </div>
         <p data-testid="bot-family" className="text-sm text-muted mb-3">{familyLabel(bot.family)}</p>
         {/* An engine bot's name already reads strategy, TF, platform (24/09):
             its `strategy` line would repeat the h1 one line lower. */}
