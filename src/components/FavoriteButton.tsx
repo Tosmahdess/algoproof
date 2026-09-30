@@ -48,7 +48,6 @@ export default function FavoriteButton({ slug }: { slug: string }) {
   const [state, setState] = useState<State>('loading')
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
-  const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
     let live = true
@@ -56,7 +55,6 @@ export default function FavoriteButton({ slug }: { slug: string }) {
       const t = await accessToken()
       if (!live) return
       if (!t) return setState('guest')
-      setToken(t)
       try {
         const on = await call(slug, t, 'GET')
         if (live) setState(on ? 'on' : 'off')
@@ -69,11 +67,15 @@ export default function FavoriteButton({ slug }: { slug: string }) {
   }, [slug])
 
   async function toggle() {
-    if (!token || busy) return
+    if (busy) return
     const was = state
     setBusy(true)
     setFailed(false)
     try {
+      // Asked again on every click, never kept from mount: an access token
+      // lives an hour and getSession() refreshes it only when it is called.
+      const token = await accessToken()
+      if (!token) return setState('guest')
       const on = await call(slug, token, was === 'on' ? 'DELETE' : 'PUT')
       setState(on ? 'on' : 'off')
     } catch (e) {

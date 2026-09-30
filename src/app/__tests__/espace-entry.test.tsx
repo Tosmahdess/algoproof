@@ -52,6 +52,20 @@ describe('/compte brings a guest back where they came from', () => {
     expect(screen.getByTestId('magic')).toHaveTextContent(/^\/investir$/)
   })
 
+  it('a reader already signed in is sent straight back to next', async () => {
+    entitlement = 'free'
+    const { default: ComptePage } = await import('@/app/compte/page')
+    await expect(ComptePage({ searchParams: Promise.resolve({ next: '/strategies/bot/v1-hl' }) }))
+      .rejects.toThrow('REDIRECT /strategies/bot/v1-hl')
+  })
+
+  it('a signed-in reader without next stays on the account page', async () => {
+    entitlement = 'free'
+    const { default: ComptePage } = await import('@/app/compte/page')
+    render(await ComptePage({ searchParams: Promise.resolve({}) }))
+    expect(screen.getByText(/Tu es connecté/)).toBeInTheDocument()
+  })
+
   it('without next, lands on /investir as before', async () => {
     const { default: ComptePage } = await import('@/app/compte/page')
     render(await ComptePage({ searchParams: Promise.resolve({}) }))

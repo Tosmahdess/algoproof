@@ -102,6 +102,22 @@ describe('FavoriteButton', () => {
     expect(link).toHaveAttribute('href', '/compte?next=%2Fstrategies%2Fbot%2Fv1-hl')
   })
 
+  it('a click asks for the session again, so a token refreshed since the page opened is used', async () => {
+    // An access token lives an hour; the page can stay open longer. getSession()
+    // refreshes it, but only if it is called: a token kept from mount would
+    // turn a signed-in reader into a « guest » after an hour.
+    getSession
+      .mockResolvedValueOnce({ data: { session: { access_token: 'jwt-old' } } })
+      .mockResolvedValue({ data: { session: { access_token: 'jwt-new' } } })
+    fetchMock
+      .mockReturnValueOnce(reply(200, { favorite: false }))
+      .mockReturnValueOnce(reply(200, { favorite: true }))
+    render(<FavoriteButton slug="v1-hl" />)
+    fireEvent.click(await screen.findByRole('button', { name: /Garder en favori/ }))
+    await screen.findByRole('button', { name: /Dans mes favoris/ })
+    expect(fetchMock.mock.calls[1][1].headers.Authorization).toBe('Bearer jwt-new')
+  })
+
   it('an unreadable state leaves a star that still works', async () => {
     signedIn()
     fetchMock

@@ -4,6 +4,7 @@ import { getEntitlement } from '@/lib/entitlement'
 import { MagicLinkForm } from '@/components/MagicLinkForm'
 import { labUrl } from '@/lib/lab-links'
 import { safeNext } from '@/lib/safe-redirect'
+import { redirect } from 'next/navigation'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -22,6 +23,9 @@ export default async function ComptePage({
   const next = safeNext(typeof rawNext === 'string' ? rawNext : null, '/investir')
   const supabase = await createSupabaseAuthServer()
   const entitlement = await getEntitlement(supabase)
+  // Already signed in (the star saw an expired token, the session has been
+  // refreshed since): straight back to the page the reader came from.
+  if (entitlement !== 'guest' && typeof rawNext === 'string') redirect(next)
 
   return (
     <div className="max-w-md mx-auto px-6 py-16">
