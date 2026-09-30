@@ -40,6 +40,7 @@ import { sortFleet } from '@/lib/fleet-sort'
 import { sliceBotStats } from '@/lib/stats'
 import FleetFilterBar from '@/components/FleetFilterBar'
 import BotTable from '@/components/BotTable'
+import { FavoritesProvider } from '@/components/FavoritesProvider'
 
 export interface FleetRegisterProps {
   /** The register set: the whole fleet, live included, archived included. */
@@ -174,7 +175,10 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
         <div className="space-y-2">
           {rows.length > 0 && (
             <div data-testid="fleet-table">
-              <BotTable bots={rows} showTf fleetTotalAbove />
+              {/* One request for every star of the table (espace-direct lot C). */}
+              <FavoritesProvider kind="bot">
+                <BotTable bots={rows} showTf fleetTotalAbove />
+              </FavoritesProvider>
             </div>
           )}
           {rodageCount > 0 && (

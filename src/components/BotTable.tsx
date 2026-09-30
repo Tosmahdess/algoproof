@@ -8,6 +8,7 @@ import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import Sparkline from '@/components/Sparkline'
+import { FavoriteStar } from '@/components/FavoritesProvider'
 import { familyLabel } from '@/lib/families'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
 import type { FleetBot } from '@/lib/types'
@@ -45,7 +46,11 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
           const hasData = bot.stats.total_trades > 0
           const pct     = pnlPct(bot.stats.latest_capital, bot.start_capital)
           return (
-            <Link key={bot.id} href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'flex flex-col gap-1 px-4 py-3 min-h-10')}>
+            // The star sits NEXT to the row's link, never inside it: a button in
+            // an anchor is two controls in one. It renders only under a
+            // FavoritesProvider (espace-direct lot C).
+            <div key={bot.id} className="relative">
+            <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'flex flex-col gap-1 px-4 py-3 pr-14 min-h-10')}>
               <span className="text-sm leading-snug">{bot.name}</span>
               <span className="flex items-center justify-between gap-2">
                 <span className="flex items-center gap-2">
@@ -66,6 +71,10 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                 ) : ' · pas encore de trade'}
               </span>
             </Link>
+            <span className="absolute right-2 top-1.5">
+              <FavoriteStar kind="bot" slug={bot.slug} name={bot.name} />
+            </span>
+            </div>
           )
         })}
       </div>
@@ -94,7 +103,10 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
               return (
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
+                    <span className="inline-flex items-center gap-1">
+                      <FavoriteStar kind="bot" slug={bot.slug} name={bot.name} />
+                      <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
+                    </span>
                     <p className="text-muted text-xs mt-0.5">
                       {bot.exchange}{!showTf && ` · ${bot.timeframe}`}
                       {hasData && isLowSample(bot.stats.total_trades) && <>{' · '}<RodageTag /></>}
