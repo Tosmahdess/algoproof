@@ -49,7 +49,8 @@ export async function getBacktestSegment(slug: string): Promise<BacktestSegment 
     return { slug, startDate: p.startDate, freezeDate: p.freezeDate, replayEnd: p.replayEnd,
       startCapital: p.startCapital, points: p.points, trades: p.trades,
       paperScaling: raw.paperScaling === 'additive' ? 'additive' : 'proportional',
-      verdict: raw.verdict === 'exploration' || raw.verdict === 'rejected' ? raw.verdict : null }
+      verdict: raw.verdict === 'exploration' || raw.verdict === 'rejected' || raw.verdict === 'tested'
+        ? raw.verdict : null }
   } catch (e) {
     console.error(`[backtest-segment] read threw for ${slug}:`, e)
     return null

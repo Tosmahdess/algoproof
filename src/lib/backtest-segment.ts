@@ -55,8 +55,9 @@ export type BacktestSegment = {
   paperScaling?: 'proportional' | 'additive'
   /** The bot's standing when it was launched: 'exploration' (tested, not a GO),
    *  'rejected' (failed its own tests, run in paper as a slow refutation). Null for
-   *  engine bots, which passed the gauntlet. */
-  verdict?: 'exploration' | 'rejected' | null
+   *  engine bots, which passed the gauntlet. 'tested': a hand-written bot that passed its
+   *  own test (GO_PAPER) on other data than it trades now (funding-rev-long). */
+  verdict?: 'exploration' | 'rejected' | 'tested' | null
 }
 
 /** One calendar day of the curve. `paper` is the simulation line (replay, then ledger). */

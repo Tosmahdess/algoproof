@@ -3,8 +3,10 @@
 // D074: a hand-written bot's standing, shown beside its backtest and its curve. The five
 // CME D1 bots were tested, not selected; tresor-fdm-d1 failed its own tests and runs in
 // paper as a slow refutation. Engine bots passed the gauntlet: no badge.
-export default function SegmentVerdictBadge({ verdict }: { verdict?: 'exploration' | 'rejected' | null }) {
-  if (!verdict) return null
+export default function SegmentVerdictBadge({ verdict }: { verdict?: 'exploration' | 'rejected' | 'tested' | null }) {
+  // 'tested' (a hand-written bot with a GO, e.g. funding-rev-long): no badge, only the
+  // tested wording of its backtest (30/09).
+  if (!verdict || verdict === 'tested') return null
   const text = verdict === 'rejected' ? 'Rejeté au backtest' : 'Exploration, pas un GO'
   const tone = verdict === 'rejected'
     ? 'border-negative/40 text-negative'

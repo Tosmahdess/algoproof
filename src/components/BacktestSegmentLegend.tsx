@@ -8,7 +8,7 @@ import { longDateOrdinal } from '@/lib/format-date'
 export default function BacktestSegmentLegend({ freezeDate, simStart, verdict = null,
   paperScaling = 'proportional' }: {
   freezeDate: string; simStart: string
-  verdict?: 'exploration' | 'rejected' | null
+  verdict?: 'exploration' | 'rejected' | 'tested' | null
   paperScaling?: 'proportional' | 'additive'
 }) {
   // D074: a hand-written bot was TESTED on its data, not selected on it; a fixed-notional
