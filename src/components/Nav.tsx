@@ -30,6 +30,9 @@ const LINKS = [
 // has no auth of its own. The button opens the app, not the landing (D053, D060).
 const LAB_URL = 'https://lab.algoproof.fr'
 const ACCOUNT_URL = `${LAB_URL}/account`
+// Mon espace (espace-direct lot A, D075): the favorites starred on bot pages.
+// It lives on the lab with the account, so it leaves the site the same way.
+const ESPACE_URL = `${LAB_URL}/espace`
 const LAB_APP_URL = `${LAB_URL}/lab`
 
 export default function Nav() {
@@ -67,6 +70,9 @@ export default function Nav() {
               </Link>
             )
           })}
+          <a href={labUrl(ESPACE_URL, 'nav')} className={linkClass('nav', 'text-sm')} title="Tes bots favoris, sur lab.algoproof.fr">
+            Mon espace ↗
+          </a>
           <a href={labUrl(ACCOUNT_URL, 'nav')} className={linkClass('nav', 'text-sm')} title="Ton compte est sur lab.algoproof.fr">
             Compte ↗
           </a>
@@ -127,6 +133,11 @@ export default function Nav() {
                className={linkClass('nav', 'flex h-10 items-center')}
                onClick={() => { trackCtaLab('nav-mobile'); setMobileOpen(false) }}>
               Ouvrir le labo ↗
+            </a>
+            <a href={labUrl(ESPACE_URL, 'nav')} target="_blank" rel="noopener noreferrer"
+               className={linkClass('nav', 'flex h-10 items-center')}
+               onClick={() => setMobileOpen(false)}>
+              Mon espace ↗
             </a>
             <a href={labUrl(ACCOUNT_URL, 'nav')} target="_blank" rel="noopener noreferrer"
                className={linkClass('nav', 'flex h-10 items-center')}

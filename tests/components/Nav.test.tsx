@@ -74,6 +74,19 @@ describe('Nav — five flat links, one button', () => {
     expect(compte.className).not.toMatch(/bg-foreground/)
   })
 
+  // Espace-direct lot A (D075): the space holds the favorites starred on bot
+  // pages; it lives on the lab, like the account, and says so the same way.
+  it('reaches « Mon espace » on the lab, next to the account, on both widths', () => {
+    render(<Nav />)
+    const espace = within(screen.getByTestId('nav-desktop')).getByRole('link', { name: /mon espace/i })
+    expect(espace.getAttribute('href')).toBe('https://lab.algoproof.fr/espace?ref=nav')
+    expect(espace.textContent).toMatch(/↗/)
+    fireEvent.click(screen.getByRole('button', { name: /menu/i }))
+    const menu = screen.getByTestId('mobile-menu')
+    expect(within(menu).getByRole('link', { name: /mon espace/i }).getAttribute('href'))
+      .toBe('https://lab.algoproof.fr/espace?ref=nav')
+  })
+
   it('is 56 px tall (--nav-h)', () => {
     render(<Nav />)
     expect(screen.getByTestId('nav-bar').className).toMatch(/\bh-14\b/)

@@ -3,13 +3,23 @@ import { createSupabaseAuthServer } from '@/lib/supabase-auth'
 import { getEntitlement } from '@/lib/entitlement'
 import { MagicLinkForm } from '@/components/MagicLinkForm'
 import { labUrl } from '@/lib/lab-links'
+import { safeNext } from '@/lib/safe-redirect'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export const metadata = { title: 'Mon compte' }
 
-export default async function ComptePage() {
+export default async function ComptePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  // The favorite star sends a guest here with ?next=<the bot page> so the
+  // magic link brings them back to it (espace-direct lot A). Relative paths
+  // only: safeNext turns anything else into the old landing page.
+  const rawNext = (await searchParams).next
+  const next = safeNext(typeof rawNext === 'string' ? rawNext : null, '/investir')
   const supabase = await createSupabaseAuthServer()
   const entitlement = await getEntitlement(supabase)
 
@@ -24,7 +34,7 @@ export default async function ComptePage() {
           </p>
           {/* /wealth only redirects to /investir (next.config.ts): the sign-in
               lands on the page itself. auth/callback's safeNext accepts it. */}
-          <MagicLinkForm redirectTo="/investir" />
+          <MagicLinkForm redirectTo={next} />
         </>
       )}
 
