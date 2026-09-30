@@ -64,14 +64,19 @@ const LIGNES: FicheIndex[] = [
 
 const monter = () => render(<InvestirListe lignes={LIGNES} contexte={CONTEXTE} />)
 const noms = () => screen.getAllByRole('listitem').map(li => li.textContent ?? '')
+const liste = (name: RegExp) => screen.getByRole('combobox', { name }) as HTMLSelectElement
+const options = (name: RegExp) => [...liste(name).options].map(o => o.textContent ?? '')
+const choisir = (name: RegExp, value: string) => fireEvent.change(liste(name), { target: { value } })
+const ALERTE = /Alerte relevée dans le dépôt/
+const COUVERTURE = /Contrôles possibles/
 
 describe('InvestirListe', () => {
-  it('rend une puce par alerte réellement portée, avec son effectif', () => {
+  it('rend une option par alerte réellement portée, avec son effectif', () => {
     monter()
 
     // « pertes récurrentes » est portée par deux sociétés, « dilution » par une.
-    expect(screen.getByRole('button', { name: /pertes récurrentes.*\(2\)/ })).toBeTruthy()
-    expect(screen.getByRole('button', { name: /nombre d'actions en hausse.*\(1\)/ })).toBeTruthy()
+    expect(options(ALERTE).some(o => /pertes récurrentes.*\(2\)/.test(o))).toBe(true)
+    expect(options(ALERTE).some(o => /nombre d'actions en hausse.*\(1\)/.test(o))).toBe(true)
   })
 
   it("ne propose pas de puce pour une alerte que personne ne porte", () => {
@@ -79,7 +84,7 @@ describe('InvestirListe', () => {
     // puce sans ligne derrière se vide au clic sans dire pourquoi.
     monter()
 
-    expect(screen.queryByRole('button', { name: /chiffre d'affaires sous son niveau/ })).toBeNull()
+    expect(options(ALERTE).some(o => /chiffre d'affaires sous son niveau/.test(o))).toBe(false)
   })
 
   it("n'offre AUCUNE puce « sans alerte », et c'est le point du crible", () => {
@@ -93,16 +98,18 @@ describe('InvestirListe', () => {
     // phrase du dépôt, sourcée, réfutable, et défavorable.
     monter()
 
+    const tout = [...options(ALERTE), ...options(COUVERTURE),
+                  ...screen.getAllByRole('button').map(b => b.textContent ?? '')]
     for (const interdit of [/sans alerte/i, /aucune alerte/i, /comptes solides/i,
                             /à surveiller/i, /fragile/i]) {
-      expect(screen.queryAllByRole('button', { name: interdit })).toEqual([])
+      expect(tout.filter(t => interdit.test(t))).toEqual([])
     }
   })
 
   it('filtre les sociétés qui portent l\'alerte choisie', () => {
     monter()
 
-    fireEvent.click(screen.getByRole('button', { name: /pertes récurrentes.*\(2\)/ }))
+    choisir(ALERTE, 'pertes_recurrentes')
 
     expect(noms().length).toBe(2)
     expect(noms().join(' ')).toContain('CROWDSTRIKE')
@@ -135,7 +142,8 @@ describe('InvestirListe', () => {
   it('coupe par couverture, du plus lu au moins lu', () => {
     monter()
 
-    fireEvent.click(screen.getByRole('button', { name: /5 contrôles lus \(1\)/ }))
+    expect(options(COUVERTURE).some(o => /^5 contrôles lus \(1\)$/.test(o))).toBe(true)
+    choisir(COUVERTURE, '5')
 
     expect(noms().length).toBe(1)
     expect(noms()[0]).toContain('AMAZON')
@@ -150,51 +158,53 @@ describe('InvestirListe', () => {
     expect(noms().join(' ')).not.toContain('HASBRO')
   })
 
-  it('folds the alert filters on every screen, closed at first render', () => {
-    // Eight chips with long labels took 400 px on a phone before the list.
-    // User decision 2026-09-19: a drilldown, on the computer too.
-    const { container } = monter()
+  // 2026-09-30 (user, on a phone): the search was lost among the filters, and
+  // « Alerte relevée dans le dépôt » did not look clickable. The search stands
+  // alone on its line; the filters are lists behind ONE « Filtres » button on a
+  // phone (always shown from lg), and the whole bar sticks under the nav.
+  it('keeps the search and the filters in one bar stuck under the nav', () => {
+    monter()
 
-    const repli = container.querySelector('details')!
-    expect(repli).toBeTruthy()
-    expect(repli.open).toBe(false)
-    expect(repli.querySelector('summary')!.textContent).toMatch(
-      /Alerte relevée dans le dépôt · 2 motifs/,
-    )
-    expect(repli.contains(screen.getByRole('button', { name: /pertes récurrentes/ }))).toBe(true)
+    const barre = screen.getByTestId('investir-filtres')
+    expect(barre.className).toMatch(/\bsticky\b/)
+    expect(barre.className).toContain('top-[var(--nav-h)]')
+    expect(barre.contains(screen.getByRole('searchbox', { name: /Chercher une société/ }))).toBe(true)
+    expect(barre.contains(liste(ALERTE))).toBe(true)
   })
 
-  it('names the active alerts in clear in the folded summary, never a company count', () => {
-    const { container } = monter()
+  it('folds the lists behind one « Filtres » button on a phone, closed at first', () => {
+    monter()
 
-    fireEvent.click(screen.getByRole('button', { name: /pertes récurrentes.*\(2\)/ }))
-
-    const resume = container.querySelector('summary')!.textContent ?? ''
-    expect(resume).toContain('pertes récurrentes (2 exercices sur 3)')
-    // The chip carries « (2) » companies; the summary must not turn it into a tally.
-    expect(resume).not.toMatch(/\(\d+\)/)
-    expect(resume).not.toMatch(/sociétés?/)
+    const bouton = screen.getByRole('button', { name: /^Filtres/ })
+    expect(bouton.getAttribute('aria-expanded')).toBe('false')
+    expect(bouton.className).toContain('lg:hidden')
+    const panneau = document.getElementById(bouton.getAttribute('aria-controls')!)!
+    expect(panneau.className).toMatch(/(^|\s)hidden(\s|$)/)
+    expect(panneau.className).toContain('lg:block')
+    expect(panneau.contains(liste(ALERTE))).toBe(true)
+    fireEvent.click(bouton)
+    expect(bouton.getAttribute('aria-expanded')).toBe('true')
+    expect(panneau.className).not.toMatch(/(^|\s)hidden(\s|$)/)
   })
 
-  it('does not close under the finger when the last chip is unticked', () => {
-    // Uncontrolled on purpose: an `open` driven by the selection would fold
-    // the block the moment its last chip is released.
-    const { container } = monter()
-    const repli = container.querySelector('details')!
-    repli.open = true
+  it('counts the active filters on the button, never companies', () => {
+    monter()
 
-    const puce = screen.getByRole('button', { name: /pertes récurrentes.*\(2\)/ })
-    fireEvent.click(puce)
-    fireEvent.click(puce)
-
-    expect(repli.open).toBe(true)
+    choisir(ALERTE, 'pertes_recurrentes')
+    choisir(COUVERTURE, '6')
+    const bouton = screen.getByRole('button', { name: /^Filtres/ })
+    expect(bouton.textContent).toMatch(/Filtres\s*2/)
+    fireEvent.click(screen.getByRole('button', { name: 'Tout effacer' }))
+    expect(liste(ALERTE).value).toBe('')
+    expect(liste(COUVERTURE).value).toBe('')
   })
 
-  it('leaves the coverage filter open: it is what shows how much was read', () => {
-    const { container } = monter()
+  it('does not count the search as a filter', () => {
+    monter()
 
-    const couverture = screen.getByRole('button', { name: /5 contrôles lus \(1\)/ })
-    expect(container.querySelector('details')!.contains(couverture)).toBe(false)
+    fireEvent.change(screen.getByRole('searchbox', { name: /Chercher une société/ }),
+                     { target: { value: 'amazon' } })
+    expect(screen.getByRole('button', { name: /^Filtres/ }).textContent).not.toMatch(/\d/)
   })
 
   it("n'affiche plus jamais la mention « sans ancre »", () => {
@@ -232,7 +242,7 @@ describe('InvestirListe', () => {
   it('says in the field that a ticker works too', () => {
     monter()
 
-    expect(screen.getByPlaceholderText('Chercher une société ou un ticker…')).toBeTruthy()
+    expect(screen.getByPlaceholderText('Société ou ticker…')).toBeTruthy()
   })
 })
 
@@ -287,11 +297,11 @@ describe('InvestirListe, pagination', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Afficher 50 de plus' }))
     expect(screen.getAllByRole('listitem').length).toBe(100)
 
-    fireEvent.click(screen.getByRole('button', { name: /pertes récurrentes.*\(40\)/ }))
+    choisir(ALERTE, 'pertes_recurrentes')
     expect(screen.getAllByRole('listitem').length).toBe(40)
     expect(screen.getByText('40 sociétés sur 120')).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: /pertes récurrentes.*\(40\)/ }))
+    choisir(ALERTE, '')
     expect(screen.getAllByRole('listitem').length).toBe(PAGE)
   })
 })
@@ -312,20 +322,18 @@ describe('InvestirListe, targets and radii', () => {
     }
   })
 
-  it('rounds pills with `rounded`, the field, the select and the paging button with `rounded-md`', () => {
+  it('rounds the field, the lists, the buttons with `rounded-md`', () => {
     const { container } = render(<InvestirListe lignes={beaucoup(60)} contexte={CONTEXTE} />)
 
-    const champ = container.querySelector('input')!
-    const select = container.querySelector('select')!
-    const plus = screen.getByRole('button', { name: 'Afficher 50 de plus' })
-    for (const el of [champ, select, plus]) expect(el.className).toMatch(/\brounded-md\b/)
+    const controles = [...container.querySelectorAll('input, select, button')] as HTMLElement[]
+    for (const c of controles) expect(c.className, c.tagName).toMatch(/\brounded-md\b/)
+  })
 
-    const pilules = screen.getAllByRole('button', { pressed: false })
-      .filter(b => b !== plus)
-    expect(pilules.length).toBeGreaterThan(2)
-    for (const p of pilules) {
-      expect(p.className).toMatch(/\brounded\b/)
-      expect(p.className).not.toMatch(/\brounded-(?:md|lg)\b/)
+  it('writes the field and the lists at 16 px on a phone, so iOS does not zoom on focus', () => {
+    const { container } = render(<InvestirListe lignes={beaucoup(60)} contexte={CONTEXTE} />)
+
+    for (const c of container.querySelectorAll('input, select')) {
+      expect(c.className).toMatch(/(^|\s)text-base(\s|$)/)
     }
   })
 })

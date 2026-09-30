@@ -55,7 +55,7 @@ function Field({ label, value, onChange, children }: {
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="h-10 w-full min-w-0 rounded-md border border-border bg-card px-2 text-xs font-mono text-foreground focus:border-accent focus:outline-none"
+        className="h-10 w-full min-w-0 rounded-md border border-border bg-card px-2 text-base sm:text-xs font-mono text-foreground focus:border-accent focus:outline-none"
       >
         {children}
       </select>
