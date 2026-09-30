@@ -38,6 +38,14 @@ describe('backtest block of a hand-written bot', () => {
   })
 })
 
+describe('a hand-written bot that passed its test (funding-rev-long, 30/09)', () => {
+  it('uses the tested wording, without a badge', () => {
+    const t = txt(<BacktestBlock segment={seg({ verdict: 'tested', paperScaling: 'proportional' })} />)
+    expect(t).toMatch(/données où je l.ai testée/)
+    expect(t).not.toMatch(/Exploration|Rejeté|sélection/)
+  })
+})
+
 describe('legend of a hand-written bot', () => {
   it('names the tested data and the fixed position size', () => {
     const t = txt(<BacktestSegmentLegend freezeDate="2026-09-23" simStart="2026-09-24"

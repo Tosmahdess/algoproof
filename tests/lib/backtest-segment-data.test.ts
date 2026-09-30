@@ -66,6 +66,11 @@ describe('getBacktestSegment', () => {
     expect(s!.verdict).toBe('rejected')
   })
 
+  it('keeps a tested verdict (a hand-written bot with a GO)', async () => {
+    state.rows = [{ payload: { ...payload, verdict: 'tested' } }]
+    expect((await getBacktestSegment('funding-rev-long'))!.verdict).toBe('tested')
+  })
+
   it('defaults an absent or unknown scaling and verdict to the engine behaviour', async () => {
     state.rows = [{ payload: { ...payload, paperScaling: 'weird', verdict: 'maybe' } }]
     const s = await getBacktestSegment('arm-x-d1-head00')
