@@ -22,6 +22,16 @@ interface BotTableProps {
   fleetTotalAbove?: boolean
 }
 
+// A bot under LOW_SAMPLE_TRADES shares the table with the proven ones since
+// 2026-09-30; this word is what keeps its PF from reading as a result.
+function RodageTag() {
+  return (
+    <span className="text-xs text-warning/90" title="Échantillon faible : trop tôt pour conclure">
+      rodage
+    </span>
+  )
+}
+
 export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotTableProps) {
   // D073: an engine bot's row is its simulation since the freeze on a 1 000 EUR base,
   // while its fiche shows it on the curve's level. Said once, only where it applies.
@@ -38,7 +48,10 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
             <Link key={bot.id} href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'flex flex-col gap-1 px-4 py-3 min-h-10')}>
               <span className="text-sm leading-snug">{bot.name}</span>
               <span className="flex items-center justify-between gap-2">
-                <StatusBadge status={bot.status} />
+                <span className="flex items-center gap-2">
+                  <StatusBadge status={bot.status} />
+                  {hasData && isLowSample(bot.stats.total_trades) && <RodageTag />}
+                </span>
                 {hasData
                   ? <span className={`shrink-0 font-mono text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
                   : <span className="shrink-0 text-xs text-muted">—</span>}
@@ -82,7 +95,10 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                 <tr key={bot.id} className="border-b border-border/50 hover:bg-card/40 transition-colors">
                   <td className="px-4 py-3">
                     <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
-                    <p className="text-muted text-xs mt-0.5">{bot.exchange}{!showTf && ` · ${bot.timeframe}`}</p>
+                    <p className="text-muted text-xs mt-0.5">
+                      {bot.exchange}{!showTf && ` · ${bot.timeframe}`}
+                      {hasData && isLowSample(bot.stats.total_trades) && <>{' · '}<RodageTag /></>}
+                    </p>
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-xs text-muted">

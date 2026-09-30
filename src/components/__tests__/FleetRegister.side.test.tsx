@@ -42,28 +42,27 @@ function rowOf(name: string): HTMLElement {
 describe('FleetRegister — side slice', () => {
   it('shows server stats by default and the short slice after clicking « Short »', () => {
     render(<FleetRegister bots={[alpha, beta]} initialState={EMPTY_FILTERS} />)
-    // Filters live in a closed <details>; open it.
-    fireEvent.click(screen.getByText(/Filtrer la flotte/))
 
     // BotTable appends ' ⚠' to a count under 20 trades (isLowSample), as two
     // adjacent text nodes — match the whole cell text, marker optional.
     expect(within(rowOf('Alpha Slice Bot')).getByText(/^3( ⚠)?$/)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /^Short \(/ }))
+    const side = screen.getByRole('combobox', { name: /Sens des trades/ }) as HTMLSelectElement
+    fireEvent.change(side, { target: { value: 'short' } })
 
     // Alpha: 1 short. Beta: none → « — » in the stats cells, still listed.
     expect(within(rowOf('Alpha Slice Bot')).getByText(/^1( ⚠)?$/)).toBeInTheDocument()
     expect(rowOf('Beta Longs Only')).toBeInTheDocument()
     expect(within(rowOf('Beta Longs Only')).getAllByText('—').length).toBeGreaterThan(0)
-    // The pill counts bots with ≥1 short: only Alpha.
-    expect(screen.getByRole('button', { name: /^Short \(1\)/ })).toHaveAttribute('aria-pressed', 'true')
+    // The option counts bots with ≥1 short: only Alpha.
+    expect([...side.options].map(o => o.textContent)).toContain('Short (1)')
+    expect(side.value).toBe('short')
     expect(window.location.search).toContain('side=short')
   })
 
-  it('clicking the active side pill returns to all', () => {
+  it('choosing « Les deux » returns to all', () => {
     render(<FleetRegister bots={[alpha, beta]} initialState={{ ...EMPTY_FILTERS, side: 'short' }} />)
-    fireEvent.click(screen.getByText(/Filtrer la flotte/))
-    fireEvent.click(screen.getByRole('button', { name: /^Short \(/ }))
+    fireEvent.change(screen.getByRole('combobox', { name: /Sens des trades/ }), { target: { value: 'all' } })
     expect(within(rowOf('Alpha Slice Bot')).getByText(/^3( ⚠)?$/)).toBeInTheDocument()
     expect(window.location.search).not.toContain('side=')
   })

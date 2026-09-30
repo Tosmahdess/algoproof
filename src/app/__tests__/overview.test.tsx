@@ -50,12 +50,12 @@ describe('/overview — the fleet in one table', () => {
     render(await OverviewPage({ searchParams: Promise.resolve({ family: 'carry' }) }))
     const register = screen.getByTestId('fleet-register')
     expect(within(register).queryByText(/Ichimoku/)).toBeNull()
-    expect(screen.getByRole('button', { name: /Portage \(\d+\)/ })).toHaveAttribute('aria-pressed', 'true')
+    expect((screen.getByRole('combobox', { name: /Famille/ }) as HTMLSelectElement).value).toBe('carry')
   })
 
   it('filters by timeframe from the URL', async () => {
     render(await OverviewPage({ searchParams: Promise.resolve({ tf: 'H1' }) }))
-    expect(screen.getByRole('button', { name: /^H1 \(\d+\)$/ })).toHaveAttribute('aria-pressed', 'true')
+    expect((screen.getByRole('combobox', { name: /Horizon/ }) as HTMLSelectElement).value).toBe('H1')
     const register = screen.getByTestId('fleet-register')
     expect(within(register).queryByText('Ichimoku H4 BF')).toBeNull()
   })
