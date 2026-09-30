@@ -108,6 +108,24 @@ describe('buildTimeline', () => {
     expect(buildTimeline(seg, perf, ledger, 1000, '2026-08-22')!.rows.at(-1)!.date).toBe('2026-08-24')
   })
 
+  it('adds a fixed-notional paper to the level reached, without resizing it (D074)', () => {
+    // CME bots trade a fixed notional: positions do not grow with the capital, so the
+    // paper is ADDED to the curve's level instead of being multiplied by it
+    const add = { ...seg, paperScaling: 'additive' as const }
+    const t = buildTimeline(add, perf, ledger, 1000)!
+    expect(t.scale).toBe(1)
+    // 1100 at the replay end, ledger 990 then 1008.77 -> 1090 then 1108.77
+    expect(t.rows.slice(-2).map(r => r.paper)).toEqual([1090, 1108.77])
+    expect(t.simTrades.filter(x => x.id.startsWith('p')).map(x => x.pnl).sort()).toEqual([-10, 18.77].sort())
+  })
+
+  it('accepts a freeze on the last replay day: no bridge, the paper starts the next day', () => {
+    const noBridge = { ...seg, freezeDate: '2026-08-21', trades: seg.trades.slice(0, 2) }
+    const t = buildTimeline(noBridge, perf, ledger, 1000)!
+    expect(t.simStart).toBe('2026-08-22')
+    expect(t.simStartCapital).toBe(1100)
+  })
+
   it('refuses a bot whose capital is not the one the backtest starts on', () => {
     expect(buildTimeline(seg, [pd('2026-08-23', 495)], [], 500)).toBeNull()
   })
@@ -133,7 +151,7 @@ describe('buildTimeline', () => {
   })
 
   it('refuses a freeze that is not before the launch or not on the curve', () => {
-    expect(buildTimeline({ ...seg, freezeDate: '2026-08-21' }, perf, ledger, 1000)).toBeNull()
+    expect(buildTimeline({ ...seg, freezeDate: '2026-08-22' }, perf, ledger, 1000)).toBeNull()
     expect(buildTimeline({ ...seg, freezeDate: '2026-08-10' }, perf, ledger, 1000)).toBeNull()
   })
 })

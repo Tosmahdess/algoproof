@@ -20,11 +20,32 @@ interface Props {
   /** Backtest up to the freeze + simulation after it, as built by buildTimeline. */
   segments?: JoinedRow[] | null
   freezeDate?: string
+  /** Start the axis on this day (paper bots without a segment, D074): days before the
+   *  first data point are drawn as nothing, never as a flat line that reads as data. */
+  axisFrom?: string
+}
+
+/** Empty days from `from` to the day before the first data point (capital null). */
+export function padFrom(data: PerfDaily[], from: string): (Omit<PerfDaily, 'capital'> & { capital: number | null })[] {
+  if (data.length === 0 || data[0].date <= from) return data
+  const pad: (Omit<PerfDaily, 'capital'> & { capital: number | null })[] = []
+  for (let d = from; d < data[0].date; d = nextDay(d)) {
+    pad.push({ id: d, bot_id: data[0].bot_id, date: d, capital: null, pnl_day: 0,
+      win_rate: null, profit_factor: null })
+  }
+  return [...pad, ...data]
+}
+
+function nextDay(isoDate: string): string {
+  const t = new Date(`${isoDate}T00:00:00Z`)
+  t.setUTCDate(t.getUTCDate() + 1)
+  return t.toISOString().slice(0, 10)
 }
 
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload as PerfDaily
+  if (d.capital === null) return null      // a padded day before the bot existed
   const pnl = d.pnl_day
   return (
     <div className="bg-card border border-border rounded p-2 text-xs">
@@ -37,22 +58,25 @@ function CustomTooltip({ active, payload, label }: any) {
   )
 }
 
-export default function EquityCurve({ data, startCapital = 1000, segments, freezeDate }: Props) {
+export default function EquityCurve({ data, startCapital = 1000, segments, freezeDate, axisFrom }: Props) {
   if (segments && freezeDate) {
     return <SegmentedCurve rows={segments} startCapital={startCapital} freezeDate={freezeDate} />
   }
-  const formatted = data.map(d => ({
+  const series = axisFrom ? padFrom(data, axisFrom) : data
+  const formatted = series.map(d => ({
     ...d,
     // Site date format (« 29 avr. »), not the ISO « 04-29 » (counter-audit S7).
-    date: shortDate(d.date),
-    capitalNum: Number(d.capital),
+    date: shortDate(`${d.date}T12:00:00Z`),
+    capitalNum: d.capital === null ? null : Number(d.capital),
   }))
+  const values = formatted.map(d => d.capitalNum).filter((v): v is number => v !== null)
 
   if (formatted.length === 0) return null
 
-  const min = Math.min(...formatted.map(d => d.capitalNum)) * 0.98
-  const max = Math.max(...formatted.map(d => d.capitalNum)) * 1.02
-  const isPositive = (formatted[formatted.length - 1]?.capitalNum ?? startCapital) >= startCapital
+  if (values.length === 0) return null
+  const min = Math.min(...values) * 0.98
+  const max = Math.max(...values) * 1.02
+  const isPositive = (values[values.length - 1] ?? startCapital) >= startCapital
 
   return (
     <ChartFrame>
@@ -74,6 +98,8 @@ export default function EquityCurve({ data, startCapital = 1000, segments, freez
             stroke={isPositive ? '#4ade80' : '#f87171'}
             strokeWidth={2}
             fill="url(#equity)"
+            connectNulls={false}
+            isAnimationActive={false}
           />
         </AreaChart>
       </ResponsiveContainer>

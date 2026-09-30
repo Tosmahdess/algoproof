@@ -53,13 +53,24 @@ describe('getBacktestSegment', () => {
     expect(s).toEqual({
       slug: 'arm-kamacross-d1-head00', startDate: '2026-01-01', freezeDate: '2026-08-02',
       replayEnd: '2026-08-19', startCapital: 1000, points: payload.points, trades: payload.trades,
+      paperScaling: 'proportional', verdict: null,
     })
     expect(JSON.stringify(s)).not.toContain('secret-ish')
   })
 
-  it('does not query for a bot that is not an engine bot', async () => {
-    expect(await getBacktestSegment('v1-spot')).toBeNull()
-    expect(state.queried).toEqual([])
+  it('reads a hand-written bot too, with its scaling and verdict (D074)', async () => {
+    state.rows = [{ payload: { ...payload, paperScaling: 'additive', verdict: 'rejected' } }]
+    const s = await getBacktestSegment('tresor-fdm-d1')
+    expect(state.queried).toEqual(['bot_backtest_segments:tresor-fdm-d1'])
+    expect(s!.paperScaling).toBe('additive')
+    expect(s!.verdict).toBe('rejected')
+  })
+
+  it('defaults an absent or unknown scaling and verdict to the engine behaviour', async () => {
+    state.rows = [{ payload: { ...payload, paperScaling: 'weird', verdict: 'maybe' } }]
+    const s = await getBacktestSegment('arm-x-d1-head00')
+    expect(s!.paperScaling).toBe('proportional')
+    expect(s!.verdict).toBeNull()
   })
 
   it('answers null when the row is missing, unreadable or the key is absent', async () => {

@@ -12,6 +12,7 @@ import TradesTable from '@/components/TradesTable'
 import { backtestStats, backtestTrades, reconcileCents, type BacktestSegment } from '@/lib/backtest-segment'
 import { fmtEur, fmtPct, pnlEur, pnlPct } from '@/lib/display'
 import { longDateOrdinal } from '@/lib/format-date'
+import SegmentVerdictBadge from '@/components/SegmentVerdictBadge'
 import type { Trade } from '@/lib/types'
 
 /** Rows shown before « Voir les N trades ». */
@@ -36,16 +37,27 @@ export default function BacktestBlock({ segment }: { segment: BacktestSegment })
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
         <h2 className="text-xl font-semibold">
           Backtest du {start} au {longDateOrdinal(segment.freezeDate)}
+          <SegmentVerdictBadge verdict={segment.verdict} />
         </h2>
         <span className={`font-mono font-semibold text-sm ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>
           {fmtEur(eur)} ({fmtPct(pct)})
         </span>
       </div>
-      <p className="text-xs text-muted mb-4">
-        Ce que la stratégie aurait fait sur les données de sa sélection, avec la même taille de
-        position que la simulation. Elle les connaissait déjà, donc ces chiffres sont flatteurs
-        par construction. Ils ne comptent pas dans ceux de la simulation plus haut.
-      </p>
+      {segment.verdict ? (
+        <p className="text-xs text-muted mb-4">
+          Ce que la stratégie aurait fait sur les données où je l&apos;ai testée, avec des
+          positions de même taille que la simulation. Ces jours-là, je les avais déjà regardés :
+          les chiffres ci-dessous sont flatteurs par construction et ne comptent pas dans ceux de
+          la simulation plus haut.
+          {segment.verdict === 'rejected' && " Elle a échoué à mes propres tests (sur-ajustement probable, échec hors échantillon). Je la fais tourner en simulation pour vérifier ce rejet, pas parce que j'y crois."}
+        </p>
+      ) : (
+        <p className="text-xs text-muted mb-4">
+          Ce que la stratégie aurait fait sur les données de sa sélection, avec la même taille de
+          position que la simulation. Elle les connaissait déjà, donc ces chiffres sont flatteurs
+          par construction. Ils ne comptent pas dans ceux de la simulation plus haut.
+        </p>
+      )}
       <MetricsRow stats={stats} />
       <div className="mt-6">
         <TradesTable trades={open ? trades : trades.slice(0, FOLDED)} />

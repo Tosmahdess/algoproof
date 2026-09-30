@@ -15,6 +15,7 @@ import BacktestSegmentLegend from '@/components/BacktestSegmentLegend'
 import BacktestBlock from '@/components/BacktestBlock'
 import { longDateOrdinal } from '@/lib/format-date'
 import type { BotSimulation } from '@/lib/bot-simulation'
+import SegmentVerdictBadge from '@/components/SegmentVerdictBadge'
 
 /** Recent trades shown on a phone before « Voir les N derniers » (D057). */
 const TRADES_MOBILE = 5
@@ -159,6 +160,7 @@ export default function StrategyDetail({ bot, simulation = null }: Props) {
         <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
           <h2 className="text-xl font-semibold">
             Courbe d&apos;équité
+            {sim && segment && <SegmentVerdictBadge verdict={segment.verdict} />}
             {!unfiltered && (
               <span className="text-xs text-muted font-normal ml-2">
                 (reconstruite sur {[
@@ -193,10 +195,14 @@ export default function StrategyDetail({ bot, simulation = null }: Props) {
           <>
             <EquityCurve data={equityData} startCapital={startCapital}
               segments={sim.rows} freezeDate={segment.freezeDate} />
-            <BacktestSegmentLegend freezeDate={segment.freezeDate} simStart={sim.simStart} />
+            <BacktestSegmentLegend freezeDate={segment.freezeDate} simStart={sim.simStart}
+              verdict={segment.verdict} paperScaling={segment.paperScaling} />
           </>
         ) : equityData.length > 0 ? (
-          <EquityCurve data={equityData} startCapital={startCapital} />
+          // A paper bot without a backtest segment still reads on an axis from 1 January,
+          // blank before its launch (D074); filtered views keep their own span.
+          <EquityCurve data={equityData} startCapital={startCapital}
+            axisFrom={unfiltered && bot.status === 'paper' ? '2026-01-01' : undefined} />
         ) : (
           <p className="text-muted text-sm text-center py-12">Aucun trade à afficher pour ce filtre.</p>
         )}
