@@ -1,5 +1,6 @@
 // next.config.ts
 import type { NextConfig } from 'next'
+import { LAB_API_ORIGIN } from './src/lib/lab-links'
 
 // Supabase project URL — needed in CSP connect-src for Server Component direct queries.
 const SUPABASE_URL = 'https://avdegocswrhzdnvsyiui.supabase.co'
@@ -147,7 +148,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",    // Tailwind inline styles
               "img-src 'self' data: blob: https://*.tradingview.com https://*.tradingview-widget.com",  // Recharts SVG uses data URIs; TV widget assets (SP1)
               "font-src 'self'",
-              `connect-src 'self' ${SUPABASE_URL} https://api.binance.com https://*.tradingview.com https://*.tradingview-widget.com`,  // Server Components query Supabase directly; Binance klines + TV data (SP1)
+              `connect-src 'self' ${SUPABASE_URL} ${LAB_API_ORIGIN} https://api.binance.com https://*.tradingview.com https://*.tradingview-widget.com`,  // Server Components query Supabase directly; the favorite star calls the lab API (espace-direct lot A, tests/lib/csp-lab-api.test.ts); Binance klines + TV data (SP1)
               "frame-src https://*.tradingview.com https://s.tradingview.com https://*.tradingview-widget.com",  // TV widget iframes (SP1) — widgets frame from www.tradingview-widget.com (validated dev console 2026-07-23)
               "object-src 'none'",
               "base-uri 'self'",
