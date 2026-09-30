@@ -59,7 +59,7 @@ describe('FleetOverview — stage 0 invariant', () => {
     renderFleet()
     const totalsBefore = screen.getByTestId('fleet-totals').textContent
     const registerBefore = screen.getByTestId('fleet-register').textContent
-    fireEvent.click(screen.getByRole('button', { name: /Cassure/ }))
+    fireEvent.change(screen.getByRole('combobox', { name: /Famille/ }), { target: { value: 'breakout' } })
     expect(screen.getByTestId('fleet-totals').textContent).toBe(totalsBefore)
     expect(screen.getByTestId('fleet-register').textContent).not.toBe(registerBefore)
   })
@@ -124,7 +124,7 @@ describe('FleetOverview — the sections, in order', () => {
       expect(register.contains(screen.getByTestId(id))).toBe(false)
     }
     const feedBefore = screen.getByTestId('fleet-recent-trades').textContent
-    fireEvent.click(screen.getByRole('button', { name: /Cassure/ }))
+    fireEvent.change(screen.getByRole('combobox', { name: /Famille/ }), { target: { value: 'breakout' } })
     expect(screen.getByTestId('fleet-recent-trades').textContent).toBe(feedBefore)
   })
 
@@ -161,10 +161,10 @@ describe('FleetOverview — remounts on a new server-sent filter state', () => {
     const { rerender } = render(
       <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }} minutes={null} />,
     )
-    expect(screen.getByRole('button', { name: /Cassure/ })).toHaveAttribute('aria-pressed', 'true')
+    expect((screen.getByRole('combobox', { name: /Famille/ }) as HTMLSelectElement).value).toBe('breakout')
     rerender(
       <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} minutes={null} />,
     )
-    expect(screen.getByRole('button', { name: /Cassure/ })).toHaveAttribute('aria-pressed', 'false')
+    expect((screen.getByRole('combobox', { name: /Famille/ }) as HTMLSelectElement).value).toBe('')
   })
 })

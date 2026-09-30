@@ -1,11 +1,16 @@
 'use client'
 // « La flotte », the register: every bot in ONE table, sorted by history
-// (trades descending, C7), every timeframe in it, filterable by family,
-// timeframe and side. Lot 4 of the design audit (2026-09-25, conception §5.2):
-// the per-timeframe sections (« H4 : 55 stratégies ») are gone, a visitor looks
-// for a bot, not a horizon. Bots between 1 and 19 trades fold under the table
-// (« En rodage »: a PF on 4 trades is not a figure to rank, audit P0-5), the
-// bots that never traded under their own line, the archived ones last.
+// (trades descending, C7) unless the visitor picks another sort, every
+// timeframe in it, filterable by family, timeframe and side. Lot 4 of the
+// design audit (2026-09-25, conception §5.2): the per-timeframe sections
+// (« H4 : 55 stratégies ») are gone, a visitor looks for a bot, not a horizon.
+//
+// 2026-09-30 (user): the « En rodage » and « Sans trade encore » folds are gone
+// too, their bots are rows of the same table. What audit P0-5 protected (a PF on
+// 4 trades is not a figure to rank) is kept by TIERS instead of cards: proven
+// bots first, then 1-19 trades, then untraded, and every sort orders INSIDE a
+// tier, so the luckiest small sample never tops the table. Archived bots stay
+// folded last: they no longer run.
 //
 // What this component does NOT hold, by construction: the two totals, the
 // real-money cards, the journal, the curves and the recent trades all render in
@@ -23,18 +28,18 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { FleetBot } from '@/lib/types'
 import type { Family } from '@/lib/families'
-import { familyLabel } from '@/lib/families'
 import { linkClass } from '@/lib/link-roles'
 import { frNumber, LOW_SAMPLE_TRADES } from '@/lib/display'
+import type { SortKey } from '@/lib/bot-filters'
 import {
   EMPTY_FILTERS, parseFleetFilters, serializeFleetFilters, applyFleetFilters,
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
 } from '@/lib/bot-filters'
 import { byHistoryDesc, splitBySample } from '@/lib/fleet-grouping'
+import { sortFleet } from '@/lib/fleet-sort'
 import { sliceBotStats } from '@/lib/stats'
 import FleetFilterBar from '@/components/FleetFilterBar'
 import BotTable from '@/components/BotTable'
-import StatusBadge from '@/components/StatusBadge'
 
 export interface FleetRegisterProps {
   /** The register set: the whole fleet, live included, archived included. */
@@ -43,6 +48,18 @@ export interface FleetRegisterProps {
 }
 
 const plural = (n: number, one: string, many: string) => (n > 1 ? many : one)
+
+// The line under the title names the sort in force: it said « nombre de
+// trades » whatever the list said until 2026-09-30.
+const SORT_LINE: Partial<Record<SortKey, string>> = {
+  proven: 'nombre de trades',
+  trades: 'nombre de trades',
+  profit_factor: 'facteur de profit',
+  pct: '% de gain',
+  pnl: 'gain en euros',
+  win_rate: 'taux de gain',
+  max_drawdown: 'drawdown',
+}
 
 export default function FleetRegister({ bots, initialState }: FleetRegisterProps) {
   const pathname = usePathname()
@@ -62,25 +79,25 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     window.history.replaceState(null, '', qs ? `${pathname}?${qs}` : pathname)
   }, [pathname])
 
-  const toggleFamily = useCallback((f: Family) => {
-    push({
-      ...state,
-      family: state.family.includes(f) ? state.family.filter(x => x !== f) : [...state.family, f],
-    })
+  const setFamily = useCallback((f: Family | null) => {
+    push({ ...state, family: f ? [f] : [] })
   }, [state, push])
 
-  const toggleTimeframe = useCallback((tf: string) => {
-    push({
-      ...state,
-      timeframe: state.timeframe.includes(tf) ? state.timeframe.filter(x => x !== tf) : [...state.timeframe, tf],
-    })
+  const setTimeframe = useCallback((tf: string | null) => {
+    push({ ...state, timeframe: tf ? [tf] : [] })
   }, [state, push])
 
-  const toggleSide = useCallback((side: 'long' | 'short') => {
-    push({ ...state, side: state.side === side ? 'all' : side })
+  const setSide = useCallback((side: 'all' | 'long' | 'short') => {
+    push({ ...state, side })
   }, [state, push])
 
-  const reset = useCallback(() => push(EMPTY_FILTERS), [push])
+  // A sort is not a filter: it never lights the filter count, and clearing
+  // the filters keeps it.
+  const setSort = useCallback((sort: SortKey) => {
+    push({ ...state, sort, dir: 'desc' })
+  }, [state, push])
+
+  const reset = useCallback(() => push({ ...EMPTY_FILTERS, sort: state.sort, dir: state.dir }), [state.sort, state.dir, push])
 
   const filtered = useMemo(() => applyFleetFilters(bots, state), [bots, state])
   const counts = useMemo(() => optionCounts(bots, state), [bots, state])
@@ -91,18 +108,24 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
   // forty trades and no short stays a proven row with « — » cells, it does not
   // fall into « Sans trade encore » (sliceBotStats returns bot.stats by
   // reference when nothing is sliced).
-  const { proven, rodage, untraded, archived } = useMemo(() => {
+  const { rows, rodageCount, archived } = useMemo(() => {
     const slice = (b: FleetBot) => ({ ...b, stats: sliceBotStats(b, state.side, state.asset) })
-    const order = (list: FleetBot[]) => list.map(slice).sort(byHistoryDesc)
+    // The history sort IS byHistoryDesc (trades, then gain, then name); any
+    // other sort falls back to it on ties, so equal PFs keep a stable order.
+    const order = (list: FleetBot[]) => {
+      const byHistory = list.map(slice).sort(byHistoryDesc)
+      return state.sort === 'proven' ? byHistory : sortFleet(byHistory, state.sort, state.dir)
+    }
     const active = filtered.filter(b => b.status !== 'archived')
     const { proven, rodage: small } = splitBySample(active)
+    const rodage = small.filter(b => b.stats.total_trades > 0)
+    const untraded = small.filter(b => b.stats.total_trades === 0)
     return {
-      proven: order(proven),
-      rodage: order(small.filter(b => b.stats.total_trades > 0)),
-      untraded: order(small.filter(b => b.stats.total_trades === 0)),
+      rows: [...order(proven), ...order(rodage), ...untraded.map(slice).sort(byHistoryDesc)],
+      rodageCount: rodage.length,
       archived: order(filtered.filter(b => b.status === 'archived')),
     }
-  }, [filtered, state.side, state.asset])
+  }, [filtered, state.side, state.asset, state.sort, state.dir])
 
   // The experiment line counts the UNFILTERED register: what runs here, and where
   // it came from. Engine-born bots carry an engine_unit_key; the others were
@@ -117,7 +140,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
         <h2 className="text-base font-semibold">
           Tous les bots · <span className="font-mono">{frNumber(inService.length, 0)}</span>
         </h2>
-        <span className="text-xs text-muted">argent réel et simulation, triés par nombre de trades</span>
+        <span data-testid="fleet-sort-line" className="text-xs text-muted">argent réel et simulation, triés par {SORT_LINE[state.sort] ?? SORT_LINE.proven}</span>
       </div>
 
       <p data-testid="fleet-experiment" className="text-xs text-muted leading-relaxed border-l-2 border-border-strong pl-3">
@@ -132,9 +155,10 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           state={state}
           counts={counts}
           activeCount={activeFilterCount(state)}
-          onToggleFamily={toggleFamily}
-          onToggleTimeframe={toggleTimeframe}
-          onToggleSide={toggleSide}
+          onFamily={setFamily}
+          onTimeframe={setTimeframe}
+          onSide={setSide}
+          onSort={setSort}
           onReset={reset}
         />
       </StickyFilterBar>
@@ -147,41 +171,16 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
           </button>
         </div>
       ) : (
-        <div className="space-y-3">
-          {proven.length > 0 && (
+        <div className="space-y-2">
+          {rows.length > 0 && (
             <div data-testid="fleet-table">
-              <BotTable bots={proven} showTf fleetTotalAbove />
+              <BotTable bots={rows} showTf fleetTotalAbove />
             </div>
           )}
-
-          {rodage.length > 0 && (
-            <details data-testid="fleet-rodage" className="bg-card border border-border rounded-lg">
-              <summary className="cursor-pointer px-4 py-3 text-xs text-muted min-h-10">
-                {`En rodage · ${rodage.length} ${plural(rodage.length, 'bot', 'bots')} entre 1 et ${LOW_SAMPLE_TRADES - 1} trades : un taux de gain ou un facteur de profit ne veut encore rien dire ici.`}
-              </summary>
-              <div className="px-4 pb-4 pt-2">
-                <BotTable bots={rodage} showTf fleetTotalAbove />
-              </div>
-            </details>
-          )}
-
-          {untraded.length > 0 && (
-            <details data-testid="fleet-untraded" className="bg-card border border-border rounded-lg">
-              <summary className="cursor-pointer px-4 py-3 text-xs text-muted min-h-10">
-                {`Sans trade encore · ${untraded.length} ${plural(untraded.length, 'bot', 'bots')}. Ces bots attendent leur signal.`}
-              </summary>
-              <ul className="px-4 pb-4 divide-y divide-border">
-                {untraded.map(bot => (
-                  <li key={bot.slug} className="py-2.5 text-sm flex items-center justify-between gap-3">
-                    <span className="min-w-0">
-                      <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record')}>{bot.name}</Link>
-                      <span className="block text-xs text-muted font-mono">{familyLabel(bot.family)} · {bot.timeframe}</span>
-                    </span>
-                    <StatusBadge status={bot.status} />
-                  </li>
-                ))}
-              </ul>
-            </details>
+          {rodageCount > 0 && (
+            <p data-testid="fleet-rodage-note" className="text-xs text-muted">
+              {`${rodageCount} ${plural(rodageCount, 'bot a', 'bots ont')} entre 1 et ${LOW_SAMPLE_TRADES - 1} trades (marqués « rodage ») : ${plural(rodageCount, 'il reste', 'ils restent')} après les autres quel que soit le tri, parce qu’un facteur de profit sur quatre trades ne se classe pas. Les bots sans trade viennent en dernier.`}
+            </p>
           )}
         </div>
       )}

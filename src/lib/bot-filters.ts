@@ -18,7 +18,7 @@ import { toBaseAsset } from './asset'
 import type { SideFilter } from './stats'
 
 export type FleetStatusFilter = 'live' | 'paper' | 'archived'
-export type SortKey = 'proven' | 'trades' | 'win_rate' | 'profit_factor' | 'max_drawdown' | 'pnl'
+export type SortKey = 'proven' | 'trades' | 'win_rate' | 'profit_factor' | 'max_drawdown' | 'pnl' | 'pct'
 export type SortDir = 'asc' | 'desc'
 // The side facet is a SLICE, not a predicate. Choosing « short » keeps every
 // bot in the register and recomputes each row's stats on its short trades
@@ -33,7 +33,7 @@ export type SortDir = 'asc' | 'desc'
 // did. It was deleted for that reason; this is the version that does it.
 
 const STATUS_VALUES: readonly FleetStatusFilter[] = ['live', 'paper', 'archived']
-const SORT_VALUES: readonly SortKey[] = ['proven', 'trades', 'win_rate', 'profit_factor', 'max_drawdown', 'pnl']
+const SORT_VALUES: readonly SortKey[] = ['proven', 'trades', 'win_rate', 'profit_factor', 'max_drawdown', 'pnl', 'pct']
 
 export interface FleetFilterState {
   family: Family[]

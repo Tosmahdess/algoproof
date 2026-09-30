@@ -118,10 +118,30 @@ describe('/investir as a search product (lot 6)', () => {
     const tuiles = screen.getByText('Sociétés lues')
     expect(precede(h1, champ)).toBe(true)
     expect(precede(tuiles, champ)).toBe(true)
-    // Nothing folded stands between the title and the field.
-    for (const titre of FOLDED) {
+    // One folded line only stands between the title and the field: the method
+    // (user, 2026-09-30: on a phone nobody knew what « les contrôles » were).
+    for (const titre of FOLDED.filter(t => !String(t).includes('Ce que je contrôle'))) {
       expect(precede(champ, screen.getByRole('button', { name: titre }))).toBe(true)
     }
+  })
+
+  it('opens with the method on a phone, folded, before the search, and sends it back to the end on a computer', () => {
+    monter()
+
+    const h1 = screen.getByRole('heading', { level: 1 })
+    const champ = screen.getByRole('searchbox', { name: /Chercher une société/ })
+    const methode = screen.getByRole('button', { name: /Ce que je contrôle, et ce que je ne sais pas/ })
+    expect(precede(h1, methode)).toBe(true)
+    expect(precede(methode, champ)).toBe(true)
+    expect(methode.getAttribute('aria-expanded')).toBe('false')
+    // From sm up the page is a flex column and the block takes the last slot,
+    // with « Ce que cette liste ne contient pas » after it, as before.
+    const section = methode.closest('section')!
+    expect(section.className).toContain('sm:order-last')
+    const horsListe = screen.getByRole('button', { name: /Ce que cette liste ne contient pas/ }).closest('section')!
+    expect(horsListe.className).toContain('sm:order-last')
+    expect(precede(section, horsListe)).toBe(true)
+    expect(section.parentElement!.className).toContain('flex-col')
   })
 
   it('seats the three counts beside the title on a computer (7/5 grid)', () => {
@@ -173,7 +193,7 @@ describe('/investir as a search product (lot 6)', () => {
     expect(creux.parentElement!.textContent).toContain('depuis le plus haut des six derniers mois')
   })
 
-  it('closes the page with the four folds, in this order, after the dips', async () => {
+  it('closes the page with the other three folds, in this order, after the dips', async () => {
     await monterAvecCreux()
 
     const creux = screen.getByRole('heading', {
@@ -182,7 +202,6 @@ describe('/investir as a search product (lot 6)', () => {
     const ordre = [
       /Les mots employés dans les fiches/,
       /sociétés que je ne lis pas/,
-      /Ce que je contrôle, et ce que je ne sais pas/,
       /Ce que cette liste ne contient pas, et pourquoi/,
     ].map(t => screen.getByRole('button', { name: t }))
 

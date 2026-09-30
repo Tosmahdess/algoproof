@@ -11,22 +11,23 @@
 //  - Behavioural: it trains the visitor to chase the top of the table, which is
 //    the mistake the site claims to teach people to avoid.
 //
-// Manual performance sorting stays available, and — since the final
-// whole-branch review (I1) — is actually reachable: FleetFilterBar renders a
-// `<select>` over SORT_LABELS plus a direction toggle, wired through
-// FleetRegister's push() so the choice lands in the URL like a filter. Before
-// that, this paragraph described a feature no control offered, which is the
-// same defect `direction` was deleted for in bot-filters.ts.
+// Manual performance sorting stays available: FleetFilterBar renders a
+// « Trier par » list (history, profit factor, % gain, trades — user request
+// 2026-09-30, after lot 4 had removed the control), wired through
+// FleetRegister's push() so the choice lands in the URL like a filter.
 //
 // The default being a choice rather than a limitation is the whole point: a
 // visitor who wants the profit-factor ranking can have it, and gets it with
-// « trop tôt pour conclure » still on every low-sample row (applied at the row
-// level by the caller, unconditionally — see FleetRegister). That note is what
-// makes offering the sort honest.
+// the low-sample rows still AFTER the proven ones under every sort (the caller
+// sorts inside each tier, FleetRegister). That tiering is what makes offering
+// the sort honest: a PF of 9 on 3 trades never tops the table.
 import type { SortKey, SortDir } from './bot-filters'
+import { isCarryFamily, pnlPct } from './display'
 
 export interface SortableBot {
   status: string
+  /** Optional so a bare fixture still sorts; the register always carries it. */
+  family?: string
   start_capital: number
   stats: {
     total_trades: number
@@ -44,6 +45,17 @@ export const SORT_LABELS: Record<SortKey, string> = {
   profit_factor: 'Facteur de profit',
   max_drawdown: 'Drawdown',
   pnl: 'P&L',
+  pct: '% de gain',
+}
+
+// A figure the table prints as « — » is not a figure to rank: a carry bot's PF
+// and win rate (display.ts), a PF with no loss to divide by (>= 999). Measured
+// 2026-09-30 on the served page: the grid and the funding bot, both « — »,
+// topped the PF sort. They go last, whatever the direction.
+function unmeasured(bot: SortableBot, key: SortKey): boolean {
+  if (key === 'profit_factor') return isCarryFamily(bot.family) || bot.stats.profit_factor >= 999
+  if (key === 'win_rate') return isCarryFamily(bot.family)
+  return false
 }
 
 function valueOf(bot: SortableBot, key: SortKey): number {
@@ -59,6 +71,8 @@ function valueOf(bot: SortableBot, key: SortKey): number {
       return bot.stats.max_drawdown
     case 'pnl':
       return bot.stats.latest_capital - bot.start_capital
+    case 'pct':
+      return pnlPct(bot.stats.latest_capital, bot.start_capital)
   }
 }
 
@@ -70,8 +84,16 @@ export function sortFleet<T extends SortableBot>(bots: T[], sort: SortKey, dir: 
     const bArch = b.status === 'archived' ? 1 : 0
     if (aArch !== bArch) return aArch - bArch
 
+    const ua = unmeasured(a, sort)
+    const ub = unmeasured(b, sort)
+    if (ua !== ub) return ua ? 1 : -1
+    if (ua) return 0
+
     const va = valueOf(a, sort)
     const vb = valueOf(b, sort)
-    return dir === 'asc' ? va - vb : vb - va
+    // Equal first: Infinity - Infinity is NaN (two PFs with no loss yet), and a
+    // NaN comparator leaves the order to the engine's whim.
+    if (va === vb) return 0
+    return dir === 'asc' ? (va < vb ? -1 : 1) : (va > vb ? -1 : 1)
   })
 }

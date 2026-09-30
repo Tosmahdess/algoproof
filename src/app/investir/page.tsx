@@ -44,7 +44,7 @@ export default function InvestirPage() {
   const avecAlerte = lignes.filter(l => l.alertes.length > 0).length
 
   return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 space-y-8 sm:space-y-12">
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 flex flex-col gap-8 sm:gap-12">
       <header className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         <div className="lg:col-span-7">
           <p className="text-xs font-medium text-muted mb-2">
@@ -57,7 +57,7 @@ export default function InvestirPage() {
           <p className="text-sm text-muted max-w-[68ch] leading-relaxed">
             Je fais sept contrôles à partir d’un seul rapport annuel déposé auprès du régulateur
             américain. Chaque alerte indique le fait qui l’a déclenchée. Je ne donne pas de verdict global sur la société.
-            Tu trouveras la méthode et ses limites sous la liste.
+            La méthode et ses limites ont leur propre bloc : « Ce que je contrôle, et ce que je ne sais pas ».
           </p>
           <p className="text-sm max-w-[68ch] leading-relaxed mt-3">
             Ce n’est pas un conseil d’achat : je ne lis aucun cours de bourse, donc rien
@@ -102,65 +102,15 @@ export default function InvestirPage() {
         </section>
       </header>
 
-      <section>
-        {/* The heading structures the page for assistive tech and keeps the
-            /investir#societes anchor; the title and the count line above the
-            list already say it, so it is not drawn. */}
-        <h2 id="societes" className="sr-only scroll-mt-20">Les sociétés</h2>
-        <InvestirListe lignes={lignes} contexte={contexte} />
-      </section>
-
-      <CreuxDachat index={lignes} />
-
-      {/* The four long explanatory blocks fold on a phone and stay as they
-          were on a computer (Repli, user decision 2026-09-19). */}
-      <Repli
-        id="mots-investir"
-        titre="Les mots employés dans les fiches"
-        resume={`${INVESTIR_VOCAB.length} termes`}
-        corpsClassName="mt-2"
-      >
-        <p className="text-sm leading-relaxed mb-4">
-          Je garde les mots des comptes, mais voici ce qu’ils veulent dire ici.
-        </p>
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {INVESTIR_VOCAB.map(([terme, definition]) => (
-            <div key={terme} className="rounded-lg border border-border bg-card px-4 py-3">
-              <dt className="text-sm font-semibold text-foreground">{terme}</dt>
-              <dd className="text-sm leading-relaxed mt-1">{definition}</dd>
-            </div>
-          ))}
-        </dl>
-      </Repli>
-
-      {dehors.length > 0 && (
-        <Repli
-          id="hors-perimetre"
-          titre={`${dehors.length} sociétés que je ne lis pas`}
-          className="rounded-lg border border-border bg-card px-5 py-4"
-          titreClassName="text-sm font-semibold text-muted"
-          corpsClassName="mt-2"
-        >
-          <p className="text-xs text-muted leading-relaxed mb-3">
-            Elles ne déposent pas de rapport annuel auprès du régulateur
-            américain, donc ma règle n’a aucun document à lire. Je les suis
-            quand même, avec une analyse écrite à partir de données de marché
-            que tu ne peux pas vérifier comme le reste. C’est dit sur chaque
-            fiche.
-          </p>
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
-            {dehors.map(f => (
-              <Link key={f.slug} href={`/investir/${f.slug}`}
-                    className={linkClass('inline', 'text-sm')}>
-                {f.name}
-              </Link>
-            ))}
-          </div>
-        </Repli>
-      )}
-
+      {/* The method opens the page on a phone, folded to one line, right after
+          the header (user, 2026-09-30: the intro speaks of « sept contrôles »
+          and nothing near it said what they were). From sm up the page is a
+          flex column and the block takes the last slot again, unfolded, before
+          « Ce que cette liste ne contient pas », which shares that slot and
+          keeps DOM order. */}
       <Repli
         id="methode"
+        className="sm:order-last"
         titre="Ce que je contrôle, et ce que je ne sais pas"
         resume="La méthode, les sept contrôles et leurs limites"
       >
@@ -219,10 +169,67 @@ export default function InvestirPage() {
         />
       </Repli>
 
+      <section>
+        {/* The heading structures the page for assistive tech and keeps the
+            /investir#societes anchor; the title and the count line above the
+            list already say it, so it is not drawn. */}
+        <h2 id="societes" className="sr-only scroll-mt-20">Les sociétés</h2>
+        <InvestirListe lignes={lignes} contexte={contexte} />
+      </section>
+
+      <CreuxDachat index={lignes} />
+
+      {/* The long explanatory blocks fold on a phone and stay as they
+          were on a computer (Repli, user decision 2026-09-19). */}
+      <Repli
+        id="mots-investir"
+        titre="Les mots employés dans les fiches"
+        resume={`${INVESTIR_VOCAB.length} termes`}
+        corpsClassName="mt-2"
+      >
+        <p className="text-sm leading-relaxed mb-4">
+          Je garde les mots des comptes, mais voici ce qu’ils veulent dire ici.
+        </p>
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {INVESTIR_VOCAB.map(([terme, definition]) => (
+            <div key={terme} className="rounded-lg border border-border bg-card px-4 py-3">
+              <dt className="text-sm font-semibold text-foreground">{terme}</dt>
+              <dd className="text-sm leading-relaxed mt-1">{definition}</dd>
+            </div>
+          ))}
+        </dl>
+      </Repli>
+
+      {dehors.length > 0 && (
+        <Repli
+          id="hors-perimetre"
+          titre={`${dehors.length} sociétés que je ne lis pas`}
+          className="rounded-lg border border-border bg-card px-5 py-4"
+          titreClassName="text-sm font-semibold text-muted"
+          corpsClassName="mt-2"
+        >
+          <p className="text-xs text-muted leading-relaxed mb-3">
+            Elles ne déposent pas de rapport annuel auprès du régulateur
+            américain, donc ma règle n’a aucun document à lire. Je les suis
+            quand même, avec une analyse écrite à partir de données de marché
+            que tu ne peux pas vérifier comme le reste. C’est dit sur chaque
+            fiche.
+          </p>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
+            {dehors.map(f => (
+              <Link key={f.slug} href={`/investir/${f.slug}`}
+                    className={linkClass('inline', 'text-sm')}>
+                {f.name}
+              </Link>
+            ))}
+          </div>
+        </Repli>
+      )}
+
       <Repli
         id="hors-liste"
         titre="Ce que cette liste ne contient pas, et pourquoi"
-        className="rounded-lg border border-border bg-card px-5 py-4 text-sm leading-relaxed"
+        className="sm:order-last rounded-lg border border-border bg-card px-5 py-4 text-sm leading-relaxed"
         titreClassName="text-base font-semibold text-foreground"
         corpsClassName="mt-2 space-y-2"
       >
