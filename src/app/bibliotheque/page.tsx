@@ -38,7 +38,9 @@ export default async function BibliothequePage() {
         Chaque variante trouvée par mon moteur qui a passé mes épreuves de backtest est ici,
         lancée ou pas encore.
         Une carte par idée, c&apos;est-à-dire une stratégie sur une unité de temps, avec
-        toutes ses variantes derrière.
+        toutes ses variantes derrière. Comment marche chaque stratégie, et comment je les
+        teste, c&apos;est dans{' '}
+        <Link href="/strategies" className={linkClass('inline')}>les fiches</Link>.
       </p>
       <p className="text-sm sm:text-base text-muted mb-6 max-w-[62ch]">
         {`Aujourd'hui : ${fr(variants)} variantes. `}

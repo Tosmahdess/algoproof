@@ -90,7 +90,10 @@ export default function LibraryIndex({ ideas }: { ideas: IdeaCardData[] }) {
   const [tf, setTf] = useState('')
   const [family, setFamily] = useState('')
   const [state, setState] = useState('')
-  const [sort, setSort] = useState<IdeaSort>('recent')
+  // Default « Plus de variantes » (user, 2026-10-01): « Récentes » opened on the last
+  // H4 ideas of one family, three identical sketches in a row. A ranking on the
+  // simulation takes over once enough ideas have trades (chantier, lot 2c).
+  const [sort, setSort] = useState<IdeaSort>('size')
   const [shown, setShown] = useState(PAGE)
 
   const tfs = useMemo(() => [...new Set(ideas.map(i => i.tf))].sort(), [ideas])
@@ -138,8 +141,8 @@ export default function LibraryIndex({ ideas }: { ideas: IdeaCardData[] }) {
           </Champ>
           <Champ label="Trier">
             <select className={LISTE} value={sort} onChange={e => setSort(e.target.value as IdeaSort)}>
-              <option value="recent">Récentes</option>
               <option value="size">Plus de variantes</option>
+              <option value="recent">Récentes</option>
               <option value="az">A-Z</option>
             </select>
           </Champ>

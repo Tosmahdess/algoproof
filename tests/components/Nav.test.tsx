@@ -14,7 +14,7 @@ const { default: Nav } = await import('@/components/Nav')
 
 const LINKS: [string, string][] = [
   ['La flotte', '/overview'],
-  ['Stratégies', '/strategies'],
+  ['Stratégies', '/bibliotheque'],
   ['Sociétés', '/investir'],
   ['Météo', '/intelligence'],
   ['Articles', '/blog'],
@@ -48,7 +48,17 @@ describe('Nav — five flat links, one button', () => {
     render(<Nav />)
     const bar = screen.getByTestId('nav-desktop')
     const current = within(bar).getAllByRole('link').filter(a => a.getAttribute('aria-current') === 'page')
-    expect(current.map(a => a.getAttribute('href'))).toEqual(['/strategies'])
+    // « Stratégies » opens the library (D084 follow-up, user 2026-10-01); the concept
+    // fiches under /strategies stay in that same section of the bar.
+    expect(current.map(a => a.getAttribute('href'))).toEqual(['/bibliotheque'])
+  })
+
+  it('marks « Stratégies » on a library idea page too', () => {
+    path.value = '/bibliotheque/rsi2-d1'
+    render(<Nav />)
+    const bar = screen.getByTestId('nav-desktop')
+    const current = within(bar).getAllByRole('link').filter(a => a.getAttribute('aria-current') === 'page')
+    expect(current.map(a => a.getAttribute('href'))).toEqual(['/bibliotheque'])
   })
 
   it('carries the lab as the one button of the bar, into the app, counted as nav', () => {
