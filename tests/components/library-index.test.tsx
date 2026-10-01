@@ -63,3 +63,12 @@ describe('LibraryIndex, real money first (R1)', () => {
     expect(container.textContent).toMatch(/à zéro ou en dessous/)
   })
 })
+
+describe('LibraryIndex, default order', () => {
+  it('opens on the ideas with the most variants (user, 2026-10-01)', () => {
+    render(<LibraryIndex ideas={IDEAS} />)
+    const first = screen.getAllByRole('link', { name: /Idée \d+/ })[0]
+    // n_variants = 10 + i: idea 30 has the most.
+    expect(first.getAttribute('href')).toBe('/bibliotheque/base30-d1')
+  })
+})

@@ -18,9 +18,12 @@ import { labUrl } from '@/lib/lab-links'
 // pill (green means gain everywhere else) and « COMPTE ». The words below are
 // the words of the page titles they open. The lab's TopNav.tsx carries the same
 // five, in the same order (twin, one visual language on two domains).
-const LINKS = [
+// « Stratégies » opens the library (user, 2026-10-01, after D084): every engine
+// variant, one card per idea. The concept fiches and the method stay at /strategies,
+// in the same section of the bar (`also`), reached from the library and the footer.
+const LINKS: { href: string; label: string; also?: string[] }[] = [
   { href: '/overview',     label: 'La flotte' },
-  { href: '/strategies',   label: 'Stratégies' },
+  { href: '/bibliotheque', label: 'Stratégies', also: ['/strategies'] },
   { href: '/investir',     label: 'Sociétés' },
   { href: '/intelligence', label: 'Météo' },
   { href: '/blog',         label: 'Articles' },
@@ -46,7 +49,9 @@ export default function Nav() {
   // it closes itself.
   useEffect(() => { setMobileOpen(false) }, [path])
 
-  const isActive = (href: string) => path === href || path.startsWith(href + '/')
+  const under = (href: string) => path === href || path.startsWith(href + '/')
+  const isActive = (href: string) =>
+    under(href) || (LINKS.find(l => l.href === href)?.also ?? []).some(under)
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur">
