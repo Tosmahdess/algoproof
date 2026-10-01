@@ -12,6 +12,7 @@ import { GAUNTLET_EXPLAINER_TITLE } from '@/lib/gauntlet-explainer'
 import BotTable from '@/components/BotTable'
 import FavoriteButton from '@/components/FavoriteButton'
 import { FavoritesProvider } from '@/components/FavoritesProvider'
+import { FollowsProvider } from '@/components/FollowsProvider'
 import { labUrl } from '@/lib/lab-links'
 
 export const revalidate = 300
@@ -135,7 +136,9 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
             Aucun bot ne fait tourner cette stratégie en ce moment.
           </p>
         ) : (
-          // One request for the stars of both tables (espace-direct lot C).
+          // One request for the stars of both tables (espace-direct lot C),
+          // one for their bells (lot H).
+          <FollowsProvider slugs={[...proven, ...rodage].map(b => b.slug)}>
           <FavoritesProvider kind="bot">
             {proven.length > 0 && (
               <div data-testid="concept-table">
@@ -153,6 +156,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
               </details>
             )}
           </FavoritesProvider>
+          </FollowsProvider>
         )}
       </section>
 
