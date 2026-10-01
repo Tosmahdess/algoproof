@@ -4,6 +4,7 @@ import { getBotSlugs } from '@/lib/queries'
 import { getFicheSitemapData } from '@/lib/equity'
 import { asOf as investirAsOf, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
+import { getLibraryIdeas, ideaSlug } from '@/lib/library'
 
 function getBlogSlugs(): string[] {
   try {
@@ -18,6 +19,11 @@ function getBlogSlugs(): string[] {
 export default async function sitemap() {
   let slugs: string[] = []
   try { slugs = await getBotSlugs() } catch { /* build-time network error — continue with empty slugs */ }
+  // Library ideas (lot 2, D079): one page per idea, the stable URL of a strategy on a
+  // timeframe whatever its variants become. The variants themselves have no page of
+  // their own unless they run (then they are bot fiches, listed above).
+  let ideaKeys: string[] = []
+  try { ideaKeys = (await getLibraryIdeas()).map(i => i.idea_key) } catch { /* same */ }
 
   // Les fiches Investir. Lues d'un JSON committe, donc sans reseau et sans
   // try/catch : si le fichier manque, le build echoue, ce qui est la bonne
@@ -49,6 +55,13 @@ export default async function sitemap() {
   }))
 
   // Concept pages: stable URLs that survive bot turnover. This is the SEO surface.
+  const ideaUrls = ideaKeys.map(k => ({
+    url: `https://algoproof.fr/bibliotheque/${ideaSlug(k)}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
+
   const conceptUrls = STRATEGY_FICHES.map(f => ({
     url: `https://algoproof.fr/strategies/${f.slug}`,
     lastModified: new Date(),
@@ -80,6 +93,12 @@ export default async function sitemap() {
       url: 'https://algoproof.fr/strategies',
       lastModified: new Date(),
       changeFrequency: 'hourly' as const,
+      priority: 0.9,
+    },
+    {
+      url: 'https://algoproof.fr/bibliotheque',
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
@@ -130,5 +149,6 @@ export default async function sitemap() {
     ...investirUrls,
     ...botUrls,
     ...conceptUrls,
+    ...ideaUrls,
   ]
 }

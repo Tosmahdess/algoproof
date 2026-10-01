@@ -56,6 +56,8 @@ export default async function StrategiesIndexPage() {
         Comment marche chaque stratégie que je teste, et lesquelles tournent
         vraiment chez moi. Pour voir les bots en direct, va sur{' '}
         <Link href="/overview" className={linkClass('inline')}>La flotte</Link>.
+        Toutes les variantes qui ont passé mes épreuves, lancées ou pas encore, sont dans{' '}
+        <Link href="/bibliotheque" className={linkClass('inline')}>la bibliothèque</Link>.
       </p>
       {/* Lot 5 (conception §5.3): the engine first, the same block as the home, so
           the first figure of the page is the engine's, not a fiche count. */}
