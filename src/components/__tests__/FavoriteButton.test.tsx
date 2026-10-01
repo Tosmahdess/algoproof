@@ -128,3 +128,21 @@ describe('FavoriteButton', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: /Dans mes favoris/ })).toBeInTheDocument())
   })
 })
+
+describe('FavoriteButton on a strategy or a company page (lot C)', () => {
+  it.each([
+    ['strategy', 'ema-cross', '/strategies/ema-cross'],
+    ['company', 'xiaomi', '/investir/xiaomi'],
+  ] as const)('%s: reads its own kind and brings a guest back to its page', async (kind, slug, path) => {
+    signedIn()
+    fetchMock.mockReturnValueOnce(reply(200, { favorite: false }))
+    const { unmount } = render(<FavoriteButton slug={slug} kind={kind} />)
+    await screen.findByRole('button', { name: /Garder en favori/ })
+    expect(fetchMock.mock.calls[0][0]).toBe(`https://api-lab.algoproof.fr/me/favorites/${kind}/${slug}`)
+    unmount()
+    getSession.mockResolvedValue({ data: { session: null } })
+    render(<FavoriteButton slug={slug} kind={kind} />)
+    expect(await screen.findByRole('link', { name: /Garder en favori/ }))
+      .toHaveAttribute('href', `/compte?next=${encodeURIComponent(path)}`)
+  })
+})

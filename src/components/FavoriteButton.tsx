@@ -13,38 +13,15 @@
 // the way back: they click again. A write that fails leaves the star as it was.
 
 import { useEffect, useState } from 'react'
-import { createSupabaseAuthBrowser } from '@/lib/supabase-auth-browser'
-import { LAB_API_ORIGIN, LAB_ORIGIN, labUrl } from '@/lib/lab-links'
+import { LAB_ORIGIN, labUrl } from '@/lib/lab-links'
 import { linkClass } from '@/lib/link-roles'
+import { accessToken, callFavorite, Expired, pagePath, signInHref, type FavoriteKind } from '@/lib/favorites-client'
 
 type State = 'loading' | 'guest' | 'off' | 'on'
 
-class Expired extends Error {}
-
-async function call(slug: string, token: string, method: 'GET' | 'PUT' | 'DELETE'): Promise<boolean> {
-  const res = await fetch(`${LAB_API_ORIGIN}/me/favorites/bot/${encodeURIComponent(slug)}`, {
-    method,
-    headers: { Authorization: `Bearer ${token}` },
-    credentials: 'omit',
-    cache: 'no-store',
-  })
-  if (res.status === 401) throw new Expired()
-  if (!res.ok) throw new Error(`favorites ${res.status}`)
-  return (await res.json()).favorite === true
-}
-
-async function accessToken(): Promise<string | null> {
-  try {
-    const { data } = await createSupabaseAuthBrowser().auth.getSession()
-    return data.session?.access_token ?? null
-  } catch {
-    return null
-  }
-}
-
 const BUTTON = 'inline-flex items-center gap-1.5 min-h-10 px-3 rounded-md border text-sm transition-colors'
 
-export default function FavoriteButton({ slug }: { slug: string }) {
+export default function FavoriteButton({ slug, kind = 'bot' }: { slug: string; kind?: FavoriteKind }) {
   const [state, setState] = useState<State>('loading')
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -56,7 +33,7 @@ export default function FavoriteButton({ slug }: { slug: string }) {
       if (!live) return
       if (!t) return setState('guest')
       try {
-        const on = await call(slug, t, 'GET')
+        const on = await callFavorite(kind, slug, t, 'GET')
         if (live) setState(on ? 'on' : 'off')
       } catch (e) {
         // Unreadable state: show the star unset, a click still writes.
@@ -64,7 +41,7 @@ export default function FavoriteButton({ slug }: { slug: string }) {
       }
     })()
     return () => { live = false }
-  }, [slug])
+  }, [slug, kind])
 
   async function toggle() {
     if (busy) return
@@ -76,7 +53,7 @@ export default function FavoriteButton({ slug }: { slug: string }) {
       // lives an hour and getSession() refreshes it only when it is called.
       const token = await accessToken()
       if (!token) return setState('guest')
-      const on = await call(slug, token, was === 'on' ? 'DELETE' : 'PUT')
+      const on = await callFavorite(kind, slug, token, was === 'on' ? 'DELETE' : 'PUT')
       setState(on ? 'on' : 'off')
     } catch (e) {
       if (e instanceof Expired) setState('guest')
@@ -89,8 +66,8 @@ export default function FavoriteButton({ slug }: { slug: string }) {
   if (state === 'guest') {
     return (
       <a
-        href={`/compte?next=${encodeURIComponent(`/strategies/bot/${slug}`)}`}
-        title="Connecte-toi pour garder ce bot et le retrouver dans ton espace"
+        href={signInHref(pagePath(kind, slug))}
+        title="Connecte-toi pour le garder et le retrouver dans ton espace"
         className={`${BUTTON} border-border text-muted hover:text-foreground`}
       >
         <span aria-hidden="true">☆</span> Garder en favori

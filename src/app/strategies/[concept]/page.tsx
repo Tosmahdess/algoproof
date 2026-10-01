@@ -10,6 +10,8 @@ import { excludeArchived } from '@/lib/cohort'
 import { resolveStrategyRoute } from '@/lib/strategy-routing'
 import { GAUNTLET_EXPLAINER_TITLE } from '@/lib/gauntlet-explainer'
 import BotTable from '@/components/BotTable'
+import FavoriteButton from '@/components/FavoriteButton'
+import { FavoritesProvider } from '@/components/FavoritesProvider'
 import { labUrl } from '@/lib/lab-links'
 
 export const revalidate = 300
@@ -72,7 +74,10 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
         {' / '}{familyLabel(fiche.family)}
       </nav>
 
-      <h1 className="text-3xl font-semibold tracking-tight mb-3">{fiche.title}</h1>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-3">
+        <h1 className="text-3xl font-semibold tracking-tight">{fiche.title}</h1>
+        <FavoriteButton slug={fiche.slug} kind="strategy" />
+      </div>
       <p className="text-sm text-muted mb-8">{fiche.oneLiner}</p>
 
       <section className="mb-8">
@@ -130,7 +135,8 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
             Aucun bot ne fait tourner cette stratégie en ce moment.
           </p>
         ) : (
-          <>
+          // One request for the stars of both tables (espace-direct lot C).
+          <FavoritesProvider kind="bot">
             {proven.length > 0 && (
               <div data-testid="concept-table">
                 <BotTable bots={proven} showTf />
@@ -146,7 +152,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
                 </div>
               </details>
             )}
-          </>
+          </FavoritesProvider>
         )}
       </section>
 

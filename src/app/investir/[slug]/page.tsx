@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { EquityDisclosure } from '@/components/EquityDisclosure'
 import { CoursTradingView } from '@/components/CoursTradingView'
 import { RecitInvestir } from '@/components/RecitInvestir'
+import FavoriteButton from '@/components/FavoriteButton'
 import {
   COMPTES, RECIT, asOf, ficheParSlug,
   horsPerimetreParSlug, listeHorsPerimetre, tousLesSlugs,
@@ -31,7 +32,12 @@ function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
       <Link href="/investir" className={linkClass('nav', 'text-sm')}>
         ← Toutes les sociétés
       </Link>
-      <h1 className="text-3xl font-semibold tracking-tight mt-6 mb-4">{fiche.name}</h1>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-6 mb-4">
+        <h1 className="text-3xl font-semibold tracking-tight">{fiche.name}</h1>
+        {/* Keeps the page in Mon espace; it opens nothing the page does not
+            already show (espace-direct lot C). */}
+        <FavoriteButton slug={fiche.slug} kind="company" />
+      </div>
 
       <div className="rounded-lg border border-warning/40 bg-warning/5 px-5 py-4 mb-8">
         <p className="text-sm text-foreground leading-relaxed">
@@ -111,7 +117,12 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
         ← Toutes les sociétés
       </Link>
 
-      <h1 className="text-3xl font-semibold tracking-tight mt-6 mb-4">{fiche.name}</h1>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-6 mb-4">
+        <h1 className="text-3xl font-semibold tracking-tight">{fiche.name}</h1>
+        {/* Keeps the page in Mon espace; it opens nothing the page does not
+            already show (espace-direct lot C). */}
+        <FavoriteButton slug={fiche.slug} kind="company" />
+      </div>
 
       {/* Le cartouche de note a été retiré ici le 2026-09-15. Il portait l'un
           des trois adjectifs du moteur d'avant, en vert, ambre ou rouge : un
