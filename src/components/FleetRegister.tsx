@@ -41,6 +41,7 @@ import { sliceBotStats } from '@/lib/stats'
 import FleetFilterBar from '@/components/FleetFilterBar'
 import BotTable from '@/components/BotTable'
 import { FavoritesProvider } from '@/components/FavoritesProvider'
+import { FollowsProvider } from '@/components/FollowsProvider'
 
 export interface FleetRegisterProps {
   /** The register set: the whole fleet, live included, archived included. */
@@ -175,10 +176,13 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
         <div className="space-y-2">
           {rows.length > 0 && (
             <div data-testid="fleet-table">
-              {/* One request for every star of the table (espace-direct lot C). */}
-              <FavoritesProvider kind="bot">
-                <BotTable bots={rows} showTf fleetTotalAbove />
-              </FavoritesProvider>
+              {/* One request for every star of the table (espace-direct lot C),
+                  one for every bell (lot H). */}
+              <FollowsProvider slugs={rows.map(r => r.slug)}>
+                <FavoritesProvider kind="bot">
+                  <BotTable bots={rows} showTf fleetTotalAbove />
+                </FavoritesProvider>
+              </FollowsProvider>
             </div>
           )}
           {rodageCount > 0 && (

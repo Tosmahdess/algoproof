@@ -31,3 +31,28 @@ describe('stars on the site', () => {
     expect(mobile).toContain('<FavoriteStar kind="bot"')
   })
 })
+
+describe('bells on the site (espace-direct lot H)', () => {
+  it('the fleet table and the strategy page tables sit under one bell provider each', () => {
+    expect(src('src/components/FleetRegister.tsx')).toMatch(/<FollowsProvider slugs=\{rows\.map\(r => r\.slug\)\}>/)
+    expect(src('src/app/strategies/[concept]/page.tsx')).toMatch(/<FollowsProvider slugs=/)
+  })
+
+  it('a bot page carries the bell next to the star', () => {
+    expect(src('src/app/strategies/bot/[slug]/page.tsx')).toMatch(/<FavoriteButton slug=\{bot\.slug\} \/>\s*<FollowButton slug=\{bot\.slug\} \/>/)
+  })
+
+  it('a table row never nests the bell inside its link, on both layouts', () => {
+    const table = src('src/components/BotTable.tsx')
+    const mobile = table.slice(table.indexOf('bot-table-mobile'), table.indexOf('bot-table-desktop'))
+    const link = mobile.slice(mobile.indexOf('<Link'), mobile.indexOf('</Link>'))
+    expect(link).not.toContain('FollowBell')
+    expect(mobile).toContain('<FollowBell slug={bot.slug}')
+    expect(table.slice(table.indexOf('bot-table-desktop'))).toContain('<FollowBell slug={bot.slug}')
+  })
+
+  it('the sale flag is read statically, so the browser bundle gets it', () => {
+    // A dynamic process.env[name] never reaches the browser (vault lesson).
+    expect(src('src/lib/direct-sale.ts')).toMatch(/process\.env\.NEXT_PUBLIC_DIRECT_SALE_OPEN === '1'/)
+  })
+})
