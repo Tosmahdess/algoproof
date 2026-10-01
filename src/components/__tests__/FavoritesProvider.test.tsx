@@ -69,6 +69,12 @@ describe('FavoritesProvider + FavoriteStar', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
+  it('keeps the star slot while loading, so 120 rows do not jump', () => {
+    getSession.mockReturnValue(new Promise(() => {}))
+    const { container } = render(<Rows n={2} />)
+    expect(container.querySelectorAll('[data-star-slot]')).toHaveLength(2)
+  })
+
   it('outside a provider, a star renders nothing and asks nothing', () => {
     const { container } = render(<FavoriteStar kind="bot" slug="b0" name="Bot 0" />)
     expect(container.textContent).toBe('')

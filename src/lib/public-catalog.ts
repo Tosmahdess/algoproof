@@ -11,6 +11,7 @@
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
 import { familyLabel } from '@/lib/families'
 import { ficheParSlug, listeHorsPerimetre, tousLesSlugs } from '@/lib/investir'
+import { CATEGORY_LABELS } from '@/lib/fiche-categories'
 
 // family_label: the site's own words for the family, so the lab neither copies the
 // table nor shows « trend » where the site says « Suivi de tendance ».
@@ -27,7 +28,10 @@ export function companyCatalog(): CompanyEntry[] {
     return { slug: f.slug, name: f.name, ticker: f.ticker ?? null, category: f.famille ?? null }
   })
   const outOfScope = listeHorsPerimetre().map(f => ({
-    slug: f.slug, name: f.name, ticker: f.ticker ?? null, category: f.categorie ?? null,
+    // The site's label, never the machine key: five categories had none on
+    // 2026-10-01 (auto_ev, consumer_premium, fintech_payment, gaming,
+    // space_economy), they publish no category rather than « auto_ev ».
+    slug: f.slug, name: f.name, ticker: f.ticker ?? null, category: (f.categorie && CATEGORY_LABELS[f.categorie]) || null,
   }))
   return [...inScope, ...outOfScope]
 }

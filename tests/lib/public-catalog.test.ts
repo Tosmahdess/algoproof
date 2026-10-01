@@ -7,6 +7,7 @@ import { describe, it, expect } from 'vitest'
 import { strategyCatalog, companyCatalog } from '@/lib/public-catalog'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
 import { tousLesSlugs, listeHorsPerimetre } from '@/lib/investir'
+import { CATEGORY_LABELS } from '@/lib/fiche-categories'
 
 describe('strategy catalog', () => {
   it('carries the family in the words the site uses', () => {
@@ -27,6 +28,14 @@ describe('company catalog', () => {
     const expected = [...tousLesSlugs(), ...listeHorsPerimetre().map(f => f.slug)].sort()
     expect(cat.map(c => c.slug).sort()).toEqual(expected)
     expect(new Set(cat.map(c => c.slug)).size).toBe(cat.length)
+  })
+
+  it('names an out-of-scope company category in words, never a machine key', () => {
+    for (const c of cat) if (c.category) expect(c.category).not.toMatch(/^[a-z]+(_[a-z]+)+$/)
+    // auto_ev has no label on the site: no category rather than the key.
+    expect(cat.find(c => c.slug === 'xiaomi')!.category).toBeNull()
+    const labelled = listeHorsPerimetre().find(f => f.categorie && CATEGORY_LABELS[f.categorie])!
+    expect(cat.find(c => c.slug === labelled.slug)!.category).toBe(CATEGORY_LABELS[labelled.categorie!])
   })
 
   it('carries only the fields a favorites list shows', () => {
