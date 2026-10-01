@@ -12,7 +12,7 @@ function idea(i: number, over: Partial<IdeaCardData> = {}): IdeaCardData {
     family: i % 3 ? 'breakout' : 'trend', slug: `base${i}-${i % 2 ? 'h4' : 'd1'}`,
     label: `Idée ${i}`, familyLabel: i % 3 ? 'Cassure' : 'Suivi de tendance',
     n_variants: 10 + i, n_backtest: 8, n_awaiting: 6, n_trailing: 2, n_not_surviving: 0,
-    n_running: i % 4 === 0 ? 2 : 0, n_stopped: 0, n_sim_up: 0, n_sim_down: 0,
+    n_running: i % 4 === 0 ? 2 : 0, n_live: 0, n_paper: i % 4 === 0 ? 2 : 0, n_stopped: 0, n_sim_up: 0, n_sim_down: 0,
     n_sim_young: i % 4 === 0 ? 2 : 0, pf_q1: 1.1, pf_median: 1.234, pf_q3: 1.4, n_pf: 8,
     last_found_at: `2026-09-${String(10 + (i % 18)).padStart(2, '0')}T00:00:00Z`, ...over,
   }
@@ -45,8 +45,21 @@ describe('LibraryIndex', () => {
   })
 
   it('never calls a backtest-only survivor a paper bot', () => {
-    const { container } = render(<LibraryIndex ideas={[idea(1, { n_running: 0 })]} />)
+    const { container } = render(<LibraryIndex ideas={[idea(1, { n_running: 0, n_paper: 0 })]} />)
     expect(container.textContent).toMatch(/backtest seul/)
     expect(container.textContent).not.toMatch(/paper/i)
+  })
+})
+
+describe('LibraryIndex, real money first (R1)', () => {
+  it('labels real-money variants apart from the simulation, and before it', () => {
+    const { container } = render(<LibraryIndex ideas={[idea(4, { n_live: 1, n_paper: 2, n_running: 3 })]} />)
+    const text = container.textContent ?? ''
+    expect(text).toMatch(/1 en argent réel/)
+    expect(text.indexOf('en argent réel')).toBeLessThan(text.indexOf('2 en simulation'))
+  })
+  it('calls a flat result zero or below, never a gain', () => {
+    const { container } = render(<LibraryIndex ideas={[idea(4, { n_sim_down: 1, n_sim_young: 1 })]} />)
+    expect(container.textContent).toMatch(/à zéro ou en dessous/)
   })
 })

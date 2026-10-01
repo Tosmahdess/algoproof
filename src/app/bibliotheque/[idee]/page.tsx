@@ -114,8 +114,12 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
       <section className="mt-4 grid gap-2 rounded-lg border border-border bg-card p-4 text-sm">
         <h2 className="text-sm font-medium text-muted">Où en sont les variantes</h2>
         <p className="text-foreground">
-          {idea.n_variants} variantes : {idea.n_running} en simulation, {idea.n_backtest} en backtest seul
-          {idea.n_stopped > 0 && `, ${idea.n_stopped} arrêtées`}.
+          {`${idea.n_variants} variantes : ` + [
+            idea.n_live > 0 ? `${idea.n_live} avec mon argent` : null,
+            `${idea.n_paper} en simulation`,
+            `${idea.n_backtest} en backtest seul`,
+            idea.n_stopped > 0 ? `${idea.n_stopped} arrêtées` : null,
+          ].filter(Boolean).join(', ') + '.'}
         </p>
         {idea.n_backtest > 0 && (
           <p className="text-muted">
@@ -126,8 +130,8 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
         )}
         <p className="text-muted">
           {s.total === 0
-            ? "Aucune n'est lancée en simulation pour l'instant."
-            : `En simulation : ${s.up} au-dessus de zéro, ${s.down} en dessous, ${s.young} trop jeunes pour dire quoi que ce soit.`}
+            ? "Aucune n'est en simulation pour l'instant."
+            : `En simulation, depuis leur lancement : ${s.up} au-dessus de zéro, ${s.down} à zéro ou en dessous, ${s.young} trop jeunes pour dire quoi que ce soit. La fiche de chaque bot ajoute le rejeu du backtest, ses chiffres peuvent donc différer.`}
         </p>
       </section>
 

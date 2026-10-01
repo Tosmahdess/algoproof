@@ -33,12 +33,17 @@ const TONE: Record<VariantRow['stateTone'], string> = {
   run: 'text-positive', stop: 'text-negative', wait: 'text-muted',
 }
 
+// Real money is labelled as such and never mixed with the simulation (rule R1). Counted
+// on closed trades since the launch: the bot fiche adds the backtest replay, so its
+// figures can differ, and the words say which is which.
 function Sim({ v }: { v: VariantRow }) {
   if (v.simSign === null) return <span className="text-muted">pas lancée</span>
-  if (v.simSign === 'young') return <span className="text-muted">{v.simTrades} trades, trop jeune</span>
+  const what = v.state === 'Argent réel' ? 'Argent réel' : v.state === 'Arrêtée' ? 'Avant l’arrêt' : 'Simulation'
+  const head = `${what} depuis le lancement : ${v.simTrades} trades`
+  if (v.simSign === 'young') return <span className="text-muted">{`${head}, trop jeune`}</span>
   return (
     <span className={v.simSign === 'up' ? 'text-positive' : 'text-negative'}>
-      {v.simTrades} trades, {v.simSign === 'up' ? 'au-dessus de zéro' : 'en dessous de zéro'}
+      {`${head}, ${v.simSign === 'up' ? 'au-dessus de zéro' : 'à zéro ou en dessous'}`}
     </span>
   )
 }
@@ -52,14 +57,14 @@ export default function VariantTable({ rows }: { rows: VariantRow[] }) {
           <li key={v.slug} className="grid gap-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-x-6">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground">
-                {v.rank ? `n° ${v.rank}` : v.name}{' '}
-                <span className={`ml-1 text-xs font-normal ${TONE[v.stateTone]}`}>{v.state}</span>
+                {v.rank ? `n° ${v.rank}` : v.name}
+                <span className={`ml-2 text-xs font-normal ${TONE[v.stateTone]}`}>{v.state}</span>
               </p>
               {v.waitLabel && <p className="text-xs text-muted">{v.waitLabel}</p>}
               <p className="mt-1 text-xs text-muted">
                 {v.filters.length ? `Filtres : ${v.filters.join(', ')}` : 'Sans filtre'}
                 {' · '}{v.nAssets} {v.nAssets > 1 ? 'marchés' : 'marché'}
-                {v.mtfCaveat && ' · filtre multi-timeframe (léger écart possible entre backtest et live)'}
+                {v.mtfCaveat && ' · filtre sur les unités de temps supérieures (léger écart possible entre le backtest et le marché réel)'}
               </p>
             </div>
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs sm:justify-end sm:text-right">
@@ -69,8 +74,8 @@ export default function VariantTable({ rows }: { rows: VariantRow[] }) {
               </span>
               <Sim v={v} />
               {v.href && (v.external
-                ? <a href={v.href} className={linkClass('inline')}>Réglages dans le labo</a>
-                : <Link href={v.href} className={linkClass('inline')}>Voir la fiche</Link>)}
+                ? <a href={v.href} className={`${linkClass('inline')} inline-flex min-h-10 items-center`}>Réglages dans le labo</a>
+                : <Link href={v.href} className={`${linkClass('inline')} inline-flex min-h-10 items-center`}>Voir la fiche</Link>)}
             </div>
           </li>
         ))}

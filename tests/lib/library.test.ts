@@ -11,7 +11,7 @@ import {
 const idea = (over: Partial<LibraryIdea>): LibraryIdea => ({
   idea_key: 'DonchianBreakout|H4', base: 'DonchianBreakout', tf: 'H4', family: 'breakout',
   n_variants: 10, n_backtest: 8, n_awaiting: 6, n_trailing: 2, n_not_surviving: 0,
-  n_running: 2, n_stopped: 0, n_sim_up: 0, n_sim_down: 0, n_sim_young: 2,
+  n_running: 2, n_live: 0, n_paper: 2, n_stopped: 0, n_sim_up: 0, n_sim_down: 0, n_sim_young: 2,
   pf_q1: 1.1, pf_median: 1.2, pf_q3: 1.35, n_pf: 8, last_found_at: '2026-09-20T00:00:00Z',
   ...over,
 })

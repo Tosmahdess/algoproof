@@ -6,6 +6,7 @@ import StickyFilterBar from '@/components/StickyFilterBar'
 import SearchInput from '@/components/SearchInput'
 import PrincipleSketch from '@/components/library/PrincipleSketch'
 import { sortIdeas, simSplit, type IdeaSort, type LibraryIdea } from '@/lib/library'
+import { linkClass } from '@/lib/link-roles'
 
 // The library index (lot 2, D079): one card per idea, a sketch of the principle,
 // how many variants it holds and in which state. No PF and no curve on a card: a
@@ -40,20 +41,20 @@ const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCa
 function SimBar({ idea }: { idea: IdeaCardData }) {
   const s = simSplit(idea)
   if (s.total === 0) {
-    return <p className="text-xs text-muted">Aucune variante lancée en simulation pour l&apos;instant.</p>
+    return <p className="text-xs text-muted">Aucune variante en simulation pour l&apos;instant.</p>
   }
   const w = (n: number) => `${(100 * n) / s.total}%`
   return (
     <div className="grid gap-1.5">
       <div className="flex h-2 overflow-hidden rounded-full bg-card-2" role="img"
-        aria-label={`${s.up} au-dessus de zéro, ${s.down} en dessous, ${s.young} trop jeunes`}>
+        aria-label={`${s.up} au-dessus de zéro, ${s.down} à zéro ou en dessous, ${s.young} trop jeunes`}>
         <span className="block h-full bg-positive/70" style={{ width: w(s.up) }} />
         <span className="block h-full bg-negative/70" style={{ width: w(s.down) }} />
         <span className="block h-full bg-border-strong" style={{ width: w(s.young) }} />
       </div>
       <p className="text-xs text-muted">
-        En simulation : <span className="text-foreground">{s.up}</span> au-dessus de zéro,{' '}
-        <span className="text-foreground">{s.down}</span> en dessous,{' '}
+        Simulation depuis le lancement : <span className="text-foreground">{s.up}</span> au-dessus de zéro,{' '}
+        <span className="text-foreground">{s.down}</span> à zéro ou en dessous,{' '}
         <span className="text-foreground">{s.young}</span> trop jeunes pour dire quoi que ce soit
       </p>
     </div>
@@ -68,14 +69,14 @@ function Pill({ children, tone }: { children: ReactNode; tone?: 'run' | 'stop' }
 
 export function IdeaCard({ idea }: { idea: IdeaCardData }) {
   return (
-    <Link href={`/bibliotheque/${idea.slug}`}
-      className="grid min-w-0 gap-3 rounded-lg border border-border bg-card p-4 hover:border-border-strong">
+    <Link href={`/bibliotheque/${idea.slug}`} className={`${linkClass('card')} grid min-w-0 gap-3 bg-card p-4`}>
       <PrincipleSketch family={idea.family} />
       <h3 className="text-base font-semibold text-foreground">{idea.label} {idea.tf}</h3>
       <p className="text-xs text-muted">{idea.familyLabel} · {TF_WORD[idea.tf] ?? idea.tf} · Binance Futures</p>
       <div className="flex flex-wrap gap-1.5">
         <Pill>{plural(idea.n_variants, 'variante', 'variantes')}</Pill>
-        {idea.n_running > 0 && <Pill tone="run">{idea.n_running} en simulation</Pill>}
+        {idea.n_live > 0 && <Pill tone="run">{idea.n_live} en argent réel</Pill>}
+        {idea.n_paper > 0 && <Pill tone="run">{idea.n_paper} en simulation</Pill>}
         {idea.n_backtest > 0 && <Pill>{idea.n_backtest} backtest seul</Pill>}
         {idea.n_stopped > 0 && <Pill tone="stop">{plural(idea.n_stopped, 'arrêtée', 'arrêtées')}</Pill>}
       </div>
@@ -100,7 +101,7 @@ export default function LibraryIndex({ ideas }: { ideas: IdeaCardData[] }) {
     const words = norm(q).split(/\s+/).filter(Boolean)
     const kept = ideas.filter(i =>
       (!tf || i.tf === tf) && (!family || i.family === family) &&
-      (!state || (state === 'running' ? i.n_running > 0 : i.n_running === 0)) &&
+      (!state || (state === 'running' ? i.n_running > 0 : i.n_backtest === i.n_variants)) &&
       words.every(w => norm(`${i.label} ${i.base} ${i.tf} ${i.familyLabel}`).includes(w)))
     return sortIdeas(kept, sort) as IdeaCardData[]
   }, [ideas, q, tf, family, state, sort])
@@ -131,8 +132,8 @@ export default function LibraryIndex({ ideas }: { ideas: IdeaCardData[] }) {
           <Champ label="État">
             <select className={LISTE} value={state} onChange={set(setState)}>
               <option value="">Tous</option>
-              <option value="running">Au moins une en simulation</option>
-              <option value="backtest">Backtest seul</option>
+              <option value="running">Au moins une lancée</option>
+              <option value="backtest">Aucune lancée (backtest seul)</option>
             </select>
           </Champ>
           <Champ label="Trier">
@@ -148,7 +149,9 @@ export default function LibraryIndex({ ideas }: { ideas: IdeaCardData[] }) {
         <span className="text-foreground">{plural(list.length, 'idée', 'idées')}</span>, {variants.toLocaleString('fr-FR')} variantes
       </p>
       {list.length === 0
-        ? <p className="py-10 text-center text-sm text-muted">Aucune idée ne correspond. Retire un filtre.</p>
+        ? <p className="py-10 text-center text-sm text-muted">
+            {ideas.length === 0 ? 'La bibliothèque est vide pour l’instant.' : 'Aucune idée ne correspond. Retire un filtre ou change la recherche.'}
+          </p>
         : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {list.slice(0, shown).map(i => <IdeaCard key={i.idea_key} idea={i} />)}

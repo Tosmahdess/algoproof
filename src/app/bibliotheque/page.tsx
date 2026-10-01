@@ -26,21 +26,26 @@ export default async function BibliothequePage() {
     familyLabel: familyLabel(i.family as Family),
   }))
   const variants = cards.reduce((n, i) => n + i.n_variants, 0)
-  const running = cards.reduce((n, i) => n + i.n_running, 0)
+  const live = cards.reduce((n, i) => n + i.n_live, 0)
+  const paper = cards.reduce((n, i) => n + i.n_paper, 0)
+  const waiting = cards.reduce((n, i) => n + i.n_backtest, 0)
+  const fr = (n: number) => n.toLocaleString('fr-FR')
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 pb-16">
       <h1 className="text-3xl font-semibold tracking-tight mb-3">La bibliothèque</h1>
       <p className="text-sm sm:text-base text-muted mb-3 max-w-[62ch]">
-        Chaque variante qui a passé mes épreuves de backtest est ici, lancée ou pas encore.
+        Chaque variante trouvée par mon moteur qui a passé mes épreuves de backtest est ici,
+        lancée ou pas encore.
         Une carte par idée, c&apos;est-à-dire une stratégie sur une unité de temps, avec
         toutes ses variantes derrière.
       </p>
       <p className="text-sm sm:text-base text-muted mb-6 max-w-[62ch]">
-        Aujourd&apos;hui : <span className="text-foreground">{variants.toLocaleString('fr-FR')}</span> variantes,
-        dont <span className="text-foreground">{running.toLocaleString('fr-FR')}</span> en simulation. Les autres
-        attendent que je les lance, et la page de chaque idée dit pourquoi. Les bots qui tournent
-        se suivent aussi sur{' '}
+        {`Aujourd'hui : ${fr(variants)} variantes. `}
+        {live > 0 && `${fr(live)} tournent avec mon argent, `}
+        {`${fr(paper)} en simulation, et ${fr(waiting)} en backtest seul, qui attendent que je les lance : la page de chaque idée dit pourquoi. `}
+        Les bots que j&apos;ai écrits à la main n&apos;y sont pas encore. Tous les bots qui tournent
+        se suivent sur{' '}
         <Link href="/overview" className={linkClass('inline')}>La flotte</Link>.
       </p>
       <LibraryIndex ideas={cards} />

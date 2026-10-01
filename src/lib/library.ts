@@ -24,6 +24,8 @@ export interface LibraryIdea {
   n_trailing: number
   n_not_surviving: number
   n_running: number
+  n_live: number
+  n_paper: number
   n_stopped: number
   n_sim_up: number
   n_sim_down: number
@@ -56,7 +58,7 @@ export interface LibraryVariant {
 
 const NUMERIC: (keyof LibraryIdea)[] = [
   'n_variants', 'n_backtest', 'n_awaiting', 'n_trailing', 'n_not_surviving', 'n_running',
-  'n_stopped', 'n_sim_up', 'n_sim_down', 'n_sim_young', 'n_pf',
+  'n_live', 'n_paper', 'n_stopped', 'n_sim_up', 'n_sim_down', 'n_sim_young', 'n_pf',
 ]
 
 // PostgREST returns bigint counts as strings; every count is a number past here.
@@ -142,7 +144,7 @@ export function variantState(v: { status: string }): string {
 // (backtests_massive/publish/filter_catalog.py COPY_FR, labels only, 2026-10-01).
 // Names only: the values are the lab's.
 const FILTER_LABEL: Record<string, string> = {
-  mtf_align: 'Accord des timeframes supérieurs',
+  mtf_align: 'Accord des unités de temps supérieures',
   ma_stack: 'Moyennes mobiles empilées',
   supertrend_side: 'Côté du Supertrend',
   ichimoku_cloud: 'Nuage Ichimoku',
