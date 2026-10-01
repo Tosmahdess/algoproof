@@ -57,3 +57,15 @@ env.local
 .superpowers-*.md
 vitest-full.log
 vitest*.log
+
+# Impeccable design skill (impeccable.style): skill + subagents are versioned,
+# the rest of .claude/ stays local. The engine binary is re-downloaded by the
+# launcher on first use; config.local.json holds per-machine hook consent.
+!.claude/
+.claude/*
+!.claude/skills/
+!.claude/agents/
+!.claude/skills/impeccable/scripts/data/
+.claude/skills/impeccable/scripts/bin/
+.impeccable/config.local.json
+.impeccable/hook.cache.json
