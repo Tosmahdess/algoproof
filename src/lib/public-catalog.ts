@@ -9,13 +9,16 @@
 // page: the paid récit is served by /api/investir/[slug]/recit after an
 // entitlement check, never through this list.
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
+import { familyLabel } from '@/lib/families'
 import { ficheParSlug, listeHorsPerimetre, tousLesSlugs } from '@/lib/investir'
 
-export type StrategyEntry = { slug: string; title: string; family: string }
+// family_label: the site's own words for the family, so the lab neither copies the
+// table nor shows « trend » where the site says « Suivi de tendance ».
+export type StrategyEntry = { slug: string; title: string; family: string; family_label: string }
 export type CompanyEntry = { slug: string; name: string; ticker: string | null; category: string | null }
 
 export function strategyCatalog(): StrategyEntry[] {
-  return STRATEGY_FICHES.map(f => ({ slug: f.slug, title: f.title, family: f.family }))
+  return STRATEGY_FICHES.map(f => ({ slug: f.slug, title: f.title, family: f.family, family_label: familyLabel(f.family) }))
 }
 
 export function companyCatalog(): CompanyEntry[] {

@@ -9,10 +9,14 @@ import { STRATEGY_FICHES } from '@/lib/strategy-library'
 import { tousLesSlugs, listeHorsPerimetre } from '@/lib/investir'
 
 describe('strategy catalog', () => {
+  it('carries the family in the words the site uses', () => {
+    expect(strategyCatalog().find(s => s.slug === 'ema-cross')?.family_label).toBe('Suivi de tendance')
+  })
+
   it('names every strategy page, and nothing else', () => {
     const cat = strategyCatalog()
     expect(cat.map(s => s.slug).sort()).toEqual(STRATEGY_FICHES.map(f => f.slug).sort())
-    for (const s of cat) expect(Object.keys(s).sort()).toEqual(['family', 'slug', 'title'])
+    for (const s of cat) expect(Object.keys(s).sort()).toEqual(['family', 'family_label', 'slug', 'title'])
   })
 })
 
