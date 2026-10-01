@@ -9,12 +9,12 @@ const getSession = vi.fn()
 vi.mock('@/lib/supabase-auth-browser', () => ({
   createSupabaseAuthBrowser: () => ({ auth: { getSession } }),
 }))
-vi.mock('next/navigation', () => ({ usePathname: () => '/overview' }))
 
 const fetchMock = vi.fn()
 const reply = (status: number, body: unknown) => Promise.resolve(new Response(JSON.stringify(body), { status }))
 
 beforeEach(() => {
+  window.history.replaceState({}, '', '/overview')
   getSession.mockReset()
   fetchMock.mockReset()
   vi.stubGlobal('fetch', fetchMock)

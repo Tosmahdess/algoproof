@@ -7,7 +7,6 @@
 // table reused on a page without one never fires anything.
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { usePathname } from 'next/navigation'
 import { accessToken, callFavorite, Expired, listFavoriteSlugs, signInHref, type FavoriteKind } from '@/lib/favorites-client'
 
 type Ctx = {
@@ -82,11 +81,13 @@ const STAR = 'inline-flex items-center justify-center min-h-10 min-w-10 rounded-
 
 export function FavoriteStar({ kind, slug, name }: { kind: FavoriteKind; slug: string; name: string }) {
   const ctx = useContext(FavoritesContext)
-  const path = usePathname()
   if (!ctx || ctx.kind !== kind || ctx.state === 'loading') return null
+  // Read here, not with usePathname: a star only renders once the provider has
+  // asked the browser for the session, so `window` is always there.
+  const path = window.location.pathname
   if (ctx.state === 'guest') {
     return (
-      <a href={signInHref(path || '/')} aria-label={`Garder ${name} en favori`}
+      <a href={signInHref(path)} aria-label={`Garder ${name} en favori`}
          title="Connecte-toi pour garder ce bot dans ton espace"
          className={`${STAR} text-muted hover:text-foreground`}>
         <span aria-hidden="true">☆</span>
