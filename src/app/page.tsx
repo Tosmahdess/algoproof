@@ -1,33 +1,33 @@
 // src/app/page.tsx
 //
-// Lot 3 of the design audit (2026-09-25, conception §5.1, PASS 4 mock-ups,
-// variant A chosen by the user). The home shows its proof in the first screen:
-// the title of D059 (both activities, the user's own words) with a lead whose
-// three numbers come from the data, the three real-money bots beside it on a
-// desktop and above the two entries on a phone, then the engine's funnel as
-// bars, the four trials as tiles, what I publish when it does not work, three
-// articles, the graveyard. Gone with this lot: the ticker (a third party's
-// prices scrolling on a site that promises no return), the ten-row table (a
-// ranking on the page whose thesis is that a ranking proves nothing), the two
-// teaser cards (the bar already says it) and the exchange call to action (the
-// home does not end on an affiliate page).
+// Refonte « Le registre des décisions », lot 2 (02/10/2026): the home follows
+// Astra's mock-up (docs/refonte-registre/MAQUETTE_ASTRA.html, surface Accueil)
+// with the owner's corrections. The title of D059 (both activities) and a lead
+// whose three numbers are read from the data; the two entries on one line; the
+// real-money register in full width, best result first; the library by idea;
+// the graveyard and one article; then favourites and Direct.
+//
+// Gone with this lot: the engine's « 1 sur 500 » balance sheet (audit 2026-10,
+// n° 7: it overflowed, and /strategies still carries it), the 30-day lines
+// coloured by a result they did not show (n° 8), the four method tiles, the
+// stacked cards. Still true from lot 3: no ticker, no ranking of the fleet, and
+// the home does not end on an exchange's affiliate link.
 import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import TrackedLink from '@/components/TrackedLink'
-import EngineSummary from '@/components/home/EngineSummary'
-import FleetLine from '@/components/home/FleetLine'
-import MethodTiles from '@/components/home/MethodTiles'
-import HomeArticles from '@/components/home/HomeArticles'
-import { RealMoneyPanel, RealMoneyStrip } from '@/components/home/HomeRealMoney'
+import HomeArticle from '@/components/home/HomeArticle'
+import RealMoneyRegister from '@/components/home/RealMoneyRegister'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { getFunnelCounts } from '@/lib/funnel'
 import { getArticles } from '@/lib/articles'
+import { getLibraryIdeas } from '@/lib/library'
 import { listeInvestir } from '@/lib/investir'
 import { excludeArchived, splitCohorts } from '@/lib/cohort'
 import { frNumber } from '@/lib/display'
-import { minutesSince } from '@/lib/home-data'
+import { librarySummary, readingDate } from '@/lib/home-register'
 import { labUrl } from '@/lib/lab-links'
+import { DIRECT_SALE_OPEN } from '@/lib/direct-sale'
 
 export const revalidate = 1800
 
@@ -38,132 +38,139 @@ export const metadata: Metadata = {
   description: 'Je fais tourner des bots de trading et j\'expose chaque trade, gains comme pertes. Je passe aussi les rapports annuels de sociétés cotées à travers sept contrôles.',
 }
 
+const PRIMARY_BUTTON =
+  'inline-flex min-h-11 items-center justify-center rounded border border-accent bg-button px-4 text-sm font-semibold text-foreground transition-colors hover:bg-card-2'
+const SECTION = 'border-b border-border py-8 sm:py-9'
+const ENTRY = 'flex h-full items-center justify-between gap-4 py-4 md:py-[18px]'
+
 export default async function HomePage() {
-  const [allBots, funnel] = await Promise.all([getAllBotsWithStats(), getFunnelCounts()])
+  const [allBots, funnel, ideas] = await Promise.all([
+    getAllBotsWithStats(),
+    getFunnelCounts(),
+    // The library is a second source: if its view fails, the home still serves,
+    // without the counts rather than with typed ones.
+    getLibraryIdeas().catch(() => null),
+  ])
   const bots = excludeArchived(allBots)
-  const { live, paper } = splitCohorts(bots)
-  // Longest history first: the same rule as the fleet (C7). The losing bot leads
-  // today because it is the oldest, not because it loses.
-  const liveByHistory = [...live].sort((a, b) => b.stats.total_trades - a.stats.total_trades)
-  const minutes = minutesSince(live.map(b => b.last_sync_at))
+  const { live } = splitCohorts(bots)
   const companies = listeInvestir().length
   const articles = getArticles()
+  const library = ideas && ideas.length > 0 ? librarySummary(ideas) : null
+  const fr = (n: number) => frNumber(n, 0)
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6">
 
-      {/* ---------- Hero: message on the left, proof on the right ---------- */}
-      {/* `grid-cols-1` is not decoration: an implicit auto track is sized by the
-          longest bot name in the phone strip (nowrap), and the whole column
-          overflowed to 525 px at 390 px. minmax(0, 1fr) lets the names truncate. */}
-      <section data-testid="home-hero" className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10 items-start mb-12 sm:mb-16">
-        <div className="lg:col-span-7 text-left">
-          {/* The mark, decorative: the bar already names the site (D060). */}
-          <img src="/logo.svg" alt="" width={44} height={44} className="mb-3 sm:mb-4 w-9 h-9 sm:w-11 sm:h-11" />
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-3 sm:mb-4">
+      {/* ---------- Title, lead, and the two entries ---------- */}
+      <header data-testid="home-hero" className="pb-2 pt-7 sm:pt-12">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.3fr_1fr] lg:items-end lg:gap-[75px]">
+          <h1 className="text-[34px] font-semibold leading-[1.13] tracking-[-0.03em] sm:text-[44px] lg:text-[52px] lg:leading-[1.12]">
             Des stratégies testées.<br />
             Des comptes de sociétés examinés.
           </h1>
-          {/* The three numbers are read, never typed (D059: a typed count goes stale
-              in silence). */}
-          <p data-testid="home-lead" className="text-sm sm:text-base text-muted max-w-[60ch] mb-4 sm:mb-6 leading-relaxed">
-            Je fais tourner <strong className="text-foreground tabular-nums font-medium">{bots.length}</strong>{' '}bots, dont{' '}
-            <strong className="text-foreground tabular-nums font-medium">{live.length}</strong>{' '}avec mon argent. Je passe aussi{' '}
-            <strong className="text-foreground tabular-nums font-medium">{frNumber(companies, 0)}</strong>{' '}rapports annuels à travers sept contrôles.
-            Je publie chaque trade et chaque alerte, y compris quand les bots perdent.
-          </p>
-
-          {/* Phone only: the real-money strip ABOVE the entries (variant A). */}
-          {live.length > 0 && <RealMoneyStrip bots={liveByHistory} minutes={minutes} />}
-
-          {/* The two entries (D059/D060): not symmetrical, and that is the point.
-              Left, a tool the visitor can run; right, readings I have done. */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div data-testid="entry-strategies" className="bg-card border border-border rounded-lg p-4 sm:p-5 flex flex-col">
-              <h2 className="text-lg font-semibold mb-2">Les stratégies</h2>
-              {/* « fragile, et pourquoi » is the word the lab's free diagnostic really
-                  returns (globalVerdict), not an image: what a visitor without an
-                  account receives. Pinned by tests/app/home-two-entries.test.tsx. */}
-              <p className="text-sm text-muted leading-relaxed">
-                Mes bots tournent en argent réel et en simulation. Je publie chaque trade. Tu peux aussi tester ta stratégie
-                dans le labo que j’utilise. Il la rejoue et t’indique si elle est fragile, et pourquoi.
-              </p>
-              <div className="mt-auto pt-4">
-                {/* `event` and `location` unchanged: the analytics series must not break.
-                    /lab is the backtester, not the landing (D053, D060); « sans compte »
-                    holds, /lab is outside the lab's walled paths. */}
-                <TrackedLink href={labUrl('https://lab.algoproof.fr/lab', 'home-hero')} event="cta_lab" location="home-hero" className="inline-flex h-10 items-center px-4 border border-accent bg-button text-foreground font-semibold rounded-md hover:bg-card-2 transition-colors text-sm">
-                  Tester ta stratégie →
-                </TrackedLink>
-                <Link href="/overview" className={linkClass('inline', 'flex min-h-10 items-center mt-1 text-sm')}>
-                  Voir mes bots
-                </Link>
-                {/* « Sans compte » lives here, not in the button: with the two
-                    entries side by side the longer label wrapped its arrow alone
-                    onto a second line at 1280 px. */}
-                <p className="mt-3 text-xs text-muted md:min-h-[3lh]">
-                  Sans compte. Tu peux faire un backtest sans déposer d’argent ni donner de clé. Le labo n’est pas un broker.
-                </p>
-              </div>
-            </div>
-
-            <div data-testid="entry-companies" className="bg-card border border-border rounded-lg p-4 sm:p-5 flex flex-col">
-              <h2 className="text-lg font-semibold mb-2">Les sociétés</h2>
-              {/* D058: no page promises a grade or a verdict; this entry sends new
-                  traffic to /investir, so it says it itself. */}
-              <p className="text-sm text-muted leading-relaxed">
-                Je passe le dernier rapport annuel de chaque société cotée que j’étudie à travers sept
-                contrôles. Je publie les alertes et les chiffres, avec la page du rapport pour
-                refaire le calcul. Pas de note, pas de verdict.
-              </p>
-              <div className="mt-auto pt-4">
-                <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-flex h-10 items-center px-4 border border-accent bg-button text-foreground font-semibold rounded-md hover:bg-card-2 transition-colors text-sm">
-                  Voir les sociétés que je lis →
-                </TrackedLink>
-                <Link href="/investir#methode" className={linkClass('inline', 'flex min-h-10 items-center mt-1 text-sm')}>
-                  Les sept contrôles, expliqués
-                </Link>
-                <p className="mt-3 text-xs text-muted md:min-h-[3lh]">
-                  Je partage mes lectures sans recommander d&apos;achat ni de vente. Ce ne sont pas des conseils.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* The engine's balance sheet, under the two entries: on a computer it fills
-              the 226 px the left column ended above the three real-money cards
-              (counter-audit 2026-09-26); on a phone it follows the entries. */}
-          <div className="mt-4">
-            <EngineSummary counts={funnel} />
+          <div>
+            {/* The three numbers are read, never typed (D059: a typed count goes stale
+                in silence). The bot count is the same one the register's button gives. */}
+            <p data-testid="home-lead" className="max-w-[43ch] text-base leading-relaxed text-muted sm:text-lg">
+              Je fais tourner <strong className="font-medium text-foreground tabular-nums">{bots.length}</strong>{' '}bots, dont{' '}
+              <strong className="font-medium text-foreground tabular-nums">{live.length}</strong>{' '}avec mon argent. Je passe aussi{' '}
+              <strong className="font-medium text-foreground tabular-nums">{fr(companies)}</strong>{' '}rapports annuels à travers sept contrôles.
+              Je publie chaque trade et chaque alerte, y compris quand les bots perdent.
+            </p>
+            <p className="mt-2 text-sm">
+              <Link href="/a-propos" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>Pourquoi je publie tout</Link>
+            </p>
           </div>
         </div>
 
-        {live.length > 0 && <RealMoneyPanel bots={liveByHistory} minutes={minutes} />}
+        {/* The two entries (D059/D060), one line on a computer, stacked on a phone. */}
+        <div className="mt-7 grid grid-cols-1 border-y border-border md:mt-8 md:grid-cols-2">
+          <div data-testid="entry-strategies" className="border-b border-border md:border-b-0 md:border-r md:pr-6">
+            <Link href="/bibliotheque" className={linkClass('record', ENTRY)}>
+              <span className="min-w-0">
+                <span className="block text-lg font-semibold">Mes stratégies, idée par idée</span>
+                <span className="mt-1 block text-xs font-normal text-muted">Je distingue la recherche, la simulation et le réel.</span>
+              </span>
+              <span aria-hidden="true" className="text-2xl text-accent">→</span>
+            </Link>
+          </div>
+          <div data-testid="entry-companies" className="md:pl-6">
+            {/* `event` and `location` unchanged: the cta_investir series must not
+                break (D059 made this entry measurable). D058: no grade, no verdict. */}
+            <TrackedLink href="/investir" event="cta_investir" location="home-hero" className={linkClass('record', ENTRY)}>
+              <span className="min-w-0">
+                <span className="block text-lg font-semibold">Les sociétés que je lis</span>
+                <span className="mt-1 block text-xs font-normal text-muted">Je publie mes contrôles. Des lectures, pas des conseils.</span>
+              </span>
+              <span aria-hidden="true" className="text-2xl text-accent">→</span>
+            </TrackedLink>
+          </div>
+        </div>
+      </header>
+
+      {live.length > 0 && (
+        <RealMoneyRegister bots={live} fleetSize={bots.length} reading={readingDate(live.map(b => b.last_sync_at))} />
+      )}
+
+      {/* ---------- The library, by idea (no tiers until feat/bot-tiers-cohorts) ---------- */}
+      <section data-testid="home-library" aria-labelledby="home-library-title" className={SECTION}>
+        <h2 id="home-library-title" className="mb-4 text-2xl font-semibold tracking-tight">Je range les variantes par idée.</h2>
+        {library && (
+          <>
+            <p className="mb-2 flex flex-wrap items-baseline gap-x-3 tabular-nums">
+              <strong className="text-[35px] font-medium leading-tight sm:text-[42px]">{fr(library.ideas)}</strong>{' '}
+              <span className="text-muted">
+                idées ·{' '}<b className="font-medium text-foreground">{fr(library.variants)}</b>{' '}variantes
+              </span>
+            </p>
+            <p className="mb-5 max-w-[66ch] text-muted">
+              Je publie aussi ce qui attend :{' '}{fr(library.paper)}{' '}variantes sont en simulation,{' '}
+              {fr(library.waiting)}{' '}en backtest seul. Les bots écrits à la main ne sont pas encore dans cette bibliothèque.
+            </p>
+          </>
+        )}
+        <Link href="/bibliotheque" className={PRIMARY_BUTTON}>Explorer la bibliothèque →</Link>
       </section>
 
-      {/* The one line that counts bots, beside the engine's balance sheet and outside
-          it (D059). The per-strategy detail lives on /strategies only (Astra, 26/09). */}
-      <div className="mb-12 -mt-4 sm:-mt-8 border-y border-border py-3">
-        <FleetLine live={live.length} paper={paper.length} />
-      </div>
-
-      <MethodTiles />
-
-      <HomeArticles articles={articles} />
-
-      {/* The last word of the home is the graveyard, not an exchange. */}
-      {funnel && funnel.n_no_go > 0 && (
-        <section data-testid="home-graveyard" className="bg-card border border-border rounded-lg p-5 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="tabular-nums text-2xl font-medium leading-tight">{frNumber(funnel.n_no_go, 0)}</p>
-            <p className="text-xs text-muted">configurations recalées par le moteur, chacune avec son motif</p>
+      {/* ---------- What I reject, and one article ---------- */}
+      <section className={`${SECTION} grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-[70px]`}>
+        {funnel && funnel.n_no_go > 0 && (
+          <div data-testid="home-graveyard">
+            <p className="text-[31px] font-medium leading-tight tabular-nums sm:text-[35px]">{fr(funnel.n_no_go)}</p>
+            <h2 className="mb-2.5 text-xl font-semibold sm:text-2xl">configurations recalées</h2>
+            <p className="text-muted">Je publie leur motif. Une sélection ne raconte rien si je cache tout ce qui a échoué.</p>
+            <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'home-cimetiere')} target="_blank" rel="noopener noreferrer"
+               className={linkClass('inline', 'mt-1 inline-flex min-h-11 items-center')}>
+              Voir le cimetière ↗
+            </a>
           </div>
-          <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'home-cimetiere')} target="_blank" rel="noopener noreferrer"
-             className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-semibold text-foreground hover:border-border-strong transition-colors">
-            Voir le cimetière ↗
+        )}
+        <HomeArticle articles={articles} />
+      </section>
+
+      {/* ---------- Favourites and Direct: the home ends here, not on an exchange ---------- */}
+      <section data-testid="home-follow" aria-labelledby="home-follow-title" className="py-8 sm:py-9">
+        <h2 id="home-follow-title" className="mb-3 text-2xl font-semibold tracking-tight">Garder un bot en favori, ou le suivre en direct</h2>
+        {/* The sale is read from its flag (lib/direct-sale.ts), never assumed. */}
+        <p className="mb-4 max-w-[66ch] text-muted">
+          Mets un bot en favori pour le retrouver dans ton espace. Avec l’offre Direct, tu reçois aussi son journal
+          de trades en temps réel, sur sa fiche et dans Telegram.
+          {!DIRECT_SALE_OPEN && <>{' '}La vente de Direct est encore fermée.</>}
+        </p>
+        <div className="flex flex-wrap gap-x-6 gap-y-1">
+          <a href={labUrl('https://lab.algoproof.fr/espace', 'home-espace')} target="_blank" rel="noopener noreferrer"
+             className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
+            Ouvrir ton espace ↗
           </a>
-        </section>
-      )}
+          <Link href="/strategies/bot/v1-spot" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
+            Examiner une fiche bot →
+          </Link>
+          <a href={labUrl('https://lab.algoproof.fr/membre', 'home-offres')} target="_blank" rel="noopener noreferrer"
+             className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
+            Comprendre les offres ↗
+          </a>
+        </div>
+      </section>
     </div>
   )
 }

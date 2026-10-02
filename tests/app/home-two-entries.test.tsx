@@ -13,7 +13,14 @@
 // words, 120 px apart, with no sentence saying the second contained the first.
 //
 // These guards pin the fix: two entries of equal weight under the headline,
-// and ONE place on this page that counts bots, written as a sum of its parts.
+// and the bots counted as ONE total with its real-money part.
+//
+// Refonte « Le registre des décisions », lot 2 (02/10/2026): the mock-up turns each
+// entry into one line, the whole line a link. « Mes stratégies, idée par idée » opens
+// the library, « Les sociétés que je lis » the company list. Left with the cards: the
+// lab button and its small print (the nav keeps « Le labo », cta_lab location nav),
+// the fleet link (the register right below links it twice), /investir#methode, and
+// the mark above the headline (the bar names the site).
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import { readFileSync, existsSync } from 'node:fs'
@@ -31,7 +38,7 @@ vi.mock('@/lib/queries', () => ({
     mkBot({ slug: 'paper-b', status: 'paper' }),
     mkBot({ slug: 'paper-c', status: 'paper' }),
     // archived is excluded from every aggregate (lib/cohort.ts) — it must not
-    // reach any of the three numbers below.
+    // reach any of the numbers below.
     mkBot({ slug: 'old-one', status: 'archived' }),
   ],
 }))
@@ -39,25 +46,19 @@ vi.mock('@/lib/funnel', () => ({
   getFunnelCounts: async () => ({
     n_swept: 5855277,
     n_judged: 351359,
-    // Sum to n_judged, like the view. 351359 / 713 = 492.8 -> « 1 sur 500 ».
     n_go: 713,
     n_marginal: 20646,
     n_no_go: 330000,
-    // The view still returns these. The point of the fix is that THIS page no
-    // longer prints them: a second bot count beside the hero's is what made
-    // « 89 » and « 92 » look like a contradiction.
+    // The view still returns these. The point of the fix is that THIS page does
+    // not print them: a second bot count beside the hero's is what made « 89 »
+    // and « 92 » look like a contradiction.
     n_promoted: 5,
     n_live: 2,
   }),
 }))
 
-// Lot 3 (2026-09-25): the home also reads the market-weather measure and the
-// article index; both build clients at import time and are mocked whole.
-vi.mock('@/lib/mi-fleet-impact', () => ({
-  pct: (f: number) => `${(f * 100).toFixed(1).replace('.', ',')} %`,
-  getFleetImpact: async () => null,
-}))
 vi.mock('@/lib/articles', () => ({ getArticles: () => [] }))
+vi.mock('@/lib/library', () => ({ getLibraryIdeas: async () => [] }))
 
 import HomePage from '@/app/page'
 
@@ -77,21 +78,19 @@ describe('/ — the home opens on both activities, not on the lab alone', () => 
 
   // Measured on the built page at 390x664 (the project's phone reference):
   // a flat text-5xl headline wrapped to FIVE lines, 240 px tall, and pushed the
-  // first entry to 613 px -- below the fold of a 664 px screen. The demand was
-  // two entries directly under the message; a visitor who has to scroll to see
-  // the first one has neither. The headline is sized per breakpoint.
+  // first entry to 613 px -- below the fold of a 664 px screen. The headline is
+  // sized per breakpoint, the phone size first. Refonte lot 2: the mock-up's
+  // sizes, 34 px on a phone, 52 px on a computer.
   it('the headline is sized for a phone before it is sized for a desktop', async () => {
     render(await HomePage())
     const cls = screen.getByRole('heading', { level: 1 }).className
-    expect(cls, cls).toMatch(/(^|\s)text-3xl(\s|$)/)
-    // 4xl (40 px) since the lot 1 scale closed at 4xl; the phone size is still first.
-    expect(cls, cls).toMatch(/(^|\s)sm:text-4xl(\s|$)/)
+    expect(cls, cls).toMatch(/(^|\s)text-\[34px\](\s|$)/)
+    expect(cls, cls).toMatch(/(^|\s)lg:text-\[52px\](\s|$)/)
   })
 
   it('the hero says what I publish on both sides', async () => {
     render(await HomePage())
     const hero = screen.getByTestId('home-hero')
-    // Lot 3 lead (PASS 4): three read numbers, then the one promise, losses included.
     expect(hero.textContent).toMatch(/bots, dont \d+ avec mon argent/)
     expect(hero.textContent).toMatch(/rapports annuels à travers sept contrôles/)
     expect(hero.textContent).toMatch(/Je publie chaque trade et chaque alerte, y compris quand les bots perdent/)
@@ -99,99 +98,54 @@ describe('/ — the home opens on both activities, not on the lab alone', () => 
 })
 
 describe('/ — the two entries sit directly under the message', () => {
-  // Lot 3, variant A: the real-money strip (phone) comes first, then the two entries.
-  it('the entries sit in the hero, strategies then companies, under the real-money strip', async () => {
+  it('the entries sit in the hero, strategies then companies, after the lead', async () => {
     render(await HomePage())
     const hero = screen.getByTestId('home-hero')
-    const strategies = screen.getByTestId('entry-strategies')
-    const companies = screen.getByTestId('entry-companies')
-    expect(hero.contains(strategies)).toBe(true)
-    expect(hero.contains(companies)).toBe(true)
     const order = [...hero.querySelectorAll('[data-testid]')].map(e => e.getAttribute('data-testid'))
-    expect(order.indexOf('home-real-strip')).toBeLessThan(order.indexOf('entry-strategies'))
-    expect(order.indexOf('entry-strategies')).toBeLessThan(order.indexOf('entry-companies'))
+    expect(order).toEqual(['home-lead', 'entry-strategies', 'entry-companies'])
   })
 
-  // The user's own arbitration (2026-09-20): the strategies entry carries BOTH
-  // destinations — the lab to act, the fleet to check — with the lab first.
-  //
-  // The lab href became `/lab` (the backtester) on 2026-09-20, where it used to
-  // be the bare root (the landing-pitch). That amends D051/D053: the landing
-  // stays the pitch for COLD traffic — Reddit, SEO, a hand-typed URL — but the
-  // visitor who arrives from here has already read the pitch, three lines above
-  // the button. The button has promised « Tester ta stratégie » from the start;
-  // it is the destination that was wrong, not the label.
-  it('the strategies entry opens the lab AND the fleet', async () => {
+  it('the strategies entry opens the library, by idea', async () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-strategies')
-    const hrefs = [...card.querySelectorAll('a')].map(a => a.getAttribute('href'))
-    expect(hrefs).toContain('https://lab.algoproof.fr/lab?ref=home-hero')
-    expect(hrefs).toContain('/overview')
-    // The lab is the primary action, so it comes first in the DOM, which is
-    // also the reading order on a phone.
-    expect(hrefs.indexOf('https://lab.algoproof.fr/lab?ref=home-hero')).toBeLessThan(hrefs.indexOf('/overview'))
+    const links = [...card.querySelectorAll('a')]
+    expect(links.map(a => a.getAttribute('href'))).toEqual(['/bibliotheque'])
+    expect(links[0].textContent).toMatch(/Mes stratégies, idée par idée/)
+    expect(links[0].textContent).toMatch(/Je distingue la recherche, la simulation et le réel\./)
   })
 
-  // The failure this pins is silent: `https://lab.algoproof.fr` is a perfectly
-  // valid URL that serves a perfectly good page, so a revert to it breaks
-  // nothing visible — it just puts the pitch back in front of a visitor who
-  // already read it. Asserting the presence of `/lab` alone would stay green if
-  // BOTH links were there; the absence of the bare root is the real assertion.
-  it('the lab button opens the backtester, not the pitch it already read', async () => {
-    render(await HomePage())
-    const card = screen.getByTestId('entry-strategies')
-    const hrefs = [...card.querySelectorAll('a')].map(a => a.getAttribute('href'))
-    // Lot 8: lab links carry ?ref=, so the landing would read `https://lab.algoproof.fr/?ref=…`.
-    // The check reads the URL's path, not the literal: a bare host or `/` is the pitch.
-    const labPaths = hrefs.filter((h): h is string => !!h && h.startsWith('https://lab.algoproof.fr')).map(h => new URL(h).pathname)
+  // The failure the lab guard pinned is silent: `https://lab.algoproof.fr` is a
+  // valid URL that serves the pitch. The home has no lab button any more, but no
+  // link on it may send a visitor who has read the pitch back to it.
+  it('no lab link on the home opens the pitch it already read', async () => {
+    const { container } = render(await HomePage())
+    const labPaths = [...container.querySelectorAll('a')].map(a => a.getAttribute('href') ?? '')
+      .filter(h => h.startsWith('https://lab.algoproof.fr')).map(h => new URL(h).pathname)
     expect(labPaths.length).toBeGreaterThan(0)
     expect(labPaths).not.toContain('/')
   })
 
-  it('the lab link keeps the cta_lab analytics series intact', async () => {
-    render(await HomePage())
-    const card = screen.getByTestId('entry-strategies')
-    const lab = [...card.querySelectorAll('a')].find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab?ref=home-hero')!
-    expect(lab.textContent).toMatch(/Tester ta stratégie/)
-    // « sans compte » stays in the card (small print), out of the button (lot 3).
-    expect(card.textContent).toMatch(/[Ss]ans compte/)
-  })
-
-  it('the strategies entry keeps what the lab actually tells you', async () => {
-    render(await HomePage())
-    const card = screen.getByTestId('entry-strategies')
-    // « fragile, et pourquoi » is the word globalVerdict() returns in algolab,
-    // on a payload with no softwall: it describes what a visitor WITHOUT an
-    // account receives. It is the only concrete benefit of the tool on this
-    // page, and it does not survive a rewrite by accident.
-    expect(card.textContent).toMatch(/fragile, et pourquoi/)
-    expect(card.textContent).toMatch(/Le labo n’est pas un broker/)
-  })
-
-  it('the companies entry opens the list AND the method', async () => {
+  it('the companies entry opens the list', async () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-companies')
-    const hrefs = [...card.querySelectorAll('a')].map(a => a.getAttribute('href'))
-    expect(hrefs).toContain('/investir')
-    expect(hrefs).toContain('/investir#methode')
+    expect([...card.querySelectorAll('a')].map(a => a.getAttribute('href'))).toEqual(['/investir'])
+    expect(card.textContent).toMatch(/Les sociétés que je lis/)
   })
 
   // D058 (2026-09-19): no page promises a company grade or verdict any more.
   // The entry that sends fresh traffic to /investir is the last place that
-  // should re-open that promise.
-  it('the companies entry promises seven checks, never a grade or a verdict', async () => {
+  // should re-open that promise. The seven checks are named in the lead above it.
+  it('the companies entry promises no grade and no verdict', async () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-companies')
-    expect(card.textContent).toMatch(/sept contrôles/)
-    expect(card.textContent).toMatch(/Pas de note, pas de verdict/)
-    expect(card.textContent).not.toMatch(/\bje note\b|\bnotées?\b|\bverdict\b(?!\.)/i)
+    expect(card.textContent).toMatch(/Je publie mes contrôles/)
+    expect(card.textContent).not.toMatch(/\bje note\b|\bnotées?\b|\bverdict\b/i)
   })
 
   // The chantier that created this entry exists to give Investir visibility.
   // Shipped without an event, it could not be told apart from the old card that
-  // sat at 1 686 px — the page would look better and prove nothing. The primary
-  // action of each entry carries one; the secondary links do not.
-  it('the companies entry is measurable, like the lab one opposite', async () => {
+  // sat at 1 686 px — the page would look better and prove nothing.
+  it('the companies entry is measurable', async () => {
     render(await HomePage())
     const card = screen.getByTestId('entry-companies')
     const cta = [...card.querySelectorAll('a')].find(a => a.getAttribute('href') === '/investir')!
@@ -214,53 +168,36 @@ describe('/ — the two entries sit directly under the message', () => {
 })
 
 describe('/ — bots are counted once, and the total shows its parts', () => {
-  // Lot 3: the one place that counts bots is the fleet line beside the funnel
-  // (outside it, D059), total with its real-money part.
-  it('the one counter line reads total and real money, beside the funnel', async () => {
-    render(await HomePage())
-    const line = screen.getByTestId('home-fleet-line')
-    expect(line.textContent).toMatch(/5 bots en service/)
-    expect(line.textContent).toMatch(/2 tournent avec mon argent/)
-    expect(screen.getByTestId('home-funnel').contains(line)).toBe(false)
+  // The rule FleetLine carried until the refonte: one total, with its real-money
+  // part. The lead says it; the register's button repeats the SAME total, under
+  // the same word, never a nested population under another name.
+  it('the lead reads total and real money, and every other bot count on the page is that total', async () => {
+    const { container } = render(await HomePage())
+    expect(screen.getByTestId('home-lead').textContent).toMatch(/Je fais tourner 5 bots, dont 2 avec mon argent/)
+    const counts = [...(container.textContent ?? '').matchAll(/(\d[\d\s  ]*)\s?bots?\b/g)]
+      .map(m => Number(m[1].replace(/\D/g, '')))
+    expect(counts.length).toBeGreaterThanOrEqual(2)
+    expect(new Set(counts)).toEqual(new Set([5]))
   })
 
   it('no second block on this page counts bots', async () => {
     render(await HomePage())
-    // The funnel's fleet block is what produced the « 89 then 92 » reading.
     expect(screen.queryByTestId('funnel-fleet')).toBeNull()
+    expect(screen.queryByTestId('home-fleet-line')).toBeNull()
     expect(screen.queryByText('Bots en service (simulation ou argent réel)')).toBeNull()
   })
 
-  it('the funnel counts configurations the way the cockpit does, and no bot', async () => {
+  // The engine counts configurations, the fleet counts bots (D059). The only
+  // engine figure left on the home names its unit.
+  it('the engine figure on the home counts configurations, and no bot', async () => {
     render(await HomePage())
-    const funnel = screen.getByTestId('home-funnel')
-    const text = funnel.textContent!.replace(/\s/g, ' ')
-    // Since 2026-09-26 the verdicts are counts, not truncated shares (Astra's proposal).
-    expect(text).toMatch(/configurations recensées/)
-    expect(text).toMatch(/Sur 351 359 configurations jugées/)
-    expect(text).toMatch(/Recalées\s*330 000/)
-    expect(funnel.textContent).not.toMatch(/bots? en service/i)
-  })
-
-  // Cockpit spec §9.3, carried over: « 713 » alone reads as 713 winners.
-  it('the candidate count never renders without its denominator', async () => {
-    render(await HomePage())
-    const text = screen.getByTestId('home-funnel').textContent!.replace(/\s/g, ' ')
-    expect(text).toMatch(/≈ 1 sur 500/)
-    expect(text).toMatch(/configuration retenue comme candidate/)
-  })
-
-  // Owner, 2026-09-24: no cimetière link on this band.
-  it('the funnel itself carries no link to the cimetière; the fleet line beside it does', async () => {
-    render(await HomePage())
-    expect(screen.getByTestId('home-funnel').querySelector('a[href*="cimetiere"]')).toBeNull()
-    expect(screen.getByTestId('home-fleet-line').querySelector('a[href*="cimetiere"]')).not.toBeNull()
+    const g = screen.getByTestId('home-graveyard')
+    expect(g.textContent!.replace(/\s/g, ' ')).toMatch(/330 000\s*configurations recalées/)
+    expect(g.textContent).not.toMatch(/bots?\b/i)
   })
 
   // Vocabulary decision (2026-09-20): « le labo » is the TOOL, « simulation »
-  // is the bot STATUS. StatusBadge already says « Simulation »; the hero said
-  // « laboratoire » for the same thing, which is what made one word cover two
-  // meanings on the page that has to be clearest.
+  // is the bot STATUS.
   it('the hero says simulation, never laboratoire, for the bot status', async () => {
     render(await HomePage())
     const hero = screen.getByTestId('home-hero')
@@ -269,8 +206,8 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
 })
 
 // Owner, 2026-09-24, desktop pass: the three text links under the counters, the
-// manifesto card and the « IA » card are gone. The ticker leads straight to the
-// strategies table. Météo and Apprendre stay in the nav, /preuve in the footer.
+// manifesto card and the « IA » card are gone. Météo and Apprendre stay in the nav,
+// /preuve in the footer.
 describe('/ — no side links in the hero, no retired blocks (lot 3)', () => {
   it('the hero no longer carries the three text links', async () => {
     render(await HomePage())
@@ -288,67 +225,42 @@ describe('/ — no side links in the hero, no retired blocks (lot 3)', () => {
     expect(screen.queryByTestId('teaser-learn')).toBeNull()
     expect(screen.queryByTestId('teaser-fleet')).toBeNull()
   })
-
-  // Same recipe as the two entries: background, border, padding, title, white
-  // prose. Comparing class attributes, not grepping one token, so the pair
-  // cannot drift apart in either direction.
 })
 
-// The 2026-09-20 second pass (user). Three of the four asks were about the two
-// entries reading as ONE pair rather than a primary and an afterthought: the
-// same button colour, the same bottom line, and a mark above the headline.
+// The 2026-09-20 second pass (user): the two entries read as ONE pair rather than
+// a primary and an afterthought.
 describe('/ — the two entries are a matched pair', () => {
-  // The two CTAs used to differ: `bg-positive text-black` on the left,
-  // `bg-card border border-border` on the right. Comparing the two class
-  // attributes rather than grepping for `bg-positive` is deliberate — a guard
-  // that only checks the right-hand button is green stays green if the LEFT one
-  // later stops being, and the pair would be uniform in the wrong direction.
-  // Refonte registre, lot 1: the treatment is the mock-up's primary button
-  // (slate fill, ink); the pair rule is unchanged.
-  it('both entry buttons carry the same button treatment', async () => {
+  // Comparing the two class attributes rather than grepping one token: a guard
+  // that only checks one side stays green if the other drifts.
+  it('both entries carry the same treatment', async () => {
     render(await HomePage())
-    const lab = [...screen.getByTestId('entry-strategies').querySelectorAll('a')]
-      .find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab?ref=home-hero')!
-    const investir = [...screen.getByTestId('entry-companies').querySelectorAll('a')]
-      .find(a => a.getAttribute('href') === '/investir')!
-    expect(lab.getAttribute('class')).toContain('bg-button')
-    expect(investir.getAttribute('class')).toBe(lab.getAttribute('class'))
+    const strategies = screen.getByTestId('entry-strategies').querySelector('a')!
+    const companies = screen.getByTestId('entry-companies').querySelector('a')!
+    expect(strategies.getAttribute('class')).toBeTruthy()
+    expect(companies.getAttribute('class')).toBe(strategies.getAttribute('class'))
   })
 
-  // The user asked for the reassurance line on the left to be REMOVED so the
-  // two cards' bottoms would line up. Symmetry buys the same alignment without
-  // spending the reassurance — and it is worth more now that the button next to
-  // it opens a tool directly rather than a pitch. If a later session deletes
-  // one of the two, this fails rather than quietly re-staggering the cards.
-  it('each entry ends on its own reassurance line', async () => {
+  it('each entry carries one line under its title', async () => {
     render(await HomePage())
-    expect(screen.getByTestId('entry-strategies').textContent)
-      .toMatch(/Tu peux faire un backtest sans déposer d’argent ni donner de clé\. Le labo n’est pas un broker\./)
-    expect(screen.getByTestId('entry-companies').textContent)
-      .toMatch(/Je partage mes lectures sans recommander d'achat ni de vente\. Ce ne sont pas des conseils\./)
+    expect(screen.getByTestId('entry-strategies').textContent).toMatch(/Je distingue la recherche, la simulation et le réel\./)
+    expect(screen.getByTestId('entry-companies').textContent).toMatch(/Je publie mes contrôles\. Des lectures, pas des conseils\./)
   })
 
   // D058 retired the company grade and verdict on 2026-09-19, but no sentence
-  // on this page said the reading is not advice. The companies card now does.
+  // on this page said the reading is not advice. The companies entry does.
   it('the companies entry says it is not investment advice', async () => {
     render(await HomePage())
     expect(screen.getByTestId('entry-companies').textContent).toMatch(/pas des conseils/i)
   })
 
-  // Decorative on purpose: the nav already carries « ALGOPROOF » as text inside
-  // a link. A non-empty alt here would make a screen reader announce the brand
-  // twice, ~100 px apart, as two separate things.
-  it('the hero carries the mark, above the headline and without a second name', async () => {
+  // The bar names the site (« AlgoProof », Proof in green). The mark above the
+  // headline left with the refonte (the mock-up has none); the hero still does not
+  // announce the brand a second time.
+  it('the hero names the site nowhere, the bar already does', async () => {
     render(await HomePage())
     const hero = screen.getByTestId('home-hero')
-    const mark = hero.querySelector('img[src="/logo.svg"]')
-    expect(mark, 'the mark above the H1').toBeTruthy()
-    expect(mark!.getAttribute('alt')).toBe('')
-    const h1 = hero.querySelector('h1')!
-    expect(
-      mark!.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING,
-      'the mark comes before the H1',
-    ).toBeTruthy()
+    expect(hero.textContent).not.toMatch(/AlgoProof/i)
+    for (const img of hero.querySelectorAll('img')) expect(img.getAttribute('alt')).toBe('')
   })
 })
 

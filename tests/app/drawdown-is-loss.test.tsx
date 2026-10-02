@@ -35,6 +35,7 @@ vi.mock('@/lib/mi-fleet-impact', () => ({
   getFleetImpact: async () => null,
 }))
 vi.mock('@/lib/articles', () => ({ getArticles: () => [] }))
+vi.mock('@/lib/library', () => ({ getLibraryIdeas: async () => [] }))
 vi.mock('next/og', () => ({
   ImageResponse: class {
     constructor(element: unknown) { composed.push(element) }
@@ -67,10 +68,17 @@ describe('drawdownIsLoss reads the figure the reader sees', () => {
 })
 
 describe('no surface paints « 0.0% » red', () => {
-  it('home page, real-money cards', async () => {
+  // Refonte registre, lot 2 (02/10/2026): the home's register gives each real-money
+  // bot its state and its result, no drawdown (the mock-up's three columns). With no
+  // drawdown printed, none can be painted red; the result of a gaining bot is not
+  // painted as a loss either.
+  it('home page, real-money register: no drawdown printed, a gain never in the loss colour', async () => {
     render(await HomePage())
-    expect(screen.getByText(/0,0 %/)).not.toHaveClass('text-negative')
-    expect(screen.getByText(/8,4 %/)).toHaveClass('text-negative')
+    const register = screen.getByTestId('home-real')
+    expect(register.textContent).not.toMatch(/0,0 %|8,4 %|DD \d/)
+    for (const el of register.querySelectorAll('[data-testid="home-real-result"] > span:first-child')) {
+      expect(el).not.toHaveClass('text-negative')
+    }
   })
 
   it('fleet table (BotTable)', () => {
