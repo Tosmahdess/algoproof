@@ -63,6 +63,16 @@ describe('Nav — five flat links, one button', () => {
     expect(current.map(a => a.getAttribute('href'))).toEqual(['/bibliotheque'])
   })
 
+  // Refonte finition (2026-10-02): a bot page sits under /strategies/bot/ but belongs to
+  // the fleet, as its breadcrumb says; the bar lights « La flotte », not « Stratégies ».
+  it('marks « La flotte » on a bot page, not « Stratégies »', () => {
+    path.value = '/strategies/bot/v1-spot'
+    render(<Nav />)
+    const bar = screen.getByTestId('nav-desktop')
+    const current = within(bar).getAllByRole('link').filter(a => a.getAttribute('aria-current') === 'page')
+    expect(current.map(a => a.getAttribute('href'))).toEqual(['/overview'])
+  })
+
   it('carries the lab as the one button of the bar, into the app, counted as nav', () => {
     vi.mocked(trackCtaLab).mockClear()
     render(<Nav />)

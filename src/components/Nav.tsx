@@ -21,9 +21,12 @@ import { labUrl } from '@/lib/lab-links'
 // « Stratégies » opens the library (user, 2026-10-01, after D084): every engine
 // variant, one card per idea. The concept fiches and the method stay at /strategies,
 // in the same section of the bar (`also`), reached from the library and the footer.
-const LINKS: { href: string; label: string; also?: string[] }[] = [
-  { href: '/overview',     label: 'La flotte' },
-  { href: '/bibliotheque', label: 'Stratégies', also: ['/strategies'] },
+// A bot page lives under /strategies/bot/ but belongs to the fleet: its breadcrumb reads
+// « La flotte » (refonte finition, 2026-10-02), so the bar lights « La flotte » there and
+// `except` keeps « Stratégies » dark.
+const LINKS: { href: string; label: string; also?: string[]; except?: string[] }[] = [
+  { href: '/overview',     label: 'La flotte', also: ['/strategies/bot'] },
+  { href: '/bibliotheque', label: 'Stratégies', also: ['/strategies'], except: ['/strategies/bot'] },
   { href: '/investir',     label: 'Sociétés' },
   { href: '/intelligence', label: 'Météo' },
   { href: '/blog',         label: 'Articles' },
@@ -70,8 +73,11 @@ export default function Nav() {
   }, [mobileOpen])
 
   const under = (href: string) => path === href || path.startsWith(href + '/')
-  const isActive = (href: string) =>
-    under(href) || (LINKS.find(l => l.href === href)?.also ?? []).some(under)
+  const isActive = (href: string) => {
+    const link = LINKS.find(l => l.href === href)
+    if ((link?.except ?? []).some(under)) return false
+    return under(href) || (link?.also ?? []).some(under)
+  }
 
   return (
     <nav aria-label="Navigation principale" className="sticky top-0 z-50 border-b border-border bg-bg">
