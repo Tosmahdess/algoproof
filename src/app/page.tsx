@@ -92,7 +92,7 @@ export default async function HomePage() {
                 {/* `event` and `location` unchanged: the analytics series must not break.
                     /lab is the backtester, not the landing (D053, D060); « sans compte »
                     holds, /lab is outside the lab's walled paths. */}
-                <TrackedLink href={labUrl('https://lab.algoproof.fr/lab', 'home-hero')} event="cta_lab" location="home-hero" className="inline-flex h-10 items-center px-4 bg-foreground text-bg font-semibold rounded-md hover:opacity-90 transition-opacity text-sm">
+                <TrackedLink href={labUrl('https://lab.algoproof.fr/lab', 'home-hero')} event="cta_lab" location="home-hero" className="inline-flex h-10 items-center px-4 border border-accent bg-button text-foreground font-semibold rounded-md hover:bg-card-2 transition-colors text-sm">
                   Tester ta stratégie →
                 </TrackedLink>
                 <Link href="/overview" className={linkClass('inline', 'flex min-h-10 items-center mt-1 text-sm')}>
@@ -117,7 +117,7 @@ export default async function HomePage() {
                 refaire le calcul. Pas de note, pas de verdict.
               </p>
               <div className="mt-auto pt-4">
-                <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-flex h-10 items-center px-4 bg-foreground text-bg font-semibold rounded-md hover:opacity-90 transition-opacity text-sm">
+                <TrackedLink href="/investir" event="cta_investir" location="home-hero" className="inline-flex h-10 items-center px-4 border border-accent bg-button text-foreground font-semibold rounded-md hover:bg-card-2 transition-colors text-sm">
                   Voir les sociétés que je lis →
                 </TrackedLink>
                 <Link href="/investir#methode" className={linkClass('inline', 'flex min-h-10 items-center mt-1 text-sm')}>

@@ -303,13 +303,15 @@ describe('/ — the two entries are a matched pair', () => {
   // attributes rather than grepping for `bg-positive` is deliberate — a guard
   // that only checks the right-hand button is green stays green if the LEFT one
   // later stops being, and the pair would be uniform in the wrong direction.
-  it('both entry buttons carry the same green treatment', async () => {
+  // Refonte registre, lot 1: the treatment is the mock-up's primary button
+  // (slate fill, ink); the pair rule is unchanged.
+  it('both entry buttons carry the same button treatment', async () => {
     render(await HomePage())
     const lab = [...screen.getByTestId('entry-strategies').querySelectorAll('a')]
       .find(a => a.getAttribute('href') === 'https://lab.algoproof.fr/lab?ref=home-hero')!
     const investir = [...screen.getByTestId('entry-companies').querySelectorAll('a')]
       .find(a => a.getAttribute('href') === '/investir')!
-    expect(lab.getAttribute('class')).toContain('bg-foreground')
+    expect(lab.getAttribute('class')).toContain('bg-button')
     expect(investir.getAttribute('class')).toBe(lab.getAttribute('class'))
   })
 

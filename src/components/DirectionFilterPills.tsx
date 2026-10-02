@@ -26,14 +26,14 @@ export default function DirectionFilterPills({ value, onChange, longCount, short
             key={p.key}
             onClick={() => onChange(p.key)}
             aria-pressed={active}
-            className={`h-10 px-3 rounded-md text-xs font-medium transition-colors ${
+            className={`h-10 px-3 rounded-md border text-xs font-medium transition-colors ${
               active
-                ? 'bg-foreground text-bg'
-                : 'bg-card-2 text-muted hover:text-foreground'
+                ? 'border-accent bg-card-2 text-foreground'
+                : 'border-border-strong text-muted hover:bg-card-2 hover:text-foreground'
             }`}
           >
             {p.label}
-            {count !== undefined && <span className="ml-1 text-xs opacity-70">({count})</span>}
+            {count !== undefined && <span className="ml-1 text-xs">({count})</span>}
           </button>
         )
       })}

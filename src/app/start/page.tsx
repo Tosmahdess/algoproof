@@ -63,7 +63,7 @@ export default function StartPage() {
             location="start"
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full rounded-lg bg-foreground py-2.5 text-center text-sm font-semibold text-bg transition-opacity hover:opacity-90"
+            className="block w-full rounded-lg border border-accent bg-button py-2.5 text-center text-sm font-semibold text-foreground transition-colors hover:bg-card-2"
           >
             Ouvrir un compte Bybit →
           </TrackedLink>

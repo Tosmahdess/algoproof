@@ -80,7 +80,7 @@ export default function BotQuestionForm({ botName, slug }: { botName: string; sl
           <button
             type="submit"
             disabled={busy}
-            className="inline-flex h-10 items-center rounded-md bg-foreground px-4 text-sm font-semibold text-bg disabled:opacity-40 transition-opacity"
+            className="inline-flex h-10 items-center rounded-md border border-accent bg-button px-4 text-sm font-semibold text-foreground disabled:opacity-40 transition-colors"
           >
             {busy ? 'Envoi…' : 'Envoyer'}
           </button>

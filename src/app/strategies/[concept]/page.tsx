@@ -165,7 +165,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
           href={labUrl(fiche.labHref, `concept-${fiche.slug}`)}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex h-10 items-center bg-foreground text-bg font-semibold rounded-md px-4 text-sm hover:opacity-90 transition-opacity"
+          className="inline-flex h-10 items-center border border-accent bg-button text-foreground font-semibold rounded-md px-4 text-sm hover:bg-card-2 transition-colors"
         >
           Tester cette stratégie dans le labo
         </a>
