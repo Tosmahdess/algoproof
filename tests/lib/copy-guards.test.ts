@@ -343,6 +343,13 @@ describe('small copy says what the site does', () => {
     expect(filesMatching(/(?<!ne )garantit que/i)).toEqual([])
   })
 
+  // The 14-day refund on request was withdrawn (D-ALG-RESIL-1) and the lab's
+  // terms say the opposite (« ce premier paiement n'est pas remboursable »), yet
+  // the FAQ still promised it, in its text and its JSON-LD (audit 2026-10, n° 10).
+  it('no surface promises a refund within 14 days', () => {
+    expect(filesMatching(/rembours[^.]{0,120}14 jours|14 jours[^.]{0,120}rembours/i)).toEqual([])
+  })
+
   // The 27 May article states a present that stopped being true: the only
   // real-money bot, on Binance Spot, next to 37 others. History is not
   // rewritten; a dated note at the head says what changed.
