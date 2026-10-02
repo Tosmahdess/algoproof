@@ -116,11 +116,11 @@ Composition de la maquette :
 - Un bot sans trade va en fin de liste avec « — », sans couleur.
 - Registre au style du lot 1.
 
-## Lot 5 : fiche de stratégie et réglages réservés aux abonnés, sauf EMA cross
+## Lot 5 : accès abonnés (sans objet, déjà en place)
 
-À cadrer avec le propriétaire avant de coder : quelles surfaces sont concernées (onglets de la fiche
-bot, /strategies/[concept], /bibliotheque/[idee]) ? Le contenu réservé ne doit jamais partir dans le
-HTML public. Il faut le servir comme la recette (`RecipeGate`).
+Précisé par le propriétaire le 02/10 : seuls les réglages et filtres des bots autres que l'EMA cross
+sont réservés (`RecipeGate`) ; « Ce bot en 3 phrases », les stratégies globales et les bots de la
+bibliothèque restent publics. C'est déjà le comportement de la production. Rien à construire.
 
 ## Fin
 

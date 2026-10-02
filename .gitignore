@@ -69,3 +69,4 @@ vitest*.log
 .claude/skills/impeccable/scripts/bin/
 .impeccable/config.local.json
 .impeccable/hook.cache.json
+docs/refonte-registre/captures/

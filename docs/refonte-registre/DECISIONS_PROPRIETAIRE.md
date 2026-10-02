@@ -2,12 +2,15 @@
 
 Appliqués à `MAQUETTE_ASTRA.html` par Claude, captures régénérées :
 
-0. **Règle d'accès (propriétaire, 02/10)** : la fiche de stratégie et ses réglages sont réservés aux
-   abonnés, **sauf l'EMA cross**, ouverte à tous comme exemple complet. Le verdict, la règle, la
-   décision et tous les trades restent publics. Dans la maquette, sur la fiche ORB, un invité ou un compte gratuit voit le panneau
-   « Réservé aux abonnés » ; l'EMA cross (v1-spot) reste ouverte. Le code actuel ne réserve que la
-   recette des bots du moteur (`RecipeGate`) : à étendre en production.
-
+0. **Règle d'accès (propriétaire, 02/10, précisée le 02/10)** : déjà en place en production, rien à
+   construire.
+   - Réservés aux abonnés : les **réglages et filtres** des bots autres que l'EMA cross sur les fiches
+     du site (`RecipeGate`).
+   - Publics : « Ce bot en 3 phrases », les pages de stratégie globales, le verdict, la décision et
+     tous les trades.
+   - Bibliothèque : tous les bots sont montrés, leurs réglages et filtres sont réservés (labo).
+   - Le panneau « Réservé aux abonnés » sur « Comment je fais tourner ce bot » de la maquette d'Astra
+     était une erreur de ma part : il n'est pas repris.
 
 0 bis. **Pas de nom de l'auteur sur le site** (propriétaire, 02/10) : « Thomas Dessombs » est retiré de
    la maquette (signature de l'accueil, pied de page). La voix reste en « je ». Ce point amende la
