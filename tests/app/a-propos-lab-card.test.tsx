@@ -104,7 +104,8 @@ describe('À propos (lot 7)', () => {
 
   it('uses the prose template, and no em or en dash', async () => {
     const { container, text } = await page()
-    const main = container.querySelector('main')!
+    // The page's root (the layout holds the one <main>, refonte registre lot 1).
+    const main = container.firstElementChild!
     for (const cls of ['max-w-3xl', 'px-6', 'py-12']) expect(main.className).toContain(cls)
     expect(text).not.toMatch(/[—–]/)
   })

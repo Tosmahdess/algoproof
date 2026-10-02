@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function StartPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12 space-y-12">
+    <div className="mx-auto max-w-3xl px-6 py-12 space-y-12">
 
       {/* Hero */}
       <div>
@@ -224,6 +224,6 @@ export default function StartPage() {
         </Link>
       </div>
 
-    </main>
+    </div>
   )
 }

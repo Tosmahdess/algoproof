@@ -2,7 +2,7 @@
 // dynamic route: without this shell a click produced no paint at all until the
 // server finished (3.9 to 6.7 s measured in production on 2026-09-23).
 //
-// It mirrors page.tsx's own shell (same <main> classes, same h1, same rhythm)
+// It mirrors page.tsx's own shell (same wrapper classes, same h1, same rhythm; the one <main> is the layout's)
 // so nothing moves under the reader when the content streams in. Lot 4 of the
 // design audit (2026-09-25): two totals, three real-money cards, one register.
 // The heights are those of the mock-up's blocks at 1280 px; the number of cards
@@ -13,7 +13,7 @@ function Bar({ className }: { className: string }) {
 
 export default function Loading() {
   return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12" aria-busy="true">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12" aria-busy="true">
       <header className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">La flotte</h1>
         <p className="text-sm sm:text-base text-muted mt-2 max-w-[60ch]">
@@ -53,6 +53,6 @@ export default function Loading() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

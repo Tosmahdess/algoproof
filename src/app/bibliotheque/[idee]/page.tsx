@@ -87,7 +87,7 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
   const rows = variants.map(toRow)
 
   return (
-    <main className="mx-auto max-w-4xl px-4 sm:px-6 pt-6 sm:pt-10 pb-16">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-6 sm:pt-10 pb-16">
       <Link href="/bibliotheque" className={`${linkClass('inline')} text-sm`}>← La bibliothèque</Link>
       <h1 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight">{label} {idea.tf}</h1>
       <p className="mt-1 text-sm text-muted">
@@ -157,6 +157,6 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
         <h2 className="mb-3 text-lg font-semibold">Les {idea.n_variants} variantes</h2>
         <VariantTable rows={rows} />
       </section>
-    </main>
+    </div>
   )
 }

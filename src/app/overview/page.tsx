@@ -55,7 +55,7 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
   const f = fresh(minutes)
 
   return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12">
       <JsonLd data={faqJsonLd([
         { question: 'Les résultats sont-ils réels ?', answer: 'Oui. Les bots tournent en continu et chaque trade est enregistré automatiquement, gains comme pertes. Les chiffres sont mis à jour toutes les heures.' },
         { question: 'Qu\'est-ce que le profit factor ?', answer: 'C\'est le rapport entre l\'argent gagné et l\'argent perdu. Un PF de 1,5 signifie 1,50 € gagné pour 1 € perdu.' },
@@ -77,6 +77,6 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
         minutes={minutes}
       />
 
-    </main>
+    </div>
   )
 }

@@ -118,7 +118,7 @@ export default async function IntelligencePage() {
         { question: 'Ça sert à quoi ?', answer: 'À savoir quand le contexte est porteur ou risqué, pour les bots comme pour les décisions d\'investissement.' },
       ])} />
 
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 space-y-12">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 space-y-12">
       {/* First screen: the state, its score, its freshness, and what it changes for the
           bots today. No prose before the first figure. */}
       <div>
@@ -251,7 +251,7 @@ export default async function IntelligencePage() {
           <span className="inline-block mt-4 text-sm text-muted group-hover:text-foreground">Ouvrir le labo →</span>
         </a>
       </section>
-    </main>
+    </div>
     </>
   )
 }

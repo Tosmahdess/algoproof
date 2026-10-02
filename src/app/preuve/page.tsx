@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function PreuvePage() {
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12 space-y-12">
+    <div className="max-w-3xl mx-auto px-6 py-12 space-y-12">
       <header>
         <h1 className="text-3xl font-semibold tracking-tight mb-3">Ma méthode</h1>
         <p className="text-base text-muted leading-relaxed">
@@ -109,6 +109,6 @@ export default function PreuvePage() {
           <Link href="/blog" className={linkClass('inline')}>Lis mes autopsies de stratégies sur le blog →</Link>
         </p>
       </section>
-    </main>
+    </div>
   )
 }

@@ -50,7 +50,7 @@ export default async function StrategiesIndexPage() {
   }))
 
   return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12">
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Les stratégies</h1>
       <p className="text-sm sm:text-base text-muted mb-6 max-w-[60ch]">
         Comment marche chaque stratégie que je teste, et lesquelles tournent
@@ -75,6 +75,6 @@ export default async function StrategiesIndexPage() {
       {/* The engine-process explainer, once for the whole library; concept pages and
           the home point at its anchor #comment-je-decide, which still resolves here. */}
       <GauntletExplainer space={searchSpace} />
-    </main>
+    </div>
   )
 }

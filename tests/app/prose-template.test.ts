@@ -19,14 +19,17 @@ const PROSE_PAGES = [
   'src/app/a-propos/page.tsx',
 ]
 
+// Refonte registre, lot 1 (2026-10-02): the page's root is a <div> now. The
+// layout renders the one <main> of the page; a second one, nested, was constat 22
+// of the audit. The template is read from the root element the page returns.
 const mainClass = (src: string) => {
-  const m = src.match(/<main className="([^"]*)"/)
-  if (!m) throw new Error('no <main className="…">')
+  const m = src.match(/return \(\s*<(?:div|article) className="([^"]*)"/)
+  if (!m) throw new Error('no root <div className="…">')
   return m[1].split(/\s+/)
 }
 
 describe('the prose template', () => {
-  it.each(PROSE_PAGES)('%s uses max-w-3xl px-6 py-12 on its <main>', (f) => {
+  it.each(PROSE_PAGES)('%s uses max-w-3xl px-6 py-12 on its root element', (f) => {
     const cls = mainClass(read(f))
     for (const c of ['max-w-3xl', 'px-6', 'py-12']) expect(cls, f).toContain(c)
     expect(cls, f).not.toContain('py-16')

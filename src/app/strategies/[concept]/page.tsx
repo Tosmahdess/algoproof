@@ -69,7 +69,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
   const { proven, rodage } = splitBySample([...incarnations].sort(byHistoryDesc))
 
   return (
-    <main className="mx-auto max-w-3xl px-4 sm:px-6 pt-12">
+    <div className="mx-auto max-w-3xl px-4 sm:px-6 pt-12">
       <nav className="text-xs text-muted mb-6">
         <Link href="/strategies" className={linkClass('nav', 'inline-flex min-h-10 items-center')}>Les stratégies</Link>
         {' / '}{familyLabel(fiche.family)}
@@ -181,6 +181,6 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
           </a>
         )}
       </div>
-    </main>
+    </div>
   )
 }
