@@ -10,9 +10,10 @@ describe('provenanceSentence', () => {
       validated_at: '2026-07-15T00:00:00Z',
       paper_since: '2026-07-18T00:00:00Z',
     }))
-    expect(s).toContain('12/07/2026')
-    expect(s).toContain('15/07/2026')
-    expect(s).toContain('18/07/2026')
+    // Refonte finition (2026-10-02): the site's long date format (was 12/07/2026).
+    expect(s).toContain('12 juillet 2026')
+    expect(s).toContain('15 juillet 2026')
+    expect(s).toContain('18 juillet 2026')
     expect(s).toMatch(/recherche automatique/i)
   })
 
@@ -20,7 +21,7 @@ describe('provenanceSentence', () => {
     const s = provenanceSentence(mkBot({
       origin: 'manual', found_at: null, paper_since: '2026-04-26T00:00:00Z',
     }))
-    expect(s).toContain('26/04/2026')
+    expect(s).toContain('le 26 avril 2026')
     expect(s).toMatch(/avant la recherche automatique/i)
     expect(s).not.toMatch(/trouvé/i)
   })
@@ -29,7 +30,8 @@ describe('provenanceSentence', () => {
     const s = provenanceSentence(mkBot({
       status: 'live', origin: 'manual', live_since: '2026-05-08T00:00:00Z',
     }))
-    expect(s).toContain('08/05/2026')
+    expect(s).toContain('8 mai 2026')
+    expect(s).not.toMatch(/\b0\d /)
     expect(s).toMatch(/argent réel/i)
   })
 

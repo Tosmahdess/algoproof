@@ -25,6 +25,12 @@ describe('TradesTable', () => {
     render(<TradesTable trades={trades} />)
     expect(screen.getAllByText(/^−8,20\s€$/)).toHaveLength(2)
   })
+  // Refonte finition (2026-10-02): « 2 avr. », never « 02 avr. ».
+  it('writes the day without a leading zero', () => {
+    render(<TradesTable trades={trades} />)
+    expect(screen.getAllByText('2 avr.').length).toBeGreaterThan(0)
+    expect(screen.queryByText(/^0\d /)).toBeNull()
+  })
   it('shows empty state when no trades', () => {
     render(<TradesTable trades={[]} />)
     expect(screen.getByText(/aucun trade/i)).toBeInTheDocument()

@@ -1,5 +1,5 @@
 import { Trade } from '@/lib/types'
-import { shortDatePadded } from '@/lib/format-date'
+import { shortDate } from '@/lib/format-date'
 import { fmtEur, frNumber, NARROW_NBSP } from '@/lib/display'
 import { exitReasonWords } from '@/lib/trade-ledger'
 import { sideLabel } from '@/lib/stats'
@@ -48,7 +48,7 @@ export default function TradesTable({ trades, limiteMobile, cumul, total }: {
           return (
             <li key={t.id} className={`grid grid-cols-2 gap-x-3 gap-y-2 border-b border-border py-3 text-sm${
               hiddenOnPhone(i) ? ' hidden' : ''}`}>
-              <span className="text-muted">{shortDatePadded(t.closed_at)}</span>
+              <span className="text-muted">{shortDate(t.closed_at)}</span>
               <span className="text-right"><span className="font-mono">{t.asset}</span>{` · ${sideLabel(t.side).toLowerCase()}`}</span>
               <span>
                 <span className="block text-xs text-muted">Résultat</span>
@@ -91,7 +91,7 @@ export default function TradesTable({ trades, limiteMobile, cumul, total }: {
               const c = cumulOf(t)
               return (
                 <tr key={t.id} className="border-b border-border">
-                  <td className="py-3 pr-4 text-muted whitespace-nowrap">{shortDatePadded(t.closed_at)}</td>
+                  <td className="py-3 pr-4 text-muted whitespace-nowrap">{shortDate(t.closed_at)}</td>
                   <td className="py-3 pr-4">
                     <span className="font-mono">{t.asset}</span>
                     <span className="text-muted">{` · ${sideLabel(t.side).toLowerCase()}`}</span>

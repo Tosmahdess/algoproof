@@ -303,7 +303,7 @@ describe('the exact wording is where the old sentence was', () => {
     const s = provenanceSentence(mkBot({
       origin: 'engine', found_at: '2026-07-12T00:00:00Z', validated_at: '2026-07-15T00:00:00Z',
     }))
-    expect(s).toContain('Retenu par mes tests le 15/07/2026.')
+    expect(s).toContain('Retenu par mes tests le 15 juillet 2026.')
     expect(s).not.toMatch(/moteur|grappe|gantelet/i)
     expect(s).not.toMatch(/valid/i)
   })
