@@ -49,9 +49,21 @@ describe('VerdictPanel', () => {
     expect(screen.getByTestId('verdict-review').textContent).toBe('Réexamen le 22 oct. 2026.')
   })
 
-  it('zero trade: nothing coloured', () => {
+  // Refonte finition (2026-10-02): « Données insuffisantes » takes the reserve ink, with
+  // its words (was: nothing coloured). No loss colour, no loss contour.
+  it('zero trade: the title in the reserve ink, with its words, nothing in loss', () => {
     const v = botVerdict({ status: 'paper', stats: s(0, 0, 0), expectations: null })
     const { container } = render(<VerdictPanel verdict={v} column={decisionColumn(v, { status: 'paper', criteriaCount: 4 })} />)
-    expect(container.innerHTML).not.toMatch(/text-negative|text-warning|border-negative/)
+    const title = screen.getByRole('heading', { level: 2 })
+    expect(title.textContent).toBe('Données insuffisantes')
+    expect(title.className).toContain('text-warning')
+    expect(container.innerHTML).not.toMatch(/text-negative|border-negative/)
+  })
+
+  it('the verdict title speaks alone; the decision column has its own h3', () => {
+    const v = botVerdict({ status: 'live', stats: s(40, 0.02, 2), expectations: exp })
+    const { container } = render(<VerdictPanel verdict={v} column={decisionColumn(v, { status: 'live', criteriaCount: 4 })} />)
+    expect(container.textContent).not.toMatch(/Mon constat/)
+    expect(screen.getByRole('heading', { level: 3 }).textContent).toBe('Ma décision et ses limites')
   })
 })

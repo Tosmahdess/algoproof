@@ -58,8 +58,10 @@ describe('bot fiche, header', () => {
     const panel = screen.getByTestId('verdict-panel')
     expect(h1.nextElementSibling).toBe(panel)
     expect(panel.closest('details')).toBeNull()
-    expect(within(panel).getByText('Mon constat')).toBeInTheDocument()
-    expect(within(panel).getByText('Ma décision et ses limites')).toBeInTheDocument()
+    // Refonte finition (2026-10-02): the verdict's title speaks alone (no « Mon constat »
+    // label above it) and the right column is headed by an h3.
+    expect(within(panel).queryByText('Mon constat')).toBeNull()
+    expect(within(panel).getByRole('heading', { level: 3, name: 'Ma décision et ses limites' })).toBeInTheDocument()
   })
 
   it('real money: base, result, base + result, without a sentence explaining the base', async () => {

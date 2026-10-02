@@ -80,7 +80,8 @@ describe('botVerdict picks the state', () => {
       const v = botVerdict({ status: 'paper', stats: stats(0, 0, 0), expectations })
       expect(v.state).toBe('no-trade')
       expect(v.title).toBe('Données insuffisantes')
-      expect(v.tone).toBe('neutral')
+      // Refonte finition (2026-10-02): insufficient data takes the reserve ink (was neutral).
+      expect(v.tone).toBe('reserve')
       expect(v.finding).toMatch(/il attend son signal/)
     }
   })
@@ -93,6 +94,7 @@ describe('botVerdict picks the state', () => {
   it('a small sample is insufficient data, not a verdict', () => {
     const v = botVerdict({ status: 'paper', stats: stats(7, 0.02, 3), expectations: exp })
     expect(v.state).toBe('insufficient')
+    expect(v.tone).toBe('reserve')
     expect(v.finding).toMatch(/7 trades/)
   })
 

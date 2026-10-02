@@ -1,14 +1,18 @@
-// « Mon constat / Ma décision et ses limites », the panel under the title of a bot fiche
+// The verdict and « Ma décision et ses limites », the panel under the title of a bot fiche
 // (refonte « Le registre des décisions », lot 3, 2026-10-02; audit 2026-10, constats 3
 // and 6). Never folded: it sits in the first screen on a phone. The state comes from
 // botVerdict (lib/bot-verdict.ts); the decision is quoted from the published text and
 // its review date from the decision itself. « Je le garde » does not neutralise « règle
 // franchie »: the panel keeps the loss contour while the decision is shown beside it.
+// Refonte finition (2026-10-02): the verdict's title speaks alone, no « Mon constat »
+// above it; « Ma décision et ses limites » is the right column's own h3.
 import Link from 'next/link'
 import { linkClass } from '@/lib/link-roles'
 import type { BotVerdict } from '@/lib/bot-verdict'
 
-const TITLE_TONE = { loss: 'text-negative', warn: 'text-warning', neutral: 'text-foreground' } as const
+// The reserve ink (#e9c17c) on « Données insuffisantes »: always with its words, never
+// the colour alone (refonte finition, 2026-10-02).
+const TITLE_TONE = { loss: 'text-negative', warn: 'text-warning', reserve: 'text-warning', neutral: 'text-foreground' } as const
 
 export interface DecisionColumn {
   /** The quoted decision, or the limits, or what replaces them. */
@@ -47,7 +51,6 @@ export default function VerdictPanel({ verdict, column }: { verdict: BotVerdict;
       className={`rounded-lg border bg-card p-4 sm:px-6 sm:py-5 grid gap-4 ${hasColumn ? 'md:grid-cols-[1.1fr_1fr] md:gap-8' : ''} ${loss ? 'border-negative' : 'border-border'}`}
     >
       <div>
-        <p className="text-xs text-muted mb-1">Mon constat</p>
         <h2 id="verdict-title" className={`text-2xl font-semibold leading-tight mb-1.5 ${TITLE_TONE[verdict.tone]}`}>
           {verdict.title}
         </h2>
@@ -55,7 +58,7 @@ export default function VerdictPanel({ verdict, column }: { verdict: BotVerdict;
       </div>
       {hasColumn && (
         <div>
-          <p className="text-xs text-muted mb-1">Ma décision et ses limites</p>
+          <h3 className="text-base font-semibold mb-1">Ma décision et ses limites</h3>
           {column.text && <p data-testid="verdict-decision" className="text-sm sm:text-base">{column.text}</p>}
           {verdict.review && (
             <p data-testid="verdict-review" className={`text-sm mt-1 ${verdict.review.overdue ? 'text-severe' : 'text-muted'}`}>

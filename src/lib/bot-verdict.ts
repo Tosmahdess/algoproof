@@ -24,7 +24,8 @@ export type VerdictState =
   | 'ok'           // dans les limites attendues
   | 'no-limits'    // limites non définies
 
-export type VerdictTone = 'loss' | 'warn' | 'neutral'
+/** `reserve`: the reserve ink, kept for insufficient data (refonte finition, 2026-10-02). */
+export type VerdictTone = 'loss' | 'warn' | 'reserve' | 'neutral'
 
 export interface BotVerdict {
   state: VerdictState
@@ -121,7 +122,7 @@ export function botVerdict({ status, archivedAt = null, stats, expectations, tod
   if (stats.total_trades === 0) {
     const dormancy = expectations?.dormancyNote ? ` ${expectations.dormancyNote}` : ''
     return {
-      ...base, state: 'no-trade', title: 'Données insuffisantes', tone: 'neutral',
+      ...base, state: 'no-trade', title: 'Données insuffisantes', tone: 'reserve',
       finding: `Ce bot tourne mais il attend son signal. Il n’a encore rien tradé.${dormancy}`,
     }
   }
@@ -160,7 +161,7 @@ export function botVerdict({ status, archivedAt = null, stats, expectations, tod
     const dd = result.checks.some(c => c.label === 'Drawdown max')
       ? ' Sa baisse, elle, reste dans la limite publiée.' : ''
     return {
-      ...base, state: 'insufficient', title: 'Données insuffisantes', tone: 'neutral',
+      ...base, state: 'insufficient', title: 'Données insuffisantes', tone: 'reserve',
       finding: `Ce bot n’a que ${n} trade${n > 1 ? 's' : ''} : trop tôt pour juger sa rentabilité.${dd}`,
     }
   }
