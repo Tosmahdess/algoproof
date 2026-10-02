@@ -96,7 +96,8 @@ export default function FleetOverview({
 
   return (
     <div className="space-y-10">
-      <FleetTotals aggregate={aggregate} liveCount={live.length} paperCount={paper.length} />
+      <FleetTotals aggregate={aggregate} liveCount={live.length} paperCount={paper.length}
+        bases={{ real: live.map(b => b.start_capital), labo: paper.map(b => b.start_capital) }} />
 
       {/* `key`: a search-params-only navigation re-renders this instance instead
           of remounting it; a new initialState serialises to a new key, so the
