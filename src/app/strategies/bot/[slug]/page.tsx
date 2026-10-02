@@ -339,9 +339,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {simulation ? (
         <CapitalSimulator perfDaily={timelinePerfDaily(simulation.timeline, bot.slug)}
           startCapital={bot.start_capital} backtestUntil={simulation.segment.freezeDate}
-          backtestEndCapital={simulation.timeline.simStartCapital} />
+          backtestEndCapital={simulation.timeline.simStartCapital} traded={traded} />
       ) : bot.perf_daily.length > 0 && (
-        <CapitalSimulator perfDaily={bot.perf_daily} startCapital={bot.start_capital} />
+        <CapitalSimulator perfDaily={bot.perf_daily} startCapital={bot.start_capital} traded={traded} />
       )}
 
       {/* A private question, the lab account page's form (owner, 2026-09-26). It

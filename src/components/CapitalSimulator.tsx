@@ -8,6 +8,10 @@
 // backtest, the simulation's own result leads, in colour, with its own worst month and
 // trough; the result since 1 January, backtest included, is a grey line apart that names
 // the backtest's share. The amounts are pressed buttons (aria-pressed, constat 33).
+//
+// Refonte finition (2026-10-02): the preset is 1 000 €, the base the owner keeps for real
+// money, so the page shows one result. A bot without a trade reads « — » in the three
+// figures: a flat curve has no result, no worst month and no trough to report.
 import { useState } from 'react'
 import type { PerfDaily } from '@/lib/types'
 import { simulateOnCapital, simulationOnlyPerf } from '@/lib/simulator'
@@ -41,21 +45,25 @@ function nextDay(isoDate: string): string {
 }
 
 const tone = (n: number) => (n < 0 ? 'text-negative' : 'text-foreground')
+const NONE = 'text-xl tabular-nums text-muted'
 
 export default function CapitalSimulator({
   perfDaily,
   startCapital,
   backtestUntil,
   backtestEndCapital,
+  traded = true,
 }: {
   perfDaily: PerfDaily[]
   startCapital: number
+  /** False when the bot (or its simulation) has no closed trade: « — » everywhere. */
+  traded?: boolean
   /** When the curve starts with a backtest (engine bots, 2026-09-28): its last day and
    *  the capital it reached, so the backtest's share of the result is named apart. */
   backtestUntil?: string
   backtestEndCapital?: number
 }) {
-  const [capital, setCapital] = useState(500)
+  const [capital, setCapital] = useState(1000)
   const whole = simulateOnCapital(perfDaily, startCapital, capital)
   if (!whole) return null
   const withBacktest = backtestUntil !== undefined && backtestEndCapital !== undefined
@@ -103,13 +111,19 @@ export default function CapitalSimulator({
           <dt className="text-xs text-muted mb-0.5">
             {withBacktest ? `Résultat de la simulation, depuis le ${longDateOrdinal(nextDay(backtestUntil))}` : 'Résultat sur la période'}
           </dt>
-          <dd className={`text-xl tabular-nums ${tone(lead.pnlEur)}`}>{fmtEur(lead.pnlEur)}</dd>
+          {traded ? (
+            <dd className={`text-xl tabular-nums ${tone(lead.pnlEur)}`}>{fmtEur(lead.pnlEur)}</dd>
+          ) : (
+            <dd className={NONE}>—</dd>
+          )}
         </div>
         <div>
           <dt className="text-xs text-muted mb-0.5">
-            {`Pire mois${lead.worstMonthLabel ? ` (${fmtMonthLabel(lead.worstMonthLabel)})` : ''}`}
+            {`Pire mois${traded && lead.worstMonthLabel ? ` (${fmtMonthLabel(lead.worstMonthLabel)})` : ''}`}
           </dt>
-          {lead.worstMonthEur === 0 ? (
+          {!traded ? (
+            <dd className={NONE}>—</dd>
+          ) : lead.worstMonthEur === 0 ? (
             <dd className="text-sm tabular-nums text-foreground pt-1.5">aucun mois négatif</dd>
           ) : (
             <dd className="text-xl tabular-nums text-negative">{fmtEur(lead.worstMonthEur)}</dd>
@@ -117,7 +131,11 @@ export default function CapitalSimulator({
         </div>
         <div>
           <dt className="text-xs text-muted mb-0.5">Pire creux (depuis un plus haut)</dt>
-          <dd className={`text-xl tabular-nums ${tone(lead.maxDrawdownEur)}`}>{fmtEur(lead.maxDrawdownEur)}</dd>
+          {traded ? (
+            <dd className={`text-xl tabular-nums ${tone(lead.maxDrawdownEur)}`}>{fmtEur(lead.maxDrawdownEur)}</dd>
+          ) : (
+            <dd className={NONE}>—</dd>
+          )}
         </div>
       </dl>
       {withBacktest && (

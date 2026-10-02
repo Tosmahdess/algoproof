@@ -14,12 +14,14 @@ const perf = [
 ]
 
 describe('CapitalSimulator', () => {
-  it('renders scaled results at the default 500 € preset', () => {
+  // Refonte finition (2026-10-02): the preset is 1 000 €, the base kept for real money
+  // (was 500 €), so the page shows one result.
+  it('renders scaled results at the default 1 000 € preset', () => {
     render(<CapitalSimulator perfDaily={perf} startCapital={1000} />)
-    // +40 on 1000 → +20 on 500
-    expect(screen.getByText(/\+20,00 €/)).toBeInTheDocument()
-    // worst month −60 → −30 ; max drawdown (peak 1050 → 990) −60 → −30 too
-    expect(screen.getAllByText(/−30,00 €/)).toHaveLength(2)
+    // +40 on 1000, read at 1000
+    expect(screen.getByText(/\+40,00 €/)).toBeInTheDocument()
+    // worst month −60 ; max drawdown (peak 1050 → 990) −60 too
+    expect(screen.getAllByText(/−60,00 €/)).toHaveLength(2)
   })
 
   it('rescales when another preset is clicked', () => {
@@ -50,12 +52,12 @@ describe('CapitalSimulator', () => {
     const t = container.textContent!.replace(/\s+/g, ' ')
     expect(t).toContain('du 1er janvier au 15 février 2026')
     expect(t).toMatch(/déjà vues/)
-    // 500 € preset: the simulation +10 on 1000 -> +5, first and in ink
+    // 1 000 € preset: the simulation +10 on 1000, first and in ink
     const lead = screen.getByText(/Résultat de la simulation, depuis le 1er février 2026/)
-    expect(lead.nextElementSibling!.textContent).toMatch(/^\+5,00\s€$/)
-    // the whole curve +60 -> +30, of which +25 is the backtest, in a muted line
+    expect(lead.nextElementSibling!.textContent).toMatch(/^\+10,00\s€$/)
+    // the whole curve +60, of which +50 is the backtest, in a muted line
     const apart = screen.getByTestId('capital-backtest')
-    expect(apart.textContent).toMatch(/Depuis le 1er janvier, backtest compris : \+30,00\s€, dont \+25,00\s€ de backtest/)
+    expect(apart.textContent).toMatch(/Depuis le 1er janvier, backtest compris : \+60,00\s€, dont \+50,00\s€ de backtest/)
     expect(apart.className).toContain('text-muted')
   })
 
@@ -68,10 +70,21 @@ describe('CapitalSimulator', () => {
 
   it('presses the chosen amount for assistive technology', () => {
     render(<CapitalSimulator perfDaily={perf} startCapital={1000} />)
-    expect(screen.getByRole('button', { name: '500 €' }).getAttribute('aria-pressed')).toBe('true')
-    fireEvent.click(screen.getByRole('button', { name: '1000 €' }))
     expect(screen.getByRole('button', { name: '1000 €' }).getAttribute('aria-pressed')).toBe('true')
-    expect(screen.getByRole('button', { name: '500 €' }).getAttribute('aria-pressed')).toBe('false')
+    fireEvent.click(screen.getByRole('button', { name: '500 €' }))
+    expect(screen.getByRole('button', { name: '500 €' }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByRole('button', { name: '1000 €' }).getAttribute('aria-pressed')).toBe('false')
+  })
+
+  // Refonte finition (2026-10-02): a bot without a trade has a flat curve; « +0,00 € »,
+  // « aucun mois négatif » and « Pire creux +0,00 € » read as results it never had.
+  it('without a trade: « — » in the three figures, no zero dressed as a result', () => {
+    const flatCurve = [pd('2026-09-01', 1000, 0), pd('2026-09-20', 1000, 0)]
+    const { container } = render(<CapitalSimulator perfDaily={flatCurve} startCapital={1000} traded={false} />)
+    const dds = [...container.querySelectorAll('dd')]
+    expect(dds.map(d => d.textContent)).toEqual(['—', '—', '—'])
+    expect(container.textContent).not.toMatch(/\+0,00|aucun mois négatif/)
+    expect(container.innerHTML).not.toMatch(/text-negative/)
   })
 
   it('renders nothing without history', () => {
