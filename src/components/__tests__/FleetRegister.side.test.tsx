@@ -31,8 +31,8 @@ const beta = mkBot({
   all_trades: [t('1', 'long', 10), t('2', 'long', 10)],
 })
 
-// BotTable renders each bot twice — a mobile card list and the table — so
-// the name is not unique; the row is the occurrence that lives in a <tr>.
+// The register renders each bot once since the ledger (refonte « registre »,
+// lot 4, 2026-10-02); the row is the <tr> that holds the name.
 function rowOf(name: string): HTMLElement {
   const rows = screen.getAllByText(name).map(el => el.closest('tr')).filter((r): r is HTMLTableRowElement => r !== null)
   if (rows.length !== 1) throw new Error(`expected one <tr> for ${name}, got ${rows.length}`)
@@ -43,15 +43,14 @@ describe('FleetRegister — side slice', () => {
   it('shows server stats by default and the short slice after clicking « Short »', () => {
     render(<FleetRegister bots={[alpha, beta]} initialState={EMPTY_FILTERS} />)
 
-    // BotTable appends ' ⚠' to a count under 20 trades (isLowSample), as two
-    // adjacent text nodes — match the whole cell text, marker optional.
-    expect(within(rowOf('Alpha Slice Bot')).getByText(/^3( ⚠)?$/)).toBeInTheDocument()
+    // The ledger writes the count in the row's market line, « 3 trades ».
+    expect(within(rowOf('Alpha Slice Bot')).getByText(/^3 trades$/)).toBeInTheDocument()
 
     const side = screen.getByRole('combobox', { name: /Sens des trades/ }) as HTMLSelectElement
     fireEvent.change(side, { target: { value: 'short' } })
 
     // Alpha: 1 short. Beta: none → « — » in the stats cells, still listed.
-    expect(within(rowOf('Alpha Slice Bot')).getByText(/^1( ⚠)?$/)).toBeInTheDocument()
+    expect(within(rowOf('Alpha Slice Bot')).getByText(/^1 trade$/)).toBeInTheDocument()
     expect(rowOf('Beta Longs Only')).toBeInTheDocument()
     expect(within(rowOf('Beta Longs Only')).getAllByText('—').length).toBeGreaterThan(0)
     // The option counts bots with ≥1 short: only Alpha.
@@ -63,7 +62,7 @@ describe('FleetRegister — side slice', () => {
   it('choosing « Les deux » returns to all', () => {
     render(<FleetRegister bots={[alpha, beta]} initialState={{ ...EMPTY_FILTERS, side: 'short' }} />)
     fireEvent.change(screen.getByRole('combobox', { name: /Sens des trades/ }), { target: { value: 'all' } })
-    expect(within(rowOf('Alpha Slice Bot')).getByText(/^3( ⚠)?$/)).toBeInTheDocument()
+    expect(within(rowOf('Alpha Slice Bot')).getByText(/^3 trades$/)).toBeInTheDocument()
     expect(window.location.search).not.toContain('side=')
   })
 })

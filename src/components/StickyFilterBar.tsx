@@ -38,8 +38,14 @@ import { useId, useState, type ReactNode } from 'react'
  * and the controls are simply always there.
  */
 export default function StickyFilterBar(
-  { activeCount, onReset, children }:
-  { activeCount: number; onReset: () => void; children: ReactNode },
+  { activeCount, onReset, showReset = true, children }:
+  {
+    activeCount: number; onReset: () => void
+    /** False hides « Tout effacer » while the page offers its own reset (the
+     *  fleet's empty state, refonte « registre » lot 4). Default unchanged. */
+    showReset?: boolean
+    children: ReactNode
+  },
 ) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
@@ -72,7 +78,7 @@ export default function StickyFilterBar(
           </svg>
         </button>
 
-        {activeCount > 0 && (
+        {showReset && activeCount > 0 && (
           <button type="button" onClick={onReset} className="min-h-10 min-w-10 text-xs text-muted underline underline-offset-2 hover:text-foreground">
             Tout effacer
           </button>

@@ -4,12 +4,12 @@ import FleetRegister from '@/components/FleetRegister'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
 import { FIXTURE_FLEET, mkBot, prodBot } from '../fixtures/bots'
 
-// Lot 4 of the design audit (2026-09-25, conception §5.2): ONE table for the whole
-// register, every timeframe in it, sorted by history (trades descending, C7),
-// with the timeframe as a column and as a filter. The per-timeframe sections
-// (« H4 : 55 stratégies ») are gone: a visitor looks for a bot, not a horizon.
-// Since 2026-09-30 the bots under 20 trades and the untraded ones are rows of the
-// same table, ranked after the proven ones under every sort; archived fold last.
+// Refonte « registre », lot 4 (owner decision, 2026-10-02): ONE list, from the
+// best result to the least good. The bots under 20 trades are rows of it, each
+// labelled « rodage »; they no longer form a tier after the proven ones. A bot
+// without a trade goes last with « — » and no colour. Archived bots fold last.
+// Until then (2026-09-25 to 2026-10-02) the list was sorted by history and cut
+// in three tiers; the tests that pinned that order were rewritten here.
 vi.mock('next/navigation', () => ({
   usePathname: () => '/overview',
 }))
@@ -26,50 +26,95 @@ const stats = (total_trades: number, latest_capital = 1000) =>
 function rowsOf(table: HTMLElement): string[] {
   return [...table.querySelectorAll('tbody tr')].map(tr => tr.querySelector('a')!.textContent!)
 }
+function rowOf(table: HTMLElement, name: string): HTMLElement {
+  return [...table.querySelectorAll<HTMLElement>('tbody tr')].find(tr => tr.querySelector('a')!.textContent === name)!
+}
 
-describe('FleetRegister — one table, sorted by history', () => {
+describe('FleetRegister — one list, from the best result to the least good', () => {
   it('never renders a real-money section, even when handed a live bot', () => {
     render(<FleetRegister bots={FIXTURE_FLEET} initialState={EMPTY_FILTERS} />)
     expect(screen.queryByTestId('fleet-real')).toBeNull()
   })
 
-  it('lists every bot in one table, trades descending, whatever its timeframe', () => {
+  it('lists every bot in one list, best result first, whatever its timeframe, in three columns', () => {
     const bots = [
-      mkBot({ name: 'H4 Trente', timeframe: 'H4', stats: stats(30) }),
-      mkBot({ name: 'H1 Cent', timeframe: 'H1', stats: stats(100) }),
-      mkBot({ name: 'D1 Cinquante', timeframe: 'D1', stats: stats(50) }),
-      mkBot({ name: 'H4 Douze', timeframe: 'H4', stats: stats(12) }),
+      mkBot({ name: 'H4 Trente', timeframe: 'H4', stats: stats(30, 1030) }),
+      mkBot({ name: 'H1 Cent', timeframe: 'H1', stats: stats(100, 1100) }),
+      mkBot({ name: 'D1 Cinquante', timeframe: 'D1', stats: stats(50, 1050) }),
+      mkBot({ name: 'H4 Douze', timeframe: 'H4', stats: stats(12, 1200) }),
     ]
     render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
     const table = screen.getByTestId('fleet-table')
-    expect(rowsOf(table)).toEqual(['H1 Cent', 'D1 Cinquante', 'H4 Trente', 'H4 Douze'])
+    expect(rowsOf(table)).toEqual(['H4 Douze', 'H1 Cent', 'D1 Cinquante', 'H4 Trente'])
     expect(screen.queryByTestId('fleet-tf-H4')).toBeNull()
-    expect(within(table).getAllByRole('columnheader').map(th => th.textContent)).toContain('TF')
+    const headers = within(table).getAllByRole('columnheader').map(th => th.textContent)
+    expect(headers.slice(0, 3)).toEqual(['Bot et marché', 'État et décision', 'Résultat depuis le départ'])
+    expect(screen.getByTestId('fleet-sort-line').textContent).toMatch(/du meilleur résultat au moins bon/)
   })
 
-  it('keeps the bots under 20 trades IN the table, after the proven ones, then the untraded (2026-09-30)', () => {
+  it('ranks the bots in rodage among the others, each labelled, and puts the untraded last with « — » and no colour', () => {
     const bots = [
-      mkBot({ name: 'Rodage A', stats: stats(7) }),
+      mkBot({ name: 'Rodage A', stats: stats(7, 1050) }),
       mkBot({ name: 'Jamais', stats: stats(0) }),
-      mkBot({ name: 'Prouvé', stats: stats(40) }),
-      mkBot({ name: 'Rodage B', stats: stats(19) }),
+      mkBot({ name: 'Prouvé', stats: stats(40, 1020) }),
+      mkBot({ name: 'Rodage B', stats: stats(19, 990) }),
     ]
     render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
-    expect(rowsOf(screen.getByTestId('fleet-table'))).toEqual(['Prouvé', 'Rodage B', 'Rodage A', 'Jamais'])
+    const table = screen.getByTestId('fleet-table')
+    expect(rowsOf(table)).toEqual(['Rodage A', 'Prouvé', 'Rodage B', 'Jamais'])
+    expect(within(rowOf(table, 'Rodage A')).getByTestId('fleet-rodage-tag')).toBeTruthy()
+    expect(within(rowOf(table, 'Rodage B')).getByTestId('fleet-rodage-tag')).toBeTruthy()
+    expect(within(rowOf(table, 'Prouvé')).queryByTestId('fleet-rodage-tag')).toBeNull()
+    const jamais = rowOf(table, 'Jamais')
+    expect(jamais.textContent).toMatch(/—/)
+    expect(jamais.textContent).not.toMatch(/€/)
+    expect(jamais.innerHTML).not.toMatch(/text-negative|text-positive/)
+    expect(jamais.querySelector('svg')).toBeNull()
     expect(screen.queryByTestId('fleet-rodage')).toBeNull()
     expect(screen.queryByTestId('fleet-untraded')).toBeNull()
   })
 
-  it('renders the table even when nothing is proven yet', () => {
+  it('renders the list even when nothing is proven yet', () => {
     render(<FleetRegister bots={[mkBot({ name: 'Petit', stats: stats(3) })]} initialState={EMPTY_FILTERS} />)
     expect(rowsOf(screen.getByTestId('fleet-table'))).toEqual(['Petit'])
   })
 
-  it('collapses archived bots but keeps them present', () => {
+  it('collapses archived bots but keeps them present, outside the ranking', () => {
     render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
     const archived = screen.getByTestId('fleet-archived') as HTMLDetailsElement
     expect(archived.open).toBe(false)
     expect(within(archived).getByRole('link', { name: /Chandelier/ })).toBeTruthy()
+    expect(rowsOf(screen.getByTestId('fleet-table'))).not.toContain('Chandelier Exit H4 BF')
+  })
+})
+
+describe('FleetRegister — a long list, never a fold', () => {
+  const many = (n: number) => Array.from({ length: n }, (_, i) =>
+    mkBot({ name: `Bot ${String(i + 1).padStart(3, '0')}`, stats: stats(30, 2000 - i) }))
+
+  it('shows the first 50 rows, then « Voir les N suivants », down to the last loser', () => {
+    render(<FleetRegister bots={many(120)} initialState={EMPTY_FILTERS} />)
+    const table = screen.getByTestId('fleet-table')
+    expect(rowsOf(table)).toHaveLength(50)
+    expect(screen.getByTestId('fleet-shown').textContent).toMatch(/50 bots affichés sur 120/)
+    fireEvent.click(screen.getByRole('button', { name: 'Voir les 50 suivants' }))
+    expect(rowsOf(table)).toHaveLength(100)
+    // The keyboard goes on from where the list grew.
+    expect(document.activeElement?.textContent).toBe('Bot 051')
+    fireEvent.click(screen.getByRole('button', { name: 'Voir les 20 suivants' }))
+    expect(rowsOf(table)).toHaveLength(120)
+    expect(rowsOf(table).at(-1)).toBe('Bot 120')
+    expect(screen.queryByTestId('fleet-more')).toBeNull()
+    expect(table.closest('details')).toBeNull()
+  })
+
+  it('starts again at the first page when a filter changes', () => {
+    const bots = [...many(60), mkBot({ name: 'H1 Seul', timeframe: 'H1', stats: stats(30, 900) })]
+    render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Voir les 11 suivants' }))
+    expect(rowsOf(screen.getByTestId('fleet-table'))).toHaveLength(61)
+    fireEvent.change(screen.getByRole('combobox', { name: /Horizon/ }), { target: { value: 'H4' } })
+    expect(rowsOf(screen.getByTestId('fleet-table'))).toHaveLength(50)
   })
 })
 
@@ -125,11 +170,36 @@ describe('FleetRegister — filters', () => {
     expect(window.location.search).toContain('tf=H1')
   })
 
-  it('names the responsible filter when a selection returns nothing', () => {
+  it('names the responsible filter when a selection returns nothing, with ONE way out (audit n° 75)', () => {
     render(<FleetRegister bots={REGISTER_FIXTURE} initialState={{ ...EMPTY_FILTERS, family: ['carry'], timeframe: ['M15'] }} />)
     expect(screen.getByTestId('fleet-empty')).toBeTruthy()
+    expect(screen.getAllByRole('button', { name: /Retirer les filtres|Tout effacer/ })).toHaveLength(1)
     fireEvent.click(screen.getByRole('button', { name: 'Retirer les filtres' }))
     expect(screen.queryByTestId('fleet-empty')).toBeNull()
+  })
+
+  it('disables an option at « (0) » (audit n° 75)', () => {
+    const bots = [
+      mkBot({ name: 'H4 Un', timeframe: 'H4', family: 'trend', stats: stats(30) }),
+      mkBot({ name: 'H1 Un', timeframe: 'H1', family: 'breakout', stats: stats(40) }),
+    ]
+    render(<FleetRegister bots={bots} initialState={{ ...EMPTY_FILTERS, timeframe: ['H4'] }} />)
+    const family = [...select(/Famille/).options]
+    const breakout = family.find(o => o.value === 'breakout')!
+    expect(breakout.textContent).toMatch(/\(0\)$/)
+    expect(breakout.disabled).toBe(true)
+    expect(family.find(o => o.value === 'trend')!.disabled).toBe(false)
+    expect(family.find(o => o.value === 'carry')!.disabled).toBe(true)
+    // No bot here has a trade: both sides are at zero.
+    expect([...select(/Sens/).options].filter(o => o.disabled).map(o => o.value)).toEqual(['long', 'short'])
+  })
+
+  it('keeps the option in force enabled even at zero, so the list says what filters', () => {
+    render(<FleetRegister bots={[mkBot({ name: 'H4 Un', family: 'trend' })]} initialState={{ ...EMPTY_FILTERS, family: ['carry'] }} />)
+    const carry = [...select(/Famille/).options].find(o => o.value === 'carry')!
+    expect(carry.textContent).toBe('Portage (0)')
+    expect(carry.disabled).toBe(false)
+    expect(select(/Famille/).value).toBe('carry')
   })
 
   it('no longer offers the « Où ça tourne » facet', () => {
@@ -151,7 +221,7 @@ describe('FleetRegister — sort', () => {
   const pf = (total_trades: number, profit_factor: number, latest_capital = 1000) =>
     ({ total_trades, win_rate: 0.5, profit_factor, max_drawdown: 0.05, latest_capital })
 
-  it('sorts by profit factor, best first, the bots under 20 trades still after the proven ones', () => {
+  it('sorts by profit factor in the same single list, the untraded last', () => {
     const bots = [
       mkBot({ name: 'Solide', stats: pf(100, 1.2) }),
       mkBot({ name: 'Chanceux', stats: pf(3, 9) }),
@@ -160,7 +230,8 @@ describe('FleetRegister — sort', () => {
     ]
     render(<FleetRegister bots={bots} initialState={EMPTY_FILTERS} />)
     fireEvent.change(select(/Trier/), { target: { value: 'profit_factor' } })
-    expect(rowsOf(screen.getByTestId('fleet-table'))).toEqual(['Fort', 'Solide', 'Chanceux', 'Jamais'])
+    // « Chanceux » leads on 3 trades: its row says « rodage », the order no longer hides it.
+    expect(rowsOf(screen.getByTestId('fleet-table'))).toEqual(['Chanceux', 'Fort', 'Solide', 'Jamais'])
     expect(window.location.search).toContain('sort=profit_factor')
     expect(screen.getByTestId('fleet-sort-line').textContent).toMatch(/triés par facteur de profit/)
   })
@@ -183,7 +254,7 @@ describe('FleetRegister — sort', () => {
 })
 
 describe('FleetRegister — what a row shows', () => {
-  it('shows PF and P&L on the row via BotTable, not just the trade count', () => {
+  it('shows PF and the result on the row, not just the trade count', () => {
     const bot = prodBot('macdvolume-bf11', {
       name: 'MACD Volume H4 BF',
       stats: { total_trades: 31, win_rate: 0.548, profit_factor: 1.42, max_drawdown: 0.072, latest_capital: 1000.62 },
@@ -192,5 +263,11 @@ describe('FleetRegister — what a row shows', () => {
     const table = screen.getByTestId('fleet-table')
     expect(table.textContent).toMatch(/1,42/)
     expect(table.textContent).toMatch(/0,62/)
+  })
+
+  it('writes « 1 trade », not « 1 trades »', () => {
+    render(<FleetRegister bots={[mkBot({ name: 'Un', stats: stats(1, 1010) })]} initialState={EMPTY_FILTERS} />)
+    const row = rowOf(screen.getByTestId('fleet-table'), 'Un')
+    expect(row.textContent).toMatch(/1 trade(?!s)/)
   })
 })

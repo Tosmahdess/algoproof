@@ -45,10 +45,11 @@ export interface FleetFilterState {
   dir: SortDir
 }
 
-/** The default view: no filter, and the only sort that is not a performance ranking. */
+/** The default view: no filter, the result from the best to the least good
+ *  (owner decision 2026-10-02; fleet-sort.ts says what keeps it honest). */
 export const EMPTY_FILTERS: FleetFilterState = {
   family: [], status: [], asset: [], side: 'all', timeframe: [],
-  sort: 'proven', dir: 'desc',
+  sort: 'pnl', dir: 'desc',
 }
 
 export interface FilterableBot {
@@ -82,7 +83,7 @@ export function parseFleetFilters(sp: URLSearchParams): FleetFilterState {
     asset: readList(sp, 'asset').map(a => a.toUpperCase()),
     side: (() => { const v = sp.get('side'); return v === 'long' || v === 'short' ? v : 'all' })(),
     timeframe: readList(sp, 'tf').map(t => t.toUpperCase()),
-    sort: (SORT_VALUES as readonly string[]).includes(sort ?? '') ? (sort as SortKey) : 'proven',
+    sort: (SORT_VALUES as readonly string[]).includes(sort ?? '') ? (sort as SortKey) : EMPTY_FILTERS.sort,
     dir: dir === 'asc' ? 'asc' : 'desc',
   }
 }

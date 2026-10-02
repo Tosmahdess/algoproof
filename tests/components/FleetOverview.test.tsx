@@ -6,11 +6,11 @@ import { EMPTY_FILTERS } from '@/lib/bot-filters'
 import type { TradeWithBot, PerfDaily } from '@/lib/types'
 import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
 
-// Lot 4 of the design audit (2026-09-25, conception §5.2). The page reads, in
-// order: the two totals, the real-money cards, the single register, then the
-// folded journal and the folded 30-day curves, then the recent trades. Gone: the
-// market-weather banner (a copy of /intelligence, fetched client-side in the
-// first screen) and the twelve-colour equity chart.
+// Refonte « registre », lot 4 (2026-10-02). The page reads, in order: the two
+// totals, the single register, then the folded journal and the folded 30-day
+// curves, then the recent trades. The real-money cards are gone (owner: one
+// list); the real-money bots are rows of it, with their regime and their rule.
+// Gone before: the market-weather banner and the twelve-colour equity chart.
 type Curve = { slug: string; name: string; color: string; data: { date: string; capital: number }[] }
 const curveProps: { bots: Curve[] }[] = []
 vi.mock('@/components/GlobalEquityCurve', () => ({
@@ -72,10 +72,10 @@ describe('FleetOverview — stage 0 invariant', () => {
 })
 
 describe('FleetOverview — the sections, in order', () => {
-  it('renders totals, real money, register, journal, curves, recent trades, and no weather', () => {
+  it('renders totals, register, journal, curves, recent trades, and no weather', () => {
     const { container } = renderFleet()
     const html = container.innerHTML
-    const order = ['fleet-totals', 'fleet-real', 'fleet-register', 'fleet-journal', 'fleet-equity-curves', 'fleet-recent-trades']
+    const order = ['fleet-totals', 'fleet-register', 'fleet-journal', 'fleet-equity-curves', 'fleet-recent-trades']
       .map(id => ({ id, at: html.indexOf(`data-testid="${id}"`) }))
     for (const { id, at } of order) expect(at, `${id} is absent`).toBeGreaterThanOrEqual(0)
     const positions = order.map(o => o.at)
@@ -84,22 +84,24 @@ describe('FleetOverview — the sections, in order', () => {
     expect(container.textContent).not.toMatch(/Météo du marché|Trading autorisé/)
   })
 
-  it('renders fleet-real as a sibling of fleet-register, with the lot 3 cards and the freshness', () => {
+  it('lists the real-money bots as rows of the one list, with their regime and the state of their rule', () => {
     renderFleet()
-    const real = screen.getByTestId('fleet-real')
+    expect(screen.queryByTestId('fleet-real')).toBeNull()
+    expect(screen.queryByTestId('fleet-bot-card')).toBeNull()
     const register = screen.getByTestId('fleet-register')
-    expect(register.contains(real)).toBe(false)
-    expect(real.contains(register)).toBe(false)
-    const cards = within(real).getAllByTestId('fleet-bot-card')
-    expect(cards).toHaveLength(FIXTURE_FLEET.filter(b => b.status === 'live').length)
-    expect(real.textContent).toMatch(/il y a 26 min/)
-    expect(within(real).getAllByTestId('home-bot-rule').length).toBe(cards.length)
+    const orb = within(register).getByRole('link', { name: 'ORB H1 HL' }).closest('tr')!
+    expect(orb.textContent).toMatch(/Argent réel/)
+    // ORB's published rule (PF < 1.0 after 20 trades) is crossed in the fixture, and kept.
+    expect(within(orb).getByTestId('fleet-row-state').textContent).toMatch(/Règle d’arrêt franchie.*Je le garde/)
+    const sim = within(register).getByRole('link', { name: 'MACD Volume H4 BF' }).closest('tr')!
+    expect(sim.textContent).toMatch(/Simulation/)
   })
 
-  it('also lists a real-money bot in the register table, not only as a card', () => {
+  it('never mixes the two regimes in a total: the register prints no sum, the totals stay two', () => {
     renderFleet()
-    const register = screen.getByTestId('fleet-register')
-    expect(within(register).getAllByRole('link', { name: 'ORB H1 HL' }).length).toBeGreaterThan(0)
+    expect(screen.getByTestId('fleet-total-real')).toBeTruthy()
+    expect(screen.getByTestId('fleet-total-labo')).toBeTruthy()
+    expect(within(screen.getByTestId('fleet-register')).queryByText(/^Total/)).toBeNull()
   })
 
   it('folds the journal and the curves; the curves carry the live bots and one simulation series', () => {
@@ -109,7 +111,7 @@ describe('FleetOverview — the sections, in order', () => {
     const curves = screen.getByTestId('fleet-equity-curves')
     expect(within(curves).getByRole('button', { name: /Courbes 30 jours/ }).getAttribute('aria-expanded')).toBe('false')
     const drawn = curveProps.at(-1)!.bots
-    // Longest history first, the same order as the cards (C7).
+    // Longest history first in the curves' legend.
     const liveSlugs = FIXTURE_FLEET.filter(b => b.status === 'live')
       .sort((a, b) => b.stats.total_trades - a.stats.total_trades).map(b => b.slug)
     expect(drawn.map(b => b.slug)).toEqual([...liveSlugs, 'simulation'])
@@ -117,10 +119,10 @@ describe('FleetOverview — the sections, in order', () => {
     expect(drawn.at(-1)!.name).toMatch(/Simulation/)
   })
 
-  it('keeps totals, real money, journal, curves and feed outside the register, so no filter can reach them', () => {
+  it('keeps totals, journal, curves and feed outside the register, so no filter can reach them', () => {
     renderFleet()
     const register = screen.getByTestId('fleet-register')
-    for (const id of ['fleet-totals', 'fleet-real', 'fleet-journal', 'fleet-equity-curves', 'fleet-recent-trades']) {
+    for (const id of ['fleet-totals', 'fleet-journal', 'fleet-equity-curves', 'fleet-recent-trades']) {
       expect(register.contains(screen.getByTestId(id))).toBe(false)
     }
     const feedBefore = screen.getByTestId('fleet-recent-trades').textContent
