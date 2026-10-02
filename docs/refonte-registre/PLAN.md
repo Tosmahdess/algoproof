@@ -1,5 +1,7 @@
 # Refonte « Le registre des décisions » : plan de travail
 
+Direction : le choix du propriétaire parmi les propositions de l'audit, la proposition d'Astra. Il n'y a pas eu de tirage de concept Impeccable, donc pas de clé de tirage.
+
 Décidé le 02/10/2026 par le propriétaire :
 - la direction d'Astra, avec ses corrections (`DECISIONS_PROPRIETAIRE.md`) ;
 - la police Schibsted Grotesk ;
