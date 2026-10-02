@@ -1,0 +1,460 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-02T22:26:36.382Z",
+  "title": "Design System: AlgoProof",
+  "extensions": {
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "Bleu de lien pâle",
+        "canonical": "#abc8ec",
+        "oklch": "oklch(82.3% 0.060 254.0)",
+        "tonalRamp": [
+          "#000a22",
+          "#0d2540",
+          "#29415f",
+          "#465f7f",
+          "#6882a4",
+          "#88a4c7",
+          "#adcaee",
+          "#e4f0ff"
+        ]
+      },
+      "button": {
+        "role": "primary",
+        "displayName": "Ardoise de commande",
+        "canonical": "#263f55",
+        "oklch": "oklch(35.8% 0.049 246.3)",
+        "tonalRamp": [
+          "#000c1d",
+          "#0d263a",
+          "#294258",
+          "#466178",
+          "#68849c",
+          "#89a5bf",
+          "#aecbe6",
+          "#e1f1ff"
+        ]
+      },
+      "brand": {
+        "role": "tertiary",
+        "displayName": "Vert Proof",
+        "canonical": "#4ade80",
+        "oklch": "oklch(80.0% 0.182 151.7)",
+        "tonalRamp": [
+          "#001003",
+          "#002d11",
+          "#004e23",
+          "#037137",
+          "#039a4d",
+          "#1ac064",
+          "#56e889",
+          "#c7ffd4"
+        ]
+      },
+      "bg": {
+        "role": "neutral",
+        "displayName": "Vert-noir de registre",
+        "canonical": "#101714",
+        "oklch": "oklch(19.6% 0.012 167.1)",
+        "tonalRamp": [
+          "#070d0a",
+          "#1f2623",
+          "#3a423e",
+          "#57605c",
+          "#7a837f",
+          "#9ba4a0",
+          "#c0cac6",
+          "#e7f1ed"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Surface sapin",
+        "canonical": "#17211c",
+        "oklch": "oklch(23.6% 0.017 163.1)",
+        "tonalRamp": [
+          "#050d09",
+          "#1d2722",
+          "#38433d",
+          "#55615b",
+          "#77847d",
+          "#98a59e",
+          "#becbc4",
+          "#e5f2eb"
+        ]
+      },
+      "card-2": {
+        "role": "neutral",
+        "displayName": "Surface sapin éclairée",
+        "canonical": "#22332b",
+        "oklch": "oklch(30.3% 0.027 164.0)",
+        "tonalRamp": [
+          "#020f08",
+          "#182821",
+          "#33443c",
+          "#50635a",
+          "#72867c",
+          "#93a79d",
+          "#b8cdc3",
+          "#dff5ea"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Filet mousse",
+        "canonical": "#415449",
+        "oklch": "oklch(42.6% 0.030 159.4)",
+        "tonalRamp": [
+          "#010f07",
+          "#17291f",
+          "#32453a",
+          "#506358",
+          "#72867a",
+          "#92a89b",
+          "#b8cec1",
+          "#def5e7"
+        ]
+      },
+      "border-strong": {
+        "role": "neutral",
+        "displayName": "Contour lichen",
+        "canonical": "#82988a",
+        "oklch": "oklch(65.8% 0.032 157.5)",
+        "tonalRamp": [
+          "#010f06",
+          "#16291e",
+          "#314539",
+          "#4f6356",
+          "#718679",
+          "#92a89a",
+          "#b7cebf",
+          "#def6e6"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Encre de registre",
+        "canonical": "#edf1e8",
+        "oklch": "oklch(95.3% 0.013 126.4)",
+        "tonalRamp": [
+          "#0a0c07",
+          "#22251f",
+          "#3e413a",
+          "#5c5f57",
+          "#7e827a",
+          "#9fa39b",
+          "#c5c9c0",
+          "#ecf0e7"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Note grise-verte",
+        "canonical": "#a8b6ab",
+        "oklch": "oklch(76.2% 0.022 152.1)",
+        "tonalRamp": [
+          "#050e07",
+          "#1c271f",
+          "#37433a",
+          "#556158",
+          "#77847a",
+          "#98a69b",
+          "#bdccc0",
+          "#e4f3e7"
+        ]
+      },
+      "negative": {
+        "role": "status",
+        "displayName": "Rouge clair de perte",
+        "canonical": "#ff9c90",
+        "oklch": "oklch(79.1% 0.121 27.5)",
+        "tonalRamp": [
+          "#210000",
+          "#4c0001",
+          "#721c18",
+          "#963e36",
+          "#bd6157",
+          "#e38377",
+          "#ffb0a6",
+          "#ffe9e6"
+        ]
+      },
+      "warning": {
+        "role": "status",
+        "displayName": "Ambre de réserve",
+        "canonical": "#e9c17c",
+        "oklch": "oklch(83.1% 0.098 80.4)",
+        "tonalRamp": [
+          "#130900",
+          "#312100",
+          "#543a00",
+          "#7a5602",
+          "#9f7934",
+          "#c19b56",
+          "#e9c17c",
+          "#ffeccc"
+        ]
+      },
+      "severe": {
+        "role": "status",
+        "displayName": "Orange d'escalade",
+        "canonical": "#ff6b35",
+        "oklch": "oklch(70.5% 0.193 39.2)",
+        "tonalRamp": [
+          "#1e0100",
+          "#441000",
+          "#702100",
+          "#a13401",
+          "#d94902",
+          "#fe6f3c",
+          "#feb299",
+          "#fee9e3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Titre d'accueil",
+        "purpose": "Le h1 de l'accueil seulement : 34, 44 puis 52 px."
+      },
+      "headline": {
+        "displayName": "Titre de page",
+        "purpose": "Le h1 d'une fiche bot ou d'une page : 30 puis 40 px."
+      },
+      "title": {
+        "displayName": "Titre de section",
+        "purpose": "h2 de section et titre du panneau de verdict."
+      },
+      "figure": {
+        "displayName": "Chiffre",
+        "purpose": "Base, résultat, cumul : tabular-nums dans la grotesque du texte."
+      },
+      "body": {
+        "displayName": "Texte courant",
+        "purpose": "Corps du site, 15 px."
+      },
+      "body-article": {
+        "displayName": "Prose d'article",
+        "purpose": "Articles, 18 px sur 1,65, environ 66 ch."
+      },
+      "label": {
+        "displayName": "Légende",
+        "purpose": "Le plancher de 13 px : légendes, en-têtes de colonnes, relevés, avertissement."
+      },
+      "identifier": {
+        "displayName": "Identifiant",
+        "purpose": "Paires, tickers, paramètres, code. Jamais un chiffre."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "color-transition",
+        "value": "color, background-color, border-color 150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Seule animation : survol des liens, boutons et cartes."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation-duration: 0.01ms; transition-duration: 0.01ms",
+        "purpose": "Sous prefers-reduced-motion, tout mouvement est coupé."
+      }
+    ],
+    "focus": {
+      "value": "3px solid #abc8ec, offset 2px",
+      "purpose": "Anneau de focus global (:focus-visible) et des rôles de lien."
+    },
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "register-desktop",
+        "value": "48rem (container query)"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bouton principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Aplat ardoise, contour bleu, texte à l’encre. Un par barre ou par section.",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">Explorer la bibliothèque →</a>",
+      "css": ".ds-btn-primary { font-family: var(--font-sans, 'Schibsted Grotesk'), system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--accent, #abc8ec); border-radius: 4px; background: var(--button, #263f55); color: var(--foreground, #edf1e8); font-size: 14px; font-weight: 600; text-decoration: none; transition: background-color 150ms; } .ds-btn-primary:hover { background: var(--card-2, #22332b); } .ds-btn-primary:focus-visible { outline: 3px solid var(--accent, #abc8ec); outline-offset: 2px; }"
+    },
+    {
+      "name": "Bouton secondaire",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Contour lichen sans fond, même survol.",
+      "html": "<a class=\"ds-btn-secondary\" href=\"#\">Voir toute la flotte · 215 bots, réels et simulés →</a>",
+      "css": ".ds-btn-secondary { font-family: var(--font-sans, 'Schibsted Grotesk'), system-ui, sans-serif; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--border-strong, #82988a); border-radius: 4px; background: transparent; color: var(--foreground, #edf1e8); font-size: 14px; font-weight: 600; text-decoration: none; transition: background-color 150ms; } .ds-btn-secondary:hover { background: var(--card-2, #22332b); } .ds-btn-secondary:focus-visible { outline: 3px solid var(--accent, #abc8ec); outline-offset: 2px; }"
+    },
+    {
+      "name": "Commande à bascule (favori)",
+      "kind": "chip",
+      "refersTo": "control-selected",
+      "description": "Étoile SVG, aria-pressed, fond éclairé et contour bleu quand active.",
+      "html": "<button class=\"ds-toggle\" aria-pressed=\"false\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><path d=\"m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z\"/></svg> Garder en favori</button> <button class=\"ds-toggle\" aria-pressed=\"true\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1.6\"><path d=\"m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z\"/></svg> Dans mes favoris</button>",
+      "css": ".ds-toggle { font-family: var(--font-sans, 'Schibsted Grotesk'), system-ui, sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--border-strong, #82988a); border-radius: 4px; background: transparent; color: var(--foreground, #edf1e8); font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 150ms; } .ds-toggle:hover { background: var(--card-2, #22332b); } .ds-toggle[aria-pressed=\"true\"] { border-color: var(--accent, #abc8ec); background: var(--card-2, #22332b); } .ds-toggle:focus-visible { outline: 3px solid var(--accent, #abc8ec); outline-offset: 2px; }"
+    },
+    {
+      "name": "Champ de saisie",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Fond du site, contour lichen, bleu au focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"Ta question sur ce bot\" />",
+      "css": ".ds-input { font-family: var(--font-sans, 'Schibsted Grotesk'), system-ui, sans-serif; width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--border-strong, #82988a); border-radius: 6px; background: var(--bg, #101714); color: var(--foreground, #edf1e8); font-size: 14px; } .ds-input::placeholder { color: var(--muted, #a8b6ab); } .ds-input:focus { border-color: var(--accent, #abc8ec); } .ds-input:focus-visible { outline: 3px solid var(--accent, #abc8ec); outline-offset: 2px; }"
+    },
+    {
+      "name": "Barre de navigation",
+      "kind": "nav",
+      "refersTo": "nav-bar",
+      "description": "Mot-symbole, cinq liens à plat, le labo en seul bouton.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-mark\" href=\"#\">Algo<span>Proof</span></a><a class=\"ds-nav-link\" aria-current=\"page\" href=\"#\">La flotte</a><a class=\"ds-nav-link\" href=\"#\">Stratégies</a><a class=\"ds-nav-link\" href=\"#\">Sociétés</a><a class=\"ds-nav-link\" href=\"#\">Météo</a><a class=\"ds-nav-link\" href=\"#\">Articles</a></nav>",
+      "css": ".ds-nav { font-family: var(--font-sans, 'Schibsted Grotesk'), system-ui, sans-serif; display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 24px; background: var(--bg, #101714); border-bottom: 1px solid var(--border, #415449); } .ds-nav-mark { font-size: 20px; font-weight: 700; letter-spacing: 0.05em; color: var(--foreground, #edf1e8); text-decoration: none; } .ds-nav-mark span { color: var(--brand, #4ade80); } .ds-nav-link { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; color: var(--muted, #a8b6ab); text-decoration: none; transition: color 150ms; } .ds-nav-link:hover { color: var(--foreground, #edf1e8); } .ds-nav-link[aria-current=\"page\"] { color: var(--foreground, #edf1e8); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 8px; } .ds-nav-link:focus-visible, .ds-nav-mark:focus-visible { outline: 3px solid var(--accent, #abc8ec); outline-offset: 2px; }"
+    },
+    {
+      "name": "Badge de régime",
+      "kind": "chip",
+      "refersTo": "badge-regime",
+      "description": "Trait plein pour l’argent réel, tirets pour la simulation, pointillés pour le backtest.",
+      "html": "<span class=\"ds-badge\">Argent réel</span> <span class=\"ds-badge ds-badge-paper\">Simulation</span> <span class=\"ds-badge ds-badge-backtest\">Backtest</span>",
+      "css": ".ds-badge { font-family: var(--font-sans, 'Schibsted Grotesk'), system-ui, sans-serif; display: inline-flex; align-items: center; padding: 2px 8px; border: 1px solid var(--border-strong, #82988a); border-radius: 2px; color: var(--foreground, #edf1e8); font-size: 13px; font-weight: 500; white-space: nowrap; } .ds-badge-paper { border-style: dashed; } .ds-badge-backtest { border-style: dotted; }"
+    },
+    {
+      "name": "Panneau de verdict",
+      "kind": "card",
+      "refersTo": "verdict-panel",
+      "description": "Le seul panneau cadré d’une fiche bot : constat à gauche, décision à droite.",
+      "html": "<section class=\"ds-verdict ds-verdict-loss\"><div><h2 class=\"ds-verdict-title\">Règle d’arrêt franchie</h2><p>Ce bot dépasse les limites de baisse et de rentabilité que j’avais publiées.</p></div><div><h3 class=\"ds-verdict-h3\">Ma décision et ses limites</h3><p>Le 25 septembre, je le garde.</p><p class=\"ds-verdict-review\">Réexamen le 22 oct. 2026.</p><a class=\"ds-link\" href=\"#\">Lire la règle et ma décision ↓</a></div></section>",
+      "css": ".ds-verdict { font-family: var(--font-sans, 'Schibsted Grotesk'), system-ui, sans-serif; display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; padding: 20px 24px; border: 1px solid var(--border, #415449); border-radius: 8px; background: var(--card, #17211c); color: var(--foreground, #edf1e8); font-size: 15px; } .ds-verdict p { margin: 0 0 4px; } .ds-verdict-loss { border-color: var(--negative, #ff9c90); } .ds-verdict-title { margin: 0 0 6px; font-size: 24px; font-weight: 600; line-height: 1.25; } .ds-verdict-loss .ds-verdict-title { color: var(--negative, #ff9c90); } .ds-verdict-h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; } .ds-verdict-review { font-size: 14px; color: var(--muted, #a8b6ab); } .ds-link { color: var(--accent, #abc8ec); font-size: 14px; text-decoration: underline; text-decoration-color: rgba(171,200,236,0.4); text-underline-offset: 2px; } .ds-link:hover { text-decoration-color: var(--accent, #abc8ec); } .ds-link:focus-visible { outline: 3px solid var(--accent, #abc8ec); outline-offset: 2px; }"
+    },
+    {
+      "name": "Chiffres de la fiche",
+      "kind": "custom",
+      "refersTo": "figure",
+      "description": "Base, résultat, base + résultat au double trait ; gain à l’encre, perte en rouge clair signée.",
+      "html": "<dl class=\"ds-figures\"><div><dt>Base de comparaison</dt><dd>1 000,00 €</dd></div><div><dt>Résultat</dt><dd class=\"ds-neg\">−17,68 €</dd></div><div><dt>Base + résultat</dt><dd><span class=\"ds-total\">982,32 €</span></dd></div></dl>",
+      "css": ".ds-figures { font-family: var(--font-sans, 'Schibsted Grotesk'), system-ui, sans-serif; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 0; padding-bottom: 16px; border-bottom: 1px solid var(--border, #415449); } .ds-figures dt { font-size: 13px; color: var(--muted, #a8b6ab); } .ds-figures dd { margin: 4px 0 0; font-size: 30px; line-height: 1.2; font-variant-numeric: tabular-nums; color: var(--foreground, #edf1e8); white-space: nowrap; } .ds-figures .ds-neg { color: var(--negative, #ff9c90); } .ds-total { text-decoration: underline double; text-decoration-thickness: 1px; text-underline-offset: 6px; }"
+    },
+    {
+      "name": "Ligne de registre",
+      "kind": "custom",
+      "refersTo": "register-row",
+      "description": "Bot et marché, état et décision, résultat à droite, sous un filet.",
+      "html": "<div class=\"ds-row\"><div><a class=\"ds-record\" href=\"#\">Croisement EMA H4</a><span class=\"ds-meta\">Kraken Spot · 42 trades publiés</span></div><div class=\"ds-state\">Dans les limites attendues<span class=\"ds-meta\">Je compare le réalisé à mes critères publiés.</span></div><div class=\"ds-result\">+272,73 €<span class=\"ds-meta\">+27,3 % · depuis le 17 avril</span></div></div>",
+      "css": ".ds-row { font-family: var(--font-sans, 'Schibsted Grotesk'), system-ui, sans-serif; display: grid; grid-template-columns: 1.2fr 1.1fr 0.65fr; gap: 24px; align-items: center; padding: 20px 0; border-top: 1px solid var(--border, #415449); color: var(--foreground, #edf1e8); } .ds-record { color: var(--foreground, #edf1e8); font-weight: 600; text-decoration: none; transition: color 150ms; } .ds-record:hover { color: var(--accent, #abc8ec); } .ds-record:focus-visible { outline: 3px solid var(--accent, #abc8ec); outline-offset: 2px; } .ds-meta { display: block; margin-top: 4px; font-size: 13px; font-weight: 400; color: var(--muted, #a8b6ab); } .ds-state { font-size: 15px; font-weight: 600; } .ds-result { text-align: right; font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Le registre des décisions",
+    "overview": "AlgoProof se lit comme un registre tenu à la main, mais sur fond sombre : une règle publiée, les faits relevés, la décision prise, puis l'addition laissée visible. Le système ne vend rien et ne célèbre rien. Il range. Chaque section s'ouvre par un filet et un titre en casse de phrase, sans carte autour de chaque phrase ; un seul panneau cadré par fiche porte ce qui compte le plus, le verdict et la décision. Les chiffres sont posés en colonnes tabulaires dans la même grotesque que le texte, et le total se souligne d'un double trait comme au pied d'une colonne de comptes.\n\nLa densité est celle d'un document de travail : texte de 15 px, interlignes généreux, lignes de registre de 20 px de marge verticale, largeur utile de 1 152 px. Le site est entièrement sombre, commandes sélectionnées et panneaux compris, sans grande surface claire. La couleur ne porte presque jamais le sens seule : une perte garde son signe, une règle franchie a son libellé, un bouton actif a `aria-pressed` et un contour. Le vert n'appartient qu'à la marque, jamais à un résultat.\n\nRejets confirmés par le propriétaire et la proposition retenue : pas de police de terminal pour maquiller la preuve, pas de tampons inclinés ni de folio décoratif, pas de vocabulaire débit/crédit, pas de gros indicateur vert qui annulerait un avertissement, pas de sur-titre en capitales, aucun nom d'auteur affiché.",
+    "keyCharacteristics": [
+      "Fond vert-noir unique, surfaces sombres en deux paliers, aucune ombre.",
+      "Une seule grotesque, Schibsted Grotesk, chiffres compris ; monospace réservée aux identifiants.",
+      "Gains à l'encre ordinaire, pertes en rouge clair avec leur signe, vert réservé au mot « Proof ».",
+      "Sections ouvertes par un filet, un seul panneau cadré par fiche bot.",
+      "Totaux soulignés d'un double trait.",
+      "Cibles de 44 px, focus clair de 3 px, aucune animation pour qui l'a demandé."
+    ],
+    "rules": [
+      {
+        "name": "The Gain à l'encre Rule",
+        "body": "Un gain s'écrit à l'encre ordinaire, jamais en vert. Le jeton `positive` existe encore pour les appels hérités mais vaut exactement `foreground`, et le test de contraste échoue s'il s'en écarte.",
+        "section": "colors"
+      },
+      {
+        "name": "The Vert de marque Rule",
+        "body": "Le vert Proof vit dans le mot-symbole et nulle part ailleurs : `text-brand` n'est permis que dans la barre de navigation, et le garde-fou de dérive refuse toute autre occurrence.",
+        "section": "colors"
+      },
+      {
+        "name": "The Signe avant la couleur Rule",
+        "body": "Une perte porte son signe, une règle franchie son libellé, une absence de donnée « — » sans couleur. Le rouge redouble l'information, il ne la porte jamais seul.",
+        "section": "colors"
+      },
+      {
+        "name": "The Note à pleine opacité Rule",
+        "body": "Le texte secondaire est `muted` à 100 %, jamais une encre à opacité réduite : deux couleurs de texte, rien entre les deux.",
+        "section": "colors"
+      },
+      {
+        "name": "The Chiffres tabulaires Rule",
+        "body": "Tous les chiffres s'écrivent dans la grotesque du texte avec `tabular-nums`. La monospace ne sert qu'aux identifiants (paires, tickers, noms de paramètres, code) ; le garde-fou refuse `font-mono` hors d'une liste de fichiers qui en portent un, chacun justifié.",
+        "section": "typography"
+      },
+      {
+        "name": "The Plancher de 13 px Rule",
+        "body": "L'échelle est fermée, de 13 à 40 px, et 13 px est le plus petit texte du site. Les tailles arbitraires de 9, 10, 11, 13 et 15 px sont refusées par le garde-fou ; l'avertissement financier du pied de page est testé à 13 px et pleine opacité.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sans sur-titre Rule",
+        "body": "Aucune étiquette en capitales espacées au-dessus d'un titre. Les capitales suivies ne sont tolérées que dans un en-tête de tableau ; un titre se suffit à lui-même, en casse de phrase.",
+        "section": "typography"
+      },
+      {
+        "name": "The Un seul main Rule",
+        "body": "La mise en page racine rend l'unique `<main id=\"contenu\">`, cible du lien « Aller au contenu ». Aucune page n'en ajoute un second ; les chargements et sous-pages utilisent `<div>` ou `<article>`.",
+        "section": "layout"
+      },
+      {
+        "name": "The Plat par défaut Rule",
+        "body": "Pas d'ombre, pas de flou, pas de carte imbriquée. Un état se montre par un changement de fond (`card-2`) ou de contour (`accent`), jamais par une élévation.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Mouvement réduit Rule",
+        "body": "Les transitions de couleur sont les seules animations. Sous `prefers-reduced-motion`, la feuille globale les ramène à 0,01 ms, et toute pulsation ou rotation porte `motion-reduce:animate-none` (test dédié).",
+        "section": "elevation"
+      },
+      {
+        "name": "The Double trait de l'addition Rule",
+        "body": "Un total se souligne d'un double trait, comme au pied d'une colonne de comptes : soulignement double sous « Base + résultat », filet double de 3 px en contour lichen sous la ligne de total des trades.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Panneau unique Rule",
+        "body": "Une fiche bot a un seul panneau cadré, le verdict et la décision, placé juste sous le titre, jamais plié. Tout le reste s'ouvre par un filet.",
+        "section": "components"
+      },
+      {
+        "name": "The Base de 1 000 € Rule",
+        "body": "Un bot en argent réel se lit sur une base de comparaison de 1 000 €, affichée comme un chiffre parmi les autres (« Base de comparaison », « Résultat », « Base + résultat »), sans phrase pour l'expliquer.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** écrire un gain à l'encre (#edf1e8) et une perte en rouge clair (#ff9c90) avec son signe « − ».",
+      "**Do** poser tous les chiffres en `tabular-nums` dans Schibsted Grotesk, avec l'espace fine insécable comme séparateur de milliers.",
+      "**Do** ouvrir chaque section par un filet mousse et un titre en casse de phrase.",
+      "**Do** placer le panneau de verdict juste sous le titre de la fiche, seul objet cadré de la page.",
+      "**Do** choisir un rôle de lien dans `linkClass()` plutôt que d'habiller un lien à la main.",
+      "**Do** donner 44 px de haut à toute cible d'action, et un focus de 3 px en bleu pâle.",
+      "**Do** fermer un total par un double trait.",
+      "**Do** écrire « — » sans couleur quand une donnée manque."
+    ],
+    "donts": [
+      "**Don't** utiliser le vert ailleurs que sur « Proof » dans le mot-symbole.",
+      "**Don't** composer un chiffre en monospace ; JetBrains Mono est réservée aux identifiants.",
+      "**Don't** descendre sous 13 px, ni baisser l'opacité d'un texte de note.",
+      "**Don't** mettre un sur-titre en capitales au-dessus d'un titre.",
+      "**Don't** ajouter une ombre, une carte imbriquée, une bordure colorée d'un seul côté ou un rayon au-delà de 8 px.",
+      "**Don't** expliquer la base de 1 000 € par une phrase.",
+      "**Don't** replier le verdict, le régime, la base ou la décision.",
+      "**Don't** rendre un second `<main>`.",
+      "**Don't** afficher de nom d'auteur ; la voix reste en « je »."
+    ]
+  }
+}
