@@ -124,7 +124,7 @@ function MDXH3(props: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
       {...props}
-      className="mt-10 mb-3 text-base sm:text-lg font-semibold tracking-tight text-foreground"
+      className="mt-10 mb-3 text-xl font-semibold tracking-tight text-foreground"
     />
   )
 }
