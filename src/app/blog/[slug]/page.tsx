@@ -67,7 +67,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <span key={t} className="px-1.5 py-0.5 rounded bg-card border border-border">{t}</span>
         ))}
       </div>
-      <div className="prose prose-invert max-w-[66ch] text-[18px] leading-[1.65] prose-headings:font-semibold prose-p:text-foreground prose-p:leading-[1.65] prose-li:text-foreground prose-li:leading-[1.65] prose-li:my-1 prose-a:text-accent prose-a:underline prose-a:decoration-accent/40 prose-a:underline-offset-2 hover:prose-a:decoration-accent prose-strong:text-foreground">
+      <div className="prose prose-invert max-w-[33em] text-[18px] leading-[1.65] prose-headings:font-semibold prose-p:text-foreground prose-p:leading-[1.65] prose-li:text-foreground prose-li:leading-[1.65] prose-li:my-1 prose-a:text-accent prose-a:underline prose-a:decoration-accent/40 prose-a:underline-offset-2 hover:prose-a:decoration-accent prose-strong:text-foreground">
         <MDXRemote source={article.content} components={mdxComponents} />
       </div>
       <div className="mt-12">

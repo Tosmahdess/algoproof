@@ -66,9 +66,9 @@ describe('FleetTotals', () => {
     expect(within(labo).getByText(plain(fmtEur(0))).className).not.toMatch(/text-negative/)
   })
 
-  // Refonte finition (2026-10-02): each total names its base as a label, never a
-  // sentence; the simulation's is the sum of its starting capitals. Row-sized, sober.
-  it('names each base as a label: « sur 3 × 1 000 € », the simulation as a sum', () => {
+  // Refonte finition (2026-10-02): the real-money total names its base as a label, never a
+  // sentence. The simulation total names none (review 2026-10-03): no single base describes it.
+  it('names the real-money base as a label, and no base for the simulation', () => {
     const plain = (t: string | null | undefined) => (t ?? '').replace(/[\u202F\u00A0]/g, ' ')
     expect(plain(baseLabel([1000, 1000, 1000]))).toBe('sur 3 × 1 000 €')
     expect(plain(baseLabel([1000, 500]))).toBe('sur 1 500 €')
@@ -77,7 +77,7 @@ describe('FleetTotals', () => {
     render(<FleetTotals aggregate={AGG} liveCount={3} paperCount={2}
       bases={{ real: [1000, 1000, 1000], labo: [1000, 2000] }} />)
     expect(plain(screen.getByTestId('fleet-total-real-base').textContent)).toBe('sur 3 × 1 000 €')
-    expect(plain(screen.getByTestId('fleet-total-labo-base').textContent)).toBe('sur 3 000 €')
+    expect(screen.queryByTestId('fleet-total-labo-base')).toBeNull()
   })
 
   it('writes the totals at a row result’s size, a gain in ink, never in green', () => {

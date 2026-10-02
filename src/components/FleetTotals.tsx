@@ -59,7 +59,10 @@ export default function FleetTotals({ aggregate, liveCount, paperCount, bases }:
                base={bases ? baseLabel(bases.real) : null}
                bots={liveCount} trades={aggregate.tradesReal} note="depuis les premiers trades en capital réel" />
         <Total className="border-l border-border pl-4 sm:pl-6" testId="fleet-total-labo" label="Simulation" amount={aggregate.totalPnlLabo}
-               base={bases ? baseLabel(bases.labo, { sumOnly: true }) : null}
+               // No « sur … » here (finish review 2026-10-03): the simulation total also counts
+               // archived bots and trades from before a bot's simulation, which have no base, and
+               // its starts are post-backtest values, so no single base describes this figure.
+               base={null}
                bots={paperCount} trades={aggregate.tradesLabo} note="de l’argent qui n’existe pas, dépensé pour apprendre" />
       </div>
       <p className="text-xs text-muted mt-3">
