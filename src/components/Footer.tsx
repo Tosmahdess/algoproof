@@ -51,54 +51,55 @@ const SITEMAP: { title: string; links: { href: string; label: string; external?:
   },
 ]
 
+// Refonte « Le registre des décisions », lot 1 (2026-10-02): the footer of the
+// mock-up, a rule then quiet notes. The column titles are labels, not headings:
+// four <h3> under a page whose last heading is an <h1> or an <h2> broke the
+// outline on every page. Each list is named by its label (aria-labelledby).
 export default function Footer() {
   return (
-    <footer className="border-t border-border mt-8 sm:mt-12 py-12">
+    <footer className="border-t border-border mt-8 sm:mt-12 py-10 sm:py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {SITEMAP.map(col => (
+        <nav aria-label="Plan du site" className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {SITEMAP.map((col, i) => (
             <div key={col.title}>
-              <h3 className="text-xs font-medium text-muted mb-3">{col.title}</h3>
-              <ul className="space-y-2">
+              <p id={`pied-${i}`} data-testid="footer-column-title" className="text-sm font-semibold text-foreground mb-2">{col.title}</p>
+              <ul aria-labelledby={`pied-${i}`}>
                 {col.links.map(l => (
                   <li key={l.href}>
                     {l.external ? (
-                      <a href={l.href} target="_blank" rel="noopener noreferrer" className={linkClass('nav', 'text-sm')}>{l.label}</a>
+                      <a href={l.href} target="_blank" rel="noopener noreferrer" className={linkClass('nav', 'inline-flex min-h-11 items-center text-sm')}>{l.label}</a>
                     ) : (
-                      <Link href={l.href} className={linkClass('nav', 'text-sm')}>{l.label}</Link>
+                      <Link href={l.href} className={linkClass('nav', 'inline-flex min-h-11 items-center text-sm')}>{l.label}</Link>
                     )}
                   </li>
                 ))}
               </ul>
             </div>
           ))}
-        </div>
+        </nav>
 
         <div className="mt-10 pt-6 border-t border-border">
-          <p className="text-sm text-muted">AlgoProof : mes bots de trading et les comptes de sociétés que je lis, en public. Chaque trade, chaque perte.</p>
+          <p className="text-sm text-muted max-w-[72ch]">AlgoProof : mes bots de trading et les comptes de sociétés que je lis, en public. Chaque trade, chaque perte.</p>
         </div>
         {/* The site's default rule and its legal reserve, at full opacity and
-            13 px (5,6:1 on this ground, tests/lib/design-contrast.test.ts). « en
-            simulation » is the word of the badges (C2); « paper trading » lives in
-            the lexicon. */}
-        <p className="mt-4 text-xs text-muted">
+            13 px (tests/lib/design-contrast.test.ts). « en simulation » is the word
+            of the badges (C2); « paper trading » lives in the lexicon. */}
+        <p className="mt-3 text-xs text-muted max-w-[72ch]">
           Ceci n&apos;est pas un conseil financier. Toutes les performances sont en simulation sauf mention « Argent réel ».
           Je ne touche jamais à ton argent : pas de dépôt, pas de clé d&apos;exchange, tout est en lecture seule.
         </p>
 
         {/* Legal links point at lab.algoproof.fr: same publisher, one set of legal
             pages for both sites (D039). */}
-        <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-          <a href={labUrl(`${LAB_URL}/mentions-legales`, 'footer')} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
-            Mentions légales
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 text-xs text-muted">
+          <a href={labUrl(`${LAB_URL}/mentions-legales`, 'footer')} target="_blank" rel="noopener noreferrer" className={linkClass('nav', 'inline-flex min-h-11 items-center')}>
+            Mentions légales ↗
           </a>
-          <span>·</span>
-          <a href={labUrl(`${LAB_URL}/privacy`, 'footer')} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
-            Confidentialité
+          <a href={labUrl(`${LAB_URL}/privacy`, 'footer')} target="_blank" rel="noopener noreferrer" className={linkClass('nav', 'inline-flex min-h-11 items-center')}>
+            Confidentialité ↗
           </a>
-          <span>·</span>
-          <a href={labUrl(`${LAB_URL}/terms`, 'footer')} target="_blank" rel="noopener noreferrer" className={linkClass('nav')}>
-            Conditions
+          <a href={labUrl(`${LAB_URL}/terms`, 'footer')} target="_blank" rel="noopener noreferrer" className={linkClass('nav', 'inline-flex min-h-11 items-center')}>
+            Conditions ↗
           </a>
         </div>
       </div>

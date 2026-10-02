@@ -5,17 +5,23 @@ import Footer from '@/components/Footer'
 // Lot 2 of the design audit (conception §2.4): four columns instead of six, titles
 // in sentence case, the same five words as the bar, the lab's links under one
 // heading that says it leaves the site.
+// Refonte registre, lot 1 (2026-10-02): the column titles are labels naming
+// their list, no longer <h3>: four h3 at the foot of every page broke its outline.
 describe('Footer sitemap', () => {
-  it('renders the four column titles, in sentence case', () => {
+  it('renders the four column titles, in sentence case, as labels and not headings', () => {
     render(<Footer />)
-    const titles = screen.getAllByRole('heading', { level: 3 })
+    const titles = screen.getAllByTestId('footer-column-title')
     expect(titles.map(h => h.textContent?.trim())).toEqual(['Le site', 'Comprendre', 'Le labo ↗', 'Le projet'])
-    for (const h of titles) expect(h.className).not.toMatch(/\buppercase\b|tracking-wid/)
+    for (const h of titles) {
+      expect(h.tagName).toBe('P')
+      expect(h.className).not.toMatch(/\buppercase\b|tracking-wid/)
+    }
+    expect(screen.queryAllByRole('heading')).toHaveLength(0)
   })
 
   it('« Le site » lists the five destinations of the bar, with the bar’s words', () => {
     render(<Footer />)
-    const col = screen.getByRole('heading', { name: 'Le site', level: 3 }).parentElement!
+    const col = screen.getByRole('list', { name: 'Le site' })
     expect(within(col).getAllByRole('link').map(a => [a.textContent?.trim(), a.getAttribute('href')])).toEqual([
       ['La flotte', '/overview'], ['Stratégies', '/strategies'], ['Sociétés', '/investir'],
       ['Météo', '/intelligence'], ['Articles', '/blog'],
@@ -24,14 +30,14 @@ describe('Footer sitemap', () => {
 
   it('« Comprendre » links the method, the lexicon, the FAQ and the graveyard', () => {
     render(<Footer />)
-    const col = screen.getByRole('heading', { name: 'Comprendre', level: 3 }).parentElement!
+    const col = screen.getByRole('list', { name: 'Comprendre' })
     const hrefs = within(col).getAllByRole('link').map(a => a.getAttribute('href'))
     expect(hrefs).toEqual(['/preuve', '/lexique', '/faq', 'https://lab.algoproof.fr/cockpit/cimetiere?ref=footer'])
   })
 
   it('« Le labo » opens the app, the tutorials, the agents, the membership, the account, and keeps the landing', () => {
     render(<Footer />)
-    const col = screen.getByRole('heading', { name: 'Le labo ↗', level: 3 }).parentElement!
+    const col = screen.getByRole('list', { name: 'Le labo ↗' })
     const links = within(col).getAllByRole('link').map(a => [a.textContent?.trim(), a.getAttribute('href')])
     expect(links).toEqual([
       // Lot 8: every lab link carries ref=footer (labUrl).
@@ -46,7 +52,7 @@ describe('Footer sitemap', () => {
 
   it('« Le projet » links about, the platforms, MiCA and X', () => {
     render(<Footer />)
-    const col = screen.getByRole('heading', { name: 'Le projet', level: 3 }).parentElement!
+    const col = screen.getByRole('list', { name: 'Le projet' })
     const links = within(col).getAllByRole('link').map(a => [a.textContent?.trim(), a.getAttribute('href')])
     expect(links.slice(0, 3)).toEqual([
       ['À propos', '/a-propos'], ['Démarrer (plateformes)', '/start'], ['MiCA & fiscalité', '/mica'],

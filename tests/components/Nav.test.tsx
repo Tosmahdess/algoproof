@@ -1,6 +1,8 @@
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { trackCtaLab } from '@/lib/analytics'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 // Lot 2 of the design audit (2026-09-25, conception §2.2 and §2.3, decided by the
 // user): five flat links, one button, no dropdown, no uppercase. « Mes bots ▾ »
@@ -68,7 +70,8 @@ describe('Nav — five flat links, one button', () => {
     // it opens (owner, 2026-09-26: « Le labo » rather than « Tester »).
     const cta = within(screen.getByTestId('nav-bar')).getByRole('link', { name: /^le labo$/i })
     expect(cta.getAttribute('href')).toBe('https://lab.algoproof.fr/lab?ref=nav')
-    expect(cta.className).toMatch(/bg-foreground/)
+    // Refonte registre, lot 1: the mock-up's primary button, slate fill and ink.
+    expect(cta.className).toMatch(/\bbg-button\b/)
     cta.addEventListener('click', e => e.preventDefault())
     fireEvent.click(cta)
     expect(trackCtaLab).toHaveBeenCalledWith('nav')
@@ -97,21 +100,48 @@ describe('Nav — five flat links, one button', () => {
       .toBe('https://lab.algoproof.fr/espace?ref=nav')
   })
 
-  it('is 56 px tall (--nav-h)', () => {
+  // Refonte registre, lot 1: 64 px, the mock-up's airier bar; --nav-h follows.
+  it('is 64 px tall (--nav-h)', () => {
     render(<Nav />)
-    expect(screen.getByTestId('nav-bar').className).toMatch(/\bh-14\b/)
+    expect(screen.getByTestId('nav-bar').className).toMatch(/\bh-16\b/)
+    const css = readFileSync(join(__dirname, '..', '..', 'src', 'app', 'globals.css'), 'utf8')
+    expect(css).toMatch(/--nav-h:\s*64px/)
   })
 
-  it('shows the wordmark with the brand green on PROOF, and nowhere else', () => {
+  // Refonte registre, lot 1: « AlgoProof » in the mock-up's case, no longer shouted.
+  it('shows the wordmark with the brand green on Proof, and nowhere else', () => {
     const { container } = render(<Nav />)
     const brand = [...container.querySelectorAll('.text-brand')]
-    expect(brand.map(el => el.textContent)).toEqual(['PROOF'])
+    expect(brand.map(el => el.textContent)).toEqual(['Proof'])
+    expect(brand[0].parentElement?.textContent).toBe('AlgoProof')
     expect(container.querySelector('.text-positive')).toBeNull()
   })
 })
 
 describe('Nav — the phone drawer', () => {
   const openMenu = () => fireEvent.click(screen.getByRole('button', { name: /menu/i }))
+
+  // Refonte registre, lot 1: a 44 px target, and Escape closes the drawer and
+  // hands the focus back to the button.
+  it('has a 44 px menu button that controls the drawer', () => {
+    render(<Nav />)
+    const button = screen.getByRole('button', { name: /menu/i })
+    expect(button.className).toMatch(/\bmin-h-11\b/)
+    expect(button.className).toMatch(/\bmin-w-11\b/)
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+    openMenu()
+    expect(button).toHaveAttribute('aria-expanded', 'true')
+    expect(button.getAttribute('aria-controls')).toBe(screen.getByTestId('mobile-menu').id)
+  })
+
+  it('closes on Escape and gives the focus back to the menu button', () => {
+    render(<Nav />)
+    openMenu()
+    expect(screen.getByTestId('mobile-menu')).toBeInTheDocument()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByTestId('mobile-menu')).toBeNull()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: /menu/i }))
+  })
 
   it('opens on the menu button with the same five links, flat, 48 px each', () => {
     render(<Nav />)
