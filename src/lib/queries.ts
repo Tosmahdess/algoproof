@@ -78,7 +78,7 @@ async function fetchBotWithStats(slug: string, tradeColumns: string): Promise<Bo
     .single()
   // FIX (final whole-branch review, C1): the exclusion above (getBots /
   // getBotSlugs) only governs LISTINGS. This function is fetched by slug, and
-  // all three of its consumers — /strategies/bot/[slug], /(embed)/embed/[slug]
+  // all three of its consumers — /strategies/bot/[slug], /embed/[slug]
   // and /api/card/[slug] — declare `dynamicParams = true`, which is what makes
   // an unlisted slug reach the handler at all instead of 404ing on the static
   // param set. So a `backtest` candidate that never ran, or a `frozen` bot that

@@ -34,7 +34,7 @@ describe('the bot page reads its figures through the shared simulation', () => {
     for (const f of ['src/app/strategies/bot/[slug]/page.tsx',
       'src/app/strategies/bot/[slug]/opengraph-image.tsx',
       'src/app/api/card/[slug]/route.tsx',
-      'src/app/(embed)/embed/[slug]/page.tsx']) {
+      'src/app/embed/[slug]/route.ts']) {
       const code = readFileSync(f, 'utf8').split('\n').filter(l => !/^\s*(\/\/|\*)/.test(l))
       const uses = code.filter(l => l.includes('bot.stats'))
       expect(uses.length).toBeGreaterThan(0)          // non-vacuous: the fallback exists

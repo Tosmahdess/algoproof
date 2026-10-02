@@ -5,6 +5,32 @@ import { LAB_API_ORIGIN } from './src/lib/lab-links'
 // Supabase project URL — needed in CSP connect-src for Server Component direct queries.
 const SUPABASE_URL = 'https://avdegocswrhzdnvsyiui.supabase.co'
 
+const COMMON_HEADERS = [
+  { key: 'X-Content-Type-Options',     value: 'nosniff' },
+  { key: 'Referrer-Policy',            value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy',         value: 'camera=(), microphone=(), geolocation=()' },
+  // HSTS — force HTTPS for 1 year once on real domain
+  { key: 'Strict-Transport-Security',  value: 'max-age=31536000; includeSubDomains' },
+]
+
+// CSP — prevents XSS, clickjacking, data injection. frame-ancestors is added per
+// route in headers() below: 'none' for the site, * for /embed/*.
+// TV charts/widgets (SP1): script-src/connect-src/frame-src/img-src entries below
+// allow the TradingView embed script + Binance klines fetch + widget iframes.
+// Exact TradingView host set (s3.tradingview.com, *.tradingview.com, s.tradingview.com)
+// must be validated on a Vercel preview with the browser console open before merge.
+const CSP = [
+  "script-src 'self' 'unsafe-inline' https://s3.tradingview.com",   // Next.js hydration requires unsafe-inline; TV widget loader (SP1)
+  "style-src 'self' 'unsafe-inline'",    // Tailwind inline styles
+  "img-src 'self' data: blob: https://*.tradingview.com https://*.tradingview-widget.com",  // Recharts SVG uses data URIs; TV widget assets (SP1)
+  "font-src 'self'",
+  `connect-src 'self' ${SUPABASE_URL} ${LAB_API_ORIGIN} https://api.binance.com https://*.tradingview.com https://*.tradingview-widget.com`,  // Server Components query Supabase directly; the favorite star calls the lab API (espace-direct lot A, tests/lib/csp-lab-api.test.ts); Binance klines + TV data (SP1)
+  "frame-src https://*.tradingview.com https://s.tradingview.com https://*.tradingview-widget.com",  // TV widget iframes (SP1) — widgets frame from www.tradingview-widget.com (validated dev console 2026-07-23)
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+]
+
 const nextConfig: NextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
 
@@ -128,33 +154,24 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // Every path but /embed/*: the site is never framed (X-Frame-Options and
+        // frame-ancestors say the same thing, for old and new browsers).
+        source: '/((?!embed/).*)',
         headers: [
-          { key: 'X-Frame-Options',           value: 'DENY' },
-          { key: 'X-Content-Type-Options',     value: 'nosniff' },
-          { key: 'Referrer-Policy',            value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy',         value: 'camera=(), microphone=(), geolocation=()' },
-          // HSTS — force HTTPS for 1 year once on real domain
-          { key: 'Strict-Transport-Security',  value: 'max-age=31536000; includeSubDomains' },
-          // CSP — prevents XSS, clickjacking, data injection
-          // TV charts/widgets (SP1): script-src/connect-src/frame-src/img-src entries below
-          // allow the TradingView embed script + Binance klines fetch + widget iframes.
-          // Exact TradingView host set (s3.tradingview.com, *.tradingview.com, s.tradingview.com)
-          // must be validated on a Vercel preview with the browser console open before merge.
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "script-src 'self' 'unsafe-inline' https://s3.tradingview.com",   // Next.js hydration requires unsafe-inline; TV widget loader (SP1)
-              "style-src 'self' 'unsafe-inline'",    // Tailwind inline styles
-              "img-src 'self' data: blob: https://*.tradingview.com https://*.tradingview-widget.com",  // Recharts SVG uses data URIs; TV widget assets (SP1)
-              "font-src 'self'",
-              `connect-src 'self' ${SUPABASE_URL} ${LAB_API_ORIGIN} https://api.binance.com https://*.tradingview.com https://*.tradingview-widget.com`,  // Server Components query Supabase directly; the favorite star calls the lab API (espace-direct lot A, tests/lib/csp-lab-api.test.ts); Binance klines + TV data (SP1)
-              "frame-src https://*.tradingview.com https://s.tradingview.com https://*.tradingview-widget.com",  // TV widget iframes (SP1) — widgets frame from www.tradingview-widget.com (validated dev console 2026-07-23)
-              "object-src 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-            ].join('; '),
-          },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          ...COMMON_HEADERS,
+          { key: 'Content-Security-Policy', value: [...CSP, "frame-ancestors 'none'"].join('; ') },
+        ],
+      },
+      {
+        // /embed/<slug> is the card every bot fiche offers to paste as an iframe:
+        // any site may frame it. Until 2026-10 the DENY above covered it too, so
+        // the iframe was refused everywhere (audit 2026-10, n. 2,
+        // tests/lib/csp-embed-frame.test.ts). Same policy otherwise.
+        source: '/embed/:path+',
+        headers: [
+          ...COMMON_HEADERS,
+          { key: 'Content-Security-Policy', value: [...CSP, 'frame-ancestors *'].join('; ') },
         ],
       },
     ]
