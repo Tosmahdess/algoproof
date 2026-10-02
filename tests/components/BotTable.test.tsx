@@ -14,13 +14,27 @@ const withSpark: FleetBot = { ...mkBot({ name: 'Bot Étincelle', stats: { total_
 const withoutSpark: FleetBot = mkBot({ name: 'Bot Sans Courbe', stats: stats(25, 990) })
 
 describe('BotTable', () => {
-  it('draws a 30-day sparkline on the rows that carry one, in the colour of the gain', () => {
-    render(<BotTable bots={[withSpark, withoutSpark]} showTf />)
+  // Refonte « registre », lot 4 (2026-10-02): the line was drawn in the colour of
+  // the result since the start, a figure it does not show (audit 2026-10, n° 6
+  // and 8). It is drawn in the note colour now, and not at all without a trade.
+  it('draws a 30-day sparkline on the rows that carry one, in the note colour, never the result’s', () => {
+    const untraded: FleetBot = { ...mkBot({ name: 'Bot Muet', stats: stats(0, 1000) }), spark30: spark }
+    const losing: FleetBot = { ...mkBot({ name: 'Bot Perdant', stats: stats(30, 900) }), spark30: spark }
+    render(<BotTable bots={[withSpark, withoutSpark, untraded, losing]} showTf />)
     const cells = screen.getAllByTestId('bot-spark')
-    expect(cells).toHaveLength(2)
+    expect(cells).toHaveLength(4)
     expect(cells[0].querySelector('svg')).not.toBeNull()
-    expect(cells[0].className).toMatch(/text-positive/)
+    for (const cell of cells) expect(cell.className).not.toMatch(/text-positive|text-negative/)
     expect(cells[1].querySelector('svg')).toBeNull()
+    expect(cells[2].querySelector('svg')).toBeNull()
+    expect(cells[3].querySelector('svg')).not.toBeNull()
+  })
+
+  it('writes « 1 trade », not « 1 trades », on a phone row', () => {
+    const { container } = render(<BotTable bots={[mkBot({ name: 'Bot Un', stats: stats(1, 1010) })]} showTf={false} />)
+    const row = container.querySelector('.bot-table-mobile')!
+    expect(row.textContent).toMatch(/· 1 trade ·/)
+    expect(row.textContent).not.toMatch(/1 trades/)
   })
 
   it('heads the sparkline column « 30 j » and shows the timeframe column when asked', () => {
