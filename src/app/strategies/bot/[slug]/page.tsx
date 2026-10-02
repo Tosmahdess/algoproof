@@ -205,7 +205,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           {conceptSlug && (
             <>
               {' · '}
-              <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline')}>
+              <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
                 La stratégie derrière ce bot →
               </Link>
             </>

@@ -37,8 +37,10 @@ function Row({ bot }: { bot: LedgerBot }) {
       <td className="max-md:col-span-2 max-md:block md:py-5 md:pr-6 align-top">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'text-base font-semibold leading-snug')}>{bot.name}</Link>
-            <p className="mt-1 text-xs text-muted">
+            {/* The name is a 44 px target (refonte finition, 2026-10-02); it rises into
+                the row's padding like the star beside it, so the row barely grows. */}
+            <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record', '-mt-2 inline-flex min-h-11 items-center text-base font-semibold leading-snug')}>{bot.name}</Link>
+            <p className="text-xs text-muted">
               {market}{' · '}
               <span className="tabular-nums">{hasData ? plural(bot.stats.total_trades, 'trade', 'trades') : 'aucun trade'}</span>
             </p>
