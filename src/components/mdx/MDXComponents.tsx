@@ -106,7 +106,7 @@ function MDXInlineCode(props: HTMLAttributes<HTMLElement>) {
   return (
     <code
       {...props}
-      className="font-mono text-[0.85em] bg-card border border-border/80 rounded px-1.5 py-0.5 text-accent/90 before:content-none after:content-none"
+      className="font-mono text-[0.85em] bg-card border border-border/80 rounded px-1.5 py-0.5 text-foreground before:content-none after:content-none"
     />
   )
 }
@@ -115,7 +115,7 @@ function MDXH2(props: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
       {...props}
-      className="mt-14 mb-5 text-xl sm:text-2xl font-semibold tracking-tight text-accent border-l-2 border-accent/70 pl-3"
+      className="mt-14 mb-5 text-xl sm:text-2xl font-semibold tracking-tight text-foreground"
     />
   )
 }

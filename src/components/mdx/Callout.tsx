@@ -39,7 +39,7 @@ export function Callout({ type = 'note', title, children }: CalloutProps) {
       <div className={`text-xs uppercase tracking-[0.18em] ${s.accent} font-semibold mb-1.5`}>
         {title ?? s.label}
       </div>
-      <div className="text-sm text-foreground leading-relaxed [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-accent/90 [&_strong]:text-foreground [&_strong]:font-semibold">
+      <div className="text-sm text-foreground leading-relaxed [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-foreground [&_strong]:text-foreground [&_strong]:font-semibold">
         {children}
       </div>
     </aside>

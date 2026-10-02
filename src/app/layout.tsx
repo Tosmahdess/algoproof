@@ -19,7 +19,7 @@ import { organizationJsonLd } from '@/lib/jsonld'
 // comma for a figure-wide glyph under `tnum` (26,5 px against 63,5 px at 100 px),
 // so every amount read « 272 , 73 € ». scripts/fonts/build_schibsted.py builds
 // this copy, the same font with the comma taken out of `tnum` (SIL OFL 1.1).
-const sans = localFont({
+const schibstedGrotesk = localFont({
   src: './fonts/SchibstedGrotesk-wght.woff2',
   weight: '400 700',
   style: 'normal',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`bg-bg ${sans.variable} ${jetbrainsMono.variable}`}>
+    <html lang="fr" className={`bg-bg ${schibstedGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen flex flex-col">
         <JsonLd data={organizationJsonLd()} />
         {/* First focusable element on every page. Invisible until focused (see

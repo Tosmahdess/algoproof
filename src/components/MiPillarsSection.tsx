@@ -44,7 +44,7 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
             style={active === p.id ? { color: p.color } : undefined}
           >
             <span>{p.label}</span>
-            <span className="ml-1.5 text-xs opacity-60 tabular-nums">{p.weight}</span>
+            <span className="ml-1.5 text-xs tabular-nums">{p.weight}</span>
           </button>
         ))}
         <button
@@ -54,7 +54,7 @@ export default function MiPillarsSection({ pillars, changelogs }: Props) {
         >
           Historique
           {changelogs.length > 0 && (
-            <span className="ml-1.5 text-xs tabular-nums opacity-60">{changelogs.length}</span>
+            <span className="ml-1.5 text-xs tabular-nums">{changelogs.length}</span>
           )}
         </button>
       </div>
