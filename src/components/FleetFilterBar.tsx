@@ -69,7 +69,9 @@ function Field({ label, value, onChange, children }: {
 export default function FleetFilterBar({
   state, counts, showReset, onFamily, onTimeframe, onSide, onSort, onReset,
 }: Props) {
-  const timeframes = Object.keys(counts.timeframe).sort((a, z) => tfRank(a) - tfRank(z) || a.localeCompare(z))
+  // A horizon carried by the URL that no bot has (tf=M1) is still listed, at
+  // (0), so the list shows the filter that empties the register.
+  const timeframes = [...new Set([...Object.keys(counts.timeframe), ...state.timeframe])].sort((a, z) => tfRank(a) - tfRank(z) || a.localeCompare(z))
   const one = (list: string[]) => (list.length === 0 ? '' : list.length === 1 ? list[0] : MULTI)
   // An option at « (0) » is disabled (audit 2026-10, n° 75): picking it could
   // only empty the list. Each count is taken against the OTHER facets, so an

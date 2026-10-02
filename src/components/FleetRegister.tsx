@@ -187,7 +187,7 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
       </StickyFilterBar>
 
       {emptyMessage ? (
-        <div data-testid="fleet-empty" role="status" className="border-y border-border py-8">
+        <div data-testid="fleet-empty" role="status" className="pt-2">
           <p className="text-base">{emptyMessage}</p>
           <button type="button" onClick={reset} className={`mt-4 ${BUTTON}`}>
             Retirer les filtres

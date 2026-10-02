@@ -30,7 +30,8 @@ function Row({ bot }: { bot: LedgerBot }) {
   const pct = pnlPct(bot.stats.latest_capital, bot.start_capital)
   const rodage = hasData && isLowSample(bot.stats.total_trades)
   const state = bot.ledger ?? null
-  const market = [bot.exchange, familyLabel(bot.family), bot.timeframe].filter(Boolean).join(' · ')
+  // A bot without a horizon (the grid) carries « — » there: left out, not printed.
+  const market = [bot.exchange, familyLabel(bot.family), bot.timeframe].filter(v => v && v !== '—').join(' · ')
   return (
     <tr data-testid="fleet-row" className="max-md:grid max-md:grid-cols-[minmax(0,1fr)_auto] max-md:gap-x-4 max-md:gap-y-3 border-b border-border py-5 md:py-0">
       <td className="max-md:col-span-2 max-md:block md:py-5 md:pr-6 align-top">
@@ -92,7 +93,7 @@ export default function FleetLedger({ bots, caption }: { bots: LedgerBot[]; capt
         <tr className="border-b border-border text-xs text-muted">
           <th scope="col" className="pb-2.5 pr-6 font-normal md:w-[42%]">Bot et marché</th>
           <th scope="col" className="pb-2.5 pr-6 font-normal md:w-[33%]">État et décision</th>
-          <th scope="col" className="pb-2.5 font-normal text-right">Résultat depuis le départ</th>
+          <th scope="col" className="pb-2.5 font-normal text-right whitespace-nowrap">Résultat depuis le départ</th>
           <th scope="col" className="hidden lg:table-cell pb-2.5 pl-6 font-normal w-[8.5rem]">30 derniers jours</th>
         </tr>
       </thead>

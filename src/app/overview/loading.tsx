@@ -66,8 +66,10 @@ export default function Loading() {
           <Bar className="mt-2 h-3 w-2/3 max-w-[50ch]" />
           {/* Sur téléphone, la barre de filtres tient sur une ligne « Filtres ». */}
           <div className="mt-8 border-b border-border py-3 lg:hidden"><Bar className="h-6 w-20" /></div>
-          <div className="mt-8 hidden gap-2 border-b border-border pb-3 lg:grid lg:max-w-4xl lg:grid-cols-4">
-            {Array.from({ length: 4 }, (_, i) => <Bar key={i} className="h-10" />)}
+          <div className="mt-8 hidden border-b border-border pb-3 lg:block">
+            <div className="grid max-w-4xl grid-cols-4 gap-2">
+              {Array.from({ length: 4 }, (_, i) => <Bar key={i} className="h-10" />)}
+            </div>
           </div>
           <div className="mt-6 hidden border-b border-border pb-2.5 md:grid md:grid-cols-[42fr_33fr_25fr] md:gap-x-6">
             <Bar className="h-3 w-24" />

@@ -202,6 +202,12 @@ describe('FleetRegister — filters', () => {
     expect(select(/Famille/).value).toBe('carry')
   })
 
+  it('lists a horizon no bot has when the URL carries it, instead of showing « Tous »', () => {
+    render(<FleetRegister bots={[mkBot({ name: 'H4 Un', timeframe: 'H4' })]} initialState={{ ...EMPTY_FILTERS, timeframe: ['M1'] }} />)
+    expect(select(/Horizon/).value).toBe('M1')
+    expect([...select(/Horizon/).options].find(o => o.value === 'M1')!.textContent).toBe('M1 (0)')
+  })
+
   it('no longer offers the « Où ça tourne » facet', () => {
     render(<FleetRegister bots={REGISTER_FIXTURE} initialState={EMPTY_FILTERS} />)
     expect(screen.queryByText(/Où ça tourne/)).toBeNull()
