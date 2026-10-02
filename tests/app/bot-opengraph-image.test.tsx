@@ -23,11 +23,12 @@ vi.mock('next/og', () => ({
 }))
 
 const BOT = prodBot('v1-spot', { name: 'EMA Cross H4 Kraken Spot', status: 'live' })
+const PAPER = prodBot('orb-bf25', { name: 'ORB H1 HL', status: 'paper' })
 const asked = vi.hoisted(() => ({ slugs: [] as unknown[] }))
 vi.mock('@/lib/queries', () => ({
   getBotWithStats: async (slug: unknown) => {
     asked.slugs.push(slug)
-    return slug === 'v1-spot' ? BOT : null
+    return slug === 'v1-spot' ? BOT : slug === 'orb-bf25' ? PAPER : null
   },
 }))
 vi.mock('@/lib/bot-simulation', () => ({
@@ -60,5 +61,19 @@ describe('/strategies/bot/[slug]/opengraph-image', () => {
     const html = renderToStaticMarkup(captured.element!)
     expect(html).not.toContain('Facteur de profit')
     expect(html).toContain('Proof')
+  })
+
+  // Once the image stopped being the fallback, its hardcoded « Paper Trading »
+  // badge showed on v1-spot, a real-money bot. The regime now reads like the
+  // site's StatusBadge and the embed.
+  it('labels a real-money bot « Argent réel » and a paper bot « Simulation »', async () => {
+    await Image({ params: Promise.resolve({ slug: 'v1-spot' }) })
+    const live = renderToStaticMarkup(captured.element!)
+    expect(live).toContain('Argent réel')
+    expect(live).not.toMatch(/Paper Trading|Simulation/)
+    await Image({ params: Promise.resolve({ slug: 'orb-bf25' }) })
+    const paper = renderToStaticMarkup(captured.element!)
+    expect(paper).toContain('Simulation')
+    expect(paper).not.toMatch(/Paper Trading|Argent réel/)
   })
 })
