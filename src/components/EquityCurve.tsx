@@ -84,18 +84,18 @@ export default function EquityCurve({ data, startCapital = 1000, segments, freez
         <AreaChart data={formatted} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id="equity" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor={isPositive ? '#4ade80' : '#f87171'} stopOpacity={0.3} />
-              <stop offset="95%" stopColor={isPositive ? '#4ade80' : '#f87171'} stopOpacity={0} />
+              <stop offset="5%"  stopColor={isPositive ? '#edf1e8' : '#ff9c90'} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={isPositive ? '#edf1e8' : '#ff9c90'} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
-          <YAxis domain={[min, max]} tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
+          <XAxis dataKey="date" tick={{ fill: '#a8b6ab', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
+          <YAxis domain={[min, max]} tick={{ fill: '#a8b6ab', fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
           <Tooltip content={<CustomTooltip />} />
-          <ReferenceLine y={startCapital} stroke="#444" strokeDasharray="4 2" />
+          <ReferenceLine y={startCapital} stroke="#415449" strokeDasharray="4 2" />
           <Area
             type="monotone"
             dataKey="capitalNum"
-            stroke={isPositive ? '#4ade80' : '#f87171'}
+            stroke={isPositive ? '#edf1e8' : '#ff9c90'}
             strokeWidth={2}
             fill="url(#equity)"
             connectNulls={false}
@@ -137,7 +137,7 @@ function SegmentedCurve({ rows, startCapital, freezeDate }: {
   const values = rows.flatMap(r => [r.backtest, r.paper]).filter((v): v is number => v !== null)
   const min = Math.min(...values) * 0.98
   const max = Math.max(...values) * 1.02
-  const simColour = paperIsUp(rows, freezeDate) ? '#4ade80' : '#f87171'
+  const simColour = paperIsUp(rows, freezeDate) ? '#edf1e8' : '#ff9c90'
   return (
     <ChartFrame>
       <ResponsiveContainer width="100%" height="100%">
@@ -148,10 +148,10 @@ function SegmentedCurve({ rows, startCapital, freezeDate }: {
               <stop offset="95%" stopColor={simColour} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
-          <YAxis domain={[min, max]} tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
+          <XAxis dataKey="date" tick={{ fill: '#a8b6ab', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
+          <YAxis domain={[min, max]} tick={{ fill: '#a8b6ab', fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
           <Tooltip content={<SegmentTooltip />} />
-          <ReferenceLine y={startCapital} stroke="#444" strokeDasharray="4 2" />
+          <ReferenceLine y={startCapital} stroke="#415449" strokeDasharray="4 2" />
           <Area type="monotone" dataKey="backtest" stroke={BACKTEST_STROKE} strokeWidth={2}
             strokeDasharray="5 4" fill="none" connectNulls={false} isAnimationActive={false} />
           {/* No draw-in animation, like the backtest line: a screenshot or a slow device

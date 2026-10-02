@@ -3,25 +3,28 @@
 @tailwind utilities;
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #f5f5f5;
-  --nav-h: 56px; /* lot 2 : la barre fait h-14 */
+  color-scheme: dark;
+  --background: #101714;
+  --foreground: #edf1e8;
+  --nav-h: 64px; /* la barre fait h-16 (refonte registre, lot 1) */
 
   /* Design tokens, mirroring tailwind.config.ts theme.extend.colors — kept in
-     sync by hand (see that file's comment). Exist as CSS variables so inline
-     style={{ color: ... }} usages (charts, lib data files) can reference the
-     same tokens as the Tailwind utility classes, instead of duplicating hex. */
-  --bg: #0a0a0a;
-  --card: #111111;
-  --card-2: #161616;
-  --border: #1e1e1e;
-  --border-strong: #2a2a2a;
-  --muted: #8a8a8a;
+     sync by hand, and tests/lib/design-contrast.test.ts fails when they part. Exist as CSS
+     variables so inline style={{ color: ... }} usages (charts, lib data files) can
+     reference the same tokens as the Tailwind utility classes, instead of
+     duplicating hex. Refonte « Le registre des décisions », lot 1: Astra's palette. */
+  --bg: #101714;
+  --card: #17211c;
+  --card-2: #22332b;
+  --border: #415449;
+  --border-strong: #82988a;
+  --muted: #a8b6ab;
   --brand: #4ade80;
-  --positive: #4ade80;
-  --negative: #f87171;
-  --accent: #818cf8;
-  --warning: #f59e0b;
+  --positive: #edf1e8;
+  --negative: #ff9c90;
+  --accent: #abc8ec;
+  --warning: #e9c17c;
+  --button: #263f55;
   /* Categorical colour for the 4th market-weather pillar. The pillar palette is
      categorical, not semantic: macro needs to stay distinguishable from derivatives
      on the 4-line chart, so it gets its own value instead of reusing --accent. */

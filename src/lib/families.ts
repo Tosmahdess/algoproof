@@ -58,10 +58,12 @@ const LABELS: Record<Family, string> = {
 // call-to-action colour rather than as a category.
 //
 // Contrast measured on the two backgrounds the site paints behind a badge,
-// #0a0a0a and #111111: trend 7.48 / 7.13, momentum 9.24 / 8.81, breakout
-// 8.05 / 7.67, mean-reversion 7.72 / 7.36, price-action 13.27 / 12.66, carry
-// 7.27 / 6.94, market-neutral 10.64 / 10.14, stat-arb 5.38 / 5.13, event
-// 14.32 / 13.66. tests/lib/families.test.ts RECOMPUTES those ratios and fails
+// #101714 and #17211c (refonte registre, lot 1, 2026-10-02): trend 6.87 / 6.24,
+// momentum 8.49 / 7.71, breakout 7.39 / 6.72, mean-reversion 7.09 / 6.45,
+// price-action 12.19 / 11.08, carry 6.68 / 6.07, market-neutral 9.77 / 8.88,
+// stat-arb 5.52 / 5.01, event 13.16 / 11.96. Stat-arb was #3b82f6 until the new
+// palette, which put it at 4.49 on a card: one step lighter, same hue.
+// tests/lib/families.test.ts RECOMPUTES those ratios from the tokens and fails
 // below 4.5:1, so the figures above cannot drift away from the values.
 const COLORS: Record<Family, string> = {
   trend: '#f472b6',
@@ -71,7 +73,7 @@ const COLORS: Record<Family, string> = {
   'price-action': '#c7d2fe',
   carry: '#a78bfa',
   'market-neutral': '#2dd4bf',
-  'stat-arb': '#3b82f6',
+  'stat-arb': '#4f8bf7',
   event: '#fbcfe8',
 }
 

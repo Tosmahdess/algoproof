@@ -131,7 +131,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
             <div className="flex items-center gap-1.5">
               <span
                 className="text-xs font-mono font-bold group-hover:underline"
-                style={{ color: asset.tier === 1 ? 'var(--positive)' : '#888' }}
+                style={{ color: asset.tier === 1 ? 'var(--positive)' : 'var(--muted)' }}
               >
                 {asset.ticker} <span aria-hidden>↗</span>
               </span>
@@ -147,7 +147,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
             <div className="flex items-center gap-1.5">
               <span
                 className="text-xs font-mono font-bold"
-                style={{ color: asset.tier === 1 ? 'var(--positive)' : '#888' }}
+                style={{ color: asset.tier === 1 ? 'var(--positive)' : 'var(--muted)' }}
               >
                 {asset.ticker}
               </span>

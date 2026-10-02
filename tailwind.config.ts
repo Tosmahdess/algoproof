@@ -6,31 +6,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: '#0a0a0a',
-        card: '#111111',
-        // Lot 1 of the design audit (2026-09-25, §3.1): a tile nested in a card.
-        // BotCard used bg-bg for its metric tiles, which cut four black holes in
-        // a dark card.
-        'card-2': '#161616',
-        border: '#1e1e1e',
-        // Hover of a clickable card, table separators. Replaces the three
-        // hover borders the cards used (muted/50, accent/30, positive/30).
-        'border-strong': '#2a2a2a',
-        muted: '#8a8a8a',
-        positive: '#4ade80',
-        negative: '#f87171',
-        accent: '#818cf8',
-        foreground: '#f5f5f5',
-        warning: '#f59e0b',
+        // Refonte « Le registre des décisions », lot 1 (2026-10-02): Astra's dark
+        // palette (docs/refonte-registre/PROPOSITION_ASTRA.md, « Palette sombre »).
+        // The token NAMES are kept where the role is the same, so the call sites do
+        // not move; only the values change. Ratios: tests/lib/design-contrast.test.ts.
+        bg: '#101714',
+        // Surface: the decision panel, inputs, Direct.
+        card: '#17211c',
+        // Active surface: hover, selected control, a tile set on a card.
+        'card-2': '#22332b',
+        // Rule: decorative structure only (2,24:1 on bg), never the sole edge of a control.
+        border: '#415449',
+        // Control outline: fields, buttons, secondary focus (5,90:1 on bg).
+        'border-strong': '#82988a',
+        // Note: metadata and captions.
+        muted: '#a8b6ab',
+        // A gain is ordinary ink (owner, 2026-10-02): green no longer means profit,
+        // it means the brand. A loss keeps its colour AND its sign.
+        positive: '#edf1e8',
+        negative: '#ff9c90',
+        // Links (underlined) and focus.
+        accent: '#abc8ec',
+        foreground: '#edf1e8',
+        // Reserve: insufficient data, an exception.
+        warning: '#e9c17c',
         // Escalation tier between `warning` and `negative` (risk regime STRESS,
-        // dip-signal MAJEUR, "major" severity elsewhere) — named for what it
-        // means, not its orange hue. Added while unifying the design system
-        // (2026-08-22): the one new token task 4 allowed for the three
-        // theme-less hexes found in src/.
+        // dip-signal MAJEUR, "major" severity elsewhere), named for what it means.
         severe: '#ff6b35',
-        // The word PROOF in the wordmark and the glyph, nothing else (C5): same
-        // value as `positive`, its own name so the drift guard can tell a brand
-        // green from a gain green.
+        // The primary button: a dark slate fill with ink text and a link-blue edge.
+        button: '#263f55',
+        // The word Proof in the wordmark, nothing else (C5).
         brand: '#4ade80',
       },
       fontFamily: {

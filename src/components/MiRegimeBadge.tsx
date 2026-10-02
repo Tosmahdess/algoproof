@@ -95,8 +95,8 @@ export default function MiRegimeBadge() {
     )
   }
 
-  const riskColor = RISK_COLOR[snap.regime ?? ''] ?? '#888'
-  const biasColor = BIAS_COLOR[snap.market_bias ?? ''] ?? '#888'
+  const riskColor = RISK_COLOR[snap.regime ?? ''] ?? 'var(--muted)'
+  const biasColor = BIAS_COLOR[snap.market_bias ?? ''] ?? 'var(--muted)'
 
   return (
     <div className="rounded-lg border border-border p-4 sm:p-5 space-y-5">

@@ -30,10 +30,10 @@ export function PositionCard({ call, asset }: PositionCardProps) {
 
   const dateStr = shortDate(call.executed_at)
 
-  const pnlColor = pnlPct === null ? '#888'
+  const pnlColor = pnlPct === null ? 'var(--muted)'
     : pnlPct >= 0 ? 'var(--positive)' : 'var(--negative)'
 
-  const sigColor = SIGNAL_COLOR[call.signal_level] ?? '#666'
+  const sigColor = SIGNAL_COLOR[call.signal_level] ?? 'var(--muted)'
 
   return (
     <div className="rounded-lg border border-border bg-card p-3">

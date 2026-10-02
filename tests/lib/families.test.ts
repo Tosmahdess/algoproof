@@ -91,8 +91,8 @@ describe('family taxonomy', () => {
   })
 
   // 2026-09-11 reading pass (user decision): the nine colours were chosen for
-  // how they read on the two backgrounds a family badge sits on, #0a0a0a (the
-  // page) and #111111 (a card). A comment claiming a ratio is a comment; this
+  // how they read on the two backgrounds a family badge sits on, `bg` (the
+  // page) and `card`. A comment claiming a ratio is a comment; this
   // computes the WCAG 2.x contrast from the hex itself.
   it('draws every family above 4.5:1 on both backgrounds the site paints', () => {
     const channel = (c: number) => {
@@ -115,12 +115,17 @@ describe('family taxonomy', () => {
     expect(contrast('#767676', '#ffffff')).toBeGreaterThanOrEqual(4.5)
     expect(contrast('#777777', '#ffffff')).toBeLessThan(4.5)
 
+    // The two grounds are READ from the config (refonte registre, lot 1): they
+    // were written here as #0a0a0a / #111111, so the palette change of
+    // 2026-10-02 would have left this guard measuring a site that no longer exists.
+    const tw = fs.readFileSync(path.join(ROOT, 'tailwind.config.ts'), 'utf8')
+    const grounds = ['bg', 'card'].map(t => tw.match(new RegExp(`(?<![\\w-])${t}:\\s*'(#[0-9a-fA-F]{6})'`))![1])
     for (const f of FAMILY_ORDER) {
       const c = familyColor(f)
       // A `var(--token)` cannot be measured here: a family colour must be a
       // literal hex for this guard to mean anything.
       expect(c, `${f} is not a literal hex`).toMatch(/^#[0-9a-f]{6}$/)
-      for (const bg of ['#0a0a0a', '#111111']) {
+      for (const bg of grounds) {
         expect(contrast(c, bg), `${f} on ${bg}`).toBeGreaterThanOrEqual(4.5)
       }
     }
