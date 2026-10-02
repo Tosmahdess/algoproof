@@ -77,8 +77,8 @@ export default async function HomePage() {
               <strong className="font-medium text-foreground tabular-nums">{fr(companies)}</strong>{' '}rapports annuels à travers sept contrôles.
               Je publie chaque trade et chaque alerte, y compris quand les bots perdent.
             </p>
-            <p className="mt-3 text-sm">
-              <Link href="/a-propos" className={linkClass('inline')}>Pourquoi je publie tout</Link>
+            <p className="mt-2 text-sm">
+              <Link href="/a-propos" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>Pourquoi je publie tout</Link>
             </p>
           </div>
         </div>

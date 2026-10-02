@@ -73,12 +73,12 @@ export default function RealMoneyRegister({ bots, fleetSize, reading }: {
   const rows = sortByResult(bots)
   return (
     <section data-testid="home-real" aria-labelledby="home-real-title" className="border-b border-border py-8 sm:py-9">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+      <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
         <div>
           <h2 id="home-real-title" className="text-2xl font-semibold tracking-tight">Mes bots en argent réel</h2>
           <p className="mt-2 text-sm text-muted">Du meilleur résultat au moins bon.</p>
         </div>
-        <Link href="/overview" className={linkClass('inline', 'text-sm')}>Toute la flotte →</Link>
+        <Link href="/overview" className={linkClass('inline', 'inline-flex min-h-11 items-center self-start text-sm sm:self-auto')}>Toute la flotte →</Link>
       </div>
       {/* The column heads are for the eye: each cell already says what it is
           (the market, the rule, « depuis le … »), so a screen reader skips them. */}
