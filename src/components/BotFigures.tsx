@@ -20,9 +20,14 @@ export interface FiguresProps {
   apart?: string | null
 }
 
+interface Props extends FiguresProps {
+  /** « 2 octobre 2026 »: the day the figures were read (refonte finition, 2026-10-02). */
+  reading?: string | null
+}
+
 const money = (n: number) => `${frNumber(n, 2)}${NARROW_NBSP}€`
 
-export default function BotFigures({ baseLabel, base, resultLabel, result, resultPct, totalLabel, apart = null }: FiguresProps) {
+export default function BotFigures({ baseLabel, base, resultLabel, result, resultPct, totalLabel, apart = null, reading = null }: Props) {
   const tone = result === null ? 'text-muted' : result < 0 ? 'text-negative' : 'text-foreground'
   return (
     <div data-testid="bot-figures" className="mt-6">
@@ -49,6 +54,7 @@ export default function BotFigures({ baseLabel, base, resultLabel, result, resul
           </dd>
         </div>
       </dl>
+      {reading && <p data-testid="figures-reading" className="text-xs text-muted mt-2">{`Relevé du ${reading}.`}</p>}
       {apart && <p data-testid="figures-apart" className="text-sm text-muted mt-2">{apart}</p>}
     </div>
   )

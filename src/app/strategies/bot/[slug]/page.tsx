@@ -36,7 +36,8 @@ import { assessConformity } from '@/lib/conformity'
 import { evaluatePathToReal, DEFAULT_LIVE_GATE } from '@/lib/path-to-real'
 import { breadcrumbName } from '@/lib/trade-ledger'
 import { fmtEur, frNumber, NARROW_NBSP, pnlPct } from '@/lib/display'
-import { longDateOrdinal } from '@/lib/format-date'
+import { longDate, longDateOrdinal } from '@/lib/format-date'
+import { readingDate } from '@/lib/home-register'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -175,7 +176,8 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
 
         <VerdictPanel verdict={verdict} column={column} />
 
-        <BotFigures {...figures} />
+        {/* « Relevé du … » in the home's format: the bot's last sync, else the render. */}
+        <BotFigures {...figures} reading={readingDate([bot.last_sync_at]) ?? longDate(new Date())} />
 
         {/* Where this bot came from and since when. The real-money start date is said
             here, once, from bots.live_since (D057). */}
@@ -351,9 +353,15 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Partager — folded on every screen (D057): embed code, rarely used,
           262 px on a phone. A native <details>, not Repli: this one SHOULD
           have a toggle on a computer too. */}
-      <details className="border-t border-border py-6 mb-10">
-        <summary className="cursor-pointer min-h-11 flex items-center">
+      {/* The FAQ's drawn chevron says it opens, and turns when it is open (refonte
+          finition, 2026-10-02): a bare title read as a heading over nothing. */}
+      <details className="group border-t border-border py-6 mb-10">
+        <summary className="cursor-pointer min-h-11 flex items-center gap-2 list-none [&::-webkit-details-marker]:hidden hover:text-accent">
           <h2 className="inline text-xl font-semibold">Partager ce bot</h2>
+          <svg aria-hidden="true" className="h-4 w-4 flex-shrink-0 text-muted transition-transform group-open:rotate-180"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </summary>
         <div className="space-y-3 mt-3">
           <div>

@@ -75,6 +75,21 @@ describe('bot fiche, header', () => {
     expect(container.textContent).not.toMatch(/Je ramène|ramené à cette échelle|base miroir/i)
   })
 
+  // Refonte finition (2026-10-02): the figures carry the day they were read, in the
+  // home's format, from the bot's last sync.
+  it('dates the figures: « Relevé du » the last sync, in the home’s format', async () => {
+    await fiche('v1-spot', { status: 'live', live_since: '2026-04-17T00:00:00Z', last_sync_at: '2026-10-01T10:00:00Z' })
+    expect(screen.getByTestId('figures-reading').textContent).toBe('Relevé du 1er octobre 2026.')
+  })
+
+  // Refonte finition (2026-10-02): « Partager ce bot » shows that it opens.
+  it('draws a chevron on « Partager ce bot », turned when open', async () => {
+    await fiche('v1-spot', { status: 'live', live_since: '2026-04-17T00:00:00Z' })
+    const summary = screen.getByRole('heading', { name: 'Partager ce bot' }).closest('summary')!
+    expect(summary.closest('details')!.className).toMatch(/\bgroup\b/)
+    expect(summary.querySelector('svg')!.getAttribute('class')).toMatch(/group-open:rotate-180/)
+  })
+
   it('keeps the star, says a favourite sends nothing, and shows no bell to a guest', async () => {
     await fiche('v1-spot', { status: 'live', live_since: '2026-04-17T00:00:00Z' })
     expect(screen.getByText('Un favori n’envoie aucun message.')).toBeInTheDocument()
