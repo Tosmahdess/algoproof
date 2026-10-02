@@ -55,6 +55,14 @@ describe('sortFleet', () => {
     expect(sortFleet(bots, 'pnl', 'desc').map(b => b.slug)).toEqual(['c', 'a', 'b'])
   })
 
+  it('orders names by their numbers, « n° 9 » before « n° 10 »', () => {
+    const bots = [
+      mkBot({ name: 'Williams n° 10', slug: 'w10', stats: st(0, 1000) }),
+      mkBot({ name: 'Williams n° 9', slug: 'w9', stats: st(0, 1000) }),
+    ]
+    expect(sortFleet(bots, 'pnl', 'desc').map(b => b.slug)).toEqual(['w9', 'w10'])
+  })
+
   it('keeps the history sort on demand: trades descending, the result on a tie', () => {
     const bots = [
       mkBot({ slug: 'lucky', stats: st(3, 3000) }),

@@ -81,7 +81,7 @@ function tieBreak(a: SortableBot, b: SortableBot): number {
   const rb = resultOf(b)
   if (ra !== rb) return rb - ra
   if (a.stats.total_trades !== b.stats.total_trades) return b.stats.total_trades - a.stats.total_trades
-  return (a.name ?? '').localeCompare(b.name ?? '', 'fr')
+  return (a.name ?? '').localeCompare(b.name ?? '', 'fr', { numeric: true })
 }
 
 /** The register's order. `pnl` desc is the default: the euro result the row
@@ -98,7 +98,7 @@ export function sortFleet<T extends SortableBot>(bots: T[], sort: SortKey, dir: 
     const za = untraded(a)
     const zb = untraded(b)
     if (za !== zb) return za ? 1 : -1
-    if (za) return (a.name ?? '').localeCompare(b.name ?? '', 'fr')
+    if (za) return (a.name ?? '').localeCompare(b.name ?? '', 'fr', { numeric: true })
 
     const ua = unmeasured(a, sort)
     const ub = unmeasured(b, sort)
