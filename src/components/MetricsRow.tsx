@@ -11,7 +11,7 @@ function StatTile({ label, value, positive }: Metric) {
   return (
     <div data-testid="stat-tile" className="bg-card-2 rounded-md px-3 py-2.5">
       <span className="block text-xs text-muted">{label}</span>
-      <span className={`block font-mono font-medium text-lg leading-tight mt-0.5 ${positive === undefined ? 'text-foreground' : positive ? 'text-positive' : 'text-negative'}`}>
+      <span className={`block tabular-nums font-medium text-lg leading-tight mt-0.5 ${positive === undefined ? 'text-foreground' : positive ? 'text-positive' : 'text-negative'}`}>
         {value}
       </span>
     </div>

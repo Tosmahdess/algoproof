@@ -51,7 +51,7 @@ export function DataCard({ label, sub, metrics, intent }: DataCardProps) {
           return (
             <div key={i}>
               <div
-                className={`font-mono tabular-nums text-xl font-semibold ${valueColor[sign]}`}
+                className={`tabular-nums text-xl font-semibold ${valueColor[sign]}`}
               >
                 {m.value}
               </div>

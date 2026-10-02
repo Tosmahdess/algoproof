@@ -32,11 +32,11 @@ export default function FunnelCounter({
       <dl data-testid="funnel-engine" className="flex flex-wrap gap-x-8 gap-y-3">
         <div>
           <dt className="text-xs text-muted">Configurations balayées</dt>
-          <dd className="text-lg font-mono">{nf.format(counts.n_swept)}</dd>
+          <dd className="text-lg tabular-nums">{nf.format(counts.n_swept)}</dd>
         </div>
         <div>
           <dt className="text-xs text-muted">Jugées au gantelet</dt>
-          <dd className="text-lg font-mono">{nf.format(counts.n_judged)}</dd>
+          <dd className="text-lg tabular-nums">{nf.format(counts.n_judged)}</dd>
         </div>
       </dl>
       {/* The swept -> judged drop is the only step a visitor cannot infer, and it
@@ -68,11 +68,11 @@ export default function FunnelCounter({
         <dl className="flex flex-wrap gap-x-8 gap-y-3">
           <div>
             <dt className="text-xs text-muted">Bots en service (simulation ou argent réel)</dt>
-            <dd className="text-lg font-mono">{nf.format(counts.n_promoted)}</dd>
+            <dd className="text-lg tabular-nums">{nf.format(counts.n_promoted)}</dd>
           </div>
           <div>
             <dt className="text-xs text-muted">Dont en argent réel</dt>
-            <dd className="text-lg font-mono">{nf.format(counts.n_live)}</dd>
+            <dd className="text-lg tabular-nums">{nf.format(counts.n_live)}</dd>
           </div>
         </dl>
       </div>

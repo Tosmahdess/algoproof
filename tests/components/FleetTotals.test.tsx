@@ -47,7 +47,9 @@ describe('FleetTotals', () => {
     expect(container.textContent).toMatch(/Je compte séparément l’argent réel et la simulation/)
   })
 
-  it('writes its figures in mono, and the loss in red, the gain in green', () => {
+  // Refonte registre, lot 1: tabular figures in the text face, not mono; the
+  // loss keeps its colour (and its sign).
+  it('writes its figures in tabular figures, and the loss in red', () => {
     const lossAgg = computeFleetAggregate(
       [{ bot_id: 'live-1', pnl: -9.5, closed_at: '2026-07-01T00:00:00Z', side: 'long', asset: 'BTC' }],
       [{ id: 'live-1', live_since: '2026-01-01T00:00:00Z' }],
@@ -57,7 +59,8 @@ describe('FleetTotals', () => {
     // getByText collapses the narrow no-break space of fmtEur to a plain space.
     const plain = (t: string) => t.replace(/\u202F/g, ' ')
     const figure = within(real).getByText(plain(fmtEur(-9.5)))
-    expect(figure.className).toMatch(/font-mono/)
+    expect(figure.className).toMatch(/tabular-nums/)
+    expect(figure.className).not.toMatch(/font-mono/)
     expect(figure.className).toMatch(/text-negative/)
     const labo = screen.getByTestId('fleet-total-labo')
     expect(within(labo).getByText(plain(fmtEur(0))).className).not.toMatch(/text-negative/)

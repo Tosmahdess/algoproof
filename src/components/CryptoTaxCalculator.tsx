@@ -50,13 +50,13 @@ export default function CryptoTaxCalculator() {
             <p className="text-muted">Tu es en moins-value : pas d&apos;impôt sur cette opération (les moins-values s&apos;imputent sur tes autres plus-values de l&apos;année).</p>
           ) : (
             <>
-              <div className="flex justify-between"><span className="text-muted">Plus-value</span><span data-testid="gain" className="font-mono text-foreground">{eur(r.gain)}</span></div>
-              <div className="flex justify-between"><span className="text-muted">Flat tax (31,4 %)</span><span className={`font-mono ${r.best === 'flat' ? 'text-positive' : 'text-muted'}`}>{eur(r.flat)}</span></div>
-              <div className="flex justify-between"><span className="text-muted">Au barème (TMI + 18,6 %)</span><span className={`font-mono ${r.best === 'bareme' ? 'text-positive' : 'text-muted'}`}>{eur(r.bareme)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Plus-value</span><span data-testid="gain" className="tabular-nums text-foreground">{eur(r.gain)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Flat tax (31,4 %)</span><span className={`tabular-nums ${r.best === 'flat' ? 'text-positive' : 'text-muted'}`}>{eur(r.flat)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Au barème (TMI + 18,6 %)</span><span className={`tabular-nums ${r.best === 'bareme' ? 'text-positive' : 'text-muted'}`}>{eur(r.bareme)}</span></div>
               {r.exempt && <p className="text-foreground">Total des cessions ≤ 305 € → <strong>exonéré</strong> cette année.</p>}
               <div className="flex justify-between border-t border-border pt-2">
                 <span className="font-semibold text-foreground">Impôt estimé</span>
-                <span data-testid="tax-due" className="font-mono font-bold text-foreground">{eur(r.taxDue)}</span>
+                <span data-testid="tax-due" className="tabular-nums font-bold text-foreground">{eur(r.taxDue)}</span>
               </div>
               <p data-testid="best" className="text-xs text-muted">Option la moins chère : {r.best === 'flat' ? 'la flat tax' : r.best === 'bareme' ? 'le barème progressif' : 'identique'}.</p>
             </>

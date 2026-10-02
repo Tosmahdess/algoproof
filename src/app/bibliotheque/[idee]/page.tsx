@@ -139,10 +139,10 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
         <section className="mt-4 grid gap-2 rounded-lg border border-border bg-card p-4 text-sm">
           <h2 className="text-sm font-medium text-muted">Backtest de sélection</h2>
           <p className="text-foreground">
-            PF médian <span className="font-mono">{fr(idea.pf_median)}</span>
+            PF médian <span className="tabular-nums">{fr(idea.pf_median)}</span>
             {idea.n_pf > 3 && idea.pf_q1 != null && idea.pf_q3 != null && (
-              <>, la moitié des variantes entre <span className="font-mono">{fr(idea.pf_q1)}</span> et{' '}
-                <span className="font-mono">{fr(idea.pf_q3)}</span></>
+              <>, la moitié des variantes entre <span className="tabular-nums">{fr(idea.pf_q1)}</span> et{' '}
+                <span className="tabular-nums">{fr(idea.pf_q3)}</span></>
             )}
             {' '}(sur {idea.n_pf} variantes).
           </p>

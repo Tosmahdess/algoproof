@@ -16,10 +16,10 @@ function Total({ testId, label, amount, bots, trades, note }: {
   return (
     <div data-testid={testId} className="bg-card border border-border rounded-lg p-4 sm:p-5 min-w-0">
       <p className="text-xs font-medium text-muted">{label}</p>
-      <p className={`font-mono text-2xl sm:text-3xl font-medium leading-tight mt-1 ${tone}`}>{fmtEur(amount)}</p>
+      <p className={`tabular-nums text-2xl sm:text-3xl font-medium leading-tight mt-1 ${tone}`}>{fmtEur(amount)}</p>
       <p className="text-xs text-muted mt-1.5">
-        <span className="font-mono text-foreground">{frNumber(bots, 0)}</span> bots ·{' '}
-        <span className="font-mono text-foreground">{frNumber(trades, 0)}</span> trades
+        <span className="tabular-nums text-foreground">{frNumber(bots, 0)}</span> bots ·{' '}
+        <span className="tabular-nums text-foreground">{frNumber(trades, 0)}</span> trades
         <span className="hidden sm:inline"> · {note}</span>
       </p>
     </div>

@@ -30,23 +30,23 @@ export default function EngineSummary({ counts }: { counts: FunnelCounts | null 
     >
       <h2 id="home-engine-title" className="text-sm font-semibold">Ce que je retiens après quatre épreuves</h2>
       <p className="text-xs text-muted mt-0.5">
-        Sur{' '}<span className="font-mono text-foreground">{n(counts.n_judged)}</span>{' '}configurations jugées
+        Sur{' '}<span className="tabular-nums text-foreground">{n(counts.n_judged)}</span>{' '}configurations jugées
       </p>
 
       <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-8">
         {ratio !== null && (
           <div>
-            <p className="font-mono text-3xl font-medium leading-none tabular-nums">≈ 1 sur {n(ratio)}</p>
+            <p className="tabular-nums text-3xl font-medium leading-none">≈ 1 sur {n(ratio)}</p>
             <p className="text-xs text-muted mt-1.5">configuration retenue comme candidate, parmi celles qui ont été jugées</p>
           </div>
         )}
         <dl data-testid="funnel-verdicts" className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 text-sm sm:max-w-[16rem]">
           <dt className="text-muted">Recalées</dt>
-          <dd className="font-mono tabular-nums text-right">{n(counts.n_no_go)}</dd>
+          <dd className="tabular-nums text-right">{n(counts.n_no_go)}</dd>
           <dt className="text-muted">En sursis</dt>
-          <dd className="font-mono tabular-nums text-right">{n(counts.n_marginal)}</dd>
+          <dd className="tabular-nums text-right">{n(counts.n_marginal)}</dd>
           <dt className="text-foreground">Candidates</dt>
-          <dd className="font-mono tabular-nums text-right text-foreground">{n(counts.n_go)}</dd>
+          <dd className="tabular-nums text-right text-foreground">{n(counts.n_go)}</dd>
         </dl>
       </div>
 
@@ -58,10 +58,10 @@ export default function EngineSummary({ counts }: { counts: FunnelCounts | null 
       <div className="mt-3 pt-2 border-t border-border flex flex-wrap items-start justify-between gap-x-4">
         <details className="text-xs text-muted min-w-0">
           <summary className="cursor-pointer min-h-10 flex items-center">
-            <span><span className="font-mono">{n(counts.n_swept)}</span>{' '}configurations recensées · lesquelles ont été jugées ?</span>
+            <span><span className="tabular-nums">{n(counts.n_swept)}</span>{' '}configurations recensées · lesquelles ont été jugées ?</span>
           </summary>
           <p className="pb-2 max-w-[60ch] leading-relaxed">
-            Mon moteur a recensé ces configurations.{' '}<span className="font-mono">{n(counts.n_judged)}</span>{' '}ont été
+            Mon moteur a recensé ces configurations.{' '}<span className="tabular-nums">{n(counts.n_judged)}</span>{' '}ont été
             jugées par les quatre épreuves. Les autres n’ont pas de verdict à ces épreuves.
           </p>
         </details>

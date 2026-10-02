@@ -82,6 +82,29 @@ const RULES: Rule[] = [
     sample: '<h2 className="text-xs tracking-wider uppercase text-muted">',
     allow: CHROME_LOT_2,
   },
+  // Refonte « Le registre des décisions », lot 1 (2026-10-02): figures are set in
+  // the text face with tabular-nums, never in JetBrains Mono. The monospace is
+  // kept for technical identifiers (pairs, tickers, parameter names, code); each
+  // file below carries one, and only one kind of thing in it is mono.
+  {
+    re: /(?<![\w:-])font-mono\b/, why: 'font-mono — figures are tabular-nums in the text face; mono is for identifiers',
+    sample: '<span className="font-mono">{fmtEur(eur)}</span>',
+    allow: [
+      'app/strategies/bot/[slug]/page.tsx', // the bot's pair list and its two copyable ids (<code>)
+      'app/strategies/[concept]/page.tsx',  // parameter names (fast_period…)
+      'components/AnalysesClient.tsx',      // ticker
+      'components/LatestAnalyses.tsx',      // ticker
+      'components/SignalTable.tsx',         // ticker
+      'components/TopPicks.tsx',            // ticker
+      'components/CodeSnippet.tsx',         // a code block
+      'components/ExplainerSignal.tsx',     // a formula, written as code
+      'components/FleetRecentTrades.tsx',   // the traded pair
+      'components/TradesTable.tsx',         // the traded pair
+      'components/PositionCard.tsx',        // the asset symbol
+      'components/mdx/DataCard.tsx',        // inline <code>
+      'components/mdx/MDXComponents.tsx',   // inline <code>
+    ],
+  },
   // §3.1: family colours belong to chart series, never to a text label.
   { re: /color:\s*familyColor\(/, why: 'family colour on a text label — families are text-muted outside charts', sample: 'style={{ color: familyColor(bot.family) }}' },
   // C3: one spelling per metric.
@@ -109,7 +132,7 @@ describe('design drift guard', () => {
   it('does not fire on the canonical spellings', () => {
     const ok = [
       'text-foreground', 'text-muted', 'group-hover:text-accent', 'text-xs', 'rounded-lg', 'rounded-full',
-      'bg-positive/10', "className={`font-mono ${pct >= 0 ? 'text-positive' : 'text-negative'}`}",
+      'bg-positive/10', "className={`tabular-nums ${pct >= 0 ? 'text-positive' : 'text-negative'}`}", '[&_code]:font-mono',
       '<th className="text-xs uppercase tracking-wider text-muted">', '<tr className="text-muted uppercase tracking-wider border-b">',
       'stroke: familyColor(family)',
       'Échantillon faible ⚠', 'bg-foreground text-bg',

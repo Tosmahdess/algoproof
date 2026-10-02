@@ -53,15 +53,15 @@ export function RealMoneyCard({ bot, testId = 'home-bot-card' }: { bot: BotWithS
       </div>
       <p className="text-xs text-muted whitespace-normal">{bot.strategy}</p>
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <span className={`font-mono text-2xl font-medium leading-none ${tone}`}>{fmtPct(pct)}</span>
-        <span className="text-xs text-muted font-mono">{fmtEur(eur)}{' '}depuis le départ</span>
+        <span className={`tabular-nums text-2xl font-medium leading-none ${tone}`}>{fmtPct(pct)}</span>
+        <span className="text-xs text-muted tabular-nums">{fmtEur(eur)}{' '}depuis le départ</span>
       </div>
       <HomeSpark values={spark} sign={sign} startCapital={bot.start_capital} />
       <div className="flex justify-between text-xs text-muted">
         <span>30 derniers jours</span>
-        {delta30 !== null && <span className={`font-mono ${delta30 < 0 ? 'text-negative' : 'text-positive'}`}>{fmtEur(delta30)}</span>}
+        {delta30 !== null && <span className={`tabular-nums ${delta30 < 0 ? 'text-negative' : 'text-positive'}`}>{fmtEur(delta30)}</span>}
       </div>
-      <p className="font-mono text-xs text-muted flex flex-wrap gap-x-3">
+      <p className="tabular-nums text-xs text-muted flex flex-wrap gap-x-3">
         <span><b className="text-foreground font-medium">{bot.stats.total_trades}</b>{' '}trades</span>
         <span>PF <b className="text-foreground font-medium">{fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor)}</b></span>
         <span>WR <b className="text-foreground font-medium">{fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate)}</b></span>
@@ -114,7 +114,7 @@ export function RealMoneyStrip({ bots, minutes }: { bots: BotWithStats[]; minute
             <span className="min-w-0 text-xs text-severe">
               {rule.kind === 'crossed' ? '✕ règle d’arrêt franchie' : ''}
             </span>
-            <span className={`text-right whitespace-nowrap tabular-nums font-mono text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
+            <span className={`text-right whitespace-nowrap tabular-nums text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
           </Link>
         )
       })}

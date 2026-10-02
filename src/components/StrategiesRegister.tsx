@@ -103,7 +103,7 @@ export default function StrategiesRegister({ groups }: { groups: FicheGroup[] })
                       {/* A state, not a figure: muted, no mono (lot 5, conception §5.3). */}
                       {f.botCount === 0
                         ? <span className="text-xs text-muted shrink-0">pas encore de bot</span>
-                        : <span className="text-xs text-muted font-mono shrink-0">{`${f.botCount} bot${f.botCount > 1 ? 's' : ''}`}</span>}
+                        : <span className="text-xs text-muted tabular-nums shrink-0">{`${f.botCount} bot${f.botCount > 1 ? 's' : ''}`}</span>}
                     </div>
                     <p className="text-xs text-muted mt-1">{f.oneLiner}</p>
                   </Link>

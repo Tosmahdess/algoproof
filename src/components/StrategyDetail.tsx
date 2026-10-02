@@ -124,7 +124,7 @@ export default function StrategyDetail({ bot, simulation = null }: Props) {
             <p className="text-xs font-semibold text-muted">Trades exposés</p>
             <AlsoLiveBadge slug={bot.slug} status={bot.status} />
           </div>
-          <p className="text-sm font-mono">
+          <p className="text-sm tabular-nums">
             <span className="font-bold">{breakdown.total}</span>
             {breakdown.total > 0 && (
               <span className="ml-2 text-muted">
@@ -178,13 +178,13 @@ export default function StrategyDetail({ bot, simulation = null }: Props) {
                 ? `Départ : ${frNumber(baseCapital, 2)} € le ${longDateOrdinal(timeline.simStart)}`
                 : `Départ : ${frNumber(startCapital, 0)} €`}
             </span>
-            <span className={`font-mono font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+            <span className={`tabular-nums font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
               {fmtEur(eur)} ({fmtPct(pct)})
             </span>
             {sim && (
               <span className="text-muted whitespace-nowrap">
                 dont simulation{' '}
-                <span className={`font-mono ${simPct >= 0 ? 'text-positive' : 'text-negative'}`}>
+                <span className={`tabular-nums ${simPct >= 0 ? 'text-positive' : 'text-negative'}`}>
                   {fmtEur(simEur)} ({fmtPct(simPct)})
                 </span>
               </span>

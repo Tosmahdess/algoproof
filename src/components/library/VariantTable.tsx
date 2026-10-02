@@ -68,7 +68,7 @@ export default function VariantTable({ rows }: { rows: VariantRow[] }) {
               </p>
             </div>
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs sm:justify-end sm:text-right">
-              <span className="font-mono text-muted">
+              <span className="tabular-nums text-muted">
                 PF backtest <span className="text-foreground">{v.pfBacktest ?? '—'}</span>
                 {v.tradesBacktest != null && ` · ${v.tradesBacktest} trades`}
               </span>

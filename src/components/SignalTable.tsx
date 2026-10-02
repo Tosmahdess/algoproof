@@ -100,7 +100,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
     if (!asset.dip_trigger_pct) return <span className="text-muted text-xs">N/D</span>
     if (asset.signal_level && ddPct !== null) {
       return (
-        <span className="text-xs font-mono" style={{ color: sigColor }}>
+        <span className="text-xs tabular-nums" style={{ color: sigColor }}>
           {ddPct.toFixed(1)}%
         </span>
       )

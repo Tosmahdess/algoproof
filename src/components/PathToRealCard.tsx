@@ -43,7 +43,7 @@ export default function PathToRealCard({ status, stats, liveGate }: Props) {
           <div key={c.label}>
             <div className="flex justify-between text-xs mb-1.5">
               <span className="text-muted">{c.label}</span>
-              <span className={`font-mono font-semibold ${c.met ? 'text-positive' : ''}`}>
+              <span className={`tabular-nums font-semibold ${c.met ? 'text-positive' : ''}`}>
                 {fmt(c)}{c.met ? ' ✓' : ''}
               </span>
             </div>

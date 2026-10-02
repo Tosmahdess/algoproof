@@ -94,8 +94,8 @@ export default function ConformityCard({
               {result.checks.map(check => (
                 <tr key={check.label} className="border-t border-border">
                   <td className="py-2 pr-4 text-muted">{check.label}</td>
-                  <td className="py-2 pr-4 font-mono whitespace-nowrap tabular-nums">{check.expected}</td>
-                  <td className={`py-2 font-mono whitespace-nowrap tabular-nums ${
+                  <td className="py-2 pr-4 tabular-nums whitespace-nowrap">{check.expected}</td>
+                  <td className={`py-2 whitespace-nowrap tabular-nums ${
                     check.status === 'breach' ? 'text-negative'
                     : check.status === 'watch' ? 'text-warning'
                     : 'text-positive'

@@ -140,15 +140,15 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
     <div data-testid="fleet-register" className="space-y-4">
       <div className="flex items-baseline justify-between gap-4 flex-wrap">
         <h2 className="text-base font-semibold">
-          Tous les bots · <span className="font-mono">{frNumber(inService.length, 0)}</span>
+          Tous les bots · <span className="tabular-nums">{frNumber(inService.length, 0)}</span>
         </h2>
         <span data-testid="fleet-sort-line" className="text-xs text-muted">argent réel et simulation, triés par {SORT_LINE[state.sort] ?? SORT_LINE.proven}</span>
       </div>
 
       <p data-testid="fleet-experiment" className="text-xs text-muted leading-relaxed border-l-2 border-border-strong pl-3">
         <span className="text-foreground font-medium">Expérience en cours.</span>{' '}
-        <span className="font-mono text-foreground">{frNumber(engineBorn, 0)}</span>{' '}configurations qui ont passé mes quatre épreuves (le gantelet) tournent ici sans tri par résultat,
-        à côté de <span className="font-mono text-foreground">{frNumber(byHand, 0)}</span> {plural(byHand, 'bot déployé', 'bots déployés')} à la main avant le moteur.{' '}
+        <span className="tabular-nums text-foreground">{frNumber(engineBorn, 0)}</span>{' '}configurations qui ont passé mes quatre épreuves (le gantelet) tournent ici sans tri par résultat,
+        à côté de <span className="tabular-nums text-foreground">{frNumber(byHand, 0)}</span> {plural(byHand, 'bot déployé', 'bots déployés')} à la main avant le moteur.{' '}
         <Link href="/strategies#comment-je-decide" className={linkClass('inline')}>Le protocole →</Link>
       </p>
 

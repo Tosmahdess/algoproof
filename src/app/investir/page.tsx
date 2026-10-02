@@ -81,9 +81,9 @@ export default function InvestirPage() {
             search rises by about 100 px; the tiles from sm up. Only one of the two is ever
             displayed, so assistive tech reads the figures once. */}
         <p data-testid="investir-figures-line" className="sm:hidden text-xs text-muted">
-          <span className="font-mono text-foreground">{frNumber(lignes.length, 0)}</span>{' '}sociétés lues ·{' '}
-          <span className="font-mono text-foreground">{medianeLus} sur 7</span>{' '}contrôles possibles en médiane ·{' '}
-          <span className="font-mono text-foreground">{frNumber(avecAlerte, 0)}</span>{' '}fiches avec au moins une alerte
+          <span className="tabular-nums text-foreground">{frNumber(lignes.length, 0)}</span>{' '}sociétés lues ·{' '}
+          <span className="tabular-nums text-foreground">{medianeLus} sur 7</span>{' '}contrôles possibles en médiane ·{' '}
+          <span className="tabular-nums text-foreground">{frNumber(avecAlerte, 0)}</span>{' '}fiches avec au moins une alerte
         </p>
         <section
           aria-label="Ce que j’ai lu"
@@ -95,7 +95,7 @@ export default function InvestirPage() {
             ['Fiches portant au moins une alerte', frNumber(avecAlerte, 0)],
           ] as const).map(([label, valeur]) => (
             <div key={label} className="rounded-lg border border-border bg-card px-4 py-2 lg:py-3 flex items-baseline gap-3 sm:block">
-              <p className="font-mono text-xl font-medium text-foreground shrink-0">{valeur}</p>
+              <p className="tabular-nums text-xl font-medium text-foreground shrink-0">{valeur}</p>
               <p className="text-xs text-muted sm:mt-1">{label}</p>
             </div>
           ))}
@@ -153,7 +153,7 @@ export default function InvestirPage() {
               <ol aria-label="Les sept contrôles" className="space-y-1.5">
                 {SEPT_CONTROLES.map(([nom, regle], i) => (
                   <li key={nom} className="grid grid-cols-[1.25rem_1fr] sm:grid-cols-[1.25rem_9.5rem_1fr] gap-x-2">
-                    <span className="text-muted font-mono">{i + 1}.</span>
+                    <span className="text-muted tabular-nums">{i + 1}.</span>
                     <span className="font-semibold text-foreground">{nom}</span>
                     <span className="col-start-2 sm:col-start-auto text-muted">{regle}</span>
                   </li>

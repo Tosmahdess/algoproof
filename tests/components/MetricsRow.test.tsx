@@ -27,13 +27,16 @@ describe('MetricsRow', () => {
 // tiles (label muted, figure in mono on the card-2 surface), and the low-sample
 // sentence is words, not a warning glyph.
 describe('MetricsRow — tiles', () => {
-  it('renders four tiles on the card-2 surface, figures in mono', () => {
+  // Refonte registre, lot 1 (2026-10-02): figures are tabular-nums in the text
+  // face now, no longer JetBrains Mono.
+  it('renders four tiles on the card-2 surface, figures in tabular figures', () => {
     const { container } = render(<MetricsRow stats={stats} />)
     const tiles = container.querySelectorAll('[data-testid="stat-tile"]')
     expect(tiles).toHaveLength(4)
     for (const t of tiles) {
       expect(t.className).toMatch(/bg-card-2/)
-      expect(t.querySelector('.font-mono')).not.toBeNull()
+      expect(t.querySelector('.tabular-nums')).not.toBeNull()
+      expect(t.querySelector('.font-mono')).toBeNull()
     }
   })
 

@@ -67,9 +67,9 @@ export default async function HomePage() {
           {/* The three numbers are read, never typed (D059: a typed count goes stale
               in silence). */}
           <p data-testid="home-lead" className="text-sm sm:text-base text-muted max-w-[60ch] mb-4 sm:mb-6 leading-relaxed">
-            Je fais tourner <strong className="text-foreground font-mono font-medium">{bots.length}</strong>{' '}bots, dont{' '}
-            <strong className="text-foreground font-mono font-medium">{live.length}</strong>{' '}avec mon argent. Je passe aussi{' '}
-            <strong className="text-foreground font-mono font-medium">{frNumber(companies, 0)}</strong>{' '}rapports annuels à travers sept contrôles.
+            Je fais tourner <strong className="text-foreground tabular-nums font-medium">{bots.length}</strong>{' '}bots, dont{' '}
+            <strong className="text-foreground tabular-nums font-medium">{live.length}</strong>{' '}avec mon argent. Je passe aussi{' '}
+            <strong className="text-foreground tabular-nums font-medium">{frNumber(companies, 0)}</strong>{' '}rapports annuels à travers sept contrôles.
             Je publie chaque trade et chaque alerte, y compris quand les bots perdent.
           </p>
 
@@ -155,7 +155,7 @@ export default async function HomePage() {
       {funnel && funnel.n_no_go > 0 && (
         <section data-testid="home-graveyard" className="bg-card border border-border rounded-lg p-5 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="font-mono text-2xl font-medium leading-tight">{frNumber(funnel.n_no_go, 0)}</p>
+            <p className="tabular-nums text-2xl font-medium leading-tight">{frNumber(funnel.n_no_go, 0)}</p>
             <p className="text-xs text-muted">configurations recalées par le moteur, chacune avec son motif</p>
           </div>
           <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'home-cimetiere')} target="_blank" rel="noopener noreferrer"

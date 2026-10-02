@@ -22,7 +22,7 @@ export default function MethodTiles() {
           <div key={t.name} data-testid="method-tile" className="bg-card-2 border border-border rounded-md p-3 sm:row-span-2 sm:grid sm:grid-rows-subgrid sm:gap-y-1">
             {/* Number inline with the title: on its own line it cost each tile 21 px (H-D4). */}
             <div className="flex items-baseline gap-1.5 mb-1 sm:mb-0">
-              <span className="font-mono text-accent text-xs" aria-hidden="true">{i + 1}</span>
+              <span className="tabular-nums text-accent text-xs" aria-hidden="true">{i + 1}</span>
               <h3 className="text-sm font-semibold">{t.name}</h3>
             </div>
             <p className="text-xs text-muted leading-relaxed">{GLOSS[i]}</p>

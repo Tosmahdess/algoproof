@@ -93,7 +93,7 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
                 <span className="text-xs text-muted">
                   {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                 </span>
-                <span className={`font-mono text-xs ${COULEUR[a.signal_level] ?? 'text-muted'}`}>
+                <span className={`tabular-nums text-xs ${COULEUR[a.signal_level] ?? 'text-muted'}`}>
                   {a.drawdown_pct.toFixed(0).replace('-', '−')} %
                 </span>
               </span>

@@ -83,7 +83,7 @@ function MDXTd(props: HTMLAttributes<HTMLTableCellElement>) {
   const sign = detectSign(text)
 
   const base = 'px-3 sm:px-4 py-2.5 align-top'
-  const fontClass = numeric ? 'font-mono tabular-nums' : ''
+  const fontClass = numeric ? 'tabular-nums' : ''
   const colorClass =
     sign === 'positive'
       ? 'text-positive'

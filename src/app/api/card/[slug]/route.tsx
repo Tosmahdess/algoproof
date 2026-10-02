@@ -61,7 +61,7 @@ export async function GET(
               <span style={{ fontSize: 11, color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
                 {m.label}
               </span>
-              <span style={{ fontSize: 28, fontWeight: 700, color: m.color, fontFamily: 'monospace' }}>
+              <span style={{ fontSize: 28, fontWeight: 700, color: m.color }}>
                 {m.value}
               </span>
             </div>

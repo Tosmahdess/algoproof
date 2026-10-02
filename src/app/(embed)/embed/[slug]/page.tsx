@@ -66,7 +66,7 @@ export default async function EmbedPage({ params }: { params: Promise<{ slug: st
               {m.label}
             </p>
             <p style={{
-              fontSize: 13, fontWeight: 700, fontFamily: 'monospace', margin: 0,
+              fontSize: 13, fontWeight: 700, fontVariantNumeric: 'tabular-nums', margin: 0,
               color: m.neutral ? '#e6edf3' : m.pos ? '#3fb950' : '#ff4444',
             }}>
               {m.value}

@@ -88,7 +88,7 @@ export default function CapitalSimulator({
           <p className="text-xs text-muted mb-0.5">
             {withBacktest ? 'Résultat depuis le 1er janvier' : 'Résultat sur la période'}
           </p>
-          <p className={`text-xl font-mono ${result.pnlEur >= 0 ? 'text-positive' : 'text-negative'}`}>
+          <p className={`text-xl tabular-nums ${result.pnlEur >= 0 ? 'text-positive' : 'text-negative'}`}>
             {fmtEur(result.pnlEur)}
           </p>
           {withBacktest && (
@@ -100,14 +100,14 @@ export default function CapitalSimulator({
             Pire mois{result.worstMonthLabel ? ` (${fmtMonthLabel(result.worstMonthLabel)})` : ''}
           </p>
           {result.worstMonthEur === 0 ? (
-            <p className="text-sm font-mono text-foreground pt-1.5">aucun mois négatif</p>
+            <p className="text-sm tabular-nums text-foreground pt-1.5">aucun mois négatif</p>
           ) : (
-            <p className="text-xl font-mono text-negative">{fmtEur(result.worstMonthEur)}</p>
+            <p className="text-xl tabular-nums text-negative">{fmtEur(result.worstMonthEur)}</p>
           )}
         </div>
         <div>
           <p className="text-xs text-muted mb-0.5">Pire creux (depuis un plus haut)</p>
-          <p className={`text-xl font-mono ${result.maxDrawdownEur < 0 ? 'text-negative' : 'text-positive'}`}>
+          <p className={`text-xl tabular-nums ${result.maxDrawdownEur < 0 ? 'text-negative' : 'text-positive'}`}>
             {fmtEur(result.maxDrawdownEur)}
           </p>
         </div>

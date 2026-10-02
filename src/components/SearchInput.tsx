@@ -32,7 +32,7 @@ export default function SearchInput({ value, onChange, placeholder = 'Rechercher
         )}
       </div>
       {value && resultCount !== undefined && totalCount !== undefined && (
-        <span className="text-xs font-mono text-muted">{resultCount} / {totalCount}</span>
+        <span className="text-xs tabular-nums text-muted">{resultCount} / {totalCount}</span>
       )}
     </div>
   )

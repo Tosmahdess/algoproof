@@ -9,8 +9,8 @@ import { labUrl } from '@/lib/lab-links'
 export default function FleetLine({ live, paper }: { live: number; paper: number }) {
   return (
     <p data-testid="home-fleet-line" className="text-xs text-muted leading-relaxed">
-      Les <strong className="text-foreground font-mono">{live + paper}</strong>{' '}bots en service comptent aussi ceux que
-      j’ai déployés à la main avant le moteur ; <strong className="text-foreground font-mono">{live}</strong>{' '}tournent avec mon argent.
+      Les <strong className="text-foreground tabular-nums">{live + paper}</strong>{' '}bots en service comptent aussi ceux que
+      j’ai déployés à la main avant le moteur ; <strong className="text-foreground tabular-nums">{live}</strong>{' '}tournent avec mon argent.
       Je publie aussi les tentatives rejetées pour que tu puisses voir comment je les ai choisies.{' '}
       <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'funnel')} target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>Voir le cimetière</a>
       {' · '}

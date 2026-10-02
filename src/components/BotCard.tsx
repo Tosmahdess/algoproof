@@ -35,7 +35,7 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
           ].map(m => (
             <div key={m.label} className="bg-card-2 rounded-md p-3 text-center">
               <div className="text-xs text-muted">{m.label}</div>
-              <div className="font-mono font-semibold text-sm mt-0.5">{m.value}</div>
+              <div className="tabular-nums font-semibold text-sm mt-0.5">{m.value}</div>
             </div>
           ))}
         </div>
@@ -50,10 +50,10 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
           <span className="text-muted">{bot.exchange} · {bot.timeframe}</span>
           {hasData ? (
             <div className="text-right">
-              <span className={`font-mono font-bold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+              <span className={`tabular-nums font-bold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
                 {fmtEur(eur)}
               </span>
-              <span className={`font-mono text-xs ml-1 ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+              <span className={`tabular-nums text-xs ml-1 ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
                 ({fmtPct(pct)})
               </span>
             </div>

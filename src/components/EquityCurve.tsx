@@ -50,8 +50,8 @@ function CustomTooltip({ active, payload, label }: any) {
   return (
     <div className="bg-card border border-border rounded p-2 text-xs">
       <p className="text-muted mb-1">{label}</p>
-      <p className="text-foreground font-mono">{frNumber(Number(d.capital), 2)} €</p>
-      <p className={`font-mono ${pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+      <p className="text-foreground tabular-nums">{frNumber(Number(d.capital), 2)} €</p>
+      <p className={`tabular-nums ${pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
         {fmtEur(pnl)}
       </p>
     </div>
@@ -125,7 +125,7 @@ function SegmentTooltip({ active, payload, label }: any) {
   return (
     <div className="bg-card border border-border rounded p-2 text-xs">
       <p className="text-muted mb-1">{label} · {isSim ? 'simulation' : 'backtest'}</p>
-      <p className="text-foreground font-mono">{frNumber(Number(value), 2)} €</p>
+      <p className="text-foreground tabular-nums">{frNumber(Number(value), 2)} €</p>
     </div>
   )
 }

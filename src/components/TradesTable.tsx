@@ -45,11 +45,11 @@ export default function TradesTable({ trades, limiteMobile }: { trades: Trade[];
           <li key={t.id} className={`grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-1 py-2${
             hiddenOnPhone(i) ? ' hidden' : ''}`}>
             <span className="font-mono text-sm">{t.asset}</span>
-            <span className={`text-right font-mono text-sm font-semibold whitespace-nowrap ${pnlCls(t.pnl)}`}>
+            <span className={`text-right tabular-nums text-sm font-semibold whitespace-nowrap ${pnlCls(t.pnl)}`}>
               {fmtEur(t.pnl)}
             </span>
             <span className="flex items-center gap-2 text-xs text-muted">
-              <span className="font-mono">{shortDatePadded(t.closed_at)}</span>
+              <span className="tabular-nums">{shortDatePadded(t.closed_at)}</span>
               <span className={`px-1.5 py-0.5 rounded ${NEUTRAL_TAG}`}>{t.side}</span>
             </span>
             <span className="justify-self-end"><ReasonBadge reason={t.reason} /></span>
@@ -71,7 +71,7 @@ export default function TradesTable({ trades, limiteMobile }: { trades: Trade[];
           <tbody>
             {trades.map(t => (
               <tr key={t.id} className="border-b border-border/50 hover:bg-card/50 transition-colors">
-                <td className="py-2 pr-4 text-muted font-mono text-xs">
+                <td className="py-2 pr-4 text-muted tabular-nums text-xs">
                   {shortDatePadded(t.closed_at)}
                 </td>
                 <td className="py-2 pr-4 font-mono">{t.asset}</td>
@@ -80,7 +80,7 @@ export default function TradesTable({ trades, limiteMobile }: { trades: Trade[];
                     {t.side}
                   </span>
                 </td>
-                <td className={`py-2 pr-4 text-right font-mono font-semibold whitespace-nowrap ${pnlCls(t.pnl)}`}>
+                <td className={`py-2 pr-4 text-right tabular-nums font-semibold whitespace-nowrap ${pnlCls(t.pnl)}`}>
                   {fmtEur(t.pnl)}
                 </td>
                 <td className="py-2"><ReasonBadge reason={t.reason} /></td>

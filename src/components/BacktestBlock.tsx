@@ -39,7 +39,7 @@ export default function BacktestBlock({ segment }: { segment: BacktestSegment })
           Backtest du {start} au {longDateOrdinal(segment.freezeDate)}
           <SegmentVerdictBadge verdict={segment.verdict} />
         </h2>
-        <span className={`font-mono font-semibold text-sm ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>
+        <span className={`tabular-nums font-semibold text-sm ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>
           {fmtEur(eur)} ({fmtPct(pct)})
         </span>
       </div>

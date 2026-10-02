@@ -42,10 +42,10 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
                 </Link>
               ) : '—'}
             </span>
-            <span className={`text-right font-mono text-sm whitespace-nowrap ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+            <span className={`text-right tabular-nums text-sm whitespace-nowrap ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
               {fmtEur(t.pnl)}
             </span>
-            <span className="col-span-2 font-mono text-xs text-muted">
+            <span className="col-span-2 tabular-nums text-xs text-muted">
               {shortDatePadded(t.closed_at)} · {t.asset} · {t.side} · {reasonFr(t.reason)}
             </span>
           </li>
@@ -66,7 +66,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
           <tbody>
             {trades.map(t => (
               <tr key={t.id} className="border-b border-border/40">
-                <td className="px-2 py-1.5 font-mono text-muted">
+                <td className="px-2 py-1.5 tabular-nums text-muted">
                   {shortDatePadded(t.closed_at)}
                 </td>
                 <td className="px-2 py-1.5">
@@ -80,7 +80,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
                 <td className="px-2 py-1.5 text-center text-muted">
                   {t.side === 'long' ? 'long' : t.side === 'short' ? 'short' : t.side}
                 </td>
-                <td className={`px-2 py-1.5 text-right font-mono whitespace-nowrap ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+                <td className={`px-2 py-1.5 text-right tabular-nums whitespace-nowrap ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
                   {fmtEur(t.pnl)}
                 </td>
                 <td className="px-2 py-1.5 text-muted hidden md:table-cell">{reasonFr(t.reason)}</td>
