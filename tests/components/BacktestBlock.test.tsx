@@ -37,16 +37,27 @@ describe('BacktestBlock', () => {
 
   it('shows the backtest figures and its result in euros', () => {
     const t = text()
-    expect(t).toContain('WR')
-    expect(t).toContain('PF')
+    // Refonte lot 3: the figures are named in words (« WR », « PF » before).
+    expect(t).toContain('Taux de gain')
+    expect(t).toContain('Facteur de profit')
     // stops at the freeze: 1020, not the 1100 the replay reached by the launch
     expect(t).toMatch(/\+20,00\s€/)
   })
 
-  it('lists every backtest trade up to the freeze, the most recent first', () => {
+  // Refonte lot 3 (2026-10-02): the register reads oldest to newest, with the cumul after
+  // each trade from the backtest's starting capital.
+  it('lists every backtest trade up to the freeze, oldest first, with its cumul', () => {
     const rows = view().querySelectorAll('tbody tr')
     expect(rows.length).toBe(2)
-    expect(rows[0].textContent).toContain('ARB-USDT')
+    expect(rows[0].textContent).toContain('ETH-USDT')
+    expect(rows[1].textContent).toContain('ARB-USDT')
+    expect(rows[1].textContent).toMatch(/1\s020,00\s€/)
+  })
+
+  it('keeps its result out of the simulation colours', () => {
+    const block = view().querySelector('[data-testid="backtest-block"]')!
+    const result = [...block.querySelectorAll('span')].find(s => /à part/.test(s.textContent ?? ''))!
+    expect(result.className).toContain('text-muted')
   })
 
   it('carries no em dash (site-wide ban)', () => {

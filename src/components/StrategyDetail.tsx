@@ -2,15 +2,16 @@
 
 import { useMemo, useState } from 'react'
 import type { BotWithStats, PerfDaily, Trade } from '@/lib/types'
-import MetricsRow from '@/components/MetricsRow'
+import MetricsRow, { type DrawdownTone } from '@/components/MetricsRow'
 import EquityCurve from '@/components/EquityCurve'
-import TradesTable from '@/components/TradesTable'
+import TradesTable, { type TradesTotal } from '@/components/TradesTable'
 import DirectionFilterPills from '@/components/DirectionFilterPills'
 import AssetFilterSelect from '@/components/AssetFilterSelect'
 import AlsoLiveBadge from '@/components/AlsoLiveBadge'
 import { computeBotStats, countByDirection, filterTrades, type DirectionFilter } from '@/lib/stats'
 import { assetOptionsFromTrades } from '@/lib/asset'
-import { pnlEur, pnlPct, fmtEur, fmtPct, frNumber } from '@/lib/display'
+import { pnlEur, pnlPct, fmtEur, fmtPct, frNumber, NARROW_NBSP } from '@/lib/display'
+import { cumulativeAfterEach, sumOfResults } from '@/lib/trade-ledger'
 import BacktestSegmentLegend from '@/components/BacktestSegmentLegend'
 import BacktestBlock from '@/components/BacktestBlock'
 import { longDateOrdinal } from '@/lib/format-date'
@@ -19,11 +20,15 @@ import SegmentVerdictBadge from '@/components/SegmentVerdictBadge'
 
 /** Recent trades shown on a phone before « Voir les N derniers » (D057). */
 const TRADES_MOBILE = 5
+/** Trades listed under the curve, the most recent ones. */
+const TRADES_SHOWN = 20
 
 interface Props {
   bot: BotWithStats
   /** Backtest + simulation since the freeze, computed once by the page (D072). */
   simulation?: BotSimulation | null
+  /** The drawdown's colour from its published limit (audit 2026-10, constat 30). */
+  drawdownTone?: DrawdownTone
 }
 
 /**
@@ -57,7 +62,16 @@ function reconstructPerfDaily(trades: Trade[], startCapital: number): PerfDaily[
   })
 }
 
-export default function StrategyDetail({ bot, simulation = null }: Props) {
+const money = (n: number) => `${frNumber(n, 2)}${NARROW_NBSP}€`
+const signTone = (n: number) => (n < 0 ? 'text-negative' : 'text-foreground')
+
+// Refonte « Le registre des décisions », lot 3 (2026-10-02): the body of « Je laisse
+// l'addition visible. ». Filters, the figures of what is shown, the curve, then the
+// register of closed trades with the cumul after each one, computed on the WHOLE
+// history (cumulativeAfterEach), never rebuilt from the rows a filter left. On an engine
+// bot the simulation leads and the backtest stays apart, in grey (audit 2026-10,
+// constat 4); without a trade nothing is coloured and every figure is « — » (constat 6).
+export default function StrategyDetail({ bot, simulation = null, drawdownTone }: Props) {
   const [direction, setDirection] = useState<DirectionFilter>('all')
   const [asset, setAsset] = useState<string>('all')
   const startCapital = bot.start_capital
@@ -66,7 +80,7 @@ export default function StrategyDetail({ bot, simulation = null }: Props) {
   // figures, curve and trades come from the timeline, the paper amounts resized on the
   // capital the curve had reached. Everything the top of the fiche counts or filters is
   // the simulation's trades (replay after the freeze + resized ledger), so the counter,
-  // the tiles and a filtered view never disagree on a bot with replay trades.
+  // the figures and a filtered view never disagree on a bot with replay trades.
   const timeline = simulation?.timeline ?? null
   const segment = simulation?.segment ?? null
   const baseTrades = timeline ? timeline.simTrades : bot.all_trades
@@ -77,6 +91,8 @@ export default function StrategyDetail({ bot, simulation = null }: Props) {
   const unfiltered = direction === 'all' && asset === 'all'
   // The two-segment curve is the whole bot; a filter draws the simulation's subset alone.
   const sim = unfiltered ? timeline : null
+  // The whole history's cumul, from the capital the trades start on.
+  const cumul = useMemo(() => cumulativeAfterEach(baseTrades, baseCapital), [baseTrades, baseCapital])
 
   const stats = useMemo(() => (
     sim
@@ -92,159 +108,165 @@ export default function StrategyDetail({ bot, simulation = null }: Props) {
       : reconstructPerfDaily(filterTrades(baseTrades, direction, asset), baseCapital)
   ), [baseTrades, bot.perf_daily, direction, asset, baseCapital, unfiltered])
 
-  const tradesShown = useMemo(() => (
-    sim
-      ? sim.simTrades.slice(0, 20)
-      : unfiltered
-      ? bot.recent_trades
-      : filterTrades(baseTrades, direction, asset).slice(0, 20)
-  ), [baseTrades, bot.recent_trades, direction, asset, unfiltered, sim])
+  const selection = useMemo(() => (
+    unfiltered ? baseTrades : filterTrades(baseTrades, direction, asset)
+  ), [baseTrades, direction, asset, unfiltered])
+  const tradesShown = useMemo(() => selection.slice(0, TRADES_SHOWN), [selection])
 
   // Five rows on a phone (D057): twenty took 1 263 px. The choice survives a
   // filter change: a reader who asked for all of them keeps them.
   const [tousSurMobile, setTousSurMobile] = useState(false)
   const limiteMobile = tousSurMobile || tradesShown.length <= TRADES_MOBILE ? undefined : TRADES_MOBILE
 
-  // The curve header gives the whole curve's result from its start (1 January on a
-  // segmented curve); the simulation's own result, read from ITS start, comes second
-  // (user, 2026-09-29: « +0,9 % » beside « 1 000 € le 1er janvier » read as the total).
-  // Filtered, a bot with a simulation reads from the simulation's start.
-  const headerBase = sim ? startCapital : baseCapital
-  const pct = pnlPct(stats.latest_capital, headerBase)
+  const traded = stats.total_trades > 0
+  const filterWords = [
+    asset !== 'all' ? asset : null,
+    direction === 'long' ? 'longs' : direction === 'short' ? 'shorts' : null,
+  ].filter(Boolean).join(' · ')
+
+  // The curve's header gives the result of what it draws: the simulation alone on a
+  // segmented curve, the result since the start otherwise, the selection under a filter.
+  // The whole curve since 1 January, backtest included, is a grey line apart.
+  const headerBase = baseCapital
   const eur = pnlEur(stats.latest_capital, headerBase)
-  const simPct = sim ? pnlPct(stats.latest_capital, sim.simStartCapital) : 0
-  const simEur = sim ? pnlEur(stats.latest_capital, sim.simStartCapital) : 0
+  const pct = pnlPct(stats.latest_capital, headerBase)
+  const sinceJanuary = sim ? pnlEur(stats.latest_capital, startCapital) : 0
+  const backtestShare = sim ? sim.simStartCapital - startCapital : 0
+  const curveLabel = !unfiltered
+    ? `Reconstruite sur ${filterWords} uniquement`
+    : sim
+    ? `Simulation depuis le ${longDateOrdinal(sim.simStart)}`
+    : `Depuis le départ, sur ${money(startCapital)}`
+  const curveValue = traded ? `${fmtEur(eur)} (${fmtPct(pct)})` : '—'
+
+  // The register's total. Unfiltered, the shown rows end on the cumul of the newest one;
+  // under a filter the rows are a selection and its total is not a balance.
+  const shownSum = sumOfResults(tradesShown)
+  const newestCumul = tradesShown.length > 0 ? cumul.get(tradesShown[0].id) ?? null : null
+  const total: TradesTotal | undefined = tradesShown.length === 0 ? undefined : unfiltered
+    ? {
+      label: tradesShown.length === baseTrades.length
+        ? `Total des ${tradesShown.length} trade${tradesShown.length > 1 ? 's' : ''}`
+        : `Total de ces ${tradesShown.length} trades`,
+      sum: shownSum,
+      cumul: newestCumul,
+    }
+    : { label: 'Total de la sélection', sum: shownSum, cumul: null }
+  const before = unfiltered && newestCumul !== null ? newestCumul - shownSum : null
 
   return (
     <>
-      {/* Filter + total breakdown */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      {/* What is counted, and the filters */}
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <p className="text-xs font-semibold text-muted">Trades exposés</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm tabular-nums">
+              <span className="font-semibold">{`${breakdown.total} trade${breakdown.total > 1 ? 's' : ''} clos`}</span>
+              {breakdown.total > 0 && (
+                <span className="text-muted">{` · ${breakdown.long} long · ${breakdown.short} short`}</span>
+              )}
+            </p>
             <AlsoLiveBadge slug={bot.slug} status={bot.status} />
           </div>
-          <p className="text-sm tabular-nums">
-            <span className="font-bold">{breakdown.total}</span>
-            {breakdown.total > 0 && (
-              <span className="ml-2 text-muted">
-                ({breakdown.long}L · {breakdown.short}S)
-              </span>
-            )}
-          </p>
+          {sim && <p className="text-xs text-muted mt-1">{`Simulation depuis le ${longDateOrdinal(sim.simStart)}`}</p>}
         </div>
-        <div className="flex flex-wrap items-end gap-4">
-          <AssetFilterSelect options={assetOptions} value={asset} onChange={setAsset} />
-          <DirectionFilterPills
-            value={direction}
-            onChange={setDirection}
-            longCount={breakdown.long}
-            shortCount={breakdown.short}
-          />
-        </div>
+        {breakdown.total > 0 && (
+          <div className="flex flex-wrap items-end gap-4">
+            <AssetFilterSelect options={assetOptions} value={asset} onChange={setAsset} />
+            <DirectionFilterPills
+              value={direction}
+              onChange={setDirection}
+              longCount={breakdown.long}
+              shortCount={breakdown.short}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Key metrics — recomputed when filter changes */}
+      {/* Figures of what is shown, recomputed when a filter changes */}
       <div className="mb-8">
+        {!unfiltered && <p className="text-xs text-muted mb-2">{`Chiffres de la sélection : ${filterWords}`}</p>}
+        <MetricsRow stats={stats} family={bot.family} drawdownTone={unfiltered ? drawdownTone ?? 'neutral' : 'neutral'} />
+      </div>
+
+      {/* Curve */}
+      <div className="bg-card rounded-lg p-4 sm:p-6 mb-8">
+        <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-baseline sm:justify-between mb-4">
+          <h3 className="text-lg font-semibold">
+            Courbe du cumul
+            {sim && segment && <SegmentVerdictBadge verdict={segment.verdict} />}
+          </h3>
+          <p className="text-sm">
+            <span className="text-muted">{`${curveLabel} : `}</span>
+            <span data-testid="curve-result" className={`tabular-nums font-semibold ${traded ? signTone(eur) : 'text-muted'}`}>{curveValue}</span>
+          </p>
+        </div>
         {sim && (
-          <p className="text-xs font-semibold text-muted mb-2">
-            Simulation depuis le {longDateOrdinal(sim.simStart)}
+          <p data-testid="curve-backtest" className="text-sm text-muted tabular-nums -mt-2 mb-4">
+            {`Depuis ${money(startCapital)} le 1er janvier, backtest compris : ${fmtEur(sinceJanuary)}, dont backtest ${fmtEur(backtestShare)}.`}
           </p>
         )}
-        <MetricsRow stats={stats} family={bot.family} />
-      </div>
-
-      {/* Equity curve */}
-      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
-        {/* Title and figures stack on a phone: sharing one row left the title 113 px (O-M2). */}
-        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
-          <h2 className="text-xl font-semibold">
-            Courbe d&apos;équité
-            {sim && segment && <SegmentVerdictBadge verdict={segment.verdict} />}
-            {!unfiltered && (
-              <span className="text-xs text-muted font-normal ml-2">
-                (reconstruite sur {[
-                  asset !== 'all' ? asset : null,
-                  direction === 'long' ? 'longs' : direction === 'short' ? 'shorts' : null,
-                ].filter(Boolean).join(' · ')} uniquement)
-              </span>
-            )}
-          </h2>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-            <span className="text-muted whitespace-nowrap">
-              {sim
-                ? `Depuis ${frNumber(startCapital, 0)} € le 1er janvier :`
-                : timeline
-                ? `Départ : ${frNumber(baseCapital, 2)} € le ${longDateOrdinal(timeline.simStart)}`
-                : `Départ : ${frNumber(startCapital, 0)} €`}
-            </span>
-            <span className={`tabular-nums font-semibold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
-              {fmtEur(eur)} ({fmtPct(pct)})
-            </span>
-            {sim && (
-              <span className="text-muted whitespace-nowrap">
-                dont simulation{' '}
-                <span className={`tabular-nums ${simPct >= 0 ? 'text-positive' : 'text-negative'}`}>
-                  {fmtEur(simEur)} ({fmtPct(simPct)})
-                </span>
-              </span>
-            )}
-          </div>
-        </div>
         {sim && segment ? (
           <>
-            <EquityCurve data={equityData} startCapital={startCapital}
-              segments={sim.rows} freezeDate={segment.freezeDate} />
+            <div role="img" aria-label={`Courbe du capital : backtest du 1er janvier au ${longDateOrdinal(segment.freezeDate)} en pointillé, puis la simulation, jusqu’à ${money(stats.latest_capital)}.`}>
+              <EquityCurve data={equityData} startCapital={startCapital}
+                segments={sim.rows} freezeDate={segment.freezeDate} />
+            </div>
             <BacktestSegmentLegend freezeDate={segment.freezeDate} simStart={sim.simStart}
               verdict={segment.verdict} paperScaling={segment.paperScaling} />
           </>
         ) : equityData.length > 0 ? (
           // A paper bot without a backtest segment still reads on an axis from 1 January,
           // blank before its launch (D074); filtered views keep their own span.
-          <EquityCurve data={equityData} startCapital={startCapital}
-            axisFrom={unfiltered && bot.status === 'paper' ? '2026-01-01' : undefined} />
+          <div role="img" aria-label={`Courbe du capital, de ${money(equityData[0].capital)} à ${money(equityData[equityData.length - 1].capital)}.`}>
+            <EquityCurve data={equityData} startCapital={startCapital}
+              axisFrom={unfiltered && bot.status === 'paper' ? '2026-01-01' : undefined} />
+          </div>
         ) : (
-          <p className="text-muted text-sm text-center py-12">Aucun trade à afficher pour ce filtre.</p>
+          <p className="text-muted text-sm py-12 text-center">
+            {traded || !unfiltered ? 'Aucun trade à afficher pour ce filtre.' : 'Pas encore de courbe : ce bot n’a encore rien tradé.'}
+          </p>
         )}
         {bot.status === 'paper' && (
-          <p className="text-xs text-muted mt-3 text-center">
-            Paper trading : exécution simulée, aucun capital réel exposé
+          <p className="text-xs text-muted mt-3">
+            Simulation : exécution simulée, aucun capital réel exposé.
           </p>
         )}
       </div>
 
-      {segment && <BacktestBlock segment={segment} />}
-
-      {/* Recent trades */}
-      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
-        <h2 className="text-xl font-semibold mb-3">
-          Trades récents{sim ? ' de la simulation' : ''}
+      {/* Closed trades */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold mb-1">
+          {`Trades clos${sim ? ' de la simulation' : ''}`}
           <span className="text-muted text-sm font-normal ml-2">
             {/* The counter says what THIS screen shows: « 5 sur 20 » on a phone
                 while folded, « 20 affichés » everywhere else. */}
             {limiteMobile !== undefined && (
-              <span className="sm:hidden">({limiteMobile} sur {tradesShown.length} affichés</span>
+              <span className="sm:hidden">{`(${limiteMobile} sur ${tradesShown.length} affichés)`}</span>
             )}
             <span className={limiteMobile !== undefined ? 'hidden sm:inline' : ''}>
-              ({tradesShown.length} affiché{tradesShown.length > 1 ? 's' : ''}
+              {`(${tradesShown.length} affiché${tradesShown.length > 1 ? 's' : ''}${unfiltered ? '' : `, ${filterWords} uniquement`})`}
             </span>
-            {!unfiltered && ` (${[
-              asset !== 'all' ? asset : null,
-              direction === 'long' ? 'longs' : direction === 'short' ? 'shorts' : null,
-            ].filter(Boolean).join(' · ')} uniquement)`})
           </span>
-        </h2>
-        <TradesTable trades={tradesShown} limiteMobile={limiteMobile} />
+        </h3>
+        {tradesShown.length > 0 && <p className="text-sm text-muted mb-3">
+          {unfiltered
+            ? `${tradesShown.length === baseTrades.length ? 'Tous les trades' : `Les ${tradesShown.length} derniers trades`}, du plus ancien au plus récent.${before !== null ? ` Cumul avant ces trades : ${money(before)}.` : ''}`
+            : 'Le cumul de chaque ligne compte tout l’historique, filtre ou non : la sélection n’a pas de solde.'}
+        </p>}
+        <TradesTable trades={tradesShown} limiteMobile={limiteMobile} cumul={cumul} total={total} />
         {limiteMobile !== undefined && (
           <button
             type="button"
             onClick={() => setTousSurMobile(true)}
-            className="sm:hidden mt-4 w-full rounded border border-border px-3 py-2 text-sm text-muted hover:text-foreground transition-colors"
+            className="sm:hidden mt-4 w-full min-h-11 rounded border border-border-strong px-3 py-2 text-sm text-foreground hover:bg-card-2 transition-colors"
           >
-            Voir les {tradesShown.length} derniers
+            {`Voir les ${tradesShown.length} derniers`}
           </button>
         )}
       </div>
+
+      {segment && <BacktestBlock segment={segment} />}
     </>
   )
 }
