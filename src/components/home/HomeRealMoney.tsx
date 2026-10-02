@@ -1,11 +1,10 @@
-// The proof in the first screen (lot 3, conception §5.1, C1): the bots that run
-// with my money, the longest history first, so the losing one leads when it is the
-// oldest, with its real figures and the state of its published rule. On desktop, a
-// panel beside the title; on a phone, a compact strip ABOVE the two entries
-// (variant A, chosen by the user on 2026-09-25 against the button's position).
+// The real-money card (lot 3, conception §5.1, C1): one bot that runs with my
+// money, with its real figures and the state of its published rule. It opened the
+// home until the refonte « Le registre des décisions » (lot 2, 02/10/2026), which
+// gave the home a full-width register (RealMoneyRegister.tsx) and retired the
+// desktop panel and the phone strip; /overview still renders this card.
 // No aggregate, no average: R1 forbids a hero figure that fuses bots.
 import Link from 'next/link'
-import MetricsLegend from '@/components/MetricsLegend'
 import { linkClass } from '@/lib/link-roles'
 import StatusBadge from '@/components/StatusBadge'
 import HomeSpark from '@/components/home/HomeSpark'
@@ -30,8 +29,6 @@ export function ruleState(bot: BotWithStats): RuleState {
   const said = decision?.status === 'kept' ? 'je le garde' : decision?.status === 'frozen' ? 'je le gèle' : 'décision en suspens'
   return { kind: 'crossed', text: `règle d’arrêt franchie · ${said}` }
 }
-
-const fresh = (minutes: number | null) => (minutes === null ? null : minutes < 2 ? 'à l’instant' : `il y a ${minutes} min`)
 
 /** One real-money bot, with its 30-day line and the state of its published rule.
  *  Shared with /overview since lot 4 (same card, `testId` tells the two apart). */
@@ -71,53 +68,6 @@ export function RealMoneyCard({ bot, testId = 'home-bot-card' }: { bot: BotWithS
         {rule.kind === 'crossed' ? '✕ ' : rule.kind === 'inside' ? '✓ ' : ''}{rule.text}
         {rule.kind === 'crossed' && <>{' '}<Link href={`/strategies/bot/${bot.slug}`} className={linkClass('inline')}>la décision</Link></>}
       </p>
-    </div>
-  )
-}
-
-export function RealMoneyPanel({ bots, minutes }: { bots: BotWithStats[]; minutes: number | null }) {
-  const f = fresh(minutes)
-  return (
-    <aside data-testid="home-real" aria-label="Argent réel" className="hidden lg:block lg:col-span-5 min-w-0">
-      <div className="flex items-baseline justify-between mb-2.5">
-        <span className="text-xs font-medium text-muted">Argent réel</span>
-        {f && <span className="text-xs text-muted">{f}</span>}
-      </div>
-      <div className="grid grid-cols-1 gap-3">
-        {bots.map(b => <RealMoneyCard key={b.slug} bot={b} />)}
-      </div>
-      <MetricsLegend className="mt-3" />
-      <p className="mt-3 text-sm"><Link href="/overview" className={linkClass('inline')}>Toute la flotte, simulation comprise →</Link></p>
-    </aside>
-  )
-}
-
-export function RealMoneyStrip({ bots, minutes }: { bots: BotWithStats[]; minutes: number | null }) {
-  const f = fresh(minutes)
-  return (
-    <div data-testid="home-real-strip" className="lg:hidden border border-border rounded-lg overflow-hidden mb-4 text-left">
-      <div className="flex items-center justify-between px-3 py-2 bg-card text-xs text-muted">
-        <span>Argent réel{f ? ` · ${f}` : ''}</span>
-        <Link href="/overview" className={linkClass('inline', 'inline-flex min-h-10 items-center')}>toute la flotte →</Link>
-      </div>
-      {bots.map(b => {
-        const pct = pnlPct(b.stats.latest_capital, b.start_capital)
-        const rule = ruleState(b)
-        return (
-          <Link key={b.slug} href={`/strategies/bot/${b.slug}`} className={linkClass('record', 'grid grid-cols-[minmax(0,1fr)_auto] min-h-10 items-center gap-x-3 gap-y-1 px-3 py-2 border-t border-border')}>
-            {/* Two lines rather than an ellipsis: truncated, the two EMA bots read
-                the same (« Croisement EMA H4 … ») and the strip stops telling them apart. */}
-            <span className="min-w-0 text-sm leading-snug line-clamp-2">{b.name}</span>
-            {/* Status before the figure (audit 2026-09-09), each in its own column so
-                badges and percentages line up from one row to the next (counter-audit H-M1). */}
-            <span className="justify-self-end"><StatusBadge status={b.status} /></span>
-            <span className="min-w-0 text-xs text-severe">
-              {rule.kind === 'crossed' ? '✕ règle d’arrêt franchie' : ''}
-            </span>
-            <span className={`text-right whitespace-nowrap tabular-nums text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
-          </Link>
-        )
-      })}
     </div>
   )
 }

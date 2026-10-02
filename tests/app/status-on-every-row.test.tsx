@@ -32,6 +32,7 @@ vi.mock('@/lib/mi-fleet-impact', () => ({
   getFleetImpact: async () => null,
 }))
 vi.mock('@/lib/articles', () => ({ getArticles: () => [] }))
+vi.mock('@/lib/library', () => ({ getLibraryIdeas: async () => [] }))
 
 import HomePage from '@/app/page'
 import BotTable from '@/components/BotTable'
@@ -62,18 +63,21 @@ function expectStatusBeforeFigure(rows: HTMLAnchorElement[]) {
 }
 
 describe('every fleet row carries its regime before the figure, on mobile too', () => {
-  // Lot 3: the home lists the real-money bots only, in a strip on a phone. The
-  // rule holds there too: the regime word before the figure, on every row.
-  it('home page, real-money strip', async () => {
+  // Lot 3: the home lists the real-money bots only. Refonte registre, lot 2
+  // (02/10/2026): they sit in one register titled « Mes bots en argent réel », on
+  // a phone as on a computer, without a badge per row (the mock-up). The regime is
+  // still read before any figure: the register holds real money only, and its
+  // title names it above the first row.
+  it('home page, real-money register: real money only, named before the first figure', async () => {
     const { container } = render(await HomePage())
-    const strip = container.querySelector('[data-testid="home-real-strip"]')!
-    const rows = [...strip.querySelectorAll<HTMLAnchorElement>('a[href^="/strategies/bot/"]')]
+    const register = container.querySelector('[data-testid="home-real"]')!
+    const rows = [...register.querySelectorAll('[data-testid="home-real-row"]')]
     expect(rows.length).toBe(FLEET.filter(b => b.status === 'live').length)
-    for (const row of rows) {
-      const text = row.textContent ?? ''
-      expect(text.search(STATUS_WORD), `no status on row « ${text} »`).toBeGreaterThanOrEqual(0)
-      expect(text.search(STATUS_WORD)).toBeLessThan(text.search(/%/))
-    }
+    const links = rows.map(r => r.querySelector('a[href^="/strategies/bot/"]')!.getAttribute('href'))
+    expect(links).toEqual(['/strategies/bot/real'])
+    const text = register.textContent ?? ''
+    expect(text.search(/argent réel/i), 'the title names the regime').toBeGreaterThanOrEqual(0)
+    expect(text.search(/argent réel/i)).toBeLessThan(text.search(EURO))
   })
 
   it('BotTable, mobile list (overview, concept pages)', () => {

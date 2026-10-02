@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import EngineSummary from '@/components/home/EngineSummary'
 import EngineSurvival, { pickExamples } from '@/components/home/EngineSurvival'
-import FleetLine from '@/components/home/FleetLine'
 import { engineBaseLabel } from '@/lib/engine-base-labels'
 import type { FunnelCounts } from '@/lib/funnel'
 
@@ -109,15 +108,9 @@ describe('EngineSurvival (/strategies)', () => {
   })
 })
 
-describe('FleetLine (home, beside the engine summary, D059)', () => {
-  it('counts the bots once, total and real money, with the cimetière link', () => {
-    render(<FleetLine live={3} paper={93} />)
-    const line = screen.getByTestId('home-fleet-line')
-    expect(line.textContent).toMatch(/96 bots en service/)
-    expect(line.textContent).toMatch(/3 tournent avec mon argent/)
-    expect(within(line).getByRole('link', { name: /cimetière/i }).getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=funnel')
-  })
-})
+// FleetLine left with the home's refonte (lot 2, 02/10/2026). Its rule, the bots
+// counted once as a total with its real-money part, is pinned on the page itself
+// in tests/app/home-two-entries.test.tsx.
 
 describe('engineBaseLabel', () => {
   it('names the bases in French, and falls back to the raw key', () => {

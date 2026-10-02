@@ -246,13 +246,18 @@ describe('Investir is described as the page it is', () => {
   // markup: the entry exists, it opens both the list and the method, and it
   // promises seven checks rather than the grade D058 retired. The structural
   // side is checked at render in tests/app/home-two-entries.test.tsx.
-  it('the home companies entry opens /investir and its method, promising no grade', () => {
+  // Refonte registre, lot 2 (02/10/2026): the entry is one line, as in the
+  // mock-up, « Les sociétés que je lis » over « Je publie mes contrôles. Des
+  // lectures, pas des conseils. »; the method link and « Pas de note, pas de
+  // verdict » left with the card. The seven checks stay in the lead, and the
+  // entry still promises no grade.
+  it('the home companies entry opens /investir, says it is not advice, promising no grade', () => {
     const home = read(path.join(ROOT, 'src/app/page.tsx')).replace(/\s+/g, ' ')
     expect(home, 'the companies entry').toMatch(/data-testid="entry-companies"/)
     expect(home, 'the company list').toMatch(/href="\/investir"/)
-    expect(home, 'the seven checks').toMatch(/href="\/investir#methode"/)
     expect(home).toMatch(/sept contrôles/)
-    expect(home).toMatch(/Pas de note, pas de verdict/)
+    expect(home).toMatch(/Des lectures, pas des conseils/)
+    expect(home).not.toMatch(/\bje note\b|\bnotées?\b|une note sur/i)
   })
 
   it('no surface describes Investir as a DCA on crypto, ETFs and shares', () => {
