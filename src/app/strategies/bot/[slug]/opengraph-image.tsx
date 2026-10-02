@@ -26,8 +26,11 @@ function buildSparklinePath(
     .join(' ')
 }
 
-export default async function Image({ params }: { params: { slug: string } }) {
-  const bot = await getBotWithStats(params.slug)
+// Next 16 passes `params` as a Promise. Read without `await`, `params.slug` was
+// undefined and every bot got the fallback below (audit 2026-10, n. 5).
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const bot = await getBotWithStats(slug)
 
   if (!bot) {
     return new ImageResponse(
@@ -57,6 +60,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const startCapital = simulation ? simulation.timeline.simStartCapital : bot.start_capital
   const pnlPct = ((stats.latest_capital - startCapital) / startCapital) * 100
   const pnlColor = pnlPct >= 0 ? '#3fb950' : '#ff4444'
+  const isLive = bot.status === 'live'
   const sparklineD = buildSparklinePath(
     simulation ? simulationPerfDaily(simulation) : bot.perf_daily, 1104, 140)
 
@@ -79,20 +83,23 @@ export default async function Image({ params }: { params: { slug: string } }) {
             {bot.name}
           </span>
         </div>
+        {/* Regime as a form and a word, not the gain colour: same glyphs and words
+            as StatusBadge and the embed. It read « Paper Trading » for every bot,
+            real-money ones included, unseen while the image was the fallback. */}
         <div
           style={{
-            backgroundColor: 'rgba(255,107,53,0.15)',
-            border: '1px solid rgba(255,107,53,0.4)',
-            color: '#ff6b35',
+            backgroundColor: isLive ? 'rgba(230,237,243,0.12)' : 'rgba(139,148,158,0.12)',
+            border: `1px ${isLive ? 'solid rgba(230,237,243,0.4)' : 'dashed rgba(139,148,158,0.4)'}`,
+            color: isLive ? '#e6edf3' : '#8b949e',
             padding: '8px 18px',
-            borderRadius: '6px',
+            borderRadius: '20px',
             fontSize: '16px',
             fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
           }}
         >
-          Paper Trading
+          {isLive ? '● Argent réel' : '○ Simulation'}
         </div>
       </div>
 

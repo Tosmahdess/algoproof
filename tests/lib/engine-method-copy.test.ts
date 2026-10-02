@@ -319,4 +319,22 @@ describe('the exact wording is where the old sentence was', () => {
     expect(wfTerms.length).toBeGreaterThan(0)
     for (const t of wfTerms) expect(t.definition, t.id).not.toMatch(/moteur|gantelet/i)
   })
+
+  // Audit 2026-10, n° 11: /lexique defined Walk-forward and Overfit as a test on a
+  // period « jamais vue », while /preuve (and its meta description) says the
+  // opposite. The lexicon now reads like /preuve, in my voice.
+  it('glossary: Walk-forward and Overfit say what /preuve says, in the first person', () => {
+    const def = (id: string) => norm(GLOSSARY.find(t => t.id === id)!.definition)
+    const wf = def('walk-forward')
+    expect(wf).toMatch(/ce n'est pas un test hors échantillon/i)
+    expect(wf).toMatch(/pire trimestre de l'historique qui a servi à choisir la stratégie/)
+    const overfit = def('overfit')
+    expect(overfit).toMatch(/pire trimestre de l'historique qui a servi à choisir la stratégie/)
+    expect(overfit).not.toMatch(/walk-forward sert à le détecter/i)
+    for (const [id, text] of [['walk-forward', wf], ['overfit', overfit]]) {
+      expect(text, id).not.toMatch(/période suivante jamais vue|teste sur une période/i)
+      expect(text, id).toMatch(/\b(je|mon|ma|mes|chez moi)\b/i)
+      expect(text, id).not.toContain('—')
+    }
+  })
 })

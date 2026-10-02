@@ -38,7 +38,7 @@ vi.mock('next/navigation', () => ({
 
 import { supabase } from '@/lib/supabase'
 import BotFichePage from '@/app/strategies/bot/[slug]/page'
-import EmbedPage from '@/app/(embed)/embed/[slug]/page'
+import { GET as embedGET } from '@/app/embed/[slug]/route'
 import { GET as cardGET } from '@/app/api/card/[slug]/route'
 
 const CANDIDATE = {
@@ -85,9 +85,12 @@ describe('slug routes never publish a bot the listings exclude', () => {
   })
 
   it('/embed/[slug] 404s on a backtest candidate, so no third-party iframe can show it', async () => {
-    await expect(
-      EmbedPage({ params: Promise.resolve({ slug: CANDIDATE.slug }) }),
-    ).rejects.toBe(NOT_FOUND)
+    const res = await embedGET(
+      new Request('https://algoproof.fr/embed/candidate-never-deployed'),
+      { params: Promise.resolve({ slug: CANDIDATE.slug }) },
+    )
+    expect(res.status).toBe(404)
+    expect(await res.text()).not.toContain(CANDIDATE.name)
   })
 
   it('/api/card/[slug] returns 404 on a backtest candidate, with no image composed', async () => {

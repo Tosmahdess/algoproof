@@ -45,7 +45,7 @@ import { drawdownIsLoss, fmtDrawdown } from '@/lib/display'
 import HomePage from '@/app/page'
 import BotTable from '@/components/BotTable'
 import MetricsRow from '@/components/MetricsRow'
-import EmbedPage from '@/app/(embed)/embed/[slug]/page'
+import { GET as embedGET } from '@/app/embed/[slug]/route'
 import { GET as cardGET } from '@/app/api/card/[slug]/route'
 
 describe('drawdownIsLoss reads the figure the reader sees', () => {
@@ -90,11 +90,17 @@ describe('no surface paints « 0.0% » red', () => {
   })
 
   it('embed', async () => {
-    const { unmount } = render(await EmbedPage({ params: Promise.resolve({ slug: 'zero-dd' }) }))
+    // The embed is a standalone HTML document (a route handler); its body is
+    // mounted in the test document to read the computed colour.
+    const embed = async (slug: string) => {
+      const res = await embedGET(new Request(`https://algoproof.fr/embed/${slug}`), { params: Promise.resolve({ slug }) })
+      document.body.innerHTML = await res.text()
+    }
+    await embed('zero-dd')
     expect(screen.getByText(/0,0 %/)).not.toHaveStyle({ color: '#ff4444' })
-    unmount()
-    render(await EmbedPage({ params: Promise.resolve({ slug: 'real-dd' }) }))
+    await embed('real-dd')
     expect(screen.getByText(/8,4 %/)).toHaveStyle({ color: '#ff4444' })
+    document.body.innerHTML = ''
   })
 
   it('social card', async () => {

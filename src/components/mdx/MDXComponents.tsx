@@ -8,7 +8,8 @@
 //
 // Used by src/app/blog/[slug]/page.tsx via <MDXRemote components={...} />.
 
-import type { ReactNode, HTMLAttributes } from 'react'
+import type { ReactNode, HTMLAttributes, AnchorHTMLAttributes } from 'react'
+import { linkClass } from '@/lib/link-roles'
 import { Callout } from './Callout'
 import EmailCapture from '@/components/EmailCapture'
 import { Verdict } from './Verdict'
@@ -138,6 +139,14 @@ function MDXBlockquote(props: HTMLAttributes<HTMLQuoteElement>) {
   )
 }
 
+// Every link of an article goes through the inline role, not through the prose
+// plugin alone: Callout and Verdict are `not-prose`, and a link inside one took
+// the colour of the text, with no underline (audit 2026-10, n. 12,
+// tests/components/mdx/callout-links.test.tsx).
+function MDXLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
+  return <a {...props} className={linkClass('inline')} />
+}
+
 function MDXStrong(props: HTMLAttributes<HTMLElement>) {
   return <strong {...props} className="text-foreground font-semibold" />
 }
@@ -157,6 +166,7 @@ export const mdxComponents = {
   h3: MDXH3,
   blockquote: MDXBlockquote,
   strong: MDXStrong,
+  a: MDXLink,
   // Custom components (used explicitly in .mdx)
   Callout,
   Verdict,
