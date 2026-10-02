@@ -62,8 +62,7 @@ p {
 body {
   background: var(--background);
   color: var(--foreground);
-  /* Inter via next/font (layout.tsx); system-ui only while it loads. Until lot 1
-     the body was system-ui, so Windows, macOS and Android rendered three sites. */
+  /* Schibsted Grotesk via next/font (layout.tsx); system-ui only while it loads. */
   font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 15px;
   line-height: 1.55;
