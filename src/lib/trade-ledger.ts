@@ -7,24 +7,25 @@ import { reasonFr } from './regime-labels'
 type Ledgered = { id: string; closed_at: string; pnl: number }
 
 /** Cumul after each trade: the starting capital plus every result, in the order the
- *  trades closed. Computed on the complete history, in whole cents so that the cumul a
- *  reader sees is the previous one plus the result printed beside it. Trades closing at
+ *  trades closed. Computed on the complete history from the exact amounts, each cumul
+ *  rounded to the cent only when it is read: rounding every result first drifted by a
+ *  few cents over 42 trades (1 272,76 € under a published 1 272,73 €). Trades closing at
  *  the same instant keep their order from the newest-first list (the older one first). */
 export function cumulativeAfterEach(trades: Ledgered[], startCapital: number): Map<string, number> {
   const chronological = [...trades].reverse()
     .sort((a, b) => Date.parse(a.closed_at) - Date.parse(b.closed_at))
   const out = new Map<string, number>()
-  let cents = Math.round(startCapital * 100)
+  let running = startCapital
   for (const t of chronological) {
-    cents += Math.round(t.pnl * 100)
-    out.set(t.id, cents / 100)
+    running += t.pnl
+    out.set(t.id, Math.round(running * 100) / 100)
   }
   return out
 }
 
-/** Sum of the results, in whole cents like the cumul. */
+/** Sum of the results, from the exact amounts, rounded to the cent. */
 export function sumOfResults(trades: { pnl: number }[]): number {
-  return trades.reduce((s, t) => s + Math.round(t.pnl * 100), 0) / 100
+  return Math.round(trades.reduce((s, t) => s + t.pnl, 0) * 100) / 100
 }
 
 // Exit codes as the bots write them (stop_loss, SL, sl_hit… for the same thing), in

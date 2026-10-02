@@ -28,11 +28,11 @@ export default function BotFigures({ baseLabel, base, resultLabel, result, resul
     <div data-testid="bot-figures" className="mt-6">
       <dl className="grid grid-cols-3 gap-3 sm:gap-5 border-b border-border pb-4">
         <div>
-          <dt className="text-xs text-muted">{baseLabel}</dt>
+          <dt className="text-xs text-muted min-h-9 sm:min-h-0">{baseLabel}</dt>
           <dd className="text-xl sm:text-3xl tabular-nums leading-tight mt-1 whitespace-nowrap">{money(base)}</dd>
         </div>
         <div>
-          <dt className="text-xs text-muted">{resultLabel}</dt>
+          <dt className="text-xs text-muted min-h-9 sm:min-h-0">{resultLabel}</dt>
           <dd className={`text-xl sm:text-3xl tabular-nums leading-tight mt-1 whitespace-nowrap ${tone}`}>
             {result === null ? '—' : fmtEur(result)}
           </dd>
@@ -41,7 +41,7 @@ export default function BotFigures({ baseLabel, base, resultLabel, result, resul
           )}
         </div>
         <div>
-          <dt className="text-xs text-muted">{totalLabel}</dt>
+          <dt className="text-xs text-muted min-h-9 sm:min-h-0">{totalLabel}</dt>
           <dd className="text-xl sm:text-3xl tabular-nums leading-tight mt-1 whitespace-nowrap">
             {result === null ? '—' : (
               <span className="underline decoration-double decoration-1 underline-offset-[6px]">{money(base + result)}</span>
@@ -49,7 +49,7 @@ export default function BotFigures({ baseLabel, base, resultLabel, result, resul
           </dd>
         </div>
       </dl>
-      {apart && <p data-testid="figures-apart" className="text-sm text-muted tabular-nums mt-2">{apart}</p>}
+      {apart && <p data-testid="figures-apart" className="text-sm text-muted mt-2">{apart}</p>}
     </div>
   )
 }

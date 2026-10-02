@@ -31,7 +31,13 @@ describe('cumulativeAfterEach', () => {
     expect(full.get('c')).toBe(1024.55)
   })
 
-  it('adds in whole cents, so no float drift over hundreds of trades', () => {
+  it('rounds the cumul, not each result: no drift away from the published total', () => {
+    // three results of 0,004 € read « 0,00 » each, yet they add up to a cent
+    const tiny = [0, 1, 2].map(i => ({ id: String(i), closed_at: `2026-01-0${i + 1}T00:00:00Z`, pnl: 0.004 }))
+    expect(cumulativeAfterEach(tiny, 1000).get('2')).toBe(1000.01)
+  })
+
+  it('no float drift over hundreds of trades', () => {
     const many = Array.from({ length: 300 }, (_, i) => ({
       id: String(i), closed_at: new Date(Date.UTC(2026, 0, 1) + i * 3_600_000).toISOString(), pnl: 0.1,
     }))

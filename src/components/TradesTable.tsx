@@ -48,7 +48,7 @@ export default function TradesTable({ trades, limiteMobile, cumul, total }: {
           return (
             <li key={t.id} className={`grid grid-cols-2 gap-x-3 gap-y-2 border-b border-border py-3 text-sm${
               hiddenOnPhone(i) ? ' hidden' : ''}`}>
-              <span className="tabular-nums text-muted">{shortDatePadded(t.closed_at)}</span>
+              <span className="text-muted">{shortDatePadded(t.closed_at)}</span>
               <span className="text-right"><span className="font-mono">{t.asset}</span>{` · ${sideLabel(t.side).toLowerCase()}`}</span>
               <span>
                 <span className="block text-xs text-muted">Résultat</span>
@@ -76,7 +76,7 @@ export default function TradesTable({ trades, limiteMobile, cumul, total }: {
       </ul>
 
       <div className="hidden sm:block overflow-x-auto">
-        <table className="w-full text-sm tabular-nums">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-muted text-xs">
               <th scope="col" className="text-left font-medium py-3 pr-4">Date</th>
@@ -96,8 +96,8 @@ export default function TradesTable({ trades, limiteMobile, cumul, total }: {
                     <span className="font-mono">{t.asset}</span>
                     <span className="text-muted">{` · ${sideLabel(t.side).toLowerCase()}`}</span>
                   </td>
-                  <td className={`py-3 pr-4 text-right font-semibold whitespace-nowrap ${pnlCls(t.pnl)}`}>{fmtEur(t.pnl)}</td>
-                  {cumul && <td className="py-3 pr-4 text-right whitespace-nowrap">{c !== undefined ? money(c) : '—'}</td>}
+                  <td className={`py-3 pr-4 text-right font-semibold tabular-nums whitespace-nowrap ${pnlCls(t.pnl)}`}>{fmtEur(t.pnl)}</td>
+                  {cumul && <td className="py-3 pr-4 text-right tabular-nums whitespace-nowrap">{c !== undefined ? money(c) : '—'}</td>}
                   <td className="py-3 text-muted">{exitReasonWords(t.reason)}</td>
                 </tr>
               )
@@ -107,8 +107,8 @@ export default function TradesTable({ trades, limiteMobile, cumul, total }: {
             <tfoot>
               <tr data-testid="trades-total" className="border-b-[3px] border-double border-border-strong font-semibold">
                 <td colSpan={2} className="py-3 pr-4">{total.label}</td>
-                <td className={`py-3 pr-4 text-right whitespace-nowrap ${pnlCls(total.sum)}`}>{fmtEur(total.sum)}</td>
-                {cumul && <td className="py-3 pr-4 text-right whitespace-nowrap">{total.cumul !== null ? money(total.cumul) : ''}</td>}
+                <td className={`py-3 pr-4 text-right tabular-nums whitespace-nowrap ${pnlCls(total.sum)}`}>{fmtEur(total.sum)}</td>
+                {cumul && <td className="py-3 pr-4 text-right tabular-nums whitespace-nowrap">{total.cumul !== null ? money(total.cumul) : ''}</td>}
                 <td className="py-3" />
               </tr>
             </tfoot>

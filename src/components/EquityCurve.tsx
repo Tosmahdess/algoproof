@@ -23,6 +23,9 @@ interface Props {
   /** Start the axis on this day (paper bots without a segment, D074): days before the
    *  first data point are drawn as nothing, never as a flat line that reads as data. */
   axisFrom?: string
+  /** Axis label size. The bot fiche asks for 13, the site's floor (refonte lot 3); other
+   *  callers keep 12 until their own lot. */
+  tickSize?: number
 }
 
 /** Empty days from `from` to the day before the first data point (capital null). */
@@ -58,9 +61,9 @@ function CustomTooltip({ active, payload, label }: any) {
   )
 }
 
-export default function EquityCurve({ data, startCapital = 1000, segments, freezeDate, axisFrom }: Props) {
+export default function EquityCurve({ data, startCapital = 1000, segments, freezeDate, axisFrom, tickSize = 12 }: Props) {
   if (segments && freezeDate) {
-    return <SegmentedCurve rows={segments} startCapital={startCapital} freezeDate={freezeDate} />
+    return <SegmentedCurve rows={segments} startCapital={startCapital} freezeDate={freezeDate} tickSize={tickSize} />
   }
   const series = axisFrom ? padFrom(data, axisFrom) : data
   const formatted = series.map(d => ({
@@ -88,8 +91,8 @@ export default function EquityCurve({ data, startCapital = 1000, segments, freez
               <stop offset="95%" stopColor={isPositive ? '#edf1e8' : '#ff9c90'} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="date" tick={{ fill: '#a8b6ab', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
-          <YAxis domain={[min, max]} tick={{ fill: '#a8b6ab', fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
+          <XAxis dataKey="date" tick={{ fill: '#a8b6ab', fontSize: tickSize }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
+          <YAxis domain={[min, max]} tick={{ fill: '#a8b6ab', fontSize: tickSize }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
           <Tooltip content={<CustomTooltip />} />
           <ReferenceLine y={startCapital} stroke="#415449" strokeDasharray="4 2" />
           <Area
@@ -130,8 +133,8 @@ function SegmentTooltip({ active, payload, label }: any) {
   )
 }
 
-function SegmentedCurve({ rows, startCapital, freezeDate }: {
-  rows: JoinedRow[]; startCapital: number; freezeDate: string
+function SegmentedCurve({ rows, startCapital, freezeDate, tickSize }: {
+  rows: JoinedRow[]; startCapital: number; freezeDate: string; tickSize: number
 }) {
   const formatted = rows.map(r => ({ ...r, date: shortDate(`${r.date}T12:00:00Z`) }))
   const values = rows.flatMap(r => [r.backtest, r.paper]).filter((v): v is number => v !== null)
@@ -148,8 +151,8 @@ function SegmentedCurve({ rows, startCapital, freezeDate }: {
               <stop offset="95%" stopColor={simColour} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="date" tick={{ fill: '#a8b6ab', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
-          <YAxis domain={[min, max]} tick={{ fill: '#a8b6ab', fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
+          <XAxis dataKey="date" tick={{ fill: '#a8b6ab', fontSize: tickSize }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
+          <YAxis domain={[min, max]} tick={{ fill: '#a8b6ab', fontSize: tickSize }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
           <Tooltip content={<SegmentTooltip />} />
           <ReferenceLine y={startCapital} stroke="#415449" strokeDasharray="4 2" />
           <Area type="monotone" dataKey="backtest" stroke={BACKTEST_STROKE} strokeWidth={2}

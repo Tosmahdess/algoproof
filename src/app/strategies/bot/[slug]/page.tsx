@@ -116,13 +116,13 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       const base = simulation.timeline.simStartCapital
       const result = traded ? stats.latest_capital - base : null
       return {
-        baseLabel: `Départ de la simulation, le ${longDateOrdinal(simulation.timeline.simStart)}`,
+        baseLabel: 'Départ de la simulation',
         base,
         resultLabel: 'Résultat de la simulation',
         result,
         resultPct: result === null ? null : pnlPct(stats.latest_capital, base),
         totalLabel: 'Départ + résultat',
-        apart: `Depuis ${money(bot.start_capital)} le 1er janvier, backtest compris : ${fmtEur(stats.latest_capital - bot.start_capital)}, dont backtest ${fmtEur(base - bot.start_capital)}.`,
+        apart: `Simulation depuis le ${longDateOrdinal(simulation.timeline.simStart)}. Depuis ${money(bot.start_capital)} le 1er janvier, backtest compris : ${fmtEur(stats.latest_capital - bot.start_capital)}, dont backtest ${fmtEur(base - bot.start_capital)}.`,
       }
     }
     const result = traded ? stats.latest_capital - bot.start_capital : null
@@ -154,7 +154,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         </ol>
       </nav>
 
-      <header data-testid="bot-header" className="pt-2 pb-8">
+      <header data-testid="bot-header" className="pt-2">
         {/* Regime and market first, then the name. A long asset list folds under
             « N actifs » (lot 5, conception §5.6). */}
         <div className="flex items-center gap-3 flex-wrap text-sm text-muted">
@@ -195,7 +195,9 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           <span data-testid="bot-family" className="text-muted">{familyLabel(bot.family)}</span>
           {/* An engine bot's name already reads strategy, TF, platform (24/09): its
               `strategy` line would repeat the h1. */}
-          {!bot.engine_unit_key && <>{' · '}<span>{bot.strategy}</span></>}
+          {/* A stored strategy line may carry a dash (« Opening Range H1 — 25 actifs »); the
+              site writes no em dash, so it reads with a middle dot. */}
+          {!bot.engine_unit_key && <>{' · '}<span>{bot.strategy.replace(/\s+—\s+/g, ' · ')}</span></>}
           {/* The third edge of the graph: back to the strategy this bot runs. Absent,
               not broken, when no fiche claims this bot. */}
           {conceptSlug && (
@@ -217,7 +219,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           <span className="text-xs text-muted">Un favori n’envoie aucun message.</span>
         </div>
 
-        <nav aria-label="Dans cette fiche" className="mt-6 border-y border-border">
+        <nav aria-label="Dans cette fiche" className="mt-6 border-t border-border">
           <ul className="flex flex-wrap gap-x-6 text-sm">
             <li><a href="#regles" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>Règles et décision</a></li>
             <li><a href="#trades" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>Trades clos</a></li>

@@ -121,7 +121,7 @@ export default function CapitalSimulator({
         </div>
       </dl>
       {withBacktest && (
-        <p data-testid="capital-backtest" className="text-sm text-muted mt-3 tabular-nums">
+        <p data-testid="capital-backtest" className="text-sm text-muted mt-3">
           {`Depuis le 1er janvier, backtest compris : ${fmtEur(whole.pnlEur)}, dont ${fmtEur(backtestEur)} de backtest.`}
         </p>
       )}

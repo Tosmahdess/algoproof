@@ -202,7 +202,7 @@ export default function StrategyDetail({ bot, simulation = null, drawdownTone }:
           </p>
         </div>
         {sim && (
-          <p data-testid="curve-backtest" className="text-sm text-muted tabular-nums -mt-2 mb-4">
+          <p data-testid="curve-backtest" className="text-sm text-muted -mt-2 mb-4">
             {`Depuis ${money(startCapital)} le 1er janvier, backtest compris : ${fmtEur(sinceJanuary)}, dont backtest ${fmtEur(backtestShare)}.`}
           </p>
         )}
@@ -210,7 +210,7 @@ export default function StrategyDetail({ bot, simulation = null, drawdownTone }:
           <>
             <div role="img" aria-label={`Courbe du capital : backtest du 1er janvier au ${longDateOrdinal(segment.freezeDate)} en pointillé, puis la simulation, jusqu’à ${money(stats.latest_capital)}.`}>
               <EquityCurve data={equityData} startCapital={startCapital}
-                segments={sim.rows} freezeDate={segment.freezeDate} />
+                segments={sim.rows} freezeDate={segment.freezeDate} tickSize={13} />
             </div>
             <BacktestSegmentLegend freezeDate={segment.freezeDate} simStart={sim.simStart}
               verdict={segment.verdict} paperScaling={segment.paperScaling} />
@@ -220,7 +220,7 @@ export default function StrategyDetail({ bot, simulation = null, drawdownTone }:
           // blank before its launch (D074); filtered views keep their own span.
           <div role="img" aria-label={`Courbe du capital, de ${money(equityData[0].capital)} à ${money(equityData[equityData.length - 1].capital)}.`}>
             <EquityCurve data={equityData} startCapital={startCapital}
-              axisFrom={unfiltered && bot.status === 'paper' ? '2026-01-01' : undefined} />
+              axisFrom={unfiltered && bot.status === 'paper' ? '2026-01-01' : undefined} tickSize={13} />
           </div>
         ) : (
           <p className="text-muted text-sm py-12 text-center">
