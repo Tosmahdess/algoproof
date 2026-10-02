@@ -21,7 +21,25 @@ type State = 'loading' | 'guest' | 'off' | 'on'
 
 const BUTTON = 'inline-flex items-center gap-1.5 min-h-10 px-3 rounded-md border text-sm transition-colors'
 
-export default function FavoriteButton({ slug, kind = 'bot' }: { slug: string; kind?: FavoriteKind }) {
+// Refonte lot 3 (2026-10-02): the bot fiche asks for the maquette's button,
+// `appearance="registre"`: 44 px, a control contour (not the decorative rule), ink text,
+// a drawn star. Same states, same requests; every other caller keeps the default.
+const REGISTRE = 'inline-flex items-center gap-2 min-h-11 px-4 rounded border text-sm font-semibold transition-colors'
+
+function Star({ on }: { on: boolean }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill={on ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.6}>
+      <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" />
+    </svg>
+  )
+}
+
+export default function FavoriteButton({ slug, kind = 'bot', appearance = 'default' }: {
+  slug: string
+  kind?: FavoriteKind
+  appearance?: 'default' | 'registre'
+}) {
+  const registre = appearance === 'registre'
   const [state, setState] = useState<State>('loading')
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -68,9 +86,11 @@ export default function FavoriteButton({ slug, kind = 'bot' }: { slug: string; k
       <a
         href={signInHref(pagePath(kind, slug))}
         title="Connecte-toi pour le garder et le retrouver dans ton espace"
-        className={`${BUTTON} border-border text-muted hover:text-foreground`}
+        className={registre
+          ? `${REGISTRE} border-border-strong text-foreground hover:bg-card-2`
+          : `${BUTTON} border-border text-muted hover:text-foreground`}
       >
-        <span aria-hidden="true">☆</span> Garder en favori
+        {registre ? <Star on={false} /> : <span aria-hidden="true">☆</span>}{' '}Garder en favori
       </a>
     )
   }
@@ -83,9 +103,11 @@ export default function FavoriteButton({ slug, kind = 'bot' }: { slug: string; k
         onClick={toggle}
         disabled={state === 'loading' || busy}
         aria-pressed={on}
-        className={`${BUTTON} ${on ? 'border-accent/50 text-foreground' : 'border-border text-muted hover:text-foreground'} disabled:opacity-60`}
+        className={registre
+          ? `${REGISTRE} ${on ? 'border-accent bg-card-2 text-foreground' : 'border-border-strong text-foreground hover:bg-card-2'} disabled:opacity-60`
+          : `${BUTTON} ${on ? 'border-accent/50 text-foreground' : 'border-border text-muted hover:text-foreground'} disabled:opacity-60`}
       >
-        <span aria-hidden="true">{on ? '★' : '☆'}</span> {on ? 'Dans mes favoris' : 'Garder en favori'}
+        {registre ? <Star on={on} /> : <span aria-hidden="true">{on ? '★' : '☆'}</span>}{' '}{on ? 'Dans mes favoris' : 'Garder en favori'}
       </button>
       {on && (
         <a href={labUrl(`${LAB_ORIGIN}/espace`, 'fiche-bot-favori')} className={linkClass('inline', 'text-sm')}>

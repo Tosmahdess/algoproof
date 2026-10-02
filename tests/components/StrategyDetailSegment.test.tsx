@@ -38,14 +38,18 @@ const simulation = () => {
   return { segment: seg, timeline, stats: timeline.simStats }
 }
 
+// Refonte lot 3 (2026-10-02, audit 2026-10 constat 4): the order is reversed. The
+// simulation alone leads, in colour; the result since 1 January, backtest included, is a
+// grey line apart that names the backtest's share.
 describe('StrategyDetail curve header with a backtest segment', () => {
-  it('gives the result since 1 January, then the simulation apart', () => {
-    const t = render(<StrategyDetail bot={bot} simulation={simulation()} />)
-      .container.textContent!.replace(/\s+/g, ' ')
-    // curve ends at 1100 + 10 x 1.1 = 1111: +111 € since 1 January
-    expect(t).toMatch(/Depuis 1\s000\s€ le 1er janvier :\s*\+111,00\s€ \(\+11,1\s%\)/)
+  it('leads with the simulation alone, the backtest apart and grey', () => {
+    const { getByTestId } = render(<StrategyDetail bot={bot} simulation={simulation()} />)
     // the simulation alone: +11 € on the 1100 it started from
-    expect(t).toMatch(/dont simulation\s*\+11,00\s€ \(\+1,0\s%\)/)
+    expect(getByTestId('curve-result').textContent).toMatch(/^\+11,00\s€ \(\+1,0\s%\)$/)
+    // curve ends at 1100 + 10 x 1.1 = 1111: +111 € since 1 January, of which +100 backtest
+    const apart = getByTestId('curve-backtest')
+    expect(apart.textContent).toMatch(/Depuis 1\s000,00\s€ le 1er janvier, backtest compris : \+111,00\s€, dont backtest \+100,00\s€/)
+    expect(apart.className).toContain('text-muted')
   })
 })
 
@@ -59,6 +63,7 @@ describe('StrategyDetail counter with replay trades after the freeze', () => {
     const t = render(<StrategyDetail bot={bot}
       simulation={{ segment: bridged, timeline, stats: timeline.simStats }} />)
       .container.textContent!.replace(/\s+/g, ' ')
-    expect(t).toMatch(/Trades exposés\s*2\s*\(1L · 1S\)/)
+    // Refonte lot 3: the sides in words (« 1L · 1S » before).
+    expect(t).toMatch(/2 trades clos · 1 long · 1 short/)
   })
 })

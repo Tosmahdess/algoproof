@@ -48,7 +48,7 @@ describe('bot fiche — gated params block for wave bots', () => {
   it('never renders the documentation fallback, and shows the gated block with its dossier link', async () => {
     render(await StrategyPage({ params: Promise.resolve({ slug: waveBot.slug }) }))
     // The technical section only mounts once its tab is active.
-    fireEvent.click(screen.getByRole('button', { name: /Technique/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /Technique/i }))
 
     expect(screen.queryByText(/en cours de documentation/)).toBeNull()
     expect(await screen.findByText(/réservée aux membres du labo/)).toBeInTheDocument()
@@ -71,7 +71,7 @@ describe('bot fiche — the recipe for members', () => {
 
   async function openTechnique() {
     render(await StrategyPage({ params: Promise.resolve({ slug: waveBot.slug }) }))
-    fireEvent.click(screen.getByRole('button', { name: /Technique/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /Technique/i }))
   }
 
   it('a member sees the recipe values, not the members-only sentence', async () => {

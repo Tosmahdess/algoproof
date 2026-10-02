@@ -11,6 +11,7 @@ import MetricsRow from '@/components/MetricsRow'
 import TradesTable from '@/components/TradesTable'
 import { backtestStats, backtestTrades, reconcileCents, type BacktestSegment } from '@/lib/backtest-segment'
 import { fmtEur, fmtPct, pnlEur, pnlPct } from '@/lib/display'
+import { cumulativeAfterEach, sumOfResults } from '@/lib/trade-ledger'
 import { longDateOrdinal } from '@/lib/format-date'
 import SegmentVerdictBadge from '@/components/SegmentVerdictBadge'
 import type { Trade } from '@/lib/types'
@@ -27,20 +28,25 @@ export default function BacktestBlock({ segment }: { segment: BacktestSegment })
     asset: t.asset, side: t.side, pnl: t.pnl, reason: t.reason, is_paper: true,
     entry_price: t.entry_price, exit_price: t.exit_price,
   })), [segment, stats])
+  // Every backtest trade is in `trades`, so the cumul runs on the whole backtest.
+  const cumul = useMemo(() => cumulativeAfterEach(trades, segment.startCapital), [trades, segment])
   const [open, setOpen] = useState(false)
   const eur = pnlEur(stats.latest_capital, segment.startCapital)
   const pct = pnlPct(stats.latest_capital, segment.startCapital)
   const start = longDateOrdinal(segment.startDate).replace(/ \d{4}$/, '')
 
   return (
-    <div className="bg-card border border-border border-dashed rounded-lg p-4 sm:p-5 mb-8">
+    // Refonte lot 3 (2026-10-02, audit 2026-10 constat 4): the backtest is apart and grey.
+    // Its result is in muted ink, never in the simulation's colours; a dashed rule, not a
+    // card, sets it off from the simulation's register above.
+    <div data-testid="backtest-block" className="border-t border-dashed border-border-strong pt-6 mt-10">
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-        <h2 className="text-xl font-semibold">
-          Backtest du {start} au {longDateOrdinal(segment.freezeDate)}
+        <h3 className="text-lg font-semibold">
+          {`Backtest du ${start} au ${longDateOrdinal(segment.freezeDate)}`}
           <SegmentVerdictBadge verdict={segment.verdict} />
-        </h2>
-        <span className={`tabular-nums font-semibold text-sm ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>
-          {fmtEur(eur)} ({fmtPct(pct)})
+        </h3>
+        <span className="tabular-nums text-sm text-muted">
+          {`${fmtEur(eur)} (${fmtPct(pct)}), à part`}
         </span>
       </div>
       {segment.verdict ? (
@@ -58,16 +64,18 @@ export default function BacktestBlock({ segment }: { segment: BacktestSegment })
           par construction. Ils ne comptent pas dans ceux de la simulation plus haut.
         </p>
       )}
-      <MetricsRow stats={stats} />
+      <MetricsRow stats={stats} drawdownTone="neutral" />
       <div className="mt-6">
-        <TradesTable trades={open ? trades : trades.slice(0, FOLDED)} />
+        <TradesTable trades={open ? trades : trades.slice(0, FOLDED)} cumul={cumul}
+          total={open ? { label: `Total des ${trades.length} trades du backtest`, sum: sumOfResults(trades),
+            cumul: segment.startCapital + sumOfResults(trades) } : undefined} />
         {!open && trades.length > FOLDED && (
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="mt-4 w-full rounded border border-border px-3 py-2 text-sm text-muted hover:text-foreground transition-colors"
+            className="mt-4 w-full min-h-11 rounded border border-border-strong px-3 py-2 text-sm text-foreground hover:bg-card-2 transition-colors"
           >
-            Voir les {trades.length} trades du backtest
+            {`Voir les ${trades.length} trades du backtest`}
           </button>
         )}
       </div>

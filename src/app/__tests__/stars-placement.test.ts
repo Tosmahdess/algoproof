@@ -49,7 +49,9 @@ describe('bells on the site (espace-direct lot H)', () => {
   })
 
   it('a bot page carries the bell next to the star', () => {
-    expect(src('src/app/strategies/bot/[slug]/page.tsx')).toMatch(/<FavoriteButton slug=\{bot\.slug\} \/>\s*<FollowButton slug=\{bot\.slug\} \/>/)
+    // Refonte lot 3 (2026-10-02): the star takes the maquette's appearance on the fiche
+    // (an additive prop); the bell still sits right next to it.
+    expect(src('src/app/strategies/bot/[slug]/page.tsx')).toMatch(/<FavoriteButton slug=\{bot\.slug\}[^>]*\/>\s*<FollowButton slug=\{bot\.slug\} \/>/)
   })
 
   it('a table row never nests the bell inside its link, on both layouts', () => {

@@ -10,16 +10,18 @@ const ROWS: { key: keyof ThreeSentencesData; label: string }[] = [
 
 export default function ThreeSentences({ data }: { data: ThreeSentencesData }) {
   return (
-    <section className="bg-card border border-border rounded-lg p-6 mb-8">
-      <h2 className="text-xl font-semibold mb-3">Ce bot en 3 phrases</h2>
-      <dl className="space-y-2.5">
+    // Refonte lot 3 (2026-10-02): a block inside « Comment je fais tourner ce bot », with
+    // rules between its rows, no card of its own (nested cards are out).
+    <div data-testid="three-sentences" className="mb-8">
+      <h3 className="text-lg font-semibold mb-2">Ce bot en 3 phrases</h3>
+      <dl className="border-t border-border">
         {ROWS.map(({ key, label }) => (
-          <div key={key} className="flex flex-col sm:flex-row sm:gap-3">
-            <dt className="text-xs font-semibold text-muted sm:w-36 shrink-0 sm:pt-0.5">{label}</dt>
-            <dd className="text-sm leading-relaxed">{data[key]}</dd>
+          <div key={key} className="flex flex-col gap-1 border-b border-border py-3 sm:flex-row sm:gap-4">
+            <dt className="text-sm font-semibold text-muted sm:w-40 shrink-0">{label}</dt>
+            <dd className="text-sm leading-relaxed max-w-[68ch]">{data[key]}</dd>
           </div>
         ))}
       </dl>
-    </section>
+    </div>
   )
 }

@@ -16,9 +16,10 @@ import PathToRealCard from '@/components/PathToRealCard'
 import ThreeSentences from '@/components/ThreeSentences'
 import CapitalSimulator from '@/components/CapitalSimulator'
 import BotProvenance from '@/components/BotProvenance'
-import SampleNote from '@/components/SampleNote'
 import RecipeGate from '@/components/RecipeGate'
 import EngineBotSummary from '@/components/EngineBotSummary'
+import VerdictPanel, { decisionColumn } from '@/components/VerdictPanel'
+import BotFigures, { type FiguresProps } from '@/components/BotFigures'
 import { getBotSimulation } from '@/lib/bot-simulation'
 import { timelinePerfDaily } from '@/lib/backtest-segment'
 import { getBotSlugs, getBotWithStats } from '@/lib/queries'
@@ -30,6 +31,12 @@ import { getStrategyFiche } from '@/lib/strategy-library'
 import { provenanceSentence, dossierHref } from '@/lib/provenance'
 import { familyLabel } from '@/lib/families'
 import { labUrl } from '@/lib/lab-links'
+import { botVerdict } from '@/lib/bot-verdict'
+import { assessConformity } from '@/lib/conformity'
+import { evaluatePathToReal, DEFAULT_LIVE_GATE } from '@/lib/path-to-real'
+import { breadcrumbName } from '@/lib/trade-ledger'
+import { fmtEur, frNumber, NARROW_NBSP, pnlPct } from '@/lib/display'
+import { longDateOrdinal } from '@/lib/format-date'
 
 export const revalidate = 1800
 export const dynamicParams = true
@@ -59,12 +66,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+const SECTION = 'border-t border-border py-8 sm:py-10 scroll-mt-20'
+const H2 = 'text-2xl font-semibold tracking-tight mb-5'
+const money = (n: number) => `${frNumber(n, 2)}${NARROW_NBSP}€`
+
 export default async function StrategyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const bot = await getBotWithStats(slug)
   if (!bot) notFound()
   // Engine bots with a backtest segment (D072): ONE simulation feeds every figure of the
-  // fiche (tiles, zero-trade note, path-to-real card, curve, capital simulator), so none
+  // fiche (panel, figures, path-to-real criteria, curve, capital simulator), so none
   // falls back to the ledger alone while another counts the replay after the freeze.
   // Null = plain paper view, bot.stats everywhere.
   const simulation = await getBotSimulation(bot)
@@ -83,106 +94,178 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
   const resolvedConcept = ficheSlugForBot(bot)
   const conceptSlug = bot.origin === 'engine' && resolvedConcept === 'orb' ? null : resolvedConcept
 
+  // Refonte « Le registre des décisions », lot 3 (2026-10-02). The verdict panel under
+  // the title, never folded (audit 2026-10, constat 3): one state chosen from the data
+  // the fiche already has, the decision quoted from its published text.
+  const verdict = botVerdict({ status: bot.status, archivedAt: bot.archived_at, stats, expectations })
+  const gate = { ...DEFAULT_LIVE_GATE, ...expectations?.liveGate }
+  const column = decisionColumn(verdict, {
+    status: bot.status, criteriaCount: evaluatePathToReal(stats, gate).criteria.length,
+  })
+  // The drawdown takes the colour of its published limit, or none (constat 30).
+  const ddCheck = expectations && stats.total_trades > 0
+    ? assessConformity(expectations, stats).checks.find(c => c.label === 'Drawdown max')?.status
+    : undefined
+  const drawdownTone = ddCheck === 'breach' || ddCheck === 'watch' ? ddCheck : 'neutral'
+
+  // The three figures. Real money on the comparison base, without a sentence explaining
+  // it (owner, 02/10); a simulation on its own start, the backtest apart (constat 4).
+  const traded = stats.total_trades > 0
+  const figures: FiguresProps = (() => {
+    if (simulation) {
+      const base = simulation.timeline.simStartCapital
+      const result = traded ? stats.latest_capital - base : null
+      return {
+        baseLabel: 'Départ de la simulation',
+        base,
+        resultLabel: 'Résultat de la simulation',
+        result,
+        resultPct: result === null ? null : pnlPct(stats.latest_capital, base),
+        totalLabel: 'Départ + résultat',
+        apart: `Simulation depuis le ${longDateOrdinal(simulation.timeline.simStart)}. Depuis ${money(bot.start_capital)} le 1er janvier, backtest compris : ${fmtEur(stats.latest_capital - bot.start_capital)}, dont backtest ${fmtEur(base - bot.start_capital)}.`,
+      }
+    }
+    const result = traded ? stats.latest_capital - bot.start_capital : null
+    const live = bot.status === 'live'
+    return {
+      baseLabel: live ? 'Base de comparaison' : 'Capital de départ',
+      base: bot.start_capital,
+      resultLabel: live ? 'Résultat' : 'Résultat de la simulation',
+      result,
+      resultPct: result === null ? null : pnlPct(stats.latest_capital, bot.start_capital),
+      totalLabel: live ? 'Base + résultat' : 'Départ + résultat',
+    }
+  })()
+
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-16">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
 
       {/* Analytics: view_bot on mount (client leaf, keeps the page server-rendered) */}
       <TrackView slug={slug} />
 
-      {/* Header. Lot 5 (conception §5.6): a long asset list folds under « N actifs »
-          (25 tickers used to run across the first screen), the family reads under
-          the name in muted text. */}
-      <div data-testid="bot-header" className="mb-8">
-        <div className="flex items-center gap-3 mb-2 flex-wrap text-muted text-sm">
-          <StatusBadge status={bot.status} />
-          <span>{bot.exchange} · {bot.timeframe}</span>
+      {/* The way back (audit 2026-10, constat 35): the fleet, then this bot. */}
+      <nav aria-label="Fil d’Ariane" className="text-sm">
+        <ol className="flex flex-wrap items-center gap-x-2">
+          <li><Link href="/" className={linkClass('nav', 'inline-flex min-h-11 items-center')}>Accueil</Link></li>
+          <li aria-hidden="true" className="text-muted">/</li>
+          <li><Link href="/overview" className={linkClass('nav', 'inline-flex min-h-11 items-center')}>La flotte</Link></li>
+          <li aria-hidden="true" className="text-muted">/</li>
+          <li aria-current="page" className="text-foreground">{breadcrumbName(bot.name, bot.exchange)}</li>
+        </ol>
+      </nav>
+
+      <header data-testid="bot-header" className="pt-2">
+        {/* Regime and market first, then the name. A long asset list folds under
+            « N actifs » (lot 5, conception §5.6). */}
+        <div className="flex items-center gap-3 flex-wrap text-sm text-muted">
+          <StatusBadge status={bot.status} variant="registre" />
+          <span>{`${bot.exchange} · ${bot.timeframe}`}</span>
           {bot.assets.length > 3 ? (
             <details data-testid="bot-assets" className="inline-block">
-              <summary className="cursor-pointer list-none inline-flex items-center min-h-10 hover:text-foreground">
-                {bot.assets.length} actifs ▾
+              <summary className="cursor-pointer list-none inline-flex items-center min-h-11 hover:text-foreground">
+                {`${bot.assets.length} actifs ▾`}
               </summary>
               <span className="block font-mono text-xs leading-relaxed max-w-[68ch]">{bot.assets.join(', ')}</span>
             </details>
           ) : (
-            <span>· {bot.assets.join(', ')}</span>
+            <span>{`· ${bot.assets.join(', ')}`}</span>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-1">
-          <h1 className="text-3xl font-semibold tracking-tight">{bot.name}</h1>
-          {/* Client islands: the page stays static and public, the star and
-              the bell alone ask who is reading (espace-direct lots A and H). */}
-          <FavoriteButton slug={bot.slug} />
-          <FollowButton slug={bot.slug} />
-        </div>
-        <p data-testid="bot-family" className="text-sm text-muted mb-3">{familyLabel(bot.family)}</p>
-        {/* An engine bot's name already reads strategy, TF, platform (24/09):
-            its `strategy` line would repeat the h1 one line lower. */}
-        {!bot.engine_unit_key && <p className="text-muted">{bot.strategy}</p>}
-        {/* The third edge of the graph. /overview groups this bot under its
-            strategy and /strategies/<concept> explains that strategy and lists
-            this bot — and from here there was no way back to either. Absent,
-            not broken, when no fiche claims this bot: six of the 27 deployed
-            bots run something no fiche describes (grid, delta-neutral carry,
-            funding reversal…). */}
-        {conceptSlug && (
-          <p className="text-sm mt-1 mb-2">
-            <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline')}>
-              La stratégie derrière ce bot →
-            </Link>
-          </p>
-        )}
-      </div>
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight mt-3 mb-5 max-w-[850px]">{bot.name}</h1>
 
-      {/* Provenance: where this bot came from — engine-born or hand-deployed — and when */}
-      <p className="text-xs text-muted mb-4">
-        {provenanceSentence(bot)}
-        {dossierHref(bot) && (
-          <>
-            {' '}
-            <a href={labUrl(dossierHref(bot)!, 'fiche-bot-dossier')} className={linkClass('inline')}
-               target="_blank" rel="noopener noreferrer">
-              Voir le dossier de validation
-            </a>
-          </>
+        <VerdictPanel verdict={verdict} column={column} />
+
+        <BotFigures {...figures} />
+
+        {/* Where this bot came from and since when. The real-money start date is said
+            here, once, from bots.live_since (D057). */}
+        <p className="text-xs text-muted mt-3 max-w-[90ch]">
+          {`${stats.total_trades} trade${stats.total_trades > 1 ? 's' : ''} clos. ${provenanceSentence(bot)}`}
+          {dossierHref(bot) && (
+            <>
+              {' '}
+              <a href={labUrl(dossierHref(bot)!, 'fiche-bot-dossier')} className={linkClass('inline')}
+                 target="_blank" rel="noopener noreferrer">
+                Voir le dossier de validation ↗
+              </a>
+            </>
+          )}
+        </p>
+        <p className="text-xs text-muted mt-1">
+          <span data-testid="bot-family" className="text-muted">{familyLabel(bot.family)}</span>
+          {/* An engine bot's name already reads strategy, TF, platform (24/09): its
+              `strategy` line would repeat the h1. */}
+          {/* A stored strategy line may carry a dash (« Opening Range H1 — 25 actifs »); the
+              site writes no em dash, so it reads with a middle dot. */}
+          {!bot.engine_unit_key && <>{' · '}<span>{bot.strategy.replace(/\s+—\s+/g, ' · ')}</span></>}
+          {/* The third edge of the graph: back to the strategy this bot runs. Absent,
+              not broken, when no fiche claims this bot. */}
+          {conceptSlug && (
+            <>
+              {' · '}
+              <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline')}>
+                La stratégie derrière ce bot →
+              </Link>
+            </>
+          )}
+        </p>
+
+        {/* Client islands: the page stays static and public, the star and the bell
+            alone ask who is reading (espace-direct lots A and H). The bell shows to a
+            Direct account only, as before. */}
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <FavoriteButton slug={bot.slug} appearance="registre" />
+          <FollowButton slug={bot.slug} />
+          <span className="text-xs text-muted">Un favori n’envoie aucun message.</span>
+        </div>
+
+        <nav aria-label="Dans cette fiche" className="mt-6 border-t border-border">
+          <ul className="flex flex-wrap gap-x-6 text-sm">
+            <li><a href="#regles" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>Règles et décision</a></li>
+            <li><a href="#trades" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>Trades clos</a></li>
+            <li><a href="#methode" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>Comment il tourne</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      {/* What I had fixed, against what happened (constats 6 and 30). */}
+      <section id="regles" aria-labelledby="regles-title" className={SECTION}>
+        <h2 id="regles-title" className={H2}>Ce que j’avais fixé. Ce qui s’est passé.</h2>
+        {expectations ? (
+          <ConformityCard expectations={expectations} stats={stats} />
+        ) : bot.status !== 'paper' ? (
+          <p className="max-w-[68ch]">
+            Je n’ai pas fixé de limites à l’avance pour ce bot : je n’ai ni seuil à confronter
+            à ses résultats ni règle d’arrêt publiée. Je publie chacun de ses trades, plus bas.
+          </p>
+        ) : null}
+        {/* Paper→real gate, paper bots only. A live bot's real-money start date is on
+            the provenance line above, and only there (D057). */}
+        {bot.status === 'paper' && (
+          <div className={expectations ? 'mt-10' : ''}>
+            <PathToRealCard status={bot.status} stats={stats} liveGate={expectations?.liveGate} />
+          </div>
         )}
-      </p>
+      </section>
+
+      {/* Filters, figures, curve and the register of closed trades. */}
+      <section id="trades" aria-labelledby="trades-title" className={SECTION}>
+        <h2 id="trades-title" className={H2}>Je laisse l’addition visible.</h2>
+        <StrategyDetail bot={bot} simulation={simulation} drawdownTone={drawdownTone} />
+      </section>
 
       {/* Provenance: which screening campaign this bot came from, and what it measured */}
       {provenance && (
-        <BotProvenance campaign={provenance.campaign} candidate={provenance.candidate} />
+        <section aria-labelledby="provenance-title" className={SECTION}>
+          <h2 id="provenance-title" className={H2}>D’où vient ce bot</h2>
+          <BotProvenance campaign={provenance.campaign} candidate={provenance.candidate} />
+        </section>
       )}
 
-      {/* Novice layer: plain-FR summary (only for bots with a documented envelope) */}
-      {expectations?.threeSentences && <ThreeSentences data={expectations.threeSentences} />}
-
-      {/* Honest dormancy / low-sample note — applies to every bot, documented
-          envelope or not, unlike ConformityCard's dormancyNote below (which only
-          renders for the handful of bots with a pre-registered envelope).
-          `dormancyNote` is NOT passed here: it comes from `expectations`, and
-          whenever `expectations` exists, ConformityCard mounts unconditionally
-          a few lines down and shows the same sentence itself once totalTrades
-          is 0 — passing it to both would print it twice on one page (found in
-          fix round 1, funding-rev-long). SampleNote keeps its own generic
-          "il attend son signal" line either way. */}
-      <SampleNote totalTrades={stats.total_trades} />
-
-      {/* Filter + metrics + equity curve + trades — interactive client island */}
-      <StrategyDetail bot={bot} simulation={simulation} />
-
-      {/* Conformity: pre-registered envelope vs realized + public kill criteria */}
-      {expectations && <ConformityCard expectations={expectations} stats={stats} />}
-
-      {/* Paper→real gate, paper bots only. A live bot's real-money start date
-          is on the provenance line above, and only there (D057): the card
-          used to repeat it from the same column. */}
-      <PathToRealCard
-        status={bot.status}
-        stats={stats}
-        liveGate={expectations?.liveGate}
-      />
-
-      {/* Explanation: plain overview → technical params */}
-      <section className="mb-8">
+      <section id="methode" aria-labelledby="methode-title" className={SECTION}>
+        <h2 id="methode-title" className={H2}>Comment je fais tourner ce bot</h2>
+        {/* Novice layer: plain-FR summary (only for bots with a documented envelope) */}
+        {expectations?.threeSentences && <ThreeSentences data={expectations.threeSentences} />}
         <ExplainerBox
           functional={(() => {
             // An engine bot's `description` is one generic sentence per base,
@@ -233,13 +316,26 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
             )
           })()}
         />
+        {/* Bridge to the lab and to the method */}
+        <p className="text-sm text-muted mt-6 max-w-[68ch]">
+          Envie de tester une idée avec la même rigueur ? Le labo applique mes contrôles anti-overfit à tes propres backtests.
+        </p>
+        <ul className="mt-1 flex flex-wrap gap-x-6 text-sm">
+          <li><Link href="/preuve" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>Ma méthode →</Link></li>
+          <li>
+            <a href={labUrl('https://lab.algoproof.fr/lab', 'fiche-bot')} target="_blank" rel="noopener noreferrer"
+               className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
+              Ouvrir le labo ↗
+            </a>
+          </li>
+        </ul>
       </section>
 
       {/* "Sur mon capital" — observed history rescaled to a visitor-chosen
           capital. AFTER the explanation since 2026-09-19 (D057): a reader
           handled amounts before learning what the bot does. */}
       {/* An engine bot with a backtest segment is read from 1 January (user, 2026-09-28),
-          the backtest's share named apart. */}
+          the simulation first and the backtest's share named apart (constat 4). */}
       {simulation ? (
         <CapitalSimulator perfDaily={timelinePerfDaily(simulation.timeline, bot.slug)}
           startCapital={bot.start_capital} backtestUntil={simulation.segment.freezeDate}
@@ -248,21 +344,6 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
         <CapitalSimulator perfDaily={bot.perf_daily} startCapital={bot.start_capital} />
       )}
 
-      {/* Bridge to the lab */}
-      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8 text-center">
-        <p className="text-sm mb-3">
-          Envie de tester une idée avec la même rigueur ? Le labo applique mes contrôles anti-overfit à tes propres backtests.
-        </p>
-        <a
-          href={labUrl('https://lab.algoproof.fr/lab', 'fiche-bot')}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={linkClass('inline', 'text-sm')}
-        >
-          Ouvrir le labo →
-        </a>
-      </div>
-
       {/* A private question, the lab account page's form (owner, 2026-09-26). It
           replaces a public, unmoderated Discussion that had no comment in two months. */}
       <BotQuestionForm botName={bot.name} slug={slug} />
@@ -270,20 +351,20 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
       {/* Partager — folded on every screen (D057): embed code, rarely used,
           262 px on a phone. A native <details>, not Repli: this one SHOULD
           have a toggle on a computer too. */}
-      <details className="bg-card border border-border rounded-lg p-4 sm:p-5">
-        <summary className="cursor-pointer">
+      <details className="border-t border-border py-6 mb-10">
+        <summary className="cursor-pointer min-h-11 flex items-center">
           <h2 className="inline text-xl font-semibold">Partager ce bot</h2>
         </summary>
         <div className="space-y-3 mt-3">
           <div>
             <p className="text-xs text-muted mb-1.5">Intégrer (iframe)</p>
-            <code className="block text-xs bg-bg border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
+            <code className="block text-xs bg-card border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
               {`<iframe src="https://algoproof.fr/embed/${slug}" width="480" height="200" frameborder="0"></iframe>`}
             </code>
           </div>
           <div>
             <p className="text-xs text-muted mb-1.5">Image directe (Twitter / Discord)</p>
-            <code className="block text-xs bg-bg border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
+            <code className="block text-xs bg-card border border-border rounded px-3 py-2 font-mono text-muted break-all select-all">
               {`https://algoproof.fr/api/card/${slug}`}
             </code>
           </div>

@@ -2,15 +2,18 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import ExplainerBox from '@/components/ExplainerBox'
 
+// Refonte lot 3 (2026-10-02, audit 2026-10 constats 33 and 34): the two buttons are real
+// tabs (role tab, aria-selected), and a panel stays mounted once opened, hidden when not
+// selected, so the queries below ask for tabs and for visibility.
 describe('ExplainerBox', () => {
   it('renders the Fonctionnel tab button', () => {
     render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
-    expect(screen.getByRole('button', { name: /comment il fonctionne/i })).toBeDefined()
+    expect(screen.getByRole('tab', { name: /comment il fonctionne/i })).toBeDefined()
   })
 
   it('renders the Technique tab button', () => {
     render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
-    expect(screen.getByRole('button', { name: /technique/i })).toBeDefined()
+    expect(screen.getByRole('tab', { name: /technique/i })).toBeDefined()
   })
 
   it('shows functional content by default', () => {
@@ -21,17 +24,17 @@ describe('ExplainerBox', () => {
 
   it('shows technical content after clicking Technique tab', () => {
     render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
-    fireEvent.click(screen.getByRole('button', { name: /technique/i }))
-    expect(screen.getByText('Tech detail.')).toBeDefined()
-    expect(screen.queryByText('Plain text.')).toBeNull()
+    fireEvent.click(screen.getByRole('tab', { name: /technique/i }))
+    expect(screen.getByText('Tech detail.')).toBeVisible()
+    expect(screen.queryByText('Plain text.')).not.toBeVisible()
   })
 
   it('clicking Fonctionnel tab after Technique shows functional again', () => {
     render(<ExplainerBox functional="Plain text." technical="Tech detail." />)
-    fireEvent.click(screen.getByRole('button', { name: /technique/i }))
-    fireEvent.click(screen.getByRole('button', { name: /comment il fonctionne/i }))
-    expect(screen.getByText('Plain text.')).toBeDefined()
-    expect(screen.queryByText('Tech detail.')).toBeNull()
+    fireEvent.click(screen.getByRole('tab', { name: /technique/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /comment il fonctionne/i }))
+    expect(screen.getByText('Plain text.')).toBeVisible()
+    expect(screen.queryByText('Tech detail.')).not.toBeVisible()
   })
 
   it('accepts ReactNode in technical prop and renders after tab click', () => {
@@ -41,7 +44,7 @@ describe('ExplainerBox', () => {
         technical={<span data-testid="custom-node">Custom</span>}
       />
     )
-    fireEvent.click(screen.getByRole('button', { name: /technique/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /technique/i }))
     expect(screen.getByTestId('custom-node')).toBeDefined()
   })
 })
@@ -52,7 +55,7 @@ describe('ExplainerBox', () => {
 describe('ExplainerBox — no changelog tab', () => {
   it('never renders an Historique tab', () => {
     render(<ExplainerBox functional="F" technical="T" />)
-    expect(screen.queryByRole('button', { name: /historique/i })).toBeNull()
+    expect(screen.queryByRole('tab', { name: /historique/i })).toBeNull()
   })
 })
 
@@ -61,6 +64,28 @@ describe('ExplainerBox — no changelog tab', () => {
 describe('ExplainerBox — no discussion tab', () => {
   it('never renders a Discussion tab', () => {
     render(<ExplainerBox functional="F" technical="T" />)
-    expect(screen.queryByRole('button', { name: /discussion/i })).toBeNull()
+    expect(screen.queryByRole('tab', { name: /discussion/i })).toBeNull()
+  })
+})
+
+describe('ExplainerBox — tabs for assistive technology', () => {
+  it('marks the selected tab and links each tab to its panel', () => {
+    render(<ExplainerBox functional="F" technical="T" />)
+    const tabs = screen.getAllByRole('tab')
+    expect(screen.getByRole('tablist')).toBeInTheDocument()
+    expect(tabs.map(t => t.getAttribute('aria-selected'))).toEqual(['true', 'false'])
+    const panel = document.getElementById(tabs[0].getAttribute('aria-controls')!)!
+    expect(panel.getAttribute('role')).toBe('tabpanel')
+  })
+
+  it('moves between tabs with the arrow keys', () => {
+    render(<ExplainerBox functional="F" technical="T" />)
+    fireEvent.keyDown(screen.getByRole('tab', { name: /comment il fonctionne/i }), { key: 'ArrowRight' })
+    expect(screen.getByRole('tab', { name: /technique/i }).getAttribute('aria-selected')).toBe('true')
+  })
+
+  it('carries no emoji in a tab label', () => {
+    render(<ExplainerBox functional="F" technical="T" />)
+    for (const t of screen.getAllByRole('tab')) expect(t.textContent).not.toMatch(/[☀-➿\u{1F300}-\u{1FAFF}]/u)
   })
 })
