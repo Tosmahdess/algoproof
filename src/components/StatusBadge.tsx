@@ -24,7 +24,7 @@ export default function StatusBadge({ status }: { status: BotStatus }) {
   return (
     <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border whitespace-nowrap ${classes}`}>
       {glyph && (
-        <span aria-hidden="true" className={status === 'live' ? 'animate-pulse' : undefined}>{glyph}</span>
+        <span aria-hidden="true" className={status === 'live' ? 'animate-pulse motion-reduce:animate-none' : undefined}>{glyph}</span>
       )}
       {label}
     </span>

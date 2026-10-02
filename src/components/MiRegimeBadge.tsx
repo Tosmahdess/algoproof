@@ -76,7 +76,7 @@ export default function MiRegimeBadge() {
       <div
         data-testid="mi-regime-skeleton"
         aria-busy="true"
-        className="rounded-lg border border-border p-4 sm:p-5 space-y-5 animate-pulse"
+        className="rounded-lg border border-border p-4 sm:p-5 space-y-5 animate-pulse motion-reduce:animate-none"
       >
         <div className="h-5 w-40 rounded bg-card-2" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">

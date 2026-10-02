@@ -114,3 +114,17 @@ body {
   border: 1px solid var(--border);
   border-radius: 0.375rem;
 }
+
+/* Refonte registre, lot 1: no motion for a reader who asked for none. The
+ * skeletons and the pending spinner also carry `motion-reduce:animate-none`;
+ * this rule catches every transition and anything a later lot adds. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

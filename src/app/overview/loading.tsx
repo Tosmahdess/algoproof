@@ -21,7 +21,7 @@ export default function Loading() {
         </p>
       </header>
 
-      <div role="status" aria-label="Chargement de la flotte" className="animate-pulse space-y-10">
+      <div role="status" aria-label="Chargement de la flotte" className="animate-pulse motion-reduce:animate-none space-y-10">
         {/* Les deux totaux */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <Bar className="h-[104px]" />

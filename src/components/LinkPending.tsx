@@ -31,7 +31,7 @@ export default function LinkPending() {
     <span
       data-testid="link-pending"
       className={`inline-block h-3 w-3 flex-shrink-0 rounded-full border border-current border-t-transparent transition-opacity ${
-        pending ? 'animate-spin opacity-70' : 'opacity-0'
+        pending ? 'animate-spin motion-reduce:animate-none opacity-70' : 'opacity-0'
       }`}
       {...(pending
         ? { role: 'status' as const, 'aria-label': 'Chargement de la page' }
