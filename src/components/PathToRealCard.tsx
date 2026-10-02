@@ -1,5 +1,6 @@
 import type { BotStats } from '@/lib/types'
 import { evaluatePathToReal, DEFAULT_LIVE_GATE, type LiveGate, type PathCriterion } from '@/lib/path-to-real'
+import { fmtPfDisplay, frNumber, NARROW_NBSP } from '@/lib/display'
 
 interface Props {
   status: string
@@ -7,15 +8,12 @@ interface Props {
   liveGate?: Partial<LiveGate>
 }
 
+/** The value a reader sees beside the threshold. No trade yet: « — ». */
 function fmt(c: PathCriterion): string {
-  if (c.format === 'pct') return `${(c.value * 100).toFixed(1)} %`
-  if (c.format === 'count') return `${c.value} / ${c.target}`
-  return c.value.toFixed(2)
-}
-
-function width(c: PathCriterion): number {
-  if (c.direction === 'lte') return c.met ? 100 : Math.max(0, Math.min(100, (c.target / Math.max(c.value, 1e-9)) * 100))
-  return Math.max(0, Math.min(100, (c.value / c.target) * 100))
+  if (!c.measurable) return '—'
+  if (c.format === 'pct') return `${frNumber(c.value * 100, 1)}${NARROW_NBSP}%`
+  if (c.format === 'count') return `${c.value} sur ${c.target}`
+  return fmtPfDisplay(null, 1, c.value)
 }
 
 // The paper→real gate, public, for paper bots only.
@@ -24,37 +22,37 @@ function width(c: PathCriterion): number {
 // the provenance line at the top of the same fiche already says it, from the
 // same column (bots.live_since), 3 000 px earlier on a phone. Removed
 // 2026-09-19 (D057); the date has one surface, provenanceSentence().
+//
+// Refonte « Le registre des décisions », lot 3 (2026-10-02): the gate reads like the
+// rules beside it, a value against its threshold, no gauge and no green tick. Without a
+// trade the ratios are « — », « pas encore mesurable » (audit 2026-10, constat 6).
 export default function PathToRealCard({ status, stats, liveGate }: Props) {
   if (status !== 'paper') return null
 
   const gate = { ...DEFAULT_LIVE_GATE, ...liveGate }
-  const { criteria, met, allMet } = evaluatePathToReal(stats, gate)
+  const { criteria, met } = evaluatePathToReal(stats, gate)
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 mb-8">
-      <div className="flex items-center gap-3 mb-5">
-        <div>
-          <p className="font-semibold text-sm">Avant le moindre euro réel</p>
-          <p className="text-xs text-muted">Avant le passage en argent réel, je demande à chaque bot de remplir ces 4 critères publics et obligatoires.</p>
-        </div>
-      </div>
-      <div className="space-y-4">
+    <div data-testid="path-to-real">
+      <h3 className="text-lg font-semibold">Avant le moindre euro réel</h3>
+      <p className="text-sm text-muted mt-1">
+        {`Avant le passage en argent réel, je demande à chaque bot de remplir ces ${criteria.length} critères publics et obligatoires.`}
+      </p>
+      <dl className="mt-3 border-t border-border">
         {criteria.map(c => (
-          <div key={c.label}>
-            <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-muted">{c.label}</span>
-              <span className={`tabular-nums font-semibold ${c.met ? 'text-positive' : ''}`}>
-                {fmt(c)}{c.met ? ' ✓' : ''}
+          <div key={c.label} data-testid="ptr-row" className="flex items-baseline justify-between gap-4 border-b border-border py-3">
+            <dt className="text-sm">
+              {c.label}
+              <span className="block text-xs text-muted">
+                {!c.measurable ? 'pas encore mesurable' : c.met ? 'atteint' : 'pas encore atteint'}
               </span>
-            </div>
-            <div className="h-1.5 bg-border rounded-full overflow-hidden">
-              <div data-testid="ptr-bar" className={`h-full rounded-full ${c.met ? 'bg-positive' : 'bg-severe'}`} style={{ width: `${width(c)}%` }} />
-            </div>
+            </dt>
+            <dd className="text-xl tabular-nums">{fmt(c)}</dd>
           </div>
         ))}
-      </div>
-      <p className="text-xs text-muted mt-4">
-        {met}/4 critères atteints : rien ne passe en réel avant les 4.
+      </dl>
+      <p className="text-xs text-muted mt-3">
+        {`${met} critère${met > 1 ? 's' : ''} sur ${criteria.length} atteint${met > 1 ? 's' : ''} : rien ne passe en réel avant les ${criteria.length}.`}
       </p>
     </div>
   )

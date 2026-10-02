@@ -1,40 +1,28 @@
-// Conformity card: confronts realized stats with the pre-registered backtest envelope
-// and publishes the bot's kill criteria. Server-safe (pure props, no client state);
-// the fold itself is Repli, a client island.
+// « Ce que j'avais fixé. Ce qui s'est passé. » (refonte « Le registre des décisions »,
+// lot 3, 2026-10-02). Confronts the realized figures with the limits registered before
+// the observation period (bot-expectations.ts) and publishes the bot's kill criteria,
+// with the dated decision under the rule it answers. Server-safe, pure props.
 //
-// 2026-09-19 (D057): on a phone the card took 772 px of v1-spot. The table,
-// the kill criteria and the source fold there; the title, the status badge,
-// the one-line method note and the verdict sentence stay visible (Repli's
-// `aside` and `entete`), so a folded card never shows a bare « Dans
-// l'enveloppe ». On a computer nothing changes.
-import Repli from '@/components/Repli'
+// Before the redesign this was a card folded on a phone (D057). The state it argued now
+// sits in the verdict panel under the title (VerdictPanel, never folded), so this body
+// shows the evidence: each value against its threshold (« Pire baisse 29,1 %, limite
+// publiée 20 % »), coloured by that threshold only (audit 2026-10, constat 30), and
+// « — », « pas encore mesurable », when there is nothing to measure (constat 6).
 import DecisionNote from '@/components/DecisionNote'
 import { mediumDate } from '@/lib/format-date'
+import { LOW_SAMPLE_TRADES, NARROW_NBSP, fmtDrawdown, fmtPfDisplay, frNumber } from '@/lib/display'
 import type { BotExpectations } from '@/lib/bot-expectations'
-import { assessConformity, ConformityStatus, RealizedStats } from '@/lib/conformity'
+import { assessConformity, type CheckStatus, type RealizedStats } from '@/lib/conformity'
 
-const STATUS_CONFIG: Record<ConformityStatus, { label: string; classes: string; dot: string }> = {
-  ok: {
-    label: 'Dans les limites attendues',
-    classes: 'bg-positive/10 text-positive border-positive/30',
-    dot: 'bg-positive',
-  },
-  watch: {
-    label: 'À surveiller',
-    classes: 'bg-warning/10 text-warning border-warning/30',
-    dot: 'bg-warning',
-  },
-  breach: {
-    label: 'Limites dépassées',
-    classes: 'bg-negative/10 text-negative border-negative/30',
-    dot: 'bg-negative',
-  },
-  insufficient: {
-    label: 'Échantillon insuffisant',
-    classes: 'bg-muted/10 text-muted border-muted/30',
-    dot: 'bg-muted',
-  },
+/** A threshold's colour: a crossed limit in the loss colour, a near one in the reserve,
+ *  anything else in ordinary ink. Never the sign of the figure. */
+export function checkTone(status: CheckStatus | null): string {
+  return status === 'breach' ? 'text-negative' : status === 'watch' ? 'text-warning' : 'text-foreground'
 }
+
+const pct = (x: number) => `${frNumber(x * 100, 1).replace(/,0$/, '')}${NARROW_NBSP}%`
+
+interface Row { label: string; limit: string; value: string; status: CheckStatus | null; note: string | null }
 
 export default function ConformityCard({
   expectations,
@@ -47,97 +35,80 @@ export default function ConformityCard({
   today?: string
 }) {
   const result = assessConformity(expectations, stats)
-  const { label, classes, dot } = STATUS_CONFIG[result.status]
+  const statusOf = (label: string) => result.checks.find(c => c.label === label)?.status ?? null
+  const traded = stats.total_trades > 0
+
+  const rows: Row[] = []
+  if (expectations.maxDrawdown !== undefined) {
+    rows.push({
+      label: 'Pire baisse',
+      limit: `Limite publiée : ${pct(expectations.maxDrawdown)}`,
+      value: traded ? fmtDrawdown(stats.max_drawdown) : '—',
+      status: traded ? statusOf('Drawdown max') : null,
+      note: traded ? null : 'pas encore mesurable',
+    })
+  }
+  if (expectations.pfFloor !== undefined) {
+    const measured = stats.total_trades >= LOW_SAMPLE_TRADES
+    rows.push({
+      label: 'Facteur de profit',
+      limit: `Attendu : au moins ${String(expectations.pfFloor).replace('.', ',')}`,
+      value: measured ? fmtPfDisplay(null, stats.total_trades, stats.profit_factor) : '—',
+      status: measured ? statusOf('Rentabilité (facteur de profit)') : null,
+      note: measured ? null : `pas encore mesurable, moins de ${LOW_SAMPLE_TRADES} trades`,
+    })
+  }
+
+  const decided = expectations.decisions?.some(d => expectations.killCriteria.includes(d.rule)) ?? false
 
   return (
-    <Repli
-      id="conformite"
-      // In breach the verdict sentence points at the rules (« écrit sous la
-      // règle concernée ») or admits no decision: the rules must be in view.
-      // ORB is in that state (final review 2026-09-19).
-      ouvertParDefaut={result.status === 'breach'}
-      titre="Le bot respecte-t-il les limites du backtest ?"
-      className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8"
-      titreClassName="text-xl font-semibold"
-      // Below sm the badge goes under the title: sharing the row left the
-      // title 158 px at 390 px, « 📏 » alone on a line. Computer row unchanged.
-      asideClassName="flex flex-col gap-2 mb-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:flex-wrap"
-      aside={
-        <span className={`self-start sm:self-auto inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${classes}`}>
-          <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${dot}`} />
-          {label}
-        </span>
-      }
-      entete={
-        <>
-          <p className="text-xs text-muted mb-4">
-            Je compare en continu les résultats du bot, en simulation ou en argent réel, aux limites
-            du backtest et aux critères que j’ai fixés à l’avance. Les écarts apparaissent ici.
-          </p>
-          <p className="text-sm max-sm:mb-0 mb-4">{result.narrative}</p>
-        </>
-      }
-      corpsClassName="max-sm:mt-4"
-    >
+    <div className="grid gap-8 md:grid-cols-2">
+      <div>
+        {rows.length > 0 && (
+          <dl className="border-t border-border">
+            {rows.map(r => (
+              <div key={r.label} data-testid="rule-row" className="flex items-baseline justify-between gap-4 border-b border-border py-3">
+                <dt>
+                  {r.label}
+                  <span className="block text-xs text-muted">{r.note ? `${r.limit} · ${r.note}` : r.limit}</span>
+                </dt>
+                <dd className={`text-xl sm:text-2xl tabular-nums ${checkTone(r.status)}`}>{r.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        <p className="text-xs text-muted mt-4">
+          {`Critères publiés le ${mediumDate(expectations.registeredAt)} et versionnés publiquement (tout changement est daté). Source des chiffres : ${expectations.source}`}
+        </p>
+      </div>
 
-      {result.checks.length > 0 && (
-        <div className="mb-5 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-xs text-muted text-left">
-                <th className="py-1.5 pr-4 font-medium"> </th>
-                <th className="py-1.5 pr-4 font-medium">Attendu (backtest)</th>
-                <th className="py-1.5 font-medium">Réalisé</th>
-              </tr>
-            </thead>
-            <tbody>
-              {result.checks.map(check => (
-                <tr key={check.label} className="border-t border-border">
-                  <td className="py-2 pr-4 text-muted">{check.label}</td>
-                  <td className="py-2 pr-4 tabular-nums whitespace-nowrap">{check.expected}</td>
-                  <td className={`py-2 whitespace-nowrap tabular-nums ${
-                    check.status === 'breach' ? 'text-negative'
-                    : check.status === 'watch' ? 'text-warning'
-                    : 'text-positive'
-                  }`}>
-                    {check.realized}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {stats.total_trades === 0 && expectations.dormancyNote && (
-        <p className="text-sm leading-relaxed mb-5">{expectations.dormancyNote}</p>
-      )}
-
-      <h3 className="text-base font-semibold mb-2">Quand ce bot sera coupé</h3>
-      <ul className="space-y-1.5 mb-3">
-        {expectations.killCriteria.map(rule => {
-          // The last one written wins: decisions are appended, never edited.
-          const decision = expectations.decisions?.filter(d => d.rule === rule).at(-1)
-          return (
-            <li key={rule} className="text-sm leading-relaxed flex gap-2">
-              {/* A stated rule is not a failed rule: the cross only marks the rule a
-                  decision was published under, i.e. the one that was crossed (O-D2). */}
-              {decision
-                ? <span className="text-negative shrink-0" aria-label="règle franchie">✕</span>
-                : <span className="text-muted shrink-0" aria-hidden="true">•</span>}
-              <span>
-                {rule}
-                {decision && <DecisionNote decision={decision} today={today} className="mt-1.5" />}
-              </span>
-            </li>
-          )
-        })}
-      </ul>
-
-      <p className="text-xs text-muted">
-        Critères pré-enregistrés le {mediumDate(expectations.registeredAt)} et versionnés publiquement
-        (tout changement est daté). Source des chiffres : {expectations.source}
-      </p>
-    </Repli>
+      <div className="bg-card rounded-lg p-4 sm:p-6">
+        <h3 className="text-lg font-semibold mb-3">Quand ce bot sera coupé</h3>
+        <ul className="space-y-3">
+          {expectations.killCriteria.map(rule => {
+            // The last one written wins: decisions are appended, never edited.
+            const decision = expectations.decisions?.filter(d => d.rule === rule).at(-1)
+            return (
+              <li key={rule} className="text-sm leading-relaxed flex gap-2">
+                {/* A stated rule is not a failed rule: the cross only marks the rule a
+                    decision was published under, i.e. the one that was crossed (O-D2). */}
+                {decision
+                  ? <span className="text-negative shrink-0" aria-label="règle franchie">✕</span>
+                  : <span className="text-muted shrink-0" aria-hidden="true">•</span>}
+                <div className="min-w-0">
+                  <p>{rule}</p>
+                  {decision && <DecisionNote decision={decision} today={today} className="mt-2" />}
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+        {/* C2.1 (audit 2026-09-15): a crossed rule is never shown alone. Without a
+            published decision, the card says so instead of implying one. */}
+        {result.status === 'breach' && !decided && (
+          <p className="text-sm mt-4">Je n’ai publié aucune décision à ce jour.</p>
+        )}
+      </div>
+    </div>
   )
 }

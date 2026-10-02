@@ -20,7 +20,7 @@ export type VerdictState =
   | 'no-trade'     // données insuffisantes, zéro trade
   | 'breach'       // règle franchie
   | 'watch'        // proche des limites publiées
-  | 'insufficient' // données insuffisantes, moins de 20 trades
+  | 'insufficient' // données insuffisantes, petit échantillon
   | 'ok'           // dans les limites attendues
   | 'no-limits'    // limites non définies
 
