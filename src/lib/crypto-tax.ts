@@ -41,3 +41,29 @@ export function compare(invested: number, sold: number, tmi: number): TaxCompari
   const taxDue = exempt ? 0 : Math.min(flat, bareme)
   return { gain, exempt, flat, bareme, best, taxDue }
 }
+
+export type ParsedAmount =
+  | { ok: true; value: number }
+  | { ok: false; reason: 'empty' | 'negative' | 'invalid' }
+
+/**
+ * Reads an amount the way a French reader types it (audit 2026-10, n° 1 and 18):
+ * « 15 000 », « 15 000,50 », « 15.000 », with plain, no-break (U+00A0) or narrow
+ * no-break (U+202F) spaces. `parseFloat("15 000")` read 15, so the calculator
+ * showed 0 € of tax on a 5 000 € gain; it also read « abc » as 0 in silence.
+ * Anything that is not a positive number is refused, never guessed at.
+ */
+export function parseAmount(raw: string): ParsedAmount {
+  const s = raw.replace(/[\s  ]/g, '').replace(/€$/, '')
+  if (s === '') return { ok: false, reason: 'empty' }
+  if (/^[-−]/.test(s)) {
+    return parseAmount(s.slice(1)).ok ? { ok: false, reason: 'negative' } : { ok: false, reason: 'invalid' }
+  }
+  let normalized: string
+  if (/^\d\d?\d?(\.\d{3})+(,\d+)?$/.test(s)) normalized = s.replace(/\./g, '').replace(',', '.') // 15.000,50
+  else if (/^\d+(,\d+)?$/.test(s)) normalized = s.replace(',', '.')                              // 15000,50
+  else if (/^\d+\.\d+$/.test(s)) normalized = s                                                  // 1500.5
+  else return { ok: false, reason: 'invalid' }
+  const value = Number(normalized)
+  return Number.isFinite(value) ? { ok: true, value } : { ok: false, reason: 'invalid' }
+}
