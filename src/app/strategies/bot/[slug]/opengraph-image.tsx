@@ -26,8 +26,11 @@ function buildSparklinePath(
     .join(' ')
 }
 
-export default async function Image({ params }: { params: { slug: string } }) {
-  const bot = await getBotWithStats(params.slug)
+// Next 16 passes `params` as a Promise. Read without `await`, `params.slug` was
+// undefined and every bot got the fallback below (audit 2026-10, n. 5).
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const bot = await getBotWithStats(slug)
 
   if (!bot) {
     return new ImageResponse(
