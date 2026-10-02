@@ -24,19 +24,19 @@ export default function CryptoTaxCalculator() {
           <span className="text-muted">Total investi</span>
           <input aria-label="Total investi (€)" inputMode="decimal" value={invested}
             onChange={e => setInvested(e.target.value)} placeholder="1000"
-            className="mt-1 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none" />
+            className="mt-1 w-full rounded-lg border border-border-strong bg-bg px-3 py-2 text-sm text-foreground focus:border-accent" />
         </label>
         <label className="block text-sm">
           <span className="text-muted">Valeur de revente</span>
           <input aria-label="Valeur de revente (€)" inputMode="decimal" value={sold}
             onChange={e => setSold(e.target.value)} placeholder="1500"
-            className="mt-1 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none" />
+            className="mt-1 w-full rounded-lg border border-border-strong bg-bg px-3 py-2 text-sm text-foreground focus:border-accent" />
         </label>
         <label className="block text-sm">
           <span className="text-muted">Ta tranche (TMI)</span>
           <select aria-label="Tranche marginale d'imposition (TMI)" value={tmi}
             onChange={e => setTmi(parseFloat(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none">
+            className="mt-1 w-full rounded-lg border border-border-strong bg-bg px-3 py-2 text-sm text-foreground focus:border-accent">
             {TMI_BRACKETS.map(b => (
               <option key={b} value={b}>{TMI_LABELS[String(b)]}</option>
             ))}

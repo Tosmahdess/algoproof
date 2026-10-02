@@ -85,9 +85,16 @@ body {
  * on the dark cards would otherwise blend into it.
  */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  /* Refonte registre, lot 1: a light 3 px ring (#abc8ec, 10,57:1 on the ground),
+     the width of the mock-up. Links draw the same ring through linkClass(). */
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+::selection {
+  background: var(--button);
+  color: var(--foreground);
 }
 
 /* Skip link: present in the DOM, revealed on focus. A keyboard user landing on

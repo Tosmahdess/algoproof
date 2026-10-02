@@ -22,8 +22,8 @@ export interface IdeaCardData extends LibraryIdea {
 
 const PAGE = 20
 const CIBLE = 'min-h-10'
-const LISTE = `w-full min-w-0 rounded-md border border-border bg-card px-2 ${CIBLE} text-base sm:text-sm
-               text-foreground focus:outline-none focus:border-accent`
+const LISTE = `w-full min-w-0 rounded-md border border-border-strong bg-card px-2 ${CIBLE} text-base sm:text-sm
+               text-foreground focus:border-accent`
 const TF_WORD: Record<string, string> = { D1: '1 jour', H4: '4 heures', H1: '1 heure', M30: '30 minutes' }
 
 function Champ({ label, children }: { label: string; children: ReactNode }) {

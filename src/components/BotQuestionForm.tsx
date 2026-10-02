@@ -44,7 +44,7 @@ export default function BotQuestionForm({ botName, slug }: { botName: string; sl
     setMessage('')
   }
 
-  const field = 'w-full rounded-md border border-border bg-bg px-3 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none'
+  const field = 'w-full rounded-md border border-border-strong bg-bg px-3 text-sm text-foreground placeholder:text-muted focus:border-accent'
 
   return (
     <section data-testid="bot-question" className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">

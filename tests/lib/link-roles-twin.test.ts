@@ -17,7 +17,10 @@ import { join } from 'node:path'
 // Line endings are normalised before hashing on purpose: these repos check out
 // with CRLF on Windows and LF elsewhere, so hashing the raw bytes would fail on
 // half the machines for a reason that has nothing to do with drift.
-const TWIN_SHA256 = 'ba385abd0457690cd8c8c83c5753d2433baa7cde186666311994b8ecdbe990c5'
+// Refonte registre, lot 1 (2026-10-02): the focus ring went from 2 px at 60 % to
+// 3 px at full accent. The lab's copy has NOT followed yet: copy link-roles.ts
+// there and paste this digest into its twin test.
+const TWIN_SHA256 = '939d91365ad2e60a8acea26921ba4d180e24ceefc2425a0929946a881b0edd18'
 
 describe('link-roles.ts and its twin in the other repo', () => {
   it('still matches the digest both sides assert', () => {
