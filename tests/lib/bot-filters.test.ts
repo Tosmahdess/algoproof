@@ -43,7 +43,7 @@ describe('parse and serialize', () => {
   it('ignores unknown parameters instead of throwing', () => {
     const s = parseFleetFilters(new URLSearchParams('family=trend&bogus=42&sort=nonsense'))
     expect(s.family).toEqual(['trend'])
-    expect(s.sort).toBe('proven')
+    expect(s.sort).toBe('pnl') // the default since 2026-10-02 (owner: best result first)
   })
 
   // FIX (final review, I5): `dir_trade` used to round-trip through the URL and

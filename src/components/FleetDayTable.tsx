@@ -32,7 +32,7 @@ export default function FleetDayTable({ rows }: { rows: DayRow[] }) {
             stay meaningful. */}
         <table data-testid="fleet-balance-table" className="w-full text-xs min-w-[480px]">
           <thead>
-            <tr className="text-xs font-medium uppercase tracking-wider text-muted border-b border-border">
+            <tr className="text-xs font-normal text-muted border-b border-border">
               <th className="px-2 py-2 text-left">Date</th>
               <th className="px-2 py-2 text-right">Trades</th>
               <th className="px-2 py-2 text-right">P&amp;L réel</th>
@@ -41,7 +41,7 @@ export default function FleetDayTable({ rows }: { rows: DayRow[] }) {
           </thead>
           <tbody>
             {visibleRows.map(row => (
-              <tr key={row.date} className="border-b border-border/40 tabular-nums">
+              <tr key={row.date} className="border-b border-border tabular-nums">
                 {/* One date format on the site (lot 1, C4): « 2 juil. 2026 », not « 2/7/2026 ». */}
                 <td className="px-2 py-1.5">{mediumDate(row.date)}</td>
                 <td className="px-2 py-1.5 text-right">{row.trades}</td>
@@ -61,7 +61,7 @@ export default function FleetDayTable({ rows }: { rows: DayRow[] }) {
         <button
           type="button"
           onClick={() => setExpanded(v => !v)}
-          className="mt-3 text-sm text-accent underline"
+          className="mt-3 inline-flex min-h-11 items-center text-sm text-accent underline underline-offset-4"
         >
           {expanded
             ? 'Afficher moins'

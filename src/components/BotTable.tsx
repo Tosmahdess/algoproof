@@ -66,7 +66,7 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                 {familyLabel(bot.family)}{showTf && ` · ${bot.timeframe}`}
                 {hasData ? (
                   <>
-                    {` · ${bot.stats.total_trades} trades · PF ${fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor)} · `}
+                    {` · ${bot.stats.total_trades} ${bot.stats.total_trades > 1 ? 'trades' : 'trade'} · PF ${fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor)} · `}
                     <span className={drawdownIsLoss(bot.stats.max_drawdown) ? 'text-negative' : undefined}>DD {fmtDrawdown(bot.stats.max_drawdown)}</span>
                   </>
                 ) : ' · pas encore de trade'}
@@ -158,10 +158,11 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                     <StatusBadge status={bot.status} />
                   </td>
                   {withSpark && (
-                    // The line inherits the colour of the gain (currentColor): decoration
-                    // for scanning, the figures on the row carry the facts.
-                    <td data-testid="bot-spark" className={`px-4 py-2 hidden lg:table-cell ${eur < 0 ? 'text-negative' : 'text-positive'}`}>
-                      {bot.spark30 && bot.spark30.length >= 2 && <Sparkline values={bot.spark30} width={88} height={20} />}
+                    // The line is drawn in the note colour (refonte « registre », lot 4):
+                    // coloured by the result since the start, it painted a 30-day rise
+                    // red (audit 2026-10, n° 6 and 8). No line at all without a trade.
+                    <td data-testid="bot-spark" className="px-4 py-2 hidden lg:table-cell text-muted">
+                      {hasData && bot.spark30 && bot.spark30.length >= 2 && <Sparkline values={bot.spark30} width={88} height={20} />}
                     </td>
                   )}
                 </tr>

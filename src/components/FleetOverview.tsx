@@ -1,18 +1,19 @@
-// « La flotte », composed (lot 4 of the design audit, 2026-09-25, conception
-// §5.2). In reading order: the two totals, the real-money cards (the lot 3 card,
-// with its 30-day line and the state of its published rule), the register, then
-// the journal and the 30-day curves folded, then the recent trades.
+// « La flotte », composed. Refonte « registre », lot 4 (2026-10-02): in reading
+// order, the two totals, ONE register from the best result to the least good,
+// then the journal and the 30-day curves folded, then the recent trades.
 //
-// Gone with this lot: the market-weather banner (a copy of /intelligence,
-// fetched client-side in the first screen), « Le bilan » as an open block (its
-// totals moved up, its table folded) and the twelve-colour equity chart (the
-// curves now carry the real-money bots and ONE simulation series).
+// Gone with this lot: the real-money cards above the register. The owner asked
+// for one list (2026-10-02); the three real-money bots are rows of it, each with
+// its regime badge and the state of its published rule (« État et décision »),
+// and their total heads the page, apart from the simulation's. The cards also
+// drew a 30-day line in the colour of the result since the start, a figure the
+// line does not show (audit 2026-10, n° 8).
 //
 // Deliberately NOT `'use client'` and NOT `async`: plain JSX inside the server
 // component tree. Everything but FleetRegister renders on this side of the
-// client boundary, so no filter has a prop path to the totals, the cards, the
-// journal or the curves: the stage-0 invariant is structural, not a convention.
-import type { BotWithStats, FleetBot } from '@/lib/types'
+// client boundary, so no filter has a prop path to the totals, the journal or
+// the curves: the stage-0 invariant is structural, not a convention.
+import type { BotWithStats } from '@/lib/types'
 import type { TradeWithBot } from '@/lib/types'
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import { serializeFleetFilters, type FleetFilterState } from '@/lib/bot-filters'
@@ -20,8 +21,8 @@ import { splitCohorts } from '@/lib/cohort'
 import { familyColor } from '@/lib/families'
 import { last30Capital } from '@/lib/home-data'
 import { simulationTotalSeries } from '@/lib/fleet-curves'
-import { RealMoneyCard } from '@/components/home/HomeRealMoney'
-import MetricsLegend from '@/components/MetricsLegend'
+import { getBotExpectations } from '@/lib/bot-expectations'
+import { ledgerState, type LedgerBot } from '@/lib/fleet-ledger'
 import FleetTotals from '@/components/FleetTotals'
 import FleetJournal from '@/components/FleetJournal'
 import FleetRecentTrades from '@/components/FleetRecentTrades'
@@ -34,29 +35,29 @@ export interface FleetOverviewProps {
   aggregate: FleetAggregate
   recentTrades: TradeWithBot[]
   initialState: FleetFilterState
-  /** Minutes since the freshest sync, null when unknown. */
+  /** Minutes since the freshest sync, null when unknown. The page header says
+   *  it; kept in the props so the page and the tests keep one shape. */
   minutes: number | null
 }
 
 const CURVE_DAYS = 30
 
-const fresh = (minutes: number | null) => (minutes === null ? null : minutes < 2 ? 'à l’instant' : `il y a ${minutes} min`)
-
 export default function FleetOverview({
-  bots, aggregate, recentTrades, initialState, minutes,
+  bots, aggregate, recentTrades, initialState,
 }: FleetOverviewProps) {
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - CURVE_DAYS)
   const cutoffStr = cutoff.toISOString().slice(0, 10)
 
   const { live, paper, archived } = splitCohorts(bots)
-  // Longest history first, the same rule as the home and the table (C7).
+  // Longest history first: the order of the curves' legend.
   const liveByHistory = [...live].sort((a, b) => b.stats.total_trades - a.stats.total_trades)
 
   // What crosses into the client register: the trade fields the browser reads,
-  // and a 30-value window for the row's sparkline. Never perf_daily, never
-  // recent_trades (measured 2026-09-23: 5.92 MB of HTML before this projection).
-  const registerBots: FleetBot[] = [...live, ...paper, ...archived].map(b => {
+  // a 30-value window for the row's line, and the row's state in a few words.
+  // Never perf_daily, never recent_trades (measured 2026-09-23: 5.92 MB of HTML
+  // before this projection), never the expectations file.
+  const registerBots: LedgerBot[] = [...live, ...paper, ...archived].map(b => {
     const { perf_daily, list_perf_daily, recent_trades: _rt, all_trades, ...rest } = b
     return {
       ...rest,
@@ -65,6 +66,7 @@ export default function FleetOverview({
       })),
       // an engine bot's row reads its simulation, like its figures (D073)
       spark30: last30Capital(list_perf_daily ?? perf_daily),
+      ledger: b.status === 'archived' ? null : ledgerState(b, getBotExpectations(b.slug)),
     }
   })
 
@@ -91,27 +93,10 @@ export default function FleetOverview({
       data: simulationTotalSeries(paper, cutoffStr),
     },
   ]
-  const f = fresh(minutes)
 
   return (
     <div className="space-y-10">
       <FleetTotals aggregate={aggregate} liveCount={live.length} paperCount={paper.length} />
-
-      {live.length > 0 && (
-        <section data-testid="fleet-real" aria-label="Argent réel">
-          <div className="flex items-baseline justify-between gap-4 mb-3">
-            <h2 className="text-base font-semibold">Argent réel</h2>
-            {f && <span className="text-xs text-muted">{f}</span>}
-          </div>
-          {/* `grid-cols-1` is not decoration: an implicit auto track is sized by the
-              widest nowrap child of a card, and the column overflowed to 459 px at
-              390 px (same trap as the home hero, lot 3). */}
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {liveByHistory.map(bot => <RealMoneyCard key={bot.slug} bot={bot} testId="fleet-bot-card" />)}
-          </div>
-          <MetricsLegend className="mt-3 max-w-[70ch]" />
-        </section>
-      )}
 
       {/* `key`: a search-params-only navigation re-renders this instance instead
           of remounting it; a new initialState serialises to a new key, so the
@@ -130,8 +115,8 @@ export default function FleetOverview({
         titre="Courbes 30 jours"
         resume={`${live.length} ${live.length > 1 ? 'bots réels' : 'bot réel'} et le total simulation, en P&L`}
         toujoursPliable
-        className="bg-card border border-border rounded-lg p-5 sm:p-6"
-        titreClassName="text-base font-semibold"
+        className="border-t border-border pt-6"
+        titreClassName="text-lg font-semibold"
         corpsClassName="mt-4"
       >
         <GlobalEquityCurve bots={curves} days={CURVE_DAYS} />

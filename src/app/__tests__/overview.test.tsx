@@ -1,8 +1,9 @@
 // src/app/__tests__/overview.test.tsx
-// /overview end to end (lot 4 of the design audit, 2026-09-25): the page opens on
-// its two totals and the real-money cards, then one register table for every
-// timeframe, filterable by family and by timeframe from the URL. No counter
-// tiles, no market-weather banner, no explainer before the data.
+// /overview end to end. Refonte « registre », lot 4 (2026-10-02): the page opens
+// on its two totals, then ONE register for every bot and every timeframe, from
+// the best result to the least good, filterable by family and by timeframe from
+// the URL. The real-money cards are gone: those bots are rows of the list. No
+// counter tiles, no market-weather banner, no explainer before the data.
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import { FIXTURE_FLEET } from '../../../tests/fixtures/bots'
@@ -22,23 +23,26 @@ vi.mock('@/lib/queries', () => ({
 import OverviewPage from '@/app/overview/page'
 
 describe('/overview — the fleet in one table', () => {
-  it('opens on the two totals, then the real-money cards, then the register', async () => {
+  it('opens on the two totals, then the one register, with no real-money cards', async () => {
     const { container } = render(await OverviewPage({ searchParams: Promise.resolve({}) }))
     const html = container.innerHTML
     const at = (id: string) => html.indexOf(`data-testid="${id}"`)
     expect(at('fleet-totals')).toBeGreaterThan(-1)
-    expect(at('fleet-totals')).toBeLessThan(at('fleet-real'))
-    expect(at('fleet-real')).toBeLessThan(at('fleet-register'))
+    expect(at('fleet-totals')).toBeLessThan(at('fleet-register'))
+    expect(at('fleet-real')).toBe(-1)
+    expect(at('fleet-bot-card')).toBe(-1)
     expect(screen.queryByTestId('fleet-kpi-card')).toBeNull()
     expect(screen.queryByTestId('fleet-mi')).toBeNull()
     expect(screen.queryByText(/Chargement du régime/)).toBeNull()
   })
 
-  it('renders one table for every timeframe, headed by the timeframe column', async () => {
+  it('renders one list for every timeframe, in the ledger columns, the timeframe on each row', async () => {
     render(await OverviewPage({ searchParams: Promise.resolve({}) }))
     const table = screen.getByTestId('fleet-table')
-    expect(within(table).getAllByRole('columnheader').map(th => th.textContent)).toContain('TF')
+    expect(within(table).getAllByRole('columnheader').map(th => th.textContent)).toContain('Bot et marché')
     expect(screen.queryByTestId('fleet-tf-H4')).toBeNull()
+    const orb = within(table).getByRole('link', { name: 'ORB H1 HL' }).closest('tr')!
+    expect(orb.textContent).toMatch(/H1/)
   })
 
   it('keeps the archived section below the table', async () => {
