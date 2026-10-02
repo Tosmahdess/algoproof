@@ -1,6 +1,6 @@
-// /overview, « La flotte » (lot 4 of the design audit, 2026-09-25, conception
-// §5.2): the title, one line with the freshness, then the two totals, the
-// real-money cards and the register. The metric definitions that used to open
+// /overview, « La flotte » (refonte « registre », lot 4, 2026-10-02): the
+// title, one line with the freshness, then the two totals and ONE register,
+// from the best result to the least good. The metric definitions that used to open
 // the page (64 words before any figure) close it instead.
 //
 // No `revalidate` export on purpose: reading `searchParams` makes this route
@@ -61,11 +61,11 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
         { question: 'Qu\'est-ce que le profit factor ?', answer: 'C\'est le rapport entre l\'argent gagné et l\'argent perdu. Un PF de 1,5 signifie 1,50 € gagné pour 1 € perdu.' },
         { question: 'Le trading est-il en argent réel ?', answer: 'La plupart des bots sont en simulation sur données réelles, frais et slippage compris. Les bots qui tournent avec mon argent sont marqués « Argent réel », et leur total ne se mélange jamais à celui de la simulation.' },
       ])} />
-      <header className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">La flotte</h1>
-        <p className="text-sm sm:text-base text-muted mt-2 max-w-[60ch]">
+      <header className="mb-8 sm:mb-10">
+        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">La flotte</h1>
+        <p className="text-base sm:text-lg text-muted mt-3 max-w-[60ch]">
           Ce qui tourne, avec quel argent, et ce que ça donne.
-          {f && <> <span data-testid="fleet-fresh">{f}</span></>}
+          {f && <>{' '}<span data-testid="fleet-fresh">{f}</span></>}
         </p>
       </header>
 
