@@ -4,7 +4,7 @@ import Repli from '@/components/Repli'
 import { CreuxDachat } from '@/components/CreuxDachat'
 import InvestirListe from '@/components/InvestirListe'
 import { DesLectures } from '@/components/DesLectures'
-import { asOf, contexte, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
+import { asOf, contexte, listeHorsPerimetre, listeInvestir, phraseListeHorsPerimetre } from '@/lib/investir'
 import { SEPT_CONTROLES } from '@/lib/investir-controles'
 import { INVESTIR_VOCAB } from '@/lib/investir-vocab'
 import { frNumber } from '@/lib/display'
@@ -82,7 +82,6 @@ export default function InvestirPage() {
       <Repli
         id="methode"
         toujoursPliable
-        chevronTrace
         titre="Ce que je contrôle, et ce que je ne sais pas"
         resume="La méthode, les sept contrôles et leurs limites"
         className="border-b border-border py-2"
@@ -153,7 +152,6 @@ export default function InvestirPage() {
             computer (Repli, user decision 2026-09-19). Each opens with a rule. */}
         <Repli
           id="mots-investir"
-          chevronTrace
           titre="Les mots employés dans les fiches"
           resume={`${INVESTIR_VOCAB.length} termes`}
           className={`${SECTION} pb-8`}
@@ -173,24 +171,22 @@ export default function InvestirPage() {
           </dl>
         </Repli>
 
-        {/* The copy of this block is n° 14 of the audit 2026-10 (« Elles ne
-            déposent pas » is false for some of them): a data correction, left
-            to its own change. */}
+        {/* Audit 2026-10, n° 14: « Elles ne déposent pas » was said of all of
+            them, and false for the ones that file a 10-K or a 20-F. The counts
+            per cause are computed from the fiches, never written by hand. */}
         {dehors.length > 0 && (
           <Repli
             id="hors-perimetre"
-            chevronTrace
             titre={`${dehors.length} sociétés que je ne lis pas`}
             className={`${SECTION} pb-8`}
             titreClassName={H2}
             corpsClassName="mt-3"
           >
             <p className="text-sm text-muted leading-relaxed mb-3 max-w-[68ch]">
-              Elles ne déposent pas de rapport annuel auprès du régulateur
-              américain, donc ma règle n’a aucun document à lire. Je les suis
-              quand même, avec une analyse écrite à partir de données de marché
-              que tu ne peux pas vérifier comme le reste. C’est dit sur chaque
-              fiche.
+              Mes sept contrôles ne lisent pas leurs comptes. Sur ces{' '}{dehors.length}{' '}sociétés,{' '}
+              {phraseListeHorsPerimetre(dehors)}{' '}Je les suis quand même, avec une analyse
+              écrite à partir de données de marché que tu ne peux pas vérifier comme le reste.
+              Chaque fiche dit pourquoi je ne la lis pas.
             </p>
             <ul className="flex flex-wrap gap-x-5 text-sm">
               {dehors.map(f => (
@@ -206,7 +202,6 @@ export default function InvestirPage() {
 
         <Repli
           id="hors-liste"
-          chevronTrace
           titre="Ce que cette liste ne contient pas, et pourquoi"
           className={`${SECTION} pb-8`}
           titreClassName={H2}
@@ -215,9 +210,10 @@ export default function InvestirPage() {
           <p>
             La règle ne lit que des rapports annuels déposés auprès du régulateur américain,
             la SEC. LVMH, Hermès, Kering, Roche, Nestlé, Nintendo, Rheinmetall, Thales ou
-            BAE Systems n’y déposent rien : elles ne peuvent pas y figurer, et ce n’est pas
-            un oubli. Les sociétés cotées aux États-Unis mais domiciliées ailleurs déposent
-            un formulaire différent, que je suis en train d’ajouter.
+            BAE Systems n’y déposent ni 10-K ni 20-F : elles ne peuvent pas y figurer, et ce
+            n’est pas un oubli. Les sociétés cotées aux États-Unis mais domiciliées ailleurs
+            déposent un formulaire différent, le 20-F : j’en lis une partie, pas encore
+            toutes.
           </p>
           <p>
             Il n’y a pas non plus de partie « momentum », alors qu’elle existe sur mes

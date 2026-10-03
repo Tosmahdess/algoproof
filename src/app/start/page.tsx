@@ -1,7 +1,7 @@
 import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BYBIT_AFFILIATE_URL, HL_AFFILIATE_URL } from '@/lib/affiliates'
+import { BYBIT_AFFILIATE_URL, HYPERLIQUID_URL } from '@/lib/affiliates'
 import TrackedLink from '@/components/TrackedLink'
 
 export const metadata: Metadata = {
@@ -93,7 +93,7 @@ export default function StartPage() {
             </ol>
           </div>
           <TrackedLink
-            href={HL_AFFILIATE_URL}
+            href={HYPERLIQUID_URL}
             event="outbound_exchange"
             exchange="hyperliquid"
             location="start"

@@ -51,7 +51,7 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
             // a button in an anchor is two controls in one. Each renders only
             // under its provider (espace-direct lots C and H).
             <div key={bot.id} className="relative">
-            <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'flex flex-col gap-1 px-4 py-3 pr-24 min-h-10')}>
+            <Link href={`/strategies/bot/${bot.slug}`} className={linkClass('record', 'flex flex-col gap-1 px-4 py-3 pr-24 min-h-11')}>
               <span className="text-sm leading-snug">{bot.name}</span>
               <span className="flex items-center justify-between gap-2">
                 <span className="flex items-center gap-2">

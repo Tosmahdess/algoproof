@@ -62,7 +62,7 @@ export default function StickyFilterBar(
           onClick={() => setOpen(v => !v)}
           aria-expanded={open}
           aria-controls={panelId}
-          className="inline-flex min-h-10 items-center gap-2 text-xs font-semibold text-muted hover:text-foreground"
+          className="inline-flex min-h-11 items-center gap-2 text-xs font-semibold text-muted hover:text-foreground"
         >
           Filtres
           {activeCount > 0 && (
@@ -79,7 +79,7 @@ export default function StickyFilterBar(
         </button>
 
         {showReset && activeCount > 0 && (
-          <button type="button" onClick={onReset} className="min-h-10 min-w-10 text-xs text-muted underline underline-offset-2 hover:text-foreground">
+          <button type="button" onClick={onReset} className="min-h-11 min-w-11 text-xs text-muted underline underline-offset-2 hover:text-foreground">
             Tout effacer
           </button>
         )}

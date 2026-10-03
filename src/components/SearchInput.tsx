@@ -25,7 +25,7 @@ export default function SearchInput({ value, onChange, placeholder = 'Rechercher
             type="button"
             aria-label="Effacer la recherche"
             onClick={() => onChange('')}
-            className="absolute min-h-10 min-w-10 right-0 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
+            className="absolute min-h-11 min-w-11 right-0 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
           >
             ×
           </button>

@@ -1,6 +1,6 @@
 import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { EquityDisclosure } from '@/components/EquityDisclosure'
 import { CoursTradingView } from '@/components/CoursTradingView'
@@ -9,9 +9,9 @@ import FavoriteButton from '@/components/FavoriteButton'
 import ConstatsLecture from '@/components/ConstatsLecture'
 import { DesLectures } from '@/components/DesLectures'
 import {
-  COMPTES, RECIT, asOf, contexte, ficheParSlug,
-  horsPerimetreParSlug, listeHorsPerimetre, residuDe, tousLesSlugs,
-  type FicheHorsPerimetre,
+  COMPTES, RECIT, asOf, contexte, dossierSec, ficheParSlug,
+  horsPerimetreParSlug, listeHorsPerimetre, phraseCause, redirectionHorsPerimetre,
+  residuDe, tousLesSlugs, type FicheHorsPerimetre,
 } from '@/lib/investir'
 import { capitale, lireControles } from '@/lib/investir-controles'
 import { mediumDate } from '@/lib/format-date'
@@ -66,12 +66,13 @@ function Entete({ nom, meta, horsPerimetre = false }: { nom: string; meta: React
  * description écrite à partir de données de marché, donc invérifiable, et la
  * page l'annonce dans son panneau, avant tout le reste.
  *
- * Le texte de ce panneau et la description sont le constat n° 14 de l'audit
- * 2026-10 (« Elle ne dépose pas » est faux pour plusieurs d'entre elles, et les
- * descriptions jugent) : une correction de données, laissée à son propre
- * chantier. La refonte ne touche qu'à la mise en page.
+ * La première phrase du panneau dit POURQUOI, selon la fiche (audit 2026-10,
+ * n° 14 : « Elle ne dépose pas » était écrit partout, et faux pour celles qui
+ * déposent un 10-K ou un 20-F). Une société qui dépose a son dossier EDGAR en
+ * lien : la cause se vérifie.
  */
 function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
+  const dossier = dossierSec(fiche)
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
       <FilAriane nom={fiche.name} />
@@ -84,12 +85,17 @@ function FicheHorsPerimetreVue({ fiche }: { fiche: FicheHorsPerimetre }) {
       >
         <h2 id="constats-titre" className="text-2xl font-semibold leading-tight">Je ne lis pas les comptes de cette société</h2>
         <p className={`mt-1.5 text-base ${PROSE}`}>
-          Elle ne dépose pas de rapport annuel auprès du régulateur américain, donc mes
-          sept contrôles n’ont aucun document à lire. Ce qui suit vient d’une analyse
-          écrite à partir de données de marché le{' '}{mediumDate(fiche.as_of)}{' '}: aucun de ses
-          chiffres n’est adossé à un dépôt, et tu ne peux pas les vérifier comme sur les
-          autres fiches.
+          {phraseCause(fiche)}{' '}Ce qui suit vient d’une analyse écrite à partir de
+          données de marché le{' '}{mediumDate(fiche.as_of)}{' '}: aucun de ces chiffres ne
+          vient d’un dépôt, et tu ne peux pas les vérifier comme sur les autres fiches.
         </p>
+        {dossier && (
+          <p className="mt-2 text-sm">
+            <a href={dossier} target="_blank" rel="noopener noreferrer" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
+              Ses dépôts sur sec.gov<span className="sr-only">{' '}(nouvel onglet)</span>
+            </a>
+          </p>
+        )}
       </section>
 
       {/* Keeps the page in Mon espace; it opens nothing the page does not
@@ -129,7 +135,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!fiche) {
     const dehors = horsPerimetreParSlug(slug)
     return dehors ? { title: `${dehors.name} : ce que j’en sais`,
-                      description: `Analyse de ${dehors.name}. Je ne lis pas ses comptes : elle ne dépose pas auprès du régulateur américain.` }
+                      description: `Je ne lis pas les comptes de ${dehors.name}. ${phraseCause(dehors)}` }
                   : {}
   }
   return {
@@ -142,6 +148,11 @@ export default async function FicheInvestir({ params }: { params: Promise<{ slug
   const { slug } = await params
   const fiche = ficheParSlug(slug)
   if (!fiche) {
+    // Block, Philips, Solana (audit 2026-10, n° 14): the old address lands on
+    // the fiche that reads the company, or on the list. Not prerendered:
+    // generateStaticParams no longer lists them, so the request reaches here.
+    const cible = redirectionHorsPerimetre(slug)
+    if (cible) permanentRedirect(cible)
     const dehors = horsPerimetreParSlug(slug)
     if (!dehors) notFound()
     return <FicheHorsPerimetreVue fiche={dehors} />

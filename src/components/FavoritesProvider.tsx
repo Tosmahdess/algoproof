@@ -78,14 +78,14 @@ export function FavoritesProvider({ kind, children }: { kind: FavoriteKind; chil
   )
 }
 
-const STAR = 'inline-flex items-center justify-center min-h-10 min-w-10 rounded-md text-base leading-none transition-colors'
+const STAR = 'inline-flex items-center justify-center min-h-11 min-w-11 rounded-md text-base leading-none transition-colors'
 
 export function FavoriteStar({ kind, slug, name }: { kind: FavoriteKind; slug: string; name: string }) {
   const ctx = useContext(FavoritesContext)
   if (!ctx || ctx.kind !== kind) return null
   // The slot is held while the favorites load: ~120 rows must not all move
   // sideways when the answer arrives (final review of lot C).
-  if (ctx.state === 'loading') return <span data-star-slot aria-hidden="true" className="inline-block min-h-10 min-w-10" />
+  if (ctx.state === 'loading') return <span data-star-slot aria-hidden="true" className="inline-block min-h-11 min-w-11" />
   // Read here, not with usePathname: a star only renders once the provider has
   // asked the browser for the session, so `window` is always there.
   const path = window.location.pathname

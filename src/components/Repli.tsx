@@ -46,7 +46,6 @@ export default function Repli({
   toujoursPliable = false,
   titreClassName = 'text-xl font-semibold',
   corpsClassName = 'mt-3',
-  chevronTrace = false,
   children,
 }: {
   /** Anchor of the heading; a URL aiming at it opens the block. */
@@ -76,10 +75,6 @@ export default function Repli({
   toujoursPliable?: boolean
   titreClassName?: string
   corpsClassName?: string
-  /** A drawn chevron instead of the « ▾ » glyph (refonte « registre », pages
-   *  Sociétés, 2026-10-03: icons are drawn, never a glyph). Opt-in, so the pages
-   *  redone in parallel keep theirs until they choose. */
-  chevronTrace?: boolean
   children: ReactNode
 }) {
   const [ouvert, setOuvert] = useState(ouvertParDefaut)
@@ -99,7 +94,7 @@ export default function Repli({
           aria-expanded={ouvert}
           aria-controls={corpsId}
           onClick={() => setOuvert(o => !o)}
-          className={`${toujoursPliable ? '' : 'sm:hidden '}flex min-h-10 w-full items-center justify-between gap-3 text-left [text-transform:inherit]`}
+          className={`${toujoursPliable ? '' : 'sm:hidden '}flex min-h-11 w-full items-center justify-between gap-3 text-left [text-transform:inherit]`}
         >
           <span>
             {titre}
@@ -109,22 +104,13 @@ export default function Repli({
               </span>
             )}
           </span>
-          {chevronTrace ? (
-            <svg
-              aria-hidden="true"
-              className={`h-4 w-4 shrink-0 text-muted transition-transform motion-reduce:transition-none ${ouvert ? 'rotate-180' : ''}`}
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          ) : (
-            <span
-              aria-hidden="true"
-              className={`shrink-0 text-muted transition-transform ${ouvert ? 'rotate-180' : ''}`}
-            >
-              ▾
-            </span>
-          )}
+          <svg
+            aria-hidden="true"
+            className={`h-4 w-4 shrink-0 text-muted transition-transform motion-reduce:transition-none ${ouvert ? 'rotate-180' : ''}`}
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </button>
         {!toujoursPliable && <span className="hidden sm:inline">{titre}</span>}
       </h2>

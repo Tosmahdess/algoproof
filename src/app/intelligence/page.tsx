@@ -28,9 +28,9 @@ export const revalidate = 1800
 // Lot 7 of the design audit (spec 5.4, 2026-09-25). The substance of the weather is
 // FROZEN (arbitration of 2026-09-17: no computation, no pillar label, no weight
 // changes here). Only the order of the blocks and their dressing move. One exception,
-// to confirm with the owner: on 2026-10-03 the pillar names were made one per notion,
-// taken from those already shown (« Dérivés » of the badge and chart, « Actualités » of
-// the method), where the page used to say « Produits dérivés » and « News » as well.
+// approved by the owner on 2026-10-03: the pillar names are one per notion, taken from
+// those already shown (« Dérivés » of the badge and chart, « Actualités » of the
+// method), where the page used to say « Produits dérivés » and « News » as well.
 //
 // Refonte « Le registre des décisions », page Météo (2026-10-03): the state of the day in
 // ONE framed panel, like the verdict of a bot fiche (regime, what it allows, date); then

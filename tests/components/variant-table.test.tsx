@@ -61,3 +61,36 @@ describe('VariantTable', () => {
     expect(text).not.toMatch(/Simulation/)
   })
 })
+
+// Audit 2026-10 follow-up (2026-10-03): an idea of 166 variants listed its few running
+// ones among 163 in backtest, with no way to keep only one state.
+describe('VariantTable, filtered by state', () => {
+  const mixed = [
+    row(1, { status: 'paper', state: 'En simulation', simSign: 'up', simTrades: 30, href: '/strategies/bot/v1', external: false, waitLabel: '' }),
+    row(2), row(3),
+    row(4, { status: 'archived', state: 'Arrêtée', simSign: 'down', simTrades: 40, href: '/strategies/bot/v4', external: false, waitLabel: '' }),
+  ]
+
+  it('offers one button per state the idea has, with its count, all states first', () => {
+    render(<VariantTable rows={mixed} />)
+    const group = screen.getByRole('group', { name: 'Filtrer par état' })
+    const buttons = Array.from(group.querySelectorAll('button')).map(b => b.textContent?.replace(/\s+/g, ' ').trim())
+    expect(buttons).toEqual(['Tous les états 4', 'En simulation 1', 'Arrêtée 1', 'Backtest seul 2'])
+    expect(group.querySelector('button')!.getAttribute('aria-pressed')).toBe('true')
+  })
+
+  it('keeps only the rows of the chosen state, and gives them all back', () => {
+    render(<VariantTable rows={mixed} />)
+    fireEvent.click(screen.getByRole('button', { name: /^Backtest seul/ }))
+    expect(screen.getAllByTestId('variant-row')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: /^Backtest seul/ }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByText(/2 variantes affichées, toute la liste/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /^Tous les états/ }))
+    expect(screen.getAllByTestId('variant-row')).toHaveLength(4)
+  })
+
+  it('shows no filter when every variant is in the same state', () => {
+    render(<VariantTable rows={[row(1), row(2)]} />)
+    expect(screen.queryByRole('group', { name: 'Filtrer par état' })).toBeNull()
+  })
+})

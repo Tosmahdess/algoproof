@@ -179,16 +179,28 @@ export function decimalFr(n: number): string {
 
 // --- Les sociétés hors périmètre ---------------------------------------------
 //
-// Vingt-sept sociétés que la règle ne peut PAS noter : dix-sept ne sont pas
-// cotées aux États-Unis et ne déposent donc rien auprès du régulateur
-// américain, les autres sortent des portes d'éligibilité. Leur analyse vient de
-// /wealth, écrite à partir de données de marché : aucun de leurs chiffres n'est
-// adossé à un dépôt, et la fiche le dit en toutes lettres.
+// Vingt-quatre sociétés dont mes sept contrôles ne lisent pas les comptes.
+// Leur analyse vient de /wealth, écrite à partir de données de marché : aucun de
+// leurs chiffres ne vient d'un dépôt, et la fiche le dit en toutes lettres.
 //
-// Elles vivent dans un fichier SÉPARÉ, et c'est délibéré : mélangées aux 1 407,
+// Toutes ne sont pas dehors pour la même raison, et la fiche dit laquelle
+// (audit 2026-10, n° 14 : « Elle ne dépose pas de rapport annuel auprès du
+// régulateur américain » était écrit sur les 27, et faux pour neuf). La cause
+// a été relue sur EDGAR le 2026-10-03, formulaire par formulaire :
+// - `sans_depot` : ni 10-K ni 20-F au dossier (dix-sept sociétés, toutes
+//   cotées hors des États-Unis) ;
+// - `depot_non_lu` : un 10-K ou un 20-F au dossier, que la règle ne lit pas
+//   encore (Visa, AeroVironment, Planet Labs, ASML, TSMC, Sanofi) ;
+// - `enregistrement_clos` : des 10-K au dossier, puis un formulaire 15 qui met
+//   fin à l'enregistrement (Electronic Arts, le 2026-08-14).
+//
+// Elles vivent dans un fichier SÉPARÉ, et c'est délibéré : mélangées aux 1 406,
 // un jour quelqu'un les compterait dans une médiane ou dans un total, et la
 // page annoncerait un chiffre qui ne veut rien dire.
 import horsPerimetreBrut from '@/data/investir-hors-perimetre.json'
+import { longDate } from '@/lib/format-date'
+
+export type CauseHorsPerimetre = 'sans_depot' | 'depot_non_lu' | 'enregistrement_clos'
 
 export type FicheHorsPerimetre = {
   slug: string
@@ -197,6 +209,14 @@ export type FicheHorsPerimetre = {
   categorie: string | null
   description: string | null
   as_of: string
+  cause: CauseHorsPerimetre
+  // Le dossier EDGAR, pour une société qui dépose ou a déposé : la page le
+  // donne en lien, pour que « elle dépose » se vérifie comme le reste.
+  cik?: number
+  // `enregistrement_clos` seulement : le dernier rapport annuel et le
+  // formulaire 15, tels que datés sur EDGAR.
+  dernier_rapport?: string
+  fin_enregistrement?: string
 }
 
 export function listeHorsPerimetre(): FicheHorsPerimetre[] {
@@ -205,4 +225,52 @@ export function listeHorsPerimetre(): FicheHorsPerimetre[] {
 
 export function horsPerimetreParSlug(slug: string): FicheHorsPerimetre | null {
   return listeHorsPerimetre().find(f => f.slug === slug) ?? null
+}
+
+// Trois fiches retirées le 2026-10-03 (audit 2026-10, n° 14). Block et Philips
+// déposent un rapport annuel que la règle LIT déjà, sous un autre slug : deux
+// pages sur la même société se contredisaient. Solana n'est pas une société :
+// il n'a pas de comptes à lire, et aucune page du site ne pointait vers sa
+// fiche. Chaque ancienne adresse mène à la page qui la remplace (308).
+export const HORS_PERIMETRE_RETIREES: Readonly<Record<string, string>> = {
+  block: '/investir/block-inc',
+  philips: '/investir/koninklijke-philips-nv',
+  solana: '/investir',
+}
+
+export function redirectionHorsPerimetre(slug: string): string | null {
+  return Object.hasOwn(HORS_PERIMETRE_RETIREES, slug) ? HORS_PERIMETRE_RETIREES[slug] : null
+}
+
+/** Pourquoi mes contrôles ne lisent pas cette société : une phrase par cause. */
+export function phraseCause(f: FicheHorsPerimetre): string {
+  switch (f.cause) {
+    case 'depot_non_lu':
+      return 'Elle dépose un rapport annuel auprès du régulateur américain, mais je ne lis pas encore ses comptes : mes sept contrôles ne tournent pas sur elle.'
+    case 'enregistrement_clos':
+      return `Elle a déposé des rapports annuels auprès du régulateur américain, le dernier le ${longDate(f.dernier_rapport!)}, puis a mis fin à son enregistrement le ${longDate(f.fin_enregistrement!)}. Je n’ai pas lu ses comptes : mes sept contrôles ne tournent pas sur elle.`
+    case 'sans_depot':
+    default:
+      return 'Elle ne dépose auprès du régulateur américain ni 10-K ni 20-F, les deux rapports annuels que lisent mes sept contrôles : ils n’ont aucun document à lire.'
+  }
+}
+
+/** La même chose pour la liste, en comptes : la somme fait toujours la liste. */
+export function phraseListeHorsPerimetre(fiches: FicheHorsPerimetre[]): string {
+  const sans = fiches.filter(f => f.cause === 'sans_depot').length
+  const deposees = fiches.length - sans
+  const parts: string[] = []
+  if (sans > 0) {
+    parts.push(`${sans} ${sans > 1 ? 'ne déposent' : 'ne dépose'} auprès du régulateur américain ni 10-K ni 20-F, les deux rapports annuels que lisent mes contrôles`)
+  }
+  if (deposees > 0) {
+    parts.push(`${deposees} ${deposees > 1 ? 'y ont déposé un rapport annuel, mais je n’ai pas lu leurs comptes' : 'y a déposé un rapport annuel, mais je n’ai pas lu ses comptes'}`)
+  }
+  // One sentence, so that no sentence opens on a figure.
+  return parts.length ? `${parts.join(' ; ')}.` : ''
+}
+
+/** L'adresse du dossier EDGAR d'une société qui dépose, ou null. */
+export function dossierSec(f: FicheHorsPerimetre): string | null {
+  return f.cik != null ? `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${f.cik}` : null
 }

@@ -163,10 +163,13 @@ export default async function StrategyPage({ params }: { params: Promise<{ slug:
           <span>{`${bot.exchange} · ${bot.timeframe}`}</span>
           {bot.assets.length > 3 ? (
             <details data-testid="bot-assets" className="inline-block">
-              <summary className="cursor-pointer list-none inline-flex items-center min-h-11 hover:text-foreground">
-                {`${bot.assets.length} actifs ▾`}
+              <summary className="cursor-pointer list-none inline-flex items-center gap-1.5 min-h-11 hover:text-foreground [&::-webkit-details-marker]:hidden">
+                {`${bot.assets.length} actifs`}
+                <svg aria-hidden="true" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </summary>
-              <span className="block font-mono text-xs leading-relaxed max-w-[68ch]">{bot.assets.join(', ')}</span>
+              <span className="block font-mono text-sm leading-relaxed max-w-[68ch]">{bot.assets.join(', ')}</span>
             </details>
           ) : (
             <span>{`· ${bot.assets.join(', ')}`}</span>

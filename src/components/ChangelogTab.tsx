@@ -20,13 +20,15 @@ const CATEGORY_LABEL: Record<ChangelogCategory, string> = {
 
 interface ChangelogTabProps {
   changelogs: BotChangelog[]
+  /** What the log is about, for its empty state: « ce bot », « la météo ». */
+  sujet?: string
 }
 
-export default function ChangelogTab({ changelogs }: ChangelogTabProps) {
+export default function ChangelogTab({ changelogs, sujet = 'ce bot' }: ChangelogTabProps) {
   if (changelogs.length === 0) {
     return (
-      <p className="text-sm text-muted italic py-4">
-        Aucune modification enregistrée pour ce bot.
+      <p className="text-sm text-muted py-4">
+        Aucune modification enregistrée pour {sujet}.
       </p>
     )
   }

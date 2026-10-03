@@ -25,10 +25,6 @@
   --accent: #abc8ec;
   --warning: #e9c17c;
   --button: #263f55;
-  /* Categorical colour for the 4th market-weather pillar. The pillar palette is
-     categorical, not semantic: macro needs to stay distinguishable from derivatives
-     on the 4-line chart, so it gets its own value instead of reusing --accent. */
-  --pillar-macro: #40c4ff;
   --severe: #ff6b35;
 }
 
