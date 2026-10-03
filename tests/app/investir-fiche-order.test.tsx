@@ -45,7 +45,9 @@ describe('/investir/[slug], order of the blocks (lot 6)', () => {
   it('shows the free accounts before the paid reading, for a guest', async () => {
     await renderFiche(slug, { entitlement: 'guest' })
 
-    const comptes = screen.getByText('Les comptes en détail')
+    // Refonte « registre » (2026-10-03): the accounts are an open section
+    // under their own title, no longer the fold « Les comptes en détail ».
+    const comptes = screen.getByRole('heading', { level: 2, name: 'Les comptes' })
     const retiens = screen.getByRole('heading', { name: 'Ce que j’en retiens' })
     expect(precede(comptes, retiens)).toBe(true)
     // What the company does still opens the page, before the accounts.
@@ -67,7 +69,8 @@ describe('/investir/[slug], order of the blocks (lot 6)', () => {
     await renderFiche(slug, { entitlement: 'guest' })
 
     const cours = screen.getByRole('heading', { name: 'Le cours du titre' })
-    const source = screen.getByText('Refais-le toi-même')
+    // A heading since the refonte; the in-page nav links to it by the same name.
+    const source = screen.getByRole('heading', { name: 'Refais-le toi-même' })
     const retiens = screen.getByRole('heading', { name: 'Ce que j’en retiens' })
     const identite = screen.getByRole('heading', { name: /Qui écrit ceci/ })
 

@@ -292,7 +292,10 @@ describe('no surface points at a reference price the fiche does not show', () =>
     const identity = read(path.join(ROOT, 'src/components/AuthorIdentity.tsx')).replace(/\s+/g, ' ')
     const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
     expect(identity).toMatch(/Thomas Dessombs, à titre individuel/)
-    expect(block).toMatch(/<AuthorIdentity version=\{generatedAt\}>/)
+    // Refonte « registre », pages Sociétés (2026-10-03): the fiche passes
+    // nom={false} (no author name on the company pages, owner's rule); the
+    // line still says in what capacity, and points at the legal notice.
+    expect(block).toMatch(/<AuthorIdentity version=\{generatedAt\}(?: nom=\{false\})?>/)
     // 2026-09-11 review (P6): the value passed in is `as_of`, a date with no
     // time, and longDateTime printed it « à 02:00, heure de Paris ». A day only.
     // « Version du », not « Calcul du »: the line above the block already says

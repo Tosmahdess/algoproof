@@ -20,16 +20,16 @@ const TITRES: Record<string, string> = {
 
 const CLES = ['lecture', 'risques'] as const
 
-function BlocsRendus({ blocs }: { blocs: Partial<Blocs> }) {
+function BlocsRendus({ blocs, className }: { blocs: Partial<Blocs>; className: string }) {
   return (
-    <div className="space-y-8">
+    <div className={`space-y-8 ${className}`}>
       {CLES.map(cle =>
         blocs[cle] ? (
           <section key={cle}>
-            <h2 className="text-sm font-semibold text-muted mb-2">
+            <h2 className="text-2xl font-semibold tracking-tight mb-3">
               {TITRES[cle]}
             </h2>
-            <p className="text-foreground leading-relaxed">{blocs[cle]}</p>
+            <p className="max-w-[68ch] text-foreground leading-relaxed">{blocs[cle]}</p>
           </section>
         ) : null,
       )}
@@ -55,10 +55,13 @@ function BlocsRendus({ blocs }: { blocs: Partial<Blocs> }) {
  * ce composant n'y affiche jamais d'offre. Pas de texte : rien du tout, pas
  * même un « Chargement » qui resterait affiché.
  */
-export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
+export function RecitInvestir({ slug, nom, horsPerimetre = false, className = '' }: {
   slug: string
   nom: string
   horsPerimetre?: boolean
+  /** Classes of the root, on whatever it renders (a section rule); nothing
+   *  rendered, nothing drawn, so an empty out-of-scope reading leaves no rule. */
+  className?: string
 }) {
   const [reponse, setReponse] = useState<Reponse | null>(null)
 
@@ -74,40 +77,49 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
   if (horsPerimetre) {
     if (!reponse) return null
     if (reponse.indisponible) {
-      return <p className="text-sm text-muted">L’analyse est momentanément indisponible.</p>
+      return <p className={`text-sm text-muted ${className}`}>L’analyse est momentanément indisponible.</p>
     }
     const blocs = reponse.blocs
     if (!blocs || !CLES.some(cle => blocs[cle])) return null
-    return <BlocsRendus blocs={blocs} />
+    return <BlocsRendus blocs={blocs} className={className} />
   }
 
+  // The loading line keeps the room of what replaces it (audit 2026-10, n° 80:
+  // the page jumped when the teaser arrived), and says it is busy.
   if (!reponse) {
-    return <p className="text-sm text-muted">Chargement de l’analyse…</p>
+    return (
+      <div aria-busy="true" className={`min-h-72 ${className}`}>
+        <h2 className="text-2xl font-semibold tracking-tight mb-3">Ce que j’en retiens</h2>
+        <p className="text-sm text-muted">Chargement de l’analyse…</p>
+      </div>
+    )
   }
 
   const blocs = reponse.blocs
   if (reponse.entitlement === 'paid' && blocs) {
-    return <BlocsRendus blocs={blocs} />
+    return <BlocsRendus blocs={blocs} className={className} />
   }
 
   if (reponse.indisponible) {
     return (
-      <p className="text-sm text-muted">
+      <p className={`text-sm text-muted ${className}`}>
         L’analyse est momentanément indisponible. Les chiffres ci-dessus, eux,
         sortent directement du rapport annuel.
       </p>
     )
   }
 
+  // Refonte « registre » (2026-10-03): a section opened by a rule, not a second
+  // tinted card on a fiche whose one framed panel is the reading of the controls.
   return (
-    <section className="rounded-lg border border-accent/30 bg-accent/5 px-5 py-5">
-      <h2 className="text-sm font-semibold text-muted mb-3">
+    <section className={className}>
+      <h2 className="text-2xl font-semibold tracking-tight mb-3">
         Ce que j’en retiens
       </h2>
       {/* La même phrase que /preuve, la FAQ et la page d'abonnement du labo :
           une seule description de l'offre, sur toutes les surfaces (audit
           2026-09-09). Le contenu de la phrase ne se réécrit pas ici. */}
-      <p className="text-sm text-foreground leading-relaxed">
+      <p className="max-w-[68ch] text-base text-foreground leading-relaxed">
         Ce que les membres lisent en plus, ce sont deux paragraphes d’analyse par
         société : ce que ses chiffres veulent dire pour son métier, et ce qui peut
         mal tourner. Pour {nom}, ça veut dire lire sa marge et son bilan avec les
@@ -116,7 +128,7 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
         peut lui arriver à elle, pas la liste des risques de n’importe quelle
         entreprise.
       </p>
-      <p className="text-xs text-muted mt-3 leading-relaxed">
+      <p className="max-w-[68ch] text-sm text-muted mt-3 leading-relaxed">
         Tout ce qui est au-dessus reste ouvert à tout le monde, pour toujours :
         les sept contrôles et leurs alertes, les chiffres et le rapport
         annuel, avec sa date de dépôt et son numéro pour tout refaire toi-même.
@@ -130,12 +142,12 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
       <div className="mt-4 flex flex-wrap gap-3">
         <a
           href={labUrl('https://lab.algoproof.fr/membre', 'investir-recit')}
-          className="rounded-lg border border-accent bg-button px-4 py-2 text-sm font-semibold text-foreground hover:bg-card-2 transition-colors"
+          className="inline-flex min-h-11 items-center rounded border border-accent bg-button px-4 text-sm font-semibold text-foreground hover:bg-card-2 transition-colors"
         >
           Voir l’abonnement
         </a>
         {reponse.entitlement === 'guest' && (
-          <Link href="/compte" className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:border-muted transition-colors">
+          <Link href="/compte" className="inline-flex min-h-11 items-center rounded border border-border-strong px-4 text-sm font-semibold text-foreground hover:bg-card-2 transition-colors">
             J’ai déjà un compte
           </Link>
         )}

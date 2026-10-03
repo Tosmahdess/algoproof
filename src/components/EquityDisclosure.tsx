@@ -53,8 +53,12 @@ export function EquityDisclosure({
   horsPerimetre?: boolean
 }) {
   return (
-    <section className="mt-12 border-t border-border pt-6 text-xs text-muted leading-relaxed space-y-3">
-      <h2 className="text-xs font-semibold text-muted">
+    // Refonte « registre », pages Sociétés (2026-10-03): a section opened by a
+    // rule like every other, in the body size of a note (14 px), not 13 px
+    // under a 13 px title (audit 2026-10, n° 52). « Des lectures, pas des
+    // conseils » no longer waits here: DesLectures says it under the title.
+    <section aria-labelledby="cadre-titre" className="border-t border-border pt-8 sm:pt-9 pb-8 text-sm text-muted leading-relaxed space-y-3 max-w-[75ch]">
+      <h2 id="cadre-titre" className="text-xl font-semibold text-foreground">
         Qui écrit ceci, et dans quel cadre
       </h2>
 
@@ -62,7 +66,7 @@ export function EquityDisclosure({
           says "Calcul du …" on a graded fiche, and an out-of-scope fiche is
           not a calculation of the rule at all. The day stays: it is the WHEN
           this block exists to carry. */}
-      <AuthorIdentity version={generatedAt}>
+      <AuthorIdentity version={generatedAt} nom={false}>
         {/* The former sentence sourced the figures from market data shown next to
             them: it described fiches that printed a market price. Graded fiches read the
             annual report and name it in plain text (filing date and accession
