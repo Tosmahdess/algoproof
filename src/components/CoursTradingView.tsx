@@ -42,8 +42,12 @@ export function CoursTradingView({ symbole }: { symbole: string }) {
     noeud.appendChild(script)
   }, [symbole])
 
+  // The site declares `color-scheme: dark`; the widget's iframe document does not.
+  // When the two differ, the browser paints the iframe on an opaque white canvas and
+  // `isTransparent` cannot help. Giving the iframe element the scheme its document
+  // uses keeps it transparent on the dark page.
   return (
-    <div className="tradingview-widget-container" ref={hote}>
+    <div className="tradingview-widget-container [&_iframe]:[color-scheme:normal]" ref={hote}>
       <div className="tradingview-widget-container__widget" />
       <div className="tradingview-widget-copyright text-xs text-muted">
         <a
