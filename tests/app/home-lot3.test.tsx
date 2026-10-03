@@ -7,8 +7,8 @@
 // - the bots in real money are ordered from the best result to the least good (owner,
 //   02/10, replacing « longest history first », C7), in one register, without the
 //   30-day line (audit 2026-10, n° 8) or the PF/WR/DD row (the mock-up's columns);
-// - the engine's « 1 sur 500 » left the home (audit 2026-10, n° 7, it overflowed);
-//   /strategies still carries it, and tests/components/EngineBlocks.test.tsx with it;
+// - the engine's « 1 sur 500 » left the home (audit 2026-10, n° 7, it overflowed),
+//   then came back on 03/10 as an addition under the register (EngineLedger);
 // - the four method tiles and the three articles became one article.
 // Kept from lot 3: the crossed rule and my decision in the row of the losing bot, the
 // lead read from the data, the graveyard's count, none of the retired blocks.
@@ -166,18 +166,39 @@ describe('/ — the lead, the library, the graveyard and one article', () => {
     expect(text).not.toMatch(/paliers?|Promu/i)
   })
 
-  it('the engine’s « 1 sur 500 » left the home (audit n° 7), and the method tiles with it', async () => {
+  // The engine's numbers came back on 03/10 (owner: « on perd l'info du nombre de
+  // configurations testées, de celles qui ont eu un go »), as an addition and not as
+  // the card that overflowed (audit n° 7). The method tiles stay retired.
+  it('the engine’s addition: three verdicts that sum to the judged total, the ratio in words', async () => {
     render(await HomePage())
     expect(screen.queryByTestId('home-funnel')).toBeNull()
     expect(screen.queryByTestId('home-method')).toBeNull()
-    expect(document.body.textContent).not.toMatch(/1 sur 500|candidates?/i)
+    const e = screen.getByTestId('home-engine')
+    expect(within(e).getByRole('heading', { level: 2 }).textContent).toMatch(/environ 1 configuration sur\s*500/)
+    const rows = within(e).getAllByTestId('engine-row').map(r => r.textContent!.replace(/\s/g, ''))
+    expect(rows[0]).toMatch(/^Recalées1490926/)
+    expect(rows[1]).toMatch(/^Ensursis259782/)
+    expect(rows[2]).toMatch(/^Candidates3536/)
+    expect(within(e).getByTestId('engine-total').textContent!.replace(/\s/g, '')).toBe('Configurationsjugées1754244')
+    expect(1490926 + 259782 + 3536).toBe(1754244)
   })
 
-  it('counts the rejected configurations, as configurations, and links the graveyard', async () => {
+  it('keeps the swept corpus outside the sum, never as rejected, and links the graveyard', async () => {
     render(await HomePage())
-    const g = screen.getByTestId('home-graveyard')
-    expect(g.textContent!.replace(/\s/g, '')).toMatch(/1490926configurationsrecalées/)
-    expect(within(g).getByRole('link').getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=home-cimetiere')
+    const e = screen.getByTestId('home-engine')
+    const outside = within(e).getByTestId('engine-outside').textContent!.replace(/\s/g, ' ')
+    expect(outside).toMatch(/recensé 41 333 092 configurations/)
+    expect(outside).toMatch(/39 578 848 qu’il n’a pas jugées n’ont pas de verdict/)
+    expect(within(e).getByTestId('engine-ledger').textContent).not.toMatch(/recens/)
+    expect(within(e).getByRole('link', { name: /Voir le cimetière/ }).getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=home-cimetiere')
+    expect(screen.queryByTestId('home-graveyard')).toBeNull()
+  })
+
+  it('places the engine right after the real-money register, before the library', async () => {
+    const { container } = render(await HomePage())
+    const order = [...container.querySelectorAll('[data-testid="home-real"], [data-testid="home-engine"], [data-testid="home-library"]')]
+      .map(el => el.getAttribute('data-testid'))
+    expect(order).toEqual(['home-real', 'home-engine', 'home-library'])
   })
 
   it('shows one article, the latest that is not a daily journal: title, one sentence, the way in', async () => {

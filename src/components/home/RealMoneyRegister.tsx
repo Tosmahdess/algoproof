@@ -63,10 +63,13 @@ function Row({ bot }: { bot: BotWithStats }) {
   )
 }
 
-export default function RealMoneyRegister({ bots, fleetSize, reading }: {
+export default function RealMoneyRegister({ bots, fleetSize, engineBorn, reading }: {
   bots: BotWithStats[]
   /** Every bot in service, real and simulated: the same count as the lead's. */
   fleetSize: number
+  /** Of fleetSize, the bots born from the engine (engine_unit_key), as /overview
+   *  counts them. Optional: without it the origin line is not written. */
+  engineBorn?: number
   /** « 2 octobre 2026 », the day of the freshest sync. */
   reading: string | null
 }) {
@@ -90,11 +93,23 @@ export default function RealMoneyRegister({ bots, fleetSize, reading }: {
       <ol data-testid="home-real-list">
         {rows.map(b => <Row key={b.slug} bot={b} />)}
       </ol>
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
-        <Link href="/overview" className={SECONDARY_BUTTON}>
-          Voir toute la flotte · {fleetSize}{' '}bots, réels et simulés →
-        </Link>
-        {reading && <p className="text-xs text-muted">Relevé du {reading}.</p>}
+      <div className="mt-5 flex flex-wrap items-start justify-between gap-x-5 gap-y-3">
+        <div className="min-w-0">
+          <Link href="/overview" className={SECONDARY_BUTTON}>
+            Voir toute la flotte · {fleetSize}{' '}bots, réels et simulés →
+          </Link>
+          {/* The fleet split by origin, one set and its two parts (D059: a total with its
+              parts, in bots only), under the button that gives the total. It is not a
+              step of the engine's addition below. */}
+          {engineBorn !== undefined && engineBorn > 0 && engineBorn < fleetSize && (
+            <p data-testid="home-fleet-origin" className="mt-3 max-w-[66ch] text-sm text-muted">
+              Sur ces{' '}<span className="tabular-nums text-foreground">{fleetSize}</span>{' '}bots,{' '}
+              <span className="tabular-nums text-foreground">{engineBorn}</span>{' '}sont issus de mon moteur et{' '}
+              <span className="tabular-nums text-foreground">{fleetSize - engineBorn}</span>{' '}ont été déployés à la main avant lui.
+            </p>
+          )}
+        </div>
+        {reading && <p className="text-xs text-muted sm:pt-3">Relevé du {reading}.</p>}
       </div>
     </section>
   )

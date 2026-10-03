@@ -7,8 +7,10 @@
 // real-money register in full width, best result first; the library by idea;
 // the graveyard and one article; then favourites and Direct.
 //
-// Gone with this lot: the engine's « 1 sur 500 » balance sheet (audit 2026-10,
-// n° 7: it overflowed, and /strategies still carries it), the 30-day lines
+// The engine's numbers came back on 03/10 (owner: « on perd l'info du nombre de
+// configurations testées, de celles qui ont eu un go, notre nombre de bots ») as an
+// addition under the real-money register (EngineLedger), not as the card that
+// overflowed (audit 2026-10, n° 7). Gone with lot 2: the 30-day lines
 // coloured by a result they did not show (n° 8), the four method tiles, the
 // stacked cards. Still true from lot 3: no ticker, no ranking of the fleet, and
 // the home does not end on an exchange's affiliate link.
@@ -18,6 +20,7 @@ import Link from 'next/link'
 import TrackedLink from '@/components/TrackedLink'
 import HomeArticle from '@/components/home/HomeArticle'
 import RealMoneyRegister from '@/components/home/RealMoneyRegister'
+import EngineLedger from '@/components/home/EngineLedger'
 import { getAllBotsWithStats } from '@/lib/queries'
 import { getFunnelCounts } from '@/lib/funnel'
 import { getArticles } from '@/lib/articles'
@@ -53,6 +56,9 @@ export default async function HomePage() {
   ])
   const bots = excludeArchived(allBots)
   const { live } = splitCohorts(bots)
+  // The fleet's origin, as /overview counts it (FleetRegister): engine-born bots carry
+  // an engine_unit_key, the others were deployed by hand before the engine.
+  const engineBorn = bots.filter(b => b.engine_unit_key !== null).length
   const companies = listeInvestir().length
   const articles = getArticles()
   const library = ideas && ideas.length > 0 ? librarySummary(ideas) : null
@@ -109,8 +115,12 @@ export default async function HomePage() {
       </header>
 
       {live.length > 0 && (
-        <RealMoneyRegister bots={live} fleetSize={bots.length} reading={readingDate(live.map(b => b.last_sync_at))} />
+        <RealMoneyRegister bots={live} fleetSize={bots.length} engineBorn={engineBorn}
+          reading={readingDate(live.map(b => b.last_sync_at))} />
       )}
+
+      {/* ---------- What my engine judged: the addition, right after the bots it does not count ---------- */}
+      <EngineLedger counts={funnel} />
 
       {/* ---------- The library, by idea (no tiers until feat/bot-tiers-cohorts) ---------- */}
       <section data-testid="home-library" aria-labelledby="home-library-title" className={SECTION}>
@@ -132,20 +142,11 @@ export default async function HomePage() {
         <Link href="/bibliotheque" className={PRIMARY_BUTTON}>Explorer la bibliothèque →</Link>
       </section>
 
-      {/* ---------- What I reject, and one article ---------- */}
-      <section className={`${SECTION} grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-[70px]`}>
-        {funnel && funnel.n_no_go > 0 && (
-          <div data-testid="home-graveyard">
-            <p className="text-[31px] font-medium leading-tight tabular-nums sm:text-[35px]">{fr(funnel.n_no_go)}</p>
-            <h2 className="mb-2.5 text-xl font-semibold sm:text-2xl">configurations recalées</h2>
-            <p className="text-muted">Je publie leur motif. Une sélection ne raconte rien si je cache tout ce qui a échoué.</p>
-            <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'home-cimetiere')} target="_blank" rel="noopener noreferrer"
-               className={linkClass('inline', 'mt-1 inline-flex min-h-11 items-center')}>
-              Voir le cimetière ↗
-            </a>
-          </div>
-        )}
-        <HomeArticle articles={articles} />
+      {/* ---------- One article (the graveyard's count moved into the engine's addition) ---------- */}
+      <section className={SECTION}>
+        <div className="max-w-[66ch]">
+          <HomeArticle articles={articles} />
+        </div>
       </section>
 
       {/* ---------- Favourites and Direct: the home ends here, not on an exchange ---------- */}

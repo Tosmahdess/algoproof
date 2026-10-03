@@ -1,0 +1,10 @@
+# Audit court de l'accueil refait : les chiffres du moteur (Impeccable, critique)
+
+Méthode : critique en un seul contexte, version courte demandée (pas de double agent). Détecteur lancé sur `src/app/page.tsx` et `src/components/home` : 8 avis, tous « taille hors échelle » (31, 35, 42 px pour les chiffres ; 34, 44, 52 px du titre), aucun anti-motif bloquant. Captures avant : `captures/avant/`.
+
+- **Bien** : le chapô lit ses trois nombres dans les données (215 bots, 3 en argent réel, 1 406 rapports). Le registre réel montre l'état avant la somme, la perte en rouge avec son signe. Les recalées sont comptées comme des configurations, jamais comme des bots, et le corpus recensé n'est pas appelé « recalé ».
+- **P1, un numérateur sans dénominateur** : « 1 775 174 configurations recalées » ne dit pas sur combien. Les jugées (2 144 077), les candidates (4 347), le ratio « ≈ 1 sur 500 » et les recensées (51 339 525) ont disparu. C'est pourtant le chiffre que personne d'autre ne publie (en-tête de `funnel.ts`).
+- **P1, l'échec arrive en dernier** : le seul chiffre du moteur est au dernier tiers de la page (≈ 1 270 px à 1440, ≈ 1 640 px à 390, sous la bibliothèque), au même poids qu'un article. Le principe 1 de PRODUCT.md dit pourtant que les échecs se montrent autant que les succès.
+- **P2, trois vocabulaires sans charnière** : bots (215), variantes (2 307) et configurations (1 775 174). Rien ne dit qu'ils ne s'emboîtent pas. L'origine de la flotte (195 bots issus du moteur, 20 déployés à la main) n'est plus que sur /overview.
+- **P2, le gabarit « gros chiffre, petit libellé » deux fois** : « 77 idées » en 42 px et « 1 775 174 » en 35 px, hors de l'échelle de DESIGN.md. Le chiffre est plus gros que son sens.
+- **Test des 5 secondes** : le visiteur comprend les deux activités, puis voit trois bots en argent réel et leur verdict. Il ne voit nulle part comment ces bots ont été choisis ni combien de configurations ont échoué. La charge cognitive est faible ; c'est la preuve qui manque, pas la clarté.
