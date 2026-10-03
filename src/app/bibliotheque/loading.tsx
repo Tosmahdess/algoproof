@@ -27,7 +27,7 @@ function Row() {
 export default function Loading() {
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 pb-16" aria-busy="true">
-      <header className="mb-8 sm:mb-10">
+      <header className="mb-7 sm:mb-8">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">La bibliothèque des stratégies</h1>
         <p className="mt-3 max-w-[64ch] text-base text-muted sm:text-lg">
           Chaque variante que mon moteur a trouvée et qui a passé mes épreuves de backtest est ici,
@@ -38,15 +38,14 @@ export default function Loading() {
       </header>
 
       <div role="status" aria-label="Chargement de la bibliothèque" className="animate-pulse motion-reduce:animate-none">
-        <div className="mb-10 grid grid-cols-2 gap-x-8 gap-y-6 border-y border-border py-5 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-5 border-t border-border py-5 sm:grid-cols-4 sm:gap-x-8">
           {Array.from({ length: 4 }, (_, i) => (
             <div key={i}><Bar className="h-7 w-20" /><Bar className="mt-2 h-4 w-24" /><Bar className="mt-2 h-3 w-36 max-w-full" /></div>
           ))}
         </div>
-        <div className="border-t border-border pt-9">
+        <div className="border-t border-border pt-8">
           <Bar className="h-7 w-56 max-w-full" />
-          <Bar className="mt-3 h-3 w-full max-w-[60ch]" />
-          <Bar className="mt-8 h-11 w-full max-w-md" />
+          <Bar className="mt-5 h-11 w-full max-w-md" />
           <div className="mt-4 border-b border-border py-3 lg:hidden"><Bar className="h-6 w-20" /></div>
           <div className="mt-4 hidden border-b border-border pb-3 lg:block">
             <div className="grid max-w-4xl grid-cols-4 gap-2">

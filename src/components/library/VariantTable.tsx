@@ -65,7 +65,7 @@ function Open({ v }: { v: VariantRow }) {
   const cls = linkClass('inline', 'inline-flex min-h-11 items-center whitespace-nowrap text-sm')
   return v.external ? (
     <a href={v.href} target="_blank" rel="noopener noreferrer" className={cls}>
-      {`Réglages ${who}`}{' '}<span aria-hidden="true">↗</span><span className="sr-only">{' dans le labo, nouvel onglet'}</span>
+      {`Réglages ${who} `}<span aria-hidden="true">↗</span><span className="sr-only">{' dans le labo, nouvel onglet'}</span>
     </a>
   ) : (
     <Link href={v.href} className={cls}>{`Fiche ${who}`}</Link>

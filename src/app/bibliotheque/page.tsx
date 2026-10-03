@@ -60,7 +60,7 @@ export default async function BibliothequePage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 pb-16">
-      <header className="mb-8 sm:mb-10">
+      <header className="mb-7 sm:mb-8">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">La bibliothèque des stratégies</h1>
         <p className="mt-3 max-w-[64ch] text-base text-muted sm:text-lg">
           Chaque variante que mon moteur a trouvée et qui a passé mes épreuves de backtest est ici,
@@ -76,7 +76,7 @@ export default async function BibliothequePage({ searchParams }: Props) {
       </header>
 
       {rows.length > 0 && (
-        <LibraryFigures count={live > 0 ? 5 : 4} className="mb-10">
+        <LibraryFigures count={live > 0 ? 5 : 4} closed={false}>
           <Figure value={rows.length} label={rows.length > 1 ? 'idées' : 'idée'} phrase="Une stratégie sur un horizon." />
           <Figure value={sum('n_variants')} label={sum('n_variants') > 1 ? 'variantes' : 'variante'} phrase="Passées par mes épreuves de backtest." />
           {live > 0 && <Figure value={live} label="en argent réel" phrase="Lancées avec mon argent." />}
@@ -85,14 +85,10 @@ export default async function BibliothequePage({ searchParams }: Props) {
         </LibraryFigures>
       )}
 
-      <section aria-labelledby="library-register-title" className="border-t border-border pt-9">
-        <h2 id="library-register-title" className="mb-2 text-2xl font-semibold tracking-tight">
+      <section aria-labelledby="library-register-title" className="border-t border-border pt-8">
+        <h2 id="library-register-title" className="mb-5 text-2xl font-semibold tracking-tight">
           Toutes les idées{' '}<span className="font-normal tabular-nums text-muted">{fr(rows.length)}</span>
         </h2>
-        <p className="mb-6 max-w-[65ch] text-sm text-muted">
-          Une ligne par idée, ses variantes comptées par état. La page de l’idée montre son principe,
-          puis chaque variante.
-        </p>
         <LibraryIndex ideas={rows} initialState={parseLibraryFilters(toURLSearchParams(sp))} />
       </section>
     </div>
