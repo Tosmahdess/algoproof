@@ -21,7 +21,8 @@ const sale = vi.hoisted(() => ({ open: false }))
 const syncedAt = new Date(Date.now() - 26 * 60_000).toISOString()
 
 vi.mock('@/lib/queries', () => ({
-  getAllBotsWithStats: async () => [
+  getAllBotsWithStats: async () => { throw new Error('lists read summaries (D094)') },
+  getListBots: async () => [
     mkBot({ slug: 'orb-bf25', name: 'Cassure de range d’ouverture H1 Hyperliquid', exchange: 'Hyperliquid',
       status: 'live', start_capital: 1000, live_since: '2026-04-26T00:00:00Z', last_sync_at: syncedAt,
       stats: { total_trades: 280, win_rate: 0.45, profit_factor: 0.95, max_drawdown: 0.291, latest_capital: 935.26 } }),

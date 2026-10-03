@@ -31,28 +31,49 @@ function isPayload(p: unknown): p is Payload {
 export async function getBacktestSegment(slug: string): Promise<BacktestSegment | null> {
   // Engine bots and, since D074, some hand-written ones: every fiche asks (one small
   // indexed read); a bot without a row gets the plain paper view.
+  const r = await readBacktestSegment(slug)
+  return r.kind === 'ok' ? r.segment : null
+}
+
+/** What the bot_stats job needs and a page does not (lot 1b, D094): WHY there is no
+ *  segment. « none » is a fact about the bot (it has no row); « error » is a fact about
+ *  this read (no key, a failed query, a row that does not parse) and must never be
+ *  stored as if it were « none ». `sha` fingerprints the inputs the publisher built the
+ *  row from, so a changed replay shows on the summary even when no TS changed. */
+export type SegmentRead =
+  | { kind: 'ok'; segment: BacktestSegment; sha: string }
+  | { kind: 'none' }
+  | { kind: 'error'; reason: string }
+
+export async function readBacktestSegment(slug: string): Promise<SegmentRead> {
   const client = supabasePrivileged()
-  if (!client) return null
+  if (!client) return { kind: 'error', reason: 'service key absent' }
   try {
     const { data, error } = await client
       .from('bot_backtest_segments')
-      .select('payload')
+      .select('payload,recipe_sha,source_sha')
       .eq('slug', slug)
       .limit(1)
     if (error) {
       console.error(`[backtest-segment] read failed for ${slug}:`, error)
-      return null
+      return { kind: 'error', reason: `read failed: ${error.message ?? 'unknown'}` }
     }
-    const p = (data?.[0] as { payload?: unknown } | undefined)?.payload
-    if (!isPayload(p)) return null
+    const row = data?.[0] as { payload?: unknown; recipe_sha?: string; source_sha?: string } | undefined
+    if (!row) return { kind: 'none' }
+    const p = row.payload
+    if (!isPayload(p)) return { kind: 'error', reason: 'malformed payload' }
     const raw = p as Payload & { paperScaling?: unknown; verdict?: unknown }
-    return { slug, startDate: p.startDate, freezeDate: p.freezeDate, replayEnd: p.replayEnd,
-      startCapital: p.startCapital, points: p.points, trades: p.trades,
-      paperScaling: raw.paperScaling === 'additive' ? 'additive' : 'proportional',
-      verdict: raw.verdict === 'exploration' || raw.verdict === 'rejected' || raw.verdict === 'tested'
-        ? raw.verdict : null }
+    return {
+      kind: 'ok',
+      sha: `${row.recipe_sha ?? ''}:${row.source_sha ?? ''}`,
+      segment: { slug, startDate: p.startDate, freezeDate: p.freezeDate, replayEnd: p.replayEnd,
+        startCapital: p.startCapital, points: p.points, trades: p.trades,
+        paperScaling: raw.paperScaling === 'additive' ? 'additive' : 'proportional',
+        verdict: raw.verdict === 'exploration' || raw.verdict === 'rejected' || raw.verdict === 'tested'
+          ? raw.verdict : null },
+    }
   } catch (e) {
     console.error(`[backtest-segment] read threw for ${slug}:`, e)
-    return null
+    return { kind: 'error', reason: `read threw: ${String(e)}` }
   }
 }

@@ -14,7 +14,9 @@ vi.mock('next/navigation', () => ({
 
 const bots = vi.hoisted(() => ({ current: [] as unknown[] }))
 vi.mock('@/lib/queries', () => ({
-  getAllBotsWithStats: async () => bots.current,
+  getAllBotsWithStats: async () => { throw new Error('lists read summaries (D094)') },
+  getListBots: async () => bots.current,
+  getBots: async () => bots.current,
   getBotSlugs: async () => [],
 }))
 vi.mock('@/lib/engine-search-space', () => ({ getSearchSpace: async () => null }))

@@ -21,7 +21,7 @@ import TrackedLink from '@/components/TrackedLink'
 import HomeArticle from '@/components/home/HomeArticle'
 import RealMoneyRegister from '@/components/home/RealMoneyRegister'
 import EngineLedger from '@/components/home/EngineLedger'
-import { getAllBotsWithStats } from '@/lib/queries'
+import { getListBots } from '@/lib/queries'
 import { getFunnelCounts } from '@/lib/funnel'
 import { getArticles } from '@/lib/articles'
 import { getLibraryIdeas } from '@/lib/library'
@@ -48,7 +48,8 @@ const ENTRY = 'flex h-full items-center justify-between gap-4 py-4 md:py-[18px]'
 
 export default async function HomePage() {
   const [allBots, funnel, ideas] = await Promise.all([
-    getAllBotsWithStats(),
+    // Rows and stored summaries (lot 1b, D094): no history is loaded to show the figures.
+    getListBots(),
     getFunnelCounts(),
     // The library is a second source: if its view fails, the home still serves,
     // without the counts rather than with typed ones.

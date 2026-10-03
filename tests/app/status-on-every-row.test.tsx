@@ -25,7 +25,8 @@ const FLEET = [
     stats: { win_rate: 0, profit_factor: 0, max_drawdown: 0, total_trades: 0, latest_capital: 1000 } }),
 ]
 
-vi.mock('@/lib/queries', () => ({ getAllBotsWithStats: async () => FLEET }))
+vi.mock('@/lib/queries', () => ({ getAllBotsWithStats: async () => { throw new Error('lists read summaries (D094)') },
+  getListBots: async () => FLEET }))
 vi.mock('@/lib/funnel', () => ({ getFunnelCounts: async () => null }))
 vi.mock('@/lib/mi-fleet-impact', () => ({
   pct: (f: number) => `${(f * 100).toFixed(1).replace('.', ',')} %`,

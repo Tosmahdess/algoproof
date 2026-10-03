@@ -5,9 +5,10 @@
 //
 // No `revalidate` export on purpose: reading `searchParams` makes this route
 // dynamic, so a shared filtered URL renders its filtered content on first paint.
-// The data calls are cached in src/lib/queries.ts (unstable_cache, 30 min).
+// The register reads each bot's stored summary (bot_stats, lot 1b, D094): no trade is
+// loaded, except for the asset slices of a URL that names assets.
 import type { Metadata } from 'next'
-import { getAllBotsWithStats, getAllTradesForAggregate, getLiveBots, getRecentTrades } from '@/lib/queries'
+import { getListBots, getAssetSlices, getAllTradesForAggregate, getLiveBots, getRecentTrades } from '@/lib/queries'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { parseFleetFilters } from '@/lib/bot-filters'
 import { minutesSince } from '@/lib/home-data'
@@ -41,7 +42,7 @@ const fresh = (minutes: number | null) => (minutes === null ? null : minutes < 2
 
 export default async function OverviewPage({ searchParams }: OverviewPageProps) {
   const [bots, trades, liveBots, recentTrades, resolvedSearchParams] = await Promise.all([
-    getAllBotsWithStats(),
+    getListBots(),
     getAllTradesForAggregate(),
     getLiveBots(),
     getRecentTrades(20),
@@ -51,6 +52,7 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
   // Parsed server side (no useSearchParams in the client: it stripped the
   // register out of the served HTML).
   const initialState = parseFleetFilters(toURLSearchParams(resolvedSearchParams))
+  const assetSlices = initialState.asset.length ? await getAssetSlices(initialState.asset) : undefined
   const minutes = minutesSince(bots.filter(b => b.status !== 'archived').map(b => b.last_sync_at))
   const f = fresh(minutes)
 
@@ -71,6 +73,7 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
 
       <FleetOverview
         bots={bots}
+        assetSlices={assetSlices}
         aggregate={aggregate}
         recentTrades={recentTrades}
         initialState={initialState}

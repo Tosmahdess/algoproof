@@ -12,13 +12,20 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/overview',
 }))
 
-vi.mock('@/lib/queries', () => ({
-  getAllBotsWithStats: async () => FIXTURE_FLEET,
+const assetCalls = vi.hoisted(() => [] as string[][])
+vi.mock('@/lib/queries', async () => {
+  const { summarizeBot } = await import('@/lib/bot-summary')
+  return {
+  // Lot 1b (D094): the page reads summaries; a history load on the default view is a bug.
+  getListBots: async () => FIXTURE_FLEET.map(b => ({ ...b, ...summarizeBot(b, '2026-10-03') })),
+  getAllBotsWithStats: async () => { throw new Error('/overview must not load every history') },
+  getAssetSlices: async (assets: string[]) => { assetCalls.push(assets); return {} },
   getAllTradesForAggregate: async () => [],
   getLiveBots: async () => FIXTURE_FLEET.filter(b => b.status === 'live')
     .map(b => ({ id: b.id, live_since: '2026-01-01T00:00:00Z' })),
   getRecentTrades: async () => [],
-}))
+  }
+})
 
 import OverviewPage from '@/app/overview/page'
 
@@ -55,6 +62,14 @@ describe('/overview — the fleet in one table', () => {
     const register = screen.getByTestId('fleet-register')
     expect(within(register).queryByText(/Ichimoku/)).toBeNull()
     expect((screen.getByRole('combobox', { name: /Famille/ }) as HTMLSelectElement).value).toBe('carry')
+  })
+
+  it('computes asset slices from trades only when the URL names assets', async () => {
+    assetCalls.length = 0
+    render(await OverviewPage({ searchParams: Promise.resolve({}) }))
+    expect(assetCalls).toEqual([])
+    render(await OverviewPage({ searchParams: Promise.resolve({ asset: 'btc,eth' }) }))
+    expect(assetCalls).toEqual([['BTC', 'ETH']])
   })
 
   it('filters by timeframe from the URL', async () => {

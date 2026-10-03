@@ -13,17 +13,16 @@
 // component tree. Everything but FleetRegister renders on this side of the
 // client boundary, so no filter has a prop path to the totals, the journal or
 // the curves: the stage-0 invariant is structural, not a convention.
-import type { BotWithStats } from '@/lib/types'
 import type { TradeWithBot } from '@/lib/types'
+import type { SummaryBot } from '@/lib/list-bots'
+import type { SideSlices } from '@/lib/register-slices'
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import { serializeFleetFilters, type FleetFilterState } from '@/lib/bot-filters'
 import { splitCohorts } from '@/lib/cohort'
 import { familyColor } from '@/lib/families'
-import { last30Capital } from '@/lib/home-data'
 import { simulationTotalSeries } from '@/lib/fleet-curves'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { ledgerState, type LedgerBot } from '@/lib/fleet-ledger'
-import { registerSlices } from '@/lib/register-slices'
 import FleetTotals from '@/components/FleetTotals'
 import FleetJournal from '@/components/FleetJournal'
 import FleetRecentTrades from '@/components/FleetRecentTrades'
@@ -32,7 +31,12 @@ import GlobalEquityCurve from '@/components/GlobalEquityCurve'
 import Repli from '@/components/Repli'
 
 export interface FleetOverviewProps {
-  bots: BotWithStats[]
+  /** Every bot with its summary (lot 1b, D094): figures, side slices, line and ledger
+   *  window, read from bot_stats. Never a trade. */
+  bots: SummaryBot[]
+  /** The side slices for the asset set the URL names, by slug; absent without one. They
+   *  depend on the URL, so they cannot be stored: the page computes them from trades. */
+  assetSlices?: Record<string, SideSlices>
   aggregate: FleetAggregate
   recentTrades: TradeWithBot[]
   initialState: FleetFilterState
@@ -44,7 +48,7 @@ export interface FleetOverviewProps {
 const CURVE_DAYS = 30
 
 export default function FleetOverview({
-  bots, aggregate, recentTrades, initialState,
+  bots, aggregate, recentTrades, initialState, assetSlices,
 }: FleetOverviewProps) {
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - CURVE_DAYS)
@@ -60,19 +64,18 @@ export default function FleetOverview({
   // Never a trade (lot 1b, 2026-10-03: 1.8 MB of HTML, nearly all of it every
   // trade of every bot), never perf_daily, never recent_trades, never the
   // expectations file.
-  const registerBots: LedgerBot[] = [...live, ...paper, ...archived].map(b => {
-    const { perf_daily, list_perf_daily, all_trades } = b
-    return {
-      id: b.id, slug: b.slug, name: b.name, status: b.status, family: b.family,
-      exchange: b.exchange, timeframe: b.timeframe, assets: b.assets,
-      start_capital: b.start_capital, engine_unit_key: b.engine_unit_key,
-      strategy: b.strategy, stats: b.stats,
-      ...registerSlices({ ...b, all_trades }, initialState.asset),
-      // an engine bot's row reads its simulation, like its figures (D073)
-      spark30: last30Capital(list_perf_daily ?? perf_daily),
-      ledger: b.status === 'archived' ? null : ledgerState(b, getBotExpectations(b.slug)),
-    }
-  })
+  const registerBots: LedgerBot[] = [...live, ...paper, ...archived].map(b => ({
+    id: b.id, slug: b.slug, name: b.name, status: b.status, family: b.family,
+    exchange: b.exchange, timeframe: b.timeframe, assets: b.assets,
+    start_capital: b.start_capital, engine_unit_key: b.engine_unit_key,
+    strategy: b.strategy, stats: b.stats,
+    slices: b.slices,
+    ...(assetSlices?.[b.slug] ? { assetSlices: assetSlices[b.slug] } : {}),
+    sides: b.sides,
+    // an engine bot's row reads its simulation, like its figures (D073)
+    spark30: b.spark30,
+    ledger: b.status === 'archived' ? null : ledgerState(b, getBotExpectations(b.slug)),
+  }))
 
   // Four series at most: each real-money bot in its family colour, the
   // simulation as one grey total. The window is applied HERE, before the
@@ -85,16 +88,15 @@ export default function FleetOverview({
         slug: b.slug,
         name: b.name,
         color: stroke,
-        data: b.perf_daily
-          .filter(p => p.date >= cutoffStr)
-          .map(p => ({ date: p.date, capital: p.capital })),
+        // the LEDGER, as executed: the window the summary kept (D094)
+        data: b.ledgerTail.filter(p => p.date >= cutoffStr),
       }
     }),
     {
       slug: 'simulation',
       name: 'Simulation, P&L total',
       color: 'var(--muted)',
-      data: simulationTotalSeries(paper, cutoffStr),
+      data: simulationTotalSeries(paper.map(b => ({ start_capital: b.start_capital, perf_daily: b.ledgerTail })), cutoffStr),
     },
   ]
 

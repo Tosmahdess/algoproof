@@ -25,7 +25,8 @@ const REAL = mkBot({ slug: 'real-dd', name: 'Real DD Bot', status: 'live',
 const FLEET = [ZERO, REAL]
 
 vi.mock('@/lib/queries', () => ({
-  getAllBotsWithStats: async () => FLEET,
+  getAllBotsWithStats: async () => { throw new Error('lists read summaries (D094)') },
+  getListBots: async () => FLEET,
   getBotWithStats: async (slug: string) => FLEET.find(b => b.slug === slug) ?? null,
   getBotSlugs: async () => FLEET.map(b => b.slug),
 }))

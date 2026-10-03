@@ -10,13 +10,17 @@ import Link from 'next/link'
 import { linkClass } from '@/lib/link-roles'
 import { fmtEur, fmtPct, pnlEur, pnlPct } from '@/lib/display'
 import { registerState, sinceLabel, sortByResult, splitMarket } from '@/lib/home-register'
-import type { BotWithStats } from '@/lib/types'
+import type { Bot, BotStats } from '@/lib/types'
+
+/** A row's figures and identity: what this register reads, whether the bot came with its
+ *  history or with its stored summary (lot 1b, D094). */
+type RegisterBot = Bot & { stats: BotStats }
 
 const COLUMNS = 'md:grid-cols-[1.2fr_1.1fr_0.65fr] md:gap-6'
 const SECONDARY_BUTTON =
   'inline-flex min-h-11 items-center justify-center rounded border border-border-strong px-4 text-sm font-semibold text-foreground transition-colors hover:bg-card-2'
 
-function Row({ bot }: { bot: BotWithStats }) {
+function Row({ bot }: { bot: RegisterBot }) {
   const href = `/strategies/bot/${bot.slug}`
   const { title, market } = splitMarket(bot.name, bot.exchange)
   const state = registerState(bot)
@@ -64,7 +68,7 @@ function Row({ bot }: { bot: BotWithStats }) {
 }
 
 export default function RealMoneyRegister({ bots, fleetSize, engineBorn, reading }: {
-  bots: BotWithStats[]
+  bots: RegisterBot[]
   /** Every bot in service, real and simulated: the same count as the lead's. */
   fleetSize: number
   /** Of fleetSize, the bots born from the engine (engine_unit_key), as /overview

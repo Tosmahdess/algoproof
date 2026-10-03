@@ -32,7 +32,8 @@ import { mkBot } from '../fixtures/bots'
 // not collide with the funnel's own numbers below, so a test asserting « 5 »
 // cannot pass on a configuration count that happens to match.
 vi.mock('@/lib/queries', () => ({
-  getAllBotsWithStats: async () => [
+  getAllBotsWithStats: async () => { throw new Error('lists read summaries (D094)') },
+  getListBots: async () => [
     mkBot({ slug: 'v1-spot', status: 'live' }),
     mkBot({ slug: 'orb-bf25', status: 'live' }),
     mkBot({ slug: 'paper-a', status: 'paper' }),

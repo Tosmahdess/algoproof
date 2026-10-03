@@ -99,3 +99,42 @@ describe('getBacktestSegment', () => {
     }
   })
 })
+
+// Lot 1b (D094): bot_stats is written by a job, not drawn by a page. For a page, « no
+// segment » and « the read failed » both mean « draw the paper view ». For the job they
+// must not: a failed read written as « no segment » would serve the LEDGER figures for
+// an engine bot, with a valid formula_rev, until the next run -- or forever if the
+// failure is a missing key. The job reads through readBacktestSegment, which says which.
+import { readBacktestSegment } from '@/lib/backtest-segment-data'
+
+describe('readBacktestSegment', () => {
+  it('hands back the segment and its source fingerprint', async () => {
+    state.rows = [{ payload, recipe_sha: 'r1', source_sha: 's1' }]
+    const got = await readBacktestSegment('arm-x')
+    expect(got.kind).toBe('ok')
+    if (got.kind !== 'ok') throw new Error('unreachable')
+    expect(got.segment.freezeDate).toBe('2026-08-02')
+    expect(got.sha).toBe('r1:s1')
+  })
+
+  it('says « none » when the bot has no row', async () => {
+    state.rows = []
+    expect((await readBacktestSegment('arm-x')).kind).toBe('none')
+  })
+
+  it('says « error » when the read fails, never « none »', async () => {
+    state.rows = null
+    state.error = { message: 'timeout' }
+    expect((await readBacktestSegment('arm-x')).kind).toBe('error')
+  })
+
+  it('says « error » when the service key is absent', async () => {
+    state.privileged = false
+    expect((await readBacktestSegment('arm-x')).kind).toBe('error')
+  })
+
+  it('says « error » for a malformed payload (a row exists, it is not readable)', async () => {
+    state.rows = [{ payload: { ...payload, points: [] }, recipe_sha: 'r1', source_sha: 's1' }]
+    expect((await readBacktestSegment('arm-x')).kind).toBe('error')
+  })
+})

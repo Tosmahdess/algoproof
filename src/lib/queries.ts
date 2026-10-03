@@ -1,6 +1,9 @@
 // src/lib/queries.ts
 import { fleetSimulationView } from '@/lib/bot-simulation'
-import { getBacktestSegment } from '@/lib/backtest-segment-data'
+import { FORMULA_REV, summarizeBot, type BotSummary } from '@/lib/bot-summary'
+import { resolveListBots, type BotWithStatsRow, type SummaryBot } from '@/lib/list-bots'
+import { registerSlices, type SideSlices } from '@/lib/register-slices'
+import { getBacktestSegment, readBacktestSegment } from '@/lib/backtest-segment-data'
 import type { LiveBot } from '@/lib/fleet-aggregate'
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
@@ -66,6 +69,49 @@ export async function getBotSlugs(): Promise<string[]> {
   return rows.map(r => r.slug)
 }
 
+/** What the lists render (lot 1b, D094): every public bot (getBots, same order) with its
+ *  stored summary. Two paged reads joined here, not a PostgREST embed: an absent or
+ *  unreadable bot_stats then costs speed (every bot computed live, logged), never the
+ *  page. A bot whose row is missing, unreadable or of another formula revision is
+ *  computed live with the same function the job uses; an old row is served. */
+export async function getListBots(): Promise<SummaryBot[]> {
+  const [bots, stored] = await Promise.all([getBots(), getStoredSummaries()])
+  const rows = bots.map(b => ({ ...b, bot_stats: stored.get(b.id) ?? null })) as BotWithStatsRow[]
+  return resolveListBots(rows, b => liveSummary(b.slug))
+}
+
+type StoredSummaryRow = { bot_id: string; formula_rev: number; computed_at: string; computed_for: string; summary: unknown }
+
+async function getStoredSummaries(): Promise<Map<string, StoredSummaryRow>> {
+  try {
+    const rows = await paginateAll<StoredSummaryRow>(async (from, to) => {
+      const { data, error } = await supabase
+        .from('bot_stats')
+        .select('bot_id,formula_rev,computed_at,computed_for,summary')
+        .order('bot_id')
+        .range(from, to)
+      if (error) throw new Error(error.message)
+      return (data ?? []) as StoredSummaryRow[]
+    })
+    return new Map(rows.map(r => [r.bot_id, r]))
+  } catch (e) {
+    console.error('[bot-stats] bot_stats unreadable, every bot computed live:', e)
+    return new Map()
+  }
+}
+
+/** The bot_stats job's cursor: public bots ordered by slug, strictly after `after`. */
+export async function getBotsPage(after: string | null, limit: number): Promise<Bot[]> {
+  let q = supabase
+    .from('bots')
+    .select('id,slug,name,status,last_sync_at')
+    .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
+  if (after !== null) q = q.gt('slug', after)
+  const { data, error } = await q.order('slug').limit(limit)
+  if (error) throw new Error(error.message)
+  return (data ?? []).map(withStartCapital) as unknown as Bot[]
+}
+
 /** The whole trade row. The bot fiche renders entry/exit prices and reasons. */
 const TRADE_COLUMNS_FICHE = '*'
 
@@ -84,6 +130,12 @@ const TRADE_COLUMNS_FLEET = 'side,pnl,asset,closed_at'
 
 export async function getBotWithStats(slug: string): Promise<BotWithStats | null> {
   return fetchBotWithStats(slug, TRADE_COLUMNS_FICHE)
+}
+
+/** The bot with the trade columns the lists' arithmetic reads: what the bot_stats job
+ *  and the live fallback summarise. */
+export async function fetchFleetBot(slug: string): Promise<BotWithStats | null> {
+  return fetchBotWithStats(slug, TRADE_COLUMNS_FLEET)
 }
 
 async function fetchBotWithStats(slug: string, tradeColumns: string): Promise<BotWithStats | null> {
@@ -222,6 +274,48 @@ function getBotWithStatsCached(slug: string): Promise<BotWithStats | null> {
   )()
 }
 
+class SegmentUnreadable extends Error {}
+
+/** The live fallback of getListBots: one bot's summary, cached per slug (a summary is
+ *  ~2 KB, far under the 2 MB ceiling).
+ *
+ *  The key carries FORMULA_REV (Fable review, 03/10): Next keys this cache on the
+ *  callback's source and these parts, and the Vercel data cache outlives deploys. A
+ *  formula change leaves this callback's source as it is, so without the revision a
+ *  bumped formula would serve the old formula's summaries for up to 30 minutes, under
+ *  the new revision -- the very case formula_rev exists to prevent.
+ *
+ *  A FAILED segment read throws out of the cached function, so nothing is stored. */
+function getBotSummaryCached(slug: string): Promise<BotSummary | null> {
+  return unstable_cache(
+    async () => {
+      const bot = await fetchBotWithStats(slug, TRADE_COLUMNS_FLEET)
+      if (!bot) return null
+      const seg = await readBacktestSegment(slug)
+      if (seg.kind === 'error') throw new SegmentUnreadable(seg.reason)
+      const today = new Date().toISOString().slice(0, 10)
+      return summarizeBot(fleetSimulationView(bot, seg.kind === 'ok' ? seg.segment : null, today), today)
+    },
+    ['fleet-bot-summary', `rev${FORMULA_REV}`, slug],
+    { revalidate: 1800, tags: ['fleet-bots', `bot-stats:${slug}`] },
+  )()
+}
+
+/** The bot as its fiche shows it when its segment cannot be read: the plain paper view,
+ *  for this render only. */
+async function liveSummary(slug: string): Promise<BotSummary | null> {
+  try {
+    return await getBotSummaryCached(slug)
+  } catch (e) {
+    if (!(e instanceof SegmentUnreadable)) throw e
+    console.error(`[bot-stats] ${slug}: segment unreadable (${e.message}), paper view, not cached`)
+    const bot = await fetchBotWithStats(slug, TRADE_COLUMNS_FLEET)
+    if (!bot) return null
+    const today = new Date().toISOString().slice(0, 10)
+    return summarizeBot(bot, today)
+  }
+}
+
 /** How many per-bot fetches the fleet pages run at once on a cold cache.
  *
  *  Each getBotWithStats is 3+ Supabase requests; a bare Promise.all over the
@@ -262,6 +356,17 @@ async function getAllBotsWithStatsUncached(): Promise<BotWithStats[]> {
 // getBotWithStatsCached, where each entry is small enough to actually be written.
 // Re-wrapping this function would silently undo the fix and look like an improvement.
 export const getAllBotsWithStats = getAllBotsWithStatsUncached
+
+/** /overview's side slices for the asset set its URL names, by slug. They depend on the
+ *  URL (any combination of assets: a drawdown over a union of assets depends on the
+ *  merged order of their trades), so they cannot be stored in bot_stats: these renders
+ *  still read every bot's trades, through the per-slug cache. Logged, to know how rare
+ *  they really are (lot 1b, D094). */
+export async function getAssetSlices(assets: readonly string[]): Promise<Record<string, SideSlices>> {
+  console.warn(`[bot-stats] /overview filtered by asset (${assets.join(',')}): slices read from trades`)
+  const bots = await getAllBotsWithStats()
+  return Object.fromEntries(bots.map(b => [b.slug, registerSlices(b, assets).assetSlices!]))
+}
 
 // Lifted from the old /performance page (folded into /overview 2026-07-31, see
 // next.config.ts redirects). Feeds computeFleetAggregate() for stage 0 of « La
