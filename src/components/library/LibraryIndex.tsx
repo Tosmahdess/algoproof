@@ -1,172 +1,255 @@
 'use client'
-
+// The library index as a register (refonte « registre », page bibliothèque,
+// 2026-10-03). It used to be a grid of cards, each with the sketch of its family:
+// the first screen showed three ideas and the same drawing three times (audit
+// 2026-10, n° 41). Now one row per idea, in the fleet's grammar: the idea and its
+// horizon, then how many variants it holds in each state, figures right-aligned.
+// The sketch moved to the idea page, where it explains something.
+//
+// No PF and no curve on a row: a « representative » figure would be a pick among
+// variants, made after the fact (D079), and the best idea is not ranked on a
+// backtest (D085).
+//
+// Search, facets, order and how many rows are open live in the URL
+// (src/lib/library-filters.ts), seeded from the server-parsed state, written back
+// with replaceState. The empty state carries its own reset, at every width (n° 40:
+// « Tout effacer » was phone-only, a desktop reader had no way out).
 import Link from 'next/link'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { usePathname } from 'next/navigation'
 import StickyFilterBar from '@/components/StickyFilterBar'
-import SearchInput from '@/components/SearchInput'
-import PrincipleSketch from '@/components/library/PrincipleSketch'
-import { sortIdeas, simSplit, type IdeaSort, type LibraryIdea } from '@/lib/library'
+import { simLine, type IdeaSort, type LibraryIdea } from '@/lib/library'
+import {
+  EMPTY_LIBRARY_FILTERS, LIBRARY_PAGE, LIBRARY_SORTS, LIBRARY_SORT_LABEL, LIBRARY_SORT_LINE,
+  activeLibraryFilterCount, applyLibraryFilters, libraryOptionCounts, parseLibraryFilters,
+  serializeLibraryFilters, type LibraryFilterState, type LibraryStateFilter,
+} from '@/lib/library-filters'
 import { linkClass } from '@/lib/link-roles'
 
-// The library index (lot 2, D079): one card per idea, a sketch of the principle,
-// how many variants it holds and in which state. No PF and no curve on a card: a
-// "representative" figure would be a pick among variants, made after the fact.
-// The grammar is Investir's (D076): search alone on its line, filters as lists
-// behind one button on a phone, 20 cards at a time.
-
-export interface IdeaCardData extends LibraryIdea {
+export interface IdeaRowData extends LibraryIdea {
   slug: string
   label: string
   familyLabel: string
 }
 
-const PAGE = 20
-const CIBLE = 'min-h-10'
-const LISTE = `w-full min-w-0 rounded-md border border-border-strong bg-card px-2 ${CIBLE} text-base sm:text-sm
-               text-foreground focus:border-accent`
 const TF_WORD: Record<string, string> = { D1: '1 jour', H4: '4 heures', H1: '1 heure', M30: '30 minutes' }
+const TF_ORDER = ['M30', 'H1', 'H4', 'D1']
+const fr = (n: number) => n.toLocaleString('fr-FR')
+export const plural = (n: number, one: string, many: string) => `${fr(n)} ${n > 1 ? many : one}`
 
-function Champ({ label, children }: { label: string; children: ReactNode }) {
+const BUTTON = 'inline-flex min-h-11 items-center rounded border border-border-strong px-4 text-sm font-semibold text-foreground transition-colors hover:bg-card-2'
+const SELECT = 'min-h-11 w-full min-w-0 rounded-md border border-border-strong bg-bg px-2 text-base sm:text-sm tabular-nums text-foreground focus:border-accent'
+
+function Field({ label, value, onChange, children }: {
+  label: string; value: string; onChange: (v: string) => void; children: ReactNode
+}) {
   return (
     <label className="flex min-w-0 flex-col gap-1">
       <span className="text-xs font-semibold text-muted">{label}</span>
-      {children}
+      <select value={value} onChange={e => onChange(e.target.value)} className={SELECT}>{children}</select>
     </label>
   )
 }
 
-const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`
-const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-
-function SimBar({ idea }: { idea: IdeaCardData }) {
-  const s = simSplit(idea)
-  if (s.total === 0) {
-    return <p className="text-xs text-muted">Aucune variante en simulation pour l&apos;instant.</p>
-  }
-  const w = (n: number) => `${(100 * n) / s.total}%`
+/** A count in a cell: the figure, and on a phone the column's name above it. */
+function Count({ n, label, note }: { n: number; label: string; note?: string | null }) {
   return (
-    <div className="grid gap-1.5">
-      <div className="flex h-2 overflow-hidden rounded-full bg-card-2" role="img"
-        aria-label={`${s.up} au-dessus de zéro, ${s.down} à zéro ou en dessous, ${s.young} trop jeunes`}>
-        <span className="block h-full bg-foreground/70" style={{ width: w(s.up) }} />
-        <span className="block h-full bg-negative/70" style={{ width: w(s.down) }} />
-        <span className="block h-full bg-border-strong" style={{ width: w(s.young) }} />
-      </div>
-      <p className="text-xs text-muted">
-        Simulation depuis le lancement : <span className="text-foreground">{s.up}</span> au-dessus de zéro,{' '}
-        <span className="text-foreground">{s.down}</span> à zéro ou en dessous,{' '}
-        <span className="text-foreground">{s.young}</span> trop jeunes pour dire quoi que ce soit
-      </p>
-    </div>
+    <>
+      <span className="block text-xs text-muted md:sr-only">{label}</span>
+      <span className={`block text-xl font-medium leading-tight tabular-nums ${n === 0 ? 'text-muted' : ''}`}>{fr(n)}</span>
+      {note && <span className="mt-1 block text-xs text-muted">{note}</span>}
+    </>
   )
 }
 
-function Pill({ children, tone }: { children: ReactNode; tone?: 'run' | 'stop' }) {
-  const t = tone === 'run' ? 'border-border-strong text-foreground'
-    : tone === 'stop' ? 'border-negative/40 text-negative' : 'border-border-strong text-muted'
-  return <span className={`whitespace-nowrap rounded-full border px-2 py-0.5 text-xs ${t}`}>{children}</span>
-}
+const CELL = 'align-top max-md:block md:py-4 md:pl-4 md:text-right'
 
-export function IdeaCard({ idea }: { idea: IdeaCardData }) {
+function Row({ idea, live }: { idea: IdeaRowData; live: boolean }) {
   return (
-    <Link href={`/bibliotheque/${idea.slug}`} className={`${linkClass('card')} grid min-w-0 gap-3 bg-card p-4`}>
-      <PrincipleSketch family={idea.family} />
-      <h3 className="text-base font-semibold text-foreground">{idea.label} {idea.tf}</h3>
-      <p className="text-xs text-muted">{idea.familyLabel} · {TF_WORD[idea.tf] ?? idea.tf} · Binance Futures</p>
-      <div className="flex flex-wrap gap-1.5">
-        <Pill>{plural(idea.n_variants, 'variante', 'variantes')}</Pill>
-        {idea.n_live > 0 && <Pill tone="run">{idea.n_live} en argent réel</Pill>}
-        {idea.n_paper > 0 && <Pill tone="run">{idea.n_paper} en simulation</Pill>}
-        {idea.n_backtest > 0 && <Pill>{idea.n_backtest} backtest seul</Pill>}
-        {idea.n_stopped > 0 && <Pill tone="stop">{plural(idea.n_stopped, 'arrêtée', 'arrêtées')}</Pill>}
-      </div>
-      <SimBar idea={idea} />
-    </Link>
+    <tr data-testid="library-row"
+      className="border-b border-border max-md:grid max-md:grid-cols-2 max-md:gap-x-4 max-md:gap-y-3 max-md:py-4">
+      <td className="align-top max-md:col-span-2 max-md:block md:py-4 md:pr-6">
+        {/* The name is a 44 px target; it rises into the row's padding, as on the fleet. */}
+        <Link href={`/bibliotheque/${idea.slug}`}
+          className={linkClass('record', '-my-2 inline-flex min-h-11 items-center text-base font-semibold leading-snug')}>
+          {`${idea.label} ${idea.tf}`}
+        </Link>
+        <p className="text-xs text-muted">
+          {`${idea.familyLabel} · ${TF_WORD[idea.tf] ?? idea.tf}`}
+          <span className="md:hidden">{` · ${plural(idea.n_variants, 'variante', 'variantes')}`}</span>
+        </p>
+      </td>
+      {live && <td className={CELL}><Count n={idea.n_live} label="Argent réel" /></td>}
+      <td className={CELL}><Count n={idea.n_paper} label="En simulation" note={simLine(idea)} /></td>
+      <td className={CELL}><Count n={idea.n_backtest} label="Backtest seul" /></td>
+      <td className={`${CELL} max-md:hidden`}>
+        <Count n={idea.n_variants} label="Variantes"
+          note={idea.n_stopped > 0 ? `dont ${plural(idea.n_stopped, 'arrêtée', 'arrêtées')}` : null} />
+      </td>
+    </tr>
   )
 }
 
-export default function LibraryIndex({ ideas }: { ideas: IdeaCardData[] }) {
-  const [q, setQ] = useState('')
-  const [tf, setTf] = useState('')
-  const [family, setFamily] = useState('')
-  const [state, setState] = useState('')
-  // Default « Plus de variantes » (user, 2026-10-01): « Récentes » opened on the last
-  // H4 ideas of one family, three identical sketches in a row. A ranking on the
-  // simulation takes over once enough ideas have trades (chantier, lot 2c).
-  const [sort, setSort] = useState<IdeaSort>('size')
-  const [shown, setShown] = useState(PAGE)
+export default function LibraryIndex({ ideas, initialState = EMPTY_LIBRARY_FILTERS }: {
+  ideas: IdeaRowData[]; initialState?: LibraryFilterState
+}) {
+  const pathname = usePathname()
+  const [state, setState] = useState<LibraryFilterState>(initialState)
+  const listRef = useRef<HTMLTableSectionElement>(null)
+  // The row that takes the focus after « Voir les N suivantes »: the first new one.
+  const focusRow = useRef<number | null>(null)
 
-  const tfs = useMemo(() => [...new Set(ideas.map(i => i.tf))].sort(), [ideas])
+  useEffect(() => {
+    const onPop = () => setState(parseLibraryFilters(new URLSearchParams(window.location.search)))
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
+  const push = useCallback((next: LibraryFilterState) => {
+    setState(next)
+    const qs = serializeLibraryFilters(next).toString()
+    window.history.replaceState(window.history.state, '', qs ? `${pathname}?${qs}` : pathname)
+  }, [pathname])
+
+  // A change of what is listed folds the list back to one page; a new order keeps it.
+  const set = (patch: Partial<LibraryFilterState>) => push({ ...state, shown: LIBRARY_PAGE, ...patch })
+  const reset = () => push({ ...EMPTY_LIBRARY_FILTERS, sort: state.sort })
+
+  const list = useMemo(() => applyLibraryFilters(ideas, state), [ideas, state])
+  const counts = useMemo(() => libraryOptionCounts(ideas, state), [ideas, state])
+  const tfs = useMemo(() => [...new Set([...ideas.map(i => i.tf), ...(state.tf ? [state.tf] : [])])]
+    .sort((a, b) => TF_ORDER.indexOf(a) - TF_ORDER.indexOf(b) || a.localeCompare(b)), [ideas, state.tf])
   const families = useMemo(() => [...new Map(ideas.map(i => [i.family, i.familyLabel])).entries()]
     .sort((a, b) => a[1].localeCompare(b[1])), [ideas])
+  const live = ideas.some(i => i.n_live > 0)
 
-  const list = useMemo(() => {
-    const words = norm(q).split(/\s+/).filter(Boolean)
-    const kept = ideas.filter(i =>
-      (!tf || i.tf === tf) && (!family || i.family === family) &&
-      (!state || (state === 'running' ? i.n_running > 0 : i.n_backtest === i.n_variants)) &&
-      words.every(w => norm(`${i.label} ${i.base} ${i.tf} ${i.familyLabel}`).includes(w)))
-    return sortIdeas(kept, sort) as IdeaCardData[]
-  }, [ideas, q, tf, family, state, sort])
-
-  const active = [tf, family, state].filter(Boolean).length
-  const reset = () => { setTf(''); setFamily(''); setState(''); setShown(PAGE) }
-  const set = (f: (v: string) => void) => (e: { target: { value: string } }) => { f(e.target.value); setShown(PAGE) }
+  const active = activeLibraryFilterCount(state)
+  const empty = list.length === 0
+  const visible = list.slice(0, state.shown)
+  const remaining = list.length - visible.length
+  const next = Math.min(LIBRARY_PAGE, remaining)
   const variants = list.reduce((n, i) => n + i.n_variants, 0)
+  const narrowed = active > 0 || state.q.trim() !== ''
+
+  useEffect(() => {
+    if (focusRow.current === null) return
+    const row = listRef.current?.querySelectorAll('[data-testid="library-row"]')[focusRow.current]
+    focusRow.current = null
+    row?.querySelector<HTMLAnchorElement>('a')?.focus()
+  }, [state.shown])
+
+  function showMore() {
+    focusRow.current = visible.length
+    push({ ...state, shown: state.shown + LIBRARY_PAGE })
+  }
+
+  // An option at (0) is disabled: picking it could only empty the list. The one in
+  // force stays enabled, so a shared URL still shows what filters.
+  const opt = (value: string, label: string, n: number, selected: boolean) => (
+    <option key={value} value={value} disabled={n === 0 && !selected}>{`${label} (${n})`}</option>
+  )
 
   return (
     <div>
-      <SearchInput value={q} onChange={v => { setQ(v); setShown(PAGE) }}
-        placeholder="Rechercher : Donchian, RSI, H4, cassure…" resultCount={list.length} totalCount={ideas.length} />
-      <StickyFilterBar activeCount={active} onReset={reset}>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Champ label="Unité de temps">
-            <select className={LISTE} value={tf} onChange={set(setTf)}>
-              <option value="">Toutes</option>
-              {tfs.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </Champ>
-          <Champ label="Type d'idée">
-            <select className={LISTE} value={family} onChange={set(setFamily)}>
+      <div className="mb-4 max-w-md">
+        <label htmlFor="library-search" className="mb-1 block text-xs font-semibold text-muted">Rechercher une idée</label>
+        <div className="relative">
+          <input id="library-search" type="text" value={state.q} autoComplete="off" spellCheck={false}
+            onChange={e => set({ q: e.target.value })}
+            placeholder="Donchian, RSI, H4, cassure…"
+            className="min-h-11 w-full rounded-md border border-border-strong bg-bg pl-3 pr-12 text-base sm:text-sm text-foreground placeholder:text-muted focus:border-accent" />
+          {state.q && (
+            <button type="button" aria-label="Effacer la recherche" onClick={() => set({ q: '' })}
+              className="absolute right-0 top-0 inline-flex h-11 w-11 items-center justify-center text-muted hover:text-foreground">
+              <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round">
+                <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* In the empty state the list's own button is the only way out, at every width. */}
+      <StickyFilterBar activeCount={active} onReset={reset} showReset={!empty}>
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:max-w-4xl">
+            <Field label="Horizon" value={state.tf} onChange={v => set({ tf: v })}>
               <option value="">Tous</option>
-              {families.map(([f, l]) => <option key={f} value={f}>{l}</option>)}
-            </select>
-          </Champ>
-          <Champ label="État">
-            <select className={LISTE} value={state} onChange={set(setState)}>
+              {tfs.map(t => opt(t, TF_WORD[t] ? `${t}, ${TF_WORD[t]}` : t, counts.tf[t] ?? 0, state.tf === t))}
+            </Field>
+            <Field label="Type d’idée" value={state.family} onChange={v => set({ family: v })}>
               <option value="">Tous</option>
-              <option value="running">Au moins une lancée</option>
-              <option value="backtest">Aucune lancée (backtest seul)</option>
-            </select>
-          </Champ>
-          <Champ label="Trier">
-            <select className={LISTE} value={sort} onChange={e => setSort(e.target.value as IdeaSort)}>
-              <option value="size">Plus de variantes</option>
-              <option value="recent">Récentes</option>
-              <option value="az">A-Z</option>
-            </select>
-          </Champ>
+              {families.map(([f, l]) => opt(f, l, counts.family[f] ?? 0, state.family === f))}
+            </Field>
+            <Field label="État" value={state.state} onChange={v => set({ state: v as LibraryStateFilter })}>
+              <option value="">Tous</option>
+              {opt('running', 'Au moins une lancée', counts.state.running, state.state === 'running')}
+              {opt('backtest', 'Aucune lancée', counts.state.backtest, state.state === 'backtest')}
+            </Field>
+            <Field label="Trier par" value={state.sort} onChange={v => push({ ...state, sort: v as IdeaSort })}>
+              {LIBRARY_SORTS.map(k => <option key={k} value={k}>{LIBRARY_SORT_LABEL[k]}</option>)}
+            </Field>
+          </div>
+          {!empty && active > 0 && (
+            <button type="button" onClick={reset}
+              className={linkClass('inline', 'hidden min-h-11 items-center text-sm lg:inline-flex')}>
+              Tout effacer
+            </button>
+          )}
         </div>
       </StickyFilterBar>
-      <p className="mb-4 text-sm text-muted">
-        <span className="text-foreground">{plural(list.length, 'idée', 'idées')}</span>, {variants.toLocaleString('fr-FR')} variantes
+
+      <p data-testid="library-count" role="status" className="mb-4 text-sm text-muted">
+        <span className="tabular-nums text-foreground">{plural(list.length, 'idée', 'idées')}</span>
+        {narrowed
+          ? ` sur ${fr(ideas.length)}, ${plural(variants, 'variante', 'variantes')}.`
+          : `, ${plural(variants, 'variante', 'variantes')}, classées ${LIBRARY_SORT_LINE[state.sort]}.`}
       </p>
-      {list.length === 0
-        ? <p className="py-10 text-center text-sm text-muted">
-            {ideas.length === 0 ? 'La bibliothèque est vide pour l’instant.' : 'Aucune idée ne correspond. Retire un filtre ou change la recherche.'}
+
+      {empty ? (
+        <div data-testid="library-empty" className="border-t border-border pt-6">
+          <p className="text-base">
+            {ideas.length === 0
+              ? 'La bibliothèque est vide pour l’instant.'
+              : 'Aucune idée ne correspond à cette recherche et à ces filtres.'}
           </p>
-        : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {list.slice(0, shown).map(i => <IdeaCard key={i.idea_key} idea={i} />)}
-          </div>
-        )}
-      {list.length > shown && (
-        <div className="mt-6 flex justify-center">
-          <button type="button" onClick={() => setShown(s => s + PAGE)}
-            className={`${CIBLE} rounded-md border border-border-strong bg-card px-5 text-sm text-foreground hover:border-accent`}>
-            Afficher {Math.min(PAGE, list.length - shown)} de plus ({list.length - shown} restantes)
-          </button>
+          {ideas.length > 0 && (
+            <button type="button" onClick={reset} className={`mt-4 ${BUTTON}`}>
+              {state.q.trim() ? 'Effacer la recherche et les filtres' : 'Retirer les filtres'}
+            </button>
+          )}
         </div>
+      ) : (
+        <>
+          <table data-testid="library-register" className="w-full border-collapse text-left max-md:block">
+            <caption className="sr-only">{`Les idées de la bibliothèque, classées ${LIBRARY_SORT_LINE[state.sort]}`}</caption>
+            <thead className="max-md:sr-only">
+              <tr className="border-b border-border text-xs text-muted">
+                <th scope="col" className="pb-2.5 pr-6 font-normal">Idée et horizon</th>
+                {live && <th scope="col" className="whitespace-nowrap pb-2.5 pl-4 text-right font-normal">Argent réel</th>}
+                <th scope="col" className="whitespace-nowrap pb-2.5 pl-4 text-right font-normal md:w-[32%]">En simulation</th>
+                <th scope="col" className="whitespace-nowrap pb-2.5 pl-4 text-right font-normal">Backtest seul</th>
+                <th scope="col" className="whitespace-nowrap pb-2.5 pl-4 text-right font-normal">Variantes</th>
+              </tr>
+            </thead>
+            <tbody ref={listRef} className="max-md:block">
+              {visible.map(i => <Row key={i.idea_key} idea={i} live={live} />)}
+            </tbody>
+          </table>
+
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
+            <p data-testid="library-shown" className="text-xs tabular-nums text-muted" aria-live="polite">
+              {remaining > 0
+                ? `${fr(visible.length)} idées affichées sur ${fr(list.length)}.`
+                : `${plural(list.length, 'idée affichée', 'idées affichées')}, toute la liste.`}
+            </p>
+            {remaining > 0 && (
+              <button type="button" data-testid="library-more" onClick={showMore} className={BUTTON}>
+                {next > 1 ? `Voir les ${fr(next)} suivantes` : 'Voir la dernière'}
+              </button>
+            )}
+          </div>
+        </>
       )}
     </div>
   )
