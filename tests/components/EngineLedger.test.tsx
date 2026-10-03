@@ -14,34 +14,38 @@ const COUNTS: FunnelCounts = {
 }
 
 describe('EngineLedger', () => {
-  it('writes the three verdicts, then their sum closed by a double rule', () => {
+  // Owner, 03/10: « les 5 chiffres sur la même ligne et une toute petite phrase pour chacun ».
+  // In this order they also run from the largest to the smallest.
+  it('sets the five figures on one row, largest to smallest, each with a short phrase', () => {
     render(<EngineLedger counts={COUNTS} />)
-    const rows = screen.getAllByTestId('engine-row').map(r => r.textContent!.replace(/\s/g, ''))
-    expect(rows.map(r => r.match(/^\D+/)![0])).toEqual(['Recalées', 'Ensursis', 'Candidates'])
-    const total = screen.getByTestId('engine-total')
-    expect(total.textContent!.replace(/\s/g, '')).toBe('Configurationsjugées2144077')
-    expect(total.className).toMatch(/border-double/)
+    const cells = screen.getAllByTestId('engine-figure')
+    expect(cells.map(c => c.getAttribute('data-kind'))).toEqual(['swept', 'judged', 'no_go', 'marginal', 'go'])
+    const values = cells.map(c => Number(c.querySelector('.tabular-nums')!.textContent!.replace(/\D/g, '')))
+    expect(values).toEqual([51_339_525, 2_144_077, 1_775_174, 364_556, 4_347])
+    for (let i = 1; i < values.length; i++) expect(values[i - 1] > values[i]).toBe(true)
+    for (const c of cells) {
+      const phrase = c.querySelector('[data-testid="engine-phrase"]')!.textContent!.trim()
+      expect(phrase.split(/\s+/).length).toBeLessThanOrEqual(5)
+    }
+    expect(screen.getByTestId('engine-row-figures').className).toMatch(/lg:grid-cols-5/)
+  })
+
+  it('keeps the verdicts true: they sum to the judged, and the swept is never called tested or rejected', () => {
+    render(<EngineLedger counts={COUNTS} />)
     expect(COUNTS.n_no_go + COUNTS.n_marginal + COUNTS.n_go).toBe(COUNTS.n_judged)
-  })
-
-  it('says the ratio in the heading, in words, with no big number', () => {
-    render(<EngineLedger counts={COUNTS} />)
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Mon moteur retient environ 1 configuration sur 500')
-    expect(document.body.innerHTML).not.toMatch(/text-\[(3\d|4\d)px\]|text-[34]xl/)
-  })
-
-  // Owner, 03/10: the total must be visible, not a footnote. It heads the block as its own
-  // line, named « recensées » (funnel.ts: « testées » was retired for this corpus), and it
-  // stays out of the addition: most of it was never judged, so it is never « recalé ».
-  it('heads the block with the swept total, out of the sum, never called tested or rejected', () => {
-    render(<EngineLedger counts={COUNTS} />)
-    const swept = screen.getByTestId('engine-swept')
-    expect(swept.textContent!.replace(/\s/g, ' ')).toMatch(/Configurations recensées ?51 339 525/)
-    expect(swept.textContent!.replace(/\s/g, ' ')).toMatch(/49 195 448 autres n’ont pas de verdict : je ne les compte pas comme recalées/)
-    expect(swept.textContent).not.toMatch(/testées/)
-    expect(within(screen.getByTestId('engine-ledger')).queryByText(/recens/)).toBeNull()
-    expect(swept.compareDocumentPosition(screen.getByTestId('engine-ledger')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const swept = screen.getAllByTestId('engine-figure')[0].textContent!.replace(/\s/g, ' ')
+    expect(swept).toMatch(/recensées/)
+    expect(swept).not.toMatch(/testées|recal/)
     expect(screen.getByTestId('engine-outside').textContent).toMatch(/Mes bots et les variantes de la bibliothèque se comptent à part/)
+  })
+
+  it('puts the conclusion under the figures, the ratio said in words, no display-size number', () => {
+    render(<EngineLedger counts={COUNTS} />)
+    const head = screen.getByTestId('engine-head')
+    expect(within(head).getByRole('heading', { level: 2 }).textContent).toBe('Mon moteur retient environ 1 configuration sur 500')
+    expect(within(head).getByRole('link', { name: /Comment je décide/ })).toBeTruthy()
+    expect(head.compareDocumentPosition(screen.getByTestId('engine-row-figures')) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
+    expect(document.body.innerHTML).not.toMatch(/text-\[(3\d|4\d)px\]|text-[34]xl/)
   })
 
   it('renders nothing without a judged denominator, and no ratio without a candidate', () => {

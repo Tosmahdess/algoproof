@@ -169,28 +169,21 @@ describe('/ — the lead, the library, the graveyard and one article', () => {
   // The engine's numbers came back on 03/10 (owner: « on perd l'info du nombre de
   // configurations testées, de celles qui ont eu un go »), as an addition and not as
   // the card that overflowed (audit n° 7). The method tiles stay retired.
-  it('the engine’s addition: three verdicts that sum to the judged total, the ratio in words', async () => {
+  it('the engine’s five figures on one row, largest to smallest, the ratio in words under them', async () => {
     render(await HomePage())
     expect(screen.queryByTestId('home-funnel')).toBeNull()
     expect(screen.queryByTestId('home-method')).toBeNull()
     const e = screen.getByTestId('home-engine')
     expect(within(e).getByRole('heading', { level: 2 }).textContent).toMatch(/environ 1 configuration sur\s*500/)
-    const rows = within(e).getAllByTestId('engine-row').map(r => r.textContent!.replace(/\s/g, ''))
-    expect(rows[0]).toMatch(/^Recalées1490926/)
-    expect(rows[1]).toMatch(/^Ensursis259782/)
-    expect(rows[2]).toMatch(/^Candidates3536/)
-    expect(within(e).getByTestId('engine-total').textContent!.replace(/\s/g, '')).toBe('Configurationsjugées1754244')
+    const values = within(e).getAllByTestId('engine-figure').map(c => Number(c.querySelector('.tabular-nums')!.textContent!.replace(/\D/g, '')))
+    expect(values).toEqual([41333092, 1754244, 1490926, 259782, 3536])
     expect(1490926 + 259782 + 3536).toBe(1754244)
   })
 
-  it('keeps the swept corpus outside the sum, never as rejected, and links the graveyard', async () => {
+  it('names the swept corpus without calling it rejected, and links the graveyard', async () => {
     render(await HomePage())
     const e = screen.getByTestId('home-engine')
-    // The swept total heads the block as its own line (owner, 03/10), still out of the sum.
-    const swept = within(e).getByTestId('engine-swept').textContent!.replace(/\s/g, ' ')
-    expect(swept).toMatch(/Configurations recensées ?41 333 092/)
-    expect(swept).toMatch(/39 578 848 autres n’ont pas de verdict : je ne les compte pas comme recalées/)
-    expect(within(e).getByTestId('engine-ledger').textContent).not.toMatch(/recens/)
+    expect(within(e).getAllByTestId('engine-figure')[0].textContent).not.toMatch(/recal/)
     expect(within(e).getByRole('link', { name: /Voir le cimetière/ }).getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=home-cimetiere')
     expect(screen.queryByTestId('home-graveyard')).toBeNull()
   })
