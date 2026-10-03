@@ -23,8 +23,8 @@ export default function StartPage() {
           Binance Futures est bloqué pour les résidents français depuis 2023 (restriction AMF), et
           Binance a cessé de servir les résidents français le 1er juillet 2026, faute d&apos;agrément
           MiCA. Au 10 septembre 2026, rien n&apos;a repris : Binance vise un retour par un nouveau
-          dépôt auprès de l&apos;AMF, qui doit se prononcer avant le 1er octobre, et je relirai cette
-          page ce jour-là. Trois plateformes restent
+          dépôt auprès de l&apos;AMF, qui devait se prononcer avant le 1er octobre 2026. Je n&apos;ai pas
+          relu cette page depuis : elle ne dit rien de la décision de l&apos;AMF. Trois plateformes restent
           compatibles pour trader les mêmes stratégies. Mon propre bot spot en argent réel tourne
           sur Kraken depuis le 30 juin.
         </p>
@@ -62,7 +62,7 @@ export default function StartPage() {
             exchange="bybit"
             location="start"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="sponsored noopener noreferrer"
             className="block w-full rounded-lg border border-accent bg-button py-2.5 text-center text-sm font-semibold text-foreground transition-colors hover:bg-card-2"
           >
             Ouvrir un compte Bybit →
@@ -202,7 +202,7 @@ export default function StartPage() {
             figurent ici. */}
         <p className="text-base leading-relaxed">
           Au 10 septembre 2026, rien n&apos;a repris : Binance vise un retour par un nouveau dépôt
-          auprès de l&apos;AMF, qui doit se prononcer avant le 1er octobre (
+          auprès de l&apos;AMF, qui devait se prononcer avant le 1er octobre 2026 (
           <a href="https://www.cointribune.com/deux-mois-apres-mica-binance-vise-un-retour-en-france-via-lamf/" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>Cointribune, 8 septembre 2026</a>
           ). L&apos;arrêt du 1er juillet, tel que la presse l&apos;a donné :{' '}
           <a href="https://www.moneyvox.fr/placement/actualites/109356/binance-suspend-ses-activites-en-france-les-consequences-pour-vos-crypto-ici-le-1er-juillet-2026" target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>MoneyVox</a>
