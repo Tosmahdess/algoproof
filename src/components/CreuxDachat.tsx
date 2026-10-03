@@ -4,6 +4,7 @@ import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import type { FicheIndex } from '@/lib/investir'
+import { NARROW_NBSP } from '@/lib/display'
 
 type Alerte = {
   ticker: string
@@ -13,11 +14,11 @@ type Alerte = {
   alerted_at: string
 }
 
-const COULEUR: Record<string, string> = {
-  crash: 'text-negative',
-  major: 'text-severe',
-  minor: 'text-warning',
-}
+// Aucune couleur sur un recul (audit 2026-10, n° 51) : « −65 % » s'affichait en
+// rouge ou en orange selon le palier du pipeline, sur une page qui dit ne lire
+// aucun cours. Un rouge range la société sur une échelle avant qu'on ait lu la
+// moindre phrase ; le signe « − » et le mot « recul » suffisent. Le palier
+// (`signal_level`) n'est plus affiché du tout.
 
 // Quinze jours de FRAÎCHEUR DU REPÉRAGE, à ne pas confondre avec la durée du
 // recul. La plus ancienne alerte de la base remonte à trois mois, et les
@@ -44,7 +45,12 @@ const FRAICHEUR_JOURS = 15
  * trajectoire ; un cours est une donnée de marché qu'on n'a pas le droit de
  * rediffuser, et le site a cessé de le faire le 2026-09-08.
  */
-export function CreuxDachat({ index }: { index: FicheIndex[] }) {
+export function CreuxDachat({ index, horsPerimetre = [] }: {
+  index: FicheIndex[]
+  /** The companies I do not read have a fiche too (AeroVironment, Rheinmetall…):
+   *  a dip on one of them links it as well (audit 2026-10, n° 51). */
+  horsPerimetre?: { slug: string; name: string; ticker: string | null }[]
+}) {
   const [alertes, setAlertes] = useState<Alerte[] | null>(null)
 
   useEffect(() => {
@@ -59,7 +65,10 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
   if (!alertes || alertes.length === 0) return null
 
   const limite = Date.now() - FRAICHEUR_JOURS * 86_400_000
-  const parSymbole = new Map(index.filter(l => l.symbole).map(l => [l.symbole!, l]))
+  const parSymbole = new Map<string, { slug: string; name: string }>([
+    ...horsPerimetre.filter(h => h.ticker).map(h => [h.ticker!, h] as const),
+    ...index.filter(l => l.symbole).map(l => [l.symbole!, l] as const),
+  ])
   const recents = alertes
     .filter(a => new Date(a.alerted_at).getTime() >= limite)
     .sort((a, b) => a.drawdown_pct - b.drawdown_pct)
@@ -68,47 +77,46 @@ export function CreuxDachat({ index }: { index: FicheIndex[] }) {
   if (recents.length === 0) return null
 
   return (
-    <section className="rounded-lg border border-border bg-card px-5 py-4">
+    <section aria-labelledby="creux-titre" data-testid="creux" className="border-t border-border pt-8 sm:pt-9 pb-8">
       {/* Lot 6 (2026-09-25): under the list, and the title says what this
           block is made of. « Creux repérés récemment » sat in the first screen
           right under « je ne lis aucun cours de bourse », a contradiction
           the reader met before the list. */}
-      <h2 className="text-sm font-semibold text-muted mb-1">
+      <h2 id="creux-titre" className="text-2xl font-semibold tracking-tight">
         Ce que les cours disent, et que mes contrôles ne lisent pas
       </h2>
-      <p className="text-xs text-muted leading-relaxed mb-3">
-        Le pourcentage est le recul <strong>depuis le plus haut des six derniers
+      <p className="mt-2 max-w-[68ch] text-sm text-muted leading-relaxed">
+        Le pourcentage est le recul <strong className="font-semibold text-foreground">depuis le plus haut des six derniers
         mois</strong>, pas la baisse des dernières semaines. La date est celle
         du repérage. Ça vient des cours, pas des comptes : ça n’entre dans
-        aucune note, et ça ne dit pas qu’une société va mieux ou moins bien.
+        aucun contrôle, et ça ne dit pas qu’une société va mieux ou moins bien.
       </p>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
+      <div aria-hidden="true" className="mt-4 grid grid-cols-[minmax(0,1fr)_auto_4.5rem] gap-x-4 border-b border-border pb-2 text-xs text-muted">
+        <span>Société</span>
+        <span>Repérage</span>
+        <span className="text-right">Recul</span>
+      </div>
+      <ul>
         {recents.map(a => {
           const fiche = parSymbole.get(a.ticker)
           const nom = fiche?.name ?? a.asset_name ?? a.ticker
-          const contenu = (
-            <>
-              <span className="truncate">{nom}</span>
-              <span className="flex items-baseline gap-2 shrink-0">
-                <span className="text-xs text-muted">
-                  {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                </span>
-                <span className={`tabular-nums text-xs ${COULEUR[a.signal_level] ?? 'text-muted'}`}>
-                  {a.drawdown_pct.toFixed(0).replace('-', '−')} %
-                </span>
-              </span>
-            </>
-          )
           return (
-            <li key={a.ticker} className="flex items-baseline justify-between gap-3 text-sm py-0.5">
+            <li key={a.ticker} className="grid grid-cols-[minmax(0,1fr)_auto_4.5rem] items-baseline gap-x-4 border-b border-border text-sm">
+              {/* Every company cited links its fiche when it has one (n° 51);
+                  a name the index does not know stays plain. */}
               {fiche ? (
-                <Link href={`/investir/${fiche.slug}`}
-                      className={linkClass('inline', 'flex items-baseline justify-between gap-3 w-full text-sm')}>
-                  {contenu}
+                <Link href={`/investir/${fiche.slug}`} className={linkClass('record', 'inline-flex min-h-11 min-w-0 items-center truncate font-semibold')}>
+                  {nom}
                 </Link>
               ) : (
-                <span className="flex items-baseline justify-between gap-3 w-full text-muted">{contenu}</span>
+                <span className="flex min-h-11 min-w-0 items-center truncate">{nom}</span>
               )}
+              <span className="text-xs text-muted">
+                {new Date(a.alerted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+              </span>
+              <span className="text-right tabular-nums">
+                {a.drawdown_pct.toFixed(0).replace('-', '−')}{NARROW_NBSP}%
+              </span>
             </li>
           )
         })}

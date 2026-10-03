@@ -38,7 +38,11 @@ describe('/investir, long blocks fold on a phone', () => {
     for (const titre of FOLDED) {
       const bouton = screen.getByRole('button', { name: titre })
       expect(bouton.getAttribute('aria-expanded')).toBe('false')
-      expect(bouton.className).toContain('sm:hidden')
+      // The method folds on every screen since the refonte « registre »
+      // (2026-10-03): it sits between the counts and the list on a computer
+      // too, one line, so the DOM order is the visual order (n° 50).
+      if (String(titre).includes('Ce que je contrôle')) expect(bouton.className).not.toContain('sm:hidden')
+      else expect(bouton.className).toContain('sm:hidden')
     }
   })
 
@@ -125,8 +129,13 @@ describe('/investir as a search product (lot 6)', () => {
     }
   })
 
-  it('opens with the method on a phone, folded, before the search, and sends it back to the end on a computer', () => {
-    monter()
+  // Refonte « registre » (2026-10-03), audit 2026-10, n° 50: the method was
+  // moved to the end on a computer by `sm:order-last`, so the DOM order and
+  // the visual order differed (WCAG 1.3.2) and the intro pointed at a block
+  // with no link. It now stays where it is read, folded on every screen, and
+  // the intro links to it.
+  it('keeps the method next to the intro on every screen, folded, linked from the intro, in DOM order', () => {
+    const { container } = monter()
 
     const h1 = screen.getByRole('heading', { level: 1 })
     const champ = screen.getByRole('searchbox', { name: /Chercher une société/ })
@@ -134,37 +143,45 @@ describe('/investir as a search product (lot 6)', () => {
     expect(precede(h1, methode)).toBe(true)
     expect(precede(methode, champ)).toBe(true)
     expect(methode.getAttribute('aria-expanded')).toBe('false')
-    // From sm up the page is a flex column and the block takes the last slot,
-    // with « Ce que cette liste ne contient pas » after it, as before.
-    const section = methode.closest('section')!
-    expect(section.className).toContain('sm:order-last')
-    const horsListe = screen.getByRole('button', { name: /Ce que cette liste ne contient pas/ }).closest('section')!
-    expect(horsListe.className).toContain('sm:order-last')
-    expect(precede(section, horsListe)).toBe(true)
-    expect(section.parentElement!.className).toContain('flex-col')
+    expect(screen.getByRole('link', { name: 'Les sept contrôles et leurs limites' }).getAttribute('href')).toBe('#methode')
+    expect(document.getElementById('methode')!.tagName).toBe('H2')
+    // No block is moved by CSS order any more.
+    expect(container.innerHTML).not.toMatch(/(^|[\s":])order-(last|first|\d)/)
   })
 
-  it('seats the three counts beside the title on a computer (7/5 grid)', () => {
+  // Refonte « registre »: the fleet's grammar, three counts between two
+  // rules, no tile, no card (they were rounded-lg tiles beside the title).
+  it('sets the three counts between two rules, after the intro and before the method', () => {
     monter()
 
-    const h1 = screen.getByRole('heading', { level: 1 })
-    const tuiles = screen.getByText('Sociétés lues')
-    expect(h1.closest('.lg\\:col-span-7')).not.toBeNull()
-    expect(tuiles.closest('.lg\\:col-span-5')).not.toBeNull()
-    expect(tuiles.closest('.lg\\:grid-cols-12')).toBe(h1.closest('.lg\\:grid-cols-12'))
+    const chiffres = screen.getByTestId('investir-chiffres')
+    expect(chiffres.tagName).toBe('DL')
+    expect(chiffres.className).toContain('border-y')
+    expect(chiffres.innerHTML).not.toMatch(/rounded|bg-card/)
+    expect(precede(screen.getByRole('heading', { level: 1 }), chiffres)).toBe(true)
+    expect(precede(chiffres, screen.getByRole('button', { name: /Ce que je contrôle/ }))).toBe(true)
   })
 
-  it('writes the counts in French figures, in a rounded-lg tile', () => {
+  it('writes the counts in French figures, the label before the figure', () => {
     monter()
 
     // 1 203 rows in this render (see the mock): the thousands separator is
-    // the narrow no-break space, never « 1203 » nor « 1,203 ».
-    const tuile = screen.getByText('Sociétés lues').closest('div')!
-    expect(tuile.className).toMatch(/\brounded-lg\b/)
-    expect(tuile.textContent).toBe('1 203Sociétés lues')
+    // a no-break space, never « 1203 » nor « 1,203 ».
+    const cellule = screen.getByText('Sociétés lues').closest('div')!
+    expect(cellule.textContent).toBe('Sociétés lues1 203')
     // Function matcher: the library's normaliser folds U+202F into a plain space.
     expect(screen.getByText((_, el) =>
       el?.tagName === 'P' && el.textContent === '1 203 sociétés sur 1 203')).toBeTruthy()
+  })
+
+  // Audit 2026-10, n° 52: « Des lectures, pas des conseils » was on no page.
+  it('says « Des lectures, pas des conseils » right under the title, before any figure', () => {
+    monter()
+
+    const phrase = screen.getByTestId('des-lectures')
+    expect(phrase.textContent).toMatch(/^Des lectures, pas des conseils\./)
+    expect(precede(screen.getByRole('heading', { level: 1 }), phrase)).toBe(true)
+    expect(precede(phrase, screen.getByTestId('investir-chiffres'))).toBe(true)
   })
 
   it('dates the last computation with the medium date', () => {
@@ -185,7 +202,7 @@ describe('/investir as a search product (lot 6)', () => {
     // The last row of the companies list and its paging button both come first.
     const liste = document.getElementById('societes')!.closest('section')!
     const derniereLigne = [...liste.querySelectorAll('li')].at(-1)!
-    const plus = screen.getByRole('button', { name: 'Afficher 50 de plus' })
+    const plus = screen.getByRole('button', { name: 'Voir les 50 suivantes' })
     expect(precede(champ, creux)).toBe(true)
     expect(precede(derniereLigne, creux)).toBe(true)
     expect(precede(plus, creux)).toBe(true)
