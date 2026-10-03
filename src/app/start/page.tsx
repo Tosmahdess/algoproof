@@ -151,8 +151,9 @@ export default function StartPage() {
 
       {/* Comparison table */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Comparatif</h2>
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <h2 id="comparatif-titre" className="text-lg font-semibold mb-4">Comparatif</h2>
+        {/* Scrolls sideways on a phone: focusable so a keyboard can scroll it (axe, scrollable-region-focusable). */}
+        <div role="region" aria-labelledby="comparatif-titre" tabIndex={0} className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-card/50">
