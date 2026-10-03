@@ -123,39 +123,11 @@ export function tousLesSlugs(): string[] {
   return data.fiches.map(f => f.slug)
 }
 
-// La phrase de tête d'une ligne de liste, telle que le moteur l'a écrite.
-//
-// Rend la chaîne vide quand le couple est absent de la table, et c'est
-// délibéré : une phrase composée ici serait indiscernable d'une phrase du
-// moteur, et se mettrait à diverger le jour où le moteur change de
-// formulation. Rien vaut mieux qu'une seconde implémentation.
-export function residuDe(
-  ligne: Pick<FicheIndex, 'alertes' | 'n_lus'>,
-  residus: Contexte['residus'],
-): string {
-  return residus[`${ligne.alertes.length}|${ligne.n_lus}`] ?? ''
-}
-
-// Les puces d'alerte, dérivées des lignes présentes — jamais d'une liste figée.
-// Une puce sans ligne derrière se vide au clic sans que le lecteur sache
-// pourquoi. À effectif égal, l'identifiant départage : sans ordre stable, deux
-// rendus de la même liste montrent les puces dans un ordre différent.
-export function compteParAlerte(lignes: FicheIndex[]): [string, number][] {
-  const compte = new Map<string, number>()
-  for (const l of lignes) {
-    for (const motif of l.alertes) compte.set(motif, (compte.get(motif) ?? 0) + 1)
-  }
-  return [...compte.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-}
-
-// Le groupe « Couverture ». Il rend l'opacité VISIBLE au lieu de la
-// récompenser : c'est le pendant honnête du filtre « aucune alerte » qu'on
-// n'offre pas, parce qu'il sur-sélectionnerait les fiches les moins couvertes.
-export function compteParCouverture(lignes: FicheIndex[]): [number, number][] {
-  const compte = new Map<number, number>()
-  for (const l of lignes) compte.set(l.n_lus, (compte.get(l.n_lus) ?? 0) + 1)
-  return [...compte.entries()].sort((a, b) => b[0] - a[0])
-}
+// La phrase de résidu et les deux comptes de la liste vivent dans
+// `lib/investir-liste`, un module sans données : la liste est un composant
+// client, et tout ce qu'elle importait d'ici emportait le paquet entier dans le
+// bundle du navigateur (audit 2026-10, n° 20). Réexportés pour les appels serveur.
+export { residuDe, compteParAlerte, compteParCouverture } from '@/lib/investir-liste'
 
 // L'ordre de lecture des blocs, et leur titre affiché. `verdict` est rendu à
 // part, en tête de fiche : c'est la conclusion, pas une section.

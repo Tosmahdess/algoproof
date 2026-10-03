@@ -15,7 +15,9 @@ describe('stars on the site', () => {
 
   it('a company page stars itself as a company, both kinds of company page', () => {
     const page = src('src/app/investir/[slug]/page.tsx')
-    expect(page.match(/<FavoriteButton slug=\{fiche\.slug\} kind="company" \/>/g)).toHaveLength(2)
+    // Refonte « registre », pages Sociétés (2026-10-03): the registre button,
+    // under the reading on both kinds of fiche.
+    expect(page.match(/<FavoriteButton slug=\{fiche\.slug\} kind="company" appearance="registre" \/>/g)).toHaveLength(2)
   })
 
   it('the fleet table and the strategy page tables sit under one provider each', () => {

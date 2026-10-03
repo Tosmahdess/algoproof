@@ -291,7 +291,9 @@ describe('no surface points at a reference price the fiche does not show', () =>
   it('the disclosure block still says who wrote it and when', () => {
     const identity = read(path.join(ROOT, 'src/components/AuthorIdentity.tsx')).replace(/\s+/g, ' ')
     const block = read(path.join(ROOT, 'src/components/EquityDisclosure.tsx')).replace(/\s+/g, ' ')
-    expect(identity).toMatch(/Thomas Dessombs, à titre individuel/)
+    // No author name on the site (owner, 2026-10-03): the capacity, not the name.
+    expect(identity).toMatch(/J&apos;écris ce site à titre individuel/)
+    expect(identity).not.toMatch(/Dessombs/)
     expect(block).toMatch(/<AuthorIdentity version=\{generatedAt\}>/)
     // 2026-09-11 review (P6): the value passed in is `as_of`, a date with no
     // time, and longDateTime printed it « à 02:00, heure de Paris ». A day only.

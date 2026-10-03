@@ -42,11 +42,14 @@ export function AuthorIdentity({
   version?: string
   children?: ReactNode
 }) {
+  // No author name on the site (owner, 2026-10-03, asked about this very line): the
+  // capacity stays, the identity is in the legal notice linked below, and the line
+  // does not say so again on every fiche.
   return (
     <>
       <p>
-        Thomas Dessombs, à titre individuel (entrepreneur individuel, sous le nom commercial
-        AlgoProof).{version ? <> Version du {longDate(version)}.</> : null}
+        J&apos;écris ce site à titre individuel (entrepreneur individuel, sous le nom commercial
+        AlgoProof).{version ? <>{' '}Version du {longDate(version)}.</> : null}
       </p>
 
       <p>

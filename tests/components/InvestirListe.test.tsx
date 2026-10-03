@@ -64,6 +64,9 @@ const LIGNES: FicheIndex[] = [
 
 const monter = () => render(<InvestirListe lignes={LIGNES} contexte={CONTEXTE} />)
 const noms = () => screen.getAllByRole('listitem').map(li => li.textContent ?? '')
+// The list is in French alphabetical order since the refonte (audit 2026-10,
+// n° 49): a row is found by its name, not by its rank in LIGNES.
+const ligne = (nom: RegExp) => screen.getAllByRole('listitem').find(li => nom.test(li.textContent ?? ''))!
 const liste = (name: RegExp) => screen.getByRole('combobox', { name }) as HTMLSelectElement
 const options = (name: RegExp) => [...liste(name).options].map(o => o.textContent ?? '')
 const choisir = (name: RegExp, value: string) => fireEvent.change(liste(name), { target: { value } })
@@ -75,8 +78,9 @@ describe('InvestirListe', () => {
     monter()
 
     // « pertes récurrentes » est portée par deux sociétés, « dilution » par une.
-    expect(options(ALERTE).some(o => /pertes récurrentes.*\(2\)/.test(o))).toBe(true)
-    expect(options(ALERTE).some(o => /nombre d'actions en hausse.*\(1\)/.test(o))).toBe(true)
+    // Refonte « registre » (2026-10-03): the engine label opens with a capital.
+    expect(options(ALERTE).some(o => /^Pertes récurrentes.*\(2\)/.test(o))).toBe(true)
+    expect(options(ALERTE).some(o => /^Nombre d'actions en hausse.*\(1\)/.test(o))).toBe(true)
   })
 
   it("ne propose pas de puce pour une alerte que personne ne porte", () => {
@@ -84,7 +88,7 @@ describe('InvestirListe', () => {
     // puce sans ligne derrière se vide au clic sans dire pourquoi.
     monter()
 
-    expect(options(ALERTE).some(o => /chiffre d'affaires sous son niveau/.test(o))).toBe(false)
+    expect(options(ALERTE).some(o => /chiffre d'affaires sous son niveau/i.test(o))).toBe(false)
   })
 
   it("n'offre AUCUNE puce « sans alerte », et c'est le point du crible", () => {
@@ -119,7 +123,7 @@ describe('InvestirListe', () => {
   it('montre le résidu du moteur sur chaque ligne, dénominateur compris', () => {
     monter()
 
-    const crowd = screen.getAllByRole('listitem')[0]
+    const crowd = ligne(/CROWDSTRIKE/)
     expect(within(crowd).getByText(/2 alertes sur 6 contrôles lus \(sur 7\)\./)).toBeTruthy()
   })
 
@@ -128,14 +132,14 @@ describe('InvestirListe', () => {
     // mention. Collé à « sur 5 contrôles lus », il informe au lieu de flatter.
     monter()
 
-    const amazon = screen.getAllByRole('listitem')[3]
+    const amazon = ligne(/AMAZON/)
     expect(within(amazon).getByText(/0 alertes sur 5 contrôles lus \(sur 7\)\./)).toBeTruthy()
   })
 
   it('nomme les contrôles non lus sur la ligne', () => {
     monter()
 
-    const amazon = screen.getAllByRole('listitem')[3]
+    const amazon = ligne(/AMAZON/)
     expect(within(amazon).getByText(/Non lu.*dette long terme.*capitaux propres/)).toBeTruthy()
   })
 
@@ -269,32 +273,33 @@ describe('InvestirListe, pagination', () => {
     // plain space before comparing with a string.
     expect(screen.getByText((_, el) =>
       el?.tagName === 'P' && el.textContent === '1 203 sociétés sur 1 203')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Afficher 50 de plus' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Voir les 50 suivantes' })).toBeTruthy()
   })
 
   it('adds 50 rows per click and drops the button once everything is shown', () => {
     render(<InvestirListe lignes={beaucoup(120)} contexte={CONTEXTE} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Afficher 50 de plus' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Voir les 50 suivantes' }))
     expect(screen.getAllByRole('listitem').length).toBe(100)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Afficher 50 de plus' }))
+    // The button names what it adds: 20 rows are left (the fleet's wording).
+    fireEvent.click(screen.getByRole('button', { name: 'Voir les 20 suivantes' }))
     expect(screen.getAllByRole('listitem').length).toBe(120)
-    expect(screen.queryByRole('button', { name: 'Afficher 50 de plus' })).toBeNull()
+    expect(screen.queryByRole('button', { name: /^Voir les/ })).toBeNull()
   })
 
   it('shows no button when the list fits in one page', () => {
     render(<InvestirListe lignes={beaucoup(50)} contexte={CONTEXTE} />)
 
     expect(screen.getAllByRole('listitem').length).toBe(50)
-    expect(screen.queryByRole('button', { name: 'Afficher 50 de plus' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Voir les 50 suivantes' })).toBeNull()
   })
 
   it('goes back to the first page when a filter changes', () => {
     // Two pages open, then a filter that keeps 40 rows: the reader must not
     // land on an empty second page, nor keep 100 rows of a list that has 40.
     render(<InvestirListe lignes={beaucoup(120)} contexte={CONTEXTE} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Afficher 50 de plus' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Voir les 50 suivantes' }))
     expect(screen.getAllByRole('listitem').length).toBe(100)
 
     choisir(ALERTE, 'pertes_recurrentes')
@@ -308,8 +313,9 @@ describe('InvestirListe, pagination', () => {
 
 // Lot 6, §3.3 / §6: every target is 40 px high at least (pills, the field,
 // the select, the buttons), pills are `rounded`, fields and buttons `rounded-md`.
+// Refonte « registre » (2026-10-03): 44 px, the site's target (DESIGN.md, Layout).
 describe('InvestirListe, targets and radii', () => {
-  it('gives every filter control a 40 px minimum height', () => {
+  it('gives every filter control a 44 px minimum height', () => {
     const { container } = render(<InvestirListe lignes={beaucoup(60)} contexte={CONTEXTE} />)
 
     const controles = [
@@ -318,7 +324,7 @@ describe('InvestirListe, targets and radii', () => {
     expect(controles.length).toBeGreaterThan(5)
     for (const c of controles) {
       expect(c.className, `${c.tagName} « ${c.textContent || c.getAttribute('aria-label')} »`)
-        .toMatch(/\bmin-h-10\b/)
+        .toMatch(/\bmin-h-11\b/)
     }
   })
 
@@ -335,5 +341,112 @@ describe('InvestirListe, targets and radii', () => {
     for (const c of container.querySelectorAll('input, select')) {
       expect(c.className).toMatch(/(^|\s)text-base(\s|$)/)
     }
+  })
+})
+
+// Refonte « registre » (2026-10-03), audit 2026-10, n° 49, 13 and 20.
+describe('InvestirListe, the register', () => {
+  it('lists the companies in French alphabetical order, not in ASCII order', () => {
+    const lignes = ['lululemon athletica inc.', 'AZZ INC.', 'AbbVie Inc.'].map((name, i) => ({
+      ...LIGNES[1], slug: `s${i}`, cik: 100 + i, name,
+    }))
+    render(<InvestirListe lignes={lignes} contexte={CONTEXTE} />)
+
+    expect(screen.getAllByRole('link').map(a => a.textContent)).toEqual([
+      'AbbVie Inc.', 'AZZ INC.', 'lululemon athletica inc.',
+    ])
+  })
+
+  it('makes the name the row link, never the whole row', () => {
+    monter()
+
+    const crowd = screen.getAllByRole('listitem').find(li => /CROWDSTRIKE/.test(li.textContent ?? ''))!
+    const liens = within(crowd).getAllByRole('link')
+    expect(liens.map(a => a.textContent)).toEqual(['CROWDSTRIKE HOLDINGS'])
+    expect(liens[0].getAttribute('href')).toBe('/investir/crowdstrike')
+  })
+
+  it('finds by name whatever the accents', () => {
+    const lignes = [{ ...LIGNES[1], name: 'Hermès International', slug: 'hermes', cik: 9 }, LIGNES[0]]
+    render(<InvestirListe lignes={lignes} contexte={CONTEXTE} />)
+
+    fireEvent.change(screen.getByRole('searchbox', { name: /Chercher une société/ }), { target: { value: 'hermes' } })
+    expect(noms()).toHaveLength(1)
+    expect(noms()[0]).toContain('Hermès')
+  })
+})
+
+describe('InvestirListe, search beyond the companies I read (n° 13)', () => {
+  const DEHORS = [
+    { slug: 'lvmh', name: 'LVMH', ticker: 'EPA:MC' },
+    { slug: 'visa', name: 'Visa', ticker: 'NYSE:V' },
+  ]
+  const monterAvecDehors = () => render(<InvestirListe lignes={LIGNES} contexte={CONTEXTE} horsPerimetre={DEHORS} />)
+  const chercher = (v: string) => fireEvent.change(screen.getByRole('searchbox', { name: /Chercher une société/ }), { target: { value: v } })
+
+  it('shows nothing out of scope while nothing is searched', () => {
+    monterAvecDehors()
+    expect(screen.queryByTestId('investir-hors-perimetre-resultats')).toBeNull()
+  })
+
+  it('finds an out-of-scope company, says it is out of scope, and links its fiche', () => {
+    monterAvecDehors()
+    chercher('lvmh')
+
+    const bloc = screen.getByTestId('investir-hors-perimetre-resultats')
+    expect(bloc.textContent).toMatch(/hors de mon périmètre/)
+    expect(within(bloc).getByRole('link', { name: 'LVMH' }).getAttribute('href')).toBe('/investir/lvmh')
+    // The empty state names the search, not a filter nobody set.
+    expect(screen.getByRole('status').textContent).toMatch(/ne correspond à « lvmh »/)
+    expect(screen.getByRole('status').textContent).not.toMatch(/filtre/)
+  })
+
+  it('never claims they file nothing with the regulator (n° 14: false for several of them)', () => {
+    monterAvecDehors()
+    chercher('visa')
+    expect(screen.getByTestId('investir-hors-perimetre-resultats').textContent).not.toMatch(/ne déposent|déposent pas/)
+  })
+})
+
+describe('InvestirListe, empty state by cause (n° 13)', () => {
+  it('offers to clear the search when the search alone empties the list, and clears it', () => {
+    monter()
+    const champ = screen.getByRole('searchbox', { name: /Chercher une société/ }) as HTMLInputElement
+    fireEvent.change(champ, { target: { value: 'zzzz' } })
+
+    const vide = screen.getByRole('status')
+    expect(vide.textContent).toMatch(/Aucune des 4 sociétés que je lis ne correspond à « zzzz »/)
+    expect(within(vide).queryByRole('button', { name: 'Retirer les filtres' })).toBeNull()
+    fireEvent.click(within(vide).getByRole('button', { name: 'Effacer la recherche' }))
+    expect(champ.value).toBe('')
+    expect(noms()).toHaveLength(4)
+  })
+
+  it('offers to remove the filters when the filters alone empty the list, with one reset only', () => {
+    monter()
+    choisir(ALERTE, 'dilution')
+    choisir(COUVERTURE, '5')
+
+    const vide = screen.getByRole('status')
+    expect(vide.textContent).toMatch(/cette combinaison de filtres/)
+    expect(within(vide).queryByRole('button', { name: 'Effacer la recherche' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Tout effacer' })).toBeNull()
+    fireEvent.click(within(vide).getByRole('button', { name: 'Retirer les filtres' }))
+    expect(noms()).toHaveLength(4)
+  })
+})
+
+describe('InvestirListe, paging and focus', () => {
+  it('moves the focus to the first new row after « Voir les 50 suivantes »', () => {
+    render(<InvestirListe lignes={beaucoup(120)} contexte={CONTEXTE} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Voir les 50 suivantes' }))
+
+    expect(document.activeElement?.textContent).toBe(screen.getAllByRole('listitem')[50].querySelector('a')!.textContent)
+  })
+
+  it('says « Voir les 20 suivantes » when fewer than 50 remain', () => {
+    render(<InvestirListe lignes={beaucoup(120)} contexte={CONTEXTE} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Voir les 50 suivantes' }))
+    expect(screen.getByRole('button', { name: 'Voir les 20 suivantes' })).toBeTruthy()
   })
 })

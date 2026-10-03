@@ -57,7 +57,8 @@ describe('À propos (lot 7)', () => {
 
   it('carries the identity block of the company fiches under « Qui est derrière »', async () => {
     const { text } = await page()
-    expect(text).toContain('Thomas Dessombs, à titre individuel (entrepreneur individuel, sous le nom commercial AlgoProof)')
+    expect(text).toContain("J'écris ce site à titre individuel (entrepreneur individuel, sous le nom commercial AlgoProof)")
+    expect(text).not.toMatch(/Dessombs/)
     expect(text).toContain('Aucune société citée ne me rémunère')
     expect(text).toContain('pas un conseil en investissement personnalisé')
   })

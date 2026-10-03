@@ -1,10 +1,11 @@
 import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
-import ExplainerBox from '@/components/ExplainerBox'
 import Repli from '@/components/Repli'
 import { CreuxDachat } from '@/components/CreuxDachat'
 import InvestirListe from '@/components/InvestirListe'
+import { DesLectures } from '@/components/DesLectures'
 import { asOf, contexte, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
+import { SEPT_CONTROLES } from '@/lib/investir-controles'
 import { INVESTIR_VOCAB } from '@/lib/investir-vocab'
 import { frNumber } from '@/lib/display'
 import { mediumDate } from '@/lib/format-date'
@@ -13,28 +14,25 @@ import { mediumDate } from '@/lib/format-date'
 // service, et le contenu publié se relit dans l'historique du dépôt.
 export const dynamic = 'force-static'
 
-// The seven controls, as the engine applies them. Kept word for word from the
-// <pre> they replace.
-const SEPT_CONTROLES = [
-  ['pertes', '2 exercices en perte sur 3, ou un seul'],
-  ["chiffre d'affaires", "sous son niveau d'il y a deux ans"],
-  ['résultat', "sous son niveau d'il y a deux ans"],
-  ['dilution', 'actions +10 % en deux ans'],
-  ['capitaux propres', 'négatifs'],
-  ['dette long terme', 'nette de la trésorerie, au-dessus du double de la médiane de son secteur'],
-  ['trésorerie', 'face aux pertes du dernier exercice'],
-] as const
+// Refonte « Le registre des décisions », pages Sociétés (2026-10-03). The page
+// takes the fleet's grammar: the title and one lead, « Des lectures, pas des
+// conseils » right under it (audit 2026-10, n° 52), three counts between two
+// rules, then ONE register, searchable and filterable, in French alphabetical
+// order. What explains it follows, each block opened by a rule, in the order
+// the reader meets it: the DOM order IS the visual order (n° 50, WCAG 1.3.2;
+// the method used to be moved to the end by `sm:order-last`).
+//
+// The method stays next to the intro, folded to one line on every screen (user,
+// 2026-09-30: the intro speaks of « sept contrôles » and nothing near it said
+// what they were). The lead links to it.
+const SECTION = 'border-t border-border pt-8 sm:pt-9'
+const H2 = 'text-2xl font-semibold tracking-tight'
 
-// Lot 6 of the design audit (2026-09-25, conception §5.5): the page is a
-// search product. Title and short intro, the three counts beside them on a
-// computer (7/5 grid, C12 hub template) and under them on a phone, then the
-// search and its facets AT ONCE — they sat 2 326 px down on a computer and
-// 1 764 px down on a phone. The list is paged (50 rows). The price-based dips
-// go under the list, under a title that no longer contradicts « je ne lis
-// aucun cours » in the same screen. The four folds close the page.
 export default function InvestirPage() {
   const lignes = listeInvestir()
   const dehors = listeHorsPerimetre()
+  // What the client components need of them: no description crosses.
+  const dehorsCourt = dehors.map(({ slug, name, ticker }) => ({ slug, name, ticker }))
 
   // Dérivés de l'index, jamais écrits à la main : un nombre recopié dans de la
   // copie devient faux tout seul, et celui-ci l'a déjà été une fois (l'onglet
@@ -43,219 +41,198 @@ export default function InvestirPage() {
   const medianeLus = lus.length ? lus[Math.floor(lus.length / 2)] : 0
   const avecAlerte = lignes.filter(l => l.alertes.length > 0).length
 
-  return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 flex flex-col gap-8 sm:gap-12">
-      <header className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-        <div className="lg:col-span-7">
-          <p className="text-xs font-medium text-muted mb-2">
-            Sociétés
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight mb-3">
-            Je lis le dernier rapport annuel de {frNumber(lignes.length, 0)} sociétés,
-            et je te dis ce que j’y trouve.
-          </h1>
-          <p className="text-sm text-muted max-w-[68ch] leading-relaxed">
-            Je fais sept contrôles à partir d’un seul rapport annuel déposé auprès du régulateur
-            américain. Chaque alerte indique le fait qui l’a déclenchée. Je ne donne pas de verdict global sur la société.
-            La méthode et ses limites ont leur propre bloc : « Ce que je contrôle, et ce que je ne sais pas ».
-          </p>
-          <p className="text-sm max-w-[68ch] leading-relaxed mt-3">
-            Ce n’est pas un conseil d’achat : je ne lis aucun cours de bourse, donc rien
-            ici ne dit si un titre est cher aujourd’hui.
-          </p>
-          <p className="text-xs text-muted mt-3">
-            Dernier calcul le {mediumDate(asOf)}.
-          </p>
-        </div>
+  // Aucun de ces trois chiffres ne compte les sociétés SANS alerte, et ce n'est
+  // pas un oubli : un « N sociétés sans rien à signaler » est un blanc-seing,
+  // et il porte plus loin qu'un adjectif parce qu'il a l'air d'une mesure. Ce
+  // qui se compte ici, c'est ce que j'ai lu et ce que j'ai trouvé.
+  const chiffres = [
+    ['Sociétés lues', frNumber(lignes.length, 0)],
+    ['Contrôles lus par fiche, en médiane', `${medianeLus} sur 7`],
+    ['Fiches avec au moins une alerte', frNumber(avecAlerte, 0)],
+  ] as const
 
-        {/* Aucune de ces trois tuiles ne compte les sociétés SANS alerte, et ce
-            n'est pas un oubli : un « N sociétés sans rien à signaler » en chiffre
-            héros est un blanc-seing, et il porte plus loin qu'un adjectif parce
-            qu'il a l'air d'une mesure. Ce qui se compte ici, c'est ce que j'ai lu
-            et ce que j'ai trouvé — jamais ce que je n'ai rien trouvé à
-            reprocher. */}
-        {/* On a phone the three tiles are one row each (value, then label on
-            the same line): stacked as cards they pushed the search field to
-            840 px, under the fold of a 844 px screen. */}
-        {/* Phone (counter-audit 2026-09-26, item 31): the three figures in one line, so the
-            search rises by about 100 px; the tiles from sm up. Only one of the two is ever
-            displayed, so assistive tech reads the figures once. */}
-        <p data-testid="investir-figures-line" className="sm:hidden text-xs text-muted">
-          <span className="tabular-nums text-foreground">{frNumber(lignes.length, 0)}</span>{' '}sociétés lues ·{' '}
-          <span className="tabular-nums text-foreground">{medianeLus} sur 7</span>{' '}contrôles possibles en médiane ·{' '}
-          <span className="tabular-nums text-foreground">{frNumber(avecAlerte, 0)}</span>{' '}fiches avec au moins une alerte
+  return (
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 pb-4">
+      <header>
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight max-w-[30ch]">
+          Je lis le dernier rapport annuel de{' '}{frNumber(lignes.length, 0)}{' '}sociétés, et je te dis ce que j’y trouve.
+        </h1>
+        <p className="mt-4 max-w-[68ch] text-base sm:text-lg text-muted">
+          Sept contrôles, lus dans un seul rapport annuel déposé auprès du régulateur américain.
+          Chaque alerte dit le fait qui l’a déclenchée, et je dis ce que je n’ai pas pu lire.
         </p>
-        <section
-          aria-label="Ce que j’ai lu"
-          className="hidden sm:grid lg:col-span-5 grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2 lg:gap-3 self-start"
-        >
-          {([
-            ['Sociétés lues', frNumber(lignes.length, 0)],
-            ['Contrôles possibles par fiche, en médiane', `${medianeLus} sur 7`],
-            ['Fiches portant au moins une alerte', frNumber(avecAlerte, 0)],
-          ] as const).map(([label, valeur]) => (
-            <div key={label} className="rounded-lg border border-border bg-card px-4 py-2 lg:py-3 flex items-baseline gap-3 sm:block">
-              <p className="tabular-nums text-xl font-medium text-foreground shrink-0">{valeur}</p>
-              <p className="text-xs text-muted sm:mt-1">{label}</p>
-            </div>
-          ))}
-        </section>
+        <DesLectures className="mt-4" />
+        <p className="mt-3 text-xs text-muted">
+          Dernier calcul le{' '}{mediumDate(asOf)}.{' '}
+          <a href="#methode" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
+            Les sept contrôles et leurs limites
+          </a>
+        </p>
       </header>
 
-      {/* The method opens the page on a phone, folded to one line, right after
-          the header (user, 2026-09-30: the intro speaks of « sept contrôles »
-          and nothing near it said what they were). From sm up the page is a
-          flex column and the block takes the last slot again, unfolded, before
-          « Ce que cette liste ne contient pas », which shares that slot and
-          keeps DOM order. */}
+      <dl data-testid="investir-chiffres" className="mt-6 grid grid-cols-3 border-y border-border">
+        {chiffres.map(([label, valeur], i) => (
+          <div key={label} className={`min-w-0 py-4 sm:py-5 ${i > 0 ? 'border-l border-border pl-3 sm:pl-6' : 'pr-3 sm:pr-6'}`}>
+            <dt className="text-xs sm:text-sm text-muted">{label}</dt>
+            <dd className="mt-1 text-lg md:text-xl font-medium leading-tight tabular-nums">{valeur}</dd>
+          </div>
+        ))}
+      </dl>
+
       <Repli
         id="methode"
-        className="sm:order-last"
+        toujoursPliable
+        chevronTrace
         titre="Ce que je contrôle, et ce que je ne sais pas"
         resume="La méthode, les sept contrôles et leurs limites"
+        className="border-b border-border py-2"
+        titreClassName="text-base font-semibold"
+        corpsClassName="mt-3 pb-6"
       >
-        <ExplainerBox
-          stacked
-          functional={
-            <div className="space-y-2">
-              <p>
-                Je lis les séries dans <strong>un seul</strong> rapport annuel, jamais dans
-                plusieurs. C’est ce qui empêche une division d’actions ou un retraitement
-                comptable de déclencher une alerte alors que les comptes de la société
-                n’ont pas bougé : à l’intérieur d’un même document, l’entreprise a déjà
-                recalculé ses propres comparatifs.
-              </p>
-              <p>
-                Les sept contrôles sont indépendants. Chacun lit ses propres entrées, et
-                quand elles manquent, il le dit au lieu de faire comme si de rien n’était.
-                C’est pour ça que le compte s’affiche toujours avec son dénominateur :
-                une fiche sans alerte sur cinq contrôles lus n’est pas meilleure qu’une
-                fiche avec une alerte sur sept. Elle est moins lue, c’est tout.
-              </p>
-              <p>
-                Je ne classe pas une société en « solide » ou « fragile ». Je te donne les faits
-                et le nombre de contrôles que les données ont permis de faire.
-                Avec le même document, tu peux refaire mes contrôles en dix minutes.
-              </p>
-              <p>
-                Un point que je préfère dire ici plutôt que le laisser découvrir. Un
-                rapport annuel est une photographie du passé, déposée soixante à quatre-
-                vingt-dix jours après la clôture. Qui le lit en novembre lit des comptes
-                vieux de treize à quatorze mois. Rien dans cette page ne rattrape un
-                avertissement sur résultat publié entre-temps.
-              </p>
-            </div>
-          }
-          technical={
-            // Was a <pre>: on a phone overflow-x clipped every line
-            // (« 2 exercices en perte sur 3, ou un s… »). Items wrap instead.
-            <div className="text-sm leading-relaxed space-y-3">
-              <ol aria-label="Les sept contrôles" className="space-y-1.5">
-                {SEPT_CONTROLES.map(([nom, regle], i) => (
-                  <li key={nom} className="grid grid-cols-[1.25rem_1fr] sm:grid-cols-[1.25rem_9.5rem_1fr] gap-x-2">
-                    <span className="text-muted tabular-nums">{i + 1}.</span>
-                    <span className="font-semibold text-foreground">{nom}</span>
-                    <span className="col-start-2 sm:col-start-auto text-muted">{regle}</span>
-                  </li>
-                ))}
-              </ol>
-              <p>
-                lu / non lu par contrôle, sur ses propres entrées
-                <br />
-                aucun score, aucune moyenne, aucun adjectif
-              </p>
-            </div>
-          }
-        />
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="max-w-[68ch] space-y-3 text-sm leading-relaxed">
+            <p>
+              Je lis les séries dans <strong>un seul</strong> rapport annuel, jamais dans
+              plusieurs. C’est ce qui empêche une division d’actions ou un retraitement
+              comptable de déclencher une alerte alors que les comptes de la société
+              n’ont pas bougé : à l’intérieur d’un même document, l’entreprise a déjà
+              recalculé ses propres comparatifs.
+            </p>
+            <p>
+              Les sept contrôles sont indépendants. Chacun lit ses propres entrées, et
+              quand elles manquent, il le dit au lieu de faire comme si de rien n’était.
+              C’est pour ça que le compte s’affiche toujours avec son dénominateur :
+              une fiche sans alerte sur cinq contrôles lus n’est pas meilleure qu’une
+              fiche avec une alerte sur sept. Elle est moins lue, c’est tout.
+            </p>
+            <p>
+              Je ne classe pas une société en « solide » ou « fragile ». Je te donne les faits
+              et le nombre de contrôles que les données ont permis de faire.
+              Avec le même document, tu peux refaire mes contrôles en dix minutes.
+            </p>
+            <p>
+              Un rapport annuel est une photographie du passé, déposée soixante à
+              quatre-vingt-dix jours après la clôture. Qui le lit en novembre lit des comptes
+              vieux de treize à quatorze mois. Rien dans cette page ne rattrape un
+              avertissement sur résultat publié entre-temps.
+            </p>
+          </div>
+          {/* Was a <pre>: on a phone overflow-x clipped every line
+              (« 2 exercices en perte sur 3, ou un s… »). Items wrap instead. */}
+          <div className="text-sm leading-relaxed">
+            <ol aria-label="Les sept contrôles" className="border-t border-border">
+              {SEPT_CONTROLES.map((c, i) => (
+                <li key={c.cle} className="grid grid-cols-[1.5rem_minmax(0,1fr)] sm:grid-cols-[1.5rem_10rem_minmax(0,1fr)] gap-x-2 border-b border-border py-2">
+                  <span className="text-muted tabular-nums">{i + 1}.</span>
+                  <span className="font-semibold text-foreground">{c.nom}</span>
+                  <span className="col-start-2 sm:col-start-auto text-muted">{c.regle}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-3 text-muted">
+              Chaque contrôle est lu ou non lu, sur ses propres entrées. Aucun score, aucune
+              moyenne, aucun adjectif.
+            </p>
+          </div>
+        </div>
       </Repli>
 
-      <section>
-        {/* The heading structures the page for assistive tech and keeps the
-            /investir#societes anchor; the title and the count line above the
-            list already say it, so it is not drawn. */}
-        <h2 id="societes" className="sr-only scroll-mt-20">Les sociétés</h2>
-        <InvestirListe lignes={lignes} contexte={contexte} />
+      <section aria-labelledby="societes" className="pt-8 sm:pt-9">
+        <h2 id="societes" className={`${H2} scroll-mt-24`}>Les sociétés</h2>
+        <p className="mt-2 mb-4 max-w-[65ch] text-sm text-muted">
+          Par ordre alphabétique. Je ne les classe pas par nombre d’alertes : dans un sens ce
+          serait un palmarès, dans l’autre une liste à vendre.
+        </p>
+        <InvestirListe lignes={lignes} contexte={contexte} horsPerimetre={dehorsCourt} />
       </section>
 
-      <CreuxDachat index={lignes} />
+      <div className="mt-12">
+        <CreuxDachat index={lignes} horsPerimetre={dehorsCourt} />
 
-      {/* The long explanatory blocks fold on a phone and stay as they
-          were on a computer (Repli, user decision 2026-09-19). */}
-      <Repli
-        id="mots-investir"
-        titre="Les mots employés dans les fiches"
-        resume={`${INVESTIR_VOCAB.length} termes`}
-        corpsClassName="mt-2"
-      >
-        <p className="text-sm leading-relaxed mb-4">
-          Je garde les mots des comptes, mais voici ce qu’ils veulent dire ici.
-        </p>
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {INVESTIR_VOCAB.map(([terme, definition]) => (
-            <div key={terme} className="rounded-lg border border-border bg-card px-4 py-3">
-              <dt className="text-sm font-semibold text-foreground">{terme}</dt>
-              <dd className="text-sm leading-relaxed mt-1">{definition}</dd>
-            </div>
-          ))}
-        </dl>
-      </Repli>
-
-      {dehors.length > 0 && (
+        {/* The long explanatory blocks fold on a phone and stay open on a
+            computer (Repli, user decision 2026-09-19). Each opens with a rule. */}
         <Repli
-          id="hors-perimetre"
-          titre={`${dehors.length} sociétés que je ne lis pas`}
-          className="rounded-lg border border-border bg-card px-5 py-4"
-          titreClassName="text-sm font-semibold text-muted"
-          corpsClassName="mt-2"
+          id="mots-investir"
+          chevronTrace
+          titre="Les mots employés dans les fiches"
+          resume={`${INVESTIR_VOCAB.length} termes`}
+          className={`${SECTION} pb-8`}
+          titreClassName={H2}
+          corpsClassName="mt-3"
         >
-          <p className="text-xs text-muted leading-relaxed mb-3">
-            Elles ne déposent pas de rapport annuel auprès du régulateur
-            américain, donc ma règle n’a aucun document à lire. Je les suis
-            quand même, avec une analyse écrite à partir de données de marché
-            que tu ne peux pas vérifier comme le reste. C’est dit sur chaque
-            fiche.
+          <p className="text-sm leading-relaxed mb-4 max-w-[68ch]">
+            Je garde les mots des comptes, mais voici ce qu’ils veulent dire ici.
           </p>
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
-            {dehors.map(f => (
-              <Link key={f.slug} href={`/investir/${f.slug}`}
-                    className={linkClass('inline', 'text-sm')}>
-                {f.name}
-              </Link>
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 border-t border-border">
+            {INVESTIR_VOCAB.map(([terme, definition]) => (
+              <div key={terme} className="border-b border-border py-3">
+                <dt className="text-sm font-semibold text-foreground">{terme}</dt>
+                <dd className="text-sm leading-relaxed mt-1 text-muted">{definition}</dd>
+              </div>
             ))}
-          </div>
+          </dl>
         </Repli>
-      )}
 
-      <Repli
-        id="hors-liste"
-        titre="Ce que cette liste ne contient pas, et pourquoi"
-        className="sm:order-last rounded-lg border border-border bg-card px-5 py-4 text-sm leading-relaxed"
-        titreClassName="text-base font-semibold text-foreground"
-        corpsClassName="mt-2 space-y-2"
-      >
-        <p>
-          La règle ne lit que des rapports annuels déposés auprès du régulateur américain,
-          la SEC. LVMH, Hermès, Kering, Roche, Nestlé, Nintendo, Rheinmetall, Thales ou
-          BAE Systems n’y déposent rien : elles ne peuvent pas y figurer, et ce n’est pas
-          un oubli. Les sociétés cotées aux États-Unis mais domiciliées ailleurs déposent
-          un formulaire différent, que je suis en train d’ajouter.
-        </p>
-        <p>
-          Il n’y a pas non plus de partie « momentum », alors qu’elle existe sur mes
-          anciennes analyses. Elle est entièrement faite de cours de bourse, et je n’ai pas
-          aujourd’hui de source de cours que j’aie le droit d’afficher publiquement. Je
-          ne la publie donc pas.
-        </p>
-        {/* Ce paragraphe finissait sur « Mes analyses long terme et mon
-            allocation », un lien vers /wealth. /wealth est supprimée depuis le
-            2026-09-09 et redirige ici en 308 : le lien ramenait sur la page
-            même, et il n'y a plus de page d'allocation à promettre (audit
-            2026-09-09). */}
-        <p className="text-xs">
-          Mon travail d’analyse, publié en transparence. Ce n’est pas un conseil en
-          investissement.
-        </p>
-      </Repli>
+        {/* The copy of this block is n° 14 of the audit 2026-10 (« Elles ne
+            déposent pas » is false for some of them): a data correction, left
+            to its own change. */}
+        {dehors.length > 0 && (
+          <Repli
+            id="hors-perimetre"
+            chevronTrace
+            titre={`${dehors.length} sociétés que je ne lis pas`}
+            className={`${SECTION} pb-8`}
+            titreClassName={H2}
+            corpsClassName="mt-3"
+          >
+            <p className="text-sm text-muted leading-relaxed mb-3 max-w-[68ch]">
+              Elles ne déposent pas de rapport annuel auprès du régulateur
+              américain, donc ma règle n’a aucun document à lire. Je les suis
+              quand même, avec une analyse écrite à partir de données de marché
+              que tu ne peux pas vérifier comme le reste. C’est dit sur chaque
+              fiche.
+            </p>
+            <ul className="flex flex-wrap gap-x-5 text-sm">
+              {dehors.map(f => (
+                <li key={f.slug}>
+                  <Link href={`/investir/${f.slug}`} className={linkClass('inline', 'inline-flex min-h-11 items-center text-sm')}>
+                    {f.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Repli>
+        )}
+
+        <Repli
+          id="hors-liste"
+          chevronTrace
+          titre="Ce que cette liste ne contient pas, et pourquoi"
+          className={`${SECTION} pb-8`}
+          titreClassName={H2}
+          corpsClassName="mt-3 space-y-2 max-w-[68ch] text-sm leading-relaxed"
+        >
+          <p>
+            La règle ne lit que des rapports annuels déposés auprès du régulateur américain,
+            la SEC. LVMH, Hermès, Kering, Roche, Nestlé, Nintendo, Rheinmetall, Thales ou
+            BAE Systems n’y déposent rien : elles ne peuvent pas y figurer, et ce n’est pas
+            un oubli. Les sociétés cotées aux États-Unis mais domiciliées ailleurs déposent
+            un formulaire différent, que je suis en train d’ajouter.
+          </p>
+          <p>
+            Il n’y a pas non plus de partie « momentum », alors qu’elle existe sur mes
+            anciennes analyses. Elle est entièrement faite de cours de bourse, et je n’ai pas
+            aujourd’hui de source de cours que j’aie le droit d’afficher publiquement. Je
+            ne la publie donc pas.
+          </p>
+          {/* Ce paragraphe finissait sur un lien vers /wealth, supprimée depuis
+              le 2026-09-09 et redirigée ici en 308 (audit 2026-09-09). */}
+          <p className="text-muted">
+            Mon travail d’analyse, publié en transparence. Ce n’est pas un conseil en
+            investissement.
+          </p>
+        </Repli>
+      </div>
     </div>
   )
 }

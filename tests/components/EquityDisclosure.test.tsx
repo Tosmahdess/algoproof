@@ -50,7 +50,10 @@ describe('EquityDisclosure', () => {
     const text = textOf(<EquityDisclosure generatedAt="2026-09-07" />)
     const order = [
       'Qui écrit ceci, et dans quel cadre',
-      'Thomas Dessombs, à titre individuel (entrepreneur individuel, sous le nom commercial AlgoProof). Version du 7 septembre 2026.',
+      // Refonte « registre », pages Sociétés (2026-10-03): no author name on a
+      // company page (owner, 2026-10-03); the capacity stays, the identity is
+      // one link away, in the legal notice, without a sentence saying so.
+      "J'écris ce site à titre individuel (entrepreneur individuel, sous le nom commercial AlgoProof). Version du 7 septembre 2026.",
       'Aucune société citée ne me rémunère',
       'Les chiffres viennent du rapport annuel',
       'pas un conseil en investissement personnalisé',
@@ -59,5 +62,13 @@ describe('EquityDisclosure', () => {
     const at = order.map(s => text.indexOf(s))
     expect(at.every(i => i >= 0), text).toBe(true)
     expect([...at].sort((a, b) => a - b)).toEqual(at)
+  })
+
+  it('prints no author name on a company page (owner, 2026-10-02)', () => {
+    for (const ui of [<EquityDisclosure key="a" generatedAt="2026-09-07" />, <EquityDisclosure key="b" generatedAt="2026-09-07" horsPerimetre />]) {
+      const text = textOf(ui)
+      expect(text).not.toMatch(/Dessombs/)
+      expect(text).toContain('Mentions légales')
+    }
   })
 })
