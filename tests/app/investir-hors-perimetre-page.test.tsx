@@ -9,11 +9,12 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 
 vi.mock('next/navigation', () => ({
   notFound: () => { throw new Error('unexpected notFound') },
+  permanentRedirect: (to: string) => { throw new Error(`REDIRECT:${to}`) },
 }))
 vi.mock('@/components/CoursTradingView', () => ({ CoursTradingView: () => null }))
 
-import FicheInvestir from '@/app/investir/[slug]/page'
-import { listeHorsPerimetre, tousLesSlugs } from '@/lib/investir'
+import FicheInvestir, { generateMetadata, generateStaticParams } from '@/app/investir/[slug]/page'
+import { HORS_PERIMETRE_RETIREES, listeHorsPerimetre, tousLesSlugs } from '@/lib/investir'
 
 const TEASER = [/Ce que les membres lisent en plus/, /Voir l.abonnement/, /J.ai déjà un compte/]
 
@@ -89,5 +90,60 @@ describe('/investir/[slug], graded company (unchanged)', () => {
     expect((container.textContent ?? '').replace(/\s+/g, ' ')).toContain(
       'Les chiffres viennent du rapport annuel de la société, dont la fiche donne la date de dépôt et le numéro.',
     )
+  })
+})
+
+// Audit 2026-10, n° 14: the panel said « Elle ne dépose pas de rapport annuel
+// auprès du régulateur américain » on every fiche, false for the ones that file
+// a 10-K or a 20-F. The sentence is now computed from the fiche's cause.
+describe('/investir/[slug], out-of-scope company: why I do not read it', () => {
+  const panneau = async (slug: string) => {
+    const { getByTestId } = await renderFiche(slug, { horsPerimetre: true, blocs: {} })
+    return (getByTestId('constats').textContent ?? '').replace(/\s+/g, ' ')
+  }
+
+  it('a company with no 10-K and no 20-F is told so', async () => {
+    const t = await panneau('lvmh')
+    expect(t).toMatch(/ne dépose auprès du régulateur américain ni 10-K ni 20-F/)
+  })
+
+  it('a company that files is never told it does not file, and the page links its filings', async () => {
+    const t = await panneau('visa')
+    expect(t).toMatch(/Elle dépose un rapport annuel auprès du régulateur américain/)
+    expect(t).not.toMatch(/ne dépose (pas|ni)/)
+    const lien = screen.getByRole('link', { name: /Ses dépôts sur sec\.gov/ })
+    expect(lien.getAttribute('href')).toBe('https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1403161')
+  })
+
+  it('a company that ended its registration gives both dates', async () => {
+    const t = await panneau('electronic-arts')
+    expect(t).toMatch(/11 mai 2026/)
+    expect(t).toMatch(/14 août 2026/)
+    expect(t).not.toMatch(/ne dépose (pas|ni)/)
+  })
+
+  it('the page description says the same thing as the panel', async () => {
+    const visa = await generateMetadata({ params: Promise.resolve({ slug: 'visa' }) })
+    expect(String(visa.description)).not.toMatch(/ne dépose (pas|ni)/)
+    const lvmh = await generateMetadata({ params: Promise.resolve({ slug: 'lvmh' }) })
+    expect(String(lvmh.description)).toMatch(/ni 10-K ni 20-F/)
+  })
+})
+
+// Block and Philips are read under another slug; Solana is not a company. Their
+// old URLs land on the fiche that reads them, or on the list.
+describe('/investir/[slug], retired out-of-scope slugs', () => {
+  it('redirects each one, permanently, to its target', async () => {
+    for (const [slug, cible] of Object.entries(HORS_PERIMETRE_RETIREES)) {
+      await expect(FicheInvestir({ params: Promise.resolve({ slug }) })).rejects.toThrow(`REDIRECT:${cible}`)
+    }
+  })
+
+  it('is not prerendered as a page, and has no metadata of its own', async () => {
+    const slugs = generateStaticParams().map(p => p.slug)
+    for (const slug of Object.keys(HORS_PERIMETRE_RETIREES)) {
+      expect(slugs).not.toContain(slug)
+      expect(await generateMetadata({ params: Promise.resolve({ slug }) })).toEqual({})
+    }
   })
 })
