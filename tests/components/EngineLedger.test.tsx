@@ -44,6 +44,39 @@ describe('EngineLedger', () => {
     expect(screen.getByTestId('engine-outside').textContent).toMatch(/Mes bots et les variantes de la bibliothèque se comptent à part/)
   })
 
+  // Framing (owner, 03/10: the heading column stopped a third of the way down the figures).
+  // The block no longer sets the text and the register side by side: a header on the
+  // hero's grid, then the register full width under it. The addition reads in a row,
+  // its operators drawn in the note ink and never typed, so a screen reader hears none.
+  it('puts the heading and its text on one line, then the register full width under it', () => {
+    render(<EngineLedger counts={COUNTS} />)
+    const head = screen.getByTestId('engine-head')
+    expect(head.className).toMatch(/lg:grid-cols-\[1\.3fr_1fr\]/)
+    expect(within(head).getByRole('heading', { level: 2 })).toBeTruthy()
+    expect(within(head).getByRole('link', { name: /Comment je décide/ })).toBeTruthy()
+    for (const id of ['engine-swept', 'engine-ledger', 'engine-outside']) {
+      const el = screen.getByTestId(id)
+      expect(head.contains(el)).toBe(false)
+      expect(head.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    }
+  })
+
+  it('draws the addition’s operators, + + then =, hidden from assistive tech and in the note ink', () => {
+    render(<EngineLedger counts={COUNTS} />)
+    const ops = screen.getAllByTestId('engine-op')
+    expect(ops.map(o => o.getAttribute('data-op'))).toEqual(['plus', 'plus', 'equals'])
+    for (const o of ops) {
+      expect(o.tagName.toLowerCase()).toBe('svg')
+      expect(o.getAttribute('aria-hidden')).toBe('true')
+      expect(o.getAttribute('class')).toMatch(/text-muted/)
+    }
+    // None after the total, and no typed operator anywhere in the addition.
+    expect(within(screen.getByTestId('engine-total')).queryByTestId('engine-op')).toBeNull()
+    expect(screen.getByTestId('engine-ledger').textContent).not.toMatch(/[+=＋＝]/)
+    // From 768 px the double rule closes the judged figure itself.
+    expect(screen.getByTestId('engine-total-figure').className).toMatch(/md:border-double/)
+  })
+
   it('renders nothing without a judged denominator, and no ratio without a candidate', () => {
     const { container, rerender } = render(<EngineLedger counts={null} />)
     expect(container.innerHTML).toBe('')
