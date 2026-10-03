@@ -4,6 +4,7 @@ import { getBotSimulation, simulationPerfDaily } from '@/lib/bot-simulation'
 import { fmtPct, fmtPfDisplay, fmtWinRateDisplay, pnlPct as pnlPctOf } from '@/lib/display'
 import { SITE_COLORS as C } from '@/lib/site-colors'
 import { RegimeBadge, Wordmark, plain } from '@/lib/share-image'
+import { OG_FONT_FAMILY, ogFontOptions } from '@/lib/og-fonts'
 
 export const runtime = 'nodejs'
 export const size = { width: 1200, height: 630 }
@@ -37,7 +38,7 @@ function buildSparklinePath(
 // tests/app/share-images.test.tsx.
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const bot = await getBotWithStats(slug)
+  const [bot, fontOptions] = await Promise.all([getBotWithStats(slug), ogFontOptions()])
 
   if (!bot) {
     return new ImageResponse(
@@ -49,12 +50,12 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           backgroundColor: C.bg,
           alignItems: 'center',
           justifyContent: 'center',
-          fontFamily: 'sans-serif',
+          fontFamily: OG_FONT_FAMILY,
         }}
       >
         <Wordmark fontSize={52} />
       </div>,
-      { width: 1200, height: 630 }
+      { width: 1200, height: 630, ...fontOptions }
     )
   }
 
@@ -85,7 +86,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         backgroundColor: C.bg,
         color: C.text,
         padding: '48px',
-        fontFamily: 'sans-serif',
+        fontFamily: OG_FONT_FAMILY,
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px', marginBottom: '20px' }}>
@@ -131,6 +132,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         </div>
       </div>
     </div>,
-    { width: 1200, height: 630 }
+    { width: 1200, height: 630, ...fontOptions }
   )
 }
