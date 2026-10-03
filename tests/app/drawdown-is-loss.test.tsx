@@ -130,12 +130,13 @@ describe('no surface paints « 0.0% » red', () => {
     await cardGET(req, { params: Promise.resolve({ slug: 'zero-dd' }) })
     await cardGET(req, { params: Promise.resolve({ slug: 'real-dd' }) })
     expect(composed).toHaveLength(2)
-    const zero = find(composed[0], '0,0 %')
-    const real = find(composed[1], '8,4 %')
+    // The images write ordinary spaces (Satori, share-images.test.tsx).
+    const zero = find(composed[0], '0,0 %')
+    const real = find(composed[1], '8,4 %')
     expect(zero, 'the zero drawdown must be on the card').toBeTruthy()
     expect(real, 'the real drawdown must be on the card').toBeTruthy()
-    expect(zero!.props!.style!.color).not.toBe('#ff4444')
-    expect(real!.props!.style!.color).toBe('#ff4444')
+    expect(zero!.props!.style!.color).not.toBe(EMBED_COLORS.neg)
+    expect(real!.props!.style!.color).toBe(EMBED_COLORS.neg)
   })
 })
 

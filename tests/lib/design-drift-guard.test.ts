@@ -139,10 +139,6 @@ const RULES: Rule[] = [
   {
     re: /[●○◌☆★]/u, why: 'icon glyph — draw it (components/icons.tsx, lib/regime-mark.ts)',
     sample: "<span aria-hidden=\"true\">☆</span>",
-    allow: [
-      'app/api/card/[slug]/route.tsx',               // a PNG drawn by Satori, not a page
-      'app/strategies/bot/[slug]/opengraph-image.tsx', // same
-    ],
   },
 ]
 

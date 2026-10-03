@@ -14,6 +14,7 @@ import {
 } from '@/lib/display'
 import { longDateOrdinal } from '@/lib/format-date'
 import { regimeMarkSvg } from '@/lib/regime-mark'
+import { SITE_COLORS } from '@/lib/site-colors'
 
 export interface EmbedFigures {
   stats: BotWithStats['stats']
@@ -23,20 +24,10 @@ export interface EmbedFigures {
   simStart?: string | null
 }
 
-// The site's tokens (DESIGN.md, tailwind.config.ts), written out because this
-// document has no Tailwind. tests/app/embed-route.test.ts compares them with the
-// config, so a palette change made there fails here. Until 2026-10-03 the card
-// wore GitHub's dark palette and painted a gain green.
-export const EMBED_COLORS = {
-  bg: '#101714',
-  card: '#17211c',
-  border: '#415449',
-  borderStrong: '#82988a',
-  text: '#edf1e8',
-  muted: '#a8b6ab',
-  accent: '#abc8ec',
-  neg: '#ff9c90',
-} as const
+// The site's tokens (src/lib/site-colors.ts), written out because this document has
+// no Tailwind. Until 2026-10-03 the card wore GitHub's dark palette and painted a gain
+// green.
+export const EMBED_COLORS = SITE_COLORS
 const C = EMBED_COLORS
 // A standalone document on someone else's site: the system face, not a web font.
 const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
@@ -83,7 +74,7 @@ function day(iso: string | null | undefined): string | null {
 /** What the P&L is measured from, said beside it: « depuis le 17 avril 2026, base 1 000 € »
  *  for real money (bots.live_since and the base of comparison), the simulation's period
  *  and start otherwise. A backtest segment takes precedence, as on the fiche. */
-function periodOf(bot: BotWithStats, startCapital: number, simStart: string | null | undefined): string {
+export function periodOf(bot: Pick<BotWithStats, 'status' | 'live_since' | 'paper_since'>, startCapital: number, simStart: string | null | undefined): string {
   if (bot.status === 'live' && !simStart) {
     const since = day(bot.live_since)
     return `${since ? `depuis le ${since}` : 'depuis le départ'}, base ${money(startCapital)}`
