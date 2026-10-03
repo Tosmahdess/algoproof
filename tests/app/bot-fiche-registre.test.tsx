@@ -49,7 +49,9 @@ describe('bot fiche, header', () => {
     expect(within(crumbs).getByRole('link', { name: 'La flotte' })).toHaveAttribute('href', '/overview')
     expect(text(crumbs)).toMatch(/Croisement EMA H4 · Kraken$/)
     const header = screen.getByTestId('bot-header')
-    expect(flatOf(header).startsWith('●Argentréel')).toBe(true)
+    // The regime first: its drawn mark (no glyph since 2026-10-03), then its word.
+    expect(flatOf(header).startsWith('Argentréel')).toBe(true)
+    expect(header.querySelector('svg[aria-hidden="true"]')).toBeTruthy()
   })
 
   it('puts the verdict panel right under the title, never in a fold', async () => {

@@ -69,7 +69,8 @@ describe('FleetRegister — one list, from the best result to the least good', (
     expect(jamais.textContent).toMatch(/—/)
     expect(jamais.textContent).not.toMatch(/€/)
     expect(jamais.innerHTML).not.toMatch(/text-negative|text-positive/)
-    expect(jamais.querySelector('svg')).toBeNull()
+    // No sparkline; the regime badge's drawn mark is not one (drawn-icons.test.tsx).
+    expect(jamais.querySelector('svg:not([data-mark])')).toBeNull()
     expect(screen.queryByTestId('fleet-rodage')).toBeNull()
     expect(screen.queryByTestId('fleet-untraded')).toBeNull()
   })

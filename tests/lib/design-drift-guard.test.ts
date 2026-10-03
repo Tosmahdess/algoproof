@@ -117,6 +117,16 @@ const RULES: Rule[] = [
     sample: '<h2>💬 Discussion</h2>',
     allow: ['app/api/subscribe/route.ts'], // Telegram notifications to the owner, not the site
   },
+  // Finitions (2026-10-03): the regime marks and the favourite star are drawn
+  // (components/icons.tsx). A glyph in their place renders in each OS's fallback font.
+  {
+    re: /[●○◌☆★]/u, why: 'icon glyph — draw it (components/icons.tsx, lib/regime-mark.ts)',
+    sample: "<span aria-hidden=\"true\">☆</span>",
+    allow: [
+      'app/api/card/[slug]/route.tsx',               // a PNG drawn by Satori, not a page
+      'app/strategies/bot/[slug]/opengraph-image.tsx', // same
+    ],
+  },
 ]
 
 describe('design drift guard', () => {
