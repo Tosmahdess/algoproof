@@ -31,6 +31,7 @@ export async function resolveListBots(
   log: Log = console,
 ): Promise<SummaryBot[]> {
   let old = 0
+  const liveSlugs: string[] = []
   const out = await Promise.all(rows.map(async ({ bot_stats, ...bot }) => {
     const stored = Array.isArray(bot_stats) ? bot_stats[0] ?? null : bot_stats
     let why: string | null = null
@@ -44,7 +45,7 @@ export async function resolveListBots(
       }
       why = 'unreadable'
     }
-    log.error(`[bot-stats] ${bot.slug}: row ${why}, computed live`)
+    liveSlugs.push(`${bot.slug} (${why})`)
     const summary = await live(bot as Bot)
     if (!summary) {
       log.error(`[bot-stats] ${bot.slug}: live computation found no public bot, left out`)
@@ -52,6 +53,11 @@ export async function resolveListBots(
     }
     return { ...(bot as Bot), ...summary }
   }))
+  // ONE line per render, not one per bot: a formula bump sends every bot down this path.
+  if (liveSlugs.length) {
+    log.error(`[bot-stats] ${liveSlugs.length} computed live: ${liveSlugs.slice(0, 20).join(', ')}`
+      + (liveSlugs.length > 20 ? `, and ${liveSlugs.length - 20} more` : ''))
+  }
   if (old) log.warn(`[bot-stats] ${old} rows older than ${STALE_AFTER_MS / 3_600_000} h served: is the job running?`)
   return out.filter((b): b is SummaryBot => b !== null)
 }

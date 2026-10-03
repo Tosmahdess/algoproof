@@ -7,6 +7,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const CAP = 1000
 const calls: { table: string; orders: string[]; ranges: [number, number][]; gt: [string, string] | null; limit: number | null }[] = []
 let tables: Record<string, Record<string, unknown>[]> = {}
+const failing = new Set<string>()
 
 function builder(table: string) {
   const call = { table, orders: [] as string[], ranges: [] as [number, number][], gt: null as [string, string] | null, limit: null as number | null }
@@ -27,6 +28,7 @@ function builder(table: string) {
       if (call.gt) { const [col, v] = call.gt; rows2 = rows.filter(r => String(r[col]) > v) }
       if (call.limit !== null && range === null) rows2 = rows2.slice(0, call.limit)
       const [from, to] = range ?? [0, CAP - 1]
+      if (failing.has(table)) return Promise.resolve({ data: null, error: { message: `relation "${table}" does not exist` } }).then(resolve)
       return Promise.resolve({ data: rows2.slice(from, Math.min(to + 1, from + CAP)), error: null })
         .then(resolve)
     },
@@ -37,6 +39,8 @@ function builder(table: string) {
 vi.mock('@/lib/supabase', () => ({ supabase: { from: (t: string) => builder(t) } }))
 vi.mock('../supabase', () => ({ supabase: { from: (t: string) => builder(t) } }))
 vi.mock('next/cache', () => ({ unstable_cache: (fn: unknown) => fn }))
+// The live fallback of getListBots: a bot computed live from its (empty) history.
+vi.mock('@/lib/backtest-segment-data', () => ({ getBacktestSegment: async () => null }))
 
 import { getBots, getBotSlugs, getListBots, getBotsPage } from '@/lib/queries'
 import { FORMULA_REV } from '@/lib/bot-summary'
@@ -83,13 +87,29 @@ describe('getListBots', () => {
     sides: { long: true, short: true }, spark30: [1000, 1010], ledgerTail: [] }
 
   it('returns every public bot past the 1 000-row cap, from the embedded summaries alone', async () => {
-    tables = { bots: bots.map(b => ({ ...b, bot_stats: { formula_rev: FORMULA_REV,
-      computed_at: new Date().toISOString(), computed_for: '2026-10-03', summary } })) }
+    tables = { bots, bot_stats: bots.map(b => ({ bot_id: b.id, formula_rev: FORMULA_REV,
+      computed_at: new Date().toISOString(), computed_for: '2026-10-03', summary })) }
     const got = await getListBots()
     expect(got).toHaveLength(N)
-    expect(got[0].stats.total_trades).toBe(4)
-    expect(calls.filter(c => c.table !== 'bots')).toEqual([])
-    for (const p of calls) expect(p.orders).toEqual(['name', 'slug'])
+    expect(got.every(b => b.stats.total_trades === 4)).toBe(true)
+    // nothing but the two tables: no trade, no daily point
+    expect([...new Set(calls.map(c => c.table))].sort()).toEqual(['bot_stats', 'bots'])
+    for (const p of calls.filter(c => c.table === 'bots')) expect(p.orders).toEqual(['name', 'slug'])
+    for (const p of calls.filter(c => c.table === 'bot_stats')) expect(p.orders).toEqual(['bot_id'])
+  })
+
+  it('still lists every bot when bot_stats cannot be read (absent table, failed query): computed live', async () => {
+    tables = { bots: bots.slice(0, 3) }
+    failing.add('bot_stats')
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const got = await getListBots()
+      expect(got.map(b => b.slug)).toEqual(bots.slice(0, 3).map(b => b.slug))
+      expect(err.mock.calls.flat().join(' ')).toMatch(/bot_stats unreadable/)
+    } finally {
+      failing.delete('bot_stats')
+      err.mockRestore()
+    }
   })
 })
 

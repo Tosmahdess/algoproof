@@ -97,3 +97,12 @@ describe('resolveListBots', () => {
     expect(log.error.mock.calls.flat().join(' ')).toMatch(/b/)
   })
 })
+
+describe('resolveListBots logs once per render', () => {
+  it('one line for all the bots computed live, however many', async () => {
+    const log = logger()
+    await resolveListBots(Array.from({ length: 50 }, (_, i) => bot(`b${i}`, null)), async () => summary(1), NOW, log)
+    expect(log.error).toHaveBeenCalledTimes(1)
+    expect(log.error.mock.calls[0].join(' ')).toMatch(/50 computed live: b0 \(missing\).*and 30 more/)
+  })
+})

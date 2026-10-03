@@ -9,7 +9,8 @@
 -- key), called by the VPS right after the hourly publisher. The figures are computed by
 -- the site's TS formula (src/lib/bot-summary.ts over fleetSimulationView), never in
 -- Python or SQL: a second implementation would drift from the fiches (D073, D094).
--- Read by ONE path: getListBots() in src/lib/queries.ts, embedded under `bots`.
+-- Read by ONE path: getListBots() in src/lib/queries.ts (joined to `bots` in TS: if this
+-- table is absent or unreadable, every bot is computed live, logged; the page still serves).
 --
 -- A row is served only when its formula_rev equals the site's FORMULA_REV; otherwise the
 -- list recomputes the bot live and logs it. An OLD row is still served (and logged): a

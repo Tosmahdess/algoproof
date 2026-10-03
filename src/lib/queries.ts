@@ -69,27 +69,35 @@ export async function getBotSlugs(): Promise<string[]> {
   return rows.map(r => r.slug)
 }
 
-/** What the lists render (lot 1b, D094): every public bot with its summary, in ONE paged
- *  query (`bots` with its bot_stats row embedded), same order as getBots. A bot whose row
- *  is missing, unreadable or of another formula revision is computed live with the same
- *  function the job uses (resolveListBots logs each one); an old row is served. */
+/** What the lists render (lot 1b, D094): every public bot (getBots, same order) with its
+ *  stored summary. Two paged reads joined here, not a PostgREST embed: an absent or
+ *  unreadable bot_stats then costs speed (every bot computed live, logged), never the
+ *  page. A bot whose row is missing, unreadable or of another formula revision is
+ *  computed live with the same function the job uses; an old row is served. */
 export async function getListBots(): Promise<SummaryBot[]> {
-  const rows = await paginateAll(async (from, to) => {
-    const { data, error } = await supabase
-      .from('bots')
-      // Single literal, like getBots: see the note there.
-      .select(
-        'id,slug,name,strategy,status,family,exchange,venue,assets,timeframe,description,created_at,last_sync_at,origin,found_at,validated_at,paper_since,live_since,frozen_at,archived_at,engine_unit_key,rejudge_status,bot_stats(formula_rev,computed_at,computed_for,summary)'
-      )
-      .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
-      .order('name')
-      .order('slug')
-      .range(from, to)
-    if (error) throw new Error(error.message)
-    return data ?? []
-  })
-  return resolveListBots(rows.map(withStartCapital) as unknown as BotWithStatsRow[],
-    b => getBotSummaryCached(b.slug))
+  const [bots, stored] = await Promise.all([getBots(), getStoredSummaries()])
+  const rows = bots.map(b => ({ ...b, bot_stats: stored.get(b.id) ?? null })) as BotWithStatsRow[]
+  return resolveListBots(rows, b => getBotSummaryCached(b.slug))
+}
+
+type StoredSummaryRow = { bot_id: string; formula_rev: number; computed_at: string; computed_for: string; summary: unknown }
+
+async function getStoredSummaries(): Promise<Map<string, StoredSummaryRow>> {
+  try {
+    const rows = await paginateAll<StoredSummaryRow>(async (from, to) => {
+      const { data, error } = await supabase
+        .from('bot_stats')
+        .select('bot_id,formula_rev,computed_at,computed_for,summary')
+        .order('bot_id')
+        .range(from, to)
+      if (error) throw new Error(error.message)
+      return (data ?? []) as StoredSummaryRow[]
+    })
+    return new Map(rows.map(r => [r.bot_id, r]))
+  } catch (e) {
+    console.error('[bot-stats] bot_stats unreadable, every bot computed live:', e)
+    return new Map()
+  }
 }
 
 /** The bot_stats job's cursor: public bots ordered by slug, strictly after `after`. */
