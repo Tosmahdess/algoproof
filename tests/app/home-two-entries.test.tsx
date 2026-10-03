@@ -191,10 +191,11 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
   // addition counts no bot; its note says, in words, that bots are counted apart.
   it('the engine figures on the home count configurations, and no bot', async () => {
     render(await HomePage())
-    const ledger = screen.getByTestId('engine-ledger')
-    expect(ledger.textContent!.replace(/\s/g, ' ')).toMatch(/Recalées\s*330 000/)
-    expect(ledger.textContent).toMatch(/Configurations jugées/)
-    expect(ledger.textContent).not.toMatch(/bots?\b/i)
+    // The five figures on one row (owner, 03/10): configurations only, never a bot (D059).
+    const row = screen.getByTestId('engine-row-figures')
+    expect(row.textContent!.replace(/\s/g, ' ')).toMatch(/330 000\s*recalées/)
+    expect(row.textContent).toMatch(/jugées/)
+    expect(row.textContent).not.toMatch(/bots?\b/i)
     expect(screen.getByTestId('engine-outside').textContent).toMatch(/Mes bots et les variantes de la bibliothèque se comptent à part/)
   })
 
