@@ -91,14 +91,29 @@ export async function getIdeaVariants(ideaKey: string): Promise<LibraryVariant[]
     if (error) throw new Error(error.message)
     return (data ?? []) as unknown as LibraryVariant[]
   })
-  const rank = (v: LibraryVariant) => STATE_ORDER[v.status] ?? 9
-  return rows
+  return sortVariants(rows
     .map(v => ({ ...v, sim_trades: Number(v.sim_trades), sim_pnl: Number(v.sim_pnl),
-      pf_backtest: v.pf_backtest == null ? null : Number(v.pf_backtest) }))
-    .sort((a, b) => rank(a) - rank(b) || (a.idea_rank ?? 0) - (b.idea_rank ?? 0) || a.slug.localeCompare(b.slug))
+      pf_backtest: v.pf_backtest == null ? null : Number(v.pf_backtest) })))
 }
 
 const STATE_ORDER: Record<string, number> = { live: 0, paper: 1, archived: 2, backtest: 3 }
+
+/** The « n° k » of a variant: its idea_rank, or, for the variants launched before the
+ *  rank existed (idea_rank null), the number their name already carries. Given once at
+ *  publication and never recomputed (migration 060): an identifier, not a ranking. */
+export function variantNumber(v: { idea_rank: number | null; name: string }): number | null {
+  if (v.idea_rank != null) return v.idea_rank
+  const m = v.name.match(/n° (\d+)\s*$/)
+  return m ? Number(m[1]) : null
+}
+
+/** The register's order, said above it on the idea page: by state (real money,
+ *  simulation, stopped, backtest only), then by number. Never by a result. */
+export function sortVariants<T extends LibraryVariant>(rows: T[]): T[] {
+  const state = (v: LibraryVariant) => STATE_ORDER[v.status] ?? 9
+  const num = (v: LibraryVariant) => variantNumber(v) ?? Number.MAX_SAFE_INTEGER
+  return [...rows].sort((a, b) => state(a) - state(b) || num(a) - num(b) || a.slug.localeCompare(b.slug))
+}
 
 /** Closed simulated trades under which a variant is "too young" to be called above or
  *  below zero. 30, the public sales criterion's count -- deliberately NOT the judge's
@@ -186,12 +201,30 @@ export function simSplit(i: LibraryIdea): { up: number; down: number; young: num
     total: i.n_sim_up + i.n_sim_down + i.n_sim_young }
 }
 
-export type IdeaSort = 'recent' | 'size' | 'az'
+/** What the simulation says so far for an idea, in words, only the parts that exist.
+ *  Null when no variant runs: the register then prints « — », uncoloured. */
+export function simLine(i: LibraryIdea): string | null {
+  const s = simSplit(i)
+  if (s.total === 0) return null
+  const parts = [
+    s.up > 0 ? `${s.up} au-dessus de zéro` : null,
+    s.down > 0 ? `${s.down} à zéro ou en dessous` : null,
+    s.young > 0 ? `${s.young} ${s.young > 1 ? 'trop jeunes' : 'trop jeune'} pour conclure` : null,
+  ]
+  return parts.filter(Boolean).join(', ')
+}
 
-export function sortIdeas(ideas: LibraryIdea[], sort: IdeaSort): LibraryIdea[] {
+/** 'running' puts first the ideas with the most launched variants: a count of what
+ *  runs, not a ranking on its result (D085 keeps « Plus de variantes » as the default
+ *  until a ranking on the simulation is ripe). */
+export type IdeaSort = 'recent' | 'size' | 'az' | 'running'
+
+export function sortIdeas<T extends LibraryIdea>(ideas: T[], sort: IdeaSort): T[] {
   const az = (a: LibraryIdea, b: LibraryIdea) => a.base.localeCompare(b.base) || a.tf.localeCompare(b.tf)
+  const size = (a: LibraryIdea, b: LibraryIdea) => b.n_variants - a.n_variants || az(a, b)
   const copy = [...ideas]
   if (sort === 'az') return copy.sort(az)
-  if (sort === 'size') return copy.sort((a, b) => b.n_variants - a.n_variants || az(a, b))
+  if (sort === 'size') return copy.sort(size)
+  if (sort === 'running') return copy.sort((a, b) => b.n_running - a.n_running || size(a, b))
   return copy.sort((a, b) => (b.last_found_at ?? '').localeCompare(a.last_found_at ?? '') || az(a, b))
 }

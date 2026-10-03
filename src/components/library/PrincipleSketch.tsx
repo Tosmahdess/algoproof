@@ -1,7 +1,12 @@
-// The picture of a library card: HOW the idea enters, never a result (D079 — the
-// user chose a sketch of the principle over a "representative" curve, which would
-// be a post-hoc pick among variants). One drawing per site family; the caption says
-// it is a sketch. Colours come from declared tokens through currentColor.
+// The picture of an idea: HOW it enters, never a result (D079: the user chose a
+// sketch of the principle over a "representative" curve, which would be a post-hoc
+// pick among variants). One drawing per site family; the caption says it is a
+// sketch. Colours come from declared tokens through currentColor.
+//
+// Refonte « registre » (2026-10-03): it left the index, where every card of one
+// family repeated it (audit n° 41), for the top of the idea page. The drawing holds
+// no text any more: « entrée » was SVG text at 10 units, scaled under the 13 px floor
+// on a phone (n° 76). The caption says it in HTML, beside a drawn dot.
 
 const W = 300
 const H = 64
@@ -10,7 +15,6 @@ function Dot({ x, y }: { x: number; y: number }) {
   return (
     <g className="text-accent">
       <circle cx={x} cy={y} r="4" fill="currentColor" />
-      <text x={x + 7} y={y - 6} fill="currentColor" fontSize="10">entrée</text>
     </g>
   )
 }
@@ -67,13 +71,17 @@ function sketch(family: string) {
 
 export default function PrincipleSketch({ family }: { family: string }) {
   return (
-    <div className="max-w-md rounded-md bg-card-2 px-2 pt-2 pb-1">
+    <figure className="rounded-lg border border-border p-4">
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true" className="block h-auto w-full">
         {sketch(family)}
       </svg>
-      <p className="mt-0.5 flex justify-between tabular-nums text-xs text-muted">
-        <span>principe</span><span>schéma, pas un résultat</span>
-      </p>
-    </div>
+      <figcaption className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-muted">
+        <span className="inline-flex items-center gap-1.5">
+          <svg aria-hidden="true" viewBox="0 0 12 12" className="h-2.5 w-2.5 shrink-0 text-accent"><circle cx="6" cy="6" r="4" fill="currentColor" /></svg>
+          l’entrée en position
+        </span>
+        <span>Schéma du principe, pas un résultat.</span>
+      </figcaption>
+    </figure>
   )
 }
