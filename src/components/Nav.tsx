@@ -91,7 +91,7 @@ export default function Nav() {
         </Link>
 
         {/* Desktop: the five links, then the space and the account. */}
-        <div data-testid="nav-desktop" className="hidden md:flex flex-1 items-center gap-6">
+        <div data-testid="nav-desktop" className="hidden lg:flex flex-1 items-center gap-6">
           {LINKS.map(({ href, label }) => {
             const active = isActive(href)
             return (
@@ -127,7 +127,7 @@ export default function Nav() {
           <button
             ref={menuButton}
             type="button"
-            className={`${BUTTON} md:hidden min-w-11 border-border-strong hover:bg-card-2`}
+            className={`${BUTTON} lg:hidden min-w-11 border-border-strong hover:bg-card-2`}
             onClick={() => setMobileOpen(o => !o)}
             aria-controls="menu-mobile"
             aria-expanded={mobileOpen}
@@ -140,7 +140,7 @@ export default function Nav() {
       {/* Phone drawer: the same five links, flat, 48 px each; the lab and the
           account at the foot. No groups: five links do not fold. */}
       {mobileOpen && (
-        <div id="menu-mobile" data-testid="mobile-menu" className="md:hidden border-t border-border bg-bg max-h-[80vh] overflow-y-auto">
+        <div id="menu-mobile" data-testid="mobile-menu" className="lg:hidden border-t border-border bg-bg max-h-[80vh] overflow-y-auto">
           <div className="px-4 py-2">
             {LINKS.map(({ href, label }) => {
               const active = isActive(href)

@@ -199,4 +199,12 @@ describe('Nav — every internal link shows that it was clicked', () => {
     const without = internal.filter(a => a.querySelector('[data-testid="link-pending"]') === null)
     expect(without.map(a => a.getAttribute('href'))).toEqual([])
   })
+
+  // The full bar needs about 1 000 px: at 820 px « Le labo » ran off the screen
+  // (2026-10-03). Below lg the menu button takes over.
+  it('shows the full bar from lg only, the menu button below it', () => {
+    render(<Nav />)
+    expect(screen.getByTestId('nav-desktop').className).toMatch(/(^| )hidden lg:flex( |$)/)
+    expect(screen.getByRole('button', { name: /menu/i }).className).toMatch(/(^| )lg:hidden( |$)/)
+  })
 })
