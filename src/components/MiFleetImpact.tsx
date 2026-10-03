@@ -35,7 +35,8 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
   return (
     <section>
       {/* Lot 7 (spec 5.4): framed as a negative result, a red rule all round. It is the
-          most honest block of the page, so it sits second, right under the regime. */}
+          most honest block of the page, so it sits second, right under the state of
+          the day (refonte page Météo, 2026-10-03: kept as it was, the audit's best block). */}
       <Callout tone="negative-result" className="space-y-3 text-sm leading-relaxed">
       <h2 className="text-xl font-semibold mb-3">Est-ce que ça marche ?</h2>
         {/* Counter-audit 2026-09-26 (item 22): on a phone this block ran 810 px before the
@@ -45,21 +46,21 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
           Dernier passage, sur{' '}{impact.windowDays}{' '}jours de rejeux de backtest (pas d&apos;argent réel) :
         </p>
         <ul className="list-disc pl-5 space-y-1">
-          <li>le blocage en régime rouge {gatePhrase(impact)} ;</li>
+          <li>le blocage en régime rouge{' '}{gatePhrase(impact)}{' '};</li>
           <li>
             avec la matrice de taille de position, le drawdown moyen passe de{' '}
-            {pct(impact.ddBaseline)} à {pct(impact.ddBoth)} ;
+            {pct(impact.ddBaseline)}{' '}à{' '}{pct(impact.ddBoth)}{' '};
           </li>
           <li>
             mais couper l&apos;exposition à plat, sans aucun timing, donne{' '}
-            {pct(impact.ddConstant)} sur la même fenêtre, {pnlNote}.
+            {pct(impact.ddConstant)}{' '}sur la même fenêtre,{' '}{pnlNote}.
           </li>
         </ul>
         {/* {' '} after the expressions below: RSC dropped the ambient space that follows
             an interpolation in mixed text (« 4de », « 102jours » in production). */}
         <p>
-          {verdictPhrase(impact)} {impact.nTrades} trades, {impact.nPresets} configurations,
-          une seule fenêtre, et {impact.nSmallSample}{' '}de ces configurations tournent sous
+          {verdictPhrase(impact)}{' '}{impact.nTrades}{' '}trades,{' '}{impact.nPresets}{' '}configurations,
+          une seule fenêtre, et{' '}{impact.nSmallSample}{' '}de ces configurations tournent sous
           vingt trades chacune. C&apos;est trop peu pour trancher dans un sens ou dans
           l&apos;autre{regimePhrase(impact)}.
         </p>
@@ -70,13 +71,13 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
           corpsClassName="mt-2 space-y-3"
         >
         <p>
-          Chaque semaine, je rejoue mes {impact.nPresets} configurations de flotte sur la
+          Chaque semaine, je rejoue mes{' '}{impact.nPresets}{' '}configurations de flotte sur la
           fenêtre que couvre mon flux météo, une fois avec les règles, une fois sans. Ce sont
           des rejeux de backtest sur des bots de laboratoire, pas des trades en argent réel.
         </p>
         <p>
           Je garde quand même la politique. Elle coûte peu, et elle couvre un scénario que
-          ces {impact.windowDays}{' '}jours n&apos;ont pas contenu (le rouge franc, celui où je
+          ces{' '}{impact.windowDays}{' '}jours n&apos;ont pas contenu (le rouge franc, celui où je
           serais content d&apos;avoir un frein). Tu vas me dire qu&apos;il est commode de
           garder une règle que la mesure ne soutient pas. Oui. C&apos;est pour ça que je
           publie le contrôle qui la met en cause, et que je le republierai chaque semaine.

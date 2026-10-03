@@ -1,162 +1,192 @@
 'use client'
 
+// The seven days of the market weather (/intelligence), refonte « Le registre des
+// décisions », page Météo (2026-10-03).
+//
+// Audit 2026-10:
+// - n° 9: five lines, four of them in status tokens (sentiment in `severe`, news in the
+//   gain token, macro in a neon cyan the detector flagged). No four-hue palette outside
+//   green and red holds apart under colour-blind vision on this surface (checked with the
+//   dataviz validator), so the chart draws the global score in ink and ONE pillar at a
+//   time beside it, in the link blue and dashed: two lines, told apart by colour AND
+//   stroke, and named in the legend.
+// - n° 45: the clickable legend was out of reach of the keyboard. The pillar is picked
+//   with real buttons carrying aria-pressed.
+// - n° 44: the X dates overlapped on a phone. One date per day, at its first reading,
+//   and recharts drops a date that would touch its neighbour.
+// - n° 46: « News », « Global », « EMA 24h »: the French of the page instead.
 import { useState } from 'react'
 import {
-  ComposedChart, Line, Area, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, ReferenceLine, Legend,
+  ComposedChart, Line, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import type { MiSnapshot } from '@/lib/types'
-import { sentimentFr, biasFr } from '@/lib/regime-labels'
+import { formatDate } from '@/lib/format-date'
+import { ENTRY_FLOOR, MI_PILLARS, scaleText, scoreText, signedInt, type MiPillar } from '@/lib/mi-pillars'
 
 interface Props {
   data: MiSnapshot[]
 }
 
-// The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
-// 2026-06-26 — institutional_score is always null since. Only the 4 live pillars remain.
-// Same 4-way categorical palette as MiRegimeBadge.PILLARS — see its comment
-// (sentiment=severe, derivatives=accent, news=positive, macro=pillar-macro).
-const PILLAR_COLORS = {
-  composite_score:     '#ffffff',
-  sentiment_score:     'var(--severe)',
-  derivatives_score:   'var(--accent)',
-  news_score:          'var(--positive)',
-  macro_score:         'var(--pillar-macro)',
+type Row = MiSnapshot & { t: number }
+
+const dayKey = (t: number) => formatDate(t, { year: 'numeric', month: '2-digit', day: '2-digit' })
+const dayLabel = (t: number) => formatDate(t, { day: '2-digit', month: '2-digit' })
+const instantLabel = (t: number) => formatDate(t, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+
+/** One tick per Paris day, at that day's first reading; the partial first day is skipped. */
+export function dayTicks(times: readonly number[]): number[] {
+  const ticks: number[] = []
+  let previous: string | null = null
+  for (const t of times) {
+    const key = dayKey(t)
+    if (key === previous) continue
+    if (previous !== null) ticks.push(t)
+    previous = key
+  }
+  return ticks
 }
 
-// rgba mirrors of the positive/warning/severe/negative tokens: a CSS variable
-// can't carry a hex alpha suffix (`var(--positive)18` isn't valid CSS), so the
-// tinted regime background keeps the token's RGB spelled out at ~9% opacity.
-const REGIME_BG: Record<string, string> = {
-  GREEN:  'rgba(74,222,128,0.09)',
-  YELLOW: 'rgba(245,158,11,0.09)',
-  ORANGE: 'rgba(255,107,53,0.09)',
-  RED:    'rgba(248,113,113,0.09)',
+/** Half-height of the Y frame: ±50 when everything stays inside it, else the next ten
+ *  strictly above, so a line never runs along the frame's edge. */
+export function yDomain(values: readonly (number | null | undefined)[]): number {
+  let max = 0
+  for (const v of values) if (v != null && Number.isFinite(v)) max = Math.max(max, Math.abs(v))
+  return max < 50 ? 50 : Math.min(100, Math.floor(max / 10) * 10 + 10)
 }
 
-function fmt(snap: MiSnapshot) {
-  const d = new Date(snap.snapshot_at)
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}h`
-}
-
-function CustomTooltip({ active, payload, label }: any) {
-  if (!active || !payload?.length) return null
-  const d = payload[0]?.payload as any
+function ChartTooltip({ active, payload, label, pillar }: {
+  active?: boolean
+  payload?: { payload: Row }[]
+  label?: number
+  pillar: MiPillar | null
+}) {
+  if (!active || !payload?.length || label == null) return null
+  const row = payload[0].payload
   return (
-    <div className="bg-[#161b22] border border-border rounded p-3 text-xs space-y-1 min-w-[180px]">
-      <p className="text-muted tabular-nums mb-2">{label}</p>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
-        {payload.map((p: any) => p.value != null && (
-          <div key={p.dataKey} className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: p.color }} />
-            <span className="text-muted text-xs">{p.name}</span>
-            <span className="tabular-nums ml-auto" style={{ color: p.color }}>
-              {(p.value as number).toFixed(1)}
-            </span>
-          </div>
-        ))}
-      </div>
-      {d?.sentiment_regime && (
-        <p className="text-muted text-xs pt-1 border-t border-border">
-          Régime sentiment : {sentimentFr(d.sentiment_regime)}
-        </p>
-      )}
-      {d?.market_bias && (
-        <p className="text-muted text-xs">Biais : {biasFr(d.market_bias)}</p>
-      )}
+    <div className="rounded border border-border-strong bg-card px-3 py-2 text-xs tabular-nums">
+      <p className="text-muted mb-1">{instantLabel(label)}</p>
+      <p>{`Score global ${scoreText(row.composite_score)}`}</p>
+      {pillar && <p>{`${pillar.label} ${scoreText(row[pillar.key] as number | null)}`}</p>}
     </div>
   )
 }
 
+function Swatch({ dashed }: { dashed?: boolean }) {
+  return (
+    <svg width="24" height="8" viewBox="0 0 24 8" aria-hidden="true" className="shrink-0">
+      <line
+        x1="1" x2="23" y1="4" y2="4"
+        stroke={dashed ? 'var(--accent)' : 'var(--foreground)'}
+        strokeWidth={dashed ? 1.5 : 2}
+        strokeDasharray={dashed ? '5 3' : undefined}
+      />
+    </svg>
+  )
+}
+
+const AXIS_TICK = { fontSize: 13, fill: 'var(--muted)' }
+
 export default function MiHistoryChart({ data }: Props) {
-  // The legend isolates a series (counter-audit 2026-09-26, item 23): five lines on one
-  // small chart are hard to read, and the legend was passive. A click hides or shows a
-  // series; the data and the weights are unchanged.
-  const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set())
-  const toggle = (key: string) =>
-    setHidden(prev => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
-      return next
-    })
+  const [pillarId, setPillarId] = useState<string | null>(null)
+  const pillar = MI_PILLARS.find(p => p.id === pillarId) ?? null
 
   if (!data.length) {
-    return (
-      <div className="flex items-center justify-center h-32 text-xs text-muted">
-        Pas encore de données historiques.
-      </div>
-    )
+    return <p className="py-8 text-sm text-muted">Pas encore de données historiques.</p>
   }
 
-  const chartData = data.map(snap => ({
-    ...snap,
-    label: fmt(snap),
-  }))
-
-  // Show every Nth label to avoid crowding
-  const tickInterval = Math.max(1, Math.floor(data.length / 6))
+  const rows: Row[] = data.map(snap => ({ ...snap, t: Date.parse(snap.snapshot_at) }))
+  const ticks = dayTicks(rows.map(r => r.t))
+  const half = yDomain(rows.flatMap(r => [r.composite_score, pillar ? (r[pillar.key] as number | null) : null]))
+  const yTicks = [-half, ENTRY_FLOOR, 0, -ENTRY_FLOOR, half]
+  const last = rows[rows.length - 1]
 
   return (
-    <div className="space-y-6">
+    <div>
+      <div role="group" aria-label="Comparer le score global avec un pilier" className="flex flex-wrap items-center gap-2">
+        <span className="mr-1 text-sm text-muted" aria-hidden="true">Comparer avec</span>
+        {MI_PILLARS.map(p => {
+          const on = p.id === pillarId
+          return (
+            <button
+              key={p.id}
+              type="button"
+              aria-pressed={on}
+              onClick={() => setPillarId(on ? null : p.id)}
+              className={`min-h-11 rounded px-4 text-sm font-semibold transition-colors border ${
+                on ? 'bg-card-2 border-accent text-foreground' : 'border-border-strong text-foreground hover:bg-card-2'
+              }`}
+            >
+              {p.label}
+            </button>
+          )
+        })}
+      </div>
 
-      {/* Score global + piliers */}
-      <div>
-        <p className="text-xs text-muted mb-3">Score global et piliers (EMA 24h). Clique sur un nom pour masquer ou afficher sa courbe.</p>
-        <ResponsiveContainer width="100%" height={200}>
-          <ComposedChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+      <div
+        className="mt-4"
+        role="img"
+        aria-label={`Score global sur sept jours, ${scaleText()}. Dernier relevé : ${scoreText(last.composite_score)}.`}
+      >
+        <ResponsiveContainer width="100%" height={240}>
+          <ComposedChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <XAxis
-              dataKey="label"
-              tick={{ fontSize: 12, fill: 'var(--muted)' }}
-              interval={tickInterval}
-              axisLine={false}
+              dataKey="t"
+              type="number"
+              scale="time"
+              domain={['dataMin', 'dataMax']}
+              ticks={ticks}
+              tickFormatter={dayLabel}
+              interval="preserveStartEnd"
+              minTickGap={16}
+              tick={AXIS_TICK}
+              axisLine={{ stroke: 'var(--border)' }}
               tickLine={false}
             />
             <YAxis
-              domain={[-50, 50]}
-              tick={{ fontSize: 12, fill: 'var(--muted)' }}
+              domain={[-half, half]}
+              ticks={yTicks}
+              tickFormatter={signedInt}
+              width={44}
+              tick={AXIS_TICK}
               axisLine={false}
               tickLine={false}
             />
-            <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine y={0} stroke="#30363d" strokeDasharray="3 3" />
-            <ReferenceLine y={30}  stroke="rgba(245,158,11,0.13)" strokeWidth={1} />
-            <ReferenceLine y={-30} stroke="rgba(245,158,11,0.13)" strokeWidth={1} />
-
-            {/* Pillar lines (thin, semi-transparent) */}
-            <Line hide={hidden.has('sentiment_score')} dataKey="sentiment_score"   name="Sentiment"      stroke={PILLAR_COLORS.sentiment_score}   strokeWidth={1} dot={false} strokeOpacity={0.6} />
-            <Line hide={hidden.has('derivatives_score')} dataKey="derivatives_score" name="Dérivés"        stroke={PILLAR_COLORS.derivatives_score} strokeWidth={1} dot={false} strokeOpacity={0.6} />
-            <Line hide={hidden.has('news_score')} dataKey="news_score"        name="News"           stroke={PILLAR_COLORS.news_score}        strokeWidth={1} dot={false} strokeOpacity={0.6} />
-            <Line hide={hidden.has('macro_score')} dataKey="macro_score"       name="Macro"          stroke={PILLAR_COLORS.macro_score}       strokeWidth={1} dot={false} strokeOpacity={0.6} />
-            {/* Global score — bold on top */}
-            <Line hide={hidden.has('composite_score')} dataKey="composite_score" name="Global" stroke="#ffffff" strokeWidth={2} dot={false} />
-
-            <Legend
-              wrapperStyle={{ fontSize: '12px', color: 'var(--muted)', paddingTop: '8px', cursor: 'pointer' }}
-              iconSize={6}
-              onClick={entry => { if (typeof entry.dataKey === 'string') toggle(entry.dataKey) }}
-              formatter={(value, entry) => (
-                <span style={{ opacity: typeof entry.dataKey === 'string' && hidden.has(entry.dataKey) ? 0.35 : 1 }}>{value}</span>
-              )}
+            <Tooltip
+              content={<ChartTooltip pillar={pillar} />}
+              cursor={{ stroke: 'var(--border-strong)' }}
+              isAnimationActive={false}
+            />
+            <ReferenceLine y={0} stroke="var(--border)" />
+            <ReferenceLine y={ENTRY_FLOOR} stroke="var(--border-strong)" strokeDasharray="2 3" />
+            <ReferenceLine y={-ENTRY_FLOOR} stroke="var(--border-strong)" strokeDasharray="2 3" />
+            {pillar && (
+              <Line
+                dataKey={pillar.key}
+                name={pillar.label}
+                stroke="var(--accent)"
+                strokeWidth={1.5}
+                strokeDasharray="5 3"
+                dot={false}
+                isAnimationActive={false}
+              />
+            )}
+            <Line
+              dataKey="composite_score"
+              name="Score global"
+              stroke="var(--foreground)"
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={false}
             />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Pilier weights note */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-xs tabular-nums">
-        {[
-          { label: 'Sentiment', weight: '30%', color: PILLAR_COLORS.sentiment_score },
-          { label: 'Dérivés',   weight: '40%', color: PILLAR_COLORS.derivatives_score },
-          { label: 'News',      weight: '5%', color: PILLAR_COLORS.news_score },
-          { label: 'Macro',     weight: '25%', color: PILLAR_COLORS.macro_score },
-        ].map(p => (
-          <div key={p.label} className="rounded-md border border-border py-1.5 px-1">
-            <p style={{ color: p.color }} className="font-semibold">{p.weight}</p>
-            <p className="text-muted mt-0.5 text-xs">{p.label}</p>
-          </div>
-        ))}
-      </div>
+      <ul data-testid="meteo-legend" className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+        <li className="flex items-center gap-2"><Swatch />Score global</li>
+        {pillar && <li className="flex items-center gap-2"><Swatch dashed />{pillar.label}</li>}
+      </ul>
     </div>
   )
 }

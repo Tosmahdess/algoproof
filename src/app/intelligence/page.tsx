@@ -1,7 +1,6 @@
 import { linkClass } from '@/lib/link-roles'
 import type { Metadata } from 'next'
 import { compileMDX } from 'next-mdx-remote/rsc'
-import ExplainerBox from '@/components/ExplainerBox'
 import JsonLd from '@/components/JsonLd'
 import Repli from '@/components/Repli'
 import { faqJsonLd } from '@/lib/jsonld'
@@ -11,9 +10,12 @@ import MiPillarsSection from '@/components/MiPillarsSection'
 import { MiFleetImpactSection } from '@/components/MiFleetImpact'
 import { getLatestMacroReport, getMiHistory, getComponentChangelog } from '@/lib/queries'
 import { getFleetImpact } from '@/lib/mi-fleet-impact'
-import { withFrenchRegimes, withoutRecommendation } from '@/lib/macro-report'
+import { withFrenchRegimes, withoutDashes, withoutOwnTitles, withoutRecommendation } from '@/lib/macro-report'
 import { mediumDate } from '@/lib/format-date'
 import { labUrl } from '@/lib/lab-links'
+import { frNumber, NARROW_NBSP } from '@/lib/display'
+import { ENTRY_FLOOR, MI_PILLARS, SCORE_MAX, SCORE_MIN, VIX_CEILING, scaleText, signedInt } from '@/lib/mi-pillars'
+import PillarsLedger from './PillarsLedger'
 
 export const metadata: Metadata = {
   title: 'Météo du marché : calme, tendu ou stress, chaque jour',
@@ -21,60 +23,22 @@ export const metadata: Metadata = {
   openGraph: { url: 'https://algoproof.fr/intelligence' },
 }
 
-// Same 4-way categorical palette as MiRegimeBadge.PILLARS — see its comment
-// (sentiment=severe, news=positive, derivatives/macro both map to accent).
-const PILLARS = [
-  {
-    id: 'sentiment',
-    label: 'Sentiment',
-    weight: '30%',
-    color: 'var(--severe)',
-    functional:
-      "Suit la peur et la cupidité du marché en temps réel. Quand les traders sont dans la peur extrême, c'est souvent un signal d'alarme. Quand ils sont euphoriques, le risque augmente. Ce pilier mesure l'état émotionnel de la foule.",
-    technical:
-      'Indice Fear & Greed (0 à 100), normalisé sur [−100, +100]. Actualisé toutes les 30 min. Produit l\'état du sentiment : peur extrême, peur, neutre, avidité, avidité extrême.',
-  },
-  {
-    id: 'derivatives',
-    label: 'Produits dérivés',
-    weight: '40%',
-    color: 'var(--accent)',
-    functional:
-      'Surveille le marché des futures crypto en temps réel. Les taux de financement, l\'open interest et les liquidations révèlent quand l\'effet de levier est dangereusement élevé, précurseur classique des corrections violentes.',
-    technical:
-      'Binance Futures : taux de financement (8h) × 40% + ratio Long/Short contrariant × 35% + delta OI × 25%. Flux WebSocket liquidations (60s) : ajustements ±20 pts si >10M$/h. Symboles : BTC/ETH/SOL.',
-  },
-  {
-    id: 'news',
-    label: 'Actualités',
-    weight: '5%',
-    color: 'var(--positive)',
-    functional:
-      "Analyse les titres financiers en continu. Un événement négatif majeur (hack d'exchange, répression réglementaire, choc macro) peut bouger les marchés plus vite que n'importe quel indicateur. Je surveille les news pour que les bots n'entrent pas dans la tempête.",
-    technical:
-      'Flux RSS : 3 sources crypto (CoinDesk, Decrypt, Cointelegraph) + 4 géopolitiques (Reuters, BBC, NYT, Al Jazeera). Scoring mots-clés ±15 pts/titre, décroissance exponentielle τ=2h. >20 000 titres archivés.',
-  },
-  {
-    id: 'macro',
-    label: 'Macro',
-    weight: '25%',
-    color: 'var(--accent)',
-    functional:
-      "Surveille les conditions macroéconomiques : volatilité des marchés actions (VIX), force du dollar américain (DXY), et événements à venir comme les décisions de la Fed ou le CPI. La crypto n'existe pas en vase clos.",
-    technical:
-      'Base : VIX + DXY 5j. Ajustements MI-8→MI-11 : VIX term structure · credit spreads HYG/IEI · Put/Call SPY · insider buying SEC Form 4 · earnings beat · analyst revisions · short interest · options flow SPY+QQQ. Calendrier d\'événements suivi à titre informatif : les fenêtres de blocage pré-événement ont été retirées le 23/07/2026 (contre-productives sur un replay de 2 ans).',
-  },
-  // The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
-  // 2026-06-26 — institutional_score is always null since. Removed from display.
-]
-
 export const revalidate = 1800
 
 // Lot 7 of the design audit (spec 5.4, 2026-09-25). The substance of the weather is
 // FROZEN (arbitration of 2026-09-17: no computation, no pillar label, no weight
-// changes here). Only the order of the blocks and their dressing move: the regime
-// first, then the measurement that does not flatter it, then the history, then the
-// method folded, then the generated report folded and labelled as such.
+// changes here). Only the order of the blocks and their dressing move. One exception,
+// to confirm with the owner: on 2026-10-03 the pillar names were made one per notion,
+// taken from those already shown (« Dérivés » of the badge and chart, « Actualités » of
+// the method), where the page used to say « Produits dérivés » and « News » as well.
+//
+// Refonte « Le registre des décisions », page Météo (2026-10-03): the state of the day in
+// ONE framed panel, like the verdict of a bot fiche (regime, what it allows, date); then
+// « Est-ce que ça marche ? », the audit's best block, kept prominent; then the seven days
+// and the four pillars as a register, each section opened by a rule; then the method and
+// the generated report, folded as they were.
+const WEIGHTS = MI_PILLARS.map(p => `${p.label} ${frNumber(p.weight, 0)}${NARROW_NBSP}%`).join(', ')
+
 export default async function IntelligencePage() {
   // getFleetImpact() is deliberately NOT wrapped in unstable_cache the way src/lib/queries.ts
   // wraps its readers: freshness on this page is already governed by the route segment's
@@ -87,6 +51,7 @@ export default async function IntelligencePage() {
     getComponentChangelog('mi'),
     getFleetImpact(),
   ])
+  const lastReading = miHistory.length ? miHistory[miHistory.length - 1] : null
 
   let reportContent: React.ReactElement | null = null
   if (report?.content) {
@@ -96,12 +61,13 @@ export default async function IntelligencePage() {
         // recommendation, on a site that gives none (audit 2026-09-25, P0-1).
         // Stripped here, at render time, whatever the generator writes.
         // Its regime enums (« Régime : NEUTRAL ») become the site's French words.
-        source: withFrenchRegimes(withoutRecommendation(report.content)),
-        // The generated report carries its own h1 title: demote it so the page
-        // keeps a single h1 (it was rendering 3, near-duplicated back to back).
-        // h3, since the report now lives under the h2 of its fold.
+        // Its own titles (« Analyse Macro APEX », twice, with an em dash) repeated the
+        // fold's title and date (audit 2026-10): they go, and so do its em dashes.
+        source: withoutDashes(withFrenchRegimes(withoutOwnTitles(withoutRecommendation(report.content)))),
+        // The report lives under the h2 of its fold: its sections are h3.
         components: {
-          h1: (props: React.ComponentProps<'h3'>) => <h3 className="text-lg font-semibold mt-6 mb-2" {...props} />,
+          h2: (props: React.ComponentProps<'h3'>) => <h3 className="text-lg font-semibold mt-6 mb-2" {...props} />,
+          h3: (props: React.ComponentProps<'h4'>) => <h4 className="text-base font-semibold mt-4 mb-2" {...props} />,
         },
       })
       reportContent = content
@@ -118,24 +84,24 @@ export default async function IntelligencePage() {
         { question: 'Ça sert à quoi ?', answer: 'À savoir quand le contexte est porteur ou risqué, pour les bots comme pour les décisions d\'investissement.' },
       ])} />
 
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 space-y-12">
-      {/* First screen: the state, its score, its freshness, and what it changes for the
-          bots today. No prose before the first figure. */}
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight mb-4">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 space-y-10">
+      {/* First screen: the title, then the state of the day in one panel. No prose
+          before the first figure. */}
+      <header className="space-y-5">
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
           Météo du marché
         </h1>
         <MiRegimeBadge />
-      </div>
+      </header>
 
-      {/* The three paragraphs that used to open the page (139 words before the first
-          figure on a computer, 98 on a phone), folded. */}
+      {/* What the weather does and does not do, folded (139 words before the first
+          figure, before lot 7). */}
       <Repli
         id="ce-que-fait-la-meteo"
         titre="Ce que la météo fait, et ne fait pas"
         toujoursPliable
         titreClassName="text-base font-semibold"
-        corpsClassName="mt-3 space-y-3 text-sm leading-relaxed max-w-[68ch]"
+        corpsClassName="mt-3 space-y-3 max-w-[68ch]"
       >
         <p>
           Chaque jour, je résume l&apos;état du marché en un mot, calme, tendu ou stress, à partir de quatre piliers : sentiment, dérivés, actualités et macro. Les termes sont expliqués dans le <a href="/lexique" className={linkClass('inline')}>lexique</a>.
@@ -152,68 +118,51 @@ export default async function IntelligencePage() {
           control included. It is the most honest content of the page, so it moves up. */}
       <MiFleetImpactSection impact={fleetImpact} />
 
-      {/* Historical scores — 7 days */}
-      <section>
-        <div className="flex items-baseline gap-3 mb-4 flex-wrap">
-          <h2 className="text-xl font-semibold">Historique des scores</h2>
-          <span className="text-xs text-muted">7 derniers jours · synchronisation toutes les 30 min</span>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
-          <MiHistoryChart data={miHistory} />
-        </div>
-        <p className="text-xs text-muted mt-2">
-          Les lignes fines représentent les quatre composantes, la ligne blanche leur score global.
-          Les lignes à ±30 marquent les seuils de peur et d&apos;avidité.
+      {/* The seven days: the global score in ink, one pillar at a time beside it. */}
+      <section aria-labelledby="sept-jours" className="border-t border-border pt-8 sm:pt-10">
+        <h2 id="sept-jours" className="text-2xl font-semibold tracking-tight">Les sept derniers jours</h2>
+        <p className="mt-2 mb-5 max-w-[68ch] text-muted">
+          {`Le score global, ${scaleText()}, relevé toutes les 30 minutes. Les filets pointillés marquent ${signedInt(ENTRY_FLOOR)} et ${signedInt(-ENTRY_FLOOR)}, les seuils de peur et d’avidité${NARROW_NBSP}; sous ${signedInt(ENTRY_FLOOR)}, mes bots n’entrent plus.`}
         </p>
+        <MiHistoryChart data={miHistory} />
       </section>
+
+      <PillarsLedger snapshot={lastReading} />
 
       {/* How the score is computed: pillars, shield, terminal link. Folded. */}
       <Repli
         id="calcul"
         titre="Comment ce score est calculé"
         toujoursPliable
+        className="border-t border-border pt-6"
         corpsClassName="mt-4 space-y-8"
       >
         <div>
-          <h3 className="text-base font-semibold mb-3">Les piliers</h3>
-          <MiPillarsSection pillars={PILLARS} changelogs={miChangelogs} />
+          <h3 className="text-base font-semibold mb-3">Chaque pilier</h3>
+          <MiPillarsSection changelogs={miChangelogs} />
         </div>
 
         <div>
           <h3 className="text-base font-semibold mb-3">Bouclier défensif</h3>
-          <ExplainerBox stacked
-            functional={
-              <p>
-                Cinq contrôles de sécurité entourent chaque bot. Chacun peut arrêter le trading en cas de danger, même si un autre contrôle tombe en panne. Si ma veille de marché est hors ligne, les bots utilisent des valeurs prudentes par défaut.
-              </p>
-            }
-            technical={
-              <div className="space-y-1 text-sm">
-                <div className="grid grid-cols-[5rem_1fr] gap-x-4 gap-y-1">
-                  <span className="font-semibold">Layer 1</span>
-                  <span className="text-muted">Taille de position, ajustée selon le score MI</span>
-                  <span className="font-semibold">Layer 2</span>
-                  <span className="text-muted">Vérification avant chaque entrée : toutes les conditions de sécurité doivent être remplies</span>
-                  <span className="font-semibold">Layer 3</span>
-                  <span className="text-muted">VIX &gt; 30 : arrêt complet inconditionnel</span>
-                  <span className="font-semibold">Layer 4</span>
-                  <span className="text-muted">Blackouts événements : retirés le 23/07/2026 (un replay de 2 ans a montré qu'ils coûtaient du P&L sans réduire le drawdown)</span>
-                  <span className="font-semibold">Layer 5</span>
-                  <span className="text-muted">Tableau de bord du marché : données périmées, entrées bloquées par défaut</span>
-                </div>
-                <p className="pt-2 text-xs text-muted">
-                  Plage de score : [−100, +100]. Pondérations : Sentiment 30% · Dérivés 40% · Actualités 5% · Macro 25% (re-pondération du 4 juillet 2026).
-                  Condition : composite &gt; −30 ET VIX ≤ 30 (les fenêtres pré-événement T1/T2 ont été retirées le 23/07/2026).
-                </p>
-              </div>
-            }
-          />
+          <p className="max-w-[68ch]">
+            Cinq contrôles de sécurité entourent chaque bot. Chacun peut arrêter le trading en cas de danger, même si un autre contrôle tombe en panne. Si ma veille de marché est hors ligne, les bots utilisent des valeurs prudentes par défaut.
+          </p>
+          <ol className="mt-4 max-w-[72ch] list-decimal space-y-2 pl-5 text-sm">
+            <li><span className="font-semibold">Taille.</span>{' '}<span className="text-muted">La taille de position suit le score de la météo.</span></li>
+            <li><span className="font-semibold">Vérification.</span>{' '}<span className="text-muted">Avant chaque entrée, toutes les conditions de sécurité doivent être remplies.</span></li>
+            <li><span className="font-semibold">Volatilité.</span>{' '}<span className="text-muted">{`Au-dessus de ${VIX_CEILING} sur le VIX, arrêt complet, sans condition.`}</span></li>
+            <li><span className="font-semibold">Annonces.</span>{' '}<span className="text-muted">Les blocages avant les annonces économiques ont été retirés le 23/07/2026 : un rejeu sur deux ans a montré qu’ils coûtaient du résultat sans réduire la pire baisse.</span></li>
+            <li><span className="font-semibold">Données périmées.</span>{' '}<span className="text-muted">Si le tableau de bord du marché n’est plus à jour, les entrées sont bloquées par défaut.</span></li>
+          </ol>
+          <p className="mt-4 max-w-[72ch] text-sm text-muted">
+            {`Échelle : de ${signedInt(SCORE_MIN)} à ${signedInt(SCORE_MAX)}. Poids : ${WEIGHTS} (repondération du 4 juillet 2026). Les bots entrent quand le score global dépasse ${signedInt(ENTRY_FLOOR)} et que le VIX reste à ${VIX_CEILING} ou moins.`}
+          </p>
         </div>
 
-        <p className="text-xs text-muted">
+        <p className="text-sm text-muted">
           Tu peux suivre chaque signal accepté ou rejeté, en direct.{' '}
-          <a href={labUrl('https://lab.algoproof.fr/terminal', 'intelligence')} target="_blank" rel="noopener noreferrer" className={linkClass('inline')}>
-            Voir le terminal →
+          <a href={labUrl('https://lab.algoproof.fr/terminal', 'intelligence')} target="_blank" rel="noopener noreferrer" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
+            Voir le terminal ↗
           </a>
         </p>
       </Repli>
@@ -224,31 +173,33 @@ export default async function IntelligencePage() {
         titre="Rapport généré du jour"
         resume={report ? `${mediumDate(report.date)} · généré par un modèle, sans relecture` : 'généré par un modèle, sans relecture'}
         toujoursPliable
+        className="border-t border-border pt-6"
         corpsClassName="mt-4"
       >
         {reportContent ? (
-          <div className="rounded-lg border border-border bg-card p-4 sm:p-5 prose prose-sm prose-invert max-w-none
-            prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
-            prose-h2:text-xl prose-h2:font-semibold prose-h2:text-muted prose-h2:mt-6 prose-h3:text-lg
-            prose-p:text-sm prose-p:text-foreground prose-p:leading-relaxed
-            prose-strong:text-foreground prose-blockquote:border-border prose-blockquote:text-muted prose-blockquote:text-xs">
+          <div className="prose prose-sm prose-invert max-w-[72ch]
+            prose-headings:text-foreground prose-headings:tracking-tight
+            prose-p:text-sm prose-p:text-foreground prose-p:leading-relaxed prose-li:text-sm
+            prose-strong:text-foreground prose-hr:border-border
+            prose-blockquote:border-l-0 prose-blockquote:pl-0 prose-blockquote:font-normal prose-blockquote:text-muted prose-blockquote:not-italic">
             {reportContent}
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed border-border p-4 sm:p-5 text-center">
-            <p className="text-xs text-muted">Rapport non disponible : généré chaque jour à 9h UTC.</p>
-          </div>
+          <p className="text-sm text-muted">Rapport non disponible : il est généré chaque jour à 9 h UTC.</p>
         )}
       </Repli>
 
-      {/* CTA: test météo on own strategy */}
-      <section>
-        <a href={labUrl('https://lab.algoproof.fr/lab', 'intelligence')} className={linkClass('card', 'p-4 sm:p-5 bg-card/40 text-center')}>
-          <h2 className="text-xl font-semibold mb-3 group-hover:text-accent transition-colors">Teste la météo sur ta stratégie</h2>
-          <p className="text-sm max-w-[68ch] mx-auto">
-            Le labo rejoue mes règles réelles sur ton backtest, avec et sans la météo.
-          </p>
-          <span className="inline-block mt-4 text-sm text-muted group-hover:text-foreground">Ouvrir le labo →</span>
+      {/* Test the weather on one's own strategy. */}
+      <section aria-labelledby="tester" className="border-t border-border pt-8 sm:pt-10">
+        <h2 id="tester" className="text-2xl font-semibold tracking-tight">Teste la météo sur ta stratégie</h2>
+        <p className="mt-2 max-w-[68ch] text-muted">
+          Le labo rejoue mes règles réelles sur ton backtest, avec et sans la météo.
+        </p>
+        <a
+          href={labUrl('https://lab.algoproof.fr/lab', 'intelligence')}
+          className="mt-4 inline-flex min-h-11 items-center rounded border border-accent bg-button px-4 text-sm font-semibold text-foreground transition-colors hover:bg-card-2"
+        >
+          Ouvrir le labo
         </a>
       </section>
     </div>

@@ -44,3 +44,21 @@ const ENUM_RE = new RegExp(`\\b(${Object.keys(ENUM_FR).sort((a, b) => b.length -
 export function withFrenchRegimes(markdown: string): string {
   return markdown.replace(ENUM_RE, (w) => ENUM_FR[w] ?? w)
 }
+
+// Audit 2026-10 (page Météo): the generator opens its report with one or two titles of
+// its own (« Analyse Macro APEX — 2026-10-03 », then the same with the hour). The page
+// already titles the fold « Rapport généré du jour » with its date, so the report
+// repeated it twice, with the service's name and an em dash. Every level-1 heading goes.
+export function withoutOwnTitles(markdown: string): string {
+  return markdown
+    .split('\n')
+    .filter(line => !/^#\s+\S/.test(line))
+    .join('\n')
+    .replace(/^\n+/, '')
+}
+
+// The site writes no em dash (owner rule). A spaced em or en dash in the generated prose
+// becomes a comma; an unspaced em dash a plain hyphen. Hyphens and minus signs stay.
+export function withoutDashes(markdown: string): string {
+  return markdown.replace(/\s+[—–]\s+/g, ', ').replace(/—/g, '-')
+}

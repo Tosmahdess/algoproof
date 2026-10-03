@@ -1,48 +1,37 @@
 'use client'
 
+// The state of the day on /intelligence, in one framed panel (refonte « Le registre des
+// décisions », page Météo, 2026-10-03). It reads like the verdict panel of a bot fiche:
+// the regime as its heading, the global score with its sign and its scale, the date of
+// the reading; then, in the right column, what that state allows my bots today. It is the
+// one framed panel of the page and it is never folded.
+//
+// Audit 2026-10: « score 14,5 » had no scale and « Longs Shorts » no label (n° 46); the
+// pillar scores wore the gain and loss tokens the wrong way round (n° 9). The pillars left
+// this panel for their own register under the chart, in ink with their sign.
+//
+// The panel stays a client component: the page is regenerated every half hour, the
+// reading is fetched live so its age is the real one.
 import { useEffect, useState } from 'react'
 import { getLatestMiSnapshot } from '@/lib/queries'
 import type { MiSnapshot } from '@/lib/types'
-import { regimeFr, biasFr, trendFr } from '@/lib/regime-labels'
-import { frNumber, fmtPct, MINUS } from '@/lib/display'
+import { regimeFr, trendFr } from '@/lib/regime-labels'
+import { fmtPct, frNumber } from '@/lib/display'
+import { longDateTime } from '@/lib/format-date'
+import { allowedSides, scaleText, scoreText } from '@/lib/mi-pillars'
 
-const RISK_COLOR: Record<string, string> = {
-  GREEN:  'var(--positive)',
-  YELLOW: 'var(--warning)',
-  ORANGE: 'var(--severe)',
-  RED:    'var(--negative)',
+// A calm market is not a gain: ink. The three other states speak with their word and
+// the status ink of their tier; stress also takes the loss contour, as a crossed rule
+// does on a bot fiche.
+const TITLE_TONE: Record<string, string> = {
+  GREEN: 'text-foreground',
+  YELLOW: 'text-warning',
+  ORANGE: 'text-severe',
+  RED: 'text-negative',
 }
 
-const BIAS_COLOR: Record<string, string> = {
-  LONG_ONLY:  'var(--positive)',
-  SHORT_ONLY: 'var(--negative)',
-  BOTH:       'var(--muted)',
-  BLOCKED:    '#666',
-}
-
-// The 'institutional' pillar (DVOL/ETF flows) had its scoring retired server-side on
-// 2026-06-26 — institutional_score is always null since. Keep only the 4 live pillars.
-// Pillar colors are a 4-way categorical set (all 4 render simultaneously below), not a
-// semantic ramp — sentiment gets the new `severe` token, news reuses `positive`, and
-// derivatives/macro both map to `accent` per the design-unification color mapping
-// (2026-08-22): the two least-frequent orphan hexes share the closest existing token.
-const PILLARS: { key: keyof MiSnapshot; label: string; color: string }[] = [
-  { key: 'sentiment_score',     label: 'Sentiment',      color: 'var(--severe)' },
-  { key: 'derivatives_score',   label: 'Dérivés',        color: 'var(--accent)' },
-  { key: 'news_score',          label: 'Actualités',     color: 'var(--positive)' },
-  { key: 'macro_score',         label: 'Macro',          color: 'var(--pillar-macro)' },
-]
-
-// One state, one word (design audit §4): the lexicon word, capitalised, as the first
-// thing read. The sentiment enum that used to sit beside it is a pillar, not a state:
-// its score is in the row below.
 function capitalise(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1)
-}
-
-// « 12,1 » and « −6,2 » (spec 5.4): the real minus sign, no plus sign, one decimal.
-function score1(n: number): string {
-  return n < 0 && Number(Math.abs(n).toFixed(1)) !== 0 ? `${MINUS}${frNumber(n, 1)}` : frNumber(n, 1)
 }
 
 function freshness(snapshotAt: string): string {
@@ -62,6 +51,18 @@ function todayForBots(snap: MiSnapshot): string {
     : 'Les bots n’entrent pas : entrées bloquées tant que ça dure.'
 }
 
+// The bitcoin trend, against its 200-day average: a distance, not a gain or a loss, so
+// it stays in ink with its sign.
+function trendLine(snap: MiSnapshot): string | null {
+  if (!snap.trend_regime) return null
+  const trend = trendFr(snap.trend_regime)
+  if (snap.btc_vs_ema200_pct == null) return trend
+  return `${trend}, ${fmtPct(snap.btc_vs_ema200_pct, 1)} par rapport à sa moyenne sur ${frNumber(200, 0)} jours`
+}
+
+const PANEL = 'rounded-lg border bg-card p-4 sm:px-6 sm:py-5 grid gap-4 md:grid-cols-[1.1fr_1fr] md:gap-8'
+const BAR = 'rounded bg-card-2 animate-pulse motion-reduce:animate-none'
+
 export default function MiRegimeBadge() {
   const [snap, setSnap] = useState<MiSnapshot | null | undefined>(undefined)
 
@@ -73,92 +74,77 @@ export default function MiRegimeBadge() {
     // A skeleton of the final height, never a « Chargement… » sentence in a first
     // screen (spec §3.4).
     return (
-      <div
-        data-testid="mi-regime-skeleton"
-        aria-busy="true"
-        className="rounded-lg border border-border p-4 sm:p-5 space-y-5 animate-pulse motion-reduce:animate-none"
-      >
-        <div className="h-5 w-40 rounded bg-card-2" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {PILLARS.map(p => <div key={p.key} className="h-10 rounded bg-card-2" />)}
+      <div data-testid="mi-regime-skeleton" aria-busy="true" className={`${PANEL} border-border`}>
+        <div className="space-y-3">
+          <div className={`h-7 w-32 ${BAR}`} />
+          <div className={`h-4 w-64 max-w-full ${BAR}`} />
+          <div className={`h-4 w-48 max-w-full ${BAR}`} />
         </div>
-        <div className="h-4 w-72 max-w-full rounded bg-card-2" />
+        <div className="space-y-3">
+          <div className={`h-5 w-56 max-w-full ${BAR}`} />
+          <div className={`h-4 w-72 max-w-full ${BAR}`} />
+          <div className={`h-4 w-60 max-w-full ${BAR}`} />
+        </div>
       </div>
     )
   }
 
   if (snap === null) {
+    // An absent reading is not coloured, and is not dressed as a state.
     return (
-      <div className="rounded-lg border border-border p-4 sm:p-5 text-center">
-        <p className="text-xs text-muted">Pas encore de données. La mise à jour se fait toutes les heures.</p>
+      <div data-testid="meteo-panel" className={`${PANEL} border-border`}>
+        <p className="text-sm text-muted">Pas encore de données. La météo reparaît au prochain relevé.</p>
       </div>
     )
   }
 
-  const riskColor = RISK_COLOR[snap.regime ?? ''] ?? 'var(--muted)'
-  const biasColor = BIAS_COLOR[snap.market_bias ?? ''] ?? 'var(--muted)'
+  const known = snap.regime != null && snap.regime in TITLE_TONE
+  const title = known ? capitalise(regimeFr(snap.regime)) : 'État non relevé'
+  const tone = known ? TITLE_TONE[snap.regime as string] : 'text-foreground'
+  const stress = snap.regime === 'RED'
+  const sides = allowedSides(snap.allow_long, snap.allow_short)
+  const trend = trendLine(snap)
 
   return (
-    <div className="rounded-lg border border-border p-4 sm:p-5 space-y-5">
-
-      {/* Row 1 — the state, one word, its score, its freshness */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ background: riskColor }} />
-          <span className="text-xl font-semibold" style={{ color: riskColor }}>
-            {capitalise(regimeFr(snap.regime))}
-          </span>
-        </div>
-        <span className="text-muted text-xs">·</span>
-        <span className="text-sm text-muted tabular-nums">
-          score {snap.composite_score != null ? score1(snap.composite_score) : '—'}
-        </span>
-        <span className="ml-auto text-xs text-muted">{freshness(snap.snapshot_at)}</span>
+    <section
+      data-testid="meteo-panel"
+      data-regime={snap.regime ?? ''}
+      aria-labelledby="meteo-etat"
+      className={`${PANEL} ${stress ? 'border-negative' : 'border-border'}`}
+    >
+      <div>
+        <h2 id="meteo-etat" className={`text-2xl font-semibold leading-tight mb-1.5 ${tone}`}>
+          {title}
+        </h2>
+        <p className="text-sm sm:text-base">
+          {snap.composite_score != null
+            ? <>Score global{' '}<span className="font-semibold tabular-nums">{scoreText(snap.composite_score)}</span>{' '}{scaleText()}.</>
+            : 'Score global non relevé.'}
+        </p>
+        <p className="mt-1 text-sm text-muted">
+          {`Relevé le ${longDateTime(snap.snapshot_at)}, ${freshness(snap.snapshot_at)}.`}
+        </p>
       </div>
-
-      {/* Row 2 — 4 pillar scores */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 tabular-nums">
-        {PILLARS.map(p => (
-          <div key={p.key} className="text-center">
-            <p className="text-xs text-muted leading-tight">{p.label}</p>
-            <p className="font-semibold mt-1 text-sm" style={{ color: p.color }}>
-              {snap[p.key] != null ? score1(snap[p.key] as number) : '—'}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Row 3 — what it changes for the bots today */}
-      <p className="text-sm leading-relaxed">
-        <span className="text-muted">Ce que ça change pour mes bots aujourd’hui : </span>
-        {todayForBots(snap)}
-      </p>
-
-      {/* Row 4 — Directional filter */}
-      {snap.market_bias && (
-        <div className="border-t border-border pt-3 flex items-center gap-4 flex-wrap text-xs">
-          <div className="flex items-center gap-1.5">
-            <span className="text-muted">Biais</span>
-            <span className="font-semibold" style={{ color: biasColor }}>
-              {biasFr(snap.market_bias)}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-muted">Tendance</span>
-            <span className="tabular-nums">{trendFr(snap.trend_regime)}</span>
-            {snap.btc_vs_ema200_pct != null && (
-              <span className={`tabular-nums text-xs ${snap.btc_vs_ema200_pct >= 0 ? 'text-foreground' : 'text-negative'}`}>
-                ({fmtPct(snap.btc_vs_ema200_pct, 1)} vs moyenne {frNumber(200, 0)} j)
-              </span>
+      <div>
+        <h3 className="text-base font-semibold mb-1">Ce que ça autorise pour mes bots</h3>
+        <p className="text-sm sm:text-base">{todayForBots(snap)}</p>
+        {(sides || trend) && (
+          <dl className="mt-2 space-y-1 text-sm">
+            {sides && (
+              <div>
+                <dt className="inline text-muted">{'Sens permis : '}</dt>
+                <dd className="inline">{sides}</dd>
+              </div>
             )}
-          </div>
-          <div className="ml-auto flex items-center gap-2 tabular-nums text-xs">
-            <span className={snap.allow_long ? 'text-foreground' : 'text-muted line-through'}>Longs</span>
-            <span className={snap.allow_short ? 'text-foreground' : 'text-muted line-through'}>Shorts</span>
-          </div>
-        </div>
-      )}
-
-    </div>
+            {trend && (
+              <div>
+                <dt className="inline text-muted">{'Tendance du bitcoin : '}</dt>
+                <dd className="inline tabular-nums">{trend}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+      </div>
+    </section>
   )
 }
