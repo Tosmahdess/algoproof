@@ -49,6 +49,17 @@ const RULES: Rule[] = [
   { re: /(?:group-)?hover:text-positive/, why: 'hover:text-positive — green is profit, never a hover colour', sample: 'group-hover:text-positive' },
   // C9 / §3.2: the floor is 13 px (text-xs). 10 px joined the list on 2026-09-25.
   { re: /text-\[(?:9|10|11|13|15)px\]/, why: 'arbitrary text size — use text-xs / text-sm', sample: 'text-[10px]' },
+  // Finitions (2026-10-03): the scale is closed (tailwind.config.ts, DESIGN.md « Hierarchy »):
+  // 13 to 40 px, plus the named `display` size of the home title. The home and /overview
+  // still set 22, 26, 34, 35, 42, 44 and 52 px by hand, and text-5xl (48 px) is Tailwind's
+  // own step, outside the scale. Relative sizes (`text-[0.85em]`, inline code) follow
+  // their parent and stay.
+  {
+    re: /(?<![\w-])(?:[a-z-]+:)*text-\[\d+(?:\.\d+)?(?:px|rem)\]/, why: 'off-scale text size — use a step of the closed scale',
+    sample: 'className="text-[35px] sm:text-[42px]"',
+    allow: ['app/blog/[slug]/page.tsx'], // the article prose, 18 px (DESIGN.md « Body article »)
+  },
+  { re: /(?<![\w-])(?:[a-z-]+:)*text-[5-9]xl\b/, why: 'text-5xl and up — outside the closed scale; the home title is text-display', sample: 'sm:text-5xl' },
   // §3.3: three radii. Cards and buttons are rounded-lg, pills rounded, dots rounded-full.
   { re: /\brounded-(?:xl|2xl|3xl)\b/, why: 'rounded-xl and up — cards and buttons are rounded-lg', sample: 'rounded-2xl' },
   // C5: the primary button is foreground on bg; green is a data colour.

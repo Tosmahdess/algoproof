@@ -51,9 +51,9 @@ function Row({ bot }: { bot: BotWithStats }) {
       </div>
       <div data-testid="home-real-result" className="text-right tabular-nums">
         {hasResult ? (
-          <span className={`block whitespace-nowrap text-xl font-medium md:text-[22px] ${loss ? 'text-negative' : 'text-foreground'}`}>{fmtEur(eur)}</span>
+          <span className={`block whitespace-nowrap text-xl font-medium ${loss ? 'text-negative' : 'text-foreground'}`}>{fmtEur(eur)}</span>
         ) : (
-          <span className="block text-xl font-medium text-muted md:text-[22px]">—</span>
+          <span className="block text-xl font-medium text-muted">—</span>
         )}
         <span className="mt-1 block text-xs text-muted">
           {hasResult ? <>{fmtPct(pct)}{' · '}{sinceLabel(bot.live_since)}</> : 'aucun trade clos'}

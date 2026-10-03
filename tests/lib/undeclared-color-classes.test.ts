@@ -30,7 +30,9 @@ const TAILWIND_DEFAULT = new Set([
 const NOT_A_COLOUR: Record<string, Set<string>> = {
   text: new Set(['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', '8xl', '9xl',
     'left', 'right', 'center', 'justify', 'start', 'end', 'ellipsis', 'clip', 'wrap', 'nowrap',
-    'balance', 'pretty']),
+    'balance', 'pretty',
+    // The site's own size steps (`text-display`, finitions 2026-10-03) are sizes, not colours.
+    ...Object.keys((tailwindConfig.theme?.extend?.fontSize ?? {}) as Record<string, unknown>)]),
   bg: new Set(['none', 'cover', 'contain', 'auto', 'fixed', 'local', 'scroll', 'center', 'top', 'bottom',
     'left', 'right', 'repeat', 'clip', 'origin', 'gradient', 'opacity', 'blend']),
   border: new Set(['t', 'b', 'l', 'r', 'x', 'y', 's', 'e', 'solid', 'dashed', 'dotted', 'double', 'hidden',

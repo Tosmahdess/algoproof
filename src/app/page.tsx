@@ -70,7 +70,7 @@ export default async function HomePage() {
       {/* ---------- Title, lead, and the two entries ---------- */}
       <header data-testid="home-hero" className="pb-2 pt-7 sm:pt-12">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.3fr_1fr] lg:items-end lg:gap-[75px]">
-          <h1 className="text-[34px] font-semibold leading-[1.13] tracking-[-0.03em] sm:text-[44px] lg:text-[52px] lg:leading-[1.12]">
+          <h1 className="text-3xl font-semibold leading-[1.13] tracking-[-0.03em] sm:text-4xl lg:text-display lg:leading-[1.12]">
             Des stratégies testées.<br />
             Des comptes de sociétés examinés.
           </h1>
@@ -128,7 +128,7 @@ export default async function HomePage() {
         {library && (
           <>
             <p className="mb-2 flex flex-wrap items-baseline gap-x-3 tabular-nums">
-              <strong className="text-[35px] font-medium leading-tight sm:text-[42px]">{fr(library.ideas)}</strong>{' '}
+              <strong className="text-3xl font-medium leading-tight sm:text-4xl">{fr(library.ideas)}</strong>{' '}
               <span className="text-muted">
                 idées ·{' '}<b className="font-medium text-foreground">{fr(library.variants)}</b>{' '}variantes
               </span>
