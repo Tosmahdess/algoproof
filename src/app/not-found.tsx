@@ -1,5 +1,9 @@
 import { linkClass } from '@/lib/link-roles'
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+// Audit 2026-10, n° 67: the tab said only « AlgoProof » on a dead link.
+export const metadata: Metadata = { title: 'Page introuvable' }
 
 export default function NotFound() {
   return (
@@ -10,7 +14,8 @@ export default function NotFound() {
         Le lien est peut-être périmé, ou la page a changé d&apos;adresse.
         Tout ce qui est publié reste accessible depuis l&apos;accueil.
       </p>
-      <div className="flex gap-4 text-sm">
+      {/* 44 px rows on a phone (n° 67: they were 21 px). */}
+      <div className="flex gap-4 text-sm [&>a]:inline-flex [&>a]:min-h-11 [&>a]:items-center">
         <Link href="/" className={linkClass('inline')}>Accueil</Link>
         {/* FIX (final whole-branch review, I2): this pointed at /strategies,
             which is now 22 pedagogical concept pages with no trades on them.
@@ -18,7 +23,7 @@ export default function NotFound() {
             « La flotte », the same name /overview carries in the nav and the
             footer. */}
         <Link href="/overview" className={linkClass('inline')}>La flotte</Link>
-        <Link href="/blog" className={linkClass('inline')}>Apprendre</Link>
+        <Link href="/blog" className={linkClass('inline')}>Articles</Link>
       </div>
     </div>
   )
