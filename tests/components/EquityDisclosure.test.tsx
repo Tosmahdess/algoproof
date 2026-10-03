@@ -51,9 +51,9 @@ describe('EquityDisclosure', () => {
     const order = [
       'Qui écrit ceci, et dans quel cadre',
       // Refonte « registre », pages Sociétés (2026-10-03): no author name on a
-      // company page (owner's rule); the capacity stays, the identity is one
-      // link away, in the legal notice.
-      'Je publie ces lectures à titre individuel (entrepreneur individuel, sous le nom commercial AlgoProof) ; mon identité figure dans les mentions légales. Version du 7 septembre 2026.',
+      // company page (owner, 2026-10-03); the capacity stays, the identity is
+      // one link away, in the legal notice, without a sentence saying so.
+      "J'écris ce site à titre individuel (entrepreneur individuel, sous le nom commercial AlgoProof). Version du 7 septembre 2026.",
       'Aucune société citée ne me rémunère',
       'Les chiffres viennent du rapport annuel',
       'pas un conseil en investissement personnalisé',

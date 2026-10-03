@@ -37,30 +37,20 @@ import { labUrl } from '@/lib/lab-links'
  */
 export function AuthorIdentity({
   version,
-  nom = true,
   children,
 }: {
   version?: string
-  /** False: the line says the capacity without the name, and sends to the legal
-   *  notice where the identity is published (refonte « registre », pages
-   *  Sociétés, 2026-10-03: no author name on the company pages, owner's rule).
-   *  Opt-in, so /a-propos keeps its line until its own redesign decides. */
-  nom?: boolean
   children?: ReactNode
 }) {
+  // No author name on the site (owner, 2026-10-03, asked about this very line): the
+  // capacity stays, the identity is in the legal notice linked below, and the line
+  // does not say so again on every fiche.
   return (
     <>
-      {nom ? (
-        <p>
-          Thomas Dessombs, à titre individuel (entrepreneur individuel, sous le nom commercial
-          AlgoProof).{version ? <> Version du {longDate(version)}.</> : null}
-        </p>
-      ) : (
-        <p>
-          Je publie ces lectures à titre individuel (entrepreneur individuel, sous le nom commercial
-          AlgoProof) ; mon identité figure dans les mentions légales.{version ? <>{' '}Version du{' '}{longDate(version)}.</> : null}
-        </p>
-      )}
+      <p>
+        J&apos;écris ce site à titre individuel (entrepreneur individuel, sous le nom commercial
+        AlgoProof).{version ? <>{' '}Version du {longDate(version)}.</> : null}
+      </p>
 
       <p>
         Je lis les comptes de bien plus de sociétés que je n&apos;en suis pour moi : ma liste de

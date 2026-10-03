@@ -66,7 +66,7 @@ export function EquityDisclosure({
           says "Calcul du …" on a graded fiche, and an out-of-scope fiche is
           not a calculation of the rule at all. The day stays: it is the WHEN
           this block exists to carry. */}
-      <AuthorIdentity version={generatedAt} nom={false}>
+      <AuthorIdentity version={generatedAt}>
         {/* The former sentence sourced the figures from market data shown next to
             them: it described fiches that printed a market price. Graded fiches read the
             annual report and name it in plain text (filing date and accession
