@@ -67,15 +67,16 @@ export default function EngineLedger({ counts }: { counts: FunnelCounts | null }
 
   return (
     <section data-testid="home-engine" aria-labelledby="home-engine-title" className="border-b border-border py-8 sm:py-9">
-      {/* The header, on the hero's grid (page.tsx): heading left, text right. */}
-      <div data-testid="engine-head" className="grid grid-cols-1 gap-3 lg:grid-cols-[1.3fr_1fr] lg:items-end lg:gap-[75px]">
+      {/* The header, stacked (Astra's framing, 03/10): heading, then the text and its links,
+          so no column runs short beside another. The figures follow in full width. */}
+      <div data-testid="engine-head" className="grid grid-cols-1 gap-3">
         <h2 id="home-engine-title" className="text-2xl font-semibold tracking-tight">
           {ratio !== null
             ? <>Mon moteur retient environ 1 configuration sur{' '}<span className="tabular-nums">{n(ratio)}</span></>
             : 'Mon moteur n’a retenu aucune configuration'}
         </h2>
         <div>
-          <p className="max-w-[60ch] text-muted">
+          <p className="max-w-[72ch] text-muted">
             Une configuration, c’est une stratégie avec des réglages précis. Celles que je juge passent
             quatre épreuves. Une candidate n’est pas une gagnante : elle a gagné le droit d’être surveillée
             en simulation, sans argent.

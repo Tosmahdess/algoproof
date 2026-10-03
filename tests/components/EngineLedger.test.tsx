@@ -45,13 +45,13 @@ describe('EngineLedger', () => {
   })
 
   // Framing (owner, 03/10: the heading column stopped a third of the way down the figures).
-  // The block no longer sets the text and the register side by side: a header on the
-  // hero's grid, then the register full width under it. The addition reads in a row,
+  // The block no longer sets the text and the register side by side: a stacked header
+  // (Astra's framing, 03/10), then the register full width under it. The addition reads in a row,
   // its operators drawn in the note ink and never typed, so a screen reader hears none.
-  it('puts the heading and its text on one line, then the register full width under it', () => {
+  it('stacks the heading over its text, then the register full width under it', () => {
     render(<EngineLedger counts={COUNTS} />)
     const head = screen.getByTestId('engine-head')
-    expect(head.className).toMatch(/lg:grid-cols-\[1\.3fr_1fr\]/)
+    expect(head.className).not.toMatch(/grid-cols-\[/)
     expect(within(head).getByRole('heading', { level: 2 })).toBeTruthy()
     expect(within(head).getByRole('link', { name: /Comment je décide/ })).toBeTruthy()
     for (const id of ['engine-swept', 'engine-ledger', 'engine-outside']) {
