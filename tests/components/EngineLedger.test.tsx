@@ -14,69 +14,58 @@ const COUNTS: FunnelCounts = {
 }
 
 describe('EngineLedger', () => {
-  it('writes the three verdicts, then their sum closed by a double rule', () => {
+  // Owner, 03/10: « en entonnoir, du plus grand chiffre au plus petit ». Three nested sets
+  // (candidates within judged within swept), so the funnel is true; configurations only.
+  it('runs the funnel from the largest figure to the smallest: swept, judged, candidates', () => {
     render(<EngineLedger counts={COUNTS} />)
-    const rows = screen.getAllByTestId('engine-row').map(r => r.textContent!.replace(/\s/g, ''))
-    expect(rows.map(r => r.match(/^\D+/)![0])).toEqual(['Recalées', 'Ensursis', 'Candidates'])
-    const total = screen.getByTestId('engine-total')
-    expect(total.textContent!.replace(/\s/g, '')).toBe('Configurationsjugées2144077')
-    expect(total.className).toMatch(/border-double/)
+    const steps = screen.getAllByTestId('engine-step')
+    expect(steps.map(s => s.getAttribute('data-step'))).toEqual(['swept', 'judged', 'go'])
+    const figures = steps.map(s => Number(s.querySelector('.tabular-nums')!.textContent!.replace(/\D/g, '')))
+    expect(figures).toEqual([51_339_525, 2_144_077, 4_347])
+    expect(figures[0] > figures[1] && figures[1] > figures[2]).toBe(true)
+    expect(screen.getByTestId('engine-funnel').tagName).toBe('OL')
+  })
+
+  // The rejected and the suspended are the judged that did not get through, beside the judged
+  // step, never a step of their own; the three verdicts still sum to the judged.
+  it('sets the rejected and the suspended beside the judged step, and they sum with the candidates', () => {
+    render(<EngineLedger counts={COUNTS} />)
+    const judged = screen.getAllByTestId('engine-step')[1]
+    const dropped = within(judged).getByTestId('engine-dropped').textContent!.replace(/\s/g, ' ')
+    expect(dropped).toMatch(/1 775 174 recalées/)
+    expect(dropped).toMatch(/364 556 en sursis/)
     expect(COUNTS.n_no_go + COUNTS.n_marginal + COUNTS.n_go).toBe(COUNTS.n_judged)
   })
 
-  it('says the ratio in the heading, in words, with no big number', () => {
+  // « recensées », never « testées » (funnel.ts) nor « recalé » (D059); the unjudged rest is
+  // not counted, it grows with every sweep (owner, 03/10).
+  it('names the swept corpus plainly, never tested or rejected, without counting the rest', () => {
     render(<EngineLedger counts={COUNTS} />)
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Mon moteur retient environ 1 configuration sur 500')
-    expect(document.body.innerHTML).not.toMatch(/text-\[(3\d|4\d)px\]|text-[34]xl/)
-  })
-
-  // Owner, 03/10: the total must be visible, not a footnote. It heads the block as its own
-  // line, named « recensées » (funnel.ts: « testées » was retired for this corpus), and it
-  // stays out of the addition: most of it was never judged, so it is never « recalé ».
-  it('heads the block with the swept total, out of the sum, never called tested or rejected', () => {
-    render(<EngineLedger counts={COUNTS} />)
-    const swept = screen.getByTestId('engine-swept')
-    expect(swept.textContent!.replace(/\s/g, ' ')).toMatch(/Configurations recensées ?51 339 525/)
-    // Owner, 03/10: no count of the rest, which grows with every sweep; one plain sentence.
-    expect(swept.textContent!.replace(/\s/g, ' ')).toMatch(/Toutes les combinaisons de réglages que mon moteur a passées en revue\. Seule une partie va jusqu’aux quatre épreuves\./)
-    expect(swept.textContent).not.toMatch(/recal|49 195 448/)
-    expect(swept.textContent).not.toMatch(/testées/)
-    expect(within(screen.getByTestId('engine-ledger')).queryByText(/recens/)).toBeNull()
-    expect(swept.compareDocumentPosition(screen.getByTestId('engine-ledger')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const swept = screen.getAllByTestId('engine-step')[0].textContent!.replace(/\s/g, ' ')
+    expect(swept).toMatch(/configurations recensées/)
+    expect(swept).toMatch(/Toutes les combinaisons de réglages que mon moteur a passées en revue\. Seule une partie va jusqu’aux quatre épreuves\./)
+    expect(swept).not.toMatch(/testées|recal|49 195 448/)
     expect(screen.getByTestId('engine-outside').textContent).toMatch(/Mes bots et les variantes de la bibliothèque se comptent à part/)
   })
 
-  // Framing (owner, 03/10: the heading column stopped a third of the way down the figures).
-  // The block no longer sets the text and the register side by side: a stacked header
-  // (Astra's framing, 03/10), then the register full width under it. The addition reads in a row,
-  // its operators drawn in the note ink and never typed, so a screen reader hears none.
-  it('puts the figures first, then the heading, its text and its links under them', () => {
+  it('draws the arrows between steps, hidden from assistive tech, and types none', () => {
     render(<EngineLedger counts={COUNTS} />)
-    const head = screen.getByTestId('engine-head')
-    expect(head.className).not.toMatch(/grid-cols-\[/)
-    expect(within(head).getByRole('heading', { level: 2 })).toBeTruthy()
-    expect(within(head).getByRole('link', { name: /Comment je décide/ })).toBeTruthy()
-    for (const id of ['engine-swept', 'engine-ledger', 'engine-outside']) {
-      const el = screen.getByTestId(id)
-      expect(head.contains(el)).toBe(false)
-      expect(head.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
+    const downs = screen.getAllByTestId('engine-down')
+    expect(downs).toHaveLength(2)
+    for (const d of downs) {
+      expect(d.tagName.toLowerCase()).toBe('svg')
+      expect(d.getAttribute('aria-hidden')).toBe('true')
     }
+    expect(screen.getByTestId('engine-funnel').textContent).not.toMatch(/[→↓▼]/)
   })
 
-  it('draws the addition’s operators, + + then =, hidden from assistive tech and in the note ink', () => {
+  it('puts the conclusion under the figures, the ratio said in words, no display-size number', () => {
     render(<EngineLedger counts={COUNTS} />)
-    const ops = screen.getAllByTestId('engine-op')
-    expect(ops.map(o => o.getAttribute('data-op'))).toEqual(['plus', 'plus', 'equals'])
-    for (const o of ops) {
-      expect(o.tagName.toLowerCase()).toBe('svg')
-      expect(o.getAttribute('aria-hidden')).toBe('true')
-      expect(o.getAttribute('class')).toMatch(/text-muted/)
-    }
-    // None after the total, and no typed operator anywhere in the addition.
-    expect(within(screen.getByTestId('engine-total')).queryByTestId('engine-op')).toBeNull()
-    expect(screen.getByTestId('engine-ledger').textContent).not.toMatch(/[+=＋＝]/)
-    // From 768 px the double rule closes the judged figure itself.
-    expect(screen.getByTestId('engine-total-figure').className).toMatch(/md:border-double/)
+    const head = screen.getByTestId('engine-head')
+    expect(within(head).getByRole('heading', { level: 2 }).textContent).toBe('Mon moteur retient environ 1 configuration sur 500')
+    expect(within(head).getByRole('link', { name: /Comment je décide/ })).toBeTruthy()
+    expect(head.compareDocumentPosition(screen.getByTestId('engine-funnel')) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
+    expect(document.body.innerHTML).not.toMatch(/text-\[(3\d|4\d)px\]|text-[34]xl/)
   })
 
   it('renders nothing without a judged denominator, and no ratio without a candidate', () => {

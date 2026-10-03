@@ -1,23 +1,20 @@
-// What my engine judged, as an addition (owner, 03/10/2026: « on perd l'info du
-// nombre de configurations testées, de celles qui ont eu un go »). Proposal
-// Impeccable, docs/home-chiffres/impeccable/PROPOSITION.md.
+// What my engine passes, as a funnel (owner, 03/10/2026: « on perd l'info du nombre de
+// configurations testées, de celles qui ont eu un go », then « ça ne vaut pas mieux en
+// entonnoir ? du plus grand chiffre au plus petit »).
 //
-// Framing (owner, 03/10: « bizarre d'avoir à gauche "Mon moteur retient…" qui ne va
-// pas jusqu'en bas des chiffres à droite »), docs/engine-cadre/claude/PROPOSITION.md:
-// the heading and its text share one line, on the hero's grid, and the register runs
-// full width under it, so no column waits for a taller one. The swept total is a
-// register line (label, note, figure); the addition is one horizontal row from
-// 1 024 px, two rows of two from 768 px, register lines below.
+// Three nested sets, so a funnel is true here: the candidates are part of the judged,
+// which are part of the swept (getFunnelCounts, one generation per rung). Configurations
+// only, never a bot (D059): the fleet is counted elsewhere. The rejected and the
+// suspended are not a step: they are the judged that did not get through, written at the
+// judged step, and the three verdicts still sum to it (verdictTotals in funnel.ts).
 //
-// The three verdicts always sum to the judged total (verdictTotals in funnel.ts),
-// so the block takes the form the site already has for a total: the sum closed by a
-// double rule (DESIGN.md, « Double trait de l'addition »). No big number: the ratio
-// is said in the heading, in words, and every figure sits at the register's size.
+// No proportional bars (the owner removed the old funnel's bars, and 4 347 against 51
+// million would draw nothing). The funnel is typographic: the figures shrink, and from
+// 768 px each step's rule is shorter than the one above. The swept corpus is never
+// called « testé » (funnel.ts) nor « recalé » (D059), and the unjudged rest is not
+// counted: it grows with every sweep (owner, 03/10).
 //
-// Same rules as EngineSummary before it: configurations only, never a bot (D059);
-// the swept corpus stays OUTSIDE the sum and is never called « recalé », since most
-// of it was never judged; the library's variants and the fleet's bots are counted
-// elsewhere and the note says they do not nest in this addition.
+// The conclusion comes under the figures (owner, 03/10): the ratio, said in words.
 import Link from 'next/link'
 import type { FunnelCounts } from '@/lib/funnel'
 import { frNumber } from '@/lib/display'
@@ -27,36 +24,20 @@ import { linkClass } from '@/lib/link-roles'
 
 const n = (v: number) => frNumber(v, 0)
 
-const FIGURE = 'whitespace-nowrap text-xl font-medium tabular-nums md:text-[22px]'
-// One register line below 768 px (label left, figure right, note under); from 768 px,
-// a column of the addition (label, figure, note, stacked and left-aligned).
-const ITEM = 'grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 border-t border-border py-3.5 md:block md:border-t-0 md:py-0'
+const STEP = 'grid grid-cols-1 gap-x-8 gap-y-1 border-t border-border py-4 md:grid-cols-[11ch_minmax(0,1fr)] md:items-baseline'
+const FIGURE = 'whitespace-nowrap text-2xl font-medium tabular-nums md:text-right md:text-[28px]'
 
-// The operator sits in the gutter to the right of its left operand, centred on the
-// figure line: + after « Recalées » and « En sursis », = after « Candidates ». At
-// 768 px the second + ends the first row, so no row starts with an operator. Drawn,
-// never typed: it is not read aloud and stays in the note ink (DESIGN.md, muted).
-// The shift is half its width plus half the gutter (gap-x-12, 3 rem).
-function Operator({ kind }: { kind: 'plus' | 'equals' }) {
+// Between two steps: a downward chevron under the figures, drawn, never typed, so it is not
+// read aloud (DESIGN.md: icons are drawn, in the note ink).
+function Down() {
   return (
-    <svg data-testid="engine-op" data-op={kind} aria-hidden="true" focusable="false" viewBox="0 0 12 12"
-         fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
-         className="pointer-events-none absolute right-0 top-1/2 hidden h-3 w-3 -translate-y-1/2 translate-x-[calc(50%+1.5rem)] text-muted md:block">
-      {kind === 'plus' ? <path d="M6 1.5v9M1.5 6h9" /> : <path d="M1.5 4h9M1.5 8h9" />}
-    </svg>
-  )
-}
-
-function Verdict({ label, value, note, op }: { label: string, value: number, note: string, op: 'plus' | 'equals' }) {
-  return (
-    <div data-testid="engine-row" className={ITEM}>
-      <dt className="font-semibold">{label}</dt>
-      <dd className={`relative text-right md:mt-1 md:text-left ${FIGURE}`}>
-        {n(value)}
-        <Operator kind={op} />
-      </dd>
-      <dd className="col-span-2 mt-1 text-xs text-muted">{note}</dd>
-    </div>
+    <li aria-hidden="true" className="md:grid md:grid-cols-[11ch_minmax(0,1fr)] md:gap-x-8">
+      <svg data-testid="engine-down" aria-hidden="true" focusable="false" viewBox="0 0 12 12" fill="none"
+           stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+           className="my-1 h-3 w-3 text-muted md:justify-self-end md:mr-[3ch]">
+        <path d="M2 4.5 6 8.5l4-4" />
+      </svg>
+    </li>
   )
 }
 
@@ -66,41 +47,41 @@ export default function EngineLedger({ counts }: { counts: FunnelCounts | null }
 
   return (
     <section data-testid="home-engine" aria-labelledby="home-engine-title" className="border-b border-border py-8 sm:py-9">
-      {/* Floor 1, the swept total, as its own line (owner, 03/10). Named « recensées », never
-          « testées » (funnel.ts) nor « recalées » (D059), and kept out of the addition below.
-          It uses the addition's columns: label over « Recalées », figure over the judged total. */}
-      <dl data-testid="engine-swept">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 border-t border-border py-3.5 md:grid-cols-2 md:gap-x-12 md:pr-12 lg:grid-cols-4 lg:pr-0">
-          <dt className="font-semibold">Configurations recensées</dt>
-          <dd className={`${FIGURE} text-right font-semibold md:text-left lg:col-start-4 lg:row-start-1`}>{n(counts.n_swept)}</dd>
-          <dd className="col-span-2 mt-1 text-xs text-muted lg:col-start-2 lg:row-start-1 lg:mt-0">
-            Toutes les combinaisons de réglages que mon moteur a passées en revue. Seule une partie va jusqu’aux quatre épreuves.
-          </dd>
-        </div>
-      </dl>
-
-      {/* Floor 2, the addition. The right padding at 768 px holds the + that ends the first row. */}
-      <dl data-testid="engine-ledger" className="md:grid md:grid-cols-2 md:gap-x-12 md:gap-y-6 md:border-t md:border-border md:pr-12 md:pt-3.5 lg:grid-cols-4 lg:pr-0">
-        <Verdict label="Recalées" value={counts.n_no_go} note="Je publie le motif de chacune." op="plus" />
-        <Verdict label="En sursis" value={counts.n_marginal} note="Une seule des trois premières épreuves ratée. Elles restent publiées." op="plus" />
-        <Verdict label="Candidates" value={counts.n_go} note="Les quatre épreuves tenues." op="equals" />
-        {/* The total: a register line closed by the double rule below 768 px; from 768 px the
-            double rule sits under its figure, as under « Base + résultat » (BotFigures). */}
-        <div data-testid="engine-total" className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 border-b-[3px] border-t border-double border-b-border-strong border-t-border-strong py-3.5 md:block md:border-0 md:py-0">
-          <dt className="font-semibold">Configurations jugées</dt>
-          <dd className={`${FIGURE} text-right font-semibold md:mt-1 md:text-left`}>
-            <span data-testid="engine-total-figure" className="md:inline-block md:border-b-[3px] md:border-double md:border-border-strong md:pb-1">{n(counts.n_judged)}</span>
-          </dd>
-        </div>
-      </dl>
+      <ol data-testid="engine-funnel" aria-label="De ce que mon moteur passe en revue à ce qu’il retient" className="list-none p-0">
+        <li data-testid="engine-step" data-step="swept" className={STEP}>
+          <span className={FIGURE}>{n(counts.n_swept)}</span>
+          <div>
+            <p className="font-semibold">configurations recensées</p>
+            <p className="mt-1 text-sm text-muted">Toutes les combinaisons de réglages que mon moteur a passées en revue. Seule une partie va jusqu’aux quatre épreuves.</p>
+          </div>
+        </li>
+        <Down />
+        <li data-testid="engine-step" data-step="judged" className={`${STEP} md:w-[88%]`}>
+          <span className={FIGURE}>{n(counts.n_judged)}</span>
+          <div>
+            <p className="font-semibold">jugées par mes quatre épreuves</p>
+            <p data-testid="engine-dropped" className="mt-1 text-sm text-muted">
+              Dont{' '}<span className="tabular-nums text-foreground">{n(counts.n_no_go)}</span>{' '}recalées, chacune avec son motif publié, et{' '}
+              <span className="tabular-nums text-foreground">{n(counts.n_marginal)}</span>{' '}en sursis, qui ont raté une seule des trois premières épreuves.
+            </p>
+          </div>
+        </li>
+        <Down />
+        <li data-testid="engine-step" data-step="go" className={`${STEP} border-b md:w-[76%]`}>
+          <span className={FIGURE}>{n(counts.n_go)}</span>
+          <div>
+            <p className="font-semibold">candidates</p>
+            <p className="mt-1 text-sm text-muted">Les quatre épreuves tenues.</p>
+          </div>
+        </li>
+      </ol>
 
       {/* What these counts are not. */}
-      <p data-testid="engine-outside" className="mt-4 text-xs leading-relaxed text-muted md:mt-5">
+      <p data-testid="engine-outside" className="mt-4 text-xs leading-relaxed text-muted">
         Ces nombres comptent des configurations. Mes bots et les variantes de la bibliothèque se comptent à part.
       </p>
 
-      {/* The conclusion under the figures (owner, 03/10: « mettre en dessous des chiffres »),
-          stacked full width (Astra's framing), so no column runs short beside another. */}
+      {/* The conclusion under the figures (owner, 03/10), stacked full width. */}
       <div data-testid="engine-head" className="mt-8 grid grid-cols-1 gap-3 border-t border-border pt-6">
         <h2 id="home-engine-title" className="text-2xl font-semibold tracking-tight">
           {ratio !== null
