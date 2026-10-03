@@ -43,7 +43,7 @@ export default function EngineLedger({ counts }: { counts: FunnelCounts | null }
           className="sm:grid sm:grid-cols-3 sm:gap-x-8 sm:gap-y-6 sm:border-y sm:border-border sm:py-5 lg:grid-cols-5 lg:gap-x-6">
         <Figure kind="swept" value={counts.n_swept} label="recensées" phrase="Énumérées par mon moteur." />
         <Figure kind="judged" value={counts.n_judged} label="jugées" phrase="Passées aux quatre épreuves." />
-        <Figure kind="no_go" value={counts.n_no_go} label="recalées" phrase="Chacune avec son motif publié." />
+        <Figure kind="no_go" value={counts.n_no_go} label="recalées" phrase="Avec leur motif publié." />
         <Figure kind="marginal" value={counts.n_marginal} label="en sursis" phrase="Une seule épreuve ratée." />
         <Figure kind="go" value={counts.n_go} label="candidates" phrase="Les quatre épreuves tenues." />
       </dl>
