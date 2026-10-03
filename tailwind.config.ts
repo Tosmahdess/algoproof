@@ -43,7 +43,9 @@ const config: Config = {
         mono: ['var(--font-mono)', 'JetBrains Mono', 'Fira Code', 'ui-monospace', 'monospace'],
       },
       // §3.2: a closed scale with a 13 px floor. `xs` is the caption size and the
-      // smallest thing the site sets; the display size (home h1) is 4xl.
+      // smallest thing the site sets. `display` is the one step above 4xl, for the
+      // home title from 1 024 px (finitions 2026-10-03; DESIGN.md « Display »): the
+      // home and /overview set 22 to 52 px by hand before, and text-5xl (48 px).
       fontSize: {
         xs: ['13px', { lineHeight: '1.4' }],
         sm: ['14px', { lineHeight: '1.5' }],
@@ -53,6 +55,7 @@ const config: Config = {
         '2xl': ['24px', { lineHeight: '1.25' }],
         '3xl': ['30px', { lineHeight: '1.2' }],
         '4xl': ['40px', { lineHeight: '1.15' }],
+        display: ['52px', { lineHeight: '1.12' }],
       },
     },
   },

@@ -35,7 +35,7 @@ export default function Loading() {
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12" aria-busy="true">
       <header className="mb-8 sm:mb-10">
-        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">La flotte</h1>
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">La flotte</h1>
         <p className="text-base sm:text-lg text-muted mt-3 max-w-[60ch]">
           Ce qui tourne, avec quel argent, et ce que ça donne.
         </p>

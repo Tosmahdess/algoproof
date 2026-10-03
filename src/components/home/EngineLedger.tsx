@@ -27,7 +27,7 @@ function Figure({ kind, value, label, phrase }: { kind: Kind, value: number, lab
     <div data-testid="engine-figure" data-kind={kind}
          className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 border-t border-border py-3.5 sm:flex sm:flex-col sm:border-t-0 sm:py-0">
       <dt className="font-semibold sm:order-2 sm:mt-1">{label}</dt>
-      <dd className="whitespace-nowrap text-right text-xl font-medium tabular-nums sm:text-left lg:text-[26px]">{n(value)}</dd>
+      <dd className="whitespace-nowrap text-right text-xl font-medium tabular-nums sm:text-left lg:text-2xl">{n(value)}</dd>
       <dd data-testid="engine-phrase" className="col-span-2 text-sm text-muted sm:order-3 sm:mt-0.5">{phrase}</dd>
     </div>
   )

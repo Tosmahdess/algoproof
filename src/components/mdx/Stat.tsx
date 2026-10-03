@@ -14,7 +14,14 @@
 //     <Stat label="P&L" value="−77.97 USDT" intent="negative" />
 //   </StatRow>
 
+//
+// Finitions of the « registre des décisions » redesign (2026-10-03): the row is the
+// box (a surface and a full 1 px rule), each figure has its label above it in
+// sentence case, 13 px, without tracked capitals or a left border per figure.
+// Pinned by tests/components/mdx/encadres.test.tsx.
+
 import type { ReactNode } from 'react'
+import { BOX } from './box'
 import { detectSign, valueColor, type Intent } from './statColor'
 
 interface StatProps {
@@ -29,7 +36,7 @@ interface StatProps {
 function detectChangeColor(s: string | undefined): string {
   if (!s) return 'text-muted'
   const trimmed = s.trim()
-  if (/^[+]/.test(trimmed)) return 'text-positive'
+  if (/^[+]/.test(trimmed)) return 'text-foreground'
   if (/^[−–-]/.test(trimmed)) return 'text-negative'
   return 'text-muted'
 }
@@ -54,8 +61,8 @@ export function Stat({ label, value, change, subtext, intent, trend }: StatProps
   const changeColor = detectChangeColor(change)
   const valueIntent = resolveValueIntent(value, intent, trend)
   return (
-    <div className="not-prose flex-1 min-w-[140px] border-l-2 border-border pl-4 py-1">
-      <div className="text-xs uppercase tracking-[0.18em] text-muted font-semibold mb-1">
+    <div className="not-prose flex-1 min-w-[140px] py-1">
+      <div className="text-xs text-muted mb-1">
         {label}
       </div>
       <div className="flex items-baseline gap-2 flex-wrap">
@@ -83,7 +90,7 @@ interface StatRowProps {
 
 export function StatRow({ children }: StatRowProps) {
   return (
-    <div className="not-prose my-8 flex flex-wrap gap-x-2 gap-y-4 border-y border-border py-5">
+    <div className={`${BOX} my-8 flex flex-wrap gap-x-8 gap-y-4`}>
       {children}
     </div>
   )

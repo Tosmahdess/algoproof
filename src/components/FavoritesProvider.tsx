@@ -7,6 +7,7 @@
 // table reused on a page without one never fires anything.
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { StarIcon } from '@/components/icons'
 import { accessToken, callFavorite, Expired, listFavoriteSlugs, signInHref, type FavoriteKind } from '@/lib/favorites-client'
 
 type Ctx = {
@@ -93,7 +94,7 @@ export function FavoriteStar({ kind, slug, name }: { kind: FavoriteKind; slug: s
       <a href={signInHref(path)} aria-label={`Garder ${name} en favori`}
          title="Connecte-toi pour garder ce bot dans ton espace"
          className={`${STAR} text-muted hover:text-foreground`}>
-        <span aria-hidden="true">☆</span>
+        <StarIcon on={false} className="h-4 w-4" />
       </a>
     )
   }
@@ -103,7 +104,7 @@ export function FavoriteStar({ kind, slug, name }: { kind: FavoriteKind; slug: s
             aria-pressed={on}
             aria-label={on ? `Retirer ${name} de mes favoris` : `Garder ${name} en favori`}
             className={`${STAR} ${on ? 'text-accent' : 'text-muted hover:text-foreground'} disabled:opacity-60`}>
-      <span aria-hidden="true">{on ? '★' : '☆'}</span>
+      <StarIcon on={on} className="h-4 w-4" />
     </button>
   )
 }

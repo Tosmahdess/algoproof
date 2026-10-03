@@ -9,10 +9,10 @@ describe('Stat', () => {
     expect(value.className).toContain('text-negative')
   })
 
-  it('maps trend up to positive', () => {
+  it('maps trend up to ink: a gain is never green', () => {
     render(<Stat label="Perf" value="216" trend="up" />)
     const value = screen.getByText('216')
-    expect(value.className).toContain('text-positive')
+    expect(value.className).toContain('text-foreground')
   })
 
   it('maps trend down to negative', () => {

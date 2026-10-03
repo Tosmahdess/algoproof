@@ -13,14 +13,8 @@ export function detectSign(s: string): Intent {
   return 'neutral'
 }
 
-export const intentStyles = {
-  positive: { border: 'border-l-positive/60', bg: 'bg-positive/[0.03]' },
-  negative: { border: 'border-l-negative/60', bg: 'bg-negative/[0.03]' },
-  neutral:  { border: 'border-l-muted/40',    bg: 'bg-card/40' },
-}
-
 export const valueColor: Record<Intent, string> = {
-  positive: 'text-positive',
+  positive: 'text-foreground',
   negative: 'text-negative',
   neutral:  'text-foreground',
 }

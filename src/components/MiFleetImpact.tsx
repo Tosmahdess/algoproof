@@ -34,7 +34,7 @@ export function MiFleetImpactSection({ impact }: { impact: FleetImpact | null })
 
   return (
     <section>
-      {/* Lot 7 (spec 5.4): framed as a negative result, red left border. It is the
+      {/* Lot 7 (spec 5.4): framed as a negative result, a red rule all round. It is the
           most honest block of the page, so it sits second, right under the regime. */}
       <Callout tone="negative-result" className="space-y-3 text-sm leading-relaxed">
       <h2 className="text-xl font-semibold mb-3">Est-ce que ça marche ?</h2>

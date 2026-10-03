@@ -3,14 +3,19 @@
 import type { BotChangelog, ChangelogCategory } from '@/lib/types'
 import ScopeBadge from './ScopeBadge'
 
-const CATEGORY_CHIP: Record<ChangelogCategory, { style: string; label: string }> = {
-  asset:    { style: 'bg-blue-900/40 text-blue-300 border border-blue-700/50',       label: 'actif' },
-  fix:      { style: 'bg-red-900/40 text-red-300 border border-red-700/50',          label: 'correctif' },
-  strategy: { style: 'bg-purple-900/40 text-purple-300 border border-purple-700/50', label: 'stratégie' },
-  perf:     { style: 'bg-green-900/40 text-green-300 border border-green-700/50',     label: 'perf' },
-  risk:     { style: 'bg-orange-900/40 text-orange-300 border border-orange-700/50',  label: 'risque' },
-  signal:   { style: 'bg-cyan-900/40 text-cyan-300 border border-cyan-700/50',        label: 'signal' },
-  deploy:   { style: 'bg-indigo-900/40 text-indigo-300 border border-indigo-700/50',  label: 'déploiement' },
+// Finitions (2026-10-03): the seven categories wore seven Tailwind colours (blue, red,
+// purple, green, orange, cyan, indigo), none of them the site's, and « perf » was green.
+// A category is a word, not a judgement: one chip in the note ink with a control
+// contour, the word carries the category.
+const CHIP = 'border border-border-strong text-muted'
+const CATEGORY_LABEL: Record<ChangelogCategory, string> = {
+  asset: 'actif',
+  fix: 'correctif',
+  strategy: 'stratégie',
+  perf: 'perf',
+  risk: 'risque',
+  signal: 'signal',
+  deploy: 'déploiement',
 }
 
 interface ChangelogTabProps {
@@ -46,8 +51,8 @@ export default function ChangelogTab({ changelogs }: ChangelogTabProps) {
           <div className="space-y-2">
             {entries.map(entry => (
               <div key={entry.id} className="flex gap-3 items-start">
-                <span className={`text-xs px-2 py-0.5 rounded tabular-nums flex-shrink-0 ${CATEGORY_CHIP[entry.category]?.style}`}>
-                  {CATEGORY_CHIP[entry.category]?.label ?? entry.category}
+                <span className={`text-xs px-2 py-0.5 rounded tabular-nums flex-shrink-0 ${CHIP}`}>
+                  {CATEGORY_LABEL[entry.category] ?? entry.category}
                 </span>
                 <div>
                   {entry.scope_type !== 'bot' && (

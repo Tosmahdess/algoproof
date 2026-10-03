@@ -50,10 +50,10 @@ export default function BotCard({ bot, statsOverride }: { bot: BotWithStats; sta
           <span className="text-muted">{bot.exchange} · {bot.timeframe}</span>
           {hasData ? (
             <div className="text-right">
-              <span className={`tabular-nums font-bold ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+              <span className={`tabular-nums font-bold ${pct >= 0 ? 'text-foreground' : 'text-negative'}`}>
                 {fmtEur(eur)}
               </span>
-              <span className={`tabular-nums text-xs ml-1 ${pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+              <span className={`tabular-nums text-xs ml-1 ${pct >= 0 ? 'text-foreground' : 'text-negative'}`}>
                 ({fmtPct(pct)})
               </span>
             </div>

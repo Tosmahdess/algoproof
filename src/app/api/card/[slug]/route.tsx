@@ -2,10 +2,17 @@ import { ImageResponse } from 'next/og'
 import { getBotWithStats } from '@/lib/queries'
 import { getBotSimulation } from '@/lib/bot-simulation'
 import { pnlEur, fmtEur, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss } from '@/lib/display'
+import { periodOf } from '@/lib/embed-card'
+import { SITE_COLORS as C } from '@/lib/site-colors'
+import { RegimeBadge, Wordmark, plain } from '@/lib/share-image'
 
 export const runtime = 'nodejs'
 export const revalidate = 3600
 
+// The share card of a bot (finitions 2026-10-03): the site's palette, a gain in ink,
+// the regime drawn beside its word, the result dated and based like the embed, and
+// « Publié sur algoproof.fr » where it said « données vérifiées » (nobody verifies
+// these figures but me). Pinned by tests/app/share-images.test.tsx.
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ slug: string }> }
@@ -18,59 +25,51 @@ export async function GET(
   // freeze when the bot has a backtest segment, its P&L read from the simulation's start.
   const simulation = await getBotSimulation(bot)
   const stats = simulation?.stats ?? bot.stats
-  const eur = pnlEur(stats.latest_capital, simulation ? simulation.timeline.simStartCapital : bot.start_capital)
-  const isLive = bot.status === 'live'
+  const startCapital = simulation ? simulation.timeline.simStartCapital : bot.start_capital
+  const eur = pnlEur(stats.latest_capital, startCapital)
+  const tone = (loss: boolean) => (loss ? C.neg : C.text)
 
   const metrics = [
-    { label: 'WR', value: fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate), color: '#e6edf3' },
-    { label: 'PF', value: fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor), color: stats.profit_factor >= 1 ? '#3fb950' : '#ff4444' },
+    { label: 'WR', value: fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate), color: C.text },
+    { label: 'PF', value: fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor), color: tone(stats.total_trades > 0 && stats.profit_factor < 1) },
     // Red only when there is a drawdown to show; « 0.0% » is neutral (display.ts).
-    { label: 'DD', value: fmtDrawdown(stats.max_drawdown), color: drawdownIsLoss(stats.max_drawdown) ? '#ff4444' : '#e6edf3' },
-    { label: 'P&L',       value: fmtEur(eur),                                 color: eur >= 0 ? '#3fb950' : '#ff4444' },
+    { label: 'DD', value: fmtDrawdown(stats.max_drawdown), color: tone(drawdownIsLoss(stats.max_drawdown)) },
   ]
 
   return new ImageResponse(
     (
       <div style={{
         display: 'flex', flexDirection: 'column', width: '100%', height: '100%',
-        background: '#0d1117', padding: 48,
-        fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+        background: C.bg, padding: 56, color: C.text, fontFamily: 'sans-serif',
       }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36 }}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: 32, fontWeight: 700, color: '#e6edf3' }}>{bot.name}</span>
-            <span style={{ fontSize: 16, color: '#8b949e', marginTop: 6 }}>{bot.exchange} · {bot.timeframe}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 880 }}>
+            <span style={{ fontSize: 40, fontWeight: 600, lineHeight: 1.2 }}>{plain(bot.name)}</span>
+            <span style={{ fontSize: 20, color: C.muted, marginTop: 8 }}>{plain(`${bot.exchange} · ${bot.timeframe}`)}</span>
           </div>
-          <span style={{
-            fontSize: 14, fontWeight: 600, padding: '6px 14px', borderRadius: 20,
-            // Regime as a form and a word, not the gain colour (audit 2026-09-09):
-            // same glyphs and words as StatusBadge on the site.
-            color: isLive ? '#e6edf3' : '#8b949e',
-            background: isLive ? 'rgba(230,237,243,0.12)' : 'rgba(139,148,158,0.12)',
-            border: `1px ${isLive ? 'solid rgba(230,237,243,0.4)' : 'dashed rgba(139,148,158,0.4)'}`,
-          }}>
-            {isLive ? '● Argent réel' : '○ Simulation'}
-          </span>
+          <RegimeBadge status={bot.status} fontSize={20} />
         </div>
 
-        {/* Metrics */}
-        <div style={{ display: 'flex', gap: 32, marginBottom: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', marginTop: 48 }}>
+          <span style={{ fontSize: 20, color: C.muted }}>P&L</span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, marginTop: 4 }}>
+            <span style={{ fontSize: 52, fontWeight: 600, color: tone(eur < 0) }}>{plain(fmtEur(eur))}</span>
+            <span style={{ fontSize: 20, color: C.muted }}>{plain(periodOf(bot, startCapital, simulation?.timeline.simStart))}</span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', marginTop: 36, paddingTop: 24, borderTop: `1px solid ${C.border}` }}>
           {metrics.map(m => (
             <div key={m.label} style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <span style={{ fontSize: 11, color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
-                {m.label}
-              </span>
-              <span style={{ fontSize: 28, fontWeight: 700, color: m.color }}>
-                {m.value}
-              </span>
+              <span style={{ fontSize: 20, color: C.muted }}>{m.label}</span>
+              <span style={{ fontSize: 30, fontWeight: 600, color: m.color, marginTop: 4 }}>{plain(m.value)}</span>
             </div>
           ))}
         </div>
 
-        {/* Footer */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32 }}>
-          <span style={{ fontSize: 13, color: '#8b949e' }}>algoproof.fr, données vérifiées</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+          <Wordmark fontSize={24} />
+          <span style={{ fontSize: 20, color: C.muted }}>Publié sur algoproof.fr</span>
         </div>
       </div>
     ),

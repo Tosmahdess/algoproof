@@ -4,11 +4,19 @@
 // warnings, insights, or notes without breaking the flow of prose.
 //
 // Usage in MDX:
-//   <Callout type="warning" title="Scope">…</Callout>
+//   <Callout type="warning" title="Périmètre">…</Callout>
 //   <Callout type="info">…</Callout>
 //   <Callout type="insight" title="À retenir">…</Callout>
+//
+// Finitions of the « registre des décisions » redesign (2026-10-03): no label in
+// tracked capitals above the text and no coloured border on one side. The box is a
+// surface with a full 1 px rule; its label is the bold start of the first paragraph
+// (« À retenir : … »), in French and sentence case. The type only picks the default
+// label: the colour of a box never carries its meaning.
+// Pinned by tests/components/mdx/encadres.test.tsx.
 
 import type { ReactNode } from 'react'
+import { BOX, BOX_TEXT, RunIn } from './box'
 
 type CalloutType = 'info' | 'warning' | 'insight' | 'note'
 
@@ -18,28 +26,18 @@ interface CalloutProps {
   children: ReactNode
 }
 
-const styles: Record<CalloutType, {
-  border: string
-  bg: string
-  accent: string
-  label: string
-}> = {
-  info:    { border: 'border-accent/40',   bg: 'bg-accent/[0.04]',   accent: 'text-accent',   label: 'INFO' },
-  warning: { border: 'border-warning/40', bg: 'bg-warning/[0.04]', accent: 'text-warning', label: 'ATTENTION' },
-  insight: { border: 'border-positive/40', bg: 'bg-positive/[0.04]', accent: 'text-positive', label: 'INSIGHT' },
-  note:    { border: 'border-border',      bg: 'bg-card/40',         accent: 'text-muted',    label: 'NOTE' },
+const DEFAULT_LABEL: Record<CalloutType, string> = {
+  info: 'À noter',
+  warning: 'Attention',
+  insight: 'À retenir',
+  note: 'Note',
 }
 
 export function Callout({ type = 'note', title, children }: CalloutProps) {
-  const s = styles[type]
   return (
-    <aside
-      className={`not-prose my-7 border-l-2 ${s.border} ${s.bg} pl-4 pr-4 py-3 rounded-r-md`}
-    >
-      <div className={`text-xs uppercase tracking-[0.18em] ${s.accent} font-semibold mb-1.5`}>
-        {title ?? s.label}
-      </div>
-      <div className="text-sm text-foreground leading-relaxed [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-foreground [&_strong]:text-foreground [&_strong]:font-semibold">
+    <aside role="note" className={`${BOX} my-7`}>
+      <div className={BOX_TEXT}>
+        <RunIn>{title ?? DEFAULT_LABEL[type]}</RunIn>{' '}
         {children}
       </div>
     </aside>

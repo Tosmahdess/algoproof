@@ -94,11 +94,18 @@ describe('every fleet row carries its regime before the figure, on mobile too', 
 })
 
 describe('the regime is a form and a word, not the colour of the sign', () => {
-  it('uses the balance-sheet vocabulary, one glyph each', () => {
+  // 2026-10-03: the glyphs ● ○ became drawn marks (tests/components/drawn-icons.test.tsx).
+  // The rule holds: each regime has its own word, its own mark and its own border,
+  // so it never rests on a colour.
+  it('uses the balance-sheet vocabulary, one drawn mark and one border each', () => {
     render(<StatusBadge status="live" />)
     render(<StatusBadge status="paper" />)
-    expect(screen.getByText(/Argent réel/).textContent).toMatch(/●/)
-    expect(screen.getByText(/Simulation/).textContent).toMatch(/○/)
+    const live = screen.getByText(/Argent réel/)
+    const sim = screen.getByText(/Simulation/)
+    expect(live.querySelector('svg circle')!.getAttribute('fill')).toBe('currentColor')
+    expect(sim.querySelector('svg circle')!.getAttribute('fill')).toBe('none')
+    expect(sim.className).toContain('border-dashed')
+    expect(live.className).not.toContain('border-dashed')
   })
 
   it('the real-money badge does not wear the gain colour', () => {

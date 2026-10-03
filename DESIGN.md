@@ -18,7 +18,7 @@ colors:
 typography:
   display:
     fontFamily: "Schibsted Grotesk, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
-    fontSize: "34px (mobile), 44px (sm), 52px (lg)"
+    fontSize: "30px (mobile), 40px (sm), 52px (lg, token display)"
     fontWeight: 600
     lineHeight: 1.12
     letterSpacing: "-0.03em"
@@ -181,10 +181,10 @@ Une palette sombre et froide, verte au fond, où l'encre claire fait presque tou
 **Character:** Une grotesque de presse, droite et un peu serrée, qui tient aussi bien un titre qui affirme qu'une colonne de montants. Elle est auto-hébergée parce que la version Google élargissait la virgule sous `tnum` (« 272 , 73 € ») ; la copie du site, construite par `scripts/fonts/build_schibsted.py`, garde une virgule étroite dans les chiffres tabulaires.
 
 ### Hierarchy
-- **Display** (600, 34 px mobile, 44 px dès sm, 52 px dès lg, interligne 1,12, approche −0,03 em) : le titre de l'accueil seulement.
+- **Display** (600, 30 px mobile, 40 px dès sm, 52 px dès lg, interligne 1,12, approche −0,03 em) : le titre de l'accueil seulement. Les deux premiers paliers sont `3xl` et `4xl` ; le troisième est le seul jeton nommé au-dessus de l'échelle, `display` (`text-display`), réservé à ce titre.
 - **Headline** (600, 30 px puis 40 px, approche serrée) : le titre d'une fiche bot ou d'une page.
 - **Title** (600, 24 px, interligne 1,25) : titres de section h2 et titre du verdict ; 20 px pour les titres secondaires.
-- **Figure** (400 à 500, 20 px puis 30 px sur la fiche, 20 à 22 px dans les registres, chiffres tabulaires) : base, résultat, cumul.
+- **Figure** (400 à 500, 20 px puis 30 px sur la fiche et pour le compte de la bibliothèque, 20 px dans les registres, 20 puis 24 px pour les chiffres du moteur, chiffres tabulaires) : base, résultat, cumul.
 - **Body** (400, 15 px, interligne 1,55) : texte courant ; mesures de 60 à 72 ch selon le bloc.
 - **Body article** (400, 18 px, interligne 1,65, mesure 33 em, environ 66 ch) : prose des articles.
 - **Label** (400 ou 600, 13 px, interligne 1,4, casse de phrase) : légendes, en-têtes de colonnes, « Relevé du », avertissement légal.
@@ -192,7 +192,7 @@ Une palette sombre et froide, verte au fond, où l'encre claire fait presque tou
 ### Named Rules
 **The Chiffres tabulaires Rule.** Tous les chiffres s'écrivent dans la grotesque du texte avec `tabular-nums`. La monospace ne sert qu'aux identifiants (paires, tickers, noms de paramètres, code) ; le garde-fou refuse `font-mono` hors d'une liste de fichiers qui en portent un, chacun justifié.
 
-**The Plancher de 13 px Rule.** L'échelle est fermée, de 13 à 40 px, et 13 px est le plus petit texte du site. Les tailles arbitraires de 9, 10, 11, 13 et 15 px sont refusées par le garde-fou ; l'avertissement financier du pied de page est testé à 13 px et pleine opacité.
+**The Plancher de 13 px Rule.** L'échelle est fermée, de 13 à 40 px (`xs` 13, `sm` 14, `base` 15, `lg` 17, `xl` 20, `2xl` 24, `3xl` 30, `4xl` 40), plus le seul jeton `display` de 52 px pour le titre de l'accueil, et 13 px est le plus petit texte du site. Le garde-fou refuse toute taille arbitraire en pixels ou en rem (sauf les 18 px de la prose d'article) et `text-5xl` et au-delà ; l'avertissement financier du pied de page est testé à 13 px et pleine opacité.
 
 **The Sans sur-titre Rule.** Aucune étiquette en capitales espacées au-dessus d'un titre. Les capitales suivies ne sont tolérées que dans un en-tête de tableau ; un titre se suffit à lui-même, en casse de phrase.
 
@@ -272,7 +272,7 @@ La signature de la fiche bot. Une surface sapin cadrée, en deux colonnes dès 7
 Trois colonnes sous le panneau, fermées par un filet : base, résultat (avec son pourcentage en 13 px), base + résultat souligné d'un double trait. Libellés en 13 px note, montants en 20 puis 30 px tabulaires. « Relevé du … » en dessous.
 
 ### Registre
-Le motif du site : une liste ou un tableau à filets horizontaux, en-têtes de colonne en 13 px note, nom de l'enregistrement en lien record, état en 600 coloré selon le statut, résultat aligné à droite en 20 à 22 px tabulaires avec sa base et sa date en 13 px. Les trades ajoutent un cumul après chaque ligne et une ligne de total fermée par le double trait ; sous un filtre, elle dit « total de la sélection ».
+Le motif du site : une liste ou un tableau à filets horizontaux, en-têtes de colonne en 13 px note, nom de l'enregistrement en lien record, état en 600 coloré selon le statut, résultat aligné à droite en 20 px tabulaires avec sa base et sa date en 13 px. Les trades ajoutent un cumul après chaque ligne et une ligne de total fermée par le double trait ; sous un filtre, elle dit « total de la sélection ».
 
 ### Named Rules
 **The Panneau unique Rule.** Une fiche bot a un seul panneau cadré, le verdict et la décision, placé juste sous le titre, jamais plié. Tout le reste s'ouvre par un filet.

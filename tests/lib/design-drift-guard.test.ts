@@ -3,8 +3,9 @@
 // Visual-harmonisation pass of 2026-09-24: links were green, white or violet
 // depending on the card, and prose paragraphs were white, grey or 80 % white
 // depending on the page. The decision is two text colours (foreground, muted),
-// one link system (src/lib/link-roles.ts) and green reserved for profit.
-// This guard refuses the class spellings that produced the drift, anywhere in src/.
+// one link system (src/lib/link-roles.ts) and green reserved for profit. Since the
+// « registre des décisions » redesign (2026-10-02) green is the wordmark's alone and a
+// gain is ordinary ink (DESIGN.md). This guard refuses the class spellings that produced the drift, anywhere in src/.
 //
 // Lot 1 of the design audit (2026-09-25, conception C3/C5/C9/C10, material in
 // _ideas/Audit/design/04_PASS4_JETONS_ET_LOT1.md): the list grows with the rules
@@ -38,42 +39,37 @@ interface Rule {
 const CHROME_LOT_2: string[] = []
 
 const RULES: Rule[] = [
-  // C5: the brand green lives in the wordmark only. `text-brand` has the same
-  // value as `text-positive`; its own name is what lets this rule exist.
+  // C5: the brand green lives in the wordmark only. `text-brand` is the one green class
+  // left (`positive` equals `foreground` and no call site names it, see below).
   { re: /\btext-brand\b/, why: 'text-brand — the wordmark only (Nav.tsx)', sample: '<span className="text-brand">PROOF</span>', allow: ['components/Nav.tsx'] },
   { re: /(?<![\w:-])text-white\b/, why: 'text-white — use text-foreground', sample: 'className="text-white"' },
   { re: /hover:text-white\b/, why: 'hover:text-white — use a linkClass role or hover:text-foreground', sample: 'className="a hover:text-white"' },
   { re: /text-foreground\/\d+/, why: 'text-foreground/NN — prose is foreground or muted, nothing in between', sample: 'text-foreground/80' },
   { re: /\b(?:text|bg|border)-zinc-\d+/, why: 'zinc-* — use the site tokens (border, card, foreground, muted)', sample: 'border-zinc-800' },
-  { re: /hover:border-positive/, why: 'hover:border-positive — green is profit, never a hover colour', sample: 'hover:border-positive/30' },
-  { re: /(?:group-)?hover:text-positive/, why: 'hover:text-positive — green is profit, never a hover colour', sample: 'group-hover:text-positive' },
   // C9 / §3.2: the floor is 13 px (text-xs). 10 px joined the list on 2026-09-25.
   { re: /text-\[(?:9|10|11|13|15)px\]/, why: 'arbitrary text size — use text-xs / text-sm', sample: 'text-[10px]' },
-  // §3.3: three radii. Cards and buttons are rounded-lg, pills rounded, dots rounded-full.
-  { re: /\brounded-(?:xl|2xl|3xl)\b/, why: 'rounded-xl and up — cards and buttons are rounded-lg', sample: 'rounded-2xl' },
-  // C5: the primary button is foreground on bg; green is a data colour.
-  { re: /\btext-black\b/, why: 'text-black — a button on a light fill is text-bg', sample: 'bg-foreground text-black' },
+  // Finitions (2026-10-03): the scale is closed (tailwind.config.ts, DESIGN.md « Hierarchy »):
+  // 13 to 40 px, plus the named `display` size of the home title. The home and /overview
+  // still set 22, 26, 34, 35, 42, 44 and 52 px by hand, and text-5xl (48 px) is Tailwind's
+  // own step, outside the scale. Relative sizes (`text-[0.85em]`, inline code) follow
+  // their parent and stay.
   {
-    re: /(?<![\w/-])bg-positive\b(?!\/)/, why: 'solid bg-positive — green is profit, never a button or a fill',
-    sample: 'className="bg-positive text-bg"',
-    allow: [
-      'components/MiRegimeBadge.tsx', // the live pulse dot: a state, drawn as a dot
-      'components/SyncBadge.tsx',     // freshness dot
-      'components/PathToRealCard.tsx', // progress bar toward the real-money gate, a measure
-      'components/ConformityCard.tsx', // envelope status colours, a measure
-    ],
+    re: /(?<![\w-])(?:[a-z-]+:)*text-\[\d+(?:\.\d+)?(?:px|rem)\]/, why: 'off-scale text size — use a step of the closed scale',
+    sample: 'className="text-[35px] sm:text-[42px]"',
+    allow: ['app/blog/[slug]/page.tsx'], // the article prose, 18 px (DESIGN.md « Body article »)
   },
-  // C5: text-positive in a STATIC className is decoration (an eyebrow, a title line, a
-  // success message). A gain is painted through a ternary on the figure's sign, which
-  // this regex does not match. Sample: a static attribute.
-  {
-    re: /className="[^"]*\btext-positive\b[^"]*"/, why: 'static text-positive — green is a data colour, not an accent',
-    sample: '<p className="text-xs text-positive mb-2">',
-    allow: [
-      ...CHROME_LOT_2,
-      'components/ProofComparison.tsx', // comparison table, rewritten with /preuve in lot 7
-    ],
-  },
+  { re: /(?<![\w-])(?:[a-z-]+:)*text-[5-9]xl\b/, why: 'text-5xl and up — outside the closed scale; the home title is text-display', sample: 'sm:text-5xl' },
+  // Four radii (DESIGN.md « Shapes »): rounded-sm (2 px) for the regime badges and the
+  // focus ring, rounded (4 px) for buttons and controls, rounded-md (6 px) for fields,
+  // rounded-lg (8 px) for the verdict panel, the article boxes and clickable cards;
+  // dots are rounded-full. Nothing is rounder than 8 px.
+  { re: /\brounded-(?:xl|2xl|3xl)\b/, why: 'rounded-xl and up — nothing is rounder than rounded-lg (8 px)', sample: 'rounded-2xl' },
+  // The site is dark throughout: no light fill, so no black text on one. The primary
+  // button is the slate `button` fill with ink text (DESIGN.md « Buttons »).
+  { re: /\btext-black\b/, why: 'text-black — text is foreground or muted; no control has a light fill', sample: 'bg-foreground text-black' },
+  // The rules on `hover:*-positive`, a solid `bg-positive` and a static `text-positive`
+  // (2026-09-24/25) said « green is profit ». They are folded into « positive class »
+  // below: since 2026-10-03 no call site names the token at all.
   // C9: uppercase tracked labels only in table headers.
   {
     // Order-insensitive (« tracking-widest uppercase » slipped through the first
@@ -110,12 +106,39 @@ const RULES: Rule[] = [
   // C3: one spelling per metric.
   { re: /T\. gain|F\. profit/, why: '« T. gain / F. profit » — the tables say WR and PF', sample: "label: 'T. gain'" },
   { re: /'∞'|"∞"|>∞</, why: '« ∞ » — a PF with no loss is an absent figure, «—»', sample: "return '∞'" },
-  // C10: no icons. Pictographs in the UI render differently on every OS. ⚠ stays: it is
-  // a typographic sign, and the low-sample tests pin it.
+  // C10: no emoji. Pictographs render differently on every OS; the site's few icons are
+  // drawn SVGs (components/icons.tsx). ⚠ stays: it is a typographic sign, and the
+  // low-sample tests pin it.
   {
-    re: /[\u{1F300}-\u{1FAFF}\u{2705}\u{274C}\u{2714}\u{2728}\u{2B50}]/u, why: 'emoji — the site has no icons',
+    re: /[\u{1F300}-\u{1FAFF}\u{2705}\u{274C}\u{2714}\u{2728}\u{2B50}]/u, why: 'emoji — icons are drawn SVGs',
     sample: '<h2>💬 Discussion</h2>',
     allow: ['app/api/subscribe/route.ts'], // Telegram notifications to the owner, not the site
+  },
+  // Finitions (2026-10-03): a gain is ordinary ink and green is the wordmark's
+  // (DESIGN.md, « The Gain à l'encre Rule »). The `positive` token still exists for
+  // the config's history but equals `foreground`; a call site names the ink
+  // directly, so no class can read as « green means profit » again. Tailwind's
+  // own greens and the GitHub green of the old cards are refused outright.
+  {
+    re: /(?<![\w-])(?:[a-z-]+:)*(?:text|bg|border|fill|stroke|ring|from|to|via|decoration|divide|outline)-positive\b/,
+    why: 'positive class — a gain is text-foreground; green is the wordmark',
+    sample: "className={pct >= 0 ? 'text-positive' : 'text-negative'}",
+  },
+  {
+    re: /\b(?:[a-z-]+:)*(?:text|bg|border|fill|stroke|ring|from|to|via|decoration|divide|outline)-(?:green|emerald|lime)-\d/,
+    why: 'Tailwind green — green is the wordmark only',
+    sample: "style: 'bg-green-900/40 text-green-300'",
+  },
+  {
+    re: /#(?:3fb950|22c55e|16a34a|10b981|34d399|2ea043)\b/i,
+    why: 'green hex — a gain is ink; the wordmark green is #4ade80, in the wordmark only',
+    sample: "const pnlColor = pnlPct >= 0 ? '#3fb950' : '#ff4444'",
+  },
+  // Finitions (2026-10-03): the regime marks and the favourite star are drawn
+  // (components/icons.tsx). A glyph in their place renders in each OS's fallback font.
+  {
+    re: /[●○◌☆★]/u, why: 'icon glyph — draw it (components/icons.tsx, lib/regime-mark.ts)',
+    sample: "<span aria-hidden=\"true\">☆</span>",
   },
 ]
 
@@ -132,7 +155,8 @@ describe('design drift guard', () => {
   it('does not fire on the canonical spellings', () => {
     const ok = [
       'text-foreground', 'text-muted', 'group-hover:text-accent', 'text-xs', 'rounded-lg', 'rounded-full',
-      'bg-positive/10', "className={`tabular-nums ${pct >= 0 ? 'text-positive' : 'text-negative'}`}", '[&_code]:font-mono',
+      'bg-card-2', "className={`tabular-nums ${pct < 0 ? 'text-negative' : 'text-foreground'}`}", '[&_code]:font-mono',
+      "style={{ color: '#4ade80' }}>Proof", 'text-negative',
       '<th className="text-xs uppercase tracking-wider text-muted">', '<tr className="text-muted uppercase tracking-wider border-b">',
       'stroke: familyColor(family)',
       'Échantillon faible ⚠', 'bg-foreground text-bg',

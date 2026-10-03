@@ -81,8 +81,8 @@ export default function CryptoTaxCalculator() {
           ) : (
             <>
               <div className="flex justify-between"><span className="text-muted">Plus-value</span><span data-testid="gain" className="tabular-nums text-foreground">{eur(r.gain)}</span></div>
-              <div className="flex justify-between"><span className="text-muted">Flat tax (31,4 %)</span><span className={`tabular-nums ${r.best === 'flat' ? 'text-positive' : 'text-muted'}`}>{eur(r.flat)}</span></div>
-              <div className="flex justify-between"><span className="text-muted">Au barème (TMI + 18,6 %)</span><span className={`tabular-nums ${r.best === 'bareme' ? 'text-positive' : 'text-muted'}`}>{eur(r.bareme)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Flat tax (31,4 %)</span><span className={`tabular-nums ${r.best === 'flat' ? 'text-foreground' : 'text-muted'}`}>{eur(r.flat)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Au barème (TMI + 18,6 %)</span><span className={`tabular-nums ${r.best === 'bareme' ? 'text-foreground' : 'text-muted'}`}>{eur(r.bareme)}</span></div>
               {r.exempt && <p className="text-foreground">Total des cessions ≤ 305 € → <strong>exonéré</strong> cette année.</p>}
               <div className="flex justify-between border-t border-border pt-2">
                 <span className="font-semibold text-foreground">Impôt estimé</span>

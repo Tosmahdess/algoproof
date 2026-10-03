@@ -10,7 +10,7 @@ const ROWS: { label: string; algoproof: boolean; botshop: boolean }[] = [
 
 function Cell({ ok }: { ok: boolean }) {
   return ok
-    ? <span className="text-positive font-bold" aria-label="oui">✓</span>
+    ? <span className="text-foreground font-bold" aria-label="oui">✓</span>
     : <span className="text-negative font-bold" aria-label="non">✗</span>
 }
 
@@ -21,7 +21,7 @@ export default function ProofComparison() {
         <thead>
           <tr className="border-b border-border bg-card/50 text-left">
             <th className="px-4 py-3 font-medium text-muted"></th>
-            <th className="px-4 py-3 text-center font-semibold text-positive">AlgoProof</th>
+            <th className="px-4 py-3 text-center font-semibold text-foreground">AlgoProof</th>
             <th className="px-4 py-3 text-center font-medium text-muted">Bot-shop / signal-shop typique</th>
           </tr>
         </thead>

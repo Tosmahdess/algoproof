@@ -87,8 +87,8 @@ const NAV_ACTIVE = `text-foreground transition-colors ${FOCUS}`
  * The classes for a link of this role, plus whatever layout the call site adds.
  *
  * `extra` is for position and spacing (`mt-3`, `block`, `flex-1`) — never for
- * colour or decoration. Passing `text-positive` here would defeat the point:
- * green means profit on these two sites, and a green link reads as a gain.
+ * colour or decoration. A colour passed here would defeat the point: the role
+ * alone says what a link looks like, never the colour of a figure.
  */
 export function linkClass(
   role: LinkRole,

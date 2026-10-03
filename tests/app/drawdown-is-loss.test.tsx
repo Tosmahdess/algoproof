@@ -47,6 +47,7 @@ import HomePage from '@/app/page'
 import BotTable from '@/components/BotTable'
 import MetricsRow from '@/components/MetricsRow'
 import { GET as embedGET } from '@/app/embed/[slug]/route'
+import { EMBED_COLORS } from '@/lib/embed-card'
 import { GET as cardGET } from '@/app/api/card/[slug]/route'
 
 describe('drawdownIsLoss reads the figure the reader sees', () => {
@@ -105,9 +106,9 @@ describe('no surface paints « 0.0% » red', () => {
       document.body.innerHTML = await res.text()
     }
     await embed('zero-dd')
-    expect(screen.getByText(/0,0 %/)).not.toHaveStyle({ color: '#ff4444' })
+    expect(screen.getByText(/0,0 %/)).not.toHaveStyle({ color: EMBED_COLORS.neg })
     await embed('real-dd')
-    expect(screen.getByText(/8,4 %/)).toHaveStyle({ color: '#ff4444' })
+    expect(screen.getByText(/8,4 %/)).toHaveStyle({ color: EMBED_COLORS.neg })
     document.body.innerHTML = ''
   })
 
@@ -129,12 +130,13 @@ describe('no surface paints « 0.0% » red', () => {
     await cardGET(req, { params: Promise.resolve({ slug: 'zero-dd' }) })
     await cardGET(req, { params: Promise.resolve({ slug: 'real-dd' }) })
     expect(composed).toHaveLength(2)
-    const zero = find(composed[0], '0,0 %')
-    const real = find(composed[1], '8,4 %')
+    // The images write ordinary spaces (Satori, share-images.test.tsx).
+    const zero = find(composed[0], '0,0 %')
+    const real = find(composed[1], '8,4 %')
     expect(zero, 'the zero drawdown must be on the card').toBeTruthy()
     expect(real, 'the real drawdown must be on the card').toBeTruthy()
-    expect(zero!.props!.style!.color).not.toBe('#ff4444')
-    expect(real!.props!.style!.color).toBe('#ff4444')
+    expect(zero!.props!.style!.color).not.toBe(EMBED_COLORS.neg)
+    expect(real!.props!.style!.color).toBe(EMBED_COLORS.neg)
   })
 })
 

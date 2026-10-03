@@ -62,7 +62,7 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
         { question: 'Le trading est-il en argent réel ?', answer: 'La plupart des bots sont en simulation sur données réelles, frais et slippage compris. Les bots qui tournent avec mon argent sont marqués « Argent réel », et leur total ne se mélange jamais à celui de la simulation.' },
       ])} />
       <header className="mb-8 sm:mb-10">
-        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">La flotte</h1>
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">La flotte</h1>
         <p className="text-base sm:text-lg text-muted mt-3 max-w-[60ch]">
           Ce qui tourne, avec quel argent, et ce que ça donne.
           {f && <>{' '}<span data-testid="fleet-fresh">{f}</span></>}

@@ -4,7 +4,7 @@ import Link from 'next/link'
 export default function NotFound() {
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 px-6 text-center">
-      <p className="tabular-nums text-5xl text-muted">404</p>
+      <p className="tabular-nums text-4xl text-muted">404</p>
       <h1 className="text-xl font-semibold">Cette page n&apos;existe pas</h1>
       <p className="text-sm text-muted max-w-md">
         Le lien est peut-être périmé, ou la page a changé d&apos;adresse.

@@ -21,6 +21,7 @@
 // lab button and its small print (the nav keeps « Le labo », cta_lab location nav),
 // the fleet link (the register right below links it twice), /investir#methode, and
 // the mark above the headline (the bar names the site).
+import tailwindConfig from '../../tailwind.config'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import { readFileSync, existsSync } from 'node:fs'
@@ -80,12 +81,17 @@ describe('/ — the home opens on both activities, not on the lab alone', () => 
   // a flat text-5xl headline wrapped to FIVE lines, 240 px tall, and pushed the
   // first entry to 613 px -- below the fold of a 664 px screen. The headline is
   // sized per breakpoint, the phone size first. Refonte lot 2: the mock-up's
-  // sizes, 34 px on a phone, 52 px on a computer.
+  // sizes, 34 px on a phone, 52 px on a computer. Finitions (2026-10-03): on the
+  // closed scale, 30 px on a phone (3xl), 40 px from 640 px (4xl) and the named
+  // display size, 52 px, from 1 024 px.
   it('the headline is sized for a phone before it is sized for a desktop', async () => {
     render(await HomePage())
     const cls = screen.getByRole('heading', { level: 1 }).className
-    expect(cls, cls).toMatch(/(^|\s)text-\[34px\](\s|$)/)
-    expect(cls, cls).toMatch(/(^|\s)lg:text-\[52px\](\s|$)/)
+    expect(cls, cls).toMatch(/(^|\s)text-3xl(\s|$)/)
+    expect(cls, cls).toMatch(/(^|\s)sm:text-4xl(\s|$)/)
+    expect(cls, cls).toMatch(/(^|\s)lg:text-display(\s|$)/)
+    const sizes = tailwindConfig.theme?.extend?.fontSize as Record<string, [string, unknown]>
+    expect(sizes.display[0]).toBe('52px')
   })
 
   it('the hero says what I publish on both sides', async () => {

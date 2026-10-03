@@ -20,7 +20,9 @@ import { join } from 'node:path'
 // Refonte registre, lot 1 (2026-10-02): the focus ring went from 2 px at 60 % to
 // 3 px at full accent. The lab's copy has NOT followed yet: copy link-roles.ts
 // there and paste this digest into its twin test.
-const TWIN_SHA256 = '939d91365ad2e60a8acea26921ba4d180e24ceefc2425a0929946a881b0edd18'
+// Finitions (2026-10-03): one comment of linkClass() said « green means profit »;
+// it now says green belongs to the wordmark. Same pending copy to the lab, new digest.
+const TWIN_SHA256 = '31c3c61dd0328306e5ee306919e83e2a9131b0bfdb065c99d9074ad6229aef0f'
 
 describe('link-roles.ts and its twin in the other repo', () => {
   it('still matches the digest both sides assert', () => {

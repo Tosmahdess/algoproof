@@ -18,7 +18,7 @@ export type DrawdownTone = 'breach' | 'watch' | 'neutral'
 
 interface Metric { label: string; value: string; tone?: 'loss' | 'warn' | 'gain' }
 
-const TONE = { loss: 'text-negative', warn: 'text-warning', gain: 'text-positive' } as const
+const TONE = { loss: 'text-negative', warn: 'text-warning', gain: 'text-foreground' } as const
 
 function Figure({ label, value, tone }: Metric) {
   return (

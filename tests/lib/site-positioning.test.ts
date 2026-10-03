@@ -80,7 +80,8 @@ describe('the five machine surfaces name both activities', () => {
   // cover exactly that. It said « Trading algo vérifié » alone.
   it('the OpenGraph card tagline names both', () => {
     const og = collapse(read('src/app/opengraph-image.tsx'))
-    const m = og.match(/fontSize: .28px.[^>]*>\s*([^<]+?)\s*</)
+    // 30 px since the finitions of 2026-10-03 (a step of the closed scale, was 28).
+    const m = og.match(/fontSize: .30px.[^>]*>\s*([^<]+?)\s*</)
     expect(m, 'the OG tagline').toBeTruthy()
     expect(m![1], m![1]).toMatch(STRATEGIES)
     expect(m![1], m![1]).toMatch(COMPTES)

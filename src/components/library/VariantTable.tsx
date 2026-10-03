@@ -30,7 +30,7 @@ export interface VariantRow {
 const PAGE = 25
 
 const TONE: Record<VariantRow['stateTone'], string> = {
-  run: 'text-positive', stop: 'text-negative', wait: 'text-muted',
+  run: 'text-foreground', stop: 'text-negative', wait: 'text-muted',
 }
 
 // Real money is labelled as such and never mixed with the simulation (rule R1). Counted
@@ -42,7 +42,7 @@ function Sim({ v }: { v: VariantRow }) {
   const head = `${what} depuis le lancement : ${v.simTrades} trades`
   if (v.simSign === 'young') return <span className="text-muted">{`${head}, trop jeune`}</span>
   return (
-    <span className={v.simSign === 'up' ? 'text-positive' : 'text-negative'}>
+    <span className={v.simSign === 'up' ? 'text-foreground' : 'text-negative'}>
       {`${head}, ${v.simSign === 'up' ? 'au-dessus de zéro' : 'à zéro ou en dessous'}`}
     </span>
   )
