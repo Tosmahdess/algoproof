@@ -18,7 +18,8 @@ import { join, relative } from 'node:path'
 // Buttons and CTAs are deliberately NOT part of the link system: a <Link>
 // dressed as a button takes the button's colours. That is why `text-positive`
 // is only refused when it is a TEXT colour — beside `border-` or `bg-` it is a
-// button, and a button may be green.
+// button. Since 2026-10-03 no call site names `positive` at all (design-drift-guard),
+// and the buttons are the slate `button` fill, never green.
 
 const ROOT = join(__dirname, '..', '..')
 const LINK_TAGS = new Set(['Link', 'a', 'TrackedLink'])
@@ -59,7 +60,7 @@ function violations(): Violation[] {
             if (/text-accent|underline/.test(cls)) {
               found.push({ where, tag, cls: flat, why: 'dressed by hand — use linkClass(role)' })
             } else if (/text-positive/.test(cls) && !/border-|bg-/.test(cls)) {
-              found.push({ where, tag, cls: flat, why: 'green is profit on this site, never a link colour' })
+              found.push({ where, tag, cls: flat, why: 'a gain colour is never a link colour; green is the wordmark only' })
             }
           }
         }
