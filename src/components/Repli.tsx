@@ -75,9 +75,6 @@ export default function Repli({
   toujoursPliable?: boolean
   titreClassName?: string
   corpsClassName?: string
-  /** Ignored: the chevron is always drawn since 2026-10-03 (icons are drawn,
-   *  never a glyph). Kept until /investir stops passing it. */
-  chevronTrace?: boolean
   children: ReactNode
 }) {
   const [ouvert, setOuvert] = useState(ouvertParDefaut)
