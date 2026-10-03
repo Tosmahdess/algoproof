@@ -24,17 +24,17 @@ import { linkClass } from '@/lib/link-roles'
 
 const n = (v: number) => frNumber(v, 0)
 
-const STEP = 'grid grid-cols-1 gap-x-8 gap-y-1 border-t border-border py-4 md:grid-cols-[11ch_minmax(0,1fr)] md:items-baseline'
+const STEP = 'grid grid-cols-1 gap-x-8 gap-y-1 border-t border-border py-4 md:grid-cols-[13rem_minmax(0,1fr)] md:items-baseline'
 const FIGURE = 'whitespace-nowrap text-2xl font-medium tabular-nums md:text-right md:text-[28px]'
 
 // Between two steps: a downward chevron under the figures, drawn, never typed, so it is not
 // read aloud (DESIGN.md: icons are drawn, in the note ink).
 function Down() {
   return (
-    <li aria-hidden="true" className="md:grid md:grid-cols-[11ch_minmax(0,1fr)] md:gap-x-8">
+    <li aria-hidden="true" className="md:grid md:grid-cols-[13rem_minmax(0,1fr)] md:gap-x-8">
       <svg data-testid="engine-down" aria-hidden="true" focusable="false" viewBox="0 0 12 12" fill="none"
            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-           className="my-1 h-3 w-3 text-muted md:justify-self-end md:mr-[3ch]">
+           className="my-1 h-3 w-3 text-muted md:justify-self-end md:mr-12">
         <path d="M2 4.5 6 8.5l4-4" />
       </svg>
     </li>
