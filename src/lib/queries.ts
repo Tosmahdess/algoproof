@@ -9,7 +9,6 @@ import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
 import { Bot, BotWithStats, PerfDaily, Trade, TradeWithBot, MiSnapshot, TriggerData, BotChangelog } from './types'
 import { getStartCapital } from './start-capitals'
-import { isCarryFamily } from './display'
 import { paginateAll } from './paginate'
 import { mapWithConcurrency } from './concurrency'
 import type { AggregateTradeRow } from './fleet-aggregate'
@@ -413,14 +412,21 @@ export async function getLiveBots(): Promise<LiveBot[]> {
 // getAllTradesForAggregate already reads them through the public client.
 export async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
   // Carry bots (grid, funding harvest) micro-rotate dozens of times a day and
-  // archived bots are dead: both would flood the global feed. Fetch a wider
-  // window, filter, then keep the newest `limit`.
+  // archived bots are dead: both would flood the global feed. Filtered IN the
+  // query (inner embed: the embedded filters drop the trade): reading 5x then
+  // filtering in TS served 8 lines on 2026-10-04, 70 of the 100 newest being
+  // carry (lot 1b, D094). The `or` keeps a bot with no family, as the TS filter
+  // did (`neq` alone would drop a NULL family). `id` breaks ties on closed_at so two
+  // reads serve the same 20.
   const { data, error } = await supabase
     .from('trades')
-    .select('id,opened_at,closed_at,asset,side,pnl,reason,bots(name,slug,family,status)')
+    .select('id,opened_at,closed_at,asset,side,pnl,reason,bots!inner(name,slug,family,status)')
     .not('closed_at', 'is', null)
+    .neq('bots.status', 'archived')
+    .or('family.is.null,family.neq.carry', { referencedTable: 'bots' })
     .order('closed_at', { ascending: false })
-    .limit(limit * 5)
+    .order('id', { ascending: false })
+    .limit(limit)
   // Degrade to an empty feed rather than taking the whole page down: unlike the
   // aggregate (where a partial fetch would publish a WRONG total), an absent
   // feed states nothing false. Note what an empty return actually does on the
@@ -432,9 +438,7 @@ export async function getRecentTrades(limit = 20): Promise<TradeWithBot[]> {
     console.error('[getRecentTrades]', error.message)
     return []
   }
-  return ((data ?? []) as unknown as TradeWithBot[])
-    .filter(t => !isCarryFamily(t.bots?.family) && t.bots?.status !== 'archived')
-    .slice(0, limit)
+  return (data ?? []) as unknown as TradeWithBot[]
 }
 
 // `getWealthCalls` et `getAssetPrices` retirées le 2026-09-14. Aucune des deux
