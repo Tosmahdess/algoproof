@@ -61,9 +61,12 @@ export default function FleetOverview({
   // trade of every bot), never perf_daily, never recent_trades, never the
   // expectations file.
   const registerBots: LedgerBot[] = [...live, ...paper, ...archived].map(b => {
-    const { perf_daily, list_perf_daily, recent_trades: _rt, all_trades, ...rest } = b
+    const { perf_daily, list_perf_daily, all_trades } = b
     return {
-      ...rest,
+      id: b.id, slug: b.slug, name: b.name, status: b.status, family: b.family,
+      exchange: b.exchange, timeframe: b.timeframe, assets: b.assets,
+      start_capital: b.start_capital, engine_unit_key: b.engine_unit_key,
+      strategy: b.strategy, stats: b.stats,
       ...registerSlices({ ...b, all_trades }, initialState.asset),
       // an engine bot's row reads its simulation, like its figures (D073)
       spark30: last30Capital(list_perf_daily ?? perf_daily),
