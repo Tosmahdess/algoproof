@@ -58,8 +58,22 @@ export default function EngineLedger({ counts }: { counts: FunnelCounts | null }
       </div>
 
       <div>
+        {/* The total first, as its own line (owner, 03/10). Named « recensées », never
+            « testées » (funnel.ts) nor « recalées » (D059), and kept out of the addition below. */}
+        <dl data-testid="engine-swept" className="mb-4">
+          <div className={`${ROW} md:border-t-0 md:pt-0`}>
+            <dt className="font-semibold">Configurations recensées</dt>
+            <dd className={`${FIGURE} font-semibold`}>{n(counts.n_swept)}</dd>
+            <dd className="col-span-2 mt-1 text-xs text-muted">
+              Toutes celles que mon moteur a énumérées. Je n’en juge qu’une partie
+              {unjudged > 0
+                ? <>{' '}: les{' '}<span className="tabular-nums">{n(unjudged)}</span>{' '}autres n’ont pas de verdict : je ne les compte pas comme recalées.</>
+                : '.'}
+            </dd>
+          </div>
+        </dl>
         <dl data-testid="engine-ledger">
-          <div data-testid="engine-row" className={`${ROW} md:border-t-0 md:pt-0`}>
+          <div data-testid="engine-row" className={ROW}>
             <dt className="font-semibold">Recalées</dt>
             <dd className={FIGURE}>{n(counts.n_no_go)}</dd>
             <dd className="col-span-2 mt-1 text-xs text-muted">Je publie le motif de chacune.</dd>
@@ -79,14 +93,8 @@ export default function EngineLedger({ counts }: { counts: FunnelCounts | null }
             <dd className={`${FIGURE} font-semibold`}>{n(counts.n_judged)}</dd>
           </div>
         </dl>
-        {/* Outside the addition, in words: the swept corpus, then what these counts are not. */}
+        {/* What these counts are not. */}
         <p data-testid="engine-outside" className="mt-3 text-xs leading-relaxed text-muted">
-          {unjudged > 0 && (
-            <>
-              Hors de cette addition : mon moteur a recensé{' '}<span className="tabular-nums text-foreground">{n(counts.n_swept)}</span>{' '}configurations,
-              et les{' '}<span className="tabular-nums">{n(unjudged)}</span>{' '}qu’il n’a pas jugées n’ont pas de verdict. Je ne les compte pas comme recalées.{' '}
-            </>
-          )}
           Ces nombres comptent des configurations. Mes bots et les variantes de la bibliothèque se comptent à part.
         </p>
       </div>

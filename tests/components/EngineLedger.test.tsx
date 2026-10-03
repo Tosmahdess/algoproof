@@ -30,12 +30,18 @@ describe('EngineLedger', () => {
     expect(document.body.innerHTML).not.toMatch(/text-\[(3\d|4\d)px\]|text-[34]xl/)
   })
 
-  it('keeps the swept corpus out of the sum and never calls it rejected', () => {
+  // Owner, 03/10: the total must be visible, not a footnote. It heads the block as its own
+  // line, named « recensées » (funnel.ts: « testées » was retired for this corpus), and it
+  // stays out of the addition: most of it was never judged, so it is never « recalé ».
+  it('heads the block with the swept total, out of the sum, never called tested or rejected', () => {
     render(<EngineLedger counts={COUNTS} />)
+    const swept = screen.getByTestId('engine-swept')
+    expect(swept.textContent!.replace(/\s/g, ' ')).toMatch(/Configurations recensées ?51 339 525/)
+    expect(swept.textContent!.replace(/\s/g, ' ')).toMatch(/49 195 448 autres n’ont pas de verdict : je ne les compte pas comme recalées/)
+    expect(swept.textContent).not.toMatch(/testées/)
     expect(within(screen.getByTestId('engine-ledger')).queryByText(/recens/)).toBeNull()
-    const outside = screen.getByTestId('engine-outside').textContent!.replace(/\s/g, ' ')
-    expect(outside).toMatch(/recensé 51 339 525 configurations, et les 49 195 448 qu’il n’a pas jugées n’ont pas de verdict/)
-    expect(outside).toMatch(/Je ne les compte pas comme recalées/)
+    expect(swept.compareDocumentPosition(screen.getByTestId('engine-ledger')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByTestId('engine-outside').textContent).toMatch(/Mes bots et les variantes de la bibliothèque se comptent à part/)
   })
 
   it('renders nothing without a judged denominator, and no ratio without a candidate', () => {
