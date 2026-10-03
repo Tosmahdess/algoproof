@@ -119,7 +119,7 @@ export default async function IntelligencePage() {
       <section aria-labelledby="sept-jours" className="border-t border-border pt-8 sm:pt-10">
         <h2 id="sept-jours" className="text-2xl font-semibold tracking-tight">Les sept derniers jours</h2>
         <p className="mt-2 mb-5 max-w-[68ch] text-muted">
-          {`Le score global, ${scaleText()}, relevé toutes les 30 minutes. Les filets pointillés marquent ${signedInt(ENTRY_FLOOR)} et ${signedInt(-ENTRY_FLOOR)}, les seuils de peur et d’avidité ; sous ${signedInt(ENTRY_FLOOR)}, mes bots n’entrent plus.`}
+          {`Le score global, ${scaleText()}, relevé toutes les 30 minutes. Les filets pointillés marquent ${signedInt(ENTRY_FLOOR)} et ${signedInt(-ENTRY_FLOOR)}, les seuils de peur et d’avidité${NARROW_NBSP}; sous ${signedInt(ENTRY_FLOOR)}, mes bots n’entrent plus.`}
         </p>
         <MiHistoryChart data={miHistory} />
       </section>
@@ -178,7 +178,7 @@ export default async function IntelligencePage() {
             prose-headings:text-foreground prose-headings:tracking-tight
             prose-p:text-sm prose-p:text-foreground prose-p:leading-relaxed prose-li:text-sm
             prose-strong:text-foreground prose-hr:border-border
-            prose-blockquote:border-border prose-blockquote:text-muted prose-blockquote:not-italic">
+            prose-blockquote:border-l-0 prose-blockquote:pl-0 prose-blockquote:font-normal prose-blockquote:text-muted prose-blockquote:not-italic">
             {reportContent}
           </div>
         ) : (

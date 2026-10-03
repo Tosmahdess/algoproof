@@ -81,5 +81,7 @@ describe('yDomain', () => {
     expect(yDomain([10, -20, 48])).toBe(50)
     expect(yDomain([10, -71])).toBe(80)
     expect(yDomain([null, 120])).toBe(100)
+    // A line at +50 would run along the frame's edge.
+    expect(yDomain([50])).toBe(60)
   })
 })

@@ -47,11 +47,12 @@ export function dayTicks(times: readonly number[]): number[] {
   return ticks
 }
 
-/** Half-height of the Y frame: ±50 when everything fits, else the next ten above. */
+/** Half-height of the Y frame: ±50 when everything stays inside it, else the next ten
+ *  strictly above, so a line never runs along the frame's edge. */
 export function yDomain(values: readonly (number | null | undefined)[]): number {
   let max = 0
   for (const v of values) if (v != null && Number.isFinite(v)) max = Math.max(max, Math.abs(v))
-  return Math.min(100, Math.max(50, Math.ceil(max / 10) * 10))
+  return max < 50 ? 50 : Math.min(100, Math.floor(max / 10) * 10 + 10)
 }
 
 function ChartTooltip({ active, payload, label, pillar }: {
