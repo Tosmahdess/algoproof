@@ -27,27 +27,43 @@ function withStartCapital<T extends { slug: string }>(row: T): T & { start_capit
 const PUBLIC_STATUS_EXCLUSION = '("frozen","backtest")'
 
 export async function getBots(): Promise<Bot[]> {
-  const { data, error } = await supabase
-    .from('bots')
-    // NOTE: this must stay a single string literal, not a `+` concatenation — supabase-js
-    // parses the select list from the literal type of the argument to type the result rows,
-    // and concatenation widens it to `string`, which degrades every row to a typed error.
-    .select(
-      'id,slug,name,strategy,status,family,exchange,venue,assets,timeframe,description,created_at,last_sync_at,origin,found_at,validated_at,paper_since,live_since,frozen_at,archived_at,engine_unit_key,rejudge_status'
-    )
-    .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
-    .order('name')
-  if (error) throw new Error(error.message)
-  return (data ?? []).map(withStartCapital) as Bot[]
+  // Paged: PostgREST answers 1 000 rows per request whatever .limit() asks, and the
+  // library grows by lots of 100-200 public bots (lot 1b, D094) -- past 1 000 the bots
+  // late in the order would vanish from every list with nothing failing. The order must
+  // be total for pages to be stable: names repeat, so slug breaks the ties.
+  const rows = await paginateAll(async (from, to) => {
+    const { data, error } = await supabase
+      .from('bots')
+      // NOTE: this must stay a single string literal, not a `+` concatenation — supabase-js
+      // parses the select list from the literal type of the argument to type the result rows,
+      // and concatenation widens it to `string`, which degrades every row to a typed error.
+      .select(
+        'id,slug,name,strategy,status,family,exchange,venue,assets,timeframe,description,created_at,last_sync_at,origin,found_at,validated_at,paper_since,live_since,frozen_at,archived_at,engine_unit_key,rejudge_status'
+      )
+      .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
+      .order('name')
+      .order('slug')
+      .range(from, to)
+    if (error) throw new Error(error.message)
+    return data ?? []
+  })
+  return rows.map(withStartCapital) as Bot[]
 }
 
 export async function getBotSlugs(): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('bots')
-    .select('slug')
-    .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
-  if (error) throw new Error(error.message)
-  return (data ?? []).map(r => r.slug)
+  // Paged and ordered for the same reason as getBots: it feeds the sitemap, the fiches'
+  // static params and the concept-page redirects.
+  const rows = await paginateAll(async (from, to) => {
+    const { data, error } = await supabase
+      .from('bots')
+      .select('slug')
+      .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
+      .order('slug')
+      .range(from, to)
+    if (error) throw new Error(error.message)
+    return data ?? []
+  })
+  return rows.map(r => r.slug)
 }
 
 /** The whole trade row. The bot fiche renders entry/exit prices and reasons. */

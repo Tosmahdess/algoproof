@@ -192,6 +192,8 @@ export async function getFunnelCounts(): Promise<FunnelCounts | null> {
           // display: without them this query cannot tell a re-swept rung from a
           // second campaign, which is how it came to over-count by 250 768.
           .select('base,tf,kmax,dataset_version,n_behaviors,n_go,n_marginal,n_no_go,published_at')
+          // A total order, or the pages of paginateAll may overlap or skip rows.
+          .order('base').order('tf').order('dataset_version').order('kmax')
           .range(from, to)
         if (error) throw new Error(error.message)
         return data ?? []
