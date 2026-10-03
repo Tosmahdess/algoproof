@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import CryptoTaxCalculator from '@/components/CryptoTaxCalculator'
+import { EXEMPTION_CESSION_EUR, fmtRate, PFU_FLAT_RATE, SOCIAL_RATE } from '@/lib/crypto-tax'
 
 function fill(invested: string, sold: string) {
   fireEvent.change(screen.getByLabelText(/total investi/i), { target: { value: invested } })
@@ -87,5 +88,18 @@ describe('CryptoTaxCalculator', () => {
     const status = screen.getByRole('status')
     fill('1000', '1500')
     expect(status.contains(screen.getByTestId('tax-due'))).toBe(true)
+  })
+
+  // Brief « aucun chiffre tapé à la main »: the rates and the threshold come from
+  // src/lib/crypto-tax.ts, so the labels cannot drift from the computation.
+  it('writes its rates and threshold from the constants it computes with', () => {
+    render(<CryptoTaxCalculator />)
+    fill('100', '300')
+    const text = document.body.textContent!.replace(/\s+/g, ' ')
+    expect(text).toContain(`Flat tax (${fmtRate(PFU_FLAT_RATE)})`.replace(/\s+/g, ' '))
+    expect(text).toContain(`+ ${fmtRate(SOCIAL_RATE)}`.replace(/\s+/g, ' '))
+    expect(text).toContain(`${EXEMPTION_CESSION_EUR}`)
+    // drawn icons only: no arrow glyph standing for « donc »
+    expect(text).not.toMatch(/[→↗]/)
   })
 })

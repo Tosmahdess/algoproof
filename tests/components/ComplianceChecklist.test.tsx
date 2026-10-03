@@ -1,19 +1,21 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import ComplianceChecklist from '@/components/ComplianceChecklist'
 
 describe('ComplianceChecklist', () => {
   it('renders all four compliance items', () => {
     render(<ComplianceChecklist />)
-    expect(screen.getAllByRole('checkbox').length).toBe(4)
-    expect(screen.getByText(/exchange agréé/i)).toBeTruthy()
+    expect(screen.getAllByRole('listitem').length).toBe(4)
+    expect(screen.getByText(/plateforme agréée/i)).toBeTruthy()
     expect(screen.getByText(/3916/i)).toBeTruthy()
   })
-  it('toggles an item when clicked', () => {
+
+  // Refonte de /mica (2026-10-03): the four checkboxes remembered nothing and
+  // struck the line through when ticked (audit 2026-10: « cases à cocher », a
+  // generic page). The list is now four lines of a register, each with its reason;
+  // the former « toggles an item » test went with the checkbox it described.
+  it('is a plain list, with no checkbox', () => {
     render(<ComplianceChecklist />)
-    const first = screen.getAllByRole('checkbox')[0] as HTMLInputElement
-    expect(first.checked).toBe(false)
-    fireEvent.click(first)
-    expect(first.checked).toBe(true)
+    expect(screen.queryAllByRole('checkbox')).toHaveLength(0)
   })
 })

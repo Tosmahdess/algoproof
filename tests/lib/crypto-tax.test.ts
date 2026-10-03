@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   capitalGain, isExempt, flatTax, baremeTax, compare,
-  PFU_FLAT_RATE, SOCIAL_RATE, EXEMPTION_CESSION_EUR, parseAmount,
+  PFU_FLAT_RATE, SOCIAL_RATE, EXEMPTION_CESSION_EUR, parseAmount, fmtRate,
 } from '@/lib/crypto-tax'
 
 describe('crypto-tax constants', () => {
@@ -99,5 +99,16 @@ describe('parseAmount', () => {
     for (const s of ['abc', '12abc', '1,2,3', '1..2', ',', '.', '1e5', 'Infinity', 'NaN', '1 0 0 0,0,0']) {
       expect(parseAmount(s), s).toEqual({ ok: false, reason: 'invalid' })
     }
+  })
+})
+
+// The rates printed on /mica are read from the constants above, never typed in the copy
+// (brief « aucun chiffre tapé à la main »): when the CSG moves again, one line changes.
+describe('fmtRate', () => {
+  it('writes a rate the French way, with a no-break space before %', () => {
+    expect(fmtRate(PFU_FLAT_RATE)).toBe('31,4 %')
+    expect(fmtRate(SOCIAL_RATE)).toBe('18,6 %')
+    expect(fmtRate(0.11)).toBe('11 %')
+    expect(fmtRate(0)).toBe('0 %')
   })
 })

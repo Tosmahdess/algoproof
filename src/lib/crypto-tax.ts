@@ -67,3 +67,9 @@ export function parseAmount(raw: string): ParsedAmount {
   const value = Number(normalized)
   return Number.isFinite(value) ? { ok: true, value } : { ok: false, reason: 'invalid' }
 }
+
+/** « 31,4 % » : a rate as /mica prints it, read from the constants above so the copy
+ *  cannot drift from the computation. No-break space before the sign. */
+export function fmtRate(rate: number): string {
+  return `${(rate * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} %`
+}
