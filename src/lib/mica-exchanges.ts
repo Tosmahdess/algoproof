@@ -1,4 +1,4 @@
-import { BYBIT_AFFILIATE_URL, HL_AFFILIATE_URL } from './affiliates'
+import { BYBIT_AFFILIATE_URL, HYPERLIQUID_URL } from './affiliates'
 
 export interface MicaExchange {
   name: string
@@ -28,5 +28,5 @@ export const MICA_EXCHANGES: MicaExchange[] = [
   { name: 'Binance',     type: 'CEX', status: 'A cessé de servir la France le 1er juillet 2026', franceOk: 'Non', url: null, affiliate: false },
   { name: 'Kraken',      type: 'CEX', status: 'Agrément MiCA',                 franceOk: 'Oui', url: null, affiliate: false },
   { name: 'Coinbase',    type: 'CEX', status: 'Agrément MiCA',                 franceOk: 'Oui', url: null, affiliate: false },
-  { name: 'Hyperliquid', type: 'DEX', status: 'Protocole non-custodial, hors du champ de l’agrément CASP', franceOk: 'Oui', url: HL_AFFILIATE_URL, affiliate: false },
+  { name: 'Hyperliquid', type: 'DEX', status: 'Protocole non-custodial, hors du champ de l’agrément CASP', franceOk: 'Oui', url: HYPERLIQUID_URL, affiliate: false },
 ]
