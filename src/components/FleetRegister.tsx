@@ -38,7 +38,6 @@ import {
   optionCounts, activeFilterCount, describeEmptyResult, type FleetFilterState,
 } from '@/lib/bot-filters'
 import { sortFleet } from '@/lib/fleet-sort'
-import { sliceBotStats } from '@/lib/stats'
 import type { LedgerBot } from '@/lib/fleet-ledger'
 import FleetFilterBar from '@/components/FleetFilterBar'
 import FleetLedger, { plural } from '@/components/FleetLedger'
@@ -54,6 +53,11 @@ export interface FleetRegisterProps {
 
 /** Rows shown before « Voir les N suivants ». */
 export const PAGE = 50
+
+function sameSet(a: readonly string[], b: readonly string[]): boolean {
+  const norm = (xs: readonly string[]) => [...new Set(xs.map(x => x.toUpperCase()))].sort().join(',')
+  return norm(a) === norm(b)
+}
 
 // The line under the title names the order in force.
 const SORT_LINE: Record<SortKey, string> = {
@@ -122,12 +126,22 @@ export default function FleetRegister({ bots, initialState }: FleetRegisterProps
   // shows « — » on the short side and goes with the untraded (sliceBotStats
   // returns bot.stats by reference when nothing is sliced).
   const { rows, archived } = useMemo(() => {
-    const slice = (b: LedgerBot) => ({ ...b, stats: sliceBotStats(b, state.side, state.asset) })
+    // The server computed each row's three sides (lot 1b): with no asset filter, and
+    // for the asset set the URL carried at render time. The register can only clear
+    // that set (reset), never pick another one -- if it ever did, reloading beats
+    // showing figures computed for a different set.
+    const assetSet = state.asset.length === 0 ? null
+      : sameSet(state.asset, initialState.asset) ? 'url' : 'unknown'
+    if (assetSet === 'unknown' && typeof window !== 'undefined') window.location.reload()
+    const slice = (b: LedgerBot) => ({
+      ...b,
+      stats: (assetSet === 'url' ? b.assetSlices ?? b.slices : b.slices)[state.side],
+    })
     return {
       rows: sortFleet(filtered.filter(b => b.status !== 'archived').map(slice), state.sort, state.dir),
       archived: sortFleet(filtered.filter(b => b.status === 'archived'), state.sort, state.dir),
     }
-  }, [filtered, state.side, state.asset, state.sort, state.dir])
+  }, [filtered, state.side, state.asset, state.sort, state.dir, initialState.asset])
 
   const visible = rows.slice(0, shown)
   const remaining = rows.length - visible.length

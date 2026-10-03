@@ -12,13 +12,13 @@ import { FavoriteStar } from '@/components/FavoritesProvider'
 import { FollowBell } from '@/components/FollowsProvider'
 import { familyLabel } from '@/lib/families'
 import { pnlEur, pnlPct, fmtEur, fmtPct, isLowSample, isCarryFamily, fmtPfDisplay, fmtWinRateDisplay, fmtDrawdown, drawdownIsLoss, CARRY_METRIC_TOOLTIP } from '@/lib/display'
-import type { FleetBot } from '@/lib/types'
+import type { ListBot } from '@/lib/types'
 
 interface BotTableProps {
   // FleetBot, not BotWithStats: this table reads `stats`, `start_capital`,
   // `family`, `slug`, `name`, `status`, `timeframe` and `spark30` and nothing
   // else, and a BotWithStats satisfies it structurally.
-  bots: FleetBot[]
+  bots: ListBot[]
   showTf: boolean
   /** The fleet register, under the fleet total: say what that total counts. */
   fleetTotalAbove?: boolean

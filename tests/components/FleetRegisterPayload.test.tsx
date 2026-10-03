@@ -3,6 +3,7 @@ import { render } from '@testing-library/react'
 import FleetOverview from '@/components/FleetOverview'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
+import { sliceBotStats } from '@/lib/stats'
 import { mkBot } from '../fixtures/bots'
 import type { BotWithStats, Trade } from '@/lib/types'
 
@@ -59,13 +60,13 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => null }))
 })
 
-function renderWith(bots: BotWithStats[]) {
+function renderWith(bots: BotWithStats[], initialState = EMPTY_FILTERS) {
   render(
     <FleetOverview
       bots={bots}
       aggregate={AGG}
       recentTrades={[]}
-      initialState={EMPTY_FILTERS}
+      initialState={initialState}
       minutes={null}
     />,
   )
@@ -73,13 +74,33 @@ function renderWith(bots: BotWithStats[]) {
 }
 
 describe('the register prop that crosses the RSC boundary', () => {
-  it('carries only the four trade fields the browser reads', () => {
-    const rows = renderWith([
-      mkBot({ status: 'paper', all_trades: [trade(), trade({ side: 'short', pnl: -3 })] }),
-    ])
+  // Lot 1b (2026-10-03, D094): /overview served 1.8 MB, almost all of it every trade of
+  // every bot, shipped so the browser could recompute a row on « long » / « short ».
+  // The server computes those three slices with THE SAME function and ships them.
+  it('carries no trades, but the all/long/short slices sliceBotStats computes', () => {
+    const bot = mkBot({ status: 'paper', all_trades: [
+      trade(), trade({ side: 'short', pnl: -3, closed_at: '2026-09-21T02:00:00+00:00' }),
+      trade({ pnl: 4, closed_at: '2026-09-22T02:00:00+00:00' }),
+    ] })
+    const rows = renderWith([bot]) as unknown as Record<string, unknown>[]
+    expect(rows[0]).not.toHaveProperty('all_trades')
+    const slices = rows[0]!.slices as Record<string, unknown>
+    for (const side of ['all', 'long', 'short'] as const) {
+      expect(slices[side]).toEqual(sliceBotStats(bot, side, []))
+    }
+    expect(rows[0]!.sides).toEqual({ long: true, short: true })
+    expect(rows[0]).not.toHaveProperty('assetSlices')
+  })
 
-    for (const t of rows[0]!.all_trades) {
-      expect(Object.keys(t).sort()).toEqual(['asset', 'closed_at', 'pnl', 'side'])
+  it('with assets in the URL, also carries the slices of that asset set', () => {
+    const bot = mkBot({ status: 'paper', all_trades: [
+      trade(), trade({ asset: 'BTC-USDC', side: 'short', pnl: -3 }),
+    ] })
+    const rows = renderWith([bot], { ...EMPTY_FILTERS, asset: ['SUI'] }) as unknown as
+      Record<string, Record<string, unknown>>[]
+    for (const side of ['all', 'long', 'short'] as const) {
+      expect(rows[0]!.assetSlices[side]).toEqual(sliceBotStats(bot, side, ['SUI']))
+      expect(rows[0]!.slices[side]).toEqual(sliceBotStats(bot, side, []))
     }
   })
 
