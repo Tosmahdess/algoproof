@@ -130,11 +130,13 @@ function MDXH3(props: HTMLAttributes<HTMLHeadingElement>) {
   )
 }
 
+// A quotation stands out by its indent and the note ink (finitions, 2026-10-03): no
+// rule on one side, which the site refuses on every block.
 function MDXBlockquote(props: HTMLAttributes<HTMLQuoteElement>) {
   return (
     <blockquote
       {...props}
-      className="my-6 border-l-2 border-muted/60 pl-4 italic text-foreground not-prose"
+      className="my-6 pl-6 sm:pl-10 italic text-muted not-prose [&_p]:my-2 [&_strong]:text-foreground"
     />
   )
 }

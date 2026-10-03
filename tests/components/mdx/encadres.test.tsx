@@ -120,3 +120,18 @@ describe('boxes in the page structure', () => {
     expect(getByText('btc_vs_ema').className.split(' ')).toContain('text-xs')
   })
 })
+
+// A quotation is not a box and has no rule on one side either (finitions, 2026-10-03):
+// it stands out by its indent and the note ink.
+describe('an article quotation', () => {
+  it('is indented and in the note ink, with no side border', async () => {
+    const { mdxComponents } = await import('@/components/mdx/MDXComponents')
+    const Quote = mdxComponents.blockquote
+    const { container } = render(<Quote><p>Identifie les meilleurs paramètres.</p></Quote>)
+    const q = container.querySelector('blockquote')!
+    const own = q.className.split(/\s+/)
+    expect(own.filter(c => /^border(?:-|$)/.test(c))).toEqual([])
+    expect(own).toContain('text-muted')
+    expect(own.some(c => /^(?:sm:)?pl-\d+$/.test(c))).toBe(true)
+  })
+})
