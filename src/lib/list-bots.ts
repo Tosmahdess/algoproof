@@ -5,6 +5,7 @@
 // query lives in queries.ts (getListBots), which passes the live computation in.
 import type { Bot } from '@/lib/types'
 import { FORMULA_REV, parseSummary, type BotSummary } from '@/lib/bot-summary'
+import { mapWithConcurrency } from '@/lib/concurrency'
 
 /** A bot as the lists use it: its row, its figures, its line, its ledger window. */
 export type SummaryBot = Bot & BotSummary
@@ -19,6 +20,11 @@ type StoredStats = {
 /** A `bots` row with its bot_stats row embedded (PostgREST: object, array or null). */
 export type BotWithStatsRow = Bot & { bot_stats: StoredStats | StoredStats[] | null }
 
+/** Bots computed live at once. An empty table or a formula bump sends the WHOLE fleet
+ *  down the live path, each bot 3+ Supabase requests: the same ceiling the old fleet
+ *  path had (FLEET_FETCH_CONCURRENCY). Good rows cost nothing and pass straight through. */
+export const LIVE_CONCURRENCY = 8
+
 /** The job runs every hour; three missed runs is when an old row gets reported. */
 export const STALE_AFTER_MS = 3 * 60 * 60 * 1000
 
@@ -32,7 +38,7 @@ export async function resolveListBots(
 ): Promise<SummaryBot[]> {
   let old = 0
   const liveSlugs: string[] = []
-  const out = await Promise.all(rows.map(async ({ bot_stats, ...bot }) => {
+  const out = await mapWithConcurrency(rows, LIVE_CONCURRENCY, async ({ bot_stats, ...bot }) => {
     const stored = Array.isArray(bot_stats) ? bot_stats[0] ?? null : bot_stats
     let why: string | null = null
     if (!stored) why = 'missing'
@@ -52,7 +58,7 @@ export async function resolveListBots(
       return null
     }
     return { ...(bot as Bot), ...summary }
-  }))
+  })
   // ONE line per render, not one per bot: a formula bump sends every bot down this path.
   if (liveSlugs.length) {
     log.error(`[bot-stats] ${liveSlugs.length} computed live: ${liveSlugs.slice(0, 20).join(', ')}`

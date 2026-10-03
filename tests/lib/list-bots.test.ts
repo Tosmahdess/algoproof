@@ -106,3 +106,19 @@ describe('resolveListBots logs once per render', () => {
     expect(log.error.mock.calls[0].join(' ')).toMatch(/50 computed live: b0 \(missing\).*and 30 more/)
   })
 })
+
+describe('resolveListBots bounds the live fallback', () => {
+  it('never computes more than 8 bots at once (an empty table or a formula bump is the whole fleet)', async () => {
+    let running = 0, peak = 0
+    const live = async () => {
+      running++; peak = Math.max(peak, running)
+      await new Promise(r => setTimeout(r, 2))
+      running--
+      return summary(1)
+    }
+    const got = await resolveListBots(Array.from({ length: 60 }, (_, i) => bot(`b${i}`, null)), live, NOW, logger())
+    expect(got).toHaveLength(60)
+    expect(peak).toBeLessThanOrEqual(8)
+    expect(peak).toBeGreaterThan(1)
+  })
+})
