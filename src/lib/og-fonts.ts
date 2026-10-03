@@ -6,7 +6,9 @@
 // words came out at uneven widths (« Croisement  EMA »). Satori reads neither WOFF2
 // nor a variable font, so these are static TTFs, one per weight the images set,
 // built by scripts/fonts/build_schibsted.py with the same narrow comma as the site
-// (SIL OFL 1.1, the licence sits beside them in src/app/fonts/).
+// (SIL OFL 1.1, the licence sits beside them in src/app/fonts/). They carry no
+// kerning and no ligatures: Satori measures each character on its own but draws a
+// word whole, so a kerned word left the space after it too wide (« +27,3  % »).
 //
 // Read from disk with a path joined to process.cwd(), as the Next 16 docs do for
 // opengraph-image: the build traces the files into the function. Node runtime only.

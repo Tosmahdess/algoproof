@@ -62,6 +62,20 @@ function families(node: unknown, out: unknown[] = []): unknown[] {
   return out
 }
 
+/** The feature tags of a font's GSUB or GPOS table, read from the sfnt directory. */
+function featureTags(data: ArrayBuffer, table: 'GSUB' | 'GPOS'): string[] {
+  const v = new DataView(data)
+  const tag = (at: number) => String.fromCharCode(v.getUint8(at), v.getUint8(at + 1), v.getUint8(at + 2), v.getUint8(at + 3))
+  for (let i = 0; i < v.getUint16(4); i++) {
+    const rec = 12 + i * 16
+    if (tag(rec) !== table) continue
+    const start = v.getUint32(rec + 8)
+    const list = start + v.getUint16(start + 6)
+    return Array.from({ length: v.getUint16(list) }, (_, j) => tag(list + 2 + j * 6))
+  }
+  return []
+}
+
 describe('the images Satori draws carry Schibsted Grotesk', () => {
   beforeEach(() => {
     captured.element = null
@@ -78,6 +92,17 @@ describe('the images Satori draws carry Schibsted Grotesk', () => {
       // A TrueType font (Satori takes TTF, OTF or WOFF, never WOFF2): sfnt version 1.0.
       expect(new DataView(f.data).getUint32(0)).toBe(0x00010000)
       expect(f.data.byteLength).toBeGreaterThan(20_000)
+    }
+  })
+
+  // Satori measures each character on its own but draws a word whole, kerned and with
+  // its ligatures: the kerning a word loses widened the space after it (« +27,3  % »).
+  it('the fonts carry no kerning nor ligature, so a word is drawn as wide as measured', async () => {
+    await SiteImage()
+    for (const f of captured.options?.fonts ?? []) {
+      expect(featureTags(f.data, 'GPOS')).not.toContain('kern')
+      expect(featureTags(f.data, 'GSUB')).not.toContain('liga')
+      expect(featureTags(f.data, 'GSUB')).not.toContain('rlig')
     }
   })
 

@@ -53,6 +53,12 @@ OUT = FONTS / 'SchibstedGrotesk-wght.woff2'
 # The weights the images set: regular, medium (the regime badge), semibold (names
 # and figures), bold (the wordmark).
 STATIC_WEIGHTS = (400, 500, 600, 700)
+# Satori lays a line out with each character measured on its own, then draws each
+# word whole, with the kerning and ligatures opentype.js applies (GPOS `kern`, GSUB
+# `liga` and `rlig`). A word drawn kerned is narrower than the room it was given, so
+# the space after it widened by the word's kerning: « Croisement  EMA », « +27,3  % ».
+# The static copies carry neither, so what is drawn is what was measured.
+SATORI_DROP = frozenset({'kern', 'liga', 'rlig'})
 
 
 def drop_comma_from_tnum(font: TTFont) -> int:
@@ -74,10 +80,14 @@ def drop_comma_from_tnum(font: TTFont) -> int:
     return removed
 
 
-def subset_source(source: str) -> TTFont:
+def subset_source(source: str, drop_features: frozenset[str] = frozenset()) -> TTFont:
     font = TTFont(source)
     options = subset.Options()
-    options.layout_features = ['*']
+    if drop_features:
+        tags = {r.FeatureTag for t in ('GSUB', 'GPOS') if t in font for r in font[t].table.FeatureList.FeatureRecord}
+        options.layout_features = sorted(tags - drop_features)
+    else:
+        options.layout_features = ['*']
     options.name_IDs = ['*']
     options.notdef_outline = True
     subsetter = subset.Subsetter(options)
@@ -101,7 +111,7 @@ def main(source: str, static_only: bool) -> None:
 
     for weight in STATIC_WEIGHTS:
         static = narrow_comma(instancer.instantiateVariableFont(
-            subset_source(source), {'wght': weight}, updateFontNames=True))
+            subset_source(source, SATORI_DROP), {'wght': weight}, updateFontNames=True))
         path = FONTS / f'SchibstedGrotesk-{weight}.ttf'
         static.save(path)
         print(f'{path} ({path.stat().st_size} bytes)')
