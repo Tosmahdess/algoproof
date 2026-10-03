@@ -1,5 +1,7 @@
 // src/lib/queries.ts
 import { fleetSimulationView } from '@/lib/bot-simulation'
+import { summarizeBot, type BotSummary } from '@/lib/bot-summary'
+import { resolveListBots, type BotWithStatsRow, type SummaryBot } from '@/lib/list-bots'
 import { getBacktestSegment } from '@/lib/backtest-segment-data'
 import type { LiveBot } from '@/lib/fleet-aggregate'
 import { unstable_cache } from 'next/cache'
@@ -66,6 +68,41 @@ export async function getBotSlugs(): Promise<string[]> {
   return rows.map(r => r.slug)
 }
 
+/** What the lists render (lot 1b, D094): every public bot with its summary, in ONE paged
+ *  query (`bots` with its bot_stats row embedded), same order as getBots. A bot whose row
+ *  is missing, unreadable or of another formula revision is computed live with the same
+ *  function the job uses (resolveListBots logs each one); an old row is served. */
+export async function getListBots(): Promise<SummaryBot[]> {
+  const rows = await paginateAll(async (from, to) => {
+    const { data, error } = await supabase
+      .from('bots')
+      // Single literal, like getBots: see the note there.
+      .select(
+        'id,slug,name,strategy,status,family,exchange,venue,assets,timeframe,description,created_at,last_sync_at,origin,found_at,validated_at,paper_since,live_since,frozen_at,archived_at,engine_unit_key,rejudge_status,bot_stats(formula_rev,computed_at,computed_for,summary)'
+      )
+      .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
+      .order('name')
+      .order('slug')
+      .range(from, to)
+    if (error) throw new Error(error.message)
+    return data ?? []
+  })
+  return resolveListBots(rows.map(withStartCapital) as unknown as BotWithStatsRow[],
+    b => getBotSummaryCached(b.slug))
+}
+
+/** The bot_stats job's cursor: public bots ordered by slug, strictly after `after`. */
+export async function getBotsPage(after: string | null, limit: number): Promise<Bot[]> {
+  let q = supabase
+    .from('bots')
+    .select('id,slug,name,status,last_sync_at')
+    .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
+  if (after !== null) q = q.gt('slug', after)
+  const { data, error } = await q.order('slug').limit(limit)
+  if (error) throw new Error(error.message)
+  return (data ?? []).map(withStartCapital) as unknown as Bot[]
+}
+
 /** The whole trade row. The bot fiche renders entry/exit prices and reasons. */
 const TRADE_COLUMNS_FICHE = '*'
 
@@ -84,6 +121,12 @@ const TRADE_COLUMNS_FLEET = 'side,pnl,asset,closed_at'
 
 export async function getBotWithStats(slug: string): Promise<BotWithStats | null> {
   return fetchBotWithStats(slug, TRADE_COLUMNS_FICHE)
+}
+
+/** The bot with the trade columns the lists' arithmetic reads: what the bot_stats job
+ *  and the live fallback summarise. */
+export async function fetchFleetBot(slug: string): Promise<BotWithStats | null> {
+  return fetchBotWithStats(slug, TRADE_COLUMNS_FLEET)
 }
 
 async function fetchBotWithStats(slug: string, tradeColumns: string): Promise<BotWithStats | null> {
@@ -218,6 +261,22 @@ function getBotWithStatsCached(slug: string): Promise<BotWithStats | null> {
       return fleetSimulationView(bot, await getBacktestSegment(slug), today)
     },
     ['fleet-bot-sim', slug],
+    { revalidate: 1800, tags: ['fleet-bots', `bot-stats:${slug}`] },
+  )()
+}
+
+/** The live fallback of getListBots: one bot's summary, cached per slug like the fleet
+ *  view below (a summary is ~2 KB, far under the 2 MB ceiling). Its own key, so an entry
+ *  of the old shape is never read back as a summary. */
+function getBotSummaryCached(slug: string): Promise<BotSummary | null> {
+  return unstable_cache(
+    async () => {
+      const bot = await fetchBotWithStats(slug, TRADE_COLUMNS_FLEET)
+      if (!bot) return null
+      const today = new Date().toISOString().slice(0, 10)
+      return summarizeBot(fleetSimulationView(bot, await getBacktestSegment(slug), today), today)
+    },
+    ['fleet-bot-summary', slug],
     { revalidate: 1800, tags: ['fleet-bots', `bot-stats:${slug}`] },
   )()
 }
