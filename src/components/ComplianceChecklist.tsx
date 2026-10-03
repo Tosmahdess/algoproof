@@ -1,26 +1,32 @@
-'use client'
-import { useState } from 'react'
-
-const ITEMS = [
-  "J'utilise un exchange agréé MiCA / CASP",
-  "J'ai déclaré mes comptes d'actifs numériques à l'étranger (formulaire 3916-bis)",
-  "Je déclare mes plus-values de l'année",
-  "Je garde l'historique complet de mes transactions",
+// What I check each year to stay in order, as four lines of a register (refonte of
+// /mica, 2026-10-03). It was four checkboxes that struck their line through and
+// remembered nothing (audit 2026-10: a generic page); each line now says why.
+const ITEMS: { title: string; note: string }[] = [
+  {
+    title: 'J’utilise une plateforme agréée MiCA',
+    note: 'Ou un protocole non-custodial, hors du champ de l’agrément. Le statut se vérifie sur le registre de l’ESMA.',
+  },
+  {
+    title: 'Je déclare mes comptes d’actifs numériques à l’étranger',
+    note: 'Formulaire 3916-bis, même sans aucune vente dans l’année.',
+  },
+  {
+    title: 'Je déclare mes plus-values de l’année',
+    note: 'Seule une conversion en euros, ou l’achat d’un bien, déclenche l’impôt. Un échange entre cryptos, non.',
+  },
+  {
+    title: 'Je garde l’historique complet de mes transactions',
+    note: 'La méthode réelle calcule chaque cession sur la valeur globale du portefeuille : sans historique, pas de calcul.',
+  },
 ]
 
 export default function ComplianceChecklist() {
-  const [checked, setChecked] = useState<boolean[]>(ITEMS.map(() => false))
-  const toggle = (i: number) =>
-    setChecked(c => c.map((v, j) => (j === i ? !v : v)))
   return (
-    <ul className="space-y-2">
-      {ITEMS.map((label, i) => (
-        <li key={i}>
-          <label className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm cursor-pointer hover:border-muted">
-            <input type="checkbox" checked={checked[i]} onChange={() => toggle(i)}
-              className="mt-0.5 accent-positive" />
-            <span className={checked[i] ? 'text-muted line-through' : 'text-foreground'}>{label}</span>
-          </label>
+    <ul className="border-y border-border">
+      {ITEMS.map(item => (
+        <li key={item.title} className="border-t border-border py-4 first:border-t-0">
+          <p className="font-semibold text-foreground">{item.title}</p>
+          <p className="mt-1 text-sm text-muted">{item.note}</p>
         </li>
       ))}
     </ul>
