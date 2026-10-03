@@ -48,10 +48,17 @@ export type ChunkResult = {
   degraded: { slug: string; from: SimState; to: SimState }[]
   /** The slug to resume after, or null when this page was the last. */
   next: string | null
+  /** What the run could not check, without affecting what it wrote. */
+  notes: string[]
 }
 
 /** Bots computed at once: each is three paginated reads (trades, perf_daily, segment). */
 export const JOB_CONCURRENCY = 8
+
+/** Rows written per upsert (Fable review, 03/10): a page is written as it goes, so a
+ *  function that times out mid-page keeps what it finished, and the `.in()` of the
+ *  previous states never carries more ids than an URL holds. */
+export const JOB_BATCH = 20
 
 type Computed = { ok: true; row: BotStatsRow } | { ok: false; slug: string; reason: string }
 
@@ -88,28 +95,50 @@ export async function computeBotStatsChunk(
   opts: { after: string | null; limit: number; today: string }, deps: JobDeps,
 ): Promise<ChunkResult> {
   const bots = await deps.listBotsPage(opts.after, opts.limit)
-  const computed = await mapWithConcurrency(bots, JOB_CONCURRENCY, b => computeRow(b, opts.today, deps))
-  const rows = computed.flatMap(c => (c.ok ? [c.row] : []))
-  const before = await deps.previousStates(rows.map(r => r.bot_id))
   const slugOf = new Map(bots.map(b => [b.id, b.slug]))
-  const degraded = rows.flatMap(r => {
-    const from = before.get(r.bot_id)
-    return from === 'simulation' && r.sim_state !== 'simulation'
-      ? [{ slug: slugOf.get(r.bot_id) ?? r.bot_id, from, to: r.sim_state }] : []
-  })
-  if (rows.length) await deps.upsert(rows)
-  return {
-    processed: bots.length,
-    written: rows.length,
-    skipped: computed.flatMap(c => (c.ok ? [] : [{ slug: c.slug, reason: c.reason }])),
-    degraded,
+  const result: ChunkResult = {
+    processed: bots.length, written: 0, skipped: [], degraded: [], notes: [],
     next: bots.length === opts.limit ? bots[bots.length - 1].slug : null,
   }
+  for (let i = 0; i < bots.length; i += JOB_BATCH) {
+    const computed = await mapWithConcurrency(bots.slice(i, i + JOB_BATCH), JOB_CONCURRENCY,
+      b => computeRow(b, opts.today, deps))
+    const rows = computed.flatMap(c => (c.ok ? [c.row] : []))
+    result.skipped.push(...computed.flatMap(c => (c.ok ? [] : [{ slug: c.slug, reason: c.reason }])))
+    if (!rows.length) continue
+    // Monitoring only: an unreadable answer never stops the write.
+    try {
+      const before = await deps.previousStates(rows.map(r => r.bot_id))
+      for (const r of rows) {
+        const from = before.get(r.bot_id)
+        if (from === 'simulation' && r.sim_state !== 'simulation') {
+          result.degraded.push({ slug: slugOf.get(r.bot_id) ?? r.bot_id, from, to: r.sim_state })
+        }
+      }
+    } catch (e) {
+      result.notes.push(`previous states unreadable: ${String(e)}`)
+    }
+    await deps.upsert(rows)
+    result.written += rows.length
+  }
+  return result
 }
 
 // --- Verification -----------------------------------------------------------------------
 
-export type StoredRow = BotStatsRow & { slug: string }
+/** A stored row, with its bot's slug and, when known, its CURRENT last_sync_at. */
+export type StoredRow = BotStatsRow & { slug: string; last_sync_at?: string | null }
+
+/** `n` distinct items drawn uniformly (Fisher-Yates on a copy). */
+export function pickSample<T>(items: readonly T[], n: number, rand: () => number = Math.random): T[] {
+  const a = [...items]
+  const k = Math.min(n, a.length)
+  for (let i = 0; i < k; i++) {
+    const j = i + Math.floor(rand() * (a.length - i))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a.slice(0, k)
+}
 
 export type VerifyResult = {
   checked: number
@@ -143,6 +172,12 @@ export async function verifyBotStats(
     fresh: await computeRow({ id: stored.bot_id, slug: stored.slug } as Bot, opts.today, deps),
   }))
   for (const { stored, fresh } of results) {
+    // The publisher rewrote this bot after the row was computed: a difference would be
+    // the next run's job, not a defect (Fable review, 03/10).
+    if (stored.last_sync_at && stored.source_sync_at
+      && Date.parse(stored.last_sync_at) !== Date.parse(stored.source_sync_at)) {
+      skipped.push({ slug: stored.slug, reason: 'resynced since computed' }); continue
+    }
     if (!fresh.ok) { skipped.push({ slug: stored.slug, reason: fresh.reason }); continue }
     const f = fresh.row
     const fields: string[] = []

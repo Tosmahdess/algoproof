@@ -10,6 +10,8 @@ const db = vi.hoisted(() => ({
   privileged: true,
   upserts: [] as { rows: Record<string, unknown>[]; opts: unknown }[],
   stored: [] as Record<string, unknown>[],
+  inRows: [] as Record<string, unknown>[],
+  inIds: [] as string[][],
   pageCalls: [] as [string | null, number][],
 }))
 
@@ -20,7 +22,7 @@ vi.mock('@/lib/supabase-privileged', () => ({
         db.upserts.push({ rows, opts }); return { error: null }
       },
       select: () => ({
-        in: async () => ({ data: [], error: null }),
+        in: async (_c: string, ids: string[]) => { db.inIds.push(ids); return { data: db.inRows.filter(r => ids.includes(r.bot_id as string)), error: null } },
         order: () => ({ range: async () => ({ data: db.stored, error: null }) }),
       }),
     }),
@@ -57,6 +59,8 @@ beforeEach(() => {
   db.privileged = true
   db.upserts = []
   db.stored = []
+  db.inRows = []
+  db.inIds = []
   db.pageCalls = []
   vi.stubEnv('BOT_STATS_SECRET', 's3cret')
 })
@@ -99,16 +103,21 @@ describe('POST /api/internal/bot-stats', () => {
     expect(db.pageCalls).toEqual([['a', 200]])
   })
 
-  it('verify mode recomputes stored rows and writes nothing', async () => {
-    db.stored = [{ bot_id: 'a-id', formula_rev: -1, computed_for: '2000-01-01', sim_state: 'no_segment',
-      segment_sha: null, start_capital: 1000, total_trades: 0, source_sync_at: null,
-      summary: {}, bots: { slug: 'a' } }]
+  it('verify mode samples public bots only, loads only the sampled rows, writes nothing', async () => {
+    db.stored = [
+      { bot_id: 'a-id', bots: { slug: 'a', status: 'paper', last_sync_at: null } },
+      { bot_id: 'z-id', bots: { slug: 'z', status: 'frozen', last_sync_at: null } },
+    ]
+    db.inRows = [{ bot_id: 'a-id', formula_rev: -1, computed_for: '2000-01-01', sim_state: 'no_segment',
+      segment_sha: null, start_capital: 1000, total_trades: 0, source_sync_at: null, summary: {} }]
     const res = await POST(req('?verify=1&sample=5'))
     expect(res.status).toBe(200)
     const body = await res.json()
+    expect(db.inIds).toEqual([['a-id']])
     expect(body.checked).toBe(1)
     expect(body.mismatches[0].slug).toBe('a')
     expect(body.mismatches[0].fields).toContain('formula_rev')
     expect(db.upserts).toEqual([])
   })
+
 })

@@ -14,7 +14,7 @@
 set -u
 URL="${BOT_STATS_URL:-https://algoproof.fr/api/internal/bot-stats}"
 SECRET_FILE="${BOT_STATS_SECRET_FILE:-$HOME/.bot_stats_secret}"
-LIMIT="${BOT_STATS_LIMIT:-100}"
+LIMIT="${BOT_STATS_LIMIT:-40}"
 HDR=$(mktemp); trap 'rm -f "$HDR"' EXIT
 chmod 600 "$HDR"
 printf 'x-bot-stats-secret: %s\n' "$(tr -d '\r\n' < "$SECRET_FILE")" > "$HDR"

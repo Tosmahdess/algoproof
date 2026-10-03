@@ -8,7 +8,7 @@ import { describe, it, expect } from 'vitest'
 import type { Bot, BotWithStats, PerfDaily, Trade } from '@/lib/types'
 import type { BacktestSegment } from '@/lib/backtest-segment'
 import type { SegmentRead } from '@/lib/backtest-segment-data'
-import { computeBotStatsChunk, verifyBotStats, type JobDeps, type StoredRow } from '@/lib/bot-stats-job'
+import { computeBotStatsChunk, verifyBotStats, pickSample, JOB_BATCH, type JobDeps, type StoredRow } from '@/lib/bot-stats-job'
 import { FORMULA_REV, summarizeBot } from '@/lib/bot-summary'
 import { fleetSimulationView } from '@/lib/bot-simulation'
 
@@ -127,6 +127,40 @@ describe('computeBotStatsChunk', () => {
   })
 })
 
+describe('computeBotStatsChunk writes as it goes (Fable review, 03/10)', () => {
+  const many = Array.from({ length: 45 }, (_, i) => `bot-${String(i).padStart(2, '0')}`)
+  const listMany: JobDeps['listBotsPage'] = async (after, limit) =>
+    many.filter(s => after === null || s > after).slice(0, limit).map(row)
+
+  it('upserts batch by batch: rows computed before a later failure are kept', async () => {
+    const batches: number[] = []
+    const d = deps({
+      listBotsPage: listMany,
+      upsert: async rows => {
+        if (batches.length === 2) throw new Error('timeout')
+        batches.push(rows.length)
+      },
+    })
+    await expect(computeBotStatsChunk({ after: null, limit: 45, today: TODAY }, d)).rejects.toThrow(/timeout/)
+    expect(batches).toEqual([JOB_BATCH, JOB_BATCH])
+  })
+
+  it('never asks for the previous states of more than one batch at once (URL length)', async () => {
+    const asked: number[] = []
+    const d = deps({ listBotsPage: listMany, previousStates: async ids => { asked.push(ids.length); return new Map() } })
+    const r = await computeBotStatsChunk({ after: null, limit: 45, today: TODAY }, d)
+    expect(r.written).toBe(45)
+    expect(Math.max(...asked)).toBeLessThanOrEqual(JOB_BATCH)
+  })
+
+  it('writes even when the previous states cannot be read (they only feed monitoring)', async () => {
+    const d = deps({ previousStates: async () => { throw new Error('read failed') } })
+    const r = await computeBotStatsChunk({ after: null, limit: 10, today: TODAY }, d)
+    expect(r.written).toBe(4)
+    expect(r.notes.join(' ')).toMatch(/previous states unreadable/)
+  })
+})
+
 describe('verifyBotStats: a stored row against a fresh computation', () => {
   async function stored(slug: string, mutate?: (s: StoredRow) => void): Promise<StoredRow> {
     const d = deps()
@@ -166,5 +200,30 @@ describe('verifyBotStats: a stored row against a fresh computation', () => {
     })]
     const r = await verifyBotStats({ rows, today: TODAY }, deps())
     expect(r.mismatches).toEqual([])
+  })
+})
+
+describe('verification hygiene (Fable review, 03/10)', () => {
+  it('puts aside a row the publisher has rewritten since it was computed (not a mismatch)', async () => {
+    const d = deps()
+    await computeBotStatsChunk({ after: null, limit: 10, today: TODAY }, d)
+    const r = structuredClone(d.written.find(w => (w as { bot_id: string }).bot_id === 'arm-a-id')) as StoredRow
+    r.slug = 'arm-a'
+    ;(r.summary as { stats: { total_trades: number } }).stats.total_trades = 99
+    r.last_sync_at = '2026-10-03T15:02:00Z'
+    const v = await verifyBotStats({ rows: [r], today: TODAY }, deps())
+    expect(v.mismatches).toEqual([])
+    expect(v.skipped).toEqual([{ slug: 'arm-a', reason: 'resynced since computed' }])
+  })
+
+  it('samples uniformly without replacement', () => {
+    const ids = Array.from({ length: 10 }, (_, i) => `id${i}`)
+    const counts = new Map<string, number>()
+    for (let k = 0; k < 2000; k++) for (const x of pickSample(ids, 3)) counts.set(x, (counts.get(x) ?? 0) + 1)
+    expect(pickSample(ids, 3)).toHaveLength(3)
+    expect(new Set(pickSample(ids, 10)).size).toBe(10)
+    // 2000 draws x 3 / 10 ids = 600 each on average
+    for (const n of counts.values()) expect(n).toBeGreaterThan(480)
+    for (const n of counts.values()) expect(n).toBeLessThan(720)
   })
 })

@@ -20,7 +20,7 @@ import { getBotsPage, fetchFleetBot } from '@/lib/queries'
 import { readBacktestSegment } from '@/lib/backtest-segment-data'
 import { paginateAll } from '@/lib/paginate'
 import {
-  computeBotStatsChunk, verifyBotStats, type JobDeps, type StoredRow,
+  computeBotStatsChunk, verifyBotStats, pickSample, type JobDeps, type StoredRow,
 } from '@/lib/bot-stats-job'
 import type { SimState } from '@/lib/bot-summary'
 
@@ -28,7 +28,8 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-const DEFAULT_LIMIT = 100
+// 40 until a page is timed on prod (Fable review, 03/10): a heavy bot is 6 trade pages.
+const DEFAULT_LIMIT = 40
 const MAX_LIMIT = 200
 const DEFAULT_SAMPLE = 20
 const MAX_SAMPLE = 100
@@ -79,23 +80,36 @@ export async function POST(req: Request) {
   try {
     if (url.searchParams.get('verify') === '1') {
       const sample = intParam(url.searchParams.get('sample'), DEFAULT_SAMPLE, MAX_SAMPLE)
-      const all = await paginateAll(async (from, to) => {
+      // 1. ids and their bot only (a summary is ~3 KB: never download them all to keep 30)
+      type Meta = { bot_id: string; bots: { slug: string; status: string; last_sync_at: string | null }
+        | { slug: string; status: string; last_sync_at: string | null }[] | null }
+      const listed = await paginateAll<Meta>(async (from, to) => {
         const { data, error } = await client.from('bot_stats')
-          .select('bot_id,formula_rev,computed_for,sim_state,segment_sha,start_capital,total_trades,source_sync_at,summary,bots(slug)')
+          .select('bot_id,bots!inner(slug,status,last_sync_at)')
           .order('bot_id')
           .range(from, to)
         if (error) throw new Error(`bot_stats read failed: ${error.message}`)
-        return data ?? []
+        return (data ?? []) as unknown as Meta[]
       })
-      const rows: StoredRow[] = all
-        .map(r => {
-          const b = (r as { bots?: { slug?: string } | { slug?: string }[] }).bots
-          const slug = Array.isArray(b) ? b[0]?.slug : b?.slug
-          return { ...(r as unknown as StoredRow), summary: (r.summary ?? {}) as StoredRow['summary'], slug: slug ?? '' }
-        })
-        .filter(r => r.slug)
-        .sort(() => Math.random() - 0.5)
-        .slice(0, sample)
+      // a bot that left the public set keeps a row nobody reads: not sampled
+      const publicRows = listed
+        .map(r => ({ bot_id: r.bot_id, bot: Array.isArray(r.bots) ? r.bots[0] : r.bots }))
+        .filter(r => r.bot && r.bot.status !== 'frozen' && r.bot.status !== 'backtest')
+      const picked = pickSample(publicRows, sample)
+      // 2. the sampled rows, whole
+      const { data: full, error: fullErr } = picked.length
+        ? await client.from('bot_stats')
+          .select('bot_id,formula_rev,computed_for,sim_state,segment_sha,start_capital,total_trades,source_sync_at,summary')
+          .in('bot_id', picked.map(p => p.bot_id))
+        : { data: [], error: null }
+      if (fullErr) throw new Error(`bot_stats read failed: ${fullErr.message}`)
+      const meta = new Map(picked.map(p => [p.bot_id, p.bot!]))
+      const rows: StoredRow[] = (full ?? []).map(r => ({
+        ...(r as unknown as StoredRow),
+        summary: (r.summary ?? {}) as StoredRow['summary'],
+        slug: meta.get(r.bot_id as string)!.slug,
+        last_sync_at: meta.get(r.bot_id as string)!.last_sync_at,
+      }))
       const result = await verifyBotStats({ rows, today }, deps)
       if (result.mismatches.length) console.error('[bot-stats] verify mismatches:', JSON.stringify(result.mismatches))
       return NextResponse.json({ ...result, ms: Date.now() - t0 })

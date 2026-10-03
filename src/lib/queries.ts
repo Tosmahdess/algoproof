@@ -1,9 +1,9 @@
 // src/lib/queries.ts
 import { fleetSimulationView } from '@/lib/bot-simulation'
-import { summarizeBot, type BotSummary } from '@/lib/bot-summary'
+import { FORMULA_REV, summarizeBot, type BotSummary } from '@/lib/bot-summary'
 import { resolveListBots, type BotWithStatsRow, type SummaryBot } from '@/lib/list-bots'
 import { registerSlices, type SideSlices } from '@/lib/register-slices'
-import { getBacktestSegment } from '@/lib/backtest-segment-data'
+import { getBacktestSegment, readBacktestSegment } from '@/lib/backtest-segment-data'
 import type { LiveBot } from '@/lib/fleet-aggregate'
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
@@ -77,7 +77,7 @@ export async function getBotSlugs(): Promise<string[]> {
 export async function getListBots(): Promise<SummaryBot[]> {
   const [bots, stored] = await Promise.all([getBots(), getStoredSummaries()])
   const rows = bots.map(b => ({ ...b, bot_stats: stored.get(b.id) ?? null })) as BotWithStatsRow[]
-  return resolveListBots(rows, b => getBotSummaryCached(b.slug))
+  return resolveListBots(rows, b => liveSummary(b.slug))
 }
 
 type StoredSummaryRow = { bot_id: string; formula_rev: number; computed_at: string; computed_for: string; summary: unknown }
@@ -274,20 +274,46 @@ function getBotWithStatsCached(slug: string): Promise<BotWithStats | null> {
   )()
 }
 
-/** The live fallback of getListBots: one bot's summary, cached per slug like the fleet
- *  view below (a summary is ~2 KB, far under the 2 MB ceiling). Its own key, so an entry
- *  of the old shape is never read back as a summary. */
+class SegmentUnreadable extends Error {}
+
+/** The live fallback of getListBots: one bot's summary, cached per slug (a summary is
+ *  ~2 KB, far under the 2 MB ceiling).
+ *
+ *  The key carries FORMULA_REV (Fable review, 03/10): Next keys this cache on the
+ *  callback's source and these parts, and the Vercel data cache outlives deploys. A
+ *  formula change leaves this callback's source as it is, so without the revision a
+ *  bumped formula would serve the old formula's summaries for up to 30 minutes, under
+ *  the new revision -- the very case formula_rev exists to prevent.
+ *
+ *  A FAILED segment read throws out of the cached function, so nothing is stored. */
 function getBotSummaryCached(slug: string): Promise<BotSummary | null> {
   return unstable_cache(
     async () => {
       const bot = await fetchBotWithStats(slug, TRADE_COLUMNS_FLEET)
       if (!bot) return null
+      const seg = await readBacktestSegment(slug)
+      if (seg.kind === 'error') throw new SegmentUnreadable(seg.reason)
       const today = new Date().toISOString().slice(0, 10)
-      return summarizeBot(fleetSimulationView(bot, await getBacktestSegment(slug), today), today)
+      return summarizeBot(fleetSimulationView(bot, seg.kind === 'ok' ? seg.segment : null, today), today)
     },
-    ['fleet-bot-summary', slug],
+    ['fleet-bot-summary', `rev${FORMULA_REV}`, slug],
     { revalidate: 1800, tags: ['fleet-bots', `bot-stats:${slug}`] },
   )()
+}
+
+/** The bot as its fiche shows it when its segment cannot be read: the plain paper view,
+ *  for this render only. */
+async function liveSummary(slug: string): Promise<BotSummary | null> {
+  try {
+    return await getBotSummaryCached(slug)
+  } catch (e) {
+    if (!(e instanceof SegmentUnreadable)) throw e
+    console.error(`[bot-stats] ${slug}: segment unreadable (${e.message}), paper view, not cached`)
+    const bot = await fetchBotWithStats(slug, TRADE_COLUMNS_FLEET)
+    if (!bot) return null
+    const today = new Date().toISOString().slice(0, 10)
+    return summarizeBot(bot, today)
+  }
 }
 
 /** How many per-bot fetches the fleet pages run at once on a cold cache.

@@ -19,7 +19,7 @@ import { readFileSync } from 'fs'
 import path from 'path'
 import { FORMULA_REV } from '@/lib/bot-summary'
 
-const RECORDED = { rev: 1, hash: 'd60dbcd62c8d00d7' }
+const RECORDED = { rev: 1, hash: '61a58cf92307a4d9' }
 
 const root = path.resolve(__dirname, '../..')
 // CRLF on a Windows checkout, LF on Vercel: the hash must not depend on the machine.
@@ -32,8 +32,9 @@ const WHOLE = [
   'src/lib/backtest-segment.ts',
   'src/lib/stats.ts',
   'src/lib/register-slices.ts',
-  'src/lib/home-data.ts',
   'src/lib/start-capitals.ts',
+  // how a segment row is parsed (the paperScaling default changes every engine bot)
+  'src/lib/backtest-segment-data.ts',
 ]
 
 /** queries.ts changes for many reasons: only the ledger arithmetic and the trade
@@ -45,6 +46,15 @@ function queriesExcerpt(): string {
   const cols = s.match(/const TRADE_COLUMNS_FLEET = [^\n]*/)
   if (fn < 0 || end < 0 || !cols) throw new Error('queries.ts: fetchBotWithStats or TRADE_COLUMNS_FLEET moved')
   return cols[0] + s.slice(fn, end)
+}
+
+/** home-data.ts: only the sparkline window, not its unrelated helpers. */
+function last30Excerpt(): string {
+  const s = read('src/lib/home-data.ts')
+  const fn = s.indexOf('export function last30Capital(')
+  const end = s.indexOf('\n}\n', fn)
+  if (fn < 0 || end < 0) throw new Error('home-data.ts: last30Capital moved')
+  return s.slice(fn, end)
 }
 
 function normalise(src: string): string {
@@ -60,6 +70,7 @@ function formulaHash(): string {
   const h = createHash('sha256')
   for (const f of WHOLE) h.update(f + '\0' + normalise(read(f)) + '\0')
   h.update('queries\0' + normalise(queriesExcerpt()))
+  h.update('last30\0' + normalise(last30Excerpt()))
   return h.digest('hex').slice(0, 16)
 }
 

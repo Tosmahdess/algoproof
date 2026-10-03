@@ -64,6 +64,6 @@ export async function resolveListBots(
     log.error(`[bot-stats] ${liveSlugs.length} computed live: ${liveSlugs.slice(0, 20).join(', ')}`
       + (liveSlugs.length > 20 ? `, and ${liveSlugs.length - 20} more` : ''))
   }
-  if (old) log.warn(`[bot-stats] ${old} rows older than ${STALE_AFTER_MS / 3_600_000} h served: is the job running?`)
+  if (old) log.warn(`[bot-stats] ${old} rows older than ${STALE_AFTER_MS / 3_600_000} h served: is the job running? Past LEDGER_TAIL_DAYS - 30 = 5 days, the 30-day fleet curves lose the points carried from before their window`)
   return out.filter((b): b is SummaryBot => b !== null)
 }

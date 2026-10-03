@@ -40,7 +40,11 @@ vi.mock('@/lib/supabase', () => ({ supabase: { from: (t: string) => builder(t) }
 vi.mock('../supabase', () => ({ supabase: { from: (t: string) => builder(t) } }))
 vi.mock('next/cache', () => ({ unstable_cache: (fn: unknown) => fn }))
 // The live fallback of getListBots: a bot computed live from its (empty) history.
-vi.mock('@/lib/backtest-segment-data', () => ({ getBacktestSegment: async () => null }))
+const seg = vi.hoisted(() => ({ read: { kind: 'none' } as { kind: string; reason?: string } }))
+vi.mock('@/lib/backtest-segment-data', () => ({
+  getBacktestSegment: async () => null,
+  readBacktestSegment: async () => seg.read,
+}))
 
 import { getBots, getBotSlugs, getListBots, getBotsPage } from '@/lib/queries'
 import { FORMULA_REV } from '@/lib/bot-summary'
@@ -121,5 +125,51 @@ describe('getBotsPage', () => {
     const next = await getBotsPage('arm-bot-00002', 2)
     expect(next.map(b => b.slug)).toEqual(['arm-bot-00003', 'arm-bot-00004'])
     expect(calls.at(-1)!.orders).toEqual(['slug'])
+  })
+})
+
+// Fable review (03/10): Next keys unstable_cache on the callback's source and its key parts.
+// A formula change does not change the callback's source, and the Vercel data cache outlives
+// deploys: without the revision in the key, a bumped formula would serve the OLD formula's
+// summaries from the live fallback for up to 30 minutes.
+describe('the live fallback cache is keyed by formula revision', () => {
+  it('carries FORMULA_REV in its key', async () => {
+    const keys: unknown[][] = []
+    const cache = await import('next/cache')
+    const spy = vi.spyOn(cache, 'unstable_cache').mockImplementation(((fn: unknown, k: unknown[]) => {
+      keys.push(k); return fn
+    }) as never)
+    tables = { bots: bots.slice(0, 1) }
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    await getListBots()
+    spy.mockRestore()
+    const summaryKey = keys.find(k => k[0] === 'fleet-bot-summary')
+    expect(summaryKey).toContain(`rev${FORMULA_REV}`)
+  })
+})
+
+// Fable review (03/10): the live fallback must not cache figures computed from a FAILED
+// segment read (they are the ledger's, not the simulation's). It shows the bot the way
+// its fiche does in that case (plain paper view), uncached, and says so.
+describe('the live fallback on a segment read error', () => {
+  it('still lists the bot, says why, and does not go through the cache with those figures', async () => {
+    const keys: unknown[][] = []
+    const cache = await import('next/cache')
+    const spy = vi.spyOn(cache, 'unstable_cache').mockImplementation(((fn: () => Promise<unknown>, k: unknown[]) => {
+      keys.push(k)
+      // a cache that stores whatever the callback returns: a throw stores nothing
+      return async () => fn()
+    }) as never)
+    tables = { bots: bots.slice(0, 1) }
+    seg.read = { kind: 'error', reason: 'read failed: timeout' }
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const got = await getListBots()
+      expect(got.map(b => b.slug)).toEqual([bots[0].slug])
+      expect(err.mock.calls.flat().join(' ')).toMatch(/segment unreadable.*not cached/)
+    } finally {
+      seg.read = { kind: 'none' }
+      spy.mockRestore(); err.mockRestore()
+    }
   })
 })
