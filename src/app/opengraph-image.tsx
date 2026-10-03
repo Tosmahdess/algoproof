@@ -2,13 +2,14 @@ import { ImageResponse } from 'next/og'
 import { getFunnelCounts } from '@/lib/funnel'
 import { SITE_COLORS as C } from '@/lib/site-colors'
 import { Wordmark } from '@/lib/share-image'
+import { OG_FONT_FAMILY, ogFontOptions } from '@/lib/og-fonts'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// La marque, en clair plutôt que lue depuis public/logo.svg : cette route tourne
-// à l'Edge et ne lit pas le disque. Les deux copies sont tenues ensemble par
-// tests/app/opengraph-image.test.tsx, qui compare les chemins du check.
+// La marque, en clair plutôt que lue depuis public/logo.svg. Les deux copies sont
+// tenues ensemble par tests/app/opengraph-image.test.tsx, qui compare les chemins
+// du check.
 // Le halo du check vaut le fond de cette carte, le fond du site (#101714 depuis la
 // refonte « registre des décisions ») : un halo à la mauvaise couleur se verrait
 // comme un liseré sombre.
@@ -50,7 +51,7 @@ export default async function Image() {
         alignItems: 'center',
         justifyContent: 'center',
         gap: '20px',
-        fontFamily: 'sans-serif',
+        fontFamily: OG_FONT_FAMILY,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
@@ -65,6 +66,6 @@ export default async function Image() {
         {botLine}
       </span>
     </div>,
-    { width: 1200, height: 630 }
+    { width: 1200, height: 630, ...(await ogFontOptions()) }
   )
 }

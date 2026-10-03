@@ -15,14 +15,22 @@ comma sits at the same place from the right on each line.
 It also pins the weight axis to 400-700, the four weights the site uses, and
 keeps the Latin and punctuation ranges the site sets (see UNICODES).
 
+Two outputs, both in src/app/fonts/, next to the font's licence (SIL OFL 1.1, no
+Reserved Font Name):
+
+- SchibstedGrotesk-wght.woff2, the variable font loaded by next/font/local in
+  src/app/layout.tsx;
+- SchibstedGrotesk-400.ttf to -700.ttf, one static font per weight, for the
+  images Satori draws (next/og, read by src/lib/og-fonts.ts). Satori reads
+  neither WOFF2 nor variable fonts; with only its default face it drew the spaces
+  between words at uneven widths (« Croisement  EMA »).
+
 Usage (fontTools and brotli required):
 
     curl -L -o SchibstedGrotesk.ttf \
       "https://github.com/google/fonts/raw/main/ofl/schibstedgrotesk/SchibstedGrotesk%5Bwght%5D.ttf"
-    python scripts/fonts/build_schibsted.py SchibstedGrotesk.ttf
-
-The output lands in src/app/fonts/, next to the font's licence (SIL OFL 1.1, no
-Reserved Font Name), and is loaded by next/font/local in src/app/layout.tsx.
+    python scripts/fonts/build_schibsted.py SchibstedGrotesk.ttf            # both
+    python scripts/fonts/build_schibsted.py SchibstedGrotesk.ttf --static   # the TTFs only
 """
 import sys
 from pathlib import Path
@@ -40,7 +48,17 @@ UNICODES = (
     + list(range(0x2190, 0x2200)) + list(range(0x2200, 0x2300)) + list(range(0x25A0, 0x2700))
 )
 
-OUT = Path(__file__).resolve().parents[2] / 'src' / 'app' / 'fonts' / 'SchibstedGrotesk-wght.woff2'
+FONTS = Path(__file__).resolve().parents[2] / 'src' / 'app' / 'fonts'
+OUT = FONTS / 'SchibstedGrotesk-wght.woff2'
+# The weights the images set: regular, medium (the regime badge), semibold (names
+# and figures), bold (the wordmark).
+STATIC_WEIGHTS = (400, 500, 600, 700)
+# Satori lays a line out with each character measured on its own, then draws each
+# word whole, with the kerning and ligatures opentype.js applies (GPOS `kern`, GSUB
+# `liga` and `rlig`). A word drawn kerned is narrower than the room it was given, so
+# the space after it widened by the word's kerning: « Croisement  EMA », « +27,3  % ».
+# The static copies carry neither, so what is drawn is what was measured.
+SATORI_DROP = frozenset({'kern', 'liga', 'rlig'})
 
 
 def drop_comma_from_tnum(font: TTFont) -> int:
@@ -62,22 +80,42 @@ def drop_comma_from_tnum(font: TTFont) -> int:
     return removed
 
 
-def main(source: str) -> None:
+def subset_source(source: str, drop_features: frozenset[str] = frozenset()) -> TTFont:
     font = TTFont(source)
     options = subset.Options()
-    options.layout_features = ['*']
+    if drop_features:
+        tags = {r.FeatureTag for t in ('GSUB', 'GPOS') if t in font for r in font[t].table.FeatureList.FeatureRecord}
+        options.layout_features = sorted(tags - drop_features)
+    else:
+        options.layout_features = ['*']
     options.name_IDs = ['*']
     options.notdef_outline = True
     subsetter = subset.Subsetter(options)
     subsetter.populate(unicodes=UNICODES)
     subsetter.subset(font)
-    font = instancer.instantiateVariableFont(font, {'wght': (400, 700)})
+    return font
+
+
+def narrow_comma(font: TTFont) -> TTFont:
     if drop_comma_from_tnum(font) == 0:
         raise SystemExit('no comma in the tnum lookups: the source font changed, check it by hand')
-    font.flavor = 'woff2'
-    font.save(OUT)
-    print(f'{OUT} ({OUT.stat().st_size} bytes)')
+    return font
+
+
+def main(source: str, static_only: bool) -> None:
+    if not static_only:
+        font = narrow_comma(instancer.instantiateVariableFont(subset_source(source), {'wght': (400, 700)}))
+        font.flavor = 'woff2'
+        font.save(OUT)
+        print(f'{OUT} ({OUT.stat().st_size} bytes)')
+
+    for weight in STATIC_WEIGHTS:
+        static = narrow_comma(instancer.instantiateVariableFont(
+            subset_source(source, SATORI_DROP), {'wght': weight}, updateFontNames=True))
+        path = FONTS / f'SchibstedGrotesk-{weight}.ttf'
+        static.save(path)
+        print(f'{path} ({path.stat().st_size} bytes)')
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(sys.argv[1], '--static' in sys.argv[2:])
