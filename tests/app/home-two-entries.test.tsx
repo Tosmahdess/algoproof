@@ -187,13 +187,15 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
     expect(screen.queryByText('Bots en service (simulation ou argent réel)')).toBeNull()
   })
 
-  // The engine counts configurations, the fleet counts bots (D059). The only
-  // engine figure left on the home names its unit.
-  it('the engine figure on the home counts configurations, and no bot', async () => {
+  // The engine counts configurations, the fleet counts bots (D059). The engine's
+  // addition counts no bot; its note says, in words, that bots are counted apart.
+  it('the engine figures on the home count configurations, and no bot', async () => {
     render(await HomePage())
-    const g = screen.getByTestId('home-graveyard')
-    expect(g.textContent!.replace(/\s/g, ' ')).toMatch(/330 000\s*configurations recalées/)
-    expect(g.textContent).not.toMatch(/bots?\b/i)
+    const ledger = screen.getByTestId('engine-ledger')
+    expect(ledger.textContent!.replace(/\s/g, ' ')).toMatch(/Recalées\s*330 000/)
+    expect(ledger.textContent).toMatch(/Configurations jugées/)
+    expect(ledger.textContent).not.toMatch(/bots?\b/i)
+    expect(screen.getByTestId('engine-outside').textContent).toMatch(/Mes bots et les variantes de la bibliothèque se comptent à part/)
   })
 
   // Vocabulary decision (2026-09-20): « le labo » is the TOOL, « simulation »
