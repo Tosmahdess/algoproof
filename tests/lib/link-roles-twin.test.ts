@@ -22,7 +22,7 @@ import { join } from 'node:path'
 // there and paste this digest into its twin test.
 // Finitions (2026-10-03): one comment of linkClass() said « green means profit »;
 // it now says green belongs to the wordmark. Same pending copy to the lab, new digest.
-const TWIN_SHA256 = 'd0d13e7e0be82bdce007bee46d0dfa04616d689455af7271aa03c0370a03e261'
+const TWIN_SHA256 = '31c3c61dd0328306e5ee306919e83e2a9131b0bfdb065c99d9074ad6229aef0f'
 
 describe('link-roles.ts and its twin in the other repo', () => {
   it('still matches the digest both sides assert', () => {

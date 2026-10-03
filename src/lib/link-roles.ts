@@ -88,7 +88,7 @@ const NAV_ACTIVE = `text-foreground transition-colors ${FOCUS}`
  *
  * `extra` is for position and spacing (`mt-3`, `block`, `flex-1`) — never for
  * colour or decoration. A colour passed here would defeat the point: the role
- * alone says what a link looks like, and green belongs to the wordmark only.
+ * alone says what a link looks like, never the colour of a figure.
  */
 export function linkClass(
   role: LinkRole,
