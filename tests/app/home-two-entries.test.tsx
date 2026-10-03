@@ -193,7 +193,7 @@ describe('/ — bots are counted once, and the total shows its parts', () => {
     render(await HomePage())
     // The five figures on one row (owner, 03/10): configurations only, never a bot (D059).
     const row = screen.getByTestId('engine-row-figures')
-    expect(row.textContent!.replace(/\s/g, ' ')).toMatch(/330 000\s*recalées/)
+    expect(row.textContent!.replace(/\s/g, ' ')).toMatch(/recalées\s*330 000/)
     expect(row.textContent).toMatch(/jugées/)
     expect(row.textContent).not.toMatch(/bots?\b/i)
     expect(screen.getByTestId('engine-outside').textContent).toMatch(/Mes bots et les variantes de la bibliothèque se comptent à part/)
