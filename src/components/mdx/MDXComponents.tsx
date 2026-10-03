@@ -87,7 +87,7 @@ function MDXTd(props: HTMLAttributes<HTMLTableCellElement>) {
   const fontClass = numeric ? 'tabular-nums' : ''
   const colorClass =
     sign === 'positive'
-      ? 'text-positive'
+      ? 'text-foreground'
       : sign === 'negative'
         ? 'text-negative'
         : 'text-foreground'

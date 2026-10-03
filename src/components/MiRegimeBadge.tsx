@@ -147,14 +147,14 @@ export default function MiRegimeBadge() {
             <span className="text-muted">Tendance</span>
             <span className="tabular-nums">{trendFr(snap.trend_regime)}</span>
             {snap.btc_vs_ema200_pct != null && (
-              <span className={`tabular-nums text-xs ${snap.btc_vs_ema200_pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+              <span className={`tabular-nums text-xs ${snap.btc_vs_ema200_pct >= 0 ? 'text-foreground' : 'text-negative'}`}>
                 ({fmtPct(snap.btc_vs_ema200_pct, 1)} vs moyenne {frNumber(200, 0)} j)
               </span>
             )}
           </div>
           <div className="ml-auto flex items-center gap-2 tabular-nums text-xs">
-            <span className={snap.allow_long ? 'text-positive' : 'text-muted line-through'}>Longs</span>
-            <span className={snap.allow_short ? 'text-positive' : 'text-muted line-through'}>Shorts</span>
+            <span className={snap.allow_long ? 'text-foreground' : 'text-muted line-through'}>Longs</span>
+            <span className={snap.allow_short ? 'text-foreground' : 'text-muted line-through'}>Shorts</span>
           </div>
         </div>
       )}

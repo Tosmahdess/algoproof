@@ -21,11 +21,11 @@ export default function SyncBadge({ lastSyncAt, className = '' }: Props) {
 
   const age = ageMinutes(lastSyncAt)
 
-  let dot = 'bg-positive'
+  let dot = 'bg-foreground'
   let label: string
 
   if (age < 120) {
-    dot = 'bg-positive'
+    dot = 'bg-foreground'
     label = age < 2 ? 'Actif' : `il y a ${Math.round(age)}min`
   } else if (age < 720) {
     dot = 'bg-warning'

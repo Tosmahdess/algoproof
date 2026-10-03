@@ -48,7 +48,7 @@ function SimBar({ idea }: { idea: IdeaCardData }) {
     <div className="grid gap-1.5">
       <div className="flex h-2 overflow-hidden rounded-full bg-card-2" role="img"
         aria-label={`${s.up} au-dessus de zéro, ${s.down} à zéro ou en dessous, ${s.young} trop jeunes`}>
-        <span className="block h-full bg-positive/70" style={{ width: w(s.up) }} />
+        <span className="block h-full bg-foreground/70" style={{ width: w(s.up) }} />
         <span className="block h-full bg-negative/70" style={{ width: w(s.down) }} />
         <span className="block h-full bg-border-strong" style={{ width: w(s.young) }} />
       </div>
@@ -62,7 +62,7 @@ function SimBar({ idea }: { idea: IdeaCardData }) {
 }
 
 function Pill({ children, tone }: { children: ReactNode; tone?: 'run' | 'stop' }) {
-  const t = tone === 'run' ? 'border-positive/40 text-positive'
+  const t = tone === 'run' ? 'border-border-strong text-foreground'
     : tone === 'stop' ? 'border-negative/40 text-negative' : 'border-border-strong text-muted'
   return <span className={`whitespace-nowrap rounded-full border px-2 py-0.5 text-xs ${t}`}>{children}</span>
 }

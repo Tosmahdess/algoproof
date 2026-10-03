@@ -117,6 +117,26 @@ const RULES: Rule[] = [
     sample: '<h2>💬 Discussion</h2>',
     allow: ['app/api/subscribe/route.ts'], // Telegram notifications to the owner, not the site
   },
+  // Finitions (2026-10-03): a gain is ordinary ink and green is the wordmark's
+  // (DESIGN.md, « The Gain à l'encre Rule »). The `positive` token still exists for
+  // the config's history but equals `foreground`; a call site names the ink
+  // directly, so no class can read as « green means profit » again. Tailwind's
+  // own greens and the GitHub green of the old cards are refused outright.
+  {
+    re: /(?<![\w-])(?:[a-z-]+:)*(?:text|bg|border|fill|stroke|ring|from|to|via|decoration|divide|outline)-positive\b/,
+    why: 'positive class — a gain is text-foreground; green is the wordmark',
+    sample: "className={pct >= 0 ? 'text-positive' : 'text-negative'}",
+  },
+  {
+    re: /\b(?:[a-z-]+:)*(?:text|bg|border|fill|stroke|ring|from|to|via|decoration|divide|outline)-(?:green|emerald|lime)-\d/,
+    why: 'Tailwind green — green is the wordmark only',
+    sample: "style: 'bg-green-900/40 text-green-300'",
+  },
+  {
+    re: /#(?:3fb950|22c55e|16a34a|10b981|34d399|2ea043)\b/i,
+    why: 'green hex — a gain is ink; the wordmark green is #4ade80, in the wordmark only',
+    sample: "const pnlColor = pnlPct >= 0 ? '#3fb950' : '#ff4444'",
+  },
   // Finitions (2026-10-03): the regime marks and the favourite star are drawn
   // (components/icons.tsx). A glyph in their place renders in each OS's fallback font.
   {
@@ -142,7 +162,8 @@ describe('design drift guard', () => {
   it('does not fire on the canonical spellings', () => {
     const ok = [
       'text-foreground', 'text-muted', 'group-hover:text-accent', 'text-xs', 'rounded-lg', 'rounded-full',
-      'bg-positive/10', "className={`tabular-nums ${pct >= 0 ? 'text-positive' : 'text-negative'}`}", '[&_code]:font-mono',
+      'bg-card-2', "className={`tabular-nums ${pct < 0 ? 'text-negative' : 'text-foreground'}`}", '[&_code]:font-mono',
+      "style={{ color: '#4ade80' }}>Proof", 'text-negative',
       '<th className="text-xs uppercase tracking-wider text-muted">', '<tr className="text-muted uppercase tracking-wider border-b">',
       'stroke: familyColor(family)',
       'Échantillon faible ⚠', 'bg-foreground text-bg',

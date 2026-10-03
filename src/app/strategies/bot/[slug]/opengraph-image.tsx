@@ -59,7 +59,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const stats = simulation?.stats ?? bot.stats
   const startCapital = simulation ? simulation.timeline.simStartCapital : bot.start_capital
   const pnlPct = ((stats.latest_capital - startCapital) / startCapital) * 100
-  const pnlColor = pnlPct >= 0 ? '#3fb950' : '#ff4444'
+  const pnlColor = pnlPct >= 0 ? '#e6edf3' : '#ff4444'
   const isLive = bot.status === 'live'
   const sparklineD = buildSparklinePath(
     simulation ? simulationPerfDaily(simulation) : bot.perf_daily, 1104, 140)

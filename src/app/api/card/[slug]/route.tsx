@@ -23,10 +23,10 @@ export async function GET(
 
   const metrics = [
     { label: 'WR', value: fmtWinRateDisplay(bot.family, stats.total_trades, stats.win_rate), color: '#e6edf3' },
-    { label: 'PF', value: fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor), color: stats.profit_factor >= 1 ? '#3fb950' : '#ff4444' },
+    { label: 'PF', value: fmtPfDisplay(bot.family, stats.total_trades, stats.profit_factor), color: stats.profit_factor >= 1 ? '#e6edf3' : '#ff4444' },
     // Red only when there is a drawdown to show; « 0.0% » is neutral (display.ts).
     { label: 'DD', value: fmtDrawdown(stats.max_drawdown), color: drawdownIsLoss(stats.max_drawdown) ? '#ff4444' : '#e6edf3' },
-    { label: 'P&L',       value: fmtEur(eur),                                 color: eur >= 0 ? '#3fb950' : '#ff4444' },
+    { label: 'P&L',       value: fmtEur(eur),                                 color: eur >= 0 ? '#e6edf3' : '#ff4444' },
   ]
 
   return new ImageResponse(

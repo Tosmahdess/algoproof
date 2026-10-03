@@ -59,7 +59,7 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                   {hasData && isLowSample(bot.stats.total_trades) && <RodageTag />}
                 </span>
                 {hasData
-                  ? <span className={`shrink-0 tabular-nums text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
+                  ? <span className={`shrink-0 tabular-nums text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-foreground'}`}>{fmtPct(pct)}</span>
                   : <span className="shrink-0 text-xs text-muted">—</span>}
               </span>
               <span className="text-xs text-muted tabular-nums">
@@ -138,7 +138,7 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                     {hasData ? fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate) : <span className="text-muted">—</span>}
                   </td>
                   <td
-                    className={`px-4 py-3 text-right tabular-nums hidden lg:table-cell ${hasData && !isCarryFamily(bot.family) ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}
+                    className={`px-4 py-3 text-right tabular-nums hidden lg:table-cell ${hasData && !isCarryFamily(bot.family) ? (bot.stats.profit_factor >= 1 ? 'text-foreground' : 'text-negative') : ''}`}
                     title={hasData && isCarryFamily(bot.family) ? CARRY_METRIC_TOOLTIP : undefined}
                   >
                     {hasData ? fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor) : <span className="text-muted">—</span>}
@@ -149,8 +149,8 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                   <td className="px-4 py-3 text-right">
                     {hasData ? (
                       <div>
-                        <span className={`tabular-nums font-bold ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</span>
-                        <span className={`block text-xs tabular-nums ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
+                        <span className={`tabular-nums font-bold ${eur >= 0 ? 'text-foreground' : 'text-negative'}`}>{fmtEur(eur)}</span>
+                        <span className={`block text-xs tabular-nums ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-foreground' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
                       </div>
                     ) : <span className="text-muted">—</span>}
                   </td>

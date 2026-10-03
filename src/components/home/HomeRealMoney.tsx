@@ -36,7 +36,7 @@ export function RealMoneyCard({ bot, testId = 'home-bot-card' }: { bot: BotWithS
   const pct = pnlPct(bot.stats.latest_capital, bot.start_capital)
   const eur = pnlEur(bot.stats.latest_capital, bot.start_capital)
   const sign: 1 | -1 = pct < 0 ? -1 : 1
-  const tone = pct < 0 ? 'text-negative' : 'text-positive'
+  const tone = pct < 0 ? 'text-negative' : 'text-foreground'
   const spark = last30Capital(bot.perf_daily)
   const delta30 = spark.length >= 2 ? spark[spark.length - 1] - spark[0] : null
   const rule = ruleState(bot)
@@ -56,7 +56,7 @@ export function RealMoneyCard({ bot, testId = 'home-bot-card' }: { bot: BotWithS
       <HomeSpark values={spark} sign={sign} startCapital={bot.start_capital} />
       <div className="flex justify-between text-xs text-muted">
         <span>30 derniers jours</span>
-        {delta30 !== null && <span className={`tabular-nums ${delta30 < 0 ? 'text-negative' : 'text-positive'}`}>{fmtEur(delta30)}</span>}
+        {delta30 !== null && <span className={`tabular-nums ${delta30 < 0 ? 'text-negative' : 'text-foreground'}`}>{fmtEur(delta30)}</span>}
       </div>
       <p className="tabular-nums text-xs text-muted flex flex-wrap gap-x-3">
         <span><b className="text-foreground font-medium">{bot.stats.total_trades}</b>{' '}trades</span>

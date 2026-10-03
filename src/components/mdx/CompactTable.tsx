@@ -2,7 +2,7 @@ import { Children, isValidElement, type ReactNode } from 'react'
 import { isNumeric, detectSign } from './cellKind'
 
 const signColor = {
-  positive: 'text-positive',
+  positive: 'text-foreground',
   negative: 'text-negative',
   neutral: 'text-foreground',
 }

@@ -45,10 +45,10 @@ export default function FleetDayTable({ rows }: { rows: DayRow[] }) {
                 {/* One date format on the site (lot 1, C4): « 2 juil. 2026 », not « 2/7/2026 ». */}
                 <td className="px-2 py-1.5">{mediumDate(row.date)}</td>
                 <td className="px-2 py-1.5 text-right">{row.trades}</td>
-                <td className={`px-2 py-1.5 text-right ${row.pnlReal >= 0 ? 'text-positive' : 'text-negative'}`}>
+                <td className={`px-2 py-1.5 text-right ${row.pnlReal >= 0 ? 'text-foreground' : 'text-negative'}`}>
                   {fmtEur(row.pnlReal)}
                 </td>
-                <td className={`px-2 py-1.5 text-right ${row.pnlLabo >= 0 ? 'text-positive' : 'text-negative'}`}>
+                <td className={`px-2 py-1.5 text-right ${row.pnlLabo >= 0 ? 'text-foreground' : 'text-negative'}`}>
                   {fmtEur(row.pnlLabo)}
                 </td>
               </tr>

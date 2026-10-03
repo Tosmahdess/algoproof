@@ -36,7 +36,7 @@ interface StatProps {
 function detectChangeColor(s: string | undefined): string {
   if (!s) return 'text-muted'
   const trimmed = s.trim()
-  if (/^[+]/.test(trimmed)) return 'text-positive'
+  if (/^[+]/.test(trimmed)) return 'text-foreground'
   if (/^[−–-]/.test(trimmed)) return 'text-negative'
   return 'text-muted'
 }

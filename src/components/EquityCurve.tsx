@@ -54,7 +54,7 @@ function CustomTooltip({ active, payload, label }: any) {
     <div className="bg-card border border-border rounded p-2 text-xs">
       <p className="text-muted mb-1">{label}</p>
       <p className="text-foreground tabular-nums">{frNumber(Number(d.capital), 2)} €</p>
-      <p className={`tabular-nums ${pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+      <p className={`tabular-nums ${pnl >= 0 ? 'text-foreground' : 'text-negative'}`}>
         {fmtEur(pnl)}
       </p>
     </div>

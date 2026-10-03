@@ -14,7 +14,7 @@ export function detectSign(s: string): Intent {
 }
 
 export const valueColor: Record<Intent, string> = {
-  positive: 'text-positive',
+  positive: 'text-foreground',
   negative: 'text-negative',
   neutral:  'text-foreground',
 }
