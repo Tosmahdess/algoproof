@@ -186,9 +186,10 @@ describe('/ — the lead, the library, the graveyard and one article', () => {
   it('keeps the swept corpus outside the sum, never as rejected, and links the graveyard', async () => {
     render(await HomePage())
     const e = screen.getByTestId('home-engine')
-    const outside = within(e).getByTestId('engine-outside').textContent!.replace(/\s/g, ' ')
-    expect(outside).toMatch(/recensé 41 333 092 configurations/)
-    expect(outside).toMatch(/39 578 848 qu’il n’a pas jugées n’ont pas de verdict/)
+    // The swept total heads the block as its own line (owner, 03/10), still out of the sum.
+    const swept = within(e).getByTestId('engine-swept').textContent!.replace(/\s/g, ' ')
+    expect(swept).toMatch(/Configurations recensées ?41 333 092/)
+    expect(swept).toMatch(/39 578 848 autres n’ont pas de verdict : je ne les compte pas comme recalées/)
     expect(within(e).getByTestId('engine-ledger').textContent).not.toMatch(/recens/)
     expect(within(e).getByRole('link', { name: /Voir le cimetière/ }).getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=home-cimetiere')
     expect(screen.queryByTestId('home-graveyard')).toBeNull()
