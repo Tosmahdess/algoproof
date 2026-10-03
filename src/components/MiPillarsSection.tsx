@@ -66,7 +66,7 @@ export default function MiPillarsSection({ changelogs }: { changelogs: BotChange
         <div className="mt-5">
           {/* The « Voir tout le journal Intelligence » link died with /journal (2026-08-08).
               The tab keeps the dated changes in place, where the reader already is. */}
-          <ChangelogTab changelogs={changelogs} />
+          <ChangelogTab changelogs={changelogs} sujet="la météo" />
         </div>
       )}
     </div>
