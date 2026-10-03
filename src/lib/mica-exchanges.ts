@@ -12,11 +12,15 @@ export interface MicaExchange {
   affiliate: boolean
 }
 
-// The day these rows were last revised (f79cf61, 12 July 2026: the Bybit and Binance
-// rows were swapped and corrected). /mica prints it as « Statuts relevés le … »
-// (audit 2026-10, n° 82). Change it only when the rows are checked again against
-// the ESMA register.
-export const MICA_EXCHANGES_READ_ON = '2026-07-12'
+// The day these rows were last checked against the ESMA register. /mica prints it as
+// « Statuts relevés le … » (audit 2026-10, n° 82). Change it only when the rows are
+// checked again.
+//
+// 3 October 2026, against CASPS.csv of the interim MiCA register (file of 30 September
+// 2026): Bybit EU GmbH (AT, authorised 28/05/2025), Payward Europe Solutions, i.e.
+// Kraken (IE, 25/06/2025), Coinbase Luxembourg (LU, 20/06/2025), each with no end
+// date and FR among its host states. No Binance entity, no Hyperliquid entry.
+export const MICA_EXCHANGES_READ_ON = '2026-10-03'
 
 export const MICA_EXCHANGES: MicaExchange[] = [
   { name: 'Bybit',       type: 'CEX', status: 'Agrément MiCA (entité UE)',     franceOk: 'Oui', url: BYBIT_AFFILIATE_URL, affiliate: true },
