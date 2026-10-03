@@ -10,6 +10,10 @@ import {
   PARAM_ORDER,
 } from '@/lib/bot-filters'
 import { FIXTURE_FLEET, mkBot } from '../fixtures/bots'
+import { registerSlices } from '@/lib/register-slices'
+import type { BotWithStats } from '@/lib/types'
+
+const row = (b: BotWithStats) => ({ ...b, ...registerSlices(b, []) })
 
 // 2026-08-08: the venue facet (« Où ça tourne ») was removed entirely — pills,
 // state, URL parameter and predicates. bot-filters.ts's own history says why
@@ -216,21 +220,22 @@ describe('side facet (slice, not predicate)', () => {
   })
 
   it('counts bots by the presence of trades on that side, not by existence', () => {
-    const both = mkBot({ all_trades: [t('long'), t('short')] })
-    const longOnly = mkBot({ all_trades: [t('long')] })
-    const none = mkBot({ all_trades: [] })
+    // The side facet reads what the page computes from the trades (lot 1b): `sides`.
+    const both = row(mkBot({ all_trades: [t('long'), t('short')] }))
+    const longOnly = row(mkBot({ all_trades: [t('long')] }))
+    const none = row(mkBot({ all_trades: [] }))
     const counts = optionCounts([both, longOnly, none], EMPTY_FILTERS)
     expect(counts.side).toEqual({ long: 2, short: 1 })
   })
 
-  it('a bot without all_trades counts for neither side (no vacuous count)', () => {
+  it('a bot without sides counts for neither side (no vacuous count)', () => {
     const bare = { family: 'trend' as const, status: 'paper', assets: ['BTC'], timeframe: 'H4' }
     expect(optionCounts([bare], EMPTY_FILTERS).side).toEqual({ long: 0, short: 0 })
   })
 
   it('side counts respect the OTHER facets (family narrows them)', () => {
-    const trend = mkBot({ family: 'trend', all_trades: [t('short')] })
-    const breakout = mkBot({ family: 'breakout', all_trades: [t('short')] })
+    const trend = row(mkBot({ family: 'trend', all_trades: [t('short')] }))
+    const breakout = row(mkBot({ family: 'breakout', all_trades: [t('short')] }))
     const counts = optionCounts([trend, breakout], { ...EMPTY_FILTERS, family: ['trend'] })
     expect(counts.side.short).toBe(1)
   })

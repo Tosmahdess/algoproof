@@ -4,15 +4,15 @@
 import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import BotTable from '@/components/BotTable'
-import type { FleetBot } from '@/lib/types'
+import type { ListBot } from '@/lib/types'
 
 const bot = (slug: string) => ({
   slug, name: slug, status: 'paper', family: 'trend', timeframe: 'H4', start_capital: 1000,
   stats: { win_rate: 0.5, profit_factor: 1.2, max_drawdown: 0.01, total_trades: 4, latest_capital: 1010 },
   all_trades: [],
-}) as unknown as FleetBot
+}) as unknown as ListBot
 
-const text = (bots: FleetBot[], fleetTotalAbove = false) =>
+const text = (bots: ListBot[], fleetTotalAbove = false) =>
   render(<BotTable bots={bots} showTf fleetTotalAbove={fleetTotalAbove} />)
     .container.textContent!.replace(/\s+/g, ' ')
 

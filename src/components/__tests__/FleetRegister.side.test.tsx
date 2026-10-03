@@ -12,6 +12,7 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/overview',
 }))
 
+import { registerSlices } from '@/lib/register-slices'
 import FleetRegister from '@/components/FleetRegister'
 
 const t = (id: string, side: 'long' | 'short', pnl: number): Trade => ({
@@ -39,9 +40,12 @@ function rowOf(name: string): HTMLElement {
   return rows[0]
 }
 
+// What FleetOverview hands the register: the bot plus its server-computed slices.
+const asRow = (b: typeof alpha) => ({ ...b, ...registerSlices(b, []) })
+
 describe('FleetRegister — side slice', () => {
   it('shows server stats by default and the short slice after clicking « Short »', () => {
-    render(<FleetRegister bots={[alpha, beta]} initialState={EMPTY_FILTERS} />)
+    render(<FleetRegister bots={[alpha, beta].map(asRow)} initialState={EMPTY_FILTERS} />)
 
     // The ledger writes the count in the row's market line, « 3 trades ».
     expect(within(rowOf('Alpha Slice Bot')).getByText(/^3 trades$/)).toBeInTheDocument()
@@ -60,7 +64,7 @@ describe('FleetRegister — side slice', () => {
   })
 
   it('choosing « Les deux » returns to all', () => {
-    render(<FleetRegister bots={[alpha, beta]} initialState={{ ...EMPTY_FILTERS, side: 'short' }} />)
+    render(<FleetRegister bots={[alpha, beta].map(asRow)} initialState={{ ...EMPTY_FILTERS, side: 'short' }} />)
     fireEvent.change(screen.getByRole('combobox', { name: /Sens des trades/ }), { target: { value: 'all' } })
     expect(within(rowOf('Alpha Slice Bot')).getByText(/^3 trades$/)).toBeInTheDocument()
     expect(window.location.search).not.toContain('side=')

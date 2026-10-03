@@ -23,6 +23,7 @@ import { last30Capital } from '@/lib/home-data'
 import { simulationTotalSeries } from '@/lib/fleet-curves'
 import { getBotExpectations } from '@/lib/bot-expectations'
 import { ledgerState, type LedgerBot } from '@/lib/fleet-ledger'
+import { registerSlices } from '@/lib/register-slices'
 import FleetTotals from '@/components/FleetTotals'
 import FleetJournal from '@/components/FleetJournal'
 import FleetRecentTrades from '@/components/FleetRecentTrades'
@@ -53,17 +54,17 @@ export default function FleetOverview({
   // Longest history first: the order of the curves' legend.
   const liveByHistory = [...live].sort((a, b) => b.stats.total_trades - a.stats.total_trades)
 
-  // What crosses into the client register: the trade fields the browser reads,
-  // a 30-value window for the row's line, and the row's state in a few words.
-  // Never perf_daily, never recent_trades (measured 2026-09-23: 5.92 MB of HTML
-  // before this projection), never the expectations file.
+  // What crosses into the client register: the row's figures for each side
+  // (computed HERE by sliceBotStats, the function the browser used to run), a
+  // 30-value window for the row's line, and the row's state in a few words.
+  // Never a trade (lot 1b, 2026-10-03: 1.8 MB of HTML, nearly all of it every
+  // trade of every bot), never perf_daily, never recent_trades, never the
+  // expectations file.
   const registerBots: LedgerBot[] = [...live, ...paper, ...archived].map(b => {
     const { perf_daily, list_perf_daily, recent_trades: _rt, all_trades, ...rest } = b
     return {
       ...rest,
-      all_trades: all_trades.map(t => ({
-        side: t.side, pnl: t.pnl, asset: t.asset, closed_at: t.closed_at,
-      })),
+      ...registerSlices({ ...b, all_trades }, initialState.asset),
       // an engine bot's row reads its simulation, like its figures (D073)
       spark30: last30Capital(list_perf_daily ?? perf_daily),
       ledger: b.status === 'archived' ? null : ledgerState(b, getBotExpectations(b.slug)),

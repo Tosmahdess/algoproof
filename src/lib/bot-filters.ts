@@ -57,8 +57,8 @@ export interface FilterableBot {
   status: string
   assets: string[]
   timeframe: string
-  /** Present on register bots (BotWithStats). Used only by optionCounts.side. */
-  all_trades?: ReadonlyArray<{ side: 'long' | 'short' }>
+  /** Present on register bots (FleetBot). Used only by optionCounts.side. */
+  sides?: { long: boolean; short: boolean }
 }
 
 // Parameter order is fixed here and nowhere else. Exported (fix round 1) so
@@ -198,13 +198,12 @@ export function optionCounts<T extends FilterableBot>(bots: T[], s: FleetFilterS
 
   // Side counts: bots with at least one trade on that side, against the other
   // facets. `side` is not a PREDICATE (see header), so there is nothing to
-  // skip — `applyFleetFilters` is the right base. A bot without `all_trades`
+  // skip — `applyFleetFilters` is the right base. A bot without `sides`
   // (a caller that built a bare FilterableBot) contributes to neither.
   const side = { long: 0, short: 0 }
   for (const b of applyFleetFilters(bots, s)) {
-    const ts = b.all_trades ?? []
-    if (ts.some(t => t.side === 'long')) side.long += 1
-    if (ts.some(t => t.side === 'short')) side.short += 1
+    if (b.sides?.long) side.long += 1
+    if (b.sides?.short) side.short += 1
   }
 
   return { family, status, timeframe, side }

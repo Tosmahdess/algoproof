@@ -98,11 +98,24 @@ export type StatsTrade = Pick<Trade, 'side' | 'pnl' | 'asset' | 'closed_at'>
  *  `perf_daily` — "never ship a row set to the browser that the browser will not
  *  use" — which had been applied to one of the two client props and not the
  *  other. */
-export type FleetBot = Omit<BotWithStats, 'all_trades' | 'perf_daily' | 'recent_trades'> & {
+/** A list row: the bot and its figures, never its trades or its daily series. */
+export type ListBot = Omit<BotWithStats, 'all_trades' | 'perf_daily' | 'recent_trades'> & {
   /** Lot 4 (2026-09-25): the row's 30-day capital window, at most 30 values,
    *  oldest first, computed server-side (never the whole perf_daily). */
   spark30?: number[]
-  all_trades: StatsTrade[]
+}
+
+/** A row of /overview's client register: a list row plus its side slices. */
+export type FleetBot = ListBot & {
+  /** Lot 1b (2026-10-03, D094): the row's figures for each side, computed on the
+   *  SERVER by sliceBotStats over the bot's trades with no asset filter. The browser
+   *  picks one; it no longer receives a single trade (the page was 1.8 MB of them). */
+  slices: Record<'all' | 'long' | 'short', BotStats>
+  /** The same three, for the asset set the URL requested at render time. Absent when
+   *  the URL named no asset. */
+  assetSlices?: Record<'all' | 'long' | 'short', BotStats>
+  /** Whether the bot traded each side at all: the side facet's counts. */
+  sides: { long: boolean; short: boolean }
 }
 
 export interface WealthCall {
