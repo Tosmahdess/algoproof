@@ -84,7 +84,7 @@ export function FollowsProvider({ slugs, children }: { slugs: string[]; children
   return <FollowsContext.Provider value={{ state, items, busy, toggle }}>{children}</FollowsContext.Provider>
 }
 
-const BELL = 'inline-flex items-center justify-center min-h-10 min-w-10 rounded-md leading-none transition-colors'
+const BELL = 'inline-flex items-center justify-center min-h-11 min-w-11 rounded-md leading-none transition-colors'
 
 export function BellIcon({ on }: { on: boolean }) {
   return (

@@ -112,7 +112,7 @@ export default function FleetFilterBar({
       </div>
 
       {showReset && (
-        <button type="button" onClick={onReset} className="hidden min-h-10 text-sm text-accent underline lg:inline-flex lg:items-center">
+        <button type="button" onClick={onReset} className="hidden min-h-11 text-sm text-accent underline lg:inline-flex lg:items-center">
           Tout effacer
         </button>
       )}

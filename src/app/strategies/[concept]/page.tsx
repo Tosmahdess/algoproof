@@ -71,7 +71,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 pt-12">
       <nav className="text-xs text-muted mb-6">
-        <Link href="/strategies" className={linkClass('nav', 'inline-flex min-h-10 items-center')}>Les stratégies</Link>
+        <Link href="/strategies" className={linkClass('nav', 'inline-flex min-h-11 items-center')}>Les stratégies</Link>
         {' / '}{familyLabel(fiche.family)}
       </nav>
 
@@ -147,7 +147,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
             )}
             {rodage.length > 0 && (
               <details data-testid="concept-rodage" className="bg-card border border-border rounded-lg">
-                <summary className="cursor-pointer px-4 py-3 text-xs text-muted min-h-10">
+                <summary className="cursor-pointer px-4 py-3 text-xs text-muted min-h-11">
                   {`En rodage · ${rodage.length} bot${rodage.length > 1 ? 's' : ''} sous 20 trades : un taux de gain ou un facteur de profit ne veut encore rien dire ici.`}
                 </summary>
                 <div className="px-4 pb-4 pt-2">

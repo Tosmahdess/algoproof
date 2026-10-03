@@ -20,7 +20,7 @@ import { accessToken, callFavorite, Expired, pagePath, signInHref, type Favorite
 
 type State = 'loading' | 'guest' | 'off' | 'on'
 
-const BUTTON = 'inline-flex items-center gap-1.5 min-h-10 px-3 rounded-md border text-sm transition-colors'
+const BUTTON = 'inline-flex items-center gap-1.5 min-h-11 px-3 rounded-md border text-sm transition-colors'
 
 // Refonte lot 3 (2026-10-02): the bot fiche asks for the maquette's button,
 // `appearance="registre"`: 44 px, a control contour (not the decorative rule), ink text.

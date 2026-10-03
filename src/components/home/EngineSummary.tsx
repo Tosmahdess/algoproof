@@ -57,7 +57,7 @@ export default function EngineSummary({ counts }: { counts: FunnelCounts | null 
 
       <div className="mt-3 pt-2 border-t border-border flex flex-wrap items-start justify-between gap-x-4">
         <details className="text-xs text-muted min-w-0">
-          <summary className="cursor-pointer min-h-10 flex items-center">
+          <summary className="cursor-pointer min-h-11 flex items-center">
             <span><span className="tabular-nums">{n(counts.n_swept)}</span>{' '}configurations recensées · lesquelles ont été jugées ?</span>
           </summary>
           <p className="pb-2 max-w-[60ch] leading-relaxed">
@@ -65,7 +65,7 @@ export default function EngineSummary({ counts }: { counts: FunnelCounts | null 
             jugées par les quatre épreuves. Les autres n’ont pas de verdict à ces épreuves.
           </p>
         </details>
-        <Link href="/strategies#comment-je-decide" className={linkClass('inline', 'text-xs min-h-10 inline-flex items-center')}>
+        <Link href="/strategies#comment-je-decide" className={linkClass('inline', 'text-xs min-h-11 inline-flex items-center')}>
           Comment je décide →
         </Link>
       </div>
