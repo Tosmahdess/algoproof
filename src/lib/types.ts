@@ -105,8 +105,14 @@ export type ListBot = Omit<BotWithStats, 'all_trades' | 'perf_daily' | 'recent_t
   spark30?: number[]
 }
 
-/** A row of /overview's client register: a list row plus its side slices. */
-export type FleetBot = ListBot & {
+/** The bot columns /overview's client register reads, and only those: every field of
+ *  a register row is serialized into the page (lot 1b, 2026-10-03 -- 782 KB, most of it
+ *  columns nobody read). The compiler, not a comment, keeps a new read honest. */
+export type FleetBotColumns = 'id' | 'slug' | 'name' | 'status' | 'family' | 'exchange'
+  | 'timeframe' | 'assets' | 'start_capital' | 'engine_unit_key' | 'strategy' | 'stats' | 'spark30'
+
+/** A row of /overview's client register: those columns plus its side slices. */
+export type FleetBot = Pick<ListBot, FleetBotColumns> & {
   /** Lot 1b (2026-10-03, D094): the row's figures for each side, computed on the
    *  SERVER by sliceBotStats over the bot's trades with no asset filter. The browser
    *  picks one; it no longer receives a single trade (the page was 1.8 MB of them). */

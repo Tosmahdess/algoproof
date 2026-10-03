@@ -92,6 +92,18 @@ describe('the register prop that crosses the RSC boundary', () => {
     expect(rows[0]).not.toHaveProperty('assetSlices')
   })
 
+  // Lot 1b, step 3 (2026-10-03): once the trades were gone, most of the 782 KB was bot
+  // columns the register never reads (description, dates, provenance...). Every field
+  // listed here is read by the register, its rows or its filters; nothing else crosses.
+  it('carries only the fields the register reads', () => {
+    const rows = renderWith([mkBot({ status: 'paper', all_trades: [trade()] })]) as unknown as
+      Record<string, unknown>[]
+    expect(Object.keys(rows[0]!).sort()).toEqual([
+      'assets', 'engine_unit_key', 'exchange', 'family', 'id', 'ledger', 'name', 'sides',
+      'slices', 'slug', 'spark30', 'start_capital', 'stats', 'status', 'strategy', 'timeframe',
+    ])
+  })
+
   it('with assets in the URL, also carries the slices of that asset set', () => {
     const bot = mkBot({ status: 'paper', all_trades: [
       trade(), trade({ asset: 'BTC-USDC', side: 'short', pnl: -3 }),
