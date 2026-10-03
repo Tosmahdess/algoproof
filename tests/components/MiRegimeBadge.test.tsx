@@ -51,12 +51,53 @@ describe('MiRegimeBadge', () => {
     expect(text()).not.toMatch(/NEUTRAL|neutre/)
   })
 
-  it('writes the score and the pillars in French figures', async () => {
+  // Refonte page Météo (2026-10-03; audit 2026-10, n° 46): « score 14,5 » had no scale.
+  // The score carries its sign and its scale. The four pillar scores left the panel for
+  // the pillars register under the chart, so the panel no longer prints them.
+  it('writes the global score with its sign and its scale, in French figures', async () => {
     vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
     render(<MiRegimeBadge />)
-    await waitFor(() => expect(screen.getByText(/12,5/)).toBeDefined())
-    expect(text()).toContain('−5,0')
+    await waitFor(() => expect(screen.getByText(/\+12,5/)).toBeDefined())
+    expect(text()).toContain('sur une échelle de −100 à +100')
     expect(text()).not.toMatch(/\d\.\d/)
+    expect(text()).not.toMatch(/score MI|MI/)
+  })
+
+  // The state of the day in one panel, like the verdict of a bot: the regime as its
+  // heading, what it allows, and the date of the reading.
+  it('is one framed panel titled by the regime, dated', async () => {
+    vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
+    render(<MiRegimeBadge />)
+    const title = await screen.findByRole('heading', { level: 2, name: 'Calme' })
+    const panel = screen.getByTestId('meteo-panel')
+    expect(panel.contains(title)).toBe(true)
+    expect(panel.getAttribute('aria-labelledby')).toBe(title.id)
+    expect(text()).toMatch(/Relevé le \d/)
+  })
+
+  // « Longs Shorts » had no label (n° 46).
+  it('names the sides the bots may take, in words', async () => {
+    vi.mocked(getLatestMiSnapshot).mockResolvedValue({ ...mockSnap, allow_short: false })
+    render(<MiRegimeBadge />)
+    await waitFor(() => expect(screen.getByText('Calme')).toBeDefined())
+    expect(text()).toContain('Sens permis : à la hausse seulement')
+    expect(text()).not.toMatch(/Longs|Shorts/)
+  })
+
+  // A calm market is not a gain: the title stays in ink. Stress takes the loss
+  // contour and ink, with its word, the way a crossed rule does on a bot.
+  it('writes calm in ink and stress in the loss ink with a full loss contour', async () => {
+    vi.mocked(getLatestMiSnapshot).mockResolvedValue(mockSnap)
+    const { unmount } = render(<MiRegimeBadge />)
+    const calm = await screen.findByRole('heading', { level: 2, name: 'Calme' })
+    expect(calm.className).toMatch(/text-foreground/)
+    expect(screen.getByTestId('meteo-panel').className).not.toMatch(/border-negative/)
+    unmount()
+    vi.mocked(getLatestMiSnapshot).mockResolvedValue({ ...mockSnap, regime: 'RED' as const, is_safe: false })
+    render(<MiRegimeBadge />)
+    const stress = await screen.findByRole('heading', { level: 2, name: 'Stress' })
+    expect(stress.className).toMatch(/text-negative/)
+    expect(screen.getByTestId('meteo-panel').className).toMatch(/border-negative/)
   })
 
   it('says what the state changes for the bots today, when entries are open', async () => {
@@ -65,7 +106,7 @@ describe('MiRegimeBadge', () => {
     await waitFor(() =>
       expect(screen.getByText(/^Les bots entrent normalement\.$/)).toBeDefined(),
     )
-    expect(text()).toContain('Ce que ça change pour mes bots aujourd’hui')
+    expect(text()).toContain('Ce que ça autorise pour mes bots')
     expect(text()).not.toMatch(/Trading autorisé/)
   })
 
