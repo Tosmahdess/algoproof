@@ -41,7 +41,7 @@ export default function CryptoTaxCalculator() {
 
   return (
     <div className="rounded-lg border border-border bg-card p-4 sm:px-6 sm:py-5">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3 sm:items-start">
         <div>
           <label className="block">
             <span className={LABEL}>Total investi (€)</span>
@@ -65,7 +65,7 @@ export default function CryptoTaxCalculator() {
           {soldError && <p id={soldErrorId} className="mt-1.5 text-xs text-negative">{soldError}</p>}
         </div>
         <label className="block">
-          <span className={LABEL}>Ta tranche marginale d&apos;imposition (TMI)</span>
+          <span className={LABEL}>Ta tranche marginale (TMI)</span>
           <select value={tmi} onChange={e => setTmi(parseFloat(e.target.value))}
             className={`${FIELD} border-border-strong`}>
             {TMI_BRACKETS.map(b => (

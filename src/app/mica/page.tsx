@@ -63,7 +63,8 @@ const MICA_POINTS: [string, string][] = [
 
 const SECTION = 'border-t border-border pt-8 sm:pt-9'
 const H2 = 'text-2xl font-semibold tracking-tight'
-const COLUMNS = 'sm:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_auto] sm:gap-x-6'
+// A fixed last column, so the heads and the rows share their tracks.
+const COLUMNS = 'sm:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_7.5rem] sm:gap-x-6'
 const TYPE_LABEL: Record<MicaExchange['type'], string> = { CEX: 'Centralisée (CEX)', DEX: 'Décentralisée (DEX)' }
 
 function ExchangeRow({ e }: { e: MicaExchange }) {
@@ -78,7 +79,7 @@ function ExchangeRow({ e }: { e: MicaExchange }) {
                className={linkClass('record', 'inline-flex min-h-11 items-center sm:min-h-0')}>
               {e.name}<span className="sr-only">{' '}(nouvel onglet)</span>
             </a>
-          ) : e.name}
+          ) : <span className="inline-flex min-h-11 items-center sm:min-h-0">{e.name}</span>}
           {/* The mention sits on the link's own line (audit 2026-10, n° 16). */}
           {e.affiliate && <>{' '}<span className="text-xs font-normal text-muted">· lien affilié</span></>}
         </p>
