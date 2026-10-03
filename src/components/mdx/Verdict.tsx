@@ -1,14 +1,22 @@
 // src/components/mdx/Verdict.tsx
 //
-// Verdict callout — colored decision badge with a one-line conclusion.
-// Use at the end of a phase or section to make the decision visible at a glance.
+// Verdict box: the decision in words, then its one-line conclusion. Use at the end
+// of a phase or section to make the decision visible at a glance.
 //
 // Usage in MDX:
-//   <Verdict status="no-go" label="Verdict final">
+//   <Verdict status="no-go" label="Décision finale">
 //     Stratégie archivée. Pas de paper, pas de live.
 //   </Verdict>
+//
+// Finitions of the « registre des décisions » redesign (2026-10-03): the badge in
+// tracked capitals (« NO GO ») and the coloured left border are gone. The box is a
+// surface with a full 1 px rule, like every article box; the verdict opens the text
+// in bold (« Décision finale : rejet. »), and only its state word keeps the state
+// colour. A positive verdict is ink: green is the wordmark's.
+// Pinned by tests/components/mdx/encadres.test.tsx.
 
 import type { ReactNode } from 'react'
+import { BOX, BOX_TEXT } from './box'
 
 type VerdictStatus = 'go' | 'go-cond' | 'no-go' | 'overfit' | 'pending'
 
@@ -18,35 +26,23 @@ interface VerdictProps {
   children: ReactNode
 }
 
-const styles: Record<VerdictStatus, { badge: string; border: string; bg: string }> = {
-  'go':       { badge: 'bg-positive/15 text-positive border border-positive/40', border: 'border-l-positive/60', bg: 'bg-positive/[0.03]' },
-  'go-cond':  { badge: 'bg-warning/15 text-warning border border-warning/40', border: 'border-l-warning/60', bg: 'bg-warning/[0.03]' },
-  'no-go':    { badge: 'bg-negative/15 text-negative border border-negative/40', border: 'border-l-negative/60', bg: 'bg-negative/[0.03]' },
-  'overfit':  { badge: 'bg-negative/15 text-negative border border-negative/40', border: 'border-l-negative/60', bg: 'bg-negative/[0.03]' },
-  'pending':  { badge: 'bg-muted/15 text-muted border border-muted/30', border: 'border-l-muted/40', bg: 'bg-card/40' },
-}
-
-const defaultText: Record<VerdictStatus, string> = {
-  'go':      'GO',
-  'go-cond': 'GO CONDITIONNEL',
-  'no-go':   'NO GO',
-  'overfit': 'OVERFIT',
-  'pending': 'EN ATTENTE',
+const STATE: Record<VerdictStatus, { word: string; tone: string }> = {
+  'go':      { word: 'feu vert', tone: 'text-foreground' },
+  'go-cond': { word: 'feu vert sous conditions', tone: 'text-warning' },
+  'no-go':   { word: 'rejet', tone: 'text-negative' },
+  'overfit': { word: 'surajustement', tone: 'text-negative' },
+  'pending': { word: 'en attente', tone: 'text-muted' },
 }
 
 export function Verdict({ status, label, children }: VerdictProps) {
-  const s = styles[status]
+  const s = STATE[status]
   return (
-    <aside className={`not-prose my-8 border-l-2 ${s.border} ${s.bg} pl-5 pr-5 py-4 rounded-r-md`}>
-      <div className="flex items-center gap-3 mb-2">
-        <span className={`inline-block px-2 py-0.5 rounded text-xs tabular-nums font-semibold tracking-wider ${s.badge}`}>
-          {defaultText[status]}
-        </span>
-        {label && (
-          <span className="text-xs uppercase tracking-[0.18em] text-muted font-semibold">{label}</span>
-        )}
-      </div>
-      <div className="text-sm text-foreground leading-relaxed [&_p]:my-1 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-foreground [&_strong]:text-foreground [&_strong]:font-semibold">
+    <aside role="note" className={`${BOX} my-8`}>
+      <div className={BOX_TEXT}>
+        <strong className="font-semibold text-foreground">
+          {label ?? 'Verdict'}{' : '}
+          <span data-verdict-state className={s.tone}>{s.word}</span>.
+        </strong>{' '}
         {children}
       </div>
     </aside>

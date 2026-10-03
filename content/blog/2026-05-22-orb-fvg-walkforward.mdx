@@ -6,7 +6,7 @@ tags: ["backtest", "méthode", "transparence"]
 summary: "J'ai testé 216 configurations d'une stratégie ORB+FVG sur l'or et l'euro/dollar. Les meilleures sortaient PF 1.40 sur 2 ans de données. Une seule étape supplémentaire — la walk-forward — a montré qu'il n'y avait probablement aucun edge. Voici comment et pourquoi."
 ---
 
-<Callout type="note" title="Scope">
+<Callout type="note" title="Périmètre">
 Ce backtest porte sur **XAU/USD** (or comptant) et **EUR/USD** (forex). C'est un setup que je voulais valider avant d'envisager un éventuel élargissement de mon univers. **Ma flotte live reste 100 % crypto** (BTC/ETH/SOL et autres altcoins) — aucun bot live n'a tradé ces résultats. Tout ce qui suit est de la recherche méthodo, pas une perte sur la flotte.
 </Callout>
 
@@ -56,7 +56,7 @@ Après correction des coûts, 5 configurations sortaient avec PF ≥ 1.20 sur le
 
 Côté EUR/USD : zéro configuration au-dessus de PF 1.0, le meilleur sortait à PF 0.46. NO_GO clair.
 
-<Verdict status="go-cond" label="Verdict provisoire Phase 1 — XAU">
+<Verdict status="go-cond" label="Verdict provisoire, phase 1, XAU">
 5 configurations PF ≥ 1.20, toutes convergentes sur la session Asie 00:00 UTC avec SL `orb_opposite`. Insensibilité paramétrique encourageante. Candidat sérieux pour une dernière validation walk-forward avant tout paper trading.
 </Verdict>
 
