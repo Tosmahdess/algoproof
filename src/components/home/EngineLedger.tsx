@@ -1,19 +1,15 @@
-// What my engine passes, as a funnel (owner, 03/10/2026: « on perd l'info du nombre de
-// configurations testées, de celles qui ont eu un go », then « ça ne vaut pas mieux en
-// entonnoir ? du plus grand chiffre au plus petit »).
+// What my engine passes, in five figures on one row (owner, 03/10/2026: « on perd l'info
+// du nombre de configurations testées, de celles qui ont eu un go », then « les 5 chiffres
+// sur la même ligne et une toute petite phrase pour chacun »). In this order they also run
+// from the largest to the smallest: swept, judged, then the three verdicts of the judged.
 //
-// Three nested sets, so a funnel is true here: the candidates are part of the judged,
-// which are part of the swept (getFunnelCounts, one generation per rung). Configurations
-// only, never a bot (D059): the fleet is counted elsewhere. The rejected and the
-// suspended are not a step: they are the judged that did not get through, written at the
-// judged step, and the three verdicts still sum to it (verdictTotals in funnel.ts).
+// Configurations only, never a bot (D059): the fleet is counted elsewhere. The three
+// verdicts sum to the judged (verdictTotals in funnel.ts). The swept corpus is never called
+// « testé » (funnel.ts) nor « recalé » (D059), and the unjudged rest is not counted: it
+// grows with every sweep (owner, 03/10).
 //
-// No proportional bars (the owner removed the old funnel's bars, and 4 347 against 51
-// million would draw nothing). The funnel is typographic: the figures shrink, and from
-// 768 px each step's rule is shorter than the one above. The swept corpus is never
-// called « testé » (funnel.ts) nor « recalé » (D059), and the unjudged rest is not
-// counted: it grows with every sweep (owner, 03/10).
-//
+// Layout: one row of five from 1 024 px, three then two from 640 px, register lines below
+// (label and phrase left, figure right). No display-size number: 26 px at most.
 // The conclusion comes under the figures (owner, 03/10): the ratio, said in words.
 import Link from 'next/link'
 import type { FunnelCounts } from '@/lib/funnel'
@@ -24,20 +20,16 @@ import { linkClass } from '@/lib/link-roles'
 
 const n = (v: number) => frNumber(v, 0)
 
-const STEP = 'grid grid-cols-1 gap-x-8 gap-y-1 border-t border-border py-4 md:grid-cols-[13rem_minmax(0,1fr)] md:items-baseline'
-const FIGURE = 'whitespace-nowrap text-2xl font-medium tabular-nums md:text-right md:text-[28px]'
+type Kind = 'swept' | 'judged' | 'no_go' | 'marginal' | 'go'
 
-// Between two steps: a downward chevron under the figures, drawn, never typed, so it is not
-// read aloud (DESIGN.md: icons are drawn, in the note ink).
-function Down() {
+function Figure({ kind, value, label, phrase }: { kind: Kind, value: number, label: string, phrase: string }) {
   return (
-    <li aria-hidden="true" className="md:grid md:grid-cols-[13rem_minmax(0,1fr)] md:gap-x-8">
-      <svg data-testid="engine-down" aria-hidden="true" focusable="false" viewBox="0 0 12 12" fill="none"
-           stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-           className="my-1 h-3 w-3 text-muted md:justify-self-end md:mr-12">
-        <path d="M2 4.5 6 8.5l4-4" />
-      </svg>
-    </li>
+    <div data-testid="engine-figure" data-kind={kind}
+         className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 border-t border-border py-3.5 sm:flex sm:flex-col sm:border-t-0 sm:py-0">
+      <dt className="font-semibold sm:order-2 sm:mt-1">{label}</dt>
+      <dd className="whitespace-nowrap text-right text-xl font-medium tabular-nums sm:text-left lg:text-[26px]">{n(value)}</dd>
+      <dd data-testid="engine-phrase" className="col-span-2 text-sm text-muted sm:order-3 sm:mt-0.5">{phrase}</dd>
+    </div>
   )
 }
 
@@ -47,34 +39,14 @@ export default function EngineLedger({ counts }: { counts: FunnelCounts | null }
 
   return (
     <section data-testid="home-engine" aria-labelledby="home-engine-title" className="border-b border-border py-8 sm:py-9">
-      <ol data-testid="engine-funnel" aria-label="De ce que mon moteur passe en revue à ce qu’il retient" className="list-none p-0">
-        <li data-testid="engine-step" data-step="swept" className={STEP}>
-          <span className={FIGURE}>{n(counts.n_swept)}</span>
-          <div>
-            <p className="font-semibold">configurations recensées</p>
-            <p className="mt-1 text-sm text-muted">Toutes les combinaisons de réglages que mon moteur a passées en revue. Seule une partie va jusqu’aux quatre épreuves.</p>
-          </div>
-        </li>
-        <Down />
-        <li data-testid="engine-step" data-step="judged" className={`${STEP} md:w-[88%]`}>
-          <span className={FIGURE}>{n(counts.n_judged)}</span>
-          <div>
-            <p className="font-semibold">jugées par mes quatre épreuves</p>
-            <p data-testid="engine-dropped" className="mt-1 text-sm text-muted">
-              Dont{' '}<span className="tabular-nums text-foreground">{n(counts.n_no_go)}</span>{' '}recalées, chacune avec son motif publié, et{' '}
-              <span className="tabular-nums text-foreground">{n(counts.n_marginal)}</span>{' '}en sursis, qui ont raté une seule des trois premières épreuves.
-            </p>
-          </div>
-        </li>
-        <Down />
-        <li data-testid="engine-step" data-step="go" className={`${STEP} border-b md:w-[76%]`}>
-          <span className={FIGURE}>{n(counts.n_go)}</span>
-          <div>
-            <p className="font-semibold">candidates</p>
-            <p className="mt-1 text-sm text-muted">Les quatre épreuves tenues.</p>
-          </div>
-        </li>
-      </ol>
+      <dl data-testid="engine-row-figures"
+          className="sm:grid sm:grid-cols-3 sm:gap-x-8 sm:gap-y-6 sm:border-y sm:border-border sm:py-5 lg:grid-cols-5 lg:gap-x-6">
+        <Figure kind="swept" value={counts.n_swept} label="recensées" phrase="Énumérées par mon moteur." />
+        <Figure kind="judged" value={counts.n_judged} label="jugées" phrase="Passées aux quatre épreuves." />
+        <Figure kind="no_go" value={counts.n_no_go} label="recalées" phrase="Chacune avec son motif publié." />
+        <Figure kind="marginal" value={counts.n_marginal} label="en sursis" phrase="Une seule épreuve ratée." />
+        <Figure kind="go" value={counts.n_go} label="candidates" phrase="Les quatre épreuves tenues." />
+      </dl>
 
       {/* What these counts are not. */}
       <p data-testid="engine-outside" className="mt-4 text-xs leading-relaxed text-muted">

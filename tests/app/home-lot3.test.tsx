@@ -169,27 +169,21 @@ describe('/ — the lead, the library, the graveyard and one article', () => {
   // The engine's numbers came back on 03/10 (owner: « on perd l'info du nombre de
   // configurations testées, de celles qui ont eu un go »), as an addition and not as
   // the card that overflowed (audit n° 7). The method tiles stay retired.
-  it('the engine as a funnel, largest to smallest, the ratio in words under it', async () => {
+  it('the engine’s five figures on one row, largest to smallest, the ratio in words under them', async () => {
     render(await HomePage())
     expect(screen.queryByTestId('home-funnel')).toBeNull()
     expect(screen.queryByTestId('home-method')).toBeNull()
     const e = screen.getByTestId('home-engine')
     expect(within(e).getByRole('heading', { level: 2 }).textContent).toMatch(/environ 1 configuration sur\s*500/)
-    const steps = within(e).getAllByTestId('engine-step').map(r => r.textContent!.replace(/\s/g, ''))
-    expect(steps[0]).toMatch(/^41333092configurationsrecensées/)
-    expect(steps[1]).toMatch(/^1754244jugéespar/)
-    expect(steps[1]).toMatch(/1490926recalées/)
-    expect(steps[1]).toMatch(/259782ensursis/)
-    expect(steps[2]).toMatch(/^3536candidates/)
+    const values = within(e).getAllByTestId('engine-figure').map(c => Number(c.querySelector('.tabular-nums')!.textContent!.replace(/\D/g, '')))
+    expect(values).toEqual([41333092, 1754244, 1490926, 259782, 3536])
     expect(1490926 + 259782 + 3536).toBe(1754244)
   })
 
   it('names the swept corpus without calling it rejected, and links the graveyard', async () => {
     render(await HomePage())
     const e = screen.getByTestId('home-engine')
-    const swept = within(e).getAllByTestId('engine-step')[0].textContent!.replace(/\s/g, ' ')
-    expect(swept).toMatch(/Seule une partie va jusqu’aux quatre épreuves/)
-    expect(swept).not.toMatch(/recal/)
+    expect(within(e).getAllByTestId('engine-figure')[0].textContent).not.toMatch(/recal/)
     expect(within(e).getByRole('link', { name: /Voir le cimetière/ }).getAttribute('href')).toBe('https://lab.algoproof.fr/cockpit/cimetiere?ref=home-cimetiere')
     expect(screen.queryByTestId('home-graveyard')).toBeNull()
   })
