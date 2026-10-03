@@ -21,6 +21,7 @@ vi.mock('@/lib/funnel', () => ({ getFunnelCounts: async () => null }))
 vi.mock('@/lib/engine-search-space', () => ({ getSearchSpace: async () => null }))
 vi.mock('@/lib/queries', () => ({
   getAllBotsWithStats: async () => bots.current,
+  getBots: async () => bots.current,
   getBotSlugs: async () => [],
 }))
 

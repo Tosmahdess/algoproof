@@ -15,6 +15,7 @@ vi.mock('next/navigation', () => ({
 const bots = vi.hoisted(() => ({ current: [] as unknown[] }))
 vi.mock('@/lib/queries', () => ({
   getAllBotsWithStats: async () => bots.current,
+  getBots: async () => bots.current,
   getBotSlugs: async () => [],
 }))
 vi.mock('@/lib/engine-search-space', () => ({ getSearchSpace: async () => null }))

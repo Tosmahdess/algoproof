@@ -2,7 +2,7 @@ import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { fichesByFamily } from '@/lib/strategy-library'
 import { familyLabel, familyDescription } from '@/lib/families'
-import { getAllBotsWithStats } from '@/lib/queries'
+import { getBots } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
 import { excludeArchived } from '@/lib/cohort'
 import { getFunnelCounts } from '@/lib/funnel'
@@ -28,8 +28,10 @@ export default async function StrategiesIndexPage() {
   // Read alongside the bots: the explainer's figures are the engine's own counts now,
   // not literals. Null (unbackfilled unit or a failed read) renders the sentences without
   // the numbers rather than with a constant that has stopped matching the engine.
+  // The bot ROWS only (lot 1b, D094): the page counts incarnations and reads no figure,
+  // so it has no use for anyone's trades or daily series.
   const [bots, searchSpace, funnel] = await Promise.all([
-    getAllBotsWithStats().then(excludeArchived),
+    getBots().then(excludeArchived),
     getSearchSpace(),
     getFunnelCounts(),
   ])
