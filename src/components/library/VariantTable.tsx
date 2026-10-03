@@ -118,12 +118,25 @@ function Row({ v }: { v: VariantRow }) {
   )
 }
 
-export default function VariantTable({ rows, caption = 'Les variantes de cette idée' }: { rows: VariantRow[]; caption?: string }) {
+// The states in the register's order: what runs with money, in simulation, stopped,
+// then what never ran.
+const STATE_ORDER: VariantRow['status'][] = ['live', 'paper', 'archived', 'backtest']
+const CHIP = 'inline-flex min-h-11 items-center gap-2 rounded border px-3.5 text-sm transition-colors'
+
+export default function VariantTable({ rows: all, caption = 'Les variantes de cette idée' }: { rows: VariantRow[]; caption?: string }) {
   const [shown, setShown] = useState(VARIANT_PAGE)
+  const [state, setState] = useState<VariantRow['status'] | null>(null)
   const listRef = useRef<HTMLTableSectionElement>(null)
   const focusRow = useRef<number | null>(null)
+  // One button per state the idea has; none when they all share one (follow-up of
+  // the audit, 2026-10-03: 3 running variants among 163 in backtest).
+  const states = STATE_ORDER
+    .map(st => ({ st, label: all.find(r => r.status === st)?.state ?? '', count: all.filter(r => r.status === st).length }))
+    .filter(x => x.count > 0)
+  const rows = state ? all.filter(r => r.status === state) : all
   const visible = rows.slice(0, shown)
   const remaining = rows.length - visible.length
+  const choose = (st: VariantRow['status'] | null) => { setState(st); setShown(VARIANT_PAGE) }
   const next = Math.min(VARIANT_PAGE, remaining)
 
   useEffect(() => {
@@ -135,6 +148,19 @@ export default function VariantTable({ rows, caption = 'Les variantes de cette i
 
   return (
     <div>
+      {states.length > 1 && (
+        <div role="group" aria-label="Filtrer par état" className="mb-5 flex flex-wrap gap-2">
+          {[{ st: null, label: 'Tous les états', count: all.length }, ...states].map(x => {
+            const on = state === x.st
+            return (
+              <button key={x.st ?? 'all'} type="button" aria-pressed={on} onClick={() => choose(x.st)}
+                className={`${CHIP} ${on ? 'border-foreground bg-card-2 font-semibold text-foreground' : 'border-border-strong text-muted hover:text-foreground'}`}>
+                {x.label}{' '}<span className="tabular-nums">{fr(x.count)}</span>
+              </button>
+            )
+          })}
+        </div>
+      )}
       <table data-testid="variant-register" className="w-full border-collapse text-left max-md:block">
         <caption className="sr-only">{caption}</caption>
         <thead className="max-md:sr-only">
