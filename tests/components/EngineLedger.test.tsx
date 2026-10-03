@@ -37,7 +37,9 @@ describe('EngineLedger', () => {
     render(<EngineLedger counts={COUNTS} />)
     const swept = screen.getByTestId('engine-swept')
     expect(swept.textContent!.replace(/\s/g, ' ')).toMatch(/Configurations recensées ?51 339 525/)
-    expect(swept.textContent!.replace(/\s/g, ' ')).toMatch(/49 195 448 autres n’ont pas de verdict : je ne les compte pas comme recalées/)
+    // Owner, 03/10: no count of the rest, which grows with every sweep; one plain sentence.
+    expect(swept.textContent!.replace(/\s/g, ' ')).toMatch(/Toutes les combinaisons de réglages que mon moteur a passées en revue\. Seule une partie va jusqu’aux quatre épreuves\./)
+    expect(swept.textContent).not.toMatch(/recal|49 195 448/)
     expect(swept.textContent).not.toMatch(/testées/)
     expect(within(screen.getByTestId('engine-ledger')).queryByText(/recens/)).toBeNull()
     expect(swept.compareDocumentPosition(screen.getByTestId('engine-ledger')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -48,7 +50,7 @@ describe('EngineLedger', () => {
   // The block no longer sets the text and the register side by side: a stacked header
   // (Astra's framing, 03/10), then the register full width under it. The addition reads in a row,
   // its operators drawn in the note ink and never typed, so a screen reader hears none.
-  it('stacks the heading over its text, then the register full width under it', () => {
+  it('puts the figures first, then the heading, its text and its links under them', () => {
     render(<EngineLedger counts={COUNTS} />)
     const head = screen.getByTestId('engine-head')
     expect(head.className).not.toMatch(/grid-cols-\[/)
@@ -57,7 +59,7 @@ describe('EngineLedger', () => {
     for (const id of ['engine-swept', 'engine-ledger', 'engine-outside']) {
       const el = screen.getByTestId(id)
       expect(head.contains(el)).toBe(false)
-      expect(head.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(head.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
   })
 

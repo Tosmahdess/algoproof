@@ -63,48 +63,18 @@ function Verdict({ label, value, note, op }: { label: string, value: number, not
 export default function EngineLedger({ counts }: { counts: FunnelCounts | null }) {
   if (!counts || counts.n_judged <= 0) return null
   const ratio = heroRatio(counts.n_go, counts.n_judged)
-  const unjudged = counts.n_swept - counts.n_judged
 
   return (
     <section data-testid="home-engine" aria-labelledby="home-engine-title" className="border-b border-border py-8 sm:py-9">
-      {/* The header, stacked (Astra's framing, 03/10): heading, then the text and its links,
-          so no column runs short beside another. The figures follow in full width. */}
-      <div data-testid="engine-head" className="grid grid-cols-1 gap-3">
-        <h2 id="home-engine-title" className="text-2xl font-semibold tracking-tight">
-          {ratio !== null
-            ? <>Mon moteur retient environ 1 configuration sur{' '}<span className="tabular-nums">{n(ratio)}</span></>
-            : 'Mon moteur n’a retenu aucune configuration'}
-        </h2>
-        <div>
-          <p className="max-w-[72ch] text-muted">
-            Une configuration, c’est une stratégie avec des réglages précis. Celles que je juge passent
-            quatre épreuves. Une candidate n’est pas une gagnante : elle a gagné le droit d’être surveillée
-            en simulation, sans argent.
-          </p>
-          <div className="mt-1 flex flex-wrap gap-x-6">
-            <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'home-cimetiere')} target="_blank" rel="noopener noreferrer"
-               className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
-              Voir le cimetière ↗
-            </a>
-            <Link href="/strategies#comment-je-decide" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
-              Comment je décide →
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Floor 1, the swept total, as its own line (owner, 03/10). Named « recensées », never
           « testées » (funnel.ts) nor « recalées » (D059), and kept out of the addition below.
           It uses the addition's columns: label over « Recalées », figure over the judged total. */}
-      <dl data-testid="engine-swept" className="mt-6">
+      <dl data-testid="engine-swept">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 border-t border-border py-3.5 md:grid-cols-2 md:gap-x-12 md:pr-12 lg:grid-cols-4 lg:pr-0">
           <dt className="font-semibold">Configurations recensées</dt>
           <dd className={`${FIGURE} text-right font-semibold md:text-left lg:col-start-4 lg:row-start-1`}>{n(counts.n_swept)}</dd>
           <dd className="col-span-2 mt-1 text-xs text-muted lg:col-start-2 lg:row-start-1 lg:mt-0">
-            Toutes celles que mon moteur a énumérées. Je n’en juge qu’une partie
-            {unjudged > 0
-              ? <>{' '}: les{' '}<span className="tabular-nums">{n(unjudged)}</span>{' '}autres n’ont pas de verdict : je ne les compte pas comme recalées.</>
-              : '.'}
+            Toutes les combinaisons de réglages que mon moteur a passées en revue. Seule une partie va jusqu’aux quatre épreuves.
           </dd>
         </div>
       </dl>
@@ -128,6 +98,32 @@ export default function EngineLedger({ counts }: { counts: FunnelCounts | null }
       <p data-testid="engine-outside" className="mt-4 text-xs leading-relaxed text-muted md:mt-5">
         Ces nombres comptent des configurations. Mes bots et les variantes de la bibliothèque se comptent à part.
       </p>
+
+      {/* The conclusion under the figures (owner, 03/10: « mettre en dessous des chiffres »),
+          stacked full width (Astra's framing), so no column runs short beside another. */}
+      <div data-testid="engine-head" className="mt-8 grid grid-cols-1 gap-3 border-t border-border pt-6">
+        <h2 id="home-engine-title" className="text-2xl font-semibold tracking-tight">
+          {ratio !== null
+            ? <>Mon moteur retient environ 1 configuration sur{' '}<span className="tabular-nums">{n(ratio)}</span></>
+            : 'Mon moteur n’a retenu aucune configuration'}
+        </h2>
+        <div>
+          <p className="max-w-[72ch] text-muted">
+            Une configuration, c’est une stratégie avec des réglages précis. Celles que je juge passent
+            quatre épreuves. Une candidate n’est pas une gagnante : elle a gagné le droit d’être surveillée
+            en simulation, sans argent.
+          </p>
+          <div className="mt-1 flex flex-wrap gap-x-6">
+            <a href={labUrl('https://lab.algoproof.fr/cockpit/cimetiere', 'home-cimetiere')} target="_blank" rel="noopener noreferrer"
+               className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
+              Voir le cimetière ↗
+            </a>
+            <Link href="/strategies#comment-je-decide" className={linkClass('inline', 'inline-flex min-h-11 items-center')}>
+              Comment je décide →
+            </Link>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }
