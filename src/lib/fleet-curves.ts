@@ -16,7 +16,8 @@ export interface CurvePoint {
 
 interface SeriesBot {
   start_capital: number
-  perf_daily: readonly PerfDaily[]
+  /** The ledger's daily capital: at least the window, plus the last point before it. */
+  perf_daily: readonly Pick<PerfDaily, 'date' | 'capital'>[]
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100
@@ -30,7 +31,7 @@ export function simulationTotalSeries(bots: readonly SeriesBot[], cutoffStr: str
   return dates.map(date => {
     let total = 0
     for (const b of sorted) {
-      let last: PerfDaily | undefined
+      let last: Pick<PerfDaily, 'date' | 'capital'> | undefined
       for (const p of b.points) {
         if (p.date > date) break
         last = p

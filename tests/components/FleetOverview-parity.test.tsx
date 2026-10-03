@@ -12,6 +12,9 @@ import { FIXTURE_FLEET } from '../fixtures/bots'
 import { parseFleetFilters } from '@/lib/bot-filters'
 import type { FleetAggregate } from '@/lib/fleet-aggregate'
 import FleetOverview from '@/components/FleetOverview'
+import { summarizeBot } from '@/lib/bot-summary'
+import { registerSlices } from '@/lib/register-slices'
+import type { SummaryBot } from '@/lib/list-bots'
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/overview' }))
 // The chart draws nothing in jsdom: its data goes into the snapshot instead. The register
@@ -58,6 +61,20 @@ function fleet(): BotWithStats[] {
   })
 }
 
+/** What getListBots hands the page: the row and its summary, without any trade. */
+function summaries(): SummaryBot[] {
+  return fleet().map(b => {
+    const { all_trades: _t, perf_daily: _p, recent_trades: _r, list_perf_daily: _l, stats: _s, ...row } = b
+    return { ...row, ...summarizeBot(b, '2026-10-03') }
+  })
+}
+
+/** What the page computes from trades when the URL names assets. */
+function assetSlicesFor(assets: string[]) {
+  if (!assets.length) return undefined
+  return Object.fromEntries(fleet().map(b => [b.slug, registerSlices(b, assets).assetSlices!]))
+}
+
 const URLS: Record<string, Record<string, string>> = {
   default: {},
   short: { side: 'short' },
@@ -72,8 +89,8 @@ describe('/overview renders the same page from summaries as from trades', () => 
     it(`URL « ${name} »`, async () => {
       const initialState = parseFleetFilters(new URLSearchParams(params))
       const { container } = render(
-        <FleetOverview bots={fleet()} aggregate={AGG} recentTrades={[]}
-          initialState={initialState} minutes={null} />,
+        <FleetOverview bots={summaries()} assetSlices={assetSlicesFor(initialState.asset)}
+          aggregate={AGG} recentTrades={[]} initialState={initialState} minutes={null} />,
       )
       await expect(container.innerHTML).toMatchFileSnapshot(`./__snapshots__/fleet-overview-${name}.html`)
     })

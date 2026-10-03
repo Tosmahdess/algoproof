@@ -2,6 +2,7 @@
 import { fleetSimulationView } from '@/lib/bot-simulation'
 import { summarizeBot, type BotSummary } from '@/lib/bot-summary'
 import { resolveListBots, type BotWithStatsRow, type SummaryBot } from '@/lib/list-bots'
+import { registerSlices, type SideSlices } from '@/lib/register-slices'
 import { getBacktestSegment } from '@/lib/backtest-segment-data'
 import type { LiveBot } from '@/lib/fleet-aggregate'
 import { unstable_cache } from 'next/cache'
@@ -321,6 +322,17 @@ async function getAllBotsWithStatsUncached(): Promise<BotWithStats[]> {
 // getBotWithStatsCached, where each entry is small enough to actually be written.
 // Re-wrapping this function would silently undo the fix and look like an improvement.
 export const getAllBotsWithStats = getAllBotsWithStatsUncached
+
+/** /overview's side slices for the asset set its URL names, by slug. They depend on the
+ *  URL (any combination of assets: a drawdown over a union of assets depends on the
+ *  merged order of their trades), so they cannot be stored in bot_stats: these renders
+ *  still read every bot's trades, through the per-slug cache. Logged, to know how rare
+ *  they really are (lot 1b, D094). */
+export async function getAssetSlices(assets: readonly string[]): Promise<Record<string, SideSlices>> {
+  console.warn(`[bot-stats] /overview filtered by asset (${assets.join(',')}): slices read from trades`)
+  const bots = await getAllBotsWithStats()
+  return Object.fromEntries(bots.map(b => [b.slug, registerSlices(b, assets).assetSlices!]))
+}
 
 // Lifted from the old /performance page (folded into /overview 2026-07-31, see
 // next.config.ts redirects). Feeds computeFleetAggregate() for stage 0 of « La

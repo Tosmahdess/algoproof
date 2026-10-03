@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import FleetOverview from '@/components/FleetOverview'
+import { toSummaryBots } from '../fixtures/list-bots'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
 import type { TradeWithBot, PerfDaily } from '@/lib/types'
@@ -51,7 +52,7 @@ beforeEach(() => {
 
 type Props = Parameters<typeof FleetOverview>[0]
 const renderFleet = (over: Partial<Props> = {}) => render(
-  <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} minutes={26} {...over} />,
+  <FleetOverview bots={toSummaryBots(FIXTURE_FLEET)} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} minutes={26} {...over} />,
 )
 
 describe('FleetOverview — stage 0 invariant', () => {
@@ -146,7 +147,7 @@ describe('FleetOverview — what crosses the client boundary', () => {
       perf_daily: perf([day(400), day(200), day(90), day(10), day(1)]) })
     const paperA = mkBot({ slug: 'paper-a', status: 'paper', start_capital: 1000, perf_daily: perf([day(10), day(1)], 1010) })
     const paperB = mkBot({ slug: 'paper-b', status: 'paper', start_capital: 1000, perf_daily: perf([day(5)], 990) })
-    renderFleet({ bots: [live, paperA, paperB] })
+    renderFleet({ bots: toSummaryBots([live, paperA, paperB]) })
     const drawn = curveProps.at(-1)!.bots
     expect(drawn.find(b => b.slug === 'live-history')!.data.map(d => d.date)).toEqual([day(10), day(1)])
     const sim = drawn.find(b => b.slug === 'simulation')!
@@ -161,11 +162,11 @@ describe('FleetOverview — what crosses the client boundary', () => {
 describe('FleetOverview — remounts on a new server-sent filter state', () => {
   it('drops a stale filter when a new (empty) initialState arrives via rerender', () => {
     const { rerender } = render(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }} minutes={null} />,
+      <FleetOverview bots={toSummaryBots(FIXTURE_FLEET)} aggregate={AGG} recentTrades={RECENT} initialState={{ ...EMPTY_FILTERS, family: ['breakout'] }} minutes={null} />,
     )
     expect((screen.getByRole('combobox', { name: /Famille/ }) as HTMLSelectElement).value).toBe('breakout')
     rerender(
-      <FleetOverview bots={FIXTURE_FLEET} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} minutes={null} />,
+      <FleetOverview bots={toSummaryBots(FIXTURE_FLEET)} aggregate={AGG} recentTrades={RECENT} initialState={EMPTY_FILTERS} minutes={null} />,
     )
     expect((screen.getByRole('combobox', { name: /Famille/ }) as HTMLSelectElement).value).toBe('')
   })

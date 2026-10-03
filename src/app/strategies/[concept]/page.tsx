@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { STRATEGY_FICHES, getStrategyFiche } from '@/lib/strategy-library'
 import { familyLabel } from '@/lib/families'
-import { getAllBotsWithStats, getBotSlugs } from '@/lib/queries'
+import { getListBots, getBotSlugs } from '@/lib/queries'
 import { incarnationsOf } from '@/lib/incarnations'
 import { byHistoryDesc, splitBySample } from '@/lib/fleet-grouping'
 import { excludeArchived } from '@/lib/cohort'
@@ -63,7 +63,8 @@ export default async function ConceptPage({ params }: { params: Promise<{ concep
   // false statement, not a presentation choice. excludeArchived() is the
   // existing helper for exactly this (src/lib/cohort.ts) and is applied at
   // the two call sites rather than inside incarnationsOf.
-  const bots = excludeArchived(await getAllBotsWithStats())
+  // Rows and stored summaries (lot 1b, D094), not every bot's history.
+  const bots = excludeArchived(await getListBots())
   const incarnations = incarnationsOf(fiche, bots)
   // Lot 5 (C6, C7): by history, whatever the timeframe; the small samples fold.
   const { proven, rodage } = splitBySample([...incarnations].sort(byHistoryDesc))

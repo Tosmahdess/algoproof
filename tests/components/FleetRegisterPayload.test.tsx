@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
+import { toSummaryBots, toAssetSlices } from '../fixtures/list-bots'
 import FleetOverview from '@/components/FleetOverview'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { EMPTY_FILTERS } from '@/lib/bot-filters'
@@ -63,7 +64,8 @@ beforeEach(() => {
 function renderWith(bots: BotWithStats[], initialState = EMPTY_FILTERS) {
   render(
     <FleetOverview
-      bots={bots}
+      bots={toSummaryBots(bots)}
+      assetSlices={toAssetSlices(bots, initialState.asset)}
       aggregate={AGG}
       recentTrades={[]}
       initialState={initialState}
