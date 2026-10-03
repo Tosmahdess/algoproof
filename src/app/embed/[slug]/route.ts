@@ -33,6 +33,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   const html = renderEmbedCard(bot, {
     stats: simulation?.stats ?? bot.stats,
     startCapital: simulation ? simulation.timeline.simStartCapital : bot.start_capital,
+    simStart: simulation?.timeline.simStart ?? null,
   })
   return new Response(html, { status: 200, headers: HTML })
 }

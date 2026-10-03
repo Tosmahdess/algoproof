@@ -47,6 +47,7 @@ import HomePage from '@/app/page'
 import BotTable from '@/components/BotTable'
 import MetricsRow from '@/components/MetricsRow'
 import { GET as embedGET } from '@/app/embed/[slug]/route'
+import { EMBED_COLORS } from '@/lib/embed-card'
 import { GET as cardGET } from '@/app/api/card/[slug]/route'
 
 describe('drawdownIsLoss reads the figure the reader sees', () => {
@@ -105,9 +106,9 @@ describe('no surface paints « 0.0% » red', () => {
       document.body.innerHTML = await res.text()
     }
     await embed('zero-dd')
-    expect(screen.getByText(/0,0 %/)).not.toHaveStyle({ color: '#ff4444' })
+    expect(screen.getByText(/0,0 %/)).not.toHaveStyle({ color: EMBED_COLORS.neg })
     await embed('real-dd')
-    expect(screen.getByText(/8,4 %/)).toHaveStyle({ color: '#ff4444' })
+    expect(screen.getByText(/8,4 %/)).toHaveStyle({ color: EMBED_COLORS.neg })
     document.body.innerHTML = ''
   })
 
