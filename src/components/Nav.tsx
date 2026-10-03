@@ -3,7 +3,7 @@
 import { linkClass } from '@/lib/link-roles'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import TrackedLink from '@/components/TrackedLink'
 import LinkPending from '@/components/LinkPending'
 import { trackCtaLab } from '@/lib/analytics'
@@ -21,9 +21,12 @@ import { labUrl } from '@/lib/lab-links'
 // « Stratégies » opens the library (user, 2026-10-01, after D084): every engine
 // variant, one card per idea. The concept fiches and the method stay at /strategies,
 // in the same section of the bar (`also`), reached from the library and the footer.
-const LINKS: { href: string; label: string; also?: string[] }[] = [
-  { href: '/overview',     label: 'La flotte' },
-  { href: '/bibliotheque', label: 'Stratégies', also: ['/strategies'] },
+// A bot page lives under /strategies/bot/ but belongs to the fleet: its breadcrumb reads
+// « La flotte » (refonte finition, 2026-10-02), so the bar lights « La flotte » there and
+// `except` keeps « Stratégies » dark.
+const LINKS: { href: string; label: string; also?: string[]; except?: string[] }[] = [
+  { href: '/overview',     label: 'La flotte', also: ['/strategies/bot'] },
+  { href: '/bibliotheque', label: 'Stratégies', also: ['/strategies'], except: ['/strategies/bot'] },
   { href: '/investir',     label: 'Sociétés' },
   { href: '/intelligence', label: 'Météo' },
   { href: '/blog',         label: 'Articles' },
@@ -38,9 +41,17 @@ const ACCOUNT_URL = `${LAB_URL}/account`
 const ESPACE_URL = `${LAB_URL}/espace`
 const LAB_APP_URL = `${LAB_URL}/lab`
 
+// Refonte « Le registre des décisions », lot 1 (2026-10-02): the bar of Astra's
+// mock-up. The wordmark « AlgoProof », Proof in the brand green; the same five
+// links; « Le labo » stays the one button (owner, 2026-09-26) though the mock-up
+// has none, in the mock-up's primary style: slate fill, ink text, link-blue edge.
+// The phone menu button is 44 px and Escape closes the drawer.
+const BUTTON = 'inline-flex min-h-11 items-center justify-center rounded border px-3.5 text-sm font-semibold text-foreground transition-colors whitespace-nowrap'
+
 export default function Nav() {
   const path = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const menuButton = useRef<HTMLButtonElement>(null)
 
   // The drawer closes when the navigation COMMITS, not when the link is clicked:
   // closing on the click unmounted the link, and the LinkPending inside it,
@@ -49,36 +60,53 @@ export default function Nav() {
   // it closes itself.
   useEffect(() => { setMobileOpen(false) }, [path])
 
+  // Escape closes the drawer and gives the focus back to the button that opened it.
+  useEffect(() => {
+    if (!mobileOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setMobileOpen(false)
+      menuButton.current?.focus()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [mobileOpen])
+
   const under = (href: string) => path === href || path.startsWith(href + '/')
-  const isActive = (href: string) =>
-    under(href) || (LINKS.find(l => l.href === href)?.also ?? []).some(under)
+  const isActive = (href: string) => {
+    const link = LINKS.find(l => l.href === href)
+    if ((link?.except ?? []).some(under)) return false
+    return under(href) || (link?.also ?? []).some(under)
+  }
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur">
-      <div data-testid="nav-bar" className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+    <nav aria-label="Navigation principale" className="sticky top-0 z-50 border-b border-border bg-bg">
+      <div data-testid="nav-bar" className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-4 sm:px-6">
 
         {/* Wordmark: the one place the brand green lives (C5). */}
-        <Link href="/" className="text-sm font-semibold tracking-widest flex-shrink-0" onClick={() => setMobileOpen(false)}>
-          ALGO<span className="text-brand">PROOF</span>
+        <Link href="/" aria-label="AlgoProof, accueil"
+          className="flex-shrink-0 rounded-sm text-xl font-bold tracking-[0.05em] text-foreground"
+          onClick={() => setMobileOpen(false)}>
+          Algo<span className="text-brand">Proof</span>
         </Link>
 
-        {/* Desktop: the five links, then the account. */}
-        <div data-testid="nav-desktop" className="hidden md:flex items-center gap-6">
+        {/* Desktop: the five links, then the space and the account. */}
+        <div data-testid="nav-desktop" className="hidden lg:flex flex-1 items-center gap-6">
           {LINKS.map(({ href, label }) => {
             const active = isActive(href)
             return (
               <Link key={href} href={href}
                 aria-current={active ? 'page' : undefined}
-                className={linkClass('nav', `inline-flex items-center gap-1.5 text-sm font-medium${active ? ' underline decoration-2 underline-offset-8' : ''}`, { active })}>
+                className={linkClass('nav', `inline-flex min-h-11 items-center gap-1.5 text-sm${active ? ' underline decoration-2 underline-offset-8' : ''}`, { active })}>
                 {label}
                 <LinkPending />
               </Link>
             )
           })}
-          <a href={labUrl(ESPACE_URL, 'nav')} className={linkClass('nav', 'text-sm')} title="Tes bots favoris, sur lab.algoproof.fr">
+          <a href={labUrl(ESPACE_URL, 'nav')} className={linkClass('nav', 'ml-auto inline-flex min-h-11 items-center text-sm')} title="Tes bots favoris, sur lab.algoproof.fr">
             Mon espace ↗
           </a>
-          <a href={labUrl(ACCOUNT_URL, 'nav')} className={linkClass('nav', 'text-sm')} title="Ton compte est sur lab.algoproof.fr">
+          <a href={labUrl(ACCOUNT_URL, 'nav')} className={linkClass('nav', 'inline-flex min-h-11 items-center text-sm')} title="Ton compte est sur lab.algoproof.fr">
             Compte ↗
           </a>
         </div>
@@ -91,27 +119,20 @@ export default function Nav() {
             href={labUrl(LAB_APP_URL, 'nav')}
             event="cta_lab"
             location="nav"
-            className="inline-flex h-9 items-center rounded-md bg-foreground px-3.5 text-sm font-semibold text-bg hover:opacity-90 transition-opacity whitespace-nowrap"
+            className={`${BUTTON} border-accent bg-button hover:bg-card-2`}
           >
             Le labo
           </TrackedLink>
 
           <button
+            ref={menuButton}
             type="button"
-            className="md:hidden p-2 text-muted hover:text-foreground transition-colors"
+            className={`${BUTTON} lg:hidden min-w-11 border-border-strong hover:bg-card-2`}
             onClick={() => setMobileOpen(o => !o)}
-            aria-label="Menu"
+            aria-controls="menu-mobile"
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/>
-              </svg>
-            )}
+            Menu
           </button>
         </div>
       </div>
@@ -119,14 +140,14 @@ export default function Nav() {
       {/* Phone drawer: the same five links, flat, 48 px each; the lab and the
           account at the foot. No groups: five links do not fold. */}
       {mobileOpen && (
-        <div data-testid="mobile-menu" className="md:hidden border-t border-border bg-bg max-h-[80vh] overflow-y-auto">
+        <div id="menu-mobile" data-testid="mobile-menu" className="lg:hidden border-t border-border bg-bg max-h-[80vh] overflow-y-auto">
           <div className="px-4 py-2">
             {LINKS.map(({ href, label }) => {
               const active = isActive(href)
               return (
                 <Link key={href} href={href}
                   aria-current={active ? 'page' : undefined}
-                  className={linkClass('nav', `flex h-12 items-center justify-between gap-2 border-b border-border text-base font-medium${active ? ' pl-3 shadow-[inset_2px_0_0_var(--foreground)]' : ''}`, { active })}>
+                  className={linkClass('nav', `flex h-12 items-center justify-between gap-2 border-b border-border text-base${active ? ' underline decoration-2 underline-offset-8' : ''}`, { active })}>
                   <span>{label}</span>
                   <LinkPending />
                 </Link>
@@ -135,17 +156,17 @@ export default function Nav() {
           </div>
           <div className="flex flex-col gap-1 px-4 pb-4 pt-3 text-sm">
             <a href={labUrl(LAB_APP_URL, 'nav')} target="_blank" rel="noopener noreferrer"
-               className={linkClass('nav', 'flex h-10 items-center')}
+               className={linkClass('nav', 'flex min-h-11 items-center')}
                onClick={() => { trackCtaLab('nav-mobile'); setMobileOpen(false) }}>
               Ouvrir le labo ↗
             </a>
             <a href={labUrl(ESPACE_URL, 'nav')} target="_blank" rel="noopener noreferrer"
-               className={linkClass('nav', 'flex h-10 items-center')}
+               className={linkClass('nav', 'flex min-h-11 items-center')}
                onClick={() => setMobileOpen(false)}>
               Mon espace ↗
             </a>
             <a href={labUrl(ACCOUNT_URL, 'nav')} target="_blank" rel="noopener noreferrer"
-               className={linkClass('nav', 'flex h-10 items-center')}
+               className={linkClass('nav', 'flex min-h-11 items-center')}
                onClick={() => setMobileOpen(false)}>
               Compte ↗
             </a>

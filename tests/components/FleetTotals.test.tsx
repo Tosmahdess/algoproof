@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
-import FleetTotals from '@/components/FleetTotals'
+import FleetTotals, { baseLabel } from '@/components/FleetTotals'
 import { computeFleetAggregate } from '@/lib/fleet-aggregate'
 import { fmtEur } from '@/lib/display'
 
@@ -47,7 +47,9 @@ describe('FleetTotals', () => {
     expect(container.textContent).toMatch(/Je compte séparément l’argent réel et la simulation/)
   })
 
-  it('writes its figures in mono, and the loss in red, the gain in green', () => {
+  // Refonte registre, lot 1: tabular figures in the text face, not mono; the
+  // loss keeps its colour (and its sign).
+  it('writes its figures in tabular figures, and the loss in red', () => {
     const lossAgg = computeFleetAggregate(
       [{ bot_id: 'live-1', pnl: -9.5, closed_at: '2026-07-01T00:00:00Z', side: 'long', asset: 'BTC' }],
       [{ id: 'live-1', live_since: '2026-01-01T00:00:00Z' }],
@@ -57,9 +59,32 @@ describe('FleetTotals', () => {
     // getByText collapses the narrow no-break space of fmtEur to a plain space.
     const plain = (t: string) => t.replace(/\u202F/g, ' ')
     const figure = within(real).getByText(plain(fmtEur(-9.5)))
-    expect(figure.className).toMatch(/font-mono/)
+    expect(figure.className).toMatch(/tabular-nums/)
+    expect(figure.className).not.toMatch(/font-mono/)
     expect(figure.className).toMatch(/text-negative/)
     const labo = screen.getByTestId('fleet-total-labo')
     expect(within(labo).getByText(plain(fmtEur(0))).className).not.toMatch(/text-negative/)
+  })
+
+  // Refonte finition (2026-10-02): the real-money total names its base as a label, never a
+  // sentence. The simulation total names none (review 2026-10-03): no single base describes it.
+  it('names the real-money base as a label, and no base for the simulation', () => {
+    const plain = (t: string | null | undefined) => (t ?? '').replace(/[\u202F\u00A0]/g, ' ')
+    expect(plain(baseLabel([1000, 1000, 1000]))).toBe('sur 3 × 1 000 €')
+    expect(plain(baseLabel([1000, 500]))).toBe('sur 1 500 €')
+    expect(plain(baseLabel([1000, 1000], { sumOnly: true }))).toBe('sur 2 000 €')
+    expect(baseLabel([])).toBeNull()
+    render(<FleetTotals aggregate={AGG} liveCount={3} paperCount={2}
+      bases={{ real: [1000, 1000, 1000], labo: [1000, 2000] }} />)
+    expect(plain(screen.getByTestId('fleet-total-real-base').textContent)).toBe('sur 3 × 1 000 €')
+    expect(screen.queryByTestId('fleet-total-labo-base')).toBeNull()
+  })
+
+  it('writes the totals at a row result’s size, a gain in ink, never in green', () => {
+    render(<FleetTotals aggregate={AGG} liveCount={3} paperCount={93} />)
+    const figure = screen.getByTestId('fleet-total-labo').querySelector('.tabular-nums')!
+    expect(figure.textContent).toBe(fmtEur(1175))
+    expect(figure.className).toMatch(/text-lg md:text-xl/)
+    expect(figure.className).not.toMatch(/text-4xl|text-positive/)
   })
 })

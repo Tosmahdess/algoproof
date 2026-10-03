@@ -44,11 +44,12 @@ export default function BotQuestionForm({ botName, slug }: { botName: string; sl
     setMessage('')
   }
 
-  const field = 'w-full rounded-md border border-border bg-bg px-3 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none'
+  const field = 'w-full rounded-md border border-border-strong bg-bg px-3 text-sm text-foreground placeholder:text-muted focus:border-accent'
 
   return (
-    <section data-testid="bot-question" className="bg-card border border-border rounded-lg p-4 sm:p-5 mb-8">
-      <h2 className="text-xl font-semibold">Une question sur ce bot ?</h2>
+    // Refonte lot 3 (2026-10-02): a section of the fiche between rules, no card.
+    <section data-testid="bot-question" className="border-t border-border py-8 sm:py-10">
+      <h2 className="text-2xl font-semibold tracking-tight">Une question sur ce bot ?</h2>
       <p className="text-xs text-muted mt-1">J’y réponds moi-même, à l’adresse que tu laisses. Rien n’est publié.</p>
 
       <form onSubmit={submit} noValidate className="mt-4 space-y-3 max-w-[68ch]">
@@ -61,7 +62,7 @@ export default function BotQuestionForm({ botName, slug }: { botName: string; sl
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="pour que je puisse te répondre"
-            className={`${field} h-10`}
+            className={`${field} min-h-11`}
           />
         </div>
         <div>
@@ -80,7 +81,7 @@ export default function BotQuestionForm({ botName, slug }: { botName: string; sl
           <button
             type="submit"
             disabled={busy}
-            className="inline-flex h-10 items-center rounded-md bg-foreground px-4 text-sm font-semibold text-bg disabled:opacity-40 transition-opacity"
+            className="inline-flex min-h-11 items-center rounded border border-accent bg-button px-4 text-sm font-semibold text-foreground disabled:opacity-40 transition-colors"
           >
             {busy ? 'Envoi…' : 'Envoyer'}
           </button>

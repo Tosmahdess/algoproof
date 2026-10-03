@@ -16,8 +16,8 @@ const PAGE = 50
 // the same class everywhere so the guard of the tests can read it. The field
 // and the lists are 16 px on a phone: under that, iOS zooms the page on focus.
 const CIBLE = 'min-h-10'
-const LISTE = `w-full min-w-0 rounded-md border border-border bg-card px-2 ${CIBLE} text-base sm:text-sm
-               text-foreground focus:outline-none focus:border-accent`
+const LISTE = `w-full min-w-0 rounded-md border border-border-strong bg-card px-2 ${CIBLE} text-base sm:text-sm
+               text-foreground focus:border-accent`
 const ACTIF = 'text-accent border-accent/40 bg-accent/10'
 const REPOS = 'border-border text-muted hover:text-foreground'
 
@@ -151,7 +151,7 @@ export default function InvestirListe({
               placeholder="Société ou ticker…"
               aria-label="Chercher une société ou un ticker"
               className={`w-full rounded-md border border-border-strong bg-card pl-9 pr-3 ${CIBLE} h-12 text-base
-                         placeholder:text-muted focus:outline-none focus:border-accent`}
+                         placeholder:text-muted focus:border-accent`}
             />
           </div>
           <button

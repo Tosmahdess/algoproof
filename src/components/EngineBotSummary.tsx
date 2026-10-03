@@ -50,7 +50,8 @@ export default function EngineBotSummary({ fiche, conceptSlug, slug, timeframe, 
         que j&apos;ai gardés après le tri, le stop et la cible. Ces détails sont dans l&apos;onglet Technique
         {technicalIsPublic ? '.' : <>, que je réserve aux membres du labo.</>}
       </p>
-      <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline', 'text-sm')}>
+      {/* 44 px tall on a phone (refonte finition, 2026-10-02). */}
+      <Link href={`/strategies/${conceptSlug}`} className={linkClass('inline', 'inline-flex min-h-11 items-center text-sm')}>
         Lire la fiche complète de la stratégie&nbsp;→
       </Link>
     </div>

@@ -37,7 +37,7 @@ export function Row({ values, _colCount, _aligns, _isSummary, _widths, _headers 
           return (
             <div key={j} className="flex gap-2 text-sm">
               <dt className="shrink-0 text-xs font-semibold text-muted pt-0.5">{_headers?.[j + 1]}</dt>
-              <dd className={`min-w-0 break-words ${numeric ? 'font-mono tabular-nums' : ''} ${color}`}>{cell}</dd>
+              <dd className={`min-w-0 break-words ${numeric ? 'tabular-nums' : ''} ${color}`}>{cell}</dd>
             </div>
           )
         })}
@@ -63,7 +63,7 @@ export function Row({ values, _colCount, _aligns, _isSummary, _widths, _headers 
         const weight = _isSummary ? 'font-semibold' : ''
         const align = aligns[i] === 'right' ? 'text-right' : 'text-left'
         const shape = numeric
-          ? 'font-mono tabular-nums whitespace-nowrap'
+          ? 'tabular-nums whitespace-nowrap'
           : 'whitespace-normal break-words min-w-0'
         const color = numeric ? signColor[sign] : 'text-foreground'
 

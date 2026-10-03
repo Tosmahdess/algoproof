@@ -26,15 +26,15 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
   if (trades.length < 3) return null
 
   return (
-    <section data-testid="fleet-recent-trades" className="bg-card border border-border rounded-lg p-4 sm:p-5">
-      <h2 className="text-xs font-semibold text-muted mb-4">
+    <section data-testid="fleet-recent-trades" className="border-t border-border pt-6">
+      <h2 className="text-lg font-semibold mb-4">
         Derniers trades ({trades.length})
       </h2>
       {/* Phone: the 480 px table left 156 px of results behind an inner scroll
           (counter-audit F-M2). Same rows, stacked: bot and result, then date, asset, side. */}
-      <ul data-testid="fleet-recent-trades-mobile" className="sm:hidden divide-y divide-border/40">
+      <ul data-testid="fleet-recent-trades-mobile" className="sm:hidden divide-y divide-border border-y border-border">
         {trades.map(t => (
-          <li key={t.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-0.5 py-2">
+          <li key={t.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-0.5 py-3">
             <span className="min-w-0 text-sm leading-snug">
               {t.bots ? (
                 <Link href={`/strategies/bot/${t.bots.slug}`} className={linkClass('record')}>
@@ -42,10 +42,10 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
                 </Link>
               ) : '—'}
             </span>
-            <span className={`text-right font-mono text-sm whitespace-nowrap ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+            <span className={`text-right tabular-nums text-sm whitespace-nowrap ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
               {fmtEur(t.pnl)}
             </span>
-            <span className="col-span-2 font-mono text-xs text-muted">
+            <span className="col-span-2 tabular-nums text-xs text-muted">
               {shortDatePadded(t.closed_at)} · {t.asset} · {t.side} · {reasonFr(t.reason)}
             </span>
           </li>
@@ -54,7 +54,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
       <div className="hidden sm:block -mx-2 overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-xs font-medium uppercase tracking-wider text-muted border-b border-border">
+            <tr className="text-xs font-normal text-muted border-b border-border">
               <th className="px-2 py-2 text-left">Date</th>
               <th className="px-2 py-2 text-left">Bot</th>
               <th className="px-2 py-2 text-left">Actif</th>
@@ -65,8 +65,8 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
           </thead>
           <tbody>
             {trades.map(t => (
-              <tr key={t.id} className="border-b border-border/40">
-                <td className="px-2 py-1.5 font-mono text-muted">
+              <tr key={t.id} className="border-b border-border">
+                <td className="px-2 py-1.5 tabular-nums text-muted">
                   {shortDatePadded(t.closed_at)}
                 </td>
                 <td className="px-2 py-1.5">
@@ -80,7 +80,7 @@ export default function FleetRecentTrades({ trades }: { trades: TradeWithBot[] }
                 <td className="px-2 py-1.5 text-center text-muted">
                   {t.side === 'long' ? 'long' : t.side === 'short' ? 'short' : t.side}
                 </td>
-                <td className={`px-2 py-1.5 text-right font-mono whitespace-nowrap ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+                <td className={`px-2 py-1.5 text-right tabular-nums whitespace-nowrap ${t.pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
                   {fmtEur(t.pnl)}
                 </td>
                 <td className="px-2 py-1.5 text-muted hidden md:table-cell">{reasonFr(t.reason)}</td>

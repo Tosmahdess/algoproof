@@ -42,7 +42,7 @@ export default function MicaPage() {
     })),
   }
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12 space-y-14">
+    <div className="mx-auto max-w-3xl px-6 py-12 space-y-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
       {/* Hero */}
@@ -125,9 +125,9 @@ export default function MicaPage() {
 
       {/* CTA */}
       <div className="flex flex-wrap gap-3">
-        <Link href="/start" className="rounded-lg bg-foreground px-5 py-2.5 text-sm font-semibold text-bg hover:opacity-90">Ouvrir un compte en règle →</Link>
+        <Link href="/start" className="rounded-lg border border-accent bg-button px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-card-2">Ouvrir un compte en règle →</Link>
         <Link href="/strategies" className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:border-muted transition-colors">Voir les stratégies →</Link>
       </div>
-    </main>
+    </div>
   )
 }

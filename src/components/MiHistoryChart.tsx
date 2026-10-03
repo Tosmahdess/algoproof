@@ -44,13 +44,13 @@ function CustomTooltip({ active, payload, label }: any) {
   const d = payload[0]?.payload as any
   return (
     <div className="bg-[#161b22] border border-border rounded p-3 text-xs space-y-1 min-w-[180px]">
-      <p className="text-muted font-mono mb-2">{label}</p>
+      <p className="text-muted tabular-nums mb-2">{label}</p>
       <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
         {payload.map((p: any) => p.value != null && (
           <div key={p.dataKey} className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: p.color }} />
             <span className="text-muted text-xs">{p.name}</span>
-            <span className="font-mono ml-auto" style={{ color: p.color }}>
+            <span className="tabular-nums ml-auto" style={{ color: p.color }}>
               {(p.value as number).toFixed(1)}
             </span>
           </div>
@@ -144,7 +144,7 @@ export default function MiHistoryChart({ data }: Props) {
       </div>
 
       {/* Pilier weights note */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-xs font-mono">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-xs tabular-nums">
         {[
           { label: 'Sentiment', weight: '30%', color: PILLAR_COLORS.sentiment_score },
           { label: 'Dérivés',   weight: '40%', color: PILLAR_COLORS.derivatives_score },

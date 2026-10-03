@@ -130,7 +130,7 @@ export function RecitInvestir({ slug, nom, horsPerimetre = false }: {
       <div className="mt-4 flex flex-wrap gap-3">
         <a
           href={labUrl('https://lab.algoproof.fr/membre', 'investir-recit')}
-          className="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-bg hover:opacity-90 transition-opacity"
+          className="rounded-lg border border-accent bg-button px-4 py-2 text-sm font-semibold text-foreground hover:bg-card-2 transition-colors"
         >
           Voir l’abonnement
         </a>

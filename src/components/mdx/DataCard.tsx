@@ -18,7 +18,7 @@ function parseLabel(label: string): ReactNode[] {
     i % 2 === 1 ? (
       <code
         key={i}
-        className="font-mono text-[0.85em] bg-card border border-border/80 rounded px-1.5 py-0.5 text-accent/90"
+        className="font-mono text-[0.85em] bg-card border border-border/80 rounded px-1.5 py-0.5 text-foreground"
       >
         {part}
       </code>
@@ -51,7 +51,7 @@ export function DataCard({ label, sub, metrics, intent }: DataCardProps) {
           return (
             <div key={i}>
               <div
-                className={`font-mono tabular-nums text-xl font-semibold ${valueColor[sign]}`}
+                className={`tabular-nums text-xl font-semibold ${valueColor[sign]}`}
               >
                 {m.value}
               </div>

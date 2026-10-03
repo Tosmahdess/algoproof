@@ -28,12 +28,13 @@ vi.mock('@/lib/queries', () => ({
 
 import BotFichePage from '@/app/strategies/bot/[slug]/page'
 
-const DATE_RE = /En argent réel depuis le (\d{2}\/\d{2}\/\d{4})/g
+// Refonte finition (2026-10-02): the provenance line writes the site's long date.
+const DATE_RE = /En argent réel depuis le (1er|\d{1,2}) ([a-zéû]+) (\d{4})/g
 
 async function datesOnFiche(slug: string, liveSince: string): Promise<string[]> {
   current.bot = prodBot(slug, { status: 'live', live_since: liveSince })
   const { container } = render(await BotFichePage({ params: Promise.resolve({ slug }) }))
-  return [...(container.textContent ?? '').matchAll(DATE_RE)].map(m => m[1])
+  return [...(container.textContent ?? '').matchAll(DATE_RE)].map(m => `${m[1]} ${m[2]} ${m[3]}`)
 }
 
 describe('/strategies/bot/[slug] — one real-money start date per bot', () => {
@@ -41,7 +42,7 @@ describe('/strategies/bot/[slug] — one real-money start date per bot', () => {
     const dates = await datesOnFiche('v1-spot', '2026-04-17T00:00:00Z')
     // guard against a vacuous pass: the sentence must exist at least once
     expect(dates.length).toBeGreaterThan(0)
-    expect(new Set(dates)).toEqual(new Set(['17/04/2026']))
+    expect(new Set(dates)).toEqual(new Set(['17 avril 2026']))
   })
 
   // 2026-09-11 review (P2): provenance.ts formatted in UTC, PathToRealCard in
@@ -50,12 +51,12 @@ describe('/strategies/bot/[slug] — one real-money start date per bot', () => {
   // surface — and it must still print the Paris day.
   it('a live_since late in the UTC day prints the Paris day, once', async () => {
     const dates = await datesOnFiche('v1-spot', '2026-04-16T23:30:00Z')
-    expect(dates).toEqual(['17/04/2026'])
+    expect(dates).toEqual(['17 avril 2026'])
   })
 
   it('orb-bf25: same rule, the literal in bot-expectations must not resurface', async () => {
     const dates = await datesOnFiche('orb-bf25', '2026-06-18T00:00:00Z')
     expect(dates.length).toBeGreaterThan(0)
-    expect(new Set(dates)).toEqual(new Set(['18/06/2026']))
+    expect(new Set(dates)).toEqual(new Set(['18 juin 2026']))
   })
 })

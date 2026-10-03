@@ -87,7 +87,7 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
   const rows = variants.map(toRow)
 
   return (
-    <main className="mx-auto max-w-4xl px-4 sm:px-6 pt-6 sm:pt-10 pb-16">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-6 sm:pt-10 pb-16">
       <Link href="/bibliotheque" className={`${linkClass('inline')} text-sm`}>← La bibliothèque</Link>
       <h1 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight">{label} {idea.tf}</h1>
       <p className="mt-1 text-sm text-muted">
@@ -139,10 +139,10 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
         <section className="mt-4 grid gap-2 rounded-lg border border-border bg-card p-4 text-sm">
           <h2 className="text-sm font-medium text-muted">Backtest de sélection</h2>
           <p className="text-foreground">
-            PF médian <span className="font-mono">{fr(idea.pf_median)}</span>
+            PF médian <span className="tabular-nums">{fr(idea.pf_median)}</span>
             {idea.n_pf > 3 && idea.pf_q1 != null && idea.pf_q3 != null && (
-              <>, la moitié des variantes entre <span className="font-mono">{fr(idea.pf_q1)}</span> et{' '}
-                <span className="font-mono">{fr(idea.pf_q3)}</span></>
+              <>, la moitié des variantes entre <span className="tabular-nums">{fr(idea.pf_q1)}</span> et{' '}
+                <span className="tabular-nums">{fr(idea.pf_q3)}</span></>
             )}
             {' '}(sur {idea.n_pf} variantes).
           </p>
@@ -157,6 +157,6 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
         <h2 className="mb-3 text-lg font-semibold">Les {idea.n_variants} variantes</h2>
         <VariantTable rows={rows} />
       </section>
-    </main>
+    </div>
   )
 }

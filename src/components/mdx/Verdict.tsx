@@ -39,14 +39,14 @@ export function Verdict({ status, label, children }: VerdictProps) {
   return (
     <aside className={`not-prose my-8 border-l-2 ${s.border} ${s.bg} pl-5 pr-5 py-4 rounded-r-md`}>
       <div className="flex items-center gap-3 mb-2">
-        <span className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-semibold tracking-wider ${s.badge}`}>
+        <span className={`inline-block px-2 py-0.5 rounded text-xs tabular-nums font-semibold tracking-wider ${s.badge}`}>
           {defaultText[status]}
         </span>
         {label && (
           <span className="text-xs uppercase tracking-[0.18em] text-muted font-semibold">{label}</span>
         )}
       </div>
-      <div className="text-sm text-foreground leading-relaxed [&_p]:my-1 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-accent/90 [&_strong]:text-foreground [&_strong]:font-semibold">
+      <div className="text-sm text-foreground leading-relaxed [&_p]:my-1 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-foreground [&_strong]:text-foreground [&_strong]:font-semibold">
         {children}
       </div>
     </aside>

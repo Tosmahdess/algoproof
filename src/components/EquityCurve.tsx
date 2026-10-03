@@ -23,6 +23,9 @@ interface Props {
   /** Start the axis on this day (paper bots without a segment, D074): days before the
    *  first data point are drawn as nothing, never as a flat line that reads as data. */
   axisFrom?: string
+  /** Axis label size. The bot fiche asks for 13, the site's floor (refonte lot 3); other
+   *  callers keep 12 until their own lot. */
+  tickSize?: number
 }
 
 /** Empty days from `from` to the day before the first data point (capital null). */
@@ -50,17 +53,17 @@ function CustomTooltip({ active, payload, label }: any) {
   return (
     <div className="bg-card border border-border rounded p-2 text-xs">
       <p className="text-muted mb-1">{label}</p>
-      <p className="text-foreground font-mono">{frNumber(Number(d.capital), 2)} €</p>
-      <p className={`font-mono ${pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+      <p className="text-foreground tabular-nums">{frNumber(Number(d.capital), 2)} €</p>
+      <p className={`tabular-nums ${pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
         {fmtEur(pnl)}
       </p>
     </div>
   )
 }
 
-export default function EquityCurve({ data, startCapital = 1000, segments, freezeDate, axisFrom }: Props) {
+export default function EquityCurve({ data, startCapital = 1000, segments, freezeDate, axisFrom, tickSize = 12 }: Props) {
   if (segments && freezeDate) {
-    return <SegmentedCurve rows={segments} startCapital={startCapital} freezeDate={freezeDate} />
+    return <SegmentedCurve rows={segments} startCapital={startCapital} freezeDate={freezeDate} tickSize={tickSize} />
   }
   const series = axisFrom ? padFrom(data, axisFrom) : data
   const formatted = series.map(d => ({
@@ -84,18 +87,18 @@ export default function EquityCurve({ data, startCapital = 1000, segments, freez
         <AreaChart data={formatted} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id="equity" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor={isPositive ? '#4ade80' : '#f87171'} stopOpacity={0.3} />
-              <stop offset="95%" stopColor={isPositive ? '#4ade80' : '#f87171'} stopOpacity={0} />
+              <stop offset="5%"  stopColor={isPositive ? '#edf1e8' : '#ff9c90'} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={isPositive ? '#edf1e8' : '#ff9c90'} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
-          <YAxis domain={[min, max]} tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
+          <XAxis dataKey="date" tick={{ fill: '#a8b6ab', fontSize: tickSize }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
+          <YAxis domain={[min, max]} tick={{ fill: '#a8b6ab', fontSize: tickSize }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
           <Tooltip content={<CustomTooltip />} />
-          <ReferenceLine y={startCapital} stroke="#444" strokeDasharray="4 2" />
+          <ReferenceLine y={startCapital} stroke="#415449" strokeDasharray="4 2" />
           <Area
             type="monotone"
             dataKey="capitalNum"
-            stroke={isPositive ? '#4ade80' : '#f87171'}
+            stroke={isPositive ? '#edf1e8' : '#ff9c90'}
             strokeWidth={2}
             fill="url(#equity)"
             connectNulls={false}
@@ -125,19 +128,19 @@ function SegmentTooltip({ active, payload, label }: any) {
   return (
     <div className="bg-card border border-border rounded p-2 text-xs">
       <p className="text-muted mb-1">{label} · {isSim ? 'simulation' : 'backtest'}</p>
-      <p className="text-foreground font-mono">{frNumber(Number(value), 2)} €</p>
+      <p className="text-foreground tabular-nums">{frNumber(Number(value), 2)} €</p>
     </div>
   )
 }
 
-function SegmentedCurve({ rows, startCapital, freezeDate }: {
-  rows: JoinedRow[]; startCapital: number; freezeDate: string
+function SegmentedCurve({ rows, startCapital, freezeDate, tickSize }: {
+  rows: JoinedRow[]; startCapital: number; freezeDate: string; tickSize: number
 }) {
   const formatted = rows.map(r => ({ ...r, date: shortDate(`${r.date}T12:00:00Z`) }))
   const values = rows.flatMap(r => [r.backtest, r.paper]).filter((v): v is number => v !== null)
   const min = Math.min(...values) * 0.98
   const max = Math.max(...values) * 1.02
-  const simColour = paperIsUp(rows, freezeDate) ? '#4ade80' : '#f87171'
+  const simColour = paperIsUp(rows, freezeDate) ? '#edf1e8' : '#ff9c90'
   return (
     <ChartFrame>
       <ResponsiveContainer width="100%" height="100%">
@@ -148,10 +151,10 @@ function SegmentedCurve({ rows, startCapital, freezeDate }: {
               <stop offset="95%" stopColor={simColour} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="date" tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
-          <YAxis domain={[min, max]} tick={{ fill: '#888', fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
+          <XAxis dataKey="date" tick={{ fill: '#a8b6ab', fontSize: tickSize }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={24} />
+          <YAxis domain={[min, max]} tick={{ fill: '#a8b6ab', fontSize: tickSize }} tickLine={false} axisLine={false} tickFormatter={v => `${frNumber(v, 0)} €`} width={64} />
           <Tooltip content={<SegmentTooltip />} />
-          <ReferenceLine y={startCapital} stroke="#444" strokeDasharray="4 2" />
+          <ReferenceLine y={startCapital} stroke="#415449" strokeDasharray="4 2" />
           <Area type="monotone" dataKey="backtest" stroke={BACKTEST_STROKE} strokeWidth={2}
             strokeDasharray="5 4" fill="none" connectNulls={false} isAnimationActive={false} />
           {/* No draw-in animation, like the backtest line: a screenshot or a slow device

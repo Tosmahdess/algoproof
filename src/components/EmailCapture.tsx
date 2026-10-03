@@ -59,7 +59,7 @@ export default function EmailCapture({
             onChange={e => setEmail(e.target.value)}
             maxLength={254}
             required
-            className="flex-1 bg-bg border border-border rounded px-3 py-2 text-xs placeholder:text-muted focus:outline-none focus:border-accent"
+            className="flex-1 bg-bg border border-border-strong rounded px-3 py-2 text-xs placeholder:text-muted focus:border-accent"
           />
           <input
             type="text"

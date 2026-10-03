@@ -10,7 +10,7 @@ function Dot({ x, y }: { x: number; y: number }) {
   return (
     <g className="text-accent">
       <circle cx={x} cy={y} r="4" fill="currentColor" />
-      <text x={x + 7} y={y - 6} fill="currentColor" fontSize="10" fontFamily="var(--font-mono), monospace">entrée</text>
+      <text x={x + 7} y={y - 6} fill="currentColor" fontSize="10">entrée</text>
     </g>
   )
 }
@@ -71,7 +71,7 @@ export default function PrincipleSketch({ family }: { family: string }) {
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true" className="block h-auto w-full">
         {sketch(family)}
       </svg>
-      <p className="mt-0.5 flex justify-between font-mono text-xs text-muted">
+      <p className="mt-0.5 flex justify-between tabular-nums text-xs text-muted">
         <span>principe</span><span>schéma, pas un résultat</span>
       </p>
     </div>

@@ -125,3 +125,19 @@ describe('the register prop carries a 30-day window, not the history', () => {
     expect(spark[29]).toBe(1044)
   })
 })
+
+// Refonte « registre », lot 4 (2026-10-02): each row's « État et décision » is
+// computed HERE from the expectations file, and crosses as three short fields.
+describe('the register prop carries the row state, not the expectations', () => {
+  it('ships a ledger state of three fields, null for a simulation bot without published limits', () => {
+    const rows = renderWith([
+      mkBot({ slug: 'orb-bf25', status: 'live', all_trades: [trade()],
+        stats: { total_trades: 86, win_rate: 0.41, profit_factor: 0.95, max_drawdown: 0.14, latest_capital: 940 } }),
+      mkBot({ slug: 'no-limits', status: 'paper', all_trades: [trade()] }),
+    ]) as unknown as { slug: string; ledger: Record<string, unknown> | null }[]
+    const orb = rows.find(r => r.slug === 'orb-bf25')!
+    expect(Object.keys(orb.ledger!).sort()).toEqual(['kind', 'label', 'note'])
+    expect(orb.ledger!.kind).toBe('crossed')
+    expect(rows.find(r => r.slug === 'no-limits')!.ledger).toBeNull()
+  })
+})

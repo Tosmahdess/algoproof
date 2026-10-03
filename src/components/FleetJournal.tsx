@@ -18,8 +18,8 @@ export default function FleetJournal({ rows }: { rows: DayRow[] }) {
       titre="Trades journaliers"
       resume={`${frNumber(rows.length, 0)} jours de résultats : les trades et le P&L de chaque jour, argent réel et simulation séparés`}
       toujoursPliable
-      className="bg-card border border-border rounded-lg p-5 sm:p-6"
-      titreClassName="text-base font-semibold"
+      className="border-t border-border pt-6"
+      titreClassName="text-lg font-semibold"
       corpsClassName="mt-4"
     >
       <FleetDayTable rows={rows} />

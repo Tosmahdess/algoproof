@@ -30,10 +30,10 @@ export function PositionCard({ call, asset }: PositionCardProps) {
 
   const dateStr = shortDate(call.executed_at)
 
-  const pnlColor = pnlPct === null ? '#888'
+  const pnlColor = pnlPct === null ? 'var(--muted)'
     : pnlPct >= 0 ? 'var(--positive)' : 'var(--negative)'
 
-  const sigColor = SIGNAL_COLOR[call.signal_level] ?? '#666'
+  const sigColor = SIGNAL_COLOR[call.signal_level] ?? 'var(--muted)'
 
   return (
     <div className="rounded-lg border border-border bg-card p-3">
@@ -75,7 +75,7 @@ export function PositionCard({ call, asset }: PositionCardProps) {
             <span className="text-muted">
               TP1 +{asset?.tp1_pct}% · 25%
             </span>
-            <span className="text-muted font-mono">
+            <span className="text-muted tabular-nums">
               {fmt(tp1Price, 0)}€
               {tp1Gap !== null && (
                 <span className="text-muted ml-1">
@@ -90,7 +90,7 @@ export function PositionCard({ call, asset }: PositionCardProps) {
             <span className="text-muted">
               TP2 +{asset?.tp2_pct}% · 25%
             </span>
-            <span className="text-muted font-mono">
+            <span className="text-muted tabular-nums">
               {fmt(tp2Price, 0)}€
               {tp2Gap !== null && (
                 <span className="text-muted ml-1">

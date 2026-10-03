@@ -81,7 +81,7 @@ export default function EngineSurvival({ counts }: { counts: FunnelCounts | null
           {examples.map(b => (
             <li key={b.base} data-testid="survival-row" className="min-w-0 rounded-md bg-card-2 p-3">
               <Name base={b.base} />
-              <p className="font-mono text-lg tabular-nums mt-1">{oneIn(b)}</p>
+              <p className="tabular-nums text-lg mt-1">{oneIn(b)}</p>
               <p className="text-xs text-muted mt-0.5">
                 {n(b.retained)}{' '}candidate{b.retained > 1 ? 's' : ''} sur {n(b.judged)}{' '}jugées
               </p>
@@ -99,7 +99,7 @@ export default function EngineSurvival({ counts }: { counts: FunnelCounts | null
             {alphabetical.map(b => (
               <li key={b.base} data-testid="survival-full-row" className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 py-2 border-b border-border/50">
                 <Name base={b.base} />
-                <span className="font-mono text-xs tabular-nums whitespace-nowrap">{oneIn(b)}</span>
+                <span className="tabular-nums text-xs whitespace-nowrap">{oneIn(b)}</span>
                 <span className="col-span-2 text-xs text-muted">
                   {n(b.retained)}{' '}sur {n(b.judged)}{' '}jugées · {horizons(b)}
                 </span>

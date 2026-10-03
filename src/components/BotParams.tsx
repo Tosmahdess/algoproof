@@ -15,7 +15,7 @@ export default function BotParams({ params }: { params: BotParams }) {
                 <div key={item.label} className="flex items-start justify-between gap-4 text-sm">
                   <span className="text-muted shrink-0">{item.label}</span>
                   <div className="text-right">
-                    <span className="font-mono font-medium">{item.value}</span>
+                    <span className="tabular-nums font-medium">{item.value}</span>
                     {item.note && (
                       <span className="block text-xs text-muted mt-0.5">{item.note}</span>
                     )}

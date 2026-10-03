@@ -14,9 +14,16 @@ describe('evaluatePathToReal', () => {
     const r = evaluatePathToReal({ ...stats, max_drawdown: 0.15, win_rate: 0.4, total_trades: 40, profit_factor: 1.3 })
     expect(r.allMet).toBe(true)
   })
-  it('0-trade bot: gauges at 0, nothing met except DD', () => {
+  // Refonte lot 3 (audit 2026-10, constat 6): « Drawdown 0,0 % ✓ » on a bot that never
+  // traded validated a criterion on nothing. Without a trade, the three ratios are not
+  // measurable and none of them is met; the trade count stays measurable (0 / 40).
+  it('0-trade bot: nothing met, the ratios not yet measurable', () => {
     const r = evaluatePathToReal({ ...stats, total_trades: 0, profit_factor: 0, win_rate: 0, max_drawdown: 0 })
-    expect(r.met).toBe(1)             // only DD <= 15% is trivially met
+    expect(r.met).toBe(0)
+    expect(r.criteria.filter(c => !c.measurable).map(c => c.format)).toEqual(['ratio', 'pct', 'pct'])
+  })
+  it('labels its thresholds with a decimal comma', () => {
+    expect(evaluatePathToReal(stats).criteria[0].label).toBe('Facteur de profit ≥ 1,3')
   })
   it('per-bot overrides', () => {
     const r = evaluatePathToReal(stats, { ...DEFAULT_LIVE_GATE, minTrades: 10 })

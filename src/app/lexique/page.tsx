@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function LexiquePage() {
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
+    <div className="max-w-3xl mx-auto px-6 py-12">
       <JsonLd data={definedTermSetJsonLd(GLOSSARY)} />
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Lexique</h1>
       <p className="text-sm text-muted mb-8 max-w-2xl">
@@ -24,6 +24,6 @@ export default function LexiquePage() {
           </div>
         ))}
       </dl>
-    </main>
+    </div>
   )
 }

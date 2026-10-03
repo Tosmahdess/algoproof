@@ -25,11 +25,11 @@ const FAQ = [
 
 export default function FaqPage() {
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
+    <div className="max-w-3xl mx-auto px-6 py-12">
       <JsonLd data={faqJsonLd(FAQ)} />
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Questions fréquentes</h1>
       <p className="text-sm text-muted mb-8 max-w-2xl">Les réponses aux questions fréquentes sur le site.</p>
       <FaqAccordion items={FAQ} />
-    </main>
+    </div>
   )
 }

@@ -36,7 +36,7 @@ export default function ChangelogTab({ changelogs }: ChangelogTabProps) {
     <div className="space-y-6">
       {Object.entries(byDate).sort(([a], [b]) => b.localeCompare(a)).map(([date, entries]) => (
         <div key={date}>
-          <p className="text-xs text-muted font-mono mb-2">
+          <p className="text-xs text-muted tabular-nums mb-2">
             {new Date(date + 'T12:00:00Z').toLocaleDateString('fr-FR', {
               day: '2-digit',
               month: 'long',
@@ -46,7 +46,7 @@ export default function ChangelogTab({ changelogs }: ChangelogTabProps) {
           <div className="space-y-2">
             {entries.map(entry => (
               <div key={entry.id} className="flex gap-3 items-start">
-                <span className={`text-xs px-2 py-0.5 rounded font-mono flex-shrink-0 ${CATEGORY_CHIP[entry.category]?.style}`}>
+                <span className={`text-xs px-2 py-0.5 rounded tabular-nums flex-shrink-0 ${CATEGORY_CHIP[entry.category]?.style}`}>
                   {CATEGORY_CHIP[entry.category]?.label ?? entry.category}
                 </span>
                 <div>

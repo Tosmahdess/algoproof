@@ -19,8 +19,18 @@ describe('stars on the site', () => {
   })
 
   it('the fleet table and the strategy page tables sit under one provider each', () => {
-    expect(src('src/components/FleetRegister.tsx')).toMatch(/<FavoritesProvider kind="bot">\s*<BotTable/)
+    // The fleet's list is the ledger since the refonte « registre » (lot 4, 2026-10-02).
+    expect(src('src/components/FleetRegister.tsx')).toMatch(/<FavoritesProvider kind="bot">\s*<FleetLedger/)
     expect(src('src/app/strategies/[concept]/page.tsx')).toMatch(/<FavoritesProvider kind="bot">/)
+  })
+
+  it('a fleet ledger row never nests the star or the bell inside its link', () => {
+    const ledger = src('src/components/FleetLedger.tsx')
+    const link = ledger.slice(ledger.indexOf('<Link'), ledger.indexOf('</Link>'))
+    expect(link).not.toContain('FavoriteStar')
+    expect(link).not.toContain('FollowBell')
+    expect(ledger).toContain('<FavoriteStar kind="bot"')
+    expect(ledger).toContain('<FollowBell slug={bot.slug}')
   })
 
   it('a table row never nests the star inside its link', () => {
@@ -39,7 +49,9 @@ describe('bells on the site (espace-direct lot H)', () => {
   })
 
   it('a bot page carries the bell next to the star', () => {
-    expect(src('src/app/strategies/bot/[slug]/page.tsx')).toMatch(/<FavoriteButton slug=\{bot\.slug\} \/>\s*<FollowButton slug=\{bot\.slug\} \/>/)
+    // Refonte lot 3 (2026-10-02): the star takes the maquette's appearance on the fiche
+    // (an additive prop); the bell still sits right next to it.
+    expect(src('src/app/strategies/bot/[slug]/page.tsx')).toMatch(/<FavoriteButton slug=\{bot\.slug\}[^>]*\/>\s*<FollowButton slug=\{bot\.slug\} \/>/)
   })
 
   it('a table row never nests the bell inside its link, on both layouts', () => {

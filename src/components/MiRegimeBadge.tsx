@@ -76,7 +76,7 @@ export default function MiRegimeBadge() {
       <div
         data-testid="mi-regime-skeleton"
         aria-busy="true"
-        className="rounded-lg border border-border p-4 sm:p-5 space-y-5 animate-pulse"
+        className="rounded-lg border border-border p-4 sm:p-5 space-y-5 animate-pulse motion-reduce:animate-none"
       >
         <div className="h-5 w-40 rounded bg-card-2" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -95,8 +95,8 @@ export default function MiRegimeBadge() {
     )
   }
 
-  const riskColor = RISK_COLOR[snap.regime ?? ''] ?? '#888'
-  const biasColor = BIAS_COLOR[snap.market_bias ?? ''] ?? '#888'
+  const riskColor = RISK_COLOR[snap.regime ?? ''] ?? 'var(--muted)'
+  const biasColor = BIAS_COLOR[snap.market_bias ?? ''] ?? 'var(--muted)'
 
   return (
     <div className="rounded-lg border border-border p-4 sm:p-5 space-y-5">
@@ -110,14 +110,14 @@ export default function MiRegimeBadge() {
           </span>
         </div>
         <span className="text-muted text-xs">·</span>
-        <span className="text-sm text-muted font-mono">
+        <span className="text-sm text-muted tabular-nums">
           score {snap.composite_score != null ? score1(snap.composite_score) : '—'}
         </span>
         <span className="ml-auto text-xs text-muted">{freshness(snap.snapshot_at)}</span>
       </div>
 
       {/* Row 2 — 4 pillar scores */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 font-mono">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 tabular-nums">
         {PILLARS.map(p => (
           <div key={p.key} className="text-center">
             <p className="text-xs text-muted leading-tight">{p.label}</p>
@@ -145,14 +145,14 @@ export default function MiRegimeBadge() {
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-muted">Tendance</span>
-            <span className="font-mono">{trendFr(snap.trend_regime)}</span>
+            <span className="tabular-nums">{trendFr(snap.trend_regime)}</span>
             {snap.btc_vs_ema200_pct != null && (
-              <span className={`font-mono text-xs ${snap.btc_vs_ema200_pct >= 0 ? 'text-positive' : 'text-negative'}`}>
+              <span className={`tabular-nums text-xs ${snap.btc_vs_ema200_pct >= 0 ? 'text-positive' : 'text-negative'}`}>
                 ({fmtPct(snap.btc_vs_ema200_pct, 1)} vs moyenne {frNumber(200, 0)} j)
               </span>
             )}
           </div>
-          <div className="ml-auto flex items-center gap-2 font-mono text-xs">
+          <div className="ml-auto flex items-center gap-2 tabular-nums text-xs">
             <span className={snap.allow_long ? 'text-positive' : 'text-muted line-through'}>Longs</span>
             <span className={snap.allow_short ? 'text-positive' : 'text-muted line-through'}>Shorts</span>
           </div>

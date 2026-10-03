@@ -48,7 +48,7 @@ export default function GauntletExplainer({ space = null }: { space?: SearchSpac
       <ol className="space-y-3 mb-3">
         {GAUNTLET_TRIALS.map((t, i) => (
           <li key={t.name} className="text-sm">
-            <span className="text-accent font-mono text-xs mr-2">{i + 1}</span>
+            <span className="text-accent tabular-nums text-xs mr-2">{i + 1}</span>
             {t.name}
             <span className="block text-xs text-muted mt-1">{t.plain}</span>
           </li>

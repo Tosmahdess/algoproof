@@ -61,3 +61,12 @@ export function simulateOnCapital(
     lastDate: last.date,
   }
 }
+
+/** The simulation part of a curve that starts with a backtest (engine bots): the freeze
+ *  day, on the capital the backtest reached, then every day after it. The freeze day's own
+ *  move belongs to the backtest, so it reads 0 here; the worst month and the worst trough
+ *  of the simulation are then the simulation's alone (audit 2026-10, constat 4). */
+export function simulationOnlyPerf(perf: PerfDaily[], freezeDate: string): PerfDaily[] {
+  const rows = [...perf].sort((a, b) => a.date.localeCompare(b.date)).filter(p => p.date >= freezeDate)
+  return rows.map((p, i) => (i === 0 ? { ...p, pnl_day: 0 } : p))
+}

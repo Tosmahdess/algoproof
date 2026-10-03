@@ -14,7 +14,9 @@ import { accessToken, boardFollows, Conflict, Expired, NotDirect, putFollow, typ
 
 type State = 'loading' | 'hidden' | 'ready' | 'offer' | 'down'
 
-const BUTTON = 'inline-flex items-center gap-1.5 min-h-10 px-3 rounded-md border text-sm transition-colors'
+// Refonte lot 3 (2026-10-02): the maquette's button, like the star beside it (44 px, a
+// control contour, ink text). Who sees it and what it does are unchanged: Direct only.
+const BUTTON = 'inline-flex items-center gap-2 min-h-11 px-4 rounded border text-sm font-semibold transition-colors'
 
 export default function FollowButton({ slug }: { slug: string }) {
   const [state, setState] = useState<State>('loading')
@@ -64,8 +66,8 @@ export default function FollowButton({ slug }: { slug: string }) {
   if (state === 'offer') {
     return (
       <a href={labUrl(`${LAB_ORIGIN}/membre`, 'cloche-fiche')}
-         className={`${BUTTON} border-border text-muted hover:text-foreground`}>
-        <BellIcon on={false} /> Suivre en direct
+         className={`${BUTTON} border-border-strong text-foreground hover:bg-card-2`}>
+        <BellIcon on={false} />{' '}Suivre en direct
       </a>
     )
   }
@@ -74,8 +76,8 @@ export default function FollowButton({ slug }: { slug: string }) {
     <span className="inline-flex flex-wrap items-center gap-3">
       <button type="button" onClick={toggle} disabled={state === 'down' || busy} aria-pressed={on}
               title={state === 'down' ? 'Cloche indisponible pour le moment' : undefined}
-              className={`${BUTTON} ${on ? 'border-accent/50 text-foreground' : 'border-border text-muted hover:text-foreground'} disabled:opacity-60`}>
-        <BellIcon on={on} /> {on ? 'Suivi en direct' : 'Suivre en direct'}
+              className={`${BUTTON} ${on ? 'border-accent bg-card-2 text-foreground' : 'border-border-strong text-foreground hover:bg-card-2'} disabled:opacity-60`}>
+        <BellIcon on={on} />{' '}{on ? 'Suivi en direct' : 'Suivre en direct'}
       </button>
       {on && (
         <a href={`${labUrl(`${LAB_ORIGIN}/espace`, 'fiche-bot-cloche')}#suivis`} className={linkClass('inline', 'text-sm')}>

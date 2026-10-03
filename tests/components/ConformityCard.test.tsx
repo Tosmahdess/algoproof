@@ -18,22 +18,30 @@ const exp: BotExpectations = {
   dormancyNote: 'Bot tout neuf : historique en construction.',
 }
 
+// Refonte « Le registre des décisions », lot 3 (2026-10-02): the card became the body of
+// « Ce que j'avais fixé. Ce qui s'est passé. ». Its state pill moved to the verdict panel
+// under the title (tests/lib/bot-verdict.test.ts), so these tests read the values against
+// their thresholds instead of the pill.
 describe('ConformityCard', () => {
-  it('shows the in-envelope pill and both checks when conforming', () => {
+  it('shows each value against its published threshold when conforming', () => {
     render(<ConformityCard expectations={exp} stats={{ profit_factor: 1.5, max_drawdown: 0.05, total_trades: 40 }} />)
-    expect(screen.getByText('Dans les limites attendues')).toBeInTheDocument()
-    expect(screen.getByText('Drawdown max')).toBeInTheDocument()
-    expect(screen.getByText('≥ 1,2')).toBeInTheDocument()
+    expect(screen.getByText('Pire baisse')).toBeInTheDocument()
+    expect(screen.getByText('Facteur de profit')).toBeInTheDocument()
+    expect(screen.getByText(/Attendu : au moins 1,2/)).toBeInTheDocument()
+    expect(screen.getByText(/Limite publiée : 15/)).toBeInTheDocument()
   })
 
-  it('shows the breach pill when DD blows the envelope', () => {
+  it('paints a crossed drawdown in the loss colour', () => {
     render(<ConformityCard expectations={exp} stats={{ profit_factor: 1.5, max_drawdown: 0.3, total_trades: 40 }} />)
-    expect(screen.getByText('Limites dépassées')).toBeInTheDocument()
+    expect(screen.getByText(/^30,0/).className).toContain('text-negative')
   })
 
-  it('shows insufficient-sample pill below 20 trades', () => {
+  it('below 20 trades the profit factor is not yet measurable: « — », uncoloured', () => {
     render(<ConformityCard expectations={exp} stats={{ profit_factor: 0, max_drawdown: 0.01, total_trades: 3 }} />)
-    expect(screen.getByText('Échantillon insuffisant')).toBeInTheDocument()
+    const pf = screen.getByText('Facteur de profit').closest('[data-testid="rule-row"]')!
+    expect(pf.textContent).toMatch(/pas encore mesurable/)
+    expect(pf.querySelector('dd')!.textContent).toBe('—')
+    expect(pf.querySelector('dd')!.className).not.toMatch(/text-negative|text-positive/)
   })
 
   it('always publishes the kill criteria and their registration date', () => {
@@ -43,13 +51,19 @@ describe('ConformityCard', () => {
     expect(screen.getByText(/1er janv\. 2026/)).toBeInTheDocument()
   })
 
-  it('shows the dormancy note only at 0 trades', () => {
-    const { rerender } = render(
-      <ConformityCard expectations={exp} stats={{ profit_factor: 0, max_drawdown: 0, total_trades: 0 }} />,
-    )
-    expect(screen.getByText(/historique en construction/)).toBeInTheDocument()
-    rerender(<ConformityCard expectations={exp} stats={{ profit_factor: 1.2, max_drawdown: 0.01, total_trades: 5 }} />)
+  // The dormancy note moved to the verdict panel, which prints it once at 0 trades
+  // (tests/lib/bot-verdict.test.ts, « carries the dormancy note once »).
+  it('leaves the dormancy note to the verdict panel', () => {
+    render(<ConformityCard expectations={exp} stats={{ profit_factor: 0, max_drawdown: 0, total_trades: 0 }} />)
     expect(screen.queryByText(/historique en construction/)).not.toBeInTheDocument()
+  })
+
+  // Audit 2026-10, constat 6: a bot without a trade validated « Drawdown 0,0 % » on nothing.
+  it('zero trade: every value « — », not yet measurable, nothing coloured', () => {
+    const { container } = render(<ConformityCard expectations={exp} stats={{ profit_factor: 0, max_drawdown: 0, total_trades: 0 }} />)
+    const values = [...container.querySelectorAll('[data-testid="rule-row"] dd')].map(d => d.textContent)
+    expect(values).toEqual(['—', '—'])
+    expect(container.querySelectorAll('[data-testid="rule-row"] .text-negative, [data-testid="rule-row"] .text-warning')).toHaveLength(0)
   })
 })
 
@@ -105,7 +119,6 @@ describe('ConformityCard never shows a breached rule alone', () => {
     expect(rule.textContent).toMatch(/Réexamen le 22 sept\. 2026/)
     expect(rule.textContent).toMatch(/tout l’historique affiché sur cette fiche/)
     expect(screen.queryByText(/aucune décision à ce jour/i)).toBeNull()
-    expect(document.body.textContent).toMatch(/sous la règle concernée/)
     // The rule itself is not rewritten: the commitment stays readable beside what I did.
     expect(screen.getByText('DD > 15 % → gel du bot.')).toBeInTheDocument()
   })
@@ -125,81 +138,28 @@ describe('ThreeSentences', () => {
   })
 })
 
-// 2026-09-19 (D057): on a phone the card took 772 px of v1-spot. Its table,
-// kill criteria and source fold; its title, status and verdict sentence do
-// not, so a folded card never shows a bare « Dans l'enveloppe ».
-describe('ConformityCard folds its detail on a phone, never its verdict', () => {
-  const ok = { profit_factor: 1.5, max_drawdown: 0.05, total_trades: 40 }
-
-  it('turns its title into a closed disclosure button, anchored #conformite', () => {
-    render(<ConformityCard expectations={exp} stats={ok} />)
-    const bouton = screen.getByRole('button', { name: /respecte-t-il les limites du backtest/ })
-    expect(bouton.getAttribute('aria-expanded')).toBe('false')
-    expect(bouton.className).toContain('sm:hidden')
-    expect(document.getElementById('conformite')!.tagName).toBe('H2')
+// Refonte lot 3 (2026-10-02): the card is no longer folded on a phone (D057 folded its
+// table and rules). The verdict sits in the panel under the title and the evidence here
+// stays in view, crossed rule and decision included. Constat 30: a value takes the colour
+// of its threshold, never a default red.
+describe('ConformityCard is never folded, and colours by threshold', () => {
+  it('has no disclosure button: the rules and the decision are in the page', () => {
+    render(<ConformityCard expectations={exp} stats={{ profit_factor: 0.9, max_drawdown: 0.3, total_trades: 40 }} />)
+    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.getByText('DD > 15 % → gel du bot.')).toBeVisible()
   })
 
-  it('keeps the status and the verdict sentence outside the folded body', () => {
-    render(<ConformityCard expectations={exp} stats={ok} />)
-    const corps = document.getElementById('conformite-corps')!
-    const verdict = screen.getByText('Le bot reste dans les limites attendues du backtest.')
-    expect(corps.contains(verdict)).toBe(false)
-    expect(corps.contains(screen.getByText('Dans les limites attendues'))).toBe(false)
-    // Said once: not repeated in the phone button.
-    expect(screen.getByRole('button').textContent).not.toContain('Dans les limites attendues')
-  })
-
-  it('folds the table, the kill criteria and the source', () => {
-    render(<ConformityCard expectations={exp} stats={ok} />)
-    const corps = document.getElementById('conformite-corps')!
-    expect(corps.contains(screen.getByText('Drawdown max'))).toBe(true)
-    expect(corps.contains(screen.getByText('Quand ce bot sera coupé'))).toBe(true)
-    expect(corps.contains(screen.getByText(/1er janv\. 2026/))).toBe(true)
-  })
-})
-
-describe('ConformityCard header on a phone', () => {
-  it('stacks the badge under the title below sm, and keeps the computer row', () => {
-    // At 390 px the badge (123 px) shared the row with the title, which kept
-    // 158 px: « 📏 » alone on a line, the title broken in two (capture 19/09).
-    render(<ConformityCard expectations={exp} stats={{ profit_factor: 1.5, max_drawdown: 0.05, total_trades: 40 }} />)
-    const rangee = document.getElementById('conformite')!.parentElement!
-    expect(rangee.className).toContain('flex-col')
-    for (const c of ['sm:flex-row', 'sm:items-center', 'sm:justify-between']) expect(rangee.className).toContain(c)
-    expect(screen.getByText('Dans les limites attendues').closest('span.inline-flex')!.className).toContain('self-start')
-  })
-})
-
-// Final review 2026-09-19: in breach, the verdict sentence points at the rule
-// (« écrit sous la règle concernée ») or admits there is no decision — and the
-// rules sit in the folded body. ORB is in exactly this state in production. A
-// breached card therefore opens by itself, on a phone too.
-describe('ConformityCard in breach opens by itself', () => {
-  const breached = { profit_factor: 0.9, max_drawdown: 0.3, total_trades: 40 }
-  const decided: BotExpectations = {
-    ...exp,
-    decisions: [{ rule: 'DD > 15 % → gel du bot.', date: '2026-09-19', status: 'pending',
-      scope: 'x', text: 'Décision en suspens.' }],
-  }
-
-  for (const [nom, attentes] of [['with a decision', decided], ['without one', exp]] as const) {
-    it(`opens, badge and verdict outside the body, ${nom}`, () => {
-      render(<ConformityCard expectations={attentes} stats={breached} />)
-      expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('true')
-      const corps = document.getElementById('conformite-corps')!
-      expect(corps.className).not.toContain('max-sm:hidden')
-      expect(corps.contains(screen.getByText('Limites dépassées'))).toBe(false)
-      expect(corps.contains(screen.getByText(/^Le bot dépasse les limites attendues/))).toBe(false)
-      expect(corps.contains(screen.getByText('DD > 15 % → gel du bot.'))).toBe(true)
-    })
-  }
-
-  it('stays folded on a phone when it is only under watch or too early', () => {
-    for (const stats of [{ profit_factor: 1.25, max_drawdown: 0.14, total_trades: 40 },
-                         { profit_factor: 0, max_drawdown: 0.01, total_trades: 3 }]) {
-      const { unmount } = render(<ConformityCard expectations={exp} stats={stats} />)
-      expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('false')
+  it('crossed in the loss colour, near in the reserve, held in ink', () => {
+    const tone = (stats: { profit_factor: number; max_drawdown: number; total_trades: number }) => {
+      const { container, unmount } = render(<ConformityCard expectations={exp} stats={stats} />)
+      const cls = container.querySelector('[data-testid="rule-row"] dd')!.className
       unmount()
+      return cls
     }
+    expect(tone({ profit_factor: 1.5, max_drawdown: 0.3, total_trades: 40 })).toContain('text-negative')
+    expect(tone({ profit_factor: 1.5, max_drawdown: 0.14, total_trades: 40 })).toContain('text-warning')
+    const held = tone({ profit_factor: 1.5, max_drawdown: 0.022, total_trades: 40 })
+    expect(held).toContain('text-foreground')
+    expect(held).not.toMatch(/text-negative|text-positive/)
   })
 })

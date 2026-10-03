@@ -100,7 +100,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
     if (!asset.dip_trigger_pct) return <span className="text-muted text-xs">N/D</span>
     if (asset.signal_level && ddPct !== null) {
       return (
-        <span className="text-xs font-mono" style={{ color: sigColor }}>
+        <span className="text-xs tabular-nums" style={{ color: sigColor }}>
           {ddPct.toFixed(1)}%
         </span>
       )
@@ -131,7 +131,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
             <div className="flex items-center gap-1.5">
               <span
                 className="text-xs font-mono font-bold group-hover:underline"
-                style={{ color: asset.tier === 1 ? 'var(--positive)' : '#888' }}
+                style={{ color: asset.tier === 1 ? 'var(--positive)' : 'var(--muted)' }}
               >
                 {asset.ticker} <span aria-hidden>↗</span>
               </span>
@@ -147,7 +147,7 @@ function AssetRow({ asset, lastAlerts, verdict }: { asset: GrowthAsset; lastAler
             <div className="flex items-center gap-1.5">
               <span
                 className="text-xs font-mono font-bold"
-                style={{ color: asset.tier === 1 ? 'var(--positive)' : '#888' }}
+                style={{ color: asset.tier === 1 ? 'var(--positive)' : 'var(--muted)' }}
               >
                 {asset.ticker}
               </span>

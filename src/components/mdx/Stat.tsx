@@ -60,12 +60,12 @@ export function Stat({ label, value, change, subtext, intent, trend }: StatProps
       </div>
       <div className="flex items-baseline gap-2 flex-wrap">
         <span
-          className={`font-mono tabular-nums text-2xl sm:text-3xl font-semibold ${valueColor[valueIntent]}`}
+          className={`tabular-nums text-2xl sm:text-3xl font-semibold ${valueColor[valueIntent]}`}
         >
           {value}
         </span>
         {change && (
-          <span className={`font-mono tabular-nums text-sm font-medium ${changeColor}`}>
+          <span className={`tabular-nums text-sm font-medium ${changeColor}`}>
             {change}
           </span>
         )}

@@ -26,7 +26,9 @@ import type { ReactNode } from 'react'
 interface Props {
   state: FleetFilterState
   counts: OptionCounts
-  activeCount: number
+  /** The desktop « Tout effacer »: off when nothing is filtered, and off in the
+   *  empty state, whose own « Retirer les filtres » is then the only reset. */
+  showReset: boolean
   onFamily: (f: Family | null) => void
   onTimeframe: (tf: string | null) => void
   onSide: (side: 'all' | 'long' | 'short') => void
@@ -34,10 +36,11 @@ interface Props {
   onReset: () => void
 }
 
-// The sorts a visitor is offered. History stays the default (fleet-sort.ts
-// header); the performance sorts are the ones asked for, best first.
-const SORTS: readonly SortKey[] = ['proven', 'profit_factor', 'pct', 'trades']
+// The sorts a visitor is offered. The result, best first, is the default since
+// 2026-10-02 (owner); history stays on offer.
+const SORTS: readonly SortKey[] = ['pnl', 'pct', 'profit_factor', 'trades', 'proven']
 const SORT_SHORT: Partial<Record<SortKey, string>> = {
+  pnl: 'Résultat',
   proven: 'Historique',
   profit_factor: 'Facteur de profit',
 }
@@ -55,7 +58,7 @@ function Field({ label, value, onChange, children }: {
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="h-10 w-full min-w-0 rounded-md border border-border bg-card px-2 text-base sm:text-xs font-mono text-foreground focus:border-accent focus:outline-none"
+        className="h-10 w-full min-w-0 rounded-md border border-border-strong bg-card px-2 text-base sm:text-xs tabular-nums text-foreground focus:border-accent"
       >
         {children}
       </select>
@@ -64,14 +67,18 @@ function Field({ label, value, onChange, children }: {
 }
 
 export default function FleetFilterBar({
-  state, counts, activeCount, onFamily, onTimeframe, onSide, onSort, onReset,
+  state, counts, showReset, onFamily, onTimeframe, onSide, onSort, onReset,
 }: Props) {
-  const timeframes = Object.keys(counts.timeframe).sort((a, z) => tfRank(a) - tfRank(z) || a.localeCompare(z))
+  // A horizon carried by the URL that no bot has (tf=M1) is still listed, at
+  // (0), so the list shows the filter that empties the register.
+  const timeframes = [...new Set([...Object.keys(counts.timeframe), ...state.timeframe])].sort((a, z) => tfRank(a) - tfRank(z) || a.localeCompare(z))
   const one = (list: string[]) => (list.length === 0 ? '' : list.length === 1 ? list[0] : MULTI)
-  // A zero-count option stays selectable (never `disabled`): the empty-state
-  // message that names the responsible filter must stay reachable.
-  const opt = (value: string, label: string, n: number) => (
-    <option key={value} value={value}>{`${label} (${n})`}</option>
+  // An option at « (0) » is disabled (audit 2026-10, n° 75): picking it could
+  // only empty the list. Each count is taken against the OTHER facets, so an
+  // enabled option never empties it. The option in force stays enabled even at
+  // zero (a shared URL can carry one), so the list still shows what filters.
+  const opt = (value: string, label: string, n: number, selected: boolean) => (
+    <option key={value} value={value} disabled={n === 0 && !selected}>{`${label} (${n})`}</option>
   )
 
   return (
@@ -80,21 +87,21 @@ export default function FleetFilterBar({
         <Field label="Famille" value={one(state.family)} onChange={v => onFamily(v && v !== MULTI ? (v as Family) : null)}>
           <option value="">Toutes</option>
           {state.family.length > 1 && <option value={MULTI}>{`${state.family.length} familles`}</option>}
-          {FAMILY_ORDER.map(f => opt(f, familyLabel(f), counts.family[f] ?? 0))}
+          {FAMILY_ORDER.map(f => opt(f, familyLabel(f), counts.family[f] ?? 0, state.family.includes(f)))}
         </Field>
 
         <Field label="Horizon" value={one(state.timeframe)} onChange={v => onTimeframe(v && v !== MULTI ? v : null)}>
           <option value="">Tous</option>
           {state.timeframe.length > 1 && <option value={MULTI}>{`${state.timeframe.length} horizons`}</option>}
-          {timeframes.map(tf => opt(tf, tf, counts.timeframe[tf] ?? 0))}
+          {timeframes.map(tf => opt(tf, tf, counts.timeframe[tf] ?? 0, state.timeframe.includes(tf)))}
         </Field>
 
         {/* Side is a SLICE (bot-filters.ts header): every row stays, its stats
             are recomputed on that side. */}
         <Field label="Sens des trades" value={state.side} onChange={v => onSide(v as 'all' | 'long' | 'short')}>
           <option value="all">Les deux</option>
-          {opt('long', 'Long', counts.side.long)}
-          {opt('short', 'Short', counts.side.short)}
+          {opt('long', 'Long', counts.side.long, state.side === 'long')}
+          {opt('short', 'Short', counts.side.short, state.side === 'short')}
         </Field>
 
         <Field label="Trier par" value={state.sort} onChange={v => onSort(v as SortKey)}>
@@ -104,7 +111,7 @@ export default function FleetFilterBar({
         </Field>
       </div>
 
-      {activeCount > 0 && (
+      {showReset && (
         <button type="button" onClick={onReset} className="hidden min-h-10 text-sm text-accent underline lg:inline-flex lg:items-center">
           Tout effacer
         </button>

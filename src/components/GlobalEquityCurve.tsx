@@ -50,21 +50,21 @@ export default function GlobalEquityCurve({ bots, days = 30 }: Props) {
         <LineChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <XAxis
             dataKey="date"
-            tick={{ fill: '#888', fontSize: 9 }}
+            tick={{ fill: '#a8b6ab', fontSize: 9 }}
             tickLine={false}
             axisLine={false}
             interval="preserveStartEnd"
             tickFormatter={d => d.slice(5)}
           />
           <YAxis
-            tick={{ fill: '#888', fontSize: 9 }}
+            tick={{ fill: '#a8b6ab', fontSize: 9 }}
             tickLine={false}
             axisLine={false}
             tickFormatter={v => `€${v.toFixed(0)}`}
             width={55}
           />
           <Tooltip
-            contentStyle={{ background: '#111', border: '1px solid #1e1e1e', fontSize: 11 }}
+            contentStyle={{ background: '#17211c', border: '1px solid #415449', fontSize: 11 }}
             formatter={(v: any, name: any) => {
               const bot = bots.find(b => b.slug === String(name))
               return [`€${Number(v).toFixed(2)}`, bot?.name ?? String(name)]

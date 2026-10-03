@@ -17,7 +17,7 @@ function errorOf(p: ParsedAmount): string | null {
     : 'Indique un montant en euros, par exemple 15 000 ou 1 500,50.'
 }
 
-const INPUT_CLASS = 'mt-1 w-full rounded-lg border bg-bg px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none'
+const INPUT_CLASS = 'mt-1 w-full rounded-lg border bg-bg px-3 py-2 text-sm text-foreground focus:border-accent'
 
 export default function CryptoTaxCalculator() {
   const [invested, setInvested] = useState('')
@@ -44,7 +44,7 @@ export default function CryptoTaxCalculator() {
               onChange={e => setInvested(e.target.value)} placeholder="1 000"
               aria-invalid={investedError ? true : undefined}
               aria-describedby={investedError ? investedErrorId : undefined}
-              className={`${INPUT_CLASS} ${investedError ? 'border-negative' : 'border-border'}`} />
+              className={`${INPUT_CLASS} ${investedError ? 'border-negative' : 'border-border-strong'}`} />
           </label>
           {investedError && <p id={investedErrorId} className="mt-1 text-xs text-negative">{investedError}</p>}
         </div>
@@ -55,7 +55,7 @@ export default function CryptoTaxCalculator() {
               onChange={e => setSold(e.target.value)} placeholder="1 500"
               aria-invalid={soldError ? true : undefined}
               aria-describedby={soldError ? soldErrorId : undefined}
-              className={`${INPUT_CLASS} ${soldError ? 'border-negative' : 'border-border'}`} />
+              className={`${INPUT_CLASS} ${soldError ? 'border-negative' : 'border-border-strong'}`} />
           </label>
           {soldError && <p id={soldErrorId} className="mt-1 text-xs text-negative">{soldError}</p>}
         </div>
@@ -63,7 +63,7 @@ export default function CryptoTaxCalculator() {
           <span className="text-muted">Ta tranche (TMI)</span>
           <select aria-label="Tranche marginale d'imposition (TMI)" value={tmi}
             onChange={e => setTmi(parseFloat(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none">
+            className="mt-1 w-full rounded-lg border border-border-strong bg-bg px-3 py-2 text-sm text-foreground focus:border-accent">
             {TMI_BRACKETS.map(b => (
               <option key={b} value={b}>{TMI_LABELS[String(b)]}</option>
             ))}
@@ -80,13 +80,13 @@ export default function CryptoTaxCalculator() {
             <p className="text-muted">Tu es en moins-value : pas d&apos;impôt sur cette opération (les moins-values s&apos;imputent sur tes autres plus-values de l&apos;année).</p>
           ) : (
             <>
-              <div className="flex justify-between"><span className="text-muted">Plus-value</span><span data-testid="gain" className="font-mono text-foreground">{eur(r.gain)}</span></div>
-              <div className="flex justify-between"><span className="text-muted">Flat tax (31,4 %)</span><span className={`font-mono ${r.best === 'flat' ? 'text-positive' : 'text-muted'}`}>{eur(r.flat)}</span></div>
-              <div className="flex justify-between"><span className="text-muted">Au barème (TMI + 18,6 %)</span><span className={`font-mono ${r.best === 'bareme' ? 'text-positive' : 'text-muted'}`}>{eur(r.bareme)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Plus-value</span><span data-testid="gain" className="tabular-nums text-foreground">{eur(r.gain)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Flat tax (31,4 %)</span><span className={`tabular-nums ${r.best === 'flat' ? 'text-positive' : 'text-muted'}`}>{eur(r.flat)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Au barème (TMI + 18,6 %)</span><span className={`tabular-nums ${r.best === 'bareme' ? 'text-positive' : 'text-muted'}`}>{eur(r.bareme)}</span></div>
               {r.exempt && <p className="text-foreground">Total des cessions ≤ 305 € → <strong>exonéré</strong> cette année.</p>}
               <div className="flex justify-between border-t border-border pt-2">
                 <span className="font-semibold text-foreground">Impôt estimé</span>
-                <span data-testid="tax-due" className="font-mono font-bold text-foreground">{eur(r.taxDue)}</span>
+                <span data-testid="tax-due" className="tabular-nums font-bold text-foreground">{eur(r.taxDue)}</span>
               </div>
               <p data-testid="best" className="text-xs text-muted">Option la moins chère : {r.best === 'flat' ? 'la flat tax' : r.best === 'bareme' ? 'le barème progressif' : 'identique'}.</p>
             </>

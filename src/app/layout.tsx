@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { JetBrains_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
@@ -8,15 +9,26 @@ import PageHit from '@/components/PageHit'
 import JsonLd from '@/components/JsonLd'
 import { organizationJsonLd } from '@/lib/jsonld'
 
-// One grotesque for the body (lot 1 of the design audit, §3.2). Three weights,
-// no more: regular for prose, medium for labels, semibold for headings.
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
+// One grotesque for the whole site, figures included (refonte « Le registre des
+// décisions », lot 1, owner's choice of 2026-10-02). A variable font: the range
+// covers the four weights used, regular for prose, medium for labels, semibold
+// for headings, bold for the wordmark. Figures are set in this face with
+// `tabular-nums`; JetBrains Mono is kept for technical identifiers only.
+//
+// Self-hosted rather than through next/font/google: the Google file swaps the
+// comma for a figure-wide glyph under `tnum` (26,5 px against 63,5 px at 100 px),
+// so every amount read « 272 , 73 € ». scripts/fonts/build_schibsted.py builds
+// this copy, the same font with the comma taken out of `tnum` (SIL OFL 1.1).
+const schibstedGrotesk = localFont({
+  src: './fonts/SchibstedGrotesk-wght.woff2',
+  weight: '400 700',
+  style: 'normal',
   variable: '--font-sans',
   display: 'swap',
+  fallback: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
 })
 
+// Pairs, tickers, code: identifiers, never a figure.
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   weight: ['400', '500'],
@@ -42,7 +54,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`bg-bg ${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="fr" className={`bg-bg ${schibstedGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen flex flex-col">
         <JsonLd data={organizationJsonLd()} />
         {/* First focusable element on every page. Invisible until focused (see

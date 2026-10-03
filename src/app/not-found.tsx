@@ -3,8 +3,8 @@ import Link from 'next/link'
 
 export default function NotFound() {
   return (
-    <main className="min-h-[60vh] flex flex-col items-center justify-center gap-4 px-6 text-center">
-      <p className="font-mono text-5xl text-muted">404</p>
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 px-6 text-center">
+      <p className="tabular-nums text-5xl text-muted">404</p>
       <h1 className="text-xl font-semibold">Cette page n&apos;existe pas</h1>
       <p className="text-sm text-muted max-w-md">
         Le lien est peut-être périmé, ou la page a changé d&apos;adresse.
@@ -20,6 +20,6 @@ export default function NotFound() {
         <Link href="/overview" className={linkClass('inline')}>La flotte</Link>
         <Link href="/blog" className={linkClass('inline')}>Apprendre</Link>
       </div>
-    </main>
+    </div>
   )
 }

@@ -32,7 +32,7 @@ export default async function BibliothequePage() {
   const fr = (n: number) => n.toLocaleString('fr-FR')
 
   return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 pb-16">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 pb-16">
       <h1 className="text-3xl font-semibold tracking-tight mb-3">La bibliothèque</h1>
       <p className="text-sm sm:text-base text-muted mb-3 max-w-[62ch]">
         Chaque variante trouvée par mon moteur qui a passé mes épreuves de backtest est ici,
@@ -51,6 +51,6 @@ export default async function BibliothequePage() {
         <Link href="/overview" className={linkClass('inline')}>La flotte</Link>.
       </p>
       <LibraryIndex ideas={cards} />
-    </main>
+    </div>
   )
 }

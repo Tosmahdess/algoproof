@@ -44,7 +44,7 @@ export function MagicLinkForm({ redirectTo }: { redirectTo: string }) {
       {error && <p className="text-xs text-negative">{error}</p>}
       <button
         type="submit" disabled={busy}
-        className="w-full rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-bg hover:opacity-90 disabled:opacity-40"
+        className="w-full rounded-lg border border-accent bg-button px-4 py-2 text-sm font-semibold text-foreground hover:bg-card-2 disabled:opacity-40"
       >
         {busy ? '...' : 'Recevoir mon lien de connexion'}
       </button>

@@ -46,7 +46,9 @@ async function monter(nTrades: number, nShorts = 0) {
   return render(await BotFichePage({ params: Promise.resolve({ slug: 'v1-spot' }) }))
 }
 
-const titreTrades = () => screen.getByRole('heading', { level: 2, name: /Trades récents/ })
+// Refonte lot 3 (2026-10-02): the register's heading is « Trades clos », an h3 under the
+// section « Je laisse l'addition visible. ».
+const titreTrades = () => screen.getByRole('heading', { level: 3, name: /Trades clos/ })
 
 describe('/strategies/bot/[slug] — recent trades on a phone', () => {
   it('shows five rows on a phone, says so, and offers the rest', async () => {

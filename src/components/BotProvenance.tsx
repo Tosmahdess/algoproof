@@ -15,16 +15,13 @@ export default function BotProvenance({ campaign, candidate }: {
   candidate: ScreeningCandidate
 }) {
   return (
-    <aside data-testid="provenance"
-           className="rounded-lg border border-border p-4 text-sm space-y-1 mb-8">
-      <div className="text-xs font-semibold text-muted">D&apos;où vient ce bot</div>
+    // Refonte lot 3 (2026-10-02): the page gives this its section and its title
+    // (« D'où vient ce bot »); the block itself is plain text, no card.
+    <div data-testid="provenance" className="text-sm space-y-2 max-w-[68ch]">
       <p>
-        Issu de la campagne {campaign.base} {campaign.tf}, close le {frDate(campaign.judged_on)} :
-        {' '}{count(campaign.n_behaviors)} configurations jugées, {count(campaign.n_candidates)} retenues.
-        {candidate.null_pct !== null
-          ? ` Son contrôle contre le hasard est mesuré à ${fr(candidate.null_pct)} sur 100.`
-          : ''}
-        {' '}Elle est en observation : {candidate.forward_trades} trade{candidate.forward_trades > 1 ? 's' : ''} forward à ce jour.
+        {`Issu de la campagne ${campaign.base} ${campaign.tf}, close le ${frDate(campaign.judged_on)} : ${count(campaign.n_behaviors)} configurations jugées, ${count(campaign.n_candidates)} retenues.${
+          candidate.null_pct !== null ? ` Son contrôle contre le hasard est mesuré à ${fr(candidate.null_pct)} sur 100.` : ''
+        } Elle est en observation : ${candidate.forward_trades} trade${candidate.forward_trades > 1 ? 's' : ''} forward à ce jour.`}
       </p>
       <a
         href={labUrl('https://lab.algoproof.fr/cockpit/survivants', 'fiche-bot-provenance')}
@@ -32,8 +29,8 @@ export default function BotProvenance({ campaign, candidate }: {
         rel="noopener noreferrer"
         className={linkClass('inline')}
       >
-        Voir le dossier complet →
+        Voir le dossier complet ↗
       </a>
-    </aside>
+    </div>
   )
 }

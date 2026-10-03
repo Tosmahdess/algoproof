@@ -29,7 +29,7 @@ export default async function AProposPage() {
   const orb = getBotExpectations('orb-bf25')?.decisions?.at(-1) ?? null
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12 space-y-12">
+    <div className="max-w-3xl mx-auto px-6 py-12 space-y-12">
       <h1 className="text-3xl font-semibold tracking-tight">À propos</h1>
 
       <section>
@@ -112,6 +112,6 @@ export default async function AProposPage() {
           )}
         </ul>
       </section>
-    </main>
+    </div>
   )
 }

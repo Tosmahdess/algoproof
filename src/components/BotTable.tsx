@@ -59,14 +59,14 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                   {hasData && isLowSample(bot.stats.total_trades) && <RodageTag />}
                 </span>
                 {hasData
-                  ? <span className={`shrink-0 font-mono text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
+                  ? <span className={`shrink-0 tabular-nums text-sm font-medium ${pct < 0 ? 'text-negative' : 'text-positive'}`}>{fmtPct(pct)}</span>
                   : <span className="shrink-0 text-xs text-muted">—</span>}
               </span>
-              <span className="text-xs text-muted font-mono">
+              <span className="text-xs text-muted tabular-nums">
                 {familyLabel(bot.family)}{showTf && ` · ${bot.timeframe}`}
                 {hasData ? (
                   <>
-                    {` · ${bot.stats.total_trades} trades · PF ${fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor)} · `}
+                    {` · ${bot.stats.total_trades} ${bot.stats.total_trades > 1 ? 'trades' : 'trade'} · PF ${fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor)} · `}
                     <span className={drawdownIsLoss(bot.stats.max_drawdown) ? 'text-negative' : undefined}>DD {fmtDrawdown(bot.stats.max_drawdown)}</span>
                   </>
                 ) : ' · pas encore de trade'}
@@ -121,9 +121,9 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                     </span>
                   </td>
                   {showTf && (
-                    <td className="px-4 py-3 font-mono">{bot.timeframe}</td>
+                    <td className="px-4 py-3 tabular-nums">{bot.timeframe}</td>
                   )}
-                  <td className="px-4 py-3 text-right font-mono">
+                  <td className="px-4 py-3 text-right tabular-nums">
                     {hasData ? (
                       <span className={isLowSample(bot.stats.total_trades) ? 'text-warning/90' : ''}
                         title={isLowSample(bot.stats.total_trades) ? 'Échantillon faible (<20 trades) : métriques peu fiables' : undefined}>
@@ -132,25 +132,25 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                     ) : <span className="text-muted">—</span>}
                   </td>
                   <td
-                    className="px-4 py-3 text-right font-mono hidden lg:table-cell"
+                    className="px-4 py-3 text-right tabular-nums hidden lg:table-cell"
                     title={hasData && isCarryFamily(bot.family) ? CARRY_METRIC_TOOLTIP : undefined}
                   >
                     {hasData ? fmtWinRateDisplay(bot.family, bot.stats.total_trades, bot.stats.win_rate) : <span className="text-muted">—</span>}
                   </td>
                   <td
-                    className={`px-4 py-3 text-right font-mono hidden lg:table-cell ${hasData && !isCarryFamily(bot.family) ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}
+                    className={`px-4 py-3 text-right tabular-nums hidden lg:table-cell ${hasData && !isCarryFamily(bot.family) ? (bot.stats.profit_factor >= 1 ? 'text-positive' : 'text-negative') : ''}`}
                     title={hasData && isCarryFamily(bot.family) ? CARRY_METRIC_TOOLTIP : undefined}
                   >
                     {hasData ? fmtPfDisplay(bot.family, bot.stats.total_trades, bot.stats.profit_factor) : <span className="text-muted">—</span>}
                   </td>
-                  <td className={`px-4 py-3 text-right font-mono hidden lg:table-cell ${hasData && drawdownIsLoss(bot.stats.max_drawdown) ? 'text-negative' : ''}`}>
+                  <td className={`px-4 py-3 text-right tabular-nums hidden lg:table-cell ${hasData && drawdownIsLoss(bot.stats.max_drawdown) ? 'text-negative' : ''}`}>
                     {hasData ? fmtDrawdown(bot.stats.max_drawdown) : <span className="text-muted">—</span>}
                   </td>
                   <td className="px-4 py-3 text-right">
                     {hasData ? (
                       <div>
-                        <span className={`font-mono font-bold ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</span>
-                        <span className={`block text-xs font-mono ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
+                        <span className={`tabular-nums font-bold ${eur >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtEur(eur)}</span>
+                        <span className={`block text-xs tabular-nums ${pnlPct(bot.stats.latest_capital, bot.start_capital) >= 0 ? 'text-positive' : 'text-negative'}`}>{fmtPct(pnlPct(bot.stats.latest_capital, bot.start_capital))}</span>
                       </div>
                     ) : <span className="text-muted">—</span>}
                   </td>
@@ -158,10 +158,11 @@ export default function BotTable({ bots, showTf, fleetTotalAbove = false }: BotT
                     <StatusBadge status={bot.status} />
                   </td>
                   {withSpark && (
-                    // The line inherits the colour of the gain (currentColor): decoration
-                    // for scanning, the figures on the row carry the facts.
-                    <td data-testid="bot-spark" className={`px-4 py-2 hidden lg:table-cell ${eur < 0 ? 'text-negative' : 'text-positive'}`}>
-                      {bot.spark30 && bot.spark30.length >= 2 && <Sparkline values={bot.spark30} width={88} height={20} />}
+                    // The line is drawn in the note colour (refonte « registre », lot 4):
+                    // coloured by the result since the start, it painted a 30-day rise
+                    // red (audit 2026-10, n° 6 and 8). No line at all without a trade.
+                    <td data-testid="bot-spark" className="px-4 py-2 hidden lg:table-cell text-muted">
+                      {hasData && bot.spark30 && bot.spark30.length >= 2 && <Sparkline values={bot.spark30} width={88} height={20} />}
                     </td>
                   )}
                 </tr>

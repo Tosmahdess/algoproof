@@ -24,7 +24,7 @@ export type LinkRole = (typeof LINK_ROLES)[number]
 // The ring without a radius, for roles that carry their own: `rounded-sm` is
 // emitted after `rounded-lg` in the built CSS, so appending it to a card
 // squared every card tile to 2px (found 2026-09-24, first real card call sites).
-const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg'
+const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg'
 const FOCUS = `${FOCUS_RING} rounded-sm`
 
 const ROLE_CLASS: Record<LinkRole, string> = {
