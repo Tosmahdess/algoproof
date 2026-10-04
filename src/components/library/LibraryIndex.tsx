@@ -18,11 +18,12 @@ import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import StickyFilterBar from '@/components/StickyFilterBar'
-import { simLine, type IdeaSort, type LibraryIdea } from '@/lib/library'
+import { FavoriteStar, FavoritesProvider } from '@/components/FavoritesProvider'
+import { scoreNote, simLine, type IdeaSort, type LibraryIdea } from '@/lib/library'
 import {
   EMPTY_LIBRARY_FILTERS, LIBRARY_PAGE, LIBRARY_SORTS, LIBRARY_SORT_LABEL, LIBRARY_SORT_LINE,
   activeLibraryFilterCount, applyLibraryFilters, libraryOptionCounts, parseLibraryFilters,
-  serializeLibraryFilters, type LibraryFilterState, type LibraryStateFilter,
+  serializeLibraryFilters, solidSortNote, type LibraryFilterState, type LibraryStateFilter,
 } from '@/lib/library-filters'
 import { linkClass } from '@/lib/link-roles'
 
@@ -64,23 +65,27 @@ function Count({ n, label, note }: { n: number; label: string; note?: string | n
 
 const CELL = 'align-top max-md:block md:py-4 md:pl-4 md:text-right'
 
-function Row({ idea, live }: { idea: IdeaRowData; live: boolean }) {
+function Row({ idea, live, stars }: { idea: IdeaRowData; live: boolean; stars: boolean }) {
   return (
     <tr data-testid="library-row"
       className="border-b border-border max-md:grid max-md:grid-cols-2 max-md:gap-x-4 max-md:gap-y-3 max-md:py-4">
       <td className="align-top max-md:col-span-2 max-md:block md:py-4 md:pr-6">
-        {/* The name is a 44 px target; it rises into the row's padding, as on the fleet. */}
-        <Link href={`/bibliotheque/${idea.slug}`}
-          className={linkClass('record', '-my-2 inline-flex min-h-11 items-center text-base font-semibold leading-snug')}>
-          {`${idea.label} ${idea.tf}`}
-        </Link>
+        {/* The name is a 44 px target; it rises into the row's padding, as on the fleet.
+            The idea star sits beside it, never inside (two targets in one link). */}
+        <div className="-my-2 flex items-center gap-1">
+          <Link href={`/bibliotheque/${idea.slug}`}
+            className={linkClass('record', 'inline-flex min-h-11 items-center text-base font-semibold leading-snug')}>
+            {`${idea.label} ${idea.tf}`}
+          </Link>
+          {stars && <FavoriteStar kind="idea" slug={idea.slug} name={`${idea.label} ${idea.tf}`} />}
+        </div>
         <p className="text-xs text-muted">
           {`${idea.familyLabel} · ${TF_WORD[idea.tf] ?? idea.tf}`}
           <span className="md:hidden">{` · ${plural(idea.n_variants, 'variante', 'variantes')}`}</span>
         </p>
       </td>
       {live && <td className={CELL}><Count n={idea.n_live} label="Argent réel" /></td>}
-      <td className={CELL}><Count n={idea.n_paper} label="En simulation" note={simLine(idea)} /></td>
+      <td className={CELL}><Count n={idea.n_paper} label="En simulation" note={scoreNote(idea.score) ?? simLine(idea)} /></td>
       <td className={CELL}><Count n={idea.n_backtest} label="Backtest seul" /></td>
       <td className={`${CELL} max-md:hidden`}>
         <Count n={idea.n_variants} label="Variantes"
@@ -90,8 +95,13 @@ function Row({ idea, live }: { idea: IdeaRowData; live: boolean }) {
   )
 }
 
-export default function LibraryIndex({ ideas, initialState = EMPTY_LIBRARY_FILTERS }: {
+export default function LibraryIndex({ ideas, initialState = EMPTY_LIBRARY_FILTERS, defaultSort = EMPTY_LIBRARY_FILTERS.sort, stars = false }: {
   ideas: IdeaRowData[]; initialState?: LibraryFilterState
+  /** Idea stars and the « Les plus gardées » order (IDEA_STARS_LIVE on the page). */
+  stars?: boolean
+  /** The order an empty URL means: « Plus de variantes », or « Les plus solides » once
+   *  10 ideas are ranked (lot 2c, defaultLibrarySort on the server). */
+  defaultSort?: IdeaSort
 }) {
   const pathname = usePathname()
   const [state, setState] = useState<LibraryFilterState>(initialState)
@@ -100,16 +110,16 @@ export default function LibraryIndex({ ideas, initialState = EMPTY_LIBRARY_FILTE
   const focusRow = useRef<number | null>(null)
 
   useEffect(() => {
-    const onPop = () => setState(parseLibraryFilters(new URLSearchParams(window.location.search)))
+    const onPop = () => setState(parseLibraryFilters(new URLSearchParams(window.location.search), defaultSort))
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [])
+  }, [defaultSort])
 
   const push = useCallback((next: LibraryFilterState) => {
     setState(next)
-    const qs = serializeLibraryFilters(next).toString()
+    const qs = serializeLibraryFilters(next, defaultSort).toString()
     window.history.replaceState(window.history.state, '', qs ? `${pathname}?${qs}` : pathname)
-  }, [pathname])
+  }, [pathname, defaultSort])
 
   // A change of what is listed folds the list back to one page; a new order keeps it.
   const set = (patch: Partial<LibraryFilterState>) => push({ ...state, shown: LIBRARY_PAGE, ...patch })
@@ -187,7 +197,8 @@ export default function LibraryIndex({ ideas, initialState = EMPTY_LIBRARY_FILTE
               {opt('backtest', 'Aucune lancée', counts.state.backtest, state.state === 'backtest')}
             </Field>
             <Field label="Trier par" value={state.sort} onChange={v => push({ ...state, sort: v as IdeaSort })}>
-              {LIBRARY_SORTS.map(k => <option key={k} value={k}>{LIBRARY_SORT_LABEL[k]}</option>)}
+              {LIBRARY_SORTS.filter(k => k !== 'kept' || stars || state.sort === 'kept')
+                .map(k => <option key={k} value={k}>{LIBRARY_SORT_LABEL[k]}</option>)}
             </Field>
           </div>
           {!empty && active > 0 && (
@@ -205,6 +216,14 @@ export default function LibraryIndex({ ideas, initialState = EMPTY_LIBRARY_FILTE
           ? ` sur ${fr(ideas.length)}, ${plural(variants, 'variante', 'variantes')}.`
           : `, ${plural(variants, 'variante', 'variantes')}, classées ${LIBRARY_SORT_LINE[state.sort]}.`}
       </p>
+      {state.sort === 'solid' && (
+        <p data-testid="library-solid-note" className="-mt-2 mb-4 max-w-[72ch] text-sm text-muted">
+          {solidSortNote(ideas) ? `${solidSortNote(ideas)} ` : ''}
+          Le gain prudent, c’est le gain moyen d’un trade en simulation pour 1 000 € engagés, moins
+          sa marge d’erreur : il y a 9 chances sur 10 que la vraie moyenne soit au-dessus. Une
+          journée compte une fois, même quand plusieurs variantes de l’idée y ont pris le même trade.
+        </p>
+      )}
 
       {empty ? (
         <div data-testid="library-empty" className="border-t border-border pt-6">
@@ -221,6 +240,7 @@ export default function LibraryIndex({ ideas, initialState = EMPTY_LIBRARY_FILTE
         </div>
       ) : (
         <>
+          <FavoritesProvider kind="idea">
           <table data-testid="library-register" className="w-full border-collapse text-left max-md:block">
             <caption className="sr-only">{`Les idées de la bibliothèque, classées ${LIBRARY_SORT_LINE[state.sort]}`}</caption>
             <thead className="max-md:sr-only">
@@ -233,9 +253,10 @@ export default function LibraryIndex({ ideas, initialState = EMPTY_LIBRARY_FILTE
               </tr>
             </thead>
             <tbody ref={listRef} className="max-md:block">
-              {visible.map(i => <Row key={i.idea_key} idea={i} live={live} />)}
+              {visible.map(i => <Row key={i.idea_key} idea={i} live={live} stars={stars} />)}
             </tbody>
           </table>
+          </FavoritesProvider>
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
             <p data-testid="library-shown" className="text-xs tabular-nums text-muted" aria-live="polite">

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   EMPTY_LIBRARY_FILTERS, LIBRARY_PAGE, parseLibraryFilters, serializeLibraryFilters,
   applyLibraryFilters, libraryOptionCounts, activeLibraryFilterCount, LIBRARY_SORT_LINE,
+  defaultLibrarySort, solidSortNote, RANKED_IDEAS_FOR_DEFAULT,
   type LibraryFilterState,
 } from '@/lib/library-filters'
 import type { LibraryIdea } from '@/lib/library'
@@ -94,5 +95,63 @@ describe('library filters', () => {
   it('names the order in force with the words of the page', () => {
     expect(LIBRARY_SORT_LINE.size).toMatch(/nombre de variantes/)
     expect(LIBRARY_SORT_LINE.running).toMatch(/lancées/)
+  })
+})
+
+// Lot 2c: « Les plus solides en simulation » ranks ideas on their prudent gain (90 % lower
+// bound over entry days, src/lib/library-score.ts). It becomes the DEFAULT order by itself
+// once 10 ideas are ranked; until then the default stays « Plus de variantes », and an
+// explicit order in the URL always wins.
+describe('library sort « solides » and the automatic default', () => {
+  const sc = (days: number, prudent: number | null) =>
+    ({ days, trades: days, mean: prudent, prudent, ranked: prudent !== null })
+  const scored: Row[] = [
+    idea({ idea_key: 'A|H4', base: 'A', n_variants: 5, score: sc(12, null) }),
+    idea({ idea_key: 'B|D1', base: 'B', n_variants: 50, score: sc(31, -0.4) }),
+    idea({ idea_key: 'C|D1', base: 'C', n_variants: 7, score: sc(40, 2.1) }),
+    idea({ idea_key: 'D|H1', base: 'D', n_variants: 3, score: null }),
+    idea({ idea_key: 'E|H1', base: 'E', n_variants: 4, score: sc(20, null) }),
+  ]
+
+  it('puts ranked ideas first by prudent gain, then the others by entry days observed', () => {
+    expect(applyLibraryFilters(scored, state({ sort: 'solid' })).map(i => i.base)).toEqual(['C', 'B', 'E', 'A', 'D'])
+  })
+
+  it('stays on « Plus de variantes » until 10 ideas are ranked', () => {
+    expect(defaultLibrarySort(scored)).toBe('size')
+    const ten = Array.from({ length: 10 }, (_, k) => idea({ idea_key: `K${k}|D1`, base: `K${k}`, score: sc(30, 1) }))
+    expect(defaultLibrarySort([scored[0], ...ten.slice(0, 9)])).toBe('size')            // 9 ranked
+    expect(defaultLibrarySort(ten)).toBe('solid')
+    expect(RANKED_IDEAS_FOR_DEFAULT).toBe(10)
+  })
+
+  it('reads and writes the URL against the default in force', () => {
+    expect(parseLibraryFilters(new URLSearchParams(''), 'solid').sort).toBe('solid')
+    expect(parseLibraryFilters(new URLSearchParams('sort=size'), 'solid').sort).toBe('size')
+    expect(serializeLibraryFilters(state({ sort: 'solid' }), 'solid').toString()).toBe('')
+    expect(serializeLibraryFilters(state({ sort: 'size' }), 'solid').toString()).toBe('sort=size')
+    expect(serializeLibraryFilters(state({ sort: 'solid' })).toString()).toBe('sort=solid')
+  })
+
+  it('says when no ranked idea has a positive prudent gain yet', () => {
+    expect(solidSortNote(scored)).toBe(null)
+    expect(solidSortNote(scored.filter(i => i.base !== 'C'))).toMatch(/aucune idée classée n’a encore un gain prudent positif/)
+    expect(solidSortNote(scored.filter(i => !i.score?.ranked))).toMatch(/aucune idée n’a encore 30 journées/)
+    expect(LIBRARY_SORT_LINE.solid).toMatch(/gain prudent/)
+  })
+})
+
+// Lot 2: « Les plus gardées », ideas by how many readers keep them (the lab's definer
+// function library_idea_star_counts, merged by the page as `kept`). A sort, not a
+// leaderboard: the counts are never printed; ties fall back to size.
+describe('library sort « Les plus gardées »', () => {
+  it('orders by readers who keep the idea, then by variants', () => {
+    const rows = [idea({ idea_key: 'A|H4', base: 'A', n_variants: 5, kept: 2 }),
+      idea({ idea_key: 'B|D1', base: 'B', n_variants: 50, kept: 0 }),
+      idea({ idea_key: 'C|D1', base: 'C', n_variants: 7, kept: 2 }),
+      idea({ idea_key: 'D|H1', base: 'D', n_variants: 3 })]
+    expect(applyLibraryFilters(rows, state({ sort: 'kept' })).map(i => i.base)).toEqual(['C', 'A', 'B', 'D'])
+    expect(parseLibraryFilters(new URLSearchParams('sort=kept')).sort).toBe('kept')
+    expect(LIBRARY_SORT_LINE.kept).toMatch(/gardent en favori/)
   })
 })

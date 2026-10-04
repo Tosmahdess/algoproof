@@ -4,7 +4,7 @@ import { getBotSlugs } from '@/lib/queries'
 import { getFicheSitemapData } from '@/lib/equity'
 import { asOf as investirAsOf, listeHorsPerimetre, listeInvestir } from '@/lib/investir'
 import { STRATEGY_FICHES } from '@/lib/strategy-library'
-import { getLibraryIdeas, ideaSlug } from '@/lib/library'
+import { getLaunchedVariantTwins, getLibraryIdeas, ideaSlug, numericTwinSlugs } from '@/lib/library'
 
 function getBlogSlugs(): string[] {
   try {
@@ -24,6 +24,10 @@ export default async function sitemap() {
   // their own unless they run (then they are bot fiches, listed above).
   let ideaKeys: string[] = []
   try { ideaKeys = (await getLibraryIdeas()).map(i => i.idea_key) } catch { /* same */ }
+  // A variant that differs from another of its idea only by its settings' values is
+  // noindex on its fiche (numericTwinPrimary): it must not be in the sitemap either.
+  let twins = new Set<string>()
+  try { twins = numericTwinSlugs(await getLaunchedVariantTwins()) } catch { /* same: none excluded */ }
 
   // Les fiches Investir. Lues d'un JSON committe, donc sans reseau et sans
   // try/catch : si le fichier manque, le build echoue, ce qui est la bonne
@@ -47,7 +51,7 @@ export default async function sitemap() {
   ]
 
   // Bot fiches: real, but they churn as the engine promotes and archives.
-  const botUrls = slugs.map(slug => ({
+  const botUrls = slugs.filter(slug => !twins.has(slug)).map(slug => ({
     url: `https://algoproof.fr/strategies/bot/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,

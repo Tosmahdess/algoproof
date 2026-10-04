@@ -12,6 +12,7 @@
 
 import { supabase } from './supabase'
 import { paginateAll } from './paginate'
+import { SCORE_MIN_DAYS, type IdeaScore } from './library-score'
 
 export interface LibraryIdea {
   idea_key: string
@@ -35,6 +36,12 @@ export interface LibraryIdea {
   pf_q3: number | null
   n_pf: number
   last_found_at: string | null
+  /** Lot 2c: the simulation score of the idea (library-score.ts), merged by the page;
+   *  null when no variant has a closed simulation trade. Not a column of the view. */
+  score?: IdeaScore | null
+  /** Lot 2: readers who keep this idea in favorites (library_idea_star_counts), merged
+   *  by the page to SORT « Les plus gardées ». Never printed. */
+  kept?: number
 }
 
 export interface LibraryVariant {
@@ -94,6 +101,35 @@ export async function getIdeaVariants(ideaKey: string): Promise<LibraryVariant[]
   return sortVariants(rows
     .map(v => ({ ...v, sim_trades: Number(v.sim_trades), sim_pnl: Number(v.sim_pnl),
       pf_backtest: v.pf_backtest == null ? null : Number(v.pf_backtest) })))
+}
+
+/** Every library variant that has a page (launched: real money, simulation or stopped),
+ *  with what numericTwinPrimary compares. ~200 rows; read by the sitemap and the fiches. */
+export async function getLaunchedVariantTwins(): Promise<TwinFields[]> {
+  return paginateAll(async (from, to) => {
+    const { data, error } = await supabase.from('library_variants')
+      .select('slug,name,status,idea_key,idea_rank,filter_keys,assets,found_at')
+      .neq('status', 'backtest').order('slug').range(from, to)
+    if (error) throw new Error(error.message)
+    return (data ?? []) as unknown as TwinFields[]
+  })
+}
+
+/** Idea stars (lot 2) need the lab to accept kind 'idea' (algolab migration 0029, then
+ *  its API deployed). Until then a click would fail: the stars and the « Les plus
+ *  gardées » option stay hidden. Flip to true once both are live. */
+export const IDEA_STARS_LIVE = false
+
+/** Lot 2, « Les plus gardées »: how many readers keep each idea, by idea slug, from the
+ *  lab's definer function (algolab migration 0029; counts only, never who). Empty when
+ *  the function is missing or fails: the sort then falls back to size. */
+export async function getIdeaStarCounts(): Promise<Record<string, number>> {
+  const { data, error } = await supabase.rpc('library_idea_star_counts')
+  if (error || !Array.isArray(data)) {
+    if (error) console.error('[library] idea star counts unavailable:', error.message)
+    return {}
+  }
+  return Object.fromEntries((data as { slug: string; n: number | string }[]).map(r => [r.slug, Number(r.n)]))
 }
 
 const STATE_ORDER: Record<string, number> = { live: 0, paper: 1, archived: 2, backtest: 3 }
@@ -214,10 +250,38 @@ export function simLine(i: LibraryIdea): string | null {
   return parts.filter(Boolean).join(', ')
 }
 
+export function signedOneDecimal(v: number): string {
+  const abs = Math.abs(v).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+  return abs === '0,0' ? abs : `${v > 0 ? '+' : '−'}${abs}`
+}
+
+/** The idea's simulation score in words (lot 2c), for the register's « En simulation »
+ *  cell. Ranked: the prudent gain, sign kept, never the raw mean alone. Unranked: how
+ *  many entry days it has against the 30 it needs. Null without a closed trade. */
+export function scoreNote(score: IdeaScore | null | undefined): string | null {
+  if (!score || score.days === 0) return null
+  const days = `${score.days.toLocaleString('fr-FR')} ${score.days > 1 ? 'journées' : 'journée'}`
+  if (score.ranked && score.prudent !== null) {
+    return `gain prudent ${signedOneDecimal(score.prudent)} € par trade pour 1 000 €, sur ${days}`
+  }
+  return `${days} de trading, j’en attends ${SCORE_MIN_DAYS} pour classer`
+}
+
 /** 'running' puts first the ideas with the most launched variants: a count of what
  *  runs, not a ranking on its result (D085 keeps « Plus de variantes » as the default
  *  until a ranking on the simulation is ripe). */
-export type IdeaSort = 'recent' | 'size' | 'az' | 'running'
+export type IdeaSort = 'recent' | 'size' | 'az' | 'running' | 'solid' | 'kept'
+
+/** Lot 2c « Les plus solides en simulation »: ranked ideas by prudent gain (90 % lower
+ *  bound), then the unranked by entry days observed (most proven first), then size. */
+function bySolid(a: LibraryIdea, b: LibraryIdea): number {
+  const pa = a.score?.ranked ? a.score.prudent : null
+  const pb = b.score?.ranked ? b.score.prudent : null
+  if (pa !== null && pb !== null) return pb - pa
+  if (pa !== null) return -1
+  if (pb !== null) return 1
+  return (b.score?.days ?? 0) - (a.score?.days ?? 0)
+}
 
 export function sortIdeas<T extends LibraryIdea>(ideas: T[], sort: IdeaSort): T[] {
   const az = (a: LibraryIdea, b: LibraryIdea) => a.base.localeCompare(b.base) || a.tf.localeCompare(b.tf)
@@ -226,5 +290,49 @@ export function sortIdeas<T extends LibraryIdea>(ideas: T[], sort: IdeaSort): T[
   if (sort === 'az') return copy.sort(az)
   if (sort === 'size') return copy.sort(size)
   if (sort === 'running') return copy.sort((a, b) => b.n_running - a.n_running || size(a, b))
+  if (sort === 'solid') return copy.sort((a, b) => bySolid(a, b) || size(a, b))
+  if (sort === 'kept') return copy.sort((a, b) => (b.kept ?? 0) - (a.kept ?? 0) || size(a, b))
   return copy.sort((a, b) => (b.last_found_at ?? '').localeCompare(a.last_found_at ?? '') || az(a, b))
+}
+
+// ---------------------------------------------------------------- numeric twins
+
+/** What a variant needs to be compared with its siblings (a bots / library_variants row). */
+export type TwinFields = {
+  slug: string
+  name: string
+  status: string
+  idea_key: string | null
+  filter_keys: string[] | null
+  assets: string[] | null
+  found_at: string | null
+  idea_rank: number | null
+}
+
+const twinKey = (v: TwinFields) =>
+  `${v.idea_key}|${[...(v.filter_keys ?? [])].sort().join(',')}|${[...(v.assets ?? [])].sort().join(',')}`
+
+/** Oldest first, then the smallest number, then the slug: the one that stays indexed. */
+function twinOrder(a: TwinFields, b: TwinFields): number {
+  return (a.found_at ?? '').localeCompare(b.found_at ?? '')
+    || (variantNumber(a) ?? Number.MAX_SAFE_INTEGER) - (variantNumber(b) ?? Number.MAX_SAFE_INTEGER)
+    || a.slug.localeCompare(b.slug)
+}
+
+/** Lot 2: a variant that differs from another of its idea only by the VALUES of its
+ *  settings (same idea, same filter names, same assets: the site never sees the values)
+ *  is noindex, the oldest staying indexed. Returns the slug of the one that stays when
+ *  `v` is a twin that does not, else null. Only variants with a page count (a
+ *  backtest-only survivor has none), and only library bots (idea_key set). */
+export function numericTwinPrimary(v: TwinFields, siblings: TwinFields[]): string | null {
+  if (!v.idea_key || v.status === 'backtest') return null
+  const key = twinKey(v)
+  const group = siblings.filter(s => s.status !== 'backtest' && s.idea_key && twinKey(s) === key)
+  const first = [...group].sort(twinOrder)[0]
+  return first && first.slug !== v.slug ? first.slug : null
+}
+
+/** Every variant of `variants` that is a twin and not the one that stays indexed. */
+export function numericTwinSlugs(variants: TwinFields[]): Set<string> {
+  return new Set(variants.filter(v => numericTwinPrimary(v, variants) !== null).map(v => v.slug))
 }

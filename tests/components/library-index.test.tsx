@@ -121,3 +121,38 @@ describe('LibraryIndex, default order', () => {
     expect(screen.getByTestId('library-count').textContent).toMatch(/classées par nombre de variantes/)
   })
 })
+
+// Lot 2c: the simulation score of an idea (library-score.ts) in the « En simulation »
+// cell, the order « Les plus solides en simulation », and the default order the page
+// hands down (it switches by itself once 10 ideas are ranked).
+describe('LibraryIndex, the simulation score (lot 2c)', () => {
+  const sc = (days: number, prudent: number | null) =>
+    ({ days, trades: days + 3, mean: prudent, prudent, ranked: prudent !== null })
+
+  it('says how many entry days an unranked idea has, and how many it needs', () => {
+    const { container } = render(<LibraryIndex ideas={[idea(4, { score: sc(11, null) }), idea(8, { score: sc(1, null) })]} />)
+    expect(container.textContent).toMatch(/11 journées de trading, j’en attends 30 pour classer/)
+    expect(container.textContent).toMatch(/1 journée de trading, j’en attends 30 pour classer/)
+  })
+
+  it('gives a ranked idea its prudent gain with its sign, never the raw mean alone', () => {
+    const { container } = render(<LibraryIndex ideas={[idea(4, { score: { ...sc(34, -1.44), mean: 3.2 } })]} />)
+    expect(container.textContent).toMatch(/gain prudent −1,4 € par trade pour 1 000 €, sur 34 journées/)
+    expect(container.textContent).not.toMatch(/3,2/)
+  })
+
+  it('explains the order and the prudent gain when the solid order is in force', () => {
+    render(<LibraryIndex ideas={[idea(4, { score: sc(11, null) })]} initialState={{ ...EMPTY_LIBRARY_FILTERS, sort: 'solid' }} />)
+    expect(screen.getByTestId('library-count').textContent).toMatch(/classées par gain prudent en simulation/)
+    expect(screen.getByTestId('library-solid-note').textContent).toMatch(/aucune idée n’a encore 30 journées/)
+    expect(screen.getByTestId('library-solid-note').textContent).toMatch(/9 chances sur 10/)
+  })
+
+  it('keeps the URL empty on the default order the page hands down', () => {
+    render(<LibraryIndex ideas={IDEAS} defaultSort="solid" initialState={{ ...EMPTY_LIBRARY_FILTERS, sort: 'solid' }} />)
+    fireEvent.change(screen.getByLabelText('Horizon'), { target: { value: 'D1' } })
+    expect(window.location.search).toBe('?tf=D1')
+    fireEvent.change(screen.getByLabelText('Trier par'), { target: { value: 'size' } })
+    expect(window.location.search).toBe('?tf=D1&sort=size')
+  })
+})

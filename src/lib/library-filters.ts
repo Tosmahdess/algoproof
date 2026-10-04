@@ -28,7 +28,24 @@ export const EMPTY_LIBRARY_FILTERS: LibraryFilterState = {
   q: '', tf: '', family: '', state: '', sort: 'size', shown: LIBRARY_PAGE,
 }
 
-const SORTS: readonly IdeaSort[] = ['size', 'running', 'recent', 'az']
+const SORTS: readonly IdeaSort[] = ['size', 'solid', 'kept', 'running', 'recent', 'az']
+
+/** Lot 2c: « Les plus solides en simulation » becomes the default order by itself once
+ *  this many ideas are ranked (30 entry days each); « Plus de variantes » until then. */
+export const RANKED_IDEAS_FOR_DEFAULT = 10
+
+export function defaultLibrarySort(ideas: LibraryIdea[]): IdeaSort {
+  return ideas.filter(i => i.score?.ranked).length >= RANKED_IDEAS_FOR_DEFAULT ? 'solid' : 'size'
+}
+
+/** Said under the register when the solid order is in force and could mislead: no idea
+ *  ranked yet, or every ranked one below zero (the order is then « the least bad »). */
+export function solidSortNote(ideas: LibraryIdea[]): string | null {
+  const ranked = ideas.filter(i => i.score?.ranked)
+  if (ranked.length === 0) return 'Pour l’instant aucune idée n’a encore 30 journées de trading en simulation : l’ordre suit le nombre de journées observées.'
+  if (ranked.every(i => (i.score?.prudent ?? 0) <= 0)) return 'Pour l’instant aucune idée classée n’a encore un gain prudent positif : en tête, les moins mauvaises.'
+  return null
+}
 
 /** The order in force, said under the register's title. */
 export const LIBRARY_SORT_LINE: Record<IdeaSort, string> = {
@@ -36,6 +53,8 @@ export const LIBRARY_SORT_LINE: Record<IdeaSort, string> = {
   running: 'par nombre de variantes lancées, la plus fournie en tête',
   recent: 'de la plus récemment trouvée par mon moteur à la plus ancienne',
   az: 'par ordre alphabétique de leur nom de moteur',
+  kept: 'par nombre de lecteurs qui les gardent en favori, puis par nombre de variantes',
+  solid: 'par gain prudent en simulation, puis celles qui n’ont pas encore 30 journées de trading par nombre de journées observées',
 }
 
 /** The short names of the sorts, in the list. */
@@ -44,6 +63,8 @@ export const LIBRARY_SORT_LABEL: Record<IdeaSort, string> = {
   running: 'Plus de variantes lancées',
   recent: 'Récentes',
   az: 'A-Z',
+  solid: 'Les plus solides en simulation',
+  kept: 'Les plus gardées',
 }
 export const LIBRARY_SORTS = SORTS
 
@@ -53,7 +74,7 @@ function pages(n: number): number {
   return Math.max(1, Math.ceil(n / LIBRARY_PAGE)) * LIBRARY_PAGE
 }
 
-export function parseLibraryFilters(sp: URLSearchParams): LibraryFilterState {
+export function parseLibraryFilters(sp: URLSearchParams, defaultSort: IdeaSort = EMPTY_LIBRARY_FILTERS.sort): LibraryFilterState {
   const state = sp.get('state')
   const sort = sp.get('sort')
   const n = Number(sp.get('n'))
@@ -62,18 +83,18 @@ export function parseLibraryFilters(sp: URLSearchParams): LibraryFilterState {
     tf: (sp.get('tf') ?? '').trim().toUpperCase(),
     family: (sp.get('family') ?? '').trim(),
     state: state === 'running' || state === 'backtest' ? state : '',
-    sort: (SORTS as readonly string[]).includes(sort ?? '') ? (sort as IdeaSort) : EMPTY_LIBRARY_FILTERS.sort,
+    sort: (SORTS as readonly string[]).includes(sort ?? '') ? (sort as IdeaSort) : defaultSort,
     shown: Number.isFinite(n) && n > LIBRARY_PAGE ? pages(n) : LIBRARY_PAGE,
   }
 }
 
-export function serializeLibraryFilters(s: LibraryFilterState): URLSearchParams {
+export function serializeLibraryFilters(s: LibraryFilterState, defaultSort: IdeaSort = EMPTY_LIBRARY_FILTERS.sort): URLSearchParams {
   const values: Record<(typeof PARAM_ORDER)[number], string> = {
     q: s.q.trim(),
     tf: s.tf,
     family: s.family,
     state: s.state,
-    sort: s.sort === EMPTY_LIBRARY_FILTERS.sort ? '' : s.sort,
+    sort: s.sort === defaultSort ? '' : s.sort,
     n: s.shown > LIBRARY_PAGE ? String(pages(s.shown)) : '',
   }
   const sp = new URLSearchParams()
