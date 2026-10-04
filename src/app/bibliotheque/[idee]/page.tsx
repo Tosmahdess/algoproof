@@ -12,8 +12,12 @@ import { notFound } from 'next/navigation'
 import VariantTable, { type VariantRow } from '@/components/library/VariantTable'
 import PrincipleSketch from '@/components/library/PrincipleSketch'
 import { LibraryFigure as Figure, LibraryFigures } from '@/components/library/LibraryFigures'
+import SimVsBacktest from '@/components/library/SimVsBacktest'
+import FavoriteButton from '@/components/FavoriteButton'
+import { getLibraryScores, getSelectionMean } from '@/lib/library-score-data'
+import type { IdeaScore } from '@/lib/library-score'
 import {
-  SIM_MIN_TRADES, filterLabel, getIdeaVariants, getLibraryIdeas, ideaKeyFromSlug, ideaSlug, simLine,
+  IDEA_STARS_LIVE, SIM_MIN_TRADES, filterLabel, getIdeaVariants, getLibraryIdeas, ideaKeyFromSlug, ideaSlug, simLine,
   variantNumber, variantState, waitReasonLabel, type LibraryVariant,
 } from '@/lib/library'
 import { engineBaseLabel } from '@/lib/engine-base-labels'
@@ -101,11 +105,26 @@ function statesInOrder(i: { n_live: number; n_paper: number; n_stopped: number; 
   return s.length > 1 ? `${s.slice(0, -1).join(', ')}, puis ${s[s.length - 1]}` : (s[0] ?? '')
 }
 
+/** Lot 2c: the idea's simulation score and, once it is ranked, the selection backtest of
+ *  its launched variants. A failed read costs the block's figures, never the page. */
+async function simVsBacktest(ideaKey: string, launched: LibraryVariant[]): Promise<{ score: IdeaScore | null; backtestMean: number | null }> {
+  try {
+    const score = (await getLibraryScores())[ideaKey] ?? null
+    const backtestMean = score?.ranked ? await getSelectionMean(launched.map(v => v.slug).sort()) : null
+    return { score, backtestMean }
+  } catch (e) {
+    console.error('[bibliotheque/idee] score unavailable:', e instanceof Error ? e.message : e)
+    return { score: null, backtestMean: null }
+  }
+}
+
 export default async function IdeaPage({ params }: { params: Promise<{ idee: string }> }) {
   const { idee } = await params
   const data = await load(idee)
   if (!data) notFound()
   const { idea, variants } = data
+  const launched = variants.filter(v => v.status === 'paper' || v.status === 'live' || v.status === 'archived')
+  const { score, backtestMean } = await simVsBacktest(idea.idea_key, launched)
   const name = `${engineBaseLabel(idea.base)} ${idea.tf}`
   const fiche = FICHE_BY_ENGINE_BASE[idea.base] ? getStrategyFiche(FICHE_BY_ENGINE_BASE[idea.base]) : null
   const rows = variants.map(toRow)
@@ -131,7 +150,10 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
 
       <header className="pt-2">
         <p className="text-sm text-muted">{`${familyLabel(idea.family as Family)} · ${TF_WORD[idea.tf] ?? idea.tf} · Binance Futures`}</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{name}</h1>
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{name}</h1>
+          {IDEA_STARS_LIVE && <FavoriteButton slug={idee} kind="idea" appearance="registre" />}
+        </div>
 
         <div className="mt-6 grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] md:gap-10">
           <div className="max-w-[64ch]">
@@ -166,6 +188,8 @@ export default async function IdeaPage({ params }: { params: Promise<{ idee: str
           </p>
         )}
       </div>
+
+      <SimVsBacktest launched={launched.length} score={score} backtestMean={backtestMean} />
 
       <section aria-labelledby="variants-title" className="mt-10 border-t border-border pt-9">
         <h2 id="variants-title" className="text-2xl font-semibold tracking-tight">

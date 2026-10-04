@@ -38,16 +38,37 @@ import { breadcrumbName } from '@/lib/trade-ledger'
 import { fmtEur, frNumber, NARROW_NBSP, pnlPct } from '@/lib/display'
 import { longDate, longDateOrdinal } from '@/lib/format-date'
 import { readingDate } from '@/lib/home-register'
+import { unstable_cache } from 'next/cache'
+import { getLaunchedVariantTwins, numericTwinPrimary, type TwinFields } from '@/lib/library'
 
 export const revalidate = 1800
 export const dynamicParams = true
 
+// Only the real-money fiches are rendered at build (chantier bibliotheque, lot 2): the
+// engine adds bots by the hundred, and every fiche read its trades and its segment at
+// build. The others render on their first visit and are cached like the rest
+// (revalidate above); dynamicParams keeps their URLs reachable, getBotWithStats keeps a
+// backtest-only survivor a 404 (tests/app/bot-slug-routes.test.tsx).
 export async function generateStaticParams() {
   try {
-    const slugs = await getBotSlugs()
+    const slugs = await getBotSlugs({ status: 'live' })
     return slugs.map(slug => ({ slug }))
   } catch {
     return []
+  }
+}
+
+const getTwinsCached = unstable_cache(getLaunchedVariantTwins, ['library-variant-twins'], { revalidate: 1800, tags: ['library'] })
+
+/** Lot 2: a library variant that differs from an older sibling only by its settings'
+ *  values is noindex (numericTwinPrimary); its links stay followed. A failed read
+ *  leaves the page indexable, as it was. */
+async function isNumericTwin(bot: TwinFields): Promise<boolean> {
+  if (!bot.idea_key) return false
+  try {
+    return numericTwinPrimary(bot, await getTwinsCached()) !== null
+  } catch {
+    return false
   }
 }
 
@@ -55,6 +76,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const bot = await getBotWithStats(slug)
   if (!bot) return {}
+  const twin = await isNumericTwin(bot as unknown as TwinFields)
   // Same figures as the fiche's tiles: the simulation since the freeze when there is one.
   const stats = (await getBotSimulation(bot))?.stats ?? bot.stats
   return {
@@ -64,6 +86,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: 'website',
       url: `https://algoproof.fr/strategies/bot/${slug}`,
     },
+    ...(twin ? { robots: { index: false, follow: true } } : {}),
   }
 }
 

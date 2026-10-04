@@ -52,14 +52,15 @@ export async function getBots(): Promise<Bot[]> {
   return rows.map(withStartCapital) as Bot[]
 }
 
-export async function getBotSlugs(): Promise<string[]> {
+export async function getBotSlugs(opts: { status?: 'live' } = {}): Promise<string[]> {
   // Paged and ordered for the same reason as getBots: it feeds the sitemap, the fiches'
   // static params and the concept-page redirects.
   const rows = await paginateAll(async (from, to) => {
-    const { data, error } = await supabase
+    const q = supabase
       .from('bots')
       .select('slug')
       .not('status', 'in', PUBLIC_STATUS_EXCLUSION)
+    const { data, error } = await (opts.status ? q.eq('status', opts.status) : q)
       .order('slug')
       .range(from, to)
     if (error) throw new Error(error.message)

@@ -85,6 +85,23 @@ describe('getBots', () => {
 describe('getBotSlugs', () => {
   beforeEach(() => vi.clearAllMocks())
 
+  // Lot 2 (chantier bibliotheque): the bot fiches are no longer ALL rendered at build;
+  // only the real-money ones (the most visited), the rest on first visit (ISR, 30 min).
+  it('can narrow to the real-money bots, for the fiches rendered at build', async () => {
+    const chain = mockChain([{ slug: 'v1-spot' }])
+    vi.mocked(supabase.from).mockReturnValue(chain)
+    expect(await getBotSlugs({ status: 'live' })).toEqual(['v1-spot'])
+    expect(chain.eq).toHaveBeenCalledWith('status', 'live')
+    expect(chain.not).toHaveBeenCalledWith('status', 'in', '("frozen","backtest")')
+  })
+
+  it('does not narrow by default', async () => {
+    const chain = mockChain([])
+    vi.mocked(supabase.from).mockReturnValue(chain)
+    await getBotSlugs()
+    expect(chain.eq).not.toHaveBeenCalled()
+  })
+
   it('returns slug array from data', async () => {
     vi.mocked(supabase.from).mockReturnValue(mockChain([{ slug: 'v1-spot' }, { slug: 'v1-hl' }]))
     const result = await getBotSlugs()

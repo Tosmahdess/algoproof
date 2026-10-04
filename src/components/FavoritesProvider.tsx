@@ -78,6 +78,14 @@ export function FavoritesProvider({ kind, children }: { kind: FavoriteKind; chil
   )
 }
 
+// What a guest's star says it would keep, in the kind's own word.
+const GUEST_TITLE: Record<FavoriteKind, string> = {
+  bot: 'Connecte-toi pour garder ce bot dans ton espace',
+  idea: 'Connecte-toi pour garder cette idée dans ton espace',
+  strategy: 'Connecte-toi pour garder cette stratégie dans ton espace',
+  company: 'Connecte-toi pour garder cette société dans ton espace',
+}
+
 const STAR = 'inline-flex items-center justify-center min-h-11 min-w-11 rounded-md text-base leading-none transition-colors'
 
 export function FavoriteStar({ kind, slug, name }: { kind: FavoriteKind; slug: string; name: string }) {
@@ -92,7 +100,7 @@ export function FavoriteStar({ kind, slug, name }: { kind: FavoriteKind; slug: s
   if (ctx.state === 'guest') {
     return (
       <a href={signInHref(path)} aria-label={`Garder ${name} en favori`}
-         title="Connecte-toi pour garder ce bot dans ton espace"
+         title={GUEST_TITLE[kind]}
          className={`${STAR} text-muted hover:text-foreground`}>
         <StarIcon on={false} className="h-4 w-4" />
       </a>

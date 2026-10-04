@@ -6,7 +6,7 @@
 import { createSupabaseAuthBrowser } from '@/lib/supabase-auth-browser'
 import { LAB_API_ORIGIN } from '@/lib/lab-links'
 
-export type FavoriteKind = 'bot' | 'strategy' | 'company'
+export type FavoriteKind = 'bot' | 'strategy' | 'company' | 'idea'
 
 /** 401: the session is gone, the reader must sign in again. */
 export class Expired extends Error {}
@@ -58,6 +58,7 @@ export async function listFavoriteSlugs(kind: FavoriteKind, token: string): Prom
 export function pagePath(kind: FavoriteKind, slug: string): string {
   if (kind === 'bot') return `/strategies/bot/${slug}`
   if (kind === 'strategy') return `/strategies/${slug}`
+  if (kind === 'idea') return `/bibliotheque/${slug}`
   return `/investir/${slug}`
 }
 

@@ -14,8 +14,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { unstable_cache } from 'next/cache'
 import LibraryIndex, { type IdeaRowData } from '@/components/library/LibraryIndex'
-import { getLibraryIdeas, ideaSlug } from '@/lib/library'
-import { parseLibraryFilters } from '@/lib/library-filters'
+import { IDEA_STARS_LIVE, getIdeaStarCounts, getLibraryIdeas, ideaSlug } from '@/lib/library'
+import { defaultLibrarySort, parseLibraryFilters } from '@/lib/library-filters'
+import { getLibraryScores } from '@/lib/library-score-data'
+import type { IdeaScore } from '@/lib/library-score'
 import { engineBaseLabel } from '@/lib/engine-base-labels'
 import { familyLabel, type Family } from '@/lib/families'
 import { linkClass } from '@/lib/link-roles'
@@ -31,6 +33,7 @@ export const metadata: Metadata = {
 
 // About 80 rows of counts: far under the data cache's 2 MB ceiling (queries.ts).
 const getIdeasCached = unstable_cache(getLibraryIdeas, ['library-ideas'], { revalidate: 1800, tags: ['library'] })
+const getStarCountsCached = unstable_cache(getIdeaStarCounts, ['library-idea-star-counts'], { revalidate: 1800, tags: ['library'] })
 
 function toURLSearchParams(sp: Record<string, string | string[] | undefined>): URLSearchParams {
   const params = new URLSearchParams()
@@ -43,20 +46,34 @@ function toURLSearchParams(sp: Record<string, string | string[] | undefined>): U
 
 const fr = (n: number) => n.toLocaleString('fr-FR')
 
+/** Lot 2c scores; a failed read costs the scores, never the page (the rows fall back to
+ *  the per-variant split and the default order stays « Plus de variantes »). */
+async function scoresOrEmpty(): Promise<Record<string, IdeaScore>> {
+  try {
+    return await getLibraryScores()
+  } catch (e) {
+    console.error('[bibliotheque] scores unavailable:', e instanceof Error ? e.message : e)
+    return {}
+  }
+}
+
 interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 export default async function BibliothequePage({ searchParams }: Props) {
-  const [ideas, sp] = await Promise.all([getIdeasCached(), searchParams])
+  const [ideas, scores, kept, sp] = await Promise.all([getIdeasCached(), scoresOrEmpty(), getStarCountsCached(), searchParams])
   const rows: IdeaRowData[] = ideas.map(i => ({
     ...i,
+    score: scores[i.idea_key] ?? null,
+    kept: kept[ideaSlug(i.idea_key)] ?? 0,
     slug: ideaSlug(i.idea_key),
     label: engineBaseLabel(i.base),
     familyLabel: familyLabel(i.family as Family),
   }))
   const sum = (k: 'n_variants' | 'n_live' | 'n_paper' | 'n_backtest') => rows.reduce((n, i) => n + i[k], 0)
   const live = sum('n_live')
+  const defaultSort = defaultLibrarySort(rows)
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 sm:pt-12 pb-16">
@@ -89,7 +106,8 @@ export default async function BibliothequePage({ searchParams }: Props) {
         <h2 id="library-register-title" className="mb-5 text-2xl font-semibold tracking-tight">
           Toutes les idées{' '}<span className="font-normal tabular-nums text-muted">{fr(rows.length)}</span>
         </h2>
-        <LibraryIndex ideas={rows} initialState={parseLibraryFilters(toURLSearchParams(sp))} />
+        <LibraryIndex ideas={rows} defaultSort={defaultSort} stars={IDEA_STARS_LIVE}
+          initialState={parseLibraryFilters(toURLSearchParams(sp), defaultSort)} />
       </section>
     </div>
   )

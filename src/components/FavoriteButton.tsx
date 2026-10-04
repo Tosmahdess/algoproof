@@ -79,7 +79,7 @@ export default function FavoriteButton({ slug, kind = 'bot', appearance = 'defau
     return (
       <a
         href={signInHref(pagePath(kind, slug))}
-        title="Connecte-toi pour le garder et le retrouver dans ton espace"
+        title={kind === 'idea' ? 'Connecte-toi pour la garder et la retrouver dans ton espace' : 'Connecte-toi pour le garder et le retrouver dans ton espace'}
         className={registre
           ? `${REGISTRE} border-border-strong text-foreground hover:bg-card-2`
           : `${BUTTON} border-border text-muted hover:text-foreground`}
